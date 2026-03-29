@@ -47,11 +47,7 @@ const config = {
       },
     ],
   },
-  transpilePackages: [
-    "@tamias/ui",
-    "@tamias/tailwind",
-    "@tamias/invoice",
-  ],
+  transpilePackages: ["@tamias/ui", "@tamias/tailwind", "@tamias/invoice"],
   serverExternalPackages: ["@react-pdf/renderer", "pino"],
   typescript: {
     ignoreBuildErrors: true,
@@ -64,7 +60,11 @@ const config = {
         headers: [
           {
             key: "X-Frame-Options",
-            value: "DENY",
+            value: "SAMEORIGIN",
+          },
+          {
+            key: "Content-Security-Policy",
+            value: "frame-ancestors 'self';",
           },
         ],
       },
