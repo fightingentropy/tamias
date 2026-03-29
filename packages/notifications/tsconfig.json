@@ -1,0 +1,14 @@
+{
+  "extends": "@tamias/tsconfig/base.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

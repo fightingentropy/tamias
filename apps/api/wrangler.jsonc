@@ -1,0 +1,68 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "tamias-api-preview",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-03-28",
+  "compatibility_flags": ["nodejs_compat"],
+  // Teller requires a Cloudflare mTLS certificate binding named
+  // TELLER_MTLS_CERTIFICATE. Upload the client cert once with:
+  // bunx wrangler mtls-certificate upload --cert teller-cert.pem --key teller-key.pem --name teller
+  // Then add the returned certificate_id under `mtls_certificates` for this
+  // worker and each environment below.
+  "observability": {
+    "enabled": true
+  },
+  "services": [
+    {
+      "binding": "ASYNC_WORKER",
+      "service": "tamias-async-preview",
+      "entrypoint": "AsyncBridgeService"
+    }
+  ],
+  "vars": {
+    "TAMIAS_ENVIRONMENT": "development",
+    "DASHBOARD_URL": "http://localhost:3001",
+    "WEBSITE_URL": "http://localhost:3000",
+    "API_URL": "http://localhost:3003"
+  },
+  "env": {
+    "staging": {
+      "name": "tamias-api-staging",
+      "services": [
+        {
+          "binding": "ASYNC_WORKER",
+          "service": "tamias-async-staging",
+          "entrypoint": "AsyncBridgeService"
+        }
+      ],
+      "vars": {
+        "TAMIAS_ENVIRONMENT": "staging",
+        "DASHBOARD_URL": "https://staging.tamias.xyz",
+        "WEBSITE_URL": "https://staging.tamias.xyz",
+        "API_URL": "https://api-staging.tamias.xyz"
+      }
+    },
+    "production": {
+      "name": "tamias-api",
+      "routes": [
+        {
+          "pattern": "api.tamias.xyz",
+          "custom_domain": true
+        }
+      ],
+      "services": [
+        {
+          "binding": "ASYNC_WORKER",
+          "service": "tamias-async",
+          "entrypoint": "AsyncBridgeService"
+        }
+      ],
+      "vars": {
+        "TAMIAS_ENVIRONMENT": "production",
+        "DASHBOARD_URL": "https://app.tamias.xyz",
+        "WEBSITE_URL": "https://tamias.xyz",
+        "API_URL": "https://api.tamias.xyz"
+      }
+    }
+  }
+}

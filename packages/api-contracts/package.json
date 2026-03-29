@@ -1,0 +1,24 @@
+{
+  "name": "@tamias/api-contracts",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "private": true,
+  "sideEffects": false,
+  "scripts": {
+    "clean": "rm -rf .turbo node_modules",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "typecheck": "echo 'Types validated by @tamias/api and consumer packages'"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./trpc": "./src/trpc.ts"
+  },
+  "dependencies": {
+    "@tamias/api": "workspace:*"
+  },
+  "devDependencies": {
+    "@tamias/tsconfig": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

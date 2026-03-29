@@ -1,0 +1,15 @@
+{
+  "name": "@tamias/cache",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {},
+  "scripts": {
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "typecheck": "tsc --noEmit"
+  },
+  "exports": {
+    "./chat-cache": "./src/chat-cache.ts",
+    "./banking-cache": "./src/banking-cache.ts"
+  }
+}

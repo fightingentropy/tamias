@@ -1,0 +1,31 @@
+{
+  "name": "@tamias/notifications",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./types/*": "./src/types/*.ts"
+  },
+  "scripts": {
+    "clean": "rm -rf .turbo node_modules",
+    "lint": "biome check .",
+    "lint:fix": "biome check --fix .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tamias/app-data": "workspace:*",
+    "@tamias/app-data-convex": "workspace:*",
+    "@tamias/email": "workspace:*",
+    "@tamias/encryption": "workspace:*",
+    "@tamias/inbox": "workspace:*",
+    "@tamias/utils": "workspace:*",
+    "nanoid": "catalog:",
+    "resend": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@tamias/tsconfig": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

@@ -1,0 +1,78 @@
+import {
+  createInboxBlocklistInConvex,
+  deleteInboxBlocklistInConvex,
+  getInboxBlocklistFromConvex,
+  type InboxBlocklistRecord,
+} from "@tamias/app-data-convex";
+import type { Database } from "../client";
+
+export type GetInboxBlocklistParams = {
+  teamId: string;
+};
+
+export type InboxBlocklistEntry = {
+  id: string;
+  teamId: string;
+  type: "email" | "domain";
+  value: string;
+  createdAt: string;
+};
+
+function toInboxBlocklistEntry(
+  record: InboxBlocklistRecord,
+): InboxBlocklistEntry {
+  return {
+    id: record.id,
+    teamId: record.teamId,
+    type: record.type,
+    value: record.value,
+    createdAt: record.createdAt,
+  };
+}
+
+export async function getInboxBlocklist(
+  _db: Database,
+  params: GetInboxBlocklistParams,
+) {
+  const results = await getInboxBlocklistFromConvex({
+    teamId: params.teamId,
+  });
+
+  return results.map(toInboxBlocklistEntry);
+}
+
+export type CreateInboxBlocklistParams = {
+  teamId: string;
+  type: "email" | "domain";
+  value: string;
+};
+
+export async function createInboxBlocklist(
+  _db: Database,
+  params: CreateInboxBlocklistParams,
+) {
+  const result = await createInboxBlocklistInConvex({
+    teamId: params.teamId,
+    type: params.type,
+    value: params.value,
+  });
+
+  return toInboxBlocklistEntry(result);
+}
+
+export type DeleteInboxBlocklistParams = {
+  id: string;
+  teamId: string;
+};
+
+export async function deleteInboxBlocklist(
+  _db: Database,
+  params: DeleteInboxBlocklistParams,
+) {
+  const result = await deleteInboxBlocklistInConvex({
+    id: params.id,
+    teamId: params.teamId,
+  });
+
+  return result ? { id: result.id } : undefined;
+}

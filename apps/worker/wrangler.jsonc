@@ -1,0 +1,150 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "tamias-async-preview",
+  "main": "dist/cloudflare/index.js",
+  "build": {
+    "command": "rm -rf dist && bunx tsc -p tsconfig.cloudflare.json"
+  },
+  "minify": true,
+  "keep_names": false,
+  "compatibility_date": "2026-03-28",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "TAMIAS_ENVIRONMENT": "development"
+  },
+  "triggers": {
+    "crons": [
+      "0 2 * * *",
+      "0 3 * * *",
+      "*/30 * * * *",
+      "0 0,12 * * *",
+      "*/30 * * * 1"
+    ]
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "RUN_COORDINATOR",
+        "class_name": "RunCoordinator"
+      }
+    ]
+  },
+  "workflows": [
+    {
+      "binding": "ASYNC_WORKFLOW",
+      "name": "tamias-async-workflow-preview",
+      "class_name": "AsyncWorkflow"
+    }
+  ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "CAPTURE_QUEUE",
+        "queue": "tamias-capture-preview"
+      },
+      {
+        "binding": "LEDGER_QUEUE",
+        "queue": "tamias-ledger-preview"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["RunCoordinator", "NativeOpsContainer"]
+    },
+    {
+      "tag": "v2",
+      "deleted_classes": ["NativeOpsContainer"]
+    }
+  ],
+  "env": {
+    "staging": {
+      "name": "tamias-async-staging",
+      "vars": {
+        "TAMIAS_ENVIRONMENT": "staging"
+      },
+      "triggers": {
+        "crons": [
+          "0 2 * * *",
+          "0 3 * * *",
+          "*/30 * * * *",
+          "0 0,12 * * *",
+          "*/30 * * * 1"
+        ]
+      },
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "RUN_COORDINATOR",
+            "class_name": "RunCoordinator"
+          }
+        ]
+      },
+      "workflows": [
+        {
+          "binding": "ASYNC_WORKFLOW",
+          "name": "tamias-async-workflow-staging",
+          "class_name": "AsyncWorkflow"
+        }
+      ],
+      "queues": {
+        "producers": [
+          {
+            "binding": "CAPTURE_QUEUE",
+            "queue": "tamias-capture-staging"
+          },
+          {
+            "binding": "LEDGER_QUEUE",
+            "queue": "tamias-ledger-staging"
+          }
+        ]
+      }
+    },
+    "production": {
+      "name": "tamias-async",
+      "vars": {
+        "TAMIAS_ENVIRONMENT": "production"
+      },
+      "triggers": {
+        "crons": [
+          "0 2 * * *",
+          "0 3 * * *",
+          "*/30 * * * *",
+          "0 0,12 * * *",
+          "*/30 * * * 1"
+        ]
+      },
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "RUN_COORDINATOR",
+            "class_name": "RunCoordinator"
+          }
+        ]
+      },
+      "workflows": [
+        {
+          "binding": "ASYNC_WORKFLOW",
+          "name": "tamias-async-workflow",
+          "class_name": "AsyncWorkflow"
+        }
+      ],
+      "queues": {
+        "producers": [
+          {
+            "binding": "CAPTURE_QUEUE",
+            "queue": "tamias-capture"
+          },
+          {
+            "binding": "LEDGER_QUEUE",
+            "queue": "tamias-ledger"
+          }
+        ]
+      }
+    }
+  }
+}

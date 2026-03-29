@@ -1,0 +1,49 @@
+{
+  "name": "@tamias/app-services",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "private": true,
+  "sideEffects": false,
+  "scripts": {
+    "clean": "rm -rf .turbo node_modules",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "typecheck": "tsc --noEmit"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./auth": "./src/auth.ts",
+    "./bank": "./src/bank.ts",
+    "./chat-feedback": "./src/chat-feedback.ts",
+    "./chat-memory": "./src/chat-memory.ts",
+    "./compliance": "./src/compliance.ts",
+    "./convex-client": "./src/convex-client.ts",
+    "./customers": "./src/customers.ts",
+    "./documents": "./src/documents.ts",
+    "./foundation": "./src/foundation.ts",
+    "./identity": "./src/identity.ts",
+    "./inbox": "./src/inbox.ts",
+    "./invoice-products": "./src/invoice-products.ts",
+    "./invoices": "./src/invoices.ts",
+    "./invoice-by-token": "./src/invoice-by-token.ts",
+    "./oauth-application-info": "./src/oauth-application-info.ts",
+    "./public-reads": "./src/public-reads.ts",
+    "./suggested-actions": "./src/suggested-actions.ts",
+    "./tags": "./src/tags.ts",
+    "./tracker": "./src/tracker.ts",
+    "./transactions": "./src/transactions.ts",
+    "./widgets": "./src/widgets.ts"
+  },
+  "dependencies": {
+    "@tamias/app-data": "workspace:*",
+    "@tamias/app-data-convex": "workspace:*",
+    "@tamias/auth-session": "workspace:*",
+    "@tamias/convex-model": "workspace:*",
+    "@tamias/domain": "workspace:*",
+    "@tamias/encryption": "workspace:*",
+    "convex": "^1.32.0"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

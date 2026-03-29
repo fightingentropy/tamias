@@ -1,0 +1,25 @@
+{
+  "name": "@tamias/auth-session",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "private": true,
+  "sideEffects": false,
+  "scripts": {
+    "clean": "rm -rf .turbo node_modules",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test --exit src"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./scopes": "./src/scopes.ts"
+  },
+  "dependencies": {
+    "@tamias/convex-model": "workspace:*",
+    "jose": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

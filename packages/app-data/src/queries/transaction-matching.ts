@@ -1,0 +1,1279 @@
+import {
+  getInboxItemByIdFromConvex,
+  getInboxItemsFromConvex,
+  getTransactionMatchSuggestionsPageFromConvex,
+  getTransactionByIdFromConvex,
+  getTransactionIdsWithAttachmentsFromConvex,
+  getTransactionMatchSuggestionsFromConvex,
+  getTransactionsByIdsFromConvex,
+  type CurrentUserIdentityRecord,
+  type InboxItemRecord,
+  type InboxItemStatus,
+  type MatchSuggestionStatus,
+  upsertTransactionMatchSuggestionsInConvex,
+} from "@tamias/app-data-convex";
+import { createLoggerWithContext } from "@tamias/logger";
+import type { Database, DatabaseOrTransaction } from "../client";
+import {
+  CALIBRATION_LIMITS,
+  calculateAmountScore,
+  calculateCurrencyScore,
+  calculateDateScore,
+  calculateNameScore,
+  type MatchType,
+  scoreMatch,
+} from "../utils/transaction-matching";
+import { getInboxItemsPaged, getTransactionsPaged } from "./paged-records";
+
+const logger = createLoggerWithContext("matching");
+type ConvexUserId = CurrentUserIdentityRecord["convexId"];
+
+export type FindMatchesParams = {
+  teamId: string;
+  inboxId: string;
+};
+
+export type FindInboxMatchesParams = {
+  teamId: string;
+  transactionId: string;
+  candidateInboxItems?: InboxItemRecord[];
+};
+
+export type MatchResult = {
+  transactionId: string;
+  name: string;
+  amount: number;
+  currency: string;
+  date: string;
+  nameScore?: number;
+  amountScore: number;
+  currencyScore: number;
+  dateScore: number;
+  confidenceScore: number;
+  matchType: MatchType;
+  isAlreadyMatched: boolean;
+};
+
+export type InboxMatchResult = {
+  inboxId: string;
+  displayName: string | null;
+  amount: number | null;
+  currency: string | null;
+  date: string;
+  nameScore?: number;
+  amountScore: number;
+  currencyScore: number;
+  dateScore: number;
+  confidenceScore: number;
+  matchType: MatchType;
+  isAlreadyMatched: boolean;
+};
+
+export type CreateMatchSuggestionParams = {
+  teamId: string;
+  inboxId: string;
+  transactionId: string;
+  confidenceScore: number;
+  amountScore: number;
+  currencyScore: number;
+  dateScore: number;
+  nameScore?: number;
+  matchType: MatchType;
+  matchDetails: Record<string, any>;
+  status?: "pending" | "confirmed" | "declined";
+  userId?: ConvexUserId;
+};
+
+export type InboxSuggestion = {
+  id: string;
+  transactionId: string;
+  transactionName: string;
+  transactionAmount: number;
+  transactionCurrency: string;
+  transactionDate: string;
+  confidenceScore: number;
+  matchType: "auto_matched" | "high_confidence" | "suggested";
+  status: "pending" | "confirmed" | "declined" | "expired";
+};
+
+export type TeamCalibrationData = {
+  teamId: string;
+  totalSuggestions: number;
+  confirmedSuggestions: number;
+  declinedSuggestions: number;
+  unmatchedSuggestions: number;
+  avgConfidenceConfirmed: number;
+  avgConfidenceDeclined: number;
+  avgConfidenceUnmatched: number;
+  suggestedMatchAccuracy: number;
+  calibratedSuggestedThreshold: number;
+  calibratedAutoThreshold: number;
+  thresholdOptimizationSampleSize: number;
+  lastUpdated: string;
+};
+
+type TeamPairHistoryRow = {
+  status: string;
+  confidenceScore: number | null;
+  createdAt: string;
+  inboxName: string | null;
+  transactionName: string;
+  merchantName: string | null;
+};
+type TeamPairHistoryMap = Map<string, TeamPairHistoryRow[]>;
+const CALIBRATION_CACHE_TTL_MS = 5 * 60 * 1000;
+const calibrationCache = new Map<
+  string,
+  { data: TeamCalibrationData; expiresAt: number }
+>();
+
+const PAIR_HISTORY_CACHE_TTL_MS = 5 * 60 * 1000;
+const pairHistoryCache = new Map<
+  string,
+  { data: TeamPairHistoryMap; expiresAt: number }
+>();
+
+async function getTeamSuggestions(
+  teamId: string,
+  statuses: MatchSuggestionStatus[],
+  params?: {
+    createdAtFrom?: string;
+    limit?: number;
+  },
+) {
+  const rows = (
+    await Promise.all(
+      [...new Set(statuses)].map(async (status) => {
+        const collected = [];
+        let cursor: string | null = null;
+
+        while (true) {
+          const page = await getTransactionMatchSuggestionsPageFromConvex({
+            teamId,
+            status,
+            cursor,
+            pageSize: Math.min(params?.limit ?? 250, 250),
+            order: "desc",
+            createdAtFrom: params?.createdAtFrom,
+          });
+
+          collected.push(...page.page);
+
+          if (page.isDone || collected.length >= (params?.limit ?? Infinity)) {
+            return params?.limit ? collected.slice(0, params.limit) : collected;
+          }
+
+          cursor = page.continueCursor;
+        }
+      }),
+    )
+  )
+    .flat()
+    .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+
+  return params?.limit ? rows.slice(0, params.limit) : rows;
+}
+
+const FORWARD_MATCH_INBOX_STATUSES: InboxItemStatus[] = ["pending", "no_match"];
+const HISTORY_SUGGESTION_LIMIT = 2000;
+const NON_POSTED_TRANSACTION_STATUSES = [
+  "pending",
+  "excluded",
+  "completed",
+  "archived",
+  "exported",
+] as const;
+
+export async function getInboxItemsForForwardMatching(
+  _db: Database,
+  teamId: string,
+) {
+  return (
+    await Promise.all(
+      FORWARD_MATCH_INBOX_STATUSES.map((status) =>
+        getInboxItemsPaged({
+          teamId,
+          status,
+          order: "desc",
+        }),
+      ),
+    )
+  )
+    .flat()
+    .filter((item) => item.transactionId == null && item.date !== null);
+}
+
+async function getInboxItemById(teamId: string, inboxId: string) {
+  return getInboxItemByIdFromConvex({
+    teamId,
+    inboxId,
+  });
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
+function optimizeThresholdFromFeedback(
+  performanceData: Array<{
+    status: string;
+    confidenceScore: number | null;
+  }>,
+): { threshold: number; sampleSize: number } | null {
+  const labeled = performanceData.filter(
+    (d) =>
+      d.confidenceScore !== null &&
+      (d.status === "confirmed" ||
+        d.status === "declined" ||
+        d.status === "unmatched"),
+  );
+
+  const positives = labeled.filter((d) => d.status === "confirmed").length;
+  const negatives = labeled.length - positives;
+  if (labeled.length < 20 || positives < 5 || negatives < 5) {
+    return null;
+  }
+
+  let bestThreshold = 0.6;
+  let bestF1 = -1;
+  let bestPrecision = -1;
+
+  for (let t = 0.25; t <= 0.9; t += 0.01) {
+    const threshold = Math.round(t * 1000) / 1000;
+    let tp = 0;
+    let fp = 0;
+    let fn = 0;
+
+    for (const row of labeled) {
+      const predictedPositive = Number(row.confidenceScore) >= threshold;
+      const isPositive = row.status === "confirmed";
+      if (predictedPositive && isPositive) tp++;
+      else if (predictedPositive && !isPositive) fp++;
+      else if (!predictedPositive && isPositive) fn++;
+    }
+
+    const precision = tp + fp > 0 ? tp / (tp + fp) : 0;
+    const recall = tp + fn > 0 ? tp / (tp + fn) : 0;
+    const f1 =
+      precision + recall > 0
+        ? (2 * precision * recall) / (precision + recall)
+        : 0;
+
+    if (
+      f1 > bestF1 ||
+      (Math.abs(f1 - bestF1) < 1e-9 && precision > bestPrecision)
+    ) {
+      bestF1 = f1;
+      bestPrecision = precision;
+      bestThreshold = threshold;
+    }
+  }
+
+  return { threshold: bestThreshold, sampleSize: labeled.length };
+}
+
+export async function getTeamCalibration(
+  _db: Database,
+  teamId: string,
+): Promise<TeamCalibrationData> {
+  const cached = calibrationCache.get(teamId);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.data;
+  }
+
+  const defaultSuggestedThreshold = 0.6;
+  const defaultAutoThreshold = 0.9;
+
+  const cutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
+  const performanceData = (
+    await getTeamSuggestions(teamId, ["confirmed", "declined", "unmatched"], {
+      createdAtFrom: cutoff,
+    })
+  ).map((suggestion) => ({
+      status: suggestion.status,
+      confidenceScore: suggestion.confidenceScore,
+    }));
+
+  if (performanceData.length < 5) {
+    const fallback = {
+      teamId,
+      totalSuggestions: performanceData.length,
+      confirmedSuggestions: 0,
+      declinedSuggestions: 0,
+      unmatchedSuggestions: 0,
+      avgConfidenceConfirmed: 0,
+      avgConfidenceDeclined: 0,
+      avgConfidenceUnmatched: 0,
+      suggestedMatchAccuracy: 0,
+      calibratedSuggestedThreshold: defaultSuggestedThreshold,
+      calibratedAutoThreshold: defaultAutoThreshold,
+      thresholdOptimizationSampleSize: 0,
+      lastUpdated: new Date().toISOString(),
+    };
+    calibrationCache.set(teamId, {
+      data: fallback,
+      expiresAt: Date.now() + CALIBRATION_CACHE_TTL_MS,
+    });
+    return fallback;
+  }
+
+  const confirmed = performanceData.filter((d) => d.status === "confirmed");
+  const declined = performanceData.filter((d) => d.status === "declined");
+  const unmatched = performanceData.filter((d) => d.status === "unmatched");
+  const negativeOutcomes = [...declined, ...unmatched];
+
+  const avgConfidenceConfirmed =
+    confirmed.length > 0
+      ? confirmed.reduce((sum, d) => sum + Number(d.confidenceScore), 0) /
+        confirmed.length
+      : 0;
+  const avgConfidenceDeclined =
+    declined.length > 0
+      ? declined.reduce((sum, d) => sum + Number(d.confidenceScore), 0) /
+        declined.length
+      : 0;
+  const avgConfidenceUnmatched =
+    unmatched.length > 0
+      ? unmatched.reduce((sum, d) => sum + Number(d.confidenceScore), 0) /
+        unmatched.length
+      : 0;
+  const avgConfidenceNegative =
+    negativeOutcomes.length > 0
+      ? negativeOutcomes.reduce(
+          (sum, d) => sum + Number(d.confidenceScore),
+          0,
+        ) / negativeOutcomes.length
+      : avgConfidenceDeclined;
+
+  const suggestedMatchAccuracy =
+    performanceData.length > 0 ? confirmed.length / performanceData.length : 0;
+
+  let calibratedSuggestedThreshold = defaultSuggestedThreshold;
+
+  if (
+    suggestedMatchAccuracy > 0.9 &&
+    confirmed.length >= CALIBRATION_LIMITS.MIN_SAMPLES_CONSERVATIVE
+  ) {
+    calibratedSuggestedThreshold = Math.max(
+      0.65,
+      defaultSuggestedThreshold -
+        Math.min(CALIBRATION_LIMITS.MAX_ADJUSTMENT, 0.03),
+    );
+  } else if (
+    suggestedMatchAccuracy > 0.8 &&
+    confirmed.length >= CALIBRATION_LIMITS.MIN_SAMPLES_SUGGESTED
+  ) {
+    calibratedSuggestedThreshold = Math.max(
+      0.67,
+      defaultSuggestedThreshold -
+        Math.min(CALIBRATION_LIMITS.MAX_ADJUSTMENT, 0.02),
+    );
+  } else if (
+    suggestedMatchAccuracy < 0.3 &&
+    declined.length >= CALIBRATION_LIMITS.MIN_SAMPLES_SUGGESTED
+  ) {
+    calibratedSuggestedThreshold = Math.min(
+      0.85,
+      defaultSuggestedThreshold +
+        Math.min(CALIBRATION_LIMITS.MAX_ADJUSTMENT, 0.03),
+    );
+  }
+
+  if (
+    avgConfidenceConfirmed > 0 &&
+    avgConfidenceNegative > 0 &&
+    confirmed.length >= CALIBRATION_LIMITS.MIN_SAMPLES_SUGGESTED
+  ) {
+    const confidenceGap = avgConfidenceConfirmed - avgConfidenceNegative;
+    if (confidenceGap > 0.2) {
+      calibratedSuggestedThreshold = Math.max(
+        0.65,
+        calibratedSuggestedThreshold -
+          Math.min(CALIBRATION_LIMITS.MAX_ADJUSTMENT, 0.025),
+      );
+    } else if (confidenceGap < 0.08) {
+      calibratedSuggestedThreshold = Math.min(
+        0.82,
+        calibratedSuggestedThreshold +
+          Math.min(CALIBRATION_LIMITS.MAX_ADJUSTMENT, 0.02),
+      );
+    }
+  }
+
+  const optimizedThreshold = optimizeThresholdFromFeedback(performanceData);
+  if (optimizedThreshold) {
+    const optimized = clamp(optimizedThreshold.threshold, 0.55, 0.85);
+    // Blend optimized threshold with heuristic threshold for stability.
+    calibratedSuggestedThreshold = clamp(
+      calibratedSuggestedThreshold * 0.35 + optimized * 0.65,
+      0.55,
+      0.85,
+    );
+  }
+
+  // Auto-match threshold stays strict but adapts slightly with team quality.
+  const calibratedAutoThreshold = clamp(
+    calibratedSuggestedThreshold + 0.24,
+    0.88,
+    0.95,
+  );
+
+  const result = {
+    teamId,
+    totalSuggestions: performanceData.length,
+    confirmedSuggestions: confirmed.length,
+    declinedSuggestions: declined.length,
+    unmatchedSuggestions: unmatched.length,
+    avgConfidenceConfirmed,
+    avgConfidenceDeclined,
+    avgConfidenceUnmatched,
+    suggestedMatchAccuracy,
+    calibratedSuggestedThreshold,
+    calibratedAutoThreshold,
+    thresholdOptimizationSampleSize: optimizedThreshold?.sampleSize ?? 0,
+    lastUpdated: new Date().toISOString(),
+  };
+  calibrationCache.set(teamId, {
+    data: result,
+    expiresAt: Date.now() + CALIBRATION_CACHE_TTL_MS,
+  });
+  return result;
+}
+
+function normalizeNameForLearning(input: string | null | undefined): string {
+  if (!input) return "";
+  return input
+    .toLowerCase()
+    .replace(/[.,\-_'"()&]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function extractDomainToken(url: string | null | undefined): string {
+  if (!url) return "";
+  const cleaned = url
+    .replace(/^https?:\/\//, "")
+    .replace(/^www\./, "")
+    .split("/")[0];
+  return cleaned?.split(".")[0]?.toLowerCase() ?? "";
+}
+
+function shiftIsoDate(date: string, days: number) {
+  const shifted = new Date(`${date}T00:00:00.000Z`);
+  shifted.setUTCDate(shifted.getUTCDate() + days);
+  return shifted.toISOString().slice(0, 10);
+}
+
+function getIsoDateDistanceInDays(left: string, right: string) {
+  const leftTime = new Date(`${left}T00:00:00.000Z`).getTime();
+  const rightTime = new Date(`${right}T00:00:00.000Z`).getTime();
+  return Math.abs(leftTime - rightTime) / (1000 * 60 * 60 * 24);
+}
+
+async function fetchTeamPairHistory(
+  _db: Database,
+  teamId: string,
+): Promise<TeamPairHistoryMap> {
+  const cached = pairHistoryCache.get(teamId);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.data;
+  }
+
+  const cutoff = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString();
+  const suggestions = await getTeamSuggestions(
+    teamId,
+    ["confirmed", "declined", "unmatched"],
+    {
+      createdAtFrom: cutoff,
+      limit: HISTORY_SUGGESTION_LIMIT,
+    },
+  );
+  const rows = suggestions
+    .map((suggestion) => ({
+      status: suggestion.status,
+      confidenceScore: suggestion.confidenceScore,
+      createdAt: suggestion.createdAt,
+      inboxId: suggestion.inboxId,
+      transactionId: suggestion.transactionId,
+    }));
+  const inboxById = new Map(
+    (
+      await getInboxItemsFromConvex({
+        teamId,
+        ids: [...new Set(rows.map((row) => row.inboxId))],
+      })
+    ).map((item) => [item.id, item]),
+  );
+  const transactionsById = new Map(
+    (
+      await getTransactionsByIdsFromConvex({
+        teamId,
+        transactionIds: rows.map((row) => row.transactionId),
+      })
+    ).map((transaction) => [transaction.id, transaction]),
+  );
+
+  const map: TeamPairHistoryMap = new Map();
+  for (const row of rows) {
+    const transaction = transactionsById.get(row.transactionId);
+    const inboxName = inboxById.get(row.inboxId)?.displayName ?? null;
+
+    if (!transaction) {
+      continue;
+    }
+
+    const key = `${normalizeNameForLearning(inboxName)}\0${normalizeNameForLearning(transaction.merchantName || transaction.name)}`;
+    let entries = map.get(key);
+    if (!entries) {
+      entries = [];
+      map.set(key, entries);
+    }
+    entries.push({
+      status: row.status,
+      confidenceScore: row.confidenceScore,
+      createdAt: row.createdAt,
+      inboxName,
+      transactionName: transaction.name,
+      merchantName: transaction.merchantName,
+    });
+  }
+  pairHistoryCache.set(teamId, {
+    data: map,
+    expiresAt: Date.now() + PAIR_HISTORY_CACHE_TTL_MS,
+  });
+  return map;
+}
+
+type TeamPairHistory = TeamPairHistoryMap;
+
+function lookupPairHistory(
+  historyMap: TeamPairHistory,
+  normalizedInboxName: string,
+  normalizedTransactionName: string,
+  maxAgeDays?: number,
+) {
+  const key = `${normalizedInboxName}\0${normalizedTransactionName}`;
+  const rows = historyMap.get(key) ?? [];
+  if (maxAgeDays == null) return rows;
+  const cutoff = Date.now() - maxAgeDays * 24 * 60 * 60 * 1000;
+  return rows.filter((r) => new Date(r.createdAt).getTime() > cutoff);
+}
+
+function computeMerchantPatterns(
+  historyMap: TeamPairHistory,
+  normalizedInboxName: string,
+  normalizedTransactionName: string,
+): {
+  canAutoMatch: boolean;
+  confidence: number;
+  historicalAccuracy: number;
+  matchCount: number;
+  reason: string;
+} {
+  if (!normalizedInboxName || !normalizedTransactionName) {
+    return {
+      canAutoMatch: false,
+      confidence: 0,
+      historicalAccuracy: 0,
+      matchCount: 0,
+      reason: "insufficient_name_context",
+    };
+  }
+
+  const historicalMatches = lookupPairHistory(
+    historyMap,
+    normalizedInboxName,
+    normalizedTransactionName,
+  );
+
+  if (historicalMatches.length < 3) {
+    return {
+      canAutoMatch: false,
+      confidence: 0,
+      historicalAccuracy: 0,
+      matchCount: 0,
+      reason: `insufficient_history_${historicalMatches.length}`,
+    };
+  }
+
+  const confirmed = historicalMatches.filter((m) => m.status === "confirmed");
+  const negative = historicalMatches.filter(
+    (m) => m.status === "declined" || m.status === "unmatched",
+  );
+  const accuracy = confirmed.length / historicalMatches.length;
+  const avgConfidence =
+    confirmed.length > 0
+      ? confirmed.reduce((sum, m) => sum + Number(m.confidenceScore), 0) /
+        confirmed.length
+      : 0;
+
+  const canAutoMatch =
+    confirmed.length >= 3 &&
+    accuracy >= 0.9 &&
+    negative.length <= 1 &&
+    avgConfidence >= 0.85;
+
+  return {
+    canAutoMatch,
+    confidence: avgConfidence,
+    historicalAccuracy: accuracy,
+    matchCount: confirmed.length,
+    reason: canAutoMatch
+      ? `eligible_${confirmed.length}_matches_${(accuracy * 100).toFixed(0)}pct_accuracy`
+      : `ineligible_${confirmed.length}_matches_${(accuracy * 100).toFixed(0)}pct_accuracy_${negative.length}_negative`,
+  };
+}
+
+function computeAliasScore(
+  historyMap: TeamPairHistory,
+  normalizedInboxName: string,
+  normalizedTransactionName: string,
+): number {
+  const historicalMatches = lookupPairHistory(
+    historyMap,
+    normalizedInboxName,
+    normalizedTransactionName,
+  );
+  return historicalMatches.filter((m) => m.status === "confirmed").length >= 2
+    ? 0.9
+    : 0;
+}
+
+function computeDeclinePenalty(
+  historyMap: TeamPairHistory,
+  normalizedInboxName: string,
+  normalizedTransactionName: string,
+): number {
+  const historicalMatches = lookupPairHistory(
+    historyMap,
+    normalizedInboxName,
+    normalizedTransactionName,
+    90,
+  );
+  if (historicalMatches.length === 0) return 0;
+
+  const now = Date.now();
+  let declinedWeight = 0;
+  let unmatchedWeight = 0;
+  let confirmedWeight = 0;
+  let recentConfirmedCount = 0;
+
+  for (const row of historicalMatches) {
+    const ageDays = Math.max(
+      0,
+      (now - new Date(row.createdAt).getTime()) / (1000 * 60 * 60 * 24),
+    );
+    const decay = Math.exp(-ageDays / 45);
+    if (row.status === "declined") declinedWeight += decay;
+    if (row.status === "unmatched") unmatchedWeight += decay * 0.6;
+    if (row.status === "confirmed") {
+      confirmedWeight += decay;
+      if (ageDays <= 45) recentConfirmedCount++;
+    }
+  }
+
+  const negativeSignal = declinedWeight + unmatchedWeight;
+  if (negativeSignal < 1.5) return 0;
+
+  // Confirmations override negatives if they are both recent and stronger.
+  if (recentConfirmedCount >= 2 && confirmedWeight >= negativeSignal) {
+    return 0;
+  }
+
+  const netSignal = Math.max(0, negativeSignal - confirmedWeight * 0.7);
+  if (netSignal <= 0.3) return 0;
+
+  return clamp(0.08 + netSignal * 0.08, 0, 0.35);
+}
+
+const AUTO_MATCH_ENABLED = process.env.MATCH_AUTO_ENABLED === "true";
+
+function resolveMatchType(
+  confidence: number,
+  canAutoMatch: boolean,
+  nameScore: number,
+  autoThreshold: number,
+): MatchType {
+  if (
+    AUTO_MATCH_ENABLED &&
+    confidence >= autoThreshold &&
+    canAutoMatch &&
+    nameScore >= 0.4
+  ) {
+    return "auto_matched";
+  }
+  if (confidence >= 0.72) {
+    return "high_confidence";
+  }
+  return "suggested";
+}
+
+export async function findMatches(
+  db: Database,
+  params: FindMatchesParams & { excludeTransactionIds?: Set<string> },
+): Promise<MatchResult | null> {
+  const { teamId, inboxId, excludeTransactionIds } = params;
+  const calibration = await getTeamCalibration(db, teamId);
+  const suggestedThreshold = Math.max(
+    0.6,
+    calibration.calibratedSuggestedThreshold,
+  );
+  const autoThreshold = calibration.calibratedAutoThreshold;
+
+  const inboxItem = await getInboxItemById(teamId, inboxId);
+
+  if (!inboxItem?.date) {
+    return null;
+  }
+
+  const normalizedInboxName = normalizeNameForLearning(inboxItem.displayName);
+  const inboxDate = inboxItem.date;
+  const inboxAmount = Math.abs(inboxItem.amount || 0);
+  const inboxBaseAmount = Math.abs(inboxItem.baseAmount || 0);
+  const candidateDateLowerBound = shiftIsoDate(inboxDate, -90);
+  const candidateDateUpperBound = shiftIsoDate(
+    inboxDate,
+    inboxItem.type === "invoice" ? 123 : 30,
+  );
+  const candidateTransactionRows = await getTransactionsPaged({
+    teamId,
+    dateGte: candidateDateLowerBound,
+    dateLte: candidateDateUpperBound,
+    statusesNotIn: [...NON_POSTED_TRANSACTION_STATUSES],
+  });
+  const [attachedTransactionIds, pendingSuggestionRows, candidateTransactions] =
+    await Promise.all([
+      getTransactionIdsWithAttachmentsFromConvex({
+        teamId,
+        transactionIds: candidateTransactionRows.map((transaction) => transaction.id),
+      }),
+      getTransactionMatchSuggestionsFromConvex({
+        teamId,
+        transactionIds: candidateTransactionRows.map((transaction) => transaction.id),
+        statuses: ["pending"],
+      }),
+      Promise.resolve(candidateTransactionRows),
+    ]);
+  const attachedTransactionIdSet = new Set(attachedTransactionIds);
+  const pendingSuggestionIdSet = new Set(
+    pendingSuggestionRows.map((row) => row.transactionId),
+  );
+  const candidates = candidateTransactions
+    .filter((transaction) => !attachedTransactionIdSet.has(transaction.id))
+    .filter((transaction) => !pendingSuggestionIdSet.has(transaction.id))
+    .filter((transaction) =>
+      excludeTransactionIds ? !excludeTransactionIds.has(transaction.id) : true,
+    )
+    .filter((transaction) => {
+      const nameScore = calculateNameScore(
+        inboxItem.displayName,
+        transaction.name,
+        transaction.merchantName,
+      );
+
+      return (
+        (transaction.currency === (inboxItem.currency || "") &&
+          Math.abs(Math.abs(transaction.amount) - inboxAmount) <
+            Math.max(1, inboxAmount * 0.25)) ||
+        nameScore > 0.3 ||
+        (transaction.baseCurrency === (inboxItem.baseCurrency || "") &&
+          transaction.baseCurrency !== null &&
+          Math.abs(Math.abs(transaction.baseAmount ?? 0) - inboxBaseAmount) <
+            Math.max(50, inboxBaseAmount * 0.15))
+      );
+    })
+    .sort((left, right) => {
+      const leftNameScore = calculateNameScore(
+        inboxItem.displayName,
+        left.name,
+        left.merchantName,
+      );
+      const rightNameScore = calculateNameScore(
+        inboxItem.displayName,
+        right.name,
+        right.merchantName,
+      );
+
+      if (rightNameScore !== leftNameScore) {
+        return rightNameScore - leftNameScore;
+      }
+
+      const leftAmountRatio =
+        Math.abs(Math.abs(left.amount) - inboxAmount) /
+        Math.max(1, inboxAmount);
+      const rightAmountRatio =
+        Math.abs(Math.abs(right.amount) - inboxAmount) /
+        Math.max(1, inboxAmount);
+
+      if (leftAmountRatio !== rightAmountRatio) {
+        return leftAmountRatio - rightAmountRatio;
+      }
+
+      return (
+        getIsoDateDistanceInDays(left.date, inboxDate) -
+        getIsoDateDistanceInDays(right.date, inboxDate)
+      );
+    })
+    .slice(0, 30)
+    .map((transaction) => ({
+      transactionId: transaction.id,
+      name: transaction.name,
+      amount: transaction.amount,
+      currency: transaction.currency,
+      baseAmount: transaction.baseAmount,
+      baseCurrency: transaction.baseCurrency,
+      date: transaction.date,
+      merchantName: transaction.merchantName,
+      description: transaction.description,
+      counterpartyName: transaction.counterpartyName,
+    }));
+
+  const teamPairHistory = await fetchTeamPairHistory(db, teamId);
+
+  const scoredCandidates: MatchResult[] = [];
+  for (const candidate of candidates) {
+    const normalizedTransactionName = normalizeNameForLearning(
+      candidate.merchantName || candidate.name,
+    );
+    const aliasScore = computeAliasScore(
+      teamPairHistory,
+      normalizedInboxName,
+      normalizedTransactionName,
+    );
+    const declinePenalty = computeDeclinePenalty(
+      teamPairHistory,
+      normalizedInboxName,
+      normalizedTransactionName,
+    );
+    const pattern = computeMerchantPatterns(
+      teamPairHistory,
+      normalizedInboxName,
+      normalizedTransactionName,
+    );
+
+    let nameScore = calculateNameScore(
+      inboxItem.displayName,
+      candidate.name,
+      candidate.merchantName || candidate.counterpartyName,
+      aliasScore,
+    );
+
+    const searchableText = normalizeNameForLearning(
+      `${candidate.name} ${candidate.merchantName || ""} ${candidate.description || ""} ${candidate.counterpartyName || ""}`,
+    );
+    const invoiceNumber = normalizeNameForLearning(inboxItem.invoiceNumber);
+    if (invoiceNumber.length >= 4 && searchableText.includes(invoiceNumber)) {
+      nameScore = Math.max(nameScore, 0.95);
+    }
+    const domainToken = extractDomainToken(inboxItem.website);
+    if (domainToken.length >= 4 && searchableText.includes(domainToken)) {
+      nameScore = Math.max(nameScore, 0.88);
+    }
+
+    const amountScore = calculateAmountScore(inboxItem, candidate);
+    const currencyScore = calculateCurrencyScore(
+      inboxItem.currency || undefined,
+      candidate.currency || undefined,
+      inboxItem.baseCurrency || undefined,
+      candidate.baseCurrency || undefined,
+    );
+    const dateScore = calculateDateScore(
+      inboxItem.date,
+      candidate.date,
+      inboxItem.type,
+    );
+    const isExactAmount =
+      inboxItem.amount !== null &&
+      Math.abs(
+        Math.abs(inboxItem.amount || 0) - Math.abs(candidate.amount || 0),
+      ) < 0.01;
+    const isSameCurrency = inboxItem.currency === candidate.currency;
+
+    const confidence = scoreMatch({
+      nameScore,
+      amountScore,
+      dateScore,
+      currencyScore,
+      isSameCurrency,
+      isExactAmount,
+      declinePenalty,
+    });
+
+    if (confidence < suggestedThreshold) continue;
+
+    const proposed: MatchResult = {
+      transactionId: candidate.transactionId,
+      name: candidate.name,
+      amount: candidate.amount,
+      currency: candidate.currency,
+      date: candidate.date,
+      nameScore: Math.round(nameScore * 1000) / 1000,
+      amountScore: Math.round(amountScore * 1000) / 1000,
+      currencyScore: Math.round(currencyScore * 1000) / 1000,
+      dateScore: Math.round(dateScore * 1000) / 1000,
+      confidenceScore: Math.round(confidence * 1000) / 1000,
+      matchType: resolveMatchType(
+        confidence,
+        pattern.canAutoMatch,
+        nameScore,
+        autoThreshold,
+      ),
+      isAlreadyMatched: false,
+    };
+
+    scoredCandidates.push(proposed);
+  }
+
+  scoredCandidates.sort((a, b) => b.confidenceScore - a.confidenceScore);
+
+  const dismissedTxIds = await getDismissedTransactionIds(
+    db,
+    teamId,
+    inboxId,
+    scoredCandidates.map((c) => c.transactionId),
+  );
+
+  for (const candidate of scoredCandidates) {
+    if (dismissedTxIds.has(candidate.transactionId)) {
+      logger.info("Skipping dismissed match candidate, trying next", {
+        teamId,
+        inboxId,
+        transactionId: candidate.transactionId,
+      });
+      continue;
+    }
+    return candidate;
+  }
+
+  return null;
+}
+
+export async function findInboxMatches(
+  db: Database,
+  params: FindInboxMatchesParams & { excludeInboxIds?: Set<string> },
+): Promise<InboxMatchResult | null> {
+  const { teamId, transactionId, excludeInboxIds, candidateInboxItems } =
+    params;
+  const calibration = await getTeamCalibration(db, teamId);
+  const suggestedThreshold = Math.max(
+    0.6,
+    calibration.calibratedSuggestedThreshold,
+  );
+  const autoThreshold = calibration.calibratedAutoThreshold;
+
+  const transactionItem = await getTransactionByIdFromConvex({
+    teamId,
+    transactionId,
+  });
+
+  if (!transactionItem?.date) return null;
+
+  const normalizedTransactionName = normalizeNameForLearning(
+    transactionItem.merchantName || transactionItem.name,
+  );
+  const transactionAmount = Math.abs(transactionItem.amount || 0);
+  const transactionBaseAmount = Math.abs(transactionItem.baseAmount || 0);
+  const inboxItems =
+    candidateInboxItems ?? (await getInboxItemsForForwardMatching(db, teamId));
+
+  const candidates = inboxItems
+    .filter((candidate) => candidate.transactionId == null)
+    .filter(
+      (candidate) =>
+        candidate.status === "pending" || candidate.status === "no_match",
+    )
+    .filter((candidate) => candidate.date !== null)
+    .filter((candidate) =>
+      excludeInboxIds ? !excludeInboxIds.has(candidate.id) : true,
+    )
+    .filter((candidate) => {
+      const lowerBound = shiftIsoDate(
+        transactionItem.date,
+        candidate.type === "invoice" ? -123 : -90,
+      );
+      const upperBound = shiftIsoDate(transactionItem.date, 30);
+
+      if (
+        !candidate.date ||
+        candidate.date < lowerBound ||
+        candidate.date > upperBound
+      ) {
+        return false;
+      }
+
+      const nameScore = calculateNameScore(
+        candidate.displayName,
+        transactionItem.name,
+        transactionItem.merchantName,
+      );
+
+      return (
+        (candidate.currency === (transactionItem.currency || "") &&
+          Math.abs(Math.abs(candidate.amount ?? 0) - transactionAmount) <
+            Math.max(1, transactionAmount * 0.25)) ||
+        nameScore > 0.3 ||
+        (candidate.baseCurrency === (transactionItem.baseCurrency || "") &&
+          candidate.baseCurrency !== null &&
+          Math.abs(
+            Math.abs(candidate.baseAmount ?? 0) - transactionBaseAmount,
+          ) < Math.max(50, transactionBaseAmount * 0.15))
+      );
+    })
+    .sort((left, right) => {
+      const leftNameScore = calculateNameScore(
+        left.displayName,
+        transactionItem.name,
+        transactionItem.merchantName,
+      );
+      const rightNameScore = calculateNameScore(
+        right.displayName,
+        transactionItem.name,
+        transactionItem.merchantName,
+      );
+
+      if (rightNameScore !== leftNameScore) {
+        return rightNameScore - leftNameScore;
+      }
+
+      const leftAmountRatio =
+        Math.abs(Math.abs(left.amount ?? 0) - transactionAmount) /
+        Math.max(1, transactionAmount);
+      const rightAmountRatio =
+        Math.abs(Math.abs(right.amount ?? 0) - transactionAmount) /
+        Math.max(1, transactionAmount);
+
+      if (leftAmountRatio !== rightAmountRatio) {
+        return leftAmountRatio - rightAmountRatio;
+      }
+
+      return (
+        getIsoDateDistanceInDays(left.date!, transactionItem.date) -
+        getIsoDateDistanceInDays(right.date!, transactionItem.date)
+      );
+    })
+    .slice(0, 30)
+    .map((candidate) => ({
+      inboxId: candidate.id,
+      displayName: candidate.displayName,
+      amount: candidate.amount,
+      currency: candidate.currency,
+      baseAmount: candidate.baseAmount,
+      baseCurrency: candidate.baseCurrency,
+      date: candidate.date,
+      type: candidate.type,
+      website: candidate.website,
+      invoiceNumber: candidate.invoiceNumber,
+    }));
+
+  const teamPairHistory = await fetchTeamPairHistory(db, teamId);
+
+  const scoredCandidates: InboxMatchResult[] = [];
+  for (const candidate of candidates) {
+    const normalizedInboxName = normalizeNameForLearning(candidate.displayName);
+    const aliasScore = computeAliasScore(
+      teamPairHistory,
+      normalizedInboxName,
+      normalizedTransactionName,
+    );
+    const declinePenalty = computeDeclinePenalty(
+      teamPairHistory,
+      normalizedInboxName,
+      normalizedTransactionName,
+    );
+    const pattern = computeMerchantPatterns(
+      teamPairHistory,
+      normalizedInboxName,
+      normalizedTransactionName,
+    );
+
+    let nameScore = calculateNameScore(
+      candidate.displayName,
+      transactionItem.name,
+      transactionItem.merchantName || transactionItem.counterpartyName,
+      aliasScore,
+    );
+
+    const searchableText = normalizeNameForLearning(
+      `${transactionItem.name} ${transactionItem.merchantName || ""} ${transactionItem.description || ""} ${transactionItem.counterpartyName || ""}`,
+    );
+    const invoiceNumber = normalizeNameForLearning(candidate.invoiceNumber);
+    if (invoiceNumber.length >= 4 && searchableText.includes(invoiceNumber)) {
+      nameScore = Math.max(nameScore, 0.95);
+    }
+    const domainToken = extractDomainToken(candidate.website);
+    if (domainToken.length >= 4 && searchableText.includes(domainToken)) {
+      nameScore = Math.max(nameScore, 0.88);
+    }
+
+    const amountScore = calculateAmountScore(candidate, transactionItem);
+    const currencyScore = calculateCurrencyScore(
+      candidate.currency || undefined,
+      transactionItem.currency || undefined,
+      candidate.baseCurrency || undefined,
+      transactionItem.baseCurrency || undefined,
+    );
+    const dateScore = calculateDateScore(
+      candidate.date || transactionItem.date,
+      transactionItem.date,
+      candidate.type,
+    );
+    const isExactAmount =
+      candidate.amount !== null &&
+      Math.abs(
+        Math.abs(candidate.amount || 0) - Math.abs(transactionItem.amount || 0),
+      ) < 0.01;
+    const isSameCurrency = candidate.currency === transactionItem.currency;
+
+    const confidence = scoreMatch({
+      nameScore,
+      amountScore,
+      dateScore,
+      currencyScore,
+      isSameCurrency,
+      isExactAmount,
+      declinePenalty,
+    });
+
+    if (confidence < suggestedThreshold) continue;
+
+    const proposed: InboxMatchResult = {
+      inboxId: candidate.inboxId,
+      displayName: candidate.displayName,
+      amount: candidate.amount,
+      currency: candidate.currency,
+      date: candidate.date || transactionItem.date,
+      nameScore: Math.round(nameScore * 1000) / 1000,
+      amountScore: Math.round(amountScore * 1000) / 1000,
+      currencyScore: Math.round(currencyScore * 1000) / 1000,
+      dateScore: Math.round(dateScore * 1000) / 1000,
+      confidenceScore: Math.round(confidence * 1000) / 1000,
+      matchType: resolveMatchType(
+        confidence,
+        pattern.canAutoMatch,
+        nameScore,
+        autoThreshold,
+      ),
+      isAlreadyMatched: false,
+    };
+
+    scoredCandidates.push(proposed);
+  }
+
+  scoredCandidates.sort((a, b) => b.confidenceScore - a.confidenceScore);
+
+  const dismissedInboxIds = await getDismissedInboxIds(
+    db,
+    teamId,
+    transactionId,
+    scoredCandidates.map((c) => c.inboxId),
+  );
+
+  for (const candidate of scoredCandidates) {
+    if (dismissedInboxIds.has(candidate.inboxId)) {
+      logger.info("Skipping dismissed reverse match candidate, trying next", {
+        teamId,
+        transactionId,
+        inboxId: candidate.inboxId,
+      });
+      continue;
+    }
+    return candidate;
+  }
+
+  return null;
+}
+
+export async function createMatchSuggestion(
+  _db: DatabaseOrTransaction,
+  params: CreateMatchSuggestionParams,
+) {
+  const existing = (
+    await getTransactionMatchSuggestionsFromConvex({
+      teamId: params.teamId,
+      inboxId: params.inboxId,
+    })
+  ).find((suggestion) => suggestion.transactionId === params.transactionId);
+
+  if (
+    existing &&
+    (existing.status === "confirmed" || existing.status === "declined")
+  ) {
+    return null;
+  }
+
+  const [result] = await upsertTransactionMatchSuggestionsInConvex({
+    suggestions: [
+      existing
+        ? {
+            ...existing,
+            confidenceScore: params.confidenceScore,
+            amountScore: params.amountScore ?? null,
+            currencyScore: params.currencyScore ?? null,
+            dateScore: params.dateScore ?? null,
+            nameScore: params.nameScore ?? null,
+            matchType: params.matchType,
+            matchDetails: params.matchDetails,
+            status: params.status || "pending",
+            userId: params.userId ?? null,
+            updatedAt: new Date().toISOString(),
+          }
+        : {
+            teamId: params.teamId,
+            inboxId: params.inboxId,
+            transactionId: params.transactionId,
+            confidenceScore: params.confidenceScore,
+            amountScore: params.amountScore ?? null,
+            currencyScore: params.currencyScore ?? null,
+            dateScore: params.dateScore ?? null,
+            nameScore: params.nameScore ?? null,
+            matchType: params.matchType,
+            matchDetails: params.matchDetails,
+            status: params.status || "pending",
+            userId: params.userId ?? null,
+            userActionAt: null,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+    ],
+  });
+
+  return result ?? null;
+}
+
+async function getDismissedTransactionIds(
+  _db: Database,
+  teamId: string,
+  inboxId: string,
+  transactionIds: string[],
+): Promise<Set<string>> {
+  if (transactionIds.length === 0) return new Set();
+
+  const dismissed = (
+    await getTransactionMatchSuggestionsFromConvex({
+      teamId,
+      inboxId,
+      statuses: ["declined", "unmatched"],
+    })
+  ).filter((suggestion) => transactionIds.includes(suggestion.transactionId));
+
+  return new Set(dismissed.map((d) => d.transactionId));
+}
+
+async function getDismissedInboxIds(
+  _db: Database,
+  teamId: string,
+  transactionId: string,
+  inboxIds: string[],
+): Promise<Set<string>> {
+  if (inboxIds.length === 0) return new Set();
+
+  const dismissed = (
+    await getTransactionMatchSuggestionsFromConvex({
+      teamId,
+      transactionId,
+      statuses: ["declined", "unmatched"],
+    })
+  ).filter((suggestion) => inboxIds.includes(suggestion.inboxId));
+
+  return new Set(dismissed.map((d) => d.inboxId));
+}

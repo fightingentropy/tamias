@@ -1,0 +1,49 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "tamias-website-preview",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-03-28",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "TAMIAS_ENVIRONMENT": "development",
+    "NEXT_PUBLIC_APP_URL": "http://localhost:3001",
+    "NEXT_PUBLIC_API_URL": "http://localhost:3003",
+    "NEXT_PUBLIC_WEBSITE_URL": "http://localhost:3000",
+    "WEBSITE_URL": "http://localhost:3000"
+  },
+  "env": {
+    "staging": {
+      "name": "tamias-website-staging",
+      "vars": {
+        "TAMIAS_ENVIRONMENT": "staging",
+        "NEXT_PUBLIC_APP_URL": "https://staging.tamias.xyz",
+        "NEXT_PUBLIC_API_URL": "https://api-staging.tamias.xyz",
+        "NEXT_PUBLIC_WEBSITE_URL": "https://staging.tamias.xyz",
+        "WEBSITE_URL": "https://staging.tamias.xyz"
+      }
+    },
+    "production": {
+      "name": "tamias-website",
+      "routes": [
+        {
+          "pattern": "tamias.xyz",
+          "custom_domain": true
+        }
+      ],
+      "vars": {
+        "TAMIAS_ENVIRONMENT": "production",
+        "NEXT_PUBLIC_APP_URL": "https://app.tamias.xyz",
+        "NEXT_PUBLIC_API_URL": "https://api.tamias.xyz",
+        "NEXT_PUBLIC_WEBSITE_URL": "https://tamias.xyz",
+        "WEBSITE_URL": "https://tamias.xyz"
+      }
+    }
+  }
+}

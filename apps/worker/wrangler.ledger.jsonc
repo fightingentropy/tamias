@@ -1,0 +1,95 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "tamias-async-ledger-preview",
+  "main": "dist/cloudflare/ledger.js",
+  "build": {
+    "command": "rm -rf dist && bunx tsc -p tsconfig.cloudflare.json"
+  },
+  "minify": true,
+  "keep_names": false,
+  "compatibility_date": "2026-03-28",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "TAMIAS_ENVIRONMENT": "development"
+  },
+  "queues": {
+    "producers": [
+      {
+        "binding": "CAPTURE_QUEUE",
+        "queue": "tamias-capture-preview"
+      },
+      {
+        "binding": "LEDGER_QUEUE",
+        "queue": "tamias-ledger-preview"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "tamias-ledger-preview",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5,
+        "max_retries": 3,
+        "dead_letter_queue": "tamias-ledger-dlq-preview"
+      }
+    ]
+  },
+  "env": {
+    "staging": {
+      "name": "tamias-async-ledger-staging",
+      "vars": {
+        "TAMIAS_ENVIRONMENT": "staging"
+      },
+      "queues": {
+        "producers": [
+          {
+            "binding": "CAPTURE_QUEUE",
+            "queue": "tamias-capture-staging"
+          },
+          {
+            "binding": "LEDGER_QUEUE",
+            "queue": "tamias-ledger-staging"
+          }
+        ],
+        "consumers": [
+          {
+            "queue": "tamias-ledger-staging",
+            "max_batch_size": 10,
+            "max_batch_timeout": 5,
+            "max_retries": 3,
+            "dead_letter_queue": "tamias-ledger-dlq-staging"
+          }
+        ]
+      }
+    },
+    "production": {
+      "name": "tamias-async-ledger",
+      "vars": {
+        "TAMIAS_ENVIRONMENT": "production"
+      },
+      "queues": {
+        "producers": [
+          {
+            "binding": "CAPTURE_QUEUE",
+            "queue": "tamias-capture"
+          },
+          {
+            "binding": "LEDGER_QUEUE",
+            "queue": "tamias-ledger"
+          }
+        ],
+        "consumers": [
+          {
+            "queue": "tamias-ledger",
+            "max_batch_size": 10,
+            "max_batch_timeout": 5,
+            "max_retries": 3,
+            "dead_letter_queue": "tamias-ledger-dlq"
+          }
+        ]
+      }
+    }
+  }
+}

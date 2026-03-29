@@ -1,0 +1,10 @@
+{
+  "extends": "@tamias/tsconfig/base.json",
+  "include": ["src", "../../types"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true
+  }
+}

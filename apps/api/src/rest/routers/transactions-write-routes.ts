@@ -1,0 +1,286 @@
+import type { Context } from "../types";
+import {
+  createTransactionSchema,
+  createTransactionsResponseSchema,
+  createTransactionsSchema,
+  deleteTransactionResponseSchema,
+  deleteTransactionSchema,
+  deleteTransactionsResponseSchema,
+  deleteTransactionsSchema,
+  getTransactionByIdSchema,
+  transactionResponseSchema,
+  transactionsResponseSchema,
+  updateTransactionSchema,
+  updateTransactionsSchema,
+} from "../../schemas/transactions";
+import { validateResponse } from "../../utils/validate-response";
+import { createRoute, type OpenAPIHono } from "@hono/zod-openapi";
+import {
+  createTransaction,
+  createTransactions,
+  deleteTransactions,
+  updateTransaction,
+  updateTransactions,
+} from "@tamias/app-data/queries";
+import { withRequiredScope } from "../middleware";
+
+export function registerTransactionWriteRoutes(app: OpenAPIHono<Context>) {
+  app.openapi(
+    createRoute({
+      method: "post",
+      path: "/",
+      summary: "Create a transaction",
+      operationId: "createTransaction",
+      "x-speakeasy-name-override": "create",
+      description: "Create a transaction",
+      tags: ["Transactions"],
+      request: {
+        body: {
+          content: {
+            "application/json": {
+              schema: createTransactionSchema,
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Transaction created",
+          content: {
+            "application/json": { schema: transactionResponseSchema },
+          },
+        },
+      },
+      middleware: [withRequiredScope("transactions.write")],
+    }),
+    async (c) => {
+      const db = c.get("db");
+      const teamId = c.get("teamId");
+      const params = c.req.valid("json");
+
+      const result = await createTransaction(db, { teamId, ...params });
+
+      return c.json(validateResponse(result, transactionResponseSchema));
+    },
+  );
+
+  app.openapi(
+    createRoute({
+      method: "patch",
+      path: "/{id}",
+      summary: "Update a transaction",
+      operationId: "updateTransaction",
+      "x-speakeasy-name-override": "update",
+      description:
+        "Update a transaction for the authenticated team. If there's no change, returns it as it is.",
+      tags: ["Transactions"],
+      request: {
+        params: getTransactionByIdSchema.pick({ id: true }),
+        body: {
+          content: {
+            "application/json": {
+              schema: updateTransactionSchema.omit({ id: true }),
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Transaction updated",
+          content: {
+            "application/json": {
+              schema: transactionResponseSchema,
+            },
+          },
+        },
+      },
+      middleware: [withRequiredScope("transactions.write")],
+    }),
+    async (c) => {
+      const db = c.get("db");
+      const teamId = c.get("teamId");
+      const userId = c.get("session").user.convexId ?? undefined;
+      const { id } = c.req.valid("param");
+      const params = c.req.valid("json");
+
+      const result = await updateTransaction(db, {
+        teamId,
+        id,
+        userId,
+        ...params,
+      });
+
+      return c.json(validateResponse(result, transactionResponseSchema));
+    },
+  );
+
+  app.openapi(
+    createRoute({
+      method: "patch",
+      path: "/bulk",
+      summary: "Bulk update transactions",
+      operationId: "updateTransactions",
+      "x-speakeasy-name-override": "updateMany",
+      description:
+        "Bulk update transactions for the authenticated team. If there's no change, returns it as it is.",
+      tags: ["Transactions"],
+      request: {
+        body: {
+          content: {
+            "application/json": {
+              schema: updateTransactionsSchema,
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Transactions updated",
+          content: {
+            "application/json": {
+              schema: transactionsResponseSchema,
+            },
+          },
+        },
+      },
+      middleware: [withRequiredScope("transactions.write")],
+    }),
+    async (c) => {
+      const db = c.get("db");
+      const teamId = c.get("teamId");
+      const userId = c.get("session").user.convexId ?? undefined;
+      const params = c.req.valid("json");
+
+      const result = await updateTransactions(db, {
+        teamId,
+        userId,
+        ...params,
+      });
+
+      return c.json(validateResponse(result, transactionsResponseSchema));
+    },
+  );
+
+  app.openapi(
+    createRoute({
+      method: "post",
+      path: "/bulk",
+      summary: "Bulk create transactions",
+      operationId: "createTransactions",
+      "x-speakeasy-name-override": "createMany",
+      description: "Bulk create transactions for the authenticated team.",
+      tags: ["Transactions"],
+      request: {
+        body: {
+          content: {
+            "application/json": {
+              schema: createTransactionsSchema,
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Transactions created",
+          content: {
+            "application/json": {
+              schema: createTransactionsResponseSchema,
+            },
+          },
+        },
+      },
+      middleware: [withRequiredScope("transactions.write")],
+    }),
+    async (c) => {
+      const db = c.get("db");
+      const teamId = c.get("teamId");
+      const params = c.req.valid("json");
+
+      const data = params.map((item) => ({ ...item, teamId }));
+      const result = await createTransactions(db, data);
+
+      return c.json(validateResponse(result, createTransactionsResponseSchema));
+    },
+  );
+
+  app.openapi(
+    createRoute({
+      method: "delete",
+      path: "/bulk",
+      summary: "Bulk delete transactions",
+      operationId: "deleteTransactions",
+      "x-speakeasy-name-override": "deleteMany",
+      description:
+        "Bulk delete transactions for the authenticated team. Only manually created transactions can be deleted via this endpoint or the form. Transactions inserted by bank connections cannot be deleted, but can be excluded by updating the status.",
+      tags: ["Transactions"],
+      request: {
+        body: {
+          content: {
+            "application/json": {
+              schema: deleteTransactionsSchema,
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Transactions deleted",
+          content: {
+            "application/json": {
+              schema: deleteTransactionsResponseSchema,
+            },
+          },
+        },
+      },
+      middleware: [withRequiredScope("transactions.write")],
+    }),
+    async (c) => {
+      const db = c.get("db");
+      const teamId = c.get("teamId");
+      const params = c.req.valid("json");
+
+      const result = await deleteTransactions(db, {
+        teamId,
+        ids: params,
+      });
+
+      return c.json(validateResponse(result, deleteTransactionsResponseSchema));
+    },
+  );
+
+  app.openapi(
+    createRoute({
+      method: "delete",
+      path: "/{id}",
+      summary: "Delete a transaction",
+      operationId: "deleteTransaction",
+      "x-speakeasy-name-override": "delete",
+      description:
+        "Delete a transaction for the authenticated team. Only manually created transactions can be deleted via this endpoint or the form. Transactions inserted by bank connections cannot be deleted, but can be excluded by updating the status.",
+      tags: ["Transactions"],
+      request: {
+        params: deleteTransactionSchema,
+      },
+      responses: {
+        200: {
+          description: "Transaction deleted",
+          content: {
+            "application/json": {
+              schema: deleteTransactionResponseSchema,
+            },
+          },
+        },
+      },
+      middleware: [withRequiredScope("transactions.write")],
+    }),
+    async (c) => {
+      const db = c.get("db");
+      const teamId = c.get("teamId");
+      const { id } = c.req.valid("param");
+
+      const [result] = await deleteTransactions(db, { teamId, ids: [id] });
+
+      return c.json(validateResponse(result, deleteTransactionResponseSchema));
+    },
+  );
+}

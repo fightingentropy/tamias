@@ -1,0 +1,38 @@
+{
+  "name": "@tamias/ai-artifacts",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "private": true,
+  "sideEffects": false,
+  "scripts": {
+    "clean": "rm -rf .turbo node_modules",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "typecheck": "tsc --noEmit"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./balance-sheet": "./src/balance-sheet.ts",
+    "./burn-rate": "./src/burn-rate.ts",
+    "./business-health-score": "./src/business-health-score.ts",
+    "./cash-flow": "./src/cash-flow.ts",
+    "./cash-flow-stress-test": "./src/cash-flow-stress-test.ts",
+    "./expenses": "./src/expenses.ts",
+    "./forecast": "./src/forecast.ts",
+    "./growth-rate": "./src/growth-rate.ts",
+    "./invoice-payment-analysis": "./src/invoice-payment-analysis.ts",
+    "./metrics-breakdown": "./src/metrics-breakdown.ts",
+    "./profit": "./src/profit.ts",
+    "./revenue": "./src/revenue.ts",
+    "./runway": "./src/runway.ts",
+    "./spending": "./src/spending.ts",
+    "./tax-summary": "./src/tax-summary.ts"
+  },
+  "dependencies": {
+    "@ai-sdk-tools/artifacts": "^1.2.0",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

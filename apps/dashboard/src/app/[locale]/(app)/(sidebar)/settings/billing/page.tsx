@@ -1,0 +1,45 @@
+import type { Metadata } from "next";
+import { ManageSubscription } from "@/components/manage-subscription";
+import { Orders } from "@/components/orders";
+import { Plans } from "@/components/plans";
+import { getCurrentUserLocally } from "@/server/loaders/identity";
+import { getQueryClient, prefetch, trpc } from "@/trpc/server";
+
+export const metadata: Metadata = {
+  title: "Billing | Tamias",
+};
+
+export default async function Billing() {
+  const queryClient = getQueryClient();
+  const user = await getCurrentUserLocally();
+  queryClient.setQueryData(trpc.user.me.queryKey(), user);
+
+  const team = user?.team;
+
+  prefetch(
+    trpc.billing.orders.infiniteQueryOptions(
+      {
+        pageSize: 15,
+      },
+      {
+        getNextPageParam: ({ meta }) => meta?.cursor,
+      },
+    ),
+  );
+
+  return (
+    <div className="space-y-12">
+      {team?.plan !== "trial" && <ManageSubscription />}
+
+      {team?.plan === "trial" && (
+        <div>
+          <h2 className="font-serif text-2xl text-foreground mb-4">Plans</h2>
+
+          <Plans />
+        </div>
+      )}
+
+      {(team?.plan !== "trial" || team?.canceledAt !== null) && <Orders />}
+    </div>
+  );
+}

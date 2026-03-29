@@ -1,0 +1,99 @@
+import { db } from "@tamias/app-data/client";
+import { getBankAccountsForTeam } from "@tamias/app-services/bank";
+import { getAppUrl } from "@tamias/utils/envs";
+import { formatAmount } from "@tamias/utils/format";
+import { tool } from "ai";
+import { z } from "zod";
+import {
+  getToolAppContext,
+  getToolTeamId,
+  throwIfBankAccountsRequired,
+} from "../utils/tool-runtime";
+
+const getBankAccountsSchema = z.object({
+  enabled: z.boolean().nullable().optional().describe("Enabled status"),
+  manual: z.boolean().nullable().optional().describe("Manual account flag"),
+});
+
+export const getBankAccountsTool = tool({
+  description:
+    "Retrieve bank accounts with filtering by enabled status and manual flag.",
+  inputSchema: getBankAccountsSchema,
+  execute: async function* ({ enabled, manual }, executionOptions) {
+    const appContext = getToolAppContext(executionOptions);
+    const teamId = getToolTeamId(appContext);
+
+    if (!teamId) {
+      yield {
+        text: "Unable to retrieve bank accounts: Team ID not found in context.",
+      };
+      return;
+    }
+
+    throwIfBankAccountsRequired(appContext);
+
+    try {
+      const accounts = await getBankAccountsForTeam({
+        db,
+        teamId,
+        input: {
+          enabled: enabled ?? undefined,
+          manual: manual ?? undefined,
+        },
+      });
+
+      if (accounts.length === 0) {
+        yield { text: "No bank accounts found matching your criteria." };
+        return;
+      }
+
+      const locale = appContext.locale ?? "en-US";
+      const baseCurrency = appContext.baseCurrency ?? "USD";
+
+      const formattedAccounts = accounts.map((account) => {
+        const formattedBalance = formatAmount({
+          amount: Number(account.balance) || 0,
+          currency: account.currency || baseCurrency,
+          locale,
+        });
+
+        return {
+          id: account.id,
+          name: account.name || "Unnamed Account",
+          type: account.type || "depository",
+          currency: account.currency || baseCurrency,
+          balance: formattedBalance,
+          enabled: account.enabled ? "Enabled" : "Disabled",
+          manual: account.manual ? "Manual" : "Connected",
+        };
+      });
+
+      const totalBalance = accounts.reduce(
+        (sum, acc) => sum + (Number(acc.balance) || 0),
+        0,
+      );
+      const formattedTotalBalance = formatAmount({
+        amount: totalBalance,
+        currency: baseCurrency,
+        locale,
+      });
+
+      const enabledCount = accounts.filter((acc) => acc.enabled).length;
+      const disabledCount = accounts.filter((acc) => !acc.enabled).length;
+
+      const response = `| Name | Type | Currency | Balance | Status | Source |\n|------|------|----------|---------|--------|--------|\n${formattedAccounts.map((acc) => `| ${acc.name} | ${acc.type} | ${acc.currency} | ${acc.balance} | ${acc.enabled} | ${acc.manual} |`).join("\n")}\n\n**${accounts.length} accounts** | Total Balance: ${formattedTotalBalance} | Enabled: ${enabledCount} | Disabled: ${disabledCount}`;
+
+      yield {
+        text: response,
+        link: {
+          text: "View all accounts",
+          url: `${getAppUrl()}/settings/accounts`,
+        },
+      };
+    } catch (error) {
+      yield {
+        text: `Failed to retrieve bank accounts: ${error instanceof Error ? error.message : "Unknown error"}`,
+      };
+    }
+  },
+});

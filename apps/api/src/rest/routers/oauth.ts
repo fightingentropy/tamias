@@ -1,0 +1,628 @@
+import { publicMiddleware } from "../middleware";
+import type { Context } from "../types";
+import {
+  oauthApplicationInfoSchema,
+  oauthAuthorizationDecisionSchema,
+  oauthAuthorizationRequestSchema,
+  oauthErrorResponseSchema,
+  oauthRefreshTokenRequestSchema,
+  oauthRevokeTokenRequestSchema,
+  oauthTokenRequestSchema,
+  oauthTokenResponseSchema,
+} from "../../schemas/oauth-flow";
+import { resend } from "../../services/resend";
+import {
+  createAuthorizationCodeInConvex,
+  exchangeAuthorizationCodeInConvex,
+  getOAuthApplicationByClientIdFromConvex,
+  getTeamByPublicTeamIdFromConvex,
+  hasUserEverAuthorizedAppInConvex,
+  refreshAccessTokenInConvex,
+  revokeAccessTokenInConvex,
+} from "@tamias/app-services/foundation";
+import { resolveTamiasUserSession } from "@tamias/app-services/auth";
+import { validateClientCredentials } from "../../utils/oauth";
+import { validateResponse } from "../../utils/validate-response";
+import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { AppInstalledEmail } from "@tamias/email/emails/app-installed";
+import { render } from "@tamias/email/render";
+import { createLoggerWithContext } from "@tamias/logger";
+import { getSupportFromDisplay } from "@tamias/utils/envs";
+import { HTTPException } from "hono/http-exception";
+import { z } from "zod";
+import { createRateLimitMiddleware } from "../middleware/rate-limit";
+
+const logger = createLoggerWithContext("rest:oauth");
+
+const app = new OpenAPIHono<Context>();
+
+app.use("*", ...publicMiddleware);
+
+app.use(
+  "*",
+  createRateLimitMiddleware({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 20, // per IP
+    keyGenerator: (c) =>
+      c.req.header("x-forwarded-for") || c.req.header("x-real-ip") || "unknown",
+    statusCode: 429,
+    message: "Rate limit exceeded",
+  }),
+);
+
+app.openapi(
+  createRoute({
+    method: "get",
+    path: "/authorize",
+    summary: "OAuth Authorization Endpoint",
+    operationId: "getOAuthAuthorization",
+    description:
+      "Initiate OAuth authorization flow and get consent screen information",
+    tags: ["OAuth"],
+    request: {
+      query: oauthAuthorizationRequestSchema,
+    },
+    responses: {
+      200: {
+        description: "Application information for consent screen",
+        content: {
+          "application/json": {
+            schema: oauthApplicationInfoSchema,
+          },
+        },
+      },
+      400: {
+        description: "Invalid request",
+        content: {
+          "application/json": {
+            schema: oauthErrorResponseSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (c) => {
+    const query = c.req.valid("query");
+    const { client_id, redirect_uri, scope, state, code_challenge } = query;
+
+    // Validate client_id
+    const application = await getOAuthApplicationByClientIdFromConvex(client_id);
+    if (!application || !application.active) {
+      throw new HTTPException(400, {
+        message: "Invalid client_id",
+      });
+    }
+
+    // Enforce PKCE for public clients
+    if (application.isPublic && !code_challenge) {
+      throw new HTTPException(400, {
+        message: "PKCE is required for public clients",
+      });
+    }
+
+    // Validate redirect_uri
+    if (!application.redirectUris.includes(redirect_uri)) {
+      throw new HTTPException(400, {
+        message: "Invalid redirect_uri",
+      });
+    }
+
+    // Validate scopes
+    const requestedScopes = scope.split(" ").filter(Boolean);
+    const invalidScopes = requestedScopes.filter(
+      (s) => !application.scopes.includes(s),
+    );
+
+    if (invalidScopes.length > 0) {
+      throw new HTTPException(400, {
+        message: `Invalid scopes: ${invalidScopes.join(", ")}`,
+      });
+    }
+
+    // Return application info for consent screen
+    const applicationInfo = {
+      id: application.id,
+      name: application.name,
+      description: application.description,
+      logoUrl: application.logoUrl,
+      website: application.website,
+      clientId: application.clientId,
+      scopes: requestedScopes,
+      redirectUri: redirect_uri,
+      state,
+    };
+
+    return c.json(
+      validateResponse(applicationInfo, oauthApplicationInfoSchema),
+      200,
+    );
+  },
+);
+
+// OAuth Authorization Decision Endpoint - POST (user consent)
+app.openapi(
+  createRoute({
+    method: "post",
+    path: "/authorize",
+    summary: "OAuth Authorization Decision",
+    operationId: "postOAuthAuthorization",
+    description: "Process user's authorization decision (allow/deny)",
+    tags: ["OAuth"],
+    request: {
+      body: {
+        content: {
+          "application/json": {
+            schema: oauthAuthorizationDecisionSchema,
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "Authorization decision processed, returns redirect URL",
+        content: {
+          "application/json": {
+            schema: z.object({
+              redirect_url: z.string().url(),
+            }),
+          },
+        },
+      },
+      400: {
+        description: "Invalid request",
+        content: {
+          "application/json": {
+            schema: z.object({
+              redirect_url: z.string().url(),
+            }),
+          },
+        },
+      },
+      401: {
+        description: "Unauthorized",
+        content: {
+          "application/json": {
+            schema: z.object({
+              redirect_url: z.string().url(),
+            }),
+          },
+        },
+      },
+    },
+  }),
+  async (c) => {
+    const authHeader = c.req.header("Authorization");
+    const body = c.req.valid("json");
+
+    const {
+      client_id,
+      decision,
+      scopes,
+      redirect_uri,
+      state,
+      code_challenge,
+      teamId,
+    } = body;
+
+    // Verify user authentication
+    const accessToken = authHeader?.split(" ")[1];
+    const session = await resolveTamiasUserSession(accessToken);
+
+    if (!session) {
+      throw new HTTPException(401, {
+        message: "User must be authenticated",
+      });
+    }
+
+    // Validate client_id
+    const application = await getOAuthApplicationByClientIdFromConvex(client_id);
+    if (!application || !application.active) {
+      throw new HTTPException(400, {
+        message: "Invalid client_id",
+      });
+    }
+
+    // Enforce PKCE for public clients
+    if (application.isPublic && !code_challenge) {
+      throw new HTTPException(400, {
+        message: "PKCE is required for public clients",
+      });
+    }
+
+    // Validate user is a member of the selected team
+    const isMemberOfTeam = session.teamMembershipIds?.includes(teamId);
+
+    if (!isMemberOfTeam) {
+      throw new HTTPException(403, {
+        message: "User is not a member of the selected team",
+      });
+    }
+
+    const redirectUrl = new URL(redirect_uri);
+
+    // Handle denial
+    if (decision === "deny") {
+      redirectUrl.searchParams.set("error", "access_denied");
+      redirectUrl.searchParams.set("error_description", "User denied access");
+      if (state) {
+        redirectUrl.searchParams.set("state", state);
+      }
+      return c.json({ redirect_url: redirectUrl.toString() });
+    }
+
+    if (!session.user.convexId) {
+      throw new HTTPException(500, {
+        message: "Missing Convex user id",
+      });
+    }
+
+    // Create authorization code
+    const authCode = await createAuthorizationCodeInConvex({
+      publicApplicationId: application.id,
+      userId: session.user.convexId,
+      publicTeamId: teamId,
+      scopes,
+      redirectUri: redirect_uri,
+      codeChallenge: code_challenge,
+    });
+
+    if (!authCode) {
+      throw new HTTPException(500, {
+        message: "Failed to create authorization code",
+      });
+    }
+
+    // Send app installation email only if this is the first time authorizing this app
+    try {
+      // Check if user has ever authorized this application for this team (including expired tokens)
+      const hasAuthorizedBefore = await hasUserEverAuthorizedAppInConvex({
+        userId: session.user.convexId,
+        publicTeamId: teamId,
+        publicApplicationId: application.id,
+      });
+
+      if (!hasAuthorizedBefore) {
+        // Get team information
+        const userTeam = await getTeamByPublicTeamIdFromConvex(teamId);
+
+        if (userTeam && session.user.email) {
+          const html = await render(
+            AppInstalledEmail({
+              email: session.user.email,
+              teamName: userTeam.name!,
+              appName: application.name,
+            }),
+          );
+
+          await resend.emails.send({
+            from: getSupportFromDisplay(),
+            to: session.user.email,
+            subject: "An app has been added to your team",
+            html,
+          });
+        }
+      }
+    } catch (error) {
+      // Log error but don't fail the OAuth flow
+      logger.error("Failed to send app installation email", {
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+
+    // Build success redirect URL
+    redirectUrl.searchParams.set("code", authCode.code);
+    if (state) {
+      redirectUrl.searchParams.set("state", state);
+    }
+
+    return c.json({ redirect_url: redirectUrl.toString() });
+  },
+);
+
+// OAuth Token Exchange Endpoint
+app.openapi(
+  createRoute({
+    method: "post",
+    path: "/token",
+    summary: "OAuth Token Exchange",
+    operationId: "postOAuthToken",
+    description:
+      "Exchange authorization code for access token or refresh an access token",
+    tags: ["OAuth"],
+    request: {
+      body: {
+        content: {
+          "application/json": {
+            schema: z.union([
+              oauthTokenRequestSchema,
+              oauthRefreshTokenRequestSchema,
+            ]),
+          },
+          "application/x-www-form-urlencoded": {
+            schema: z.union([
+              oauthTokenRequestSchema,
+              oauthRefreshTokenRequestSchema,
+            ]),
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "Token exchange successful",
+        content: {
+          "application/json": {
+            schema: oauthTokenResponseSchema,
+          },
+        },
+      },
+      400: {
+        description: "Invalid request",
+        content: {
+          "application/json": {
+            schema: oauthErrorResponseSchema,
+          },
+        },
+      },
+    },
+  }),
+  async (c) => {
+    const contentType = c.req.header("content-type") || "";
+
+    let body: any;
+    if (contentType.includes("application/x-www-form-urlencoded")) {
+      body = await c.req.parseBody();
+    } else {
+      body = c.req.valid("json");
+    }
+
+    const {
+      grant_type,
+      code,
+      redirect_uri,
+      client_id,
+      client_secret,
+      code_verifier,
+      refresh_token,
+      scope,
+    } = body;
+
+    // Validate client credentials
+    const application = await getOAuthApplicationByClientIdFromConvex(client_id);
+    if (!application || !application.active) {
+      throw new HTTPException(400, {
+        message: "Invalid client credentials",
+      });
+    }
+
+    // For public clients, client_secret should not be provided
+    if (application.isPublic) {
+      if (client_secret) {
+        throw new HTTPException(400, {
+          message: "Public clients must not send client_secret",
+        });
+      }
+    } else {
+      // For confidential clients, validate client_secret
+      if (!validateClientCredentials(application, client_secret)) {
+        throw new HTTPException(400, {
+          message: "Invalid client credentials",
+        });
+      }
+    }
+
+    if (grant_type === "authorization_code") {
+      if (!code || !redirect_uri) {
+        throw new HTTPException(400, {
+          message:
+            "Missing required parameters: code and redirect_uri are required",
+        });
+      }
+
+      try {
+        // Exchange authorization code for access token
+        const tokenResponse = await exchangeAuthorizationCodeInConvex({
+          code,
+          redirectUri: redirect_uri,
+          publicApplicationId: application.id,
+          codeVerifier: code_verifier,
+        });
+
+        const response = {
+          access_token: tokenResponse.accessToken,
+          token_type: tokenResponse.tokenType,
+          expires_in: tokenResponse.expiresIn,
+          refresh_token: tokenResponse.refreshToken || "",
+          scope: tokenResponse.scopes.join(" "),
+        };
+
+        return c.json(
+          validateResponse(response, oauthTokenResponseSchema),
+          200,
+        );
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
+
+        // Handle specific OAuth errors with proper error codes
+        if (errorMessage.includes("Authorization code expired")) {
+          throw new HTTPException(400, {
+            message:
+              "The authorization code has expired. Please restart the OAuth flow.",
+          });
+        }
+
+        if (errorMessage.includes("Authorization code already used")) {
+          throw new HTTPException(400, {
+            message:
+              "The authorization code has already been used. All related tokens have been revoked for security.",
+          });
+        }
+
+        if (errorMessage.includes("Invalid authorization code")) {
+          throw new HTTPException(400, {
+            message: "The authorization code is invalid or malformed.",
+          });
+        }
+
+        if (errorMessage.includes("redirect_uri")) {
+          throw new HTTPException(400, {
+            message:
+              "The redirect_uri does not match the one used in the authorization request.",
+          });
+        }
+
+        // Generic fallback for other errors
+        throw new HTTPException(400, {
+          message: "Failed to exchange authorization code for access token.",
+        });
+      }
+    }
+
+    if (grant_type === "refresh_token") {
+      if (!refresh_token) {
+        throw new HTTPException(400, {
+          message: "Missing refresh_token",
+        });
+      }
+
+      try {
+        // Parse requested scopes
+        const requestedScopes = scope
+          ? scope.split(" ").filter(Boolean)
+          : undefined;
+
+        // Refresh access token
+        const tokenResponse = await refreshAccessTokenInConvex({
+          refreshToken: refresh_token,
+          publicApplicationId: application.id,
+          scopes: requestedScopes,
+        });
+
+        const response = {
+          access_token: tokenResponse.accessToken,
+          token_type: tokenResponse.tokenType,
+          expires_in: tokenResponse.expiresIn,
+          refresh_token: tokenResponse.refreshToken || "",
+          scope: tokenResponse.scopes.join(" "),
+        };
+
+        return c.json(
+          validateResponse(response, oauthTokenResponseSchema),
+          200,
+        );
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
+
+        if (errorMessage.includes("Invalid refresh token")) {
+          throw new HTTPException(400, {
+            message: "Invalid refresh token",
+          });
+        }
+
+        if (errorMessage.includes("expired")) {
+          throw new HTTPException(400, {
+            message: "Refresh token expired",
+          });
+        }
+
+        if (errorMessage.includes("revoked")) {
+          throw new HTTPException(400, {
+            message: "Refresh token revoked",
+          });
+        }
+
+        throw new HTTPException(400, {
+          message: "Failed to refresh access token",
+        });
+      }
+    }
+
+    throw new HTTPException(400, {
+      message: "Grant type not supported",
+    });
+  },
+);
+
+// OAuth Token Revocation Endpoint
+app.openapi(
+  createRoute({
+    method: "post",
+    path: "/revoke",
+    summary: "OAuth Token Revocation",
+    operationId: "postOAuthRevoke",
+    description: "Revoke an access token or refresh token",
+    tags: ["OAuth"],
+    request: {
+      body: {
+        content: {
+          "application/json": {
+            schema: oauthRevokeTokenRequestSchema,
+          },
+          "application/x-www-form-urlencoded": {
+            schema: oauthRevokeTokenRequestSchema,
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "Token revocation successful",
+        content: {
+          "application/json": {
+            schema: z.object({
+              success: z.boolean(),
+            }),
+          },
+        },
+      },
+    },
+  }),
+  async (c) => {
+    const contentType = c.req.header("content-type") || "";
+
+    let body: any;
+    if (contentType.includes("application/x-www-form-urlencoded")) {
+      body = await c.req.parseBody();
+    } else {
+      body = c.req.valid("json");
+    }
+
+    const { token, client_id, client_secret } = body;
+
+    // Validate client credentials
+    const application = await getOAuthApplicationByClientIdFromConvex(client_id);
+    if (!application || !application.active) {
+      throw new HTTPException(400, {
+        message: "Invalid client credentials",
+      });
+    }
+
+    // For public clients, client_secret should not be provided
+    if (application.isPublic) {
+      if (client_secret) {
+        throw new HTTPException(400, {
+          message: "Public clients must not send client_secret",
+        });
+      }
+    } else {
+      // For confidential clients, validate client_secret
+      if (!validateClientCredentials(application, client_secret)) {
+        throw new HTTPException(400, {
+          message: "Invalid client credentials",
+        });
+      }
+    }
+
+    // Revoke token
+    await revokeAccessTokenInConvex({
+      token,
+      publicApplicationId: application.id,
+    });
+
+    return c.json({ success: true });
+  },
+);
+
+export default app;

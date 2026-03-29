@@ -1,0 +1,134 @@
+import {
+  createBankAccountSchema,
+  deleteBankAccountSchema,
+  getBankAccountDetailsSchema,
+  getBankAccountsSchema,
+  getTransactionCountSchema,
+  updateBankAccountSchema,
+} from "../../schemas/bank-accounts";
+import { createTRPCRouter, protectedProcedure } from "../init";
+import { getBankAccountsForTeam } from "@tamias/app-services/bank";
+import { chatCache } from "@tamias/cache/chat-cache";
+import {
+  createBankAccount,
+  deleteBankAccount,
+  getBankAccountDetails,
+  getBankAccountsBalances,
+  getBankAccountsCurrencies,
+  getBankAccountsWithPaymentInfo,
+  getTransactionCountByBankAccountId,
+  updateBankAccount,
+} from "@tamias/app-data/queries";
+import { TRPCError } from "@trpc/server";
+
+export const bankAccountsRouter = createTRPCRouter({
+  get: protectedProcedure
+    .input(getBankAccountsSchema.optional())
+    .query(async ({ input, ctx: { db, teamId } }) => {
+      return getBankAccountsForTeam({
+        db,
+        teamId: teamId!,
+        input: {
+          enabled: input?.enabled,
+          manual: input?.manual,
+        },
+      });
+    }),
+
+  getTransactionCount: protectedProcedure
+    .input(getTransactionCountSchema)
+    .query(async ({ input, ctx: { db, teamId } }) => {
+      const count = await getTransactionCountByBankAccountId(db, {
+        bankAccountId: input.id,
+        teamId: teamId!,
+      });
+      return { count };
+    }),
+
+  /**
+   * Get decrypted account details (IBAN, account number, etc.)
+   * Only call this when user explicitly requests to reveal account details.
+   */
+  getDetails: protectedProcedure
+    .input(getBankAccountDetailsSchema)
+    .query(async ({ input, ctx: { db, teamId } }) => {
+      return getBankAccountDetails(db, {
+        accountId: input.id,
+        teamId: teamId!,
+      });
+    }),
+
+  /**
+   * Get bank accounts with payment info (IBAN, routing numbers, etc.)
+   * Used for invoice payment details slash command.
+   * Only returns accounts that have at least one payment field populated.
+   */
+  getWithPaymentInfo: protectedProcedure.query(
+    async ({ ctx: { db, teamId } }) => {
+      return getBankAccountsWithPaymentInfo(db, {
+        teamId: teamId!,
+      });
+    },
+  ),
+
+  currencies: protectedProcedure.query(async ({ ctx: { db, teamId } }) => {
+    return getBankAccountsCurrencies(db, teamId!);
+  }),
+
+  balances: protectedProcedure.query(async ({ ctx: { db, teamId } }) => {
+    return getBankAccountsBalances(db, teamId!);
+  }),
+
+  delete: protectedProcedure
+    .input(deleteBankAccountSchema)
+    .mutation(async ({ input, ctx: { db, teamId } }) => {
+      const result = await deleteBankAccount(db, {
+        id: input.id,
+        teamId: teamId!,
+      });
+
+      try {
+        await chatCache.invalidateTeamContext(teamId!);
+      } catch {
+        // Non-fatal — cache will expire naturally
+      }
+
+      return result;
+    }),
+
+  update: protectedProcedure
+    .input(updateBankAccountSchema)
+    .mutation(async ({ input, ctx: { db, teamId } }) => {
+      return updateBankAccount(db, {
+        ...input,
+        id: input.id!,
+        teamId: teamId!,
+      });
+    }),
+
+  create: protectedProcedure
+    .input(createBankAccountSchema)
+    .mutation(async ({ input, ctx: { db, teamId, session } }) => {
+      if (!session.user.convexId) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Missing Convex user id",
+        });
+      }
+
+      const result = await createBankAccount(db, {
+        ...input,
+        teamId: teamId!,
+        userId: session.user.convexId,
+        manual: input.manual,
+      });
+
+      try {
+        await chatCache.invalidateTeamContext(teamId!);
+      } catch {
+        // Non-fatal — cache will expire naturally
+      }
+
+      return result;
+    }),
+});

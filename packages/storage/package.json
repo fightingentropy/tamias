@@ -1,0 +1,19 @@
+{
+  "name": "@tamias/storage",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "typecheck": "tsc --noEmit"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "convex": "^1.32.0"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

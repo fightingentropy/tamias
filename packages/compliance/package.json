@@ -1,0 +1,36 @@
+{
+  "name": "@tamias/compliance",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./flags": "./src/flags.ts",
+    "./oauth": "./src/oauth.ts",
+    "./types": "./src/types.ts",
+    "./chart-of-accounts": "./src/chart-of-accounts.ts",
+    "./providers/companies-house": "./src/providers/companies-house.ts",
+    "./providers/hmrc-ct": "./src/providers/hmrc-ct.ts",
+    "./vat": "./src/vat.ts",
+    "./providers/hmrc-vat": "./src/providers/hmrc-vat.ts"
+  },
+  "scripts": {
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test --exit src"
+  },
+  "dependencies": {
+    "@tamias/encryption": "workspace:*",
+    "convex": "^1.32.0",
+    "date-fns": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@tamias/tsconfig": "workspace:*",
+    "@types/bun": "latest",
+    "typescript": "catalog:"
+  }
+}

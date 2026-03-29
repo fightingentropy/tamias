@@ -1,0 +1,216 @@
+"use client";
+
+import { api } from "@tamias/convex-model/api";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { cn } from "@tamias/ui/cn";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@tamias/ui/form";
+import { Input } from "@tamias/ui/input";
+import { Spinner } from "@tamias/ui/spinner";
+import { SubmitButton } from "@tamias/ui/submit-button";
+import { useConvexAuth, useMutation } from "convex/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod/v3";
+
+const formSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8, "Password must be at least 8 characters."),
+});
+
+type PasswordAuthFormProps = {
+  className?: string;
+};
+
+export function PasswordAuthForm({ className }: PasswordAuthFormProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { signIn } = useAuthActions();
+  const ensureCurrentAppUser = useMutation(api.identity.ensureCurrentAppUser);
+  const { isAuthenticated, isLoading } = useConvexAuth();
+  const [mode, setMode] = useState<"signIn" | "signUp">("signIn");
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isProvisioning, setIsProvisioning] = useState(false);
+  const [hasProvisionedSession, setHasProvisionedSession] = useState(false);
+
+  const redirectTo = useMemo(() => {
+    const returnTo = searchParams.get("return_to");
+
+    return returnTo ? `/${returnTo.replace(/^\/+/, "")}` : "/dashboard";
+  }, [searchParams]);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (isLoading || !isAuthenticated || hasProvisionedSession) {
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    setIsProvisioning(true);
+
+    void ensureCurrentAppUser({})
+      .then((user) => {
+        if (cancelled) {
+          return;
+        }
+
+        setHasProvisionedSession(true);
+        const nextPath = user.fullName && user.teamId ? redirectTo : "/onboarding";
+        router.replace(nextPath);
+      })
+      .catch((authError) => {
+        if (cancelled) {
+          return;
+        }
+
+        setError(
+          authError instanceof Error
+            ? authError.message
+            : "Unable to finish signing in.",
+        );
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsProvisioning(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    ensureCurrentAppUser,
+    hasProvisionedSession,
+    isAuthenticated,
+    isLoading,
+    redirectTo,
+    router,
+  ]);
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      await signIn("password", {
+        ...values,
+        flow: mode,
+      });
+    } catch (authError) {
+      setError(
+        authError instanceof Error ? authError.message : "Unable to sign in.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
+        <div className={cn("flex flex-col space-y-4", className)}>
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input
+                    autoCapitalize="none"
+                    autoComplete="email"
+                    autoCorrect="off"
+                    placeholder="you@company.com"
+                    spellCheck="false"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input
+                    autoComplete={
+                      mode === "signIn" ? "current-password" : "new-password"
+                    }
+                    placeholder="At least 8 characters"
+                    type="password"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {error ? <p className="text-sm text-destructive">{error}</p> : null}
+
+          <SubmitButton
+            type="submit"
+            className="bg-primary px-6 py-4 text-secondary font-medium flex space-x-2 h-[40px] w-full"
+            isSubmitting={isSubmitting || isProvisioning}
+          >
+            {isSubmitting || isProvisioning ? (
+              <span className="inline-flex items-center gap-2">
+                <Spinner size={16} className="text-current" />
+                <span>
+                  {mode === "signIn"
+                    ? isProvisioning
+                      ? "Finishing sign in"
+                      : "Signing in"
+                    : "Creating account"}
+                </span>
+              </span>
+            ) : mode === "signIn" ? (
+              "Sign in"
+            ) : (
+              "Create account"
+            )}
+          </SubmitButton>
+
+          <button
+            type="button"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            onClick={() => {
+              setError(null);
+              setMode((current) =>
+                current === "signIn" ? "signUp" : "signIn",
+              );
+            }}
+          >
+            {mode === "signIn"
+              ? "Need an account? Create one"
+              : "Already have an account? Sign in"}
+          </button>
+        </div>
+      </form>
+    </Form>
+  );
+}
