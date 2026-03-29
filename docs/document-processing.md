@@ -553,7 +553,7 @@ This ensures parent jobs don't timeout while child jobs are still valid.
 | [`apps/worker/src/utils/document-update.ts`](../apps/worker/src/utils/document-update.ts) | Document update with retry for race conditions |
 | [`apps/worker/src/utils/error-classification.ts`](../apps/worker/src/utils/error-classification.ts) | Error categorization and retry strategies |
 | [`apps/worker/src/utils/timeout.ts`](../apps/worker/src/utils/timeout.ts) | Timeout constants and wrapper utility |
-| [`packages/documents/src/classifier.ts`](../packages/documents/src/classifier.ts) | AI classification implementation |
+| [`packages/documents/src/classifier/classifier.ts`](../packages/documents/src/classifier/classifier.ts) | AI classification implementation |
 
 ## Design Decisions
 

@@ -32,7 +32,7 @@ In deployed Cloudflare environments, the API uses a Worker-to-Worker service bin
    ```bash
    bunx wrangler mtls-certificate upload --cert teller-cert.pem --key teller-key.pem --name teller
    ```
-   Then add the returned `certificate_id` as `TELLER_MTLS_CERTIFICATE` in both [apps/api/wrangler.jsonc](/Users/erlinhoxha/Developer/tamias/apps/api/wrangler.jsonc) and [apps/worker/wrangler.jsonc](/Users/erlinhoxha/Developer/tamias/apps/worker/wrangler.jsonc).
+   Then add the returned `certificate_id` as `TELLER_MTLS_CERTIFICATE` in both [./wrangler.jsonc](./wrangler.jsonc) and [../worker/wrangler.jsonc](../worker/wrangler.jsonc).
 
 #### Convex Configuration
 ```bash

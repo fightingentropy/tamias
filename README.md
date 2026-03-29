@@ -132,7 +132,7 @@ flowchart LR
 
 ### AI and external services
 
-- Vercel AI SDK with OpenAI, Google, Anthropic, and Mistral providers in different flows
+- AI SDK with OpenAI, Google, Anthropic, and Mistral providers in different flows
 - ElevenLabs for optional insight audio
 - Exa and Plain in supporting flows
 - Plaid, GoCardless, and Teller for banking
@@ -263,7 +263,6 @@ INVOICE_JWT_SECRET=...
 #### Important env notes
 
 - `INTERNAL_API_KEY`, `INVOICE_JWT_SECRET`, and `FILE_KEY_SECRET` must match everywhere they are used.
-- The encryption package expects `TAMIAS_ENCRYPTION_KEY`. Some older templates still mention `MIDDAY_*` variables; use the active runtime names in code when in doubt.
 - The website env file is only needed for site features like docs chat/contact flows. It is not part of the core product runtime.
 - `HMRC_CT_ENVIRONMENT` defaults to `test`. Keep it there in deployed environments until you intentionally want live HMRC CT filing.
 - In `test`, CT submissions use `HMRC_CT_TEST_UTR` when present. In `production`, the filing profile UTR is required.
