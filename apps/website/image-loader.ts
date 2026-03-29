@@ -11,11 +11,9 @@ export default function imageLoader({
   width,
   quality = 80,
 }: ImageLoaderParams): string {
-  const isSvg = src.split("?")[0]?.toLowerCase().endsWith(".svg");
-
-  // Cloudflare image resizing returns 404s for our local SVG assets in production.
-  // Serve SVGs directly so hero/dashboard artwork renders reliably.
-  if (isSvg) {
+  // Cloudflare image resizing returns 404s for same-origin static assets.
+  // Serve local assets directly and reserve the CDN transform for remote URLs.
+  if (src.startsWith("/")) {
     return src;
   }
 
@@ -41,15 +39,6 @@ export default function imageLoader({
       return `https://${vercelUrl}${src}`;
     }
     return src;
-  }
-
-  // Production: use Cloudflare CDN transformation
-  if (src.startsWith("/_next")) {
-    return `${CDN_URL}/cdn-cgi/image/width=${width},quality=${quality}/${CDN_URL}${src}`;
-  }
-
-  if (src.startsWith("/")) {
-    return `${CDN_URL}/cdn-cgi/image/width=${width},quality=${quality}/${CDN_URL}${src}`;
   }
 
   return `${CDN_URL}/cdn-cgi/image/width=${width},quality=${quality}/${src}`;

@@ -119,6 +119,12 @@ export default function Layout({ children }: { children: ReactNode }) {
         <link rel="preconnect" href="https://cdn.tamias.xyz" />
         <link rel="dns-prefetch" href="https://cdn.tamias.xyz" />
         <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "globalThis.__name=globalThis.__name||function(target){return target;};",
+          }}
+        />
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),

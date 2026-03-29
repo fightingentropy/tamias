@@ -5,7 +5,6 @@ interface ImageLoaderParams {
 }
 
 const CDN_URL = "https://tamias.xyz";
-const appUrl = process.env.NEXT_PUBLIC_URL || "https://app.tamias.xyz";
 
 export default function imageLoader({
   src,
@@ -35,9 +34,11 @@ export default function imageLoader({
     }
   }
 
-  // Existing logic for other URLs
-  if (src.startsWith("/_next")) {
-    return `${CDN_URL}/cdn-cgi/image/width=${width},quality=${quality}/${appUrl}${src}`;
+  // Cloudflare image resizing returns 404s for same-origin static assets.
+  // Serve local app assets directly and keep the CDN transform for remote URLs.
+  if (src.startsWith("/")) {
+    return src;
   }
+
   return `${CDN_URL}/cdn-cgi/image/width=${width},quality=${quality}/${src}`;
 }

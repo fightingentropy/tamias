@@ -108,6 +108,14 @@ export default async function Layout({
 
   return (
     <html lang={locale} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "globalThis.__name=globalThis.__name||function(target){return target;};",
+          }}
+        />
+      </head>
       <body
         className={cn(
           `${hedvigSans.variable} ${hedvigSerif.variable} font-sans`,
