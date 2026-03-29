@@ -2,7 +2,10 @@
 
 import { track } from "@tamias/events/client";
 import { LogEvents } from "@tamias/events/events";
+import { getAppUrl } from "@tamias/utils/envs";
 import Link from "next/link";
+
+const appUrl = getAppUrl();
 
 export function TimeSavingsSection() {
   return (
@@ -109,7 +112,7 @@ export function TimeSavingsSection() {
             </article>
 
             <a
-              href="https://tamias.xyz/"
+              href={appUrl}
               onClick={() =>
                 track({
                   event: LogEvents.CTA.name,
@@ -160,7 +163,7 @@ export function TimeSavingsSection() {
 
           <div className="grid grid-cols-1 gap-3 sm:gap-4 xl:hidden">
             <a
-              href="https://tamias.xyz/"
+              href={appUrl}
               onClick={() =>
                 track({
                   event: LogEvents.CTA.name,

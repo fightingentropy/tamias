@@ -3,6 +3,7 @@
 import { track } from "@tamias/events/client";
 import { LogEvents } from "@tamias/events/events";
 import { Button } from "@tamias/ui/button";
+import { getAppUrl } from "@tamias/utils/envs";
 import Link from "next/link";
 import type { Competitor } from "@/data/competitors";
 
@@ -21,6 +22,8 @@ interface Props {
   differentiators: Differentiator[];
   sections: Section[];
 }
+
+const appUrl = getAppUrl();
 
 export function ComparisonHero({
   competitor,
@@ -43,7 +46,7 @@ export function ComparisonHero({
         <div className="flex flex-col sm:flex-row gap-3 mb-12">
           <Button asChild className="btn-inverse h-11 px-6">
             <a
-              href="https://tamias.xyz/"
+              href={appUrl}
               onClick={() =>
                 track({
                   event: LogEvents.CTA.name,

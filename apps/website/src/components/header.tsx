@@ -4,6 +4,7 @@ import { track } from "@tamias/events/client";
 import { LogEvents } from "@tamias/events/events";
 import { cn } from "@tamias/ui/cn";
 import { Icons } from "@tamias/ui/icons";
+import { getAppUrl } from "@tamias/utils/envs";
 import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -91,6 +92,7 @@ const FEATURE_ROUTES = [
 
 // App pages to prefetch on hover
 const APP_ROUTES = ["/integrations", "/docs", "/mcp"];
+const appUrl = getAppUrl();
 
 export function Header({
   transparent = false,
@@ -766,7 +768,7 @@ export function Header({
               {/* Sign in */}
               <div className="border-l border-border pl-4">
                 <Link
-                  href="https://tamias.xyz/"
+                  href={appUrl}
                   className="text-sm transition-colors text-primary hover:text-primary/80"
                   onClick={() =>
                     track({
@@ -1070,7 +1072,7 @@ export function Header({
               {/* Sign in */}
               <div className="border-t border-border pt-8 mt-8">
                 <Link
-                  href="https://tamias.xyz/"
+                  href={appUrl}
                   onTouchEnd={(e) => {
                     const target = e.currentTarget;
                     if (target) {

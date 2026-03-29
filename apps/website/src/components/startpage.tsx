@@ -4,6 +4,7 @@ import { track } from "@tamias/events/client";
 import { LogEvents } from "@tamias/events/events";
 import { Button } from "@tamias/ui/button";
 import { Icons } from "@tamias/ui/icons";
+import { getAppUrl } from "@tamias/utils/envs";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
@@ -107,6 +108,7 @@ const features = [
 
 const heroPosterSrc = "/assets/video-poster-v2.jpg";
 const heroVideoSrc = "/assets/login-video.mp4";
+const appUrl = getAppUrl();
 
 const videos = [
   {
@@ -333,7 +335,7 @@ export function StartPage() {
                   className="btn-inverse h-11 px-6 transition-colors"
                 >
                   <a
-                    href="https://tamias.xyz/"
+                    href={appUrl}
                     onClick={() =>
                       track({
                         event: LogEvents.CTA.name,

@@ -7,6 +7,7 @@ import { DashboardAnimation } from "@tamias/ui/animations/dashboard";
 import { InboxMatchAnimation } from "@tamias/ui/animations/inbox-match";
 import { TransactionFlowAnimation } from "@tamias/ui/animations/transaction-flow";
 import { Button } from "@tamias/ui/button";
+import { getAppUrl } from "@tamias/utils/envs";
 import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -36,6 +37,8 @@ const howItWorksSteps = [
     subtitle: "As new data comes in, your numbers stay reconciled and ready.",
   },
 ];
+
+const appUrl = getAppUrl();
 
 export function PreAccounting() {
   const [activeStep, setActiveStep] = useState(0);
@@ -100,7 +103,7 @@ export function PreAccounting() {
                   className="w-full sm:w-auto h-11 px-6 text-sm font-sans"
                 >
                   <a
-                    href="https://tamias.xyz/"
+                    href={appUrl}
                     onClick={() =>
                       track({
                         event: LogEvents.CTA.name,
@@ -181,7 +184,7 @@ export function PreAccounting() {
             <div className="flex gap-6 justify-center">
               <Button asChild className="h-11 px-6 text-sm font-sans">
                 <a
-                  href="https://tamias.xyz/"
+                  href={appUrl}
                   onClick={() =>
                     track({
                       event: LogEvents.CTA.name,

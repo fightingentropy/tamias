@@ -1,10 +1,12 @@
 import { Button } from "@tamias/ui/button";
+import { getAppUrl } from "@tamias/utils/envs";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { baseUrl } from "@/app/sitemap";
 import { competitors } from "@/data/competitors";
 
 const year = new Date().getFullYear();
+const appUrl = getAppUrl();
 const title = `Compare Tamias to QuickBooks, Xero, FreshBooks & More (${year})`;
 const description =
   "Looking for QuickBooks, Xero, or FreshBooks alternatives? Compare Tamias to popular accounting and finance tools. Built for founders, not accountants. Free 14-day trial.";
@@ -102,7 +104,7 @@ export default function ComparePage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild className="btn-inverse h-11 px-6">
-                <a href="https://tamias.xyz/">Start your free trial</a>
+                <a href={appUrl}>Start your free trial</a>
               </Button>
               <Button asChild variant="outline" className="h-11 px-6">
                 <Link href="/pricing">View pricing</Link>

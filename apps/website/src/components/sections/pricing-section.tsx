@@ -4,6 +4,9 @@ import { track } from "@tamias/events/client";
 import { LogEvents } from "@tamias/events/events";
 import { Button } from "@tamias/ui/button";
 import { PlanCards } from "@tamias/ui/plan-cards";
+import { getAppUrl } from "@tamias/utils/envs";
+
+const appUrl = getAppUrl();
 
 export function PricingSection() {
   return (
@@ -27,7 +30,7 @@ export function PricingSection() {
                 className="w-full btn-inverse font-sans text-sm py-3 px-4 transition-colors"
               >
                 <a
-                  href="https://tamias.xyz/"
+                  href={appUrl}
                   onClick={() =>
                     track({
                       event: LogEvents.CTA.name,
