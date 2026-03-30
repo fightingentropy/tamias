@@ -558,6 +558,9 @@ export function renderAccountsAttachmentIxbrl(draft: StatutoryAccountsDraft) {
   const entity = resolveAccountsEntityIdentifier(draft);
   const durationContextId = "acct-duration";
   const instantContextId = "acct-instant";
+  const accountsStatusContextId = "acct-duration-accounts-status";
+  const accountsTypeContextId = "acct-duration-accounts-type";
+  const accountingStandardsContextId = "acct-duration-accounting-standards";
   const monetaryUnitId = draft.currency.toUpperCase();
   const pureUnitId = "pure";
   const sharesUnitId = "shares";
@@ -644,6 +647,45 @@ export function renderAccountsAttachmentIxbrl(draft: StatutoryAccountsDraft) {
             identifier: entity.identifier,
             instant: draft.periodEnd,
           })}
+          ${renderInlineXbrlContext({
+            id: accountsStatusContextId,
+            scheme: entity.scheme,
+            identifier: entity.identifier,
+            startDate: draft.periodStart,
+            endDate: draft.periodEnd,
+            explicitMembers: [
+              {
+                dimension: "bus:AccountsStatusDimension",
+                value: "bus:AuditExempt-NoAccountantsReport",
+              },
+            ],
+          })}
+          ${renderInlineXbrlContext({
+            id: accountsTypeContextId,
+            scheme: entity.scheme,
+            identifier: entity.identifier,
+            startDate: draft.periodStart,
+            endDate: draft.periodEnd,
+            explicitMembers: [
+              {
+                dimension: "bus:AccountsTypeDimension",
+                value: "bus:FullAccounts",
+              },
+            ],
+          })}
+          ${renderInlineXbrlContext({
+            id: accountingStandardsContextId,
+            scheme: entity.scheme,
+            identifier: entity.identifier,
+            startDate: draft.periodStart,
+            endDate: draft.periodEnd,
+            explicitMembers: [
+              {
+                dimension: "bus:AccountingStandardsDimension",
+                value: "bus:SmallEntities",
+              },
+            ],
+          })}
           ${directorContexts
             .map((context) =>
               renderInlineXbrlContext({
@@ -664,6 +706,12 @@ export function renderAccountsAttachmentIxbrl(draft: StatutoryAccountsDraft) {
           ${renderInlineXbrlUnit(sharesUnitId, "xbrli:shares")}
         </ix:resources>
       </ix:header>
+    </div>
+    <div style="display:none">
+      <ix:nonNumeric name="bus:AccountingStandardsApplied" contextRef="${accountingStandardsContextId}"></ix:nonNumeric>
+      <ix:nonNumeric name="bus:AccountsStatusAuditedOrUnaudited" contextRef="${accountsStatusContextId}"></ix:nonNumeric>
+      <ix:nonNumeric name="bus:AccountsType" contextRef="${accountsTypeContextId}"></ix:nonNumeric>
+      <ix:nonNumeric name="bus:EntityTradingStatus" contextRef="${durationContextId}"></ix:nonNumeric>
     </div>
     <h1><ix:nonNumeric name="bus:EntityCurrentLegalOrRegisteredName" contextRef="${durationContextId}">${escapeXml(
       draft.companyName,
@@ -764,7 +812,7 @@ export function renderAccountsAttachmentIxbrl(draft: StatutoryAccountsDraft) {
               signingDirector
                 ? `<span><ix:nonNumeric name="bus:NameEntityOfficer" contextRef="${signingDirector.id}">${escapeXml(
                     signingDirector.name,
-                  )}</ix:nonNumeric></span>`
+                  )}</ix:nonNumeric><ix:nonNumeric name="core:DirectorSigningFinancialStatements" contextRef="${signingDirector.id}"></ix:nonNumeric></span>`
                 : escapeXml(draft.signingDirectorName)
             } on <ix:nonNumeric name="core:DateAuthorisationFinancialStatementsForIssue" contextRef="${instantContextId}">${escapeXml(
               draft.approvalDate,

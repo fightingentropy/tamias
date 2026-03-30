@@ -1088,6 +1088,12 @@ const apiWithSubmissionEvents = api as typeof api & {
   };
 };
 
+const apiWithFilingSequences = api as typeof api & {
+  filingSequences: {
+    serviceAllocateFilingSequence: any;
+  };
+};
+
 const apiWithInsightsStore = api as typeof api & {
   insightsStore: {
     serviceCreateInsight: any;
@@ -5973,6 +5979,17 @@ export async function listSubmissionEventsFromConvex(args: {
       obligationType: args.obligationType,
     }),
   ) as Promise<SubmissionEventRecord[]>;
+}
+
+export async function allocateFilingSequenceInConvex(args: {
+  scope: string;
+}) {
+  return createClient().mutation(
+    apiWithFilingSequences.filingSequences.serviceAllocateFilingSequence,
+    serviceArgs({
+      scope: args.scope,
+    }),
+  ) as Promise<number>;
 }
 
 export async function countSourceLinksBySourceTypesFromConvex(args: {

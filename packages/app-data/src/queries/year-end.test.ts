@@ -1,8 +1,10 @@
+import { spawnSync } from "node:child_process";
 import { describe, expect, test } from "bun:test";
 import {
   buildCt600Draft,
   buildStatutoryAccountsDraft,
   buildYearEndPackSnapshot,
+  formatCompaniesHouseSubmissionNumber,
   renderAccountsAttachmentIxbrl,
   renderComputationsAttachmentIxbrl,
   renderCt600DraftXml,
@@ -513,6 +515,54 @@ describe("year-end helpers", () => {
     expect(period.corporationTaxDueDate).toBe("2027-01-01");
   });
 
+  test("resolves the annual period consistently in western time zones", () => {
+    const script = `
+      import { resolveAnnualPeriod } from ${JSON.stringify(new URL("./index.ts", import.meta.url).href)};
+      const period = resolveAnnualPeriod(
+        { yearEndMonth: 3, yearEndDay: 31 },
+        { referenceDate: new Date("2026-03-19T12:00:00.000Z") },
+      );
+      process.stdout.write(JSON.stringify(period));
+    `;
+    const result = spawnSync(process.execPath, ["-e", script], {
+      env: {
+        ...process.env,
+        TZ: "America/Los_Angeles",
+      },
+      encoding: "utf8",
+    });
+
+    if (result.status !== 0) {
+      throw new Error(result.stderr || "Failed to resolve annual period in subprocess");
+    }
+
+    expect(JSON.parse(result.stdout)).toEqual(BASE_PERIOD);
+  });
+
+  test("keeps explicit period keys stable in DST-observing European time zones", () => {
+    const script = `
+      import { resolveAnnualPeriod } from ${JSON.stringify(new URL("./index.ts", import.meta.url).href)};
+      const period = resolveAnnualPeriod(
+        { yearEndMonth: 3, yearEndDay: 31 },
+        { periodKey: "2026-03-31" },
+      );
+      process.stdout.write(JSON.stringify(period));
+    `;
+    const result = spawnSync(process.execPath, ["-e", script], {
+      env: {
+        ...process.env,
+        TZ: "Europe/London",
+      },
+      encoding: "utf8",
+    });
+
+    if (result.status !== 0) {
+      throw new Error(result.stderr || "Failed to resolve explicit period key in subprocess");
+    }
+
+    expect(JSON.parse(result.stdout)).toEqual(BASE_PERIOD);
+  });
+
   test("builds a deterministic year-end snapshot with CT adjustments", () => {
     const snapshot = buildBasicSnapshot([
       makeAdjustment({
@@ -735,9 +785,15 @@ describe("year-end helpers", () => {
     expect(accountsAttachment).toContain(
       "core:DescriptionBodyAuthorisingFinancialStatements",
     );
-    expect(accountsAttachment).not.toContain(
+    expect(accountsAttachment).toContain(
       "core:DirectorSigningFinancialStatements",
     );
+    expect(accountsAttachment).toContain("bus:AccountingStandardsApplied");
+    expect(accountsAttachment).toContain(
+      "bus:AccountsStatusAuditedOrUnaudited",
+    );
+    expect(accountsAttachment).toContain("bus:AccountsType");
+    expect(accountsAttachment).toContain("bus:EntityTradingStatus");
     expect(computationsAttachment).toContain(
       "Filing-ready computation attachment.",
     );
@@ -875,6 +931,21 @@ describe("year-end helpers", () => {
         process.env.HMRC_CT_TEST_UTR = previousTestUtr;
       }
     }
+  });
+
+  test("formats Companies House submission numbers as zero-padded six-digit values", () => {
+    expect(formatCompaniesHouseSubmissionNumber(1)).toBe("000001");
+    expect(formatCompaniesHouseSubmissionNumber(12)).toBe("000012");
+    expect(formatCompaniesHouseSubmissionNumber(123456)).toBe("123456");
+  });
+
+  test("rejects Companies House submission numbers outside the gateway range", () => {
+    expect(() => formatCompaniesHouseSubmissionNumber(0)).toThrow(
+      "Companies House submission number must be between 1 and 999999",
+    );
+    expect(() => formatCompaniesHouseSubmissionNumber(1_000_000)).toThrow(
+      "Companies House submission number must be between 1 and 999999",
+    );
   });
 
   test("applies marginal relief when profits fall between the thresholds", () => {

@@ -29,6 +29,7 @@ import type * as documents from "../documents.js";
 import type * as evidencePacks from "../evidencePacks.js";
 import type * as exchangeRates from "../exchangeRates.js";
 import type * as files from "../files.js";
+import type * as filingSequences from "../filingSequences.js";
 import type * as foundation from "../foundation.js";
 import type * as foundationActions from "../foundationActions.js";
 import type * as health from "../health.js";
@@ -93,6 +94,7 @@ declare const fullApi: ApiFromModules<{
   evidencePacks: typeof evidencePacks;
   exchangeRates: typeof exchangeRates;
   files: typeof files;
+  filingSequences: typeof filingSequences;
   foundation: typeof foundation;
   foundationActions: typeof foundationActions;
   health: typeof health;

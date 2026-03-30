@@ -1159,6 +1159,12 @@ export default defineSchema({
       "teamId",
       "publicEvidencePackId",
     ]),
+  filingSequences: defineTable({
+    scope: v.string(),
+    nextValue: v.number(),
+    createdAt: v.string(),
+    updatedAt: v.string(),
+  }).index("by_scope", ["scope"]),
   submissionEvents: defineTable({
     teamId: v.id("teams"),
     filingProfileId: v.string(),

@@ -996,7 +996,7 @@ export class CompaniesHouseXmlGatewayProvider {
       <TransactionID>${escapeXml(transactionId)}</TransactionID>
       ${
         this.environment === "test"
-          ? "<GatewayTest>true</GatewayTest>"
+          ? "<GatewayTest>1</GatewayTest>"
           : ""
       }
     </MessageDetails>
@@ -1086,7 +1086,7 @@ export class CompaniesHouseXmlGatewayProvider {
       <TransactionID>${escapeXml(transactionId)}</TransactionID>
       ${
         this.environment === "test"
-          ? "<GatewayTest>true</GatewayTest>"
+          ? "<GatewayTest>1</GatewayTest>"
           : ""
       }
     </MessageDetails>

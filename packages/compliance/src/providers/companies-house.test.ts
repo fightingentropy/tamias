@@ -207,7 +207,7 @@ describe("CompaniesHouseProvider", () => {
     });
 
     expect(xml).toContain("<Class>Accounts</Class>");
-    expect(xml).toContain("<GatewayTest>true</GatewayTest>");
+    expect(xml).toContain("<GatewayTest>1</GatewayTest>");
     expect(xml).toContain(
       `<SenderID>${createHash("md5").update("Presenter123", "utf8").digest("hex")}</SenderID>`,
     );
@@ -250,7 +250,7 @@ describe("CompaniesHouseProvider", () => {
     expect(xml).toContain("<Class>GetSubmissionStatus</Class>");
     expect(xml).toContain("<PresenterID>Presenter123</PresenterID>");
     expect(xml).toContain("<SubmissionNumber>AA1234</SubmissionNumber>");
-    expect(xml).toContain("<GatewayTest>true</GatewayTest>");
+    expect(xml).toContain("<GatewayTest>1</GatewayTest>");
   });
 
   test("parses Companies House gateway submission statuses", () => {

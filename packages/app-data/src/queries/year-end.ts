@@ -27,6 +27,7 @@ import type {
   YearEndPackRecord,
 } from "@tamias/app-data-convex";
 import {
+  allocateFilingSequenceInConvex,
   deleteComplianceJournalEntryBySourceInConvex,
   deleteCloseCompanyLoansScheduleInConvex,
   deleteCorporationTaxRateScheduleInConvex,
@@ -82,6 +83,9 @@ const SMALL_PROFITS_RATE = 0.19;
 const SMALL_PROFITS_LOWER_LIMIT = 50_000;
 const SMALL_PROFITS_UPPER_LIMIT = 250_000;
 const SMALL_PROFITS_MARGINAL_RELIEF_FRACTION = 3 / 200;
+const COMPANIES_HOUSE_SUBMISSION_NUMBER_WIDTH = 6;
+const COMPANIES_HOUSE_SUBMISSION_NUMBER_MAX =
+  10 ** COMPANIES_HOUSE_SUBMISSION_NUMBER_WIDTH - 1;
 
 type TeamContext = {
   id: string;
@@ -1573,6 +1577,22 @@ function coerceDate(date: Date) {
   );
 }
 
+function parseDateKey(value: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+
+  if (!match) {
+    return null;
+  }
+
+  const [, yearValue, monthValue, dayValue] = match;
+  const year = Number.parseInt(yearValue, 10);
+  const month = Number.parseInt(monthValue, 10);
+  const day = Number.parseInt(dayValue, 10);
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  return date.toISOString().slice(0, 10) === value ? date : null;
+}
+
 function resolveYearEndDate(year: number, month: number, day: number) {
   const lastDayOfMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
   const safeDay = Math.min(day, lastDayOfMonth);
@@ -1589,7 +1609,7 @@ function resolveReferenceDate(referenceDate?: Date) {
 }
 
 function formatDateKey(date: Date) {
-  return format(date, "yyyy-MM-dd");
+  return date.toISOString().slice(0, 10);
 }
 
 export function resolveAnnualPeriod(
@@ -1605,11 +1625,13 @@ export function resolveAnnualPeriod(
   let periodEnd: Date;
 
   if (options?.periodKey) {
-    periodEnd = coerceDate(parseISO(options.periodKey));
+    const parsedPeriodEnd = parseDateKey(options.periodKey);
 
-    if (!isValid(periodEnd)) {
+    if (!parsedPeriodEnd) {
       throw new Error("Invalid year-end period key");
     }
+
+    periodEnd = parsedPeriodEnd;
   } else {
     const referenceDate = resolveReferenceDate(options?.referenceDate);
     const referenceYear = referenceDate.getUTCFullYear();
@@ -1642,7 +1664,7 @@ export function resolveAnnualPeriod(
 }
 
 function determineObligationStatus(dueDate: string) {
-  const today = format(new Date(), "yyyy-MM-dd");
+  const today = formatDateKey(coerceDate(new Date()));
   return today > dueDate ? "overdue" : "open";
 }
 
@@ -2924,13 +2946,69 @@ function getSubmissionEventRequestSubmissionNumber(
   return typeof submissionNumber === "string" ? submissionNumber : null;
 }
 
-function buildCompaniesHouseSubmissionIdentifiers(periodKey: string) {
-  const seed = `${periodKey}:${Date.now()}:${Math.random()}`;
-  const hash = createHash("sha1").update(seed).digest("hex").toUpperCase();
+export function formatCompaniesHouseSubmissionNumber(sequence: number) {
+  if (
+    !Number.isSafeInteger(sequence) ||
+    sequence < 1 ||
+    sequence > COMPANIES_HOUSE_SUBMISSION_NUMBER_MAX
+  ) {
+    throw new Error(
+      `Companies House submission number must be between 1 and ${COMPANIES_HOUSE_SUBMISSION_NUMBER_MAX}`,
+    );
+  }
+
+  return sequence
+    .toString()
+    .padStart(COMPANIES_HOUSE_SUBMISSION_NUMBER_WIDTH, "0");
+}
+
+function buildCompaniesHouseTransactionId(seed: string) {
+  return createHash("sha1")
+    .update(seed)
+    .digest("hex")
+    .toUpperCase()
+    .slice(0, 16);
+}
+
+function buildCompaniesHouseSubmissionSequenceScope(
+  provider: CompaniesHouseXmlGatewayProvider,
+) {
+  return [
+    "companies-house",
+    "accounts",
+    provider.environment,
+    provider.presenterId,
+    provider.packageReference,
+  ].join(":");
+}
+
+async function allocateCompaniesHouseSubmissionIdentifiers(
+  provider: CompaniesHouseXmlGatewayProvider,
+) {
+  const sequence = await allocateFilingSequenceInConvex({
+    scope: buildCompaniesHouseSubmissionSequenceScope(provider),
+  });
 
   return {
-    submissionNumber: `AA${hash.slice(0, 4)}`,
-    transactionId: `OPS${hash.slice(4, 16)}`,
+    submissionNumber: formatCompaniesHouseSubmissionNumber(sequence),
+    transactionId: buildCompaniesHouseTransactionId(
+      [
+        "submit",
+        provider.environment,
+        provider.presenterId,
+        provider.packageReference,
+        sequence,
+        Date.now(),
+        Math.random(),
+      ].join(":"),
+    ),
+  };
+}
+
+function buildCompaniesHousePreviewSubmissionIdentifiers(periodKey: string) {
+  return {
+    submissionNumber: "000000",
+    transactionId: buildCompaniesHouseTransactionId(`preview:${periodKey}`),
   };
 }
 
@@ -3481,37 +3559,43 @@ export async function submitAnnualAccountsToCompaniesHouse(
     throw error;
   }
 
-  const identifiers = buildCompaniesHouseSubmissionIdentifiers(
-    context.period.periodKey,
-  );
-  const requestSummary = {
-    ...buildCompaniesHouseAccountsSubmissionRequestSummary({
-      periodKey: context.period.periodKey,
-      profile: context.profile,
-      draft: submissionArtifacts.statutoryAccountsDraft,
-      provider,
-      submissionNumber: identifiers.submissionNumber,
-      transactionId: identifiers.transactionId,
-    }),
-    submittedBy: params.submittedBy,
-  };
-  const submissionXml = provider.buildAccountsSubmissionXml({
-    companyName: submissionArtifacts.statutoryAccountsDraft.companyName,
-    companyNumber:
-      context.profile.companyNumber ??
-      submissionArtifacts.statutoryAccountsDraft.companyNumber ??
-      "",
-    companyAuthenticationCode,
-    dateSigned:
-      submissionArtifacts.statutoryAccountsDraft.approvalDate ??
-      context.period.periodEnd,
-    accountsIxbrl: submissionArtifacts.accountsAttachmentIxbrl,
-    submissionNumber: identifiers.submissionNumber,
-    transactionId: identifiers.transactionId,
-    customerReference: requestSummary.customerReference,
-  });
+  let identifiers:
+    | Awaited<ReturnType<typeof allocateCompaniesHouseSubmissionIdentifiers>>
+    | null = null;
+  let requestSummary:
+    | (ReturnType<typeof buildCompaniesHouseAccountsSubmissionRequestSummary> & {
+        submittedBy: string;
+      })
+    | null = null;
 
   try {
+    identifiers = await allocateCompaniesHouseSubmissionIdentifiers(provider);
+    requestSummary = {
+      ...buildCompaniesHouseAccountsSubmissionRequestSummary({
+        periodKey: context.period.periodKey,
+        profile: context.profile,
+        draft: submissionArtifacts.statutoryAccountsDraft,
+        provider,
+        submissionNumber: identifiers.submissionNumber,
+        transactionId: identifiers.transactionId,
+      }),
+      submittedBy: params.submittedBy,
+    };
+    const submissionXml = provider.buildAccountsSubmissionXml({
+      companyName: submissionArtifacts.statutoryAccountsDraft.companyName,
+      companyNumber:
+        context.profile.companyNumber ??
+        submissionArtifacts.statutoryAccountsDraft.companyNumber ??
+        "",
+      companyAuthenticationCode,
+      dateSigned:
+        submissionArtifacts.statutoryAccountsDraft.approvalDate ??
+        context.period.periodEnd,
+      accountsIxbrl: submissionArtifacts.accountsAttachmentIxbrl,
+      submissionNumber: identifiers.submissionNumber,
+      transactionId: identifiers.transactionId,
+      customerReference: requestSummary.customerReference,
+    });
     const receipt = await provider.submitAccountsXml(submissionXml);
     const selectedStatus = findCompaniesHouseSubmissionStatus(
       receipt,
@@ -3549,8 +3633,13 @@ export async function submitAnnualAccountsToCompaniesHouse(
       obligationType: "accounts",
       status: "failed",
       eventType: "annual_accounts_submission_failed",
-      correlationId: identifiers.submissionNumber,
-      requestPayload: requestSummary,
+      correlationId: identifiers?.submissionNumber,
+      requestPayload: requestSummary ?? {
+        periodKey: context.period.periodKey,
+        environment: provider.environment,
+        presenterId: provider.presenterId,
+        packageReference: provider.packageReference,
+      },
       errorMessage: error instanceof Error ? error.message : String(error),
     });
     throw error;
@@ -3676,7 +3765,7 @@ async function createYearEndExportBundle(args: {
   const companiesHouseSubmissionIdentifiers =
     companiesHouseXmlProvider &&
     submissionArtifacts.statutoryAccountsDraft.approvalDate
-      ? buildCompaniesHouseSubmissionIdentifiers(args.pack.periodKey)
+      ? buildCompaniesHousePreviewSubmissionIdentifiers(args.pack.periodKey)
       : null;
   const companiesHouseSubmissionCompanyNumber =
     submissionArtifacts.statutoryAccountsDraft.companyNumber;
