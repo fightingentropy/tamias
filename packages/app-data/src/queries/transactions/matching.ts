@@ -1,11 +1,11 @@
-import { createLoggerWithContext } from "@tamias/logger";
 import {
-  getTransactionsByAmountRangeFromConvex,
   getInboxItemByIdFromConvex,
   getTransactionAttachmentsForTransactionIdsFromConvex,
   getTransactionByIdFromConvex,
+  getTransactionsByAmountRangeFromConvex,
   searchTransactionsFromConvex,
 } from "@tamias/app-data-convex";
+import { createLoggerWithContext } from "@tamias/logger";
 import type { Database } from "../../client";
 import {
   calculateAmountScore,
@@ -19,8 +19,8 @@ import {
   compareTransactionsByDateDesc,
   getIndexedTransactionMatchCandidates,
   getIsoDateDistanceInDays,
-  MATCHING_EXCLUDED_TRANSACTION_STATUSES,
   getTransactionSearchText,
+  MATCHING_EXCLUDED_TRANSACTION_STATUSES,
   shiftIsoDate,
 } from "./shared";
 
@@ -275,22 +275,21 @@ export async function searchTransactionMatch(
       })
       .slice(0, Math.max(maxResults * 3, 30));
 
-    const { attachmentsByTransactionId, transactionIdsWithAttachments } =
-      buildTransactionAttachmentLookups(
-        await getTransactionAttachmentsForTransactionIdsFromConvex({
-          teamId,
-          transactionIds: candidateTransactions.map(
-            (candidate) => candidate.transaction.id,
-          ),
-        }),
-      );
+    const { attachmentsByTransactionId } = buildTransactionAttachmentLookups(
+      await getTransactionAttachmentsForTransactionIdsFromConvex({
+        teamId,
+        transactionIds: candidateTransactions.map(
+          (candidate) => candidate.transaction.id,
+        ),
+      }),
+    );
 
     return candidateTransactions
       .map((candidate) => {
         const transactionAttachments =
           attachmentsByTransactionId.get(candidate.transaction.id) ?? [];
         const isAlreadyMatched =
-          transactionIdsWithAttachments.has(candidate.transaction.id) ||
+          candidate.transaction.hasAttachment ||
           candidate.transaction.status === "completed";
 
         return {
@@ -322,7 +321,7 @@ export async function searchTransactionMatch(
         inboxId,
       });
 
-      if (!item || !item.date) {
+      if (!item?.date) {
         return [];
       }
 
@@ -408,18 +407,18 @@ export async function searchTransactionMatch(
           baseAmount: transaction.baseAmount,
           baseCurrency: transaction.baseCurrency,
           status: transaction.status,
+          hasAttachment: transaction.hasAttachment,
           merchantName: transaction.merchantName,
         }));
 
-      const { attachmentsByTransactionId, transactionIdsWithAttachments } =
-        buildTransactionAttachmentLookups(
-          await getTransactionAttachmentsForTransactionIdsFromConvex({
-            teamId,
-            transactionIds: candidateTransactions.map(
-              (transaction) => transaction.transactionId,
-            ),
-          }),
-        );
+      const { attachmentsByTransactionId } = buildTransactionAttachmentLookups(
+        await getTransactionAttachmentsForTransactionIdsFromConvex({
+          teamId,
+          transactionIds: candidateTransactions.map(
+            (transaction) => transaction.transactionId,
+          ),
+        }),
+      );
 
       const scoredResults = candidateTransactions
         .map((transaction) => {
@@ -471,8 +470,7 @@ export async function searchTransactionMatch(
           const transactionAttachments =
             attachmentsByTransactionId.get(transaction.transactionId) ?? [];
           const isAlreadyMatched =
-            transactionIdsWithAttachments.has(transaction.transactionId) ||
-            transaction.status === "completed";
+            transaction.hasAttachment || transaction.status === "completed";
 
           return {
             transaction_id: transaction.transactionId,

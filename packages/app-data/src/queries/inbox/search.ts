@@ -1,13 +1,13 @@
-import { createLoggerWithContext } from "@tamias/logger";
 import {
-  getInboxItemsByAmountRangeFromConvex,
   getInboxItemByIdFromConvex,
+  getInboxItemsByAmountRangeFromConvex,
   getInboxItemsFromConvex,
   getInboxItemsPageFromConvex,
-  searchInboxItemsFromConvex,
   getTransactionByIdFromConvex,
   type InboxItemRecord,
+  searchInboxItemsFromConvex,
 } from "@tamias/app-data-convex";
+import { createLoggerWithContext } from "@tamias/logger";
 import type { Database } from "../../client";
 import {
   calculateAmountScore as calculateUnifiedAmountScore,
@@ -16,7 +16,6 @@ import {
   calculateNameScore as calculateUnifiedNameScore,
   scoreMatch,
 } from "../../utils/transaction-matching";
-import { getTransactionIdsWithAttachments } from "../transaction-attachments";
 import {
   compareNullableDates,
   includesSearch,
@@ -227,14 +226,7 @@ export async function getInboxSearch(
       });
 
       if (transaction) {
-        const attachmentCount = (
-          await getTransactionIdsWithAttachments({
-            teamId,
-            transactionIds: [transactionId],
-          })
-        ).length;
-
-        if (attachmentCount > 0) {
+        if (transaction.hasAttachment) {
           return [];
         }
 

@@ -6,7 +6,6 @@ import {
   getTaggedTransactionsPageFromConvex,
   getTeamMembersFromConvexIdentity,
   getTransactionAttachmentsForTransactionIdsFromConvex,
-  getTransactionIdsWithAttachmentsFromConvex,
   getTransactionsByIdsFromConvex,
   getTransactionsFromConvex,
   getTransactionsPageFromConvex,
@@ -320,22 +319,15 @@ async function getTransactionsReadyForReviewFromCandidates(
   }
 
   const transactionIds = args.transactions.map((transaction) => transaction.id);
-  const [accountingSyncRecords, attachmentTransactionIds] = await Promise.all([
-    getAccountingSyncStatus(db, {
-      teamId: args.teamId,
-      transactionIds,
-    }),
-    getTransactionIdsWithAttachmentsFromConvex({
-      teamId: args.teamId,
-      transactionIds,
-    }),
-  ]);
+  const accountingSyncRecords = await getAccountingSyncStatus(db, {
+    teamId: args.teamId,
+    transactionIds,
+  });
   const syncedTransactionIds = new Set(
     accountingSyncRecords
       .filter((record) => record.status === "synced")
       .map((record) => record.transactionId),
   );
-  const attachmentTransactionIdSet = new Set(attachmentTransactionIds);
 
   return args.transactions.filter(
     (transaction) =>
@@ -343,8 +335,7 @@ async function getTransactionsReadyForReviewFromCandidates(
       transaction.status !== "archived" &&
       transaction.status !== "exported" &&
       !syncedTransactionIds.has(transaction.id) &&
-      (transaction.status === "completed" ||
-        attachmentTransactionIdSet.has(transaction.id)),
+      (transaction.status === "completed" || transaction.hasAttachment),
   );
 }
 
@@ -408,8 +399,9 @@ async function buildProcessedTransactionPage(args: {
     syncedTransactionIds,
     errorTransactionIds,
   } = buildAccountingSyncLookups(accountingSyncRecords);
-  const { attachmentsByTransactionId, transactionIdsWithAttachments } =
-    buildTransactionAttachmentLookups(transactionAttachments);
+  const { attachmentsByTransactionId } = buildTransactionAttachmentLookups(
+    transactionAttachments,
+  );
   const { tagsByTransactionId } = buildTransactionTagLookups(
     transactionTagAssignments,
   );
@@ -420,7 +412,6 @@ async function buildProcessedTransactionPage(args: {
       transaction.id,
       getTransactionDerivedState(transaction, {
         pendingSuggestionIds,
-        attachmentTransactionIds: transactionIdsWithAttachments,
         syncedTransactionIds: syncedTransactionIdSet,
         errorTransactionIds: errorTransactionIdSet,
       }),
@@ -480,8 +471,7 @@ async function buildProcessedTransactionPage(args: {
           size: attachment.size,
         })),
         isFulfilled:
-          transactionIdsWithAttachments.has(transaction.id) ||
-          transaction.status === "completed",
+          transaction.hasAttachment || transaction.status === "completed",
         isExported: transaction.status === "exported" || Boolean(syncedRecord),
         exportProvider: syncedRecord?.provider ?? null,
         exportedAt: syncedRecord?.syncedAt ?? null,
@@ -957,21 +947,16 @@ export async function getTransactions(
   const candidateTransactionIds = prefilteredTransactions.map(
     (transaction) => transaction.id,
   );
-  const [accountingSyncRecords, pendingSuggestionIds, attachmentTransactionIds] =
-    await Promise.all([
-      getAccountingSyncStatus(db, {
-        teamId,
-        transactionIds: candidateTransactionIds,
-      }),
-      getPendingSuggestionTransactionIdsForTransactions(db, {
-        teamId,
-        transactionIds: candidateTransactionIds,
-      }),
-      getTransactionIdsWithAttachmentsFromConvex({
-        teamId,
-        transactionIds: candidateTransactionIds,
-      }),
-    ]);
+  const [accountingSyncRecords, pendingSuggestionIds] = await Promise.all([
+    getAccountingSyncStatus(db, {
+      teamId,
+      transactionIds: candidateTransactionIds,
+    }),
+    getPendingSuggestionTransactionIdsForTransactions(db, {
+      teamId,
+      transactionIds: candidateTransactionIds,
+    }),
+  ]);
 
   const {
     syncedByTransactionId,
@@ -981,14 +966,11 @@ export async function getTransactions(
   } = buildAccountingSyncLookups(accountingSyncRecords);
   const syncedTransactionIdSet = new Set(syncedTransactionIds);
   const errorTransactionIdSet = new Set(errorTransactionIds);
-  const attachmentTransactionIdSet = new Set(attachmentTransactionIds);
-
   const derivedStateByTransactionId = new Map(
     prefilteredTransactions.map((transaction) => [
       transaction.id,
       getTransactionDerivedState(transaction, {
         pendingSuggestionIds,
-        attachmentTransactionIds: attachmentTransactionIdSet,
         syncedTransactionIds: syncedTransactionIdSet,
         errorTransactionIds: errorTransactionIdSet,
       }),
@@ -1100,10 +1082,7 @@ export async function getTransactions(
 
   const offset = cursor ? Number.parseInt(cursor, 10) : 0;
   const fetchedData = filteredTransactions.slice(offset, offset + pageSize);
-  const {
-    attachmentsByTransactionId,
-    transactionIdsWithAttachments: fetchedTransactionIdsWithAttachments,
-  } = buildTransactionAttachmentLookups(
+  const { attachmentsByTransactionId } = buildTransactionAttachmentLookups(
     await getTransactionAttachmentsForTransactionIdsFromConvex({
       teamId,
       transactionIds: fetchedData.map((row) => row.id),
@@ -1168,8 +1147,7 @@ export async function getTransactions(
         size: attachment.size,
       })),
       isFulfilled:
-        fetchedTransactionIdsWithAttachments.has(transaction.id) ||
-        transaction.status === "completed",
+        transaction.hasAttachment || transaction.status === "completed",
       isExported: transaction.status === "exported" || Boolean(syncedRecord),
       exportProvider: syncedRecord?.provider ?? null,
       exportedAt: syncedRecord?.syncedAt ?? null,

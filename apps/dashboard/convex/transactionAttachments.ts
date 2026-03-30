@@ -1,9 +1,14 @@
 import { ConvexError, v } from "convex/values";
+import { nowIso } from "../../../packages/domain/src/identity";
 import type { Id } from "./_generated/dataModel";
-import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
+import {
+  type MutationCtx,
+  mutation,
+  type QueryCtx,
+  query,
+} from "./_generated/server";
 import { getTeamByPublicTeamId } from "./lib/identity";
 import { requireServiceKey } from "./lib/service";
-import { nowIso } from "../../../packages/domain/src/identity";
 
 type TransactionAttachmentCtx = QueryCtx | MutationCtx;
 
@@ -45,7 +50,10 @@ function pathKeyFromPath(path: string[]) {
 }
 
 function publicTransactionAttachmentId(
-  record: Pick<TransactionAttachmentDoc, "_id" | "publicTransactionAttachmentId">,
+  record: Pick<
+    TransactionAttachmentDoc,
+    "_id" | "publicTransactionAttachmentId"
+  >,
 ) {
   return record.publicTransactionAttachmentId ?? record._id;
 }
@@ -66,7 +74,10 @@ function serializeTransactionAttachment(
   };
 }
 
-async function getTeamOrThrow(ctx: TransactionAttachmentCtx, publicTeamId: string) {
+async function getTeamOrThrow(
+  ctx: TransactionAttachmentCtx,
+  publicTeamId: string,
+) {
   const team = await getTeamByPublicTeamId(ctx, publicTeamId);
 
   if (!team) {
@@ -145,9 +156,9 @@ async function getTransactionAttachmentByPublicId(
     return matchingLegacyRecord;
   }
 
-  const byDocId = (await db.get(args.attachmentId as any)) as
-    | TransactionAttachmentDoc
-    | null;
+  const byDocId = (await db.get(
+    args.attachmentId as any,
+  )) as TransactionAttachmentDoc | null;
 
   if (byDocId && byDocId.teamId === team._id) {
     return byDocId;
@@ -269,10 +280,7 @@ export const serviceCreateTransactionAttachments = mutation({
       const existing = await db
         .query("transactionAttachments")
         .withIndex("by_public_transaction_attachment_id", (q: any) =>
-          q.eq(
-            "publicTransactionAttachmentId",
-            publicTransactionAttachmentId,
-          ),
+          q.eq("publicTransactionAttachmentId", publicTransactionAttachmentId),
         )
         .collect();
 
@@ -302,12 +310,16 @@ export const serviceCreateTransactionAttachments = mutation({
           throw new ConvexError("Failed to update transaction attachment");
         }
 
-        results.push(serializeTransactionAttachment(args.publicTeamId, updated));
+        results.push(
+          serializeTransactionAttachment(args.publicTeamId, updated),
+        );
         continue;
       }
 
       if (existing.length > 0) {
-        throw new ConvexError("Transaction attachment legacy id already exists");
+        throw new ConvexError(
+          "Transaction attachment legacy id already exists",
+        );
       }
 
       const insertedId = await db.insert("transactionAttachments", {
@@ -493,6 +505,7 @@ export const serviceDeleteTransactionAttachment = mutation({
   async handler(ctx, args) {
     requireServiceKey(args.serviceKey);
     const db = ctx.db as any;
+    const team = await getTeamByPublicTeamId(ctx, args.publicTeamId);
 
     const attachment = await getTransactionAttachmentByPublicId(ctx, {
       publicTeamId: args.publicTeamId,
@@ -505,7 +518,7 @@ export const serviceDeleteTransactionAttachment = mutation({
 
     await db.delete(attachment._id);
 
-    if (attachment.transactionId) {
+    if (team && attachment.transactionId) {
       await syncTransactionHasAttachmentFlag(ctx, {
         teamId: team._id,
         transactionId: attachment.transactionId,
@@ -663,8 +676,14 @@ export const serviceRebuildTransactionAttachmentFlags = mutation({
 
       const attachedTransactionIds = new Set<string>(
         attachments
-          .map((attachment: { transactionId?: string }) => attachment.transactionId)
-          .filter((transactionId): transactionId is string => Boolean(transactionId)),
+          .map(
+            (attachment: { transactionId?: string }) =>
+              attachment.transactionId,
+          )
+          .filter(
+            (transactionId: string | undefined): transactionId is string =>
+              Boolean(transactionId),
+          ),
       );
       let updatedTransactionCount = 0;
 

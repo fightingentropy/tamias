@@ -1,30 +1,26 @@
 import {
-  CONTRA_REVENUE_CATEGORIES,
-  REVENUE_CATEGORIES,
-} from "@tamias/categories";
-import {
+  type BankAccountRecord,
+  type TransactionMethod as ConvexTransactionMethod,
+  type TransactionStatus as ConvexTransactionStatus,
+  type CurrentUserIdentityRecord,
   getBankAccountsFromConvex,
-  getTransactionsByAmountRangeFromConvex,
   getInboxItemByIdFromConvex,
-  searchTransactionsFromConvex,
   getTeamMembersFromConvexIdentity,
   getTransactionAttachmentsForTransactionIdsFromConvex,
   getTransactionByIdFromConvex,
   getTransactionMatchSuggestionsFromConvex,
+  getTransactionsByAmountRangeFromConvex,
   getTransactionTagAssignmentsForTransactionIdsFromConvex,
-  type BankAccountRecord,
-  type CurrentUserIdentityRecord,
+  searchTransactionsFromConvex,
   type TransactionCategoryRecord,
-  type TransactionMethod as ConvexTransactionMethod,
   type TransactionRecord,
-  type TransactionStatus as ConvexTransactionStatus,
   type TransactionTagAssignmentRecord,
   type UpsertTransactionInConvexInput,
 } from "@tamias/app-data-convex";
-import type { Database } from "../../client";
-import { type transactionFrequencyEnum } from "../../schema";
 import { resolveTaxValues } from "@tamias/utils/tax";
-import { type AccountingSyncRecord } from "../accounting-sync";
+import type { Database } from "../../client";
+import type { transactionFrequencyEnum } from "../../schema";
+import type { AccountingSyncRecord } from "../accounting-sync";
 import { getTransactionCategoryContext } from "../transaction-categories";
 
 export type TransactionConvexUserId = CurrentUserIdentityRecord["convexId"];
@@ -82,6 +78,7 @@ export function toConvexTransactionInput(
     frequency: next.frequency as TransactionFrequency | null | undefined,
     merchantName: next.merchantName,
     enrichmentCompleted: next.enrichmentCompleted ?? false,
+    hasAttachment: next.hasAttachment ?? false,
   };
 }
 
@@ -289,14 +286,11 @@ export function buildTransactionAttachmentLookups(
     string,
     TransactionAttachmentSummary[]
   >();
-  const transactionIdsWithAttachments = new Set<string>();
 
   for (const attachment of attachments) {
     if (!attachment.transactionId) {
       continue;
     }
-
-    transactionIdsWithAttachments.add(attachment.transactionId);
 
     const current =
       attachmentsByTransactionId.get(attachment.transactionId) ?? [];
@@ -312,7 +306,6 @@ export function buildTransactionAttachmentLookups(
 
   return {
     attachmentsByTransactionId,
-    transactionIdsWithAttachments,
   };
 }
 
@@ -467,14 +460,12 @@ export function getTransactionDerivedState(
   transaction: TransactionRecord,
   lookups: {
     pendingSuggestionIds: Set<string>;
-    attachmentTransactionIds: Set<string>;
     syncedTransactionIds: Set<string>;
     errorTransactionIds: Set<string>;
   },
 ): TransactionDerivedState {
   const isFulfilled =
-    lookups.attachmentTransactionIds.has(transaction.id) ||
-    transaction.status === "completed";
+    transaction.hasAttachment || transaction.status === "completed";
   const isExported =
     transaction.status === "exported" ||
     lookups.syncedTransactionIds.has(transaction.id);
@@ -700,13 +691,12 @@ export async function getFullTransactionData(
   const assignedUserById = buildAssignedUserLookup(teamMembers);
   const categoryContext = await getTransactionCategoryContext(db, teamId);
 
-  const { attachmentsByTransactionId, transactionIdsWithAttachments } =
-    buildTransactionAttachmentLookups(
-      await getTransactionAttachmentsForTransactionIdsFromConvex({
-        teamId,
-        transactionIds: [transactionId],
-      }),
-    );
+  const { attachmentsByTransactionId } = buildTransactionAttachmentLookups(
+    await getTransactionAttachmentsForTransactionIdsFromConvex({
+      teamId,
+      transactionIds: [transactionId],
+    }),
+  );
   const { tagsByTransactionId } = buildTransactionTagLookups(
     await getTransactionTagAssignmentsForTransactionIdsFromConvex({
       teamId,
@@ -757,9 +747,7 @@ export async function getFullTransactionData(
         size: attachment.size,
       }),
     ),
-    isFulfilled:
-      transactionIdsWithAttachments.has(result.id) ||
-      result.status === "completed",
+    isFulfilled: result.hasAttachment || result.status === "completed",
     account: newAccount,
     assigned: buildAssignedTransactionUser(
       result.assignedId ? assignedUserById.get(result.assignedId) : undefined,

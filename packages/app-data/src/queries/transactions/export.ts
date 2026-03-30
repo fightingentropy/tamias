@@ -1,16 +1,15 @@
 import {
   getTransactionByIdFromConvex,
-  getTransactionIdsWithAttachmentsFromConvex,
   getTransactionsByIdsFromConvex,
   getTransactionsPageFromConvex,
   upsertTransactionsInConvex,
 } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
+import { cacheAcrossRequests } from "../../utils/short-lived-cache";
 import {
   deleteAccountingSyncRecordsForTransactions,
   getAccountingSyncStatus,
 } from "../accounting-sync";
-import { cacheAcrossRequests } from "../../utils/short-lived-cache";
 import { toConvexTransactionInput } from "./shared";
 
 const READY_FOR_EXPORT_COUNT_BATCH_SIZE = 250;
@@ -35,28 +34,20 @@ async function getTransactionsReadyForExportCountImpl(
     }
 
     const transactionIds = result.page.map((transaction) => transaction.id);
-    const [accountingSyncRecords, attachmentTransactionIds] = await Promise.all([
-      getAccountingSyncStatus(db, {
-        teamId,
-        transactionIds,
-      }),
-      getTransactionIdsWithAttachmentsFromConvex({
-        teamId,
-        transactionIds,
-      }),
-    ]);
+    const accountingSyncRecords = await getAccountingSyncStatus(db, {
+      teamId,
+      transactionIds,
+    });
     const syncedTransactionIdSet = new Set(
       accountingSyncRecords
         .filter((record) => record.status === "synced")
         .map((record) => record.transactionId),
     );
-    const attachmentTransactionIdSet = new Set(attachmentTransactionIds);
 
     count += result.page.filter(
       (transaction) =>
         !syncedTransactionIdSet.has(transaction.id) &&
-        (transaction.status === "completed" ||
-          attachmentTransactionIdSet.has(transaction.id)),
+        (transaction.status === "completed" || transaction.hasAttachment),
     ).length;
 
     if (result.isDone) {

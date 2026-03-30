@@ -1,18 +1,17 @@
 import { TZDate } from "@date-fns/tz";
 import {
-  getPublicInvoicesByStatusesFromConvex,
-  getTransactionIdsWithAttachmentsFromConvex,
-  getTransactionsByAmountRangeFromConvex,
-} from "@tamias/app-data-convex";
-import {
   createAttachments,
   getInvoiceById,
   updateInvoice,
 } from "@tamias/app-data/queries";
+import {
+  getPublicInvoicesByStatusesFromConvex,
+  getTransactionsByAmountRangeFromConvex,
+} from "@tamias/app-data-convex";
 import { enqueue } from "@tamias/job-client";
-import type { WorkerJob as Job } from "../../types/job";
 import { format, subDays } from "date-fns";
 import type { InvoiceStatusSchedulerPayload } from "../../schemas/invoices";
+import type { WorkerJob as Job } from "../../types/job";
 import { getDb } from "../../utils/db";
 import { isProduction } from "../../utils/env";
 import { mapWithConcurrency } from "../../utils/process-batch";
@@ -256,23 +255,11 @@ export class InvoiceStatusSchedulerProcessor extends BaseProcessor<InvoiceStatus
       statusesNotIn: ["completed"],
       limit: INVOICE_MATCH_CANDIDATE_LIMIT,
     });
-    const candidateTransactionIds = candidateTransactions.map(
-      (transaction) => transaction.id,
-    );
-    const attachedTransactionIdSet = new Set(
-      await getTransactionIdsWithAttachmentsFromConvex({
-        teamId: invoice.teamId,
-        transactionIds: candidateTransactionIds,
-      }),
-    );
 
     return candidateTransactions
       .filter((transaction) => transaction.amount === invoiceAmount)
       .filter((transaction) => transaction.currency === invoiceCurrency)
-      .filter(
-        (transaction) =>
-          !attachedTransactionIdSet.has(transaction.id),
-      )
+      .filter((transaction) => !transaction.hasAttachment)
       .map((transaction) => ({ id: transaction.id }));
   }
 

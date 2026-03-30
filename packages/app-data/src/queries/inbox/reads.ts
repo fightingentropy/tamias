@@ -1,26 +1,21 @@
-import { createLoggerWithContext } from "@tamias/logger";
 import {
-  getInboxItemsByAmountRangeFromConvex,
   getInboxItemByIdFromConvex,
+  getInboxItemsByAmountRangeFromConvex,
   getInboxItemsFromConvex,
   getInboxItemsPageFromConvex,
   getInboxStatusCountSummaryFromConvex,
-  searchInboxItemsFromConvex,
-  getTransactionByIdFromConvex,
   type InboxItemRecord,
+  searchInboxItemsFromConvex,
 } from "@tamias/app-data-convex";
+import { createLoggerWithContext } from "@tamias/logger";
 import type { Database } from "../../client";
 import { separateBlocklistEntries } from "../../utils/blocklist";
 import { cacheAcrossRequests } from "../../utils/short-lived-cache";
 import { normalizeTimestampBoundary } from "../date-boundaries";
 import { getInboxBlocklist } from "../inbox-blocklist";
 import { getInboxItemsPaged } from "../paged-records";
+import { getTransactionAttachmentsByIds } from "../transaction-attachments";
 import {
-  getTransactionAttachmentsByIds,
-  getTransactionIdsWithAttachments,
-} from "../transaction-attachments";
-import {
-  buildInboxTransactionSummary,
   compareNullableDates,
   compareNullableStrings,
   filePathEquals,
@@ -71,7 +66,7 @@ function matchesBlocklist(
 function decodeIndexedInboxCursor(
   cursor: string | null | undefined,
 ): IndexedInboxCursorState {
-  if (!cursor || !cursor.startsWith(INBOX_PAGE_CURSOR_PREFIX)) {
+  if (!cursor?.startsWith(INBOX_PAGE_CURSOR_PREFIX)) {
     return {
       sourceCursor: null,
       sourceExhausted: false,
@@ -134,8 +129,9 @@ function isAmountLikeInboxQuery(query: string | null | undefined) {
     return false;
   }
 
-  return /[\d]/.test(normalizedQuery) &&
-    /^[\d\s,.\-+£$€]+$/.test(normalizedQuery);
+  return (
+    /[\d]/.test(normalizedQuery) && /^[\d\s,.\-+£$€]+$/.test(normalizedQuery)
+  );
 }
 
 function parseInboxQueryAmount(query: string | null | undefined) {
@@ -171,10 +167,7 @@ function canUseIndexedInboxPage(args: {
   return !args.sort || args.sort === "date";
 }
 
-function matchesInboxTab(
-  item: InboxItemRecord,
-  tab: GetInboxParams["tab"],
-) {
+function matchesInboxTab(item: InboxItemRecord, tab: GetInboxParams["tab"]) {
   return tab === "other"
     ? item.type === "other" || item.status === "other"
     : item.type !== "other" && item.status !== "other";
@@ -390,10 +383,7 @@ async function buildHydratedInboxPage(args: {
   };
 }
 
-async function getIndexedInboxPage(
-  db: Database,
-  params: GetInboxParams,
-) {
+async function getIndexedInboxPage(db: Database, params: GetInboxParams) {
   const { teamId, cursor, order, pageSize = 20, status, tab } = params;
   const blocklistEntries = await getInboxBlocklist(db, { teamId });
   const { blockedDomains, blockedEmails } =
@@ -532,16 +522,7 @@ export type GetInboxParams = {
 };
 
 export async function getInbox(db: Database, params: GetInboxParams) {
-  const {
-    teamId,
-    cursor,
-    order,
-    sort,
-    pageSize = 20,
-    q,
-    status,
-    tab,
-  } = params;
+  const { teamId, cursor, order, sort, pageSize = 20, q, status, tab } = params;
   const normalizedQuery = normalizeInboxQuery(q);
 
   if (
@@ -851,10 +832,7 @@ export type GetInboxStatsParams = {
   currency?: string;
 };
 
-async function getInboxStatsImpl(
-  _db: Database,
-  params: GetInboxStatsParams,
-) {
+async function getInboxStatsImpl(_db: Database, params: GetInboxStatsParams) {
   const { teamId, from, to, currency } = params;
   const fromBoundary = normalizeTimestampBoundary(from, "start");
   const toBoundary = normalizeTimestampBoundary(to, "end");

@@ -1,14 +1,13 @@
 import {
-  getInboxItemsByAmountRangeFromConvex,
-  getInboxItemByIdFromConvex,
-  getTransactionMatchSuggestionsPageFromConvex,
-  getTransactionByIdFromConvex,
-  getTransactionIdsWithAttachmentsFromConvex,
-  getTransactionMatchSuggestionsFromConvex,
-  searchInboxItemsFromConvex,
   type CurrentUserIdentityRecord,
+  getInboxItemByIdFromConvex,
+  getInboxItemsByAmountRangeFromConvex,
+  getTransactionByIdFromConvex,
+  getTransactionMatchSuggestionsFromConvex,
+  getTransactionMatchSuggestionsPageFromConvex,
   type InboxItemRecord,
   type MatchSuggestionStatus,
+  searchInboxItemsFromConvex,
   upsertTransactionMatchSuggestionsInConvex,
 } from "@tamias/app-data-convex";
 import { createLoggerWithContext } from "@tamias/logger";
@@ -791,29 +790,21 @@ export async function findMatches(
       );
     })
     .slice(0, 90);
-  const [attachedTransactionIds, pendingSuggestionRows, candidateTransactions] =
-    await Promise.all([
-      getTransactionIdsWithAttachmentsFromConvex({
-        teamId,
-        transactionIds: candidateTransactionRows.map(
-          (transaction) => transaction.id,
-        ),
-      }),
-      getTransactionMatchSuggestionsFromConvex({
-        teamId,
-        transactionIds: candidateTransactionRows.map(
-          (transaction) => transaction.id,
-        ),
-        statuses: ["pending"],
-      }),
-      Promise.resolve(candidateTransactionRows),
-    ]);
-  const attachedTransactionIdSet = new Set(attachedTransactionIds);
+  const [pendingSuggestionRows, candidateTransactions] = await Promise.all([
+    getTransactionMatchSuggestionsFromConvex({
+      teamId,
+      transactionIds: candidateTransactionRows.map(
+        (transaction) => transaction.id,
+      ),
+      statuses: ["pending"],
+    }),
+    Promise.resolve(candidateTransactionRows),
+  ]);
   const pendingSuggestionIdSet = new Set(
     pendingSuggestionRows.map((row) => row.transactionId),
   );
   const candidates = candidateTransactions
-    .filter((transaction) => !attachedTransactionIdSet.has(transaction.id))
+    .filter((transaction) => !transaction.hasAttachment)
     .filter((transaction) => !pendingSuggestionIdSet.has(transaction.id))
     .slice(0, 30)
     .map((transaction) => ({

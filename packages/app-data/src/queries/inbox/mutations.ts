@@ -1,29 +1,28 @@
-import { createLoggerWithContext } from "@tamias/logger";
 import {
   deleteTransactionMatchSuggestionsInConvex,
   getInboxItemByIdFromConvex,
   getInboxItemInfoFromConvex,
   getInboxItemsFromConvex,
   getPendingInboxItemsToNoMatchFromConvex,
-  getTransactionMatchSuggestionsFromConvex,
   getTransactionByIdFromConvex,
+  getTransactionMatchSuggestionsFromConvex,
   type InboxItemRecord,
   type TransactionRecord,
   upsertInboxItemsInConvex,
 } from "@tamias/app-data-convex";
+import { createLoggerWithContext } from "@tamias/logger";
 import type { Database, DatabaseOrTransaction } from "../../client";
 import {
   createAttachments,
   deleteTransactionAttachmentsByIds,
-  getTransactionIdsWithAttachments,
 } from "../transaction-attachments";
 import {
   buildInboxTransactionSummary,
   clearInboxSuggestions,
   getRelatedInboxItems,
+  type InboxConvexUserId,
   markInboxItems,
   patchTransactionFields,
-  type InboxConvexUserId,
 } from "./shared";
 
 const logger = createLoggerWithContext("inbox");
@@ -49,12 +48,12 @@ export async function deleteInbox(db: Database, params: DeleteInboxParams) {
       teamId,
       attachmentIds: [result.attachmentId],
     });
-    const remainingAttachments = await getTransactionIdsWithAttachments({
+    const transaction = await getTransactionByIdFromConvex({
       teamId,
-      transactionIds: [result.transactionId],
+      transactionId: result.transactionId,
     });
 
-    if (remainingAttachments.length === 0) {
+    if (transaction && !transaction.hasAttachment) {
       await patchTransactionFields(teamId, result.transactionId, {
         taxRate: null,
         taxType: null,
@@ -107,12 +106,12 @@ export async function deleteInboxMany(
           teamId,
           attachmentIds: [item.attachmentId],
         });
-        const remainingAttachments = await getTransactionIdsWithAttachments({
+        const transaction = await getTransactionByIdFromConvex({
           teamId,
-          transactionIds: [item.transactionId],
+          transactionId: item.transactionId,
         });
 
-        if (remainingAttachments.length === 0) {
+        if (transaction && !transaction.hasAttachment) {
           await patchTransactionFields(teamId, item.transactionId, {
             taxRate: null,
             taxType: null,
@@ -184,12 +183,12 @@ export async function updateInbox(
         teamId,
         attachmentIds: [current.attachmentId],
       });
-      const remainingAttachments = await getTransactionIdsWithAttachments({
+      const transaction = await getTransactionByIdFromConvex({
         teamId,
-        transactionIds: [current.transactionId],
+        transactionId: current.transactionId,
       });
 
-      if (remainingAttachments.length === 0) {
+      if (transaction && !transaction.hasAttachment) {
         await patchTransactionFields(teamId, current.transactionId, {
           taxRate: null,
           taxType: null,
@@ -363,13 +362,12 @@ export async function unmatchTransaction(
   )?.transactionId;
 
   if (transactionId) {
-    const transactionSuggestions = await getTransactionMatchSuggestionsFromConvex(
-      {
+    const transactionSuggestions =
+      await getTransactionMatchSuggestionsFromConvex({
         teamId,
         transactionId,
         statuses: ["confirmed"],
-      },
-    );
+      });
     const originalSuggestions = relatedItems.flatMap((item) =>
       transactionSuggestions.filter(
         (suggestion) =>
@@ -403,12 +401,12 @@ export async function unmatchTransaction(
   }
 
   if (transactionId) {
-    const remainingAttachments = await getTransactionIdsWithAttachments({
+    const transaction = await getTransactionByIdFromConvex({
       teamId,
-      transactionIds: [transactionId],
+      transactionId,
     });
 
-    if (remainingAttachments.length === 0) {
+    if (transaction && !transaction.hasAttachment) {
       await patchTransactionFields(teamId, transactionId, {
         taxRate: null,
         taxType: null,

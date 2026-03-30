@@ -51,6 +51,7 @@
     "backfill:inbox-liability-aggregates": "bun --env-file=apps/dashboard/.env.local run scripts/backfill-inbox-liability-aggregates.ts",
     "backfill:inbox-status-aggregates": "bun --env-file=apps/dashboard/.env.local run scripts/backfill-inbox-status-aggregates.ts",
     "backfill:public-invoice-search-texts": "bun --env-file=apps/dashboard/.env.local run scripts/backfill-public-invoice-search-texts.ts",
+    "backfill:transaction-attachment-flags": "bun --env-file=apps/dashboard/.env.local run scripts/backfill-transaction-attachment-flags.ts",
     "backfill:transaction-match-suggestion-learning-fields": "bun --env-file=apps/dashboard/.env.local run scripts/backfill-transaction-match-suggestion-learning-fields.ts",
     "backfill:tracker-project-tag-sort-fields": "bun --env-file=apps/dashboard/.env.local run scripts/backfill-tracker-project-tag-sort-fields.ts",
     "backfill:transaction-report-aggregates": "bun --env-file=apps/dashboard/.env.local run scripts/backfill-transaction-report-aggregates.ts",

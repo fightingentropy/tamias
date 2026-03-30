@@ -1,4 +1,5 @@
 import {
+  type CurrentUserIdentityRecord,
   createTransactionAttachmentsInConvex,
   deleteTransactionAttachmentInConvex,
   deleteTransactionAttachmentsByIdsInConvex,
@@ -8,10 +9,8 @@ import {
   getTransactionAttachmentsByIdsFromConvex,
   getTransactionAttachmentsByPathKeysFromConvex,
   getTransactionAttachmentsForTransactionIdsFromConvex,
-  getTransactionIdsWithAttachmentsFromConvex,
   getTransactionInfoFromConvex,
   getTransactionMatchSuggestionsFromConvex,
-  type CurrentUserIdentityRecord,
   type TransactionAttachmentRecord,
   upsertInboxItemsInConvex,
   upsertTransactionMatchSuggestionsInConvex,
@@ -58,13 +57,6 @@ export async function getTransactionAttachmentsByPathKeys(params: {
   pathKeys: string[][];
 }) {
   return getTransactionAttachmentsByPathKeysFromConvex(params);
-}
-
-export async function getTransactionIdsWithAttachments(params: {
-  teamId: string;
-  transactionIds?: string[];
-}) {
-  return getTransactionIdsWithAttachmentsFromConvex(params);
 }
 
 export async function deleteTransactionAttachmentsByIds(params: {

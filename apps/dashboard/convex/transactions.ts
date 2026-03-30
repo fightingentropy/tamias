@@ -1552,7 +1552,8 @@ export const serviceUpsertTransactions = mutation({
         frequency: transaction.frequency ?? undefined,
         merchantName: transaction.merchantName ?? undefined,
         enrichmentCompleted: transaction.enrichmentCompleted ?? false,
-        hasAttachment: transaction.hasAttachment ?? existing?.hasAttachment ?? false,
+        hasAttachment:
+          transaction.hasAttachment ?? existing?.hasAttachment ?? false,
         searchText:
           buildTransactionProjectionSearchText(transaction) || undefined,
         searchAmount:
