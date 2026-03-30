@@ -1,5 +1,10 @@
 import { paginationOptsValidator } from "convex/server";
 import { ConvexError, v } from "convex/values";
+import {
+  CONTRA_REVENUE_CATEGORIES,
+  getTaxRateForCategory,
+  REVENUE_CATEGORIES,
+} from "../../../packages/categories/src/index";
 import type { Doc, Id } from "./_generated/dataModel";
 import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
 import { nowIso } from "../../../packages/domain/src/identity";
@@ -50,6 +55,14 @@ const transactionFrequency = v.union(
   v.literal("unknown"),
 );
 const transactionOrder = v.union(v.literal("asc"), v.literal("desc"));
+const transactionAggregateScope = v.union(
+  v.literal("base"),
+  v.literal("native"),
+);
+const transactionAggregateDirection = v.union(
+  v.literal("income"),
+  v.literal("expense"),
+);
 
 const transactionRecord = v.object({
   id: v.string(),
@@ -81,6 +94,40 @@ const transactionRecord = v.object({
   merchantName: nullableString,
   enrichmentCompleted: nullableBoolean,
 });
+
+type TransactionMetricAggregateDoc = Doc<"transactionMetricAggregates">;
+type TransactionRecurringAggregateDoc = Doc<"transactionRecurringAggregates">;
+type TransactionAggregateScope = "base" | "native";
+type TransactionAggregateDirection = "income" | "expense";
+type TransactionRecurringAggregateFrequency =
+  NonNullable<Doc<"transactions">["frequency"]> | null;
+type TransactionAggregateKey = {
+  teamId: Id<"teams">;
+  scope: TransactionAggregateScope;
+  date: string;
+  currency: string;
+  direction: TransactionAggregateDirection;
+  categorySlug: string | null;
+  recurring: boolean;
+};
+type TransactionAggregateEntry = TransactionAggregateKey & {
+  amount: number;
+  netAmount: number;
+};
+type TransactionRecurringAggregateKey = {
+  teamId: Id<"teams">;
+  scope: TransactionAggregateScope;
+  direction: TransactionAggregateDirection;
+  currency: string;
+  date: string;
+  name: string;
+  frequency: TransactionRecurringAggregateFrequency;
+  categorySlug: string | null;
+};
+type TransactionRecurringAggregateEntry = TransactionRecurringAggregateKey & {
+  amount: number;
+  createdAt: string;
+};
 
 function publicTransactionId(
   transaction: Pick<Doc<"transactions">, "_id" | "publicTransactionId">,
@@ -123,6 +170,517 @@ function serializeTransaction(
     frequency: transaction.frequency ?? null,
     merchantName: transaction.merchantName ?? null,
     enrichmentCompleted: transaction.enrichmentCompleted ?? false,
+  };
+}
+
+function getTransactionAggregateDirection(
+  amount: number,
+): TransactionAggregateDirection | null {
+  if (amount > 0) {
+    return "income";
+  }
+
+  if (amount < 0) {
+    return "expense";
+  }
+
+  return null;
+}
+
+function getTransactionBaseAggregateAmount(
+  transaction: Doc<"transactions">,
+) {
+  if (!transaction.baseCurrency) {
+    return null;
+  }
+
+  if (transaction.baseAmount !== undefined && transaction.baseAmount !== null) {
+    return transaction.baseAmount;
+  }
+
+  if (transaction.currency === transaction.baseCurrency) {
+    return transaction.amount;
+  }
+
+  return null;
+}
+
+function shouldAggregateTransactionForMetrics(
+  transaction: Doc<"transactions">,
+) {
+  return !transaction.internal && transaction.status !== "excluded";
+}
+
+function isRevenueCategory(slug: string | null) {
+  if (!slug) {
+    return false;
+  }
+
+  return (
+    REVENUE_CATEGORIES.includes(slug as (typeof REVENUE_CATEGORIES)[number]) &&
+    !CONTRA_REVENUE_CATEGORIES.includes(
+      slug as (typeof CONTRA_REVENUE_CATEGORIES)[number],
+    )
+  );
+}
+
+function getEffectiveTransactionTaxRate(
+  transaction: Doc<"transactions">,
+  teamCountryCode: string | null | undefined,
+) {
+  if (transaction.taxRate !== undefined && transaction.taxRate !== null) {
+    return transaction.taxRate;
+  }
+
+  if (!teamCountryCode || !transaction.categorySlug) {
+    return 0;
+  }
+
+  return getTaxRateForCategory(teamCountryCode, transaction.categorySlug) ?? 0;
+}
+
+function getTransactionNetAggregateAmount(args: {
+  transaction: Doc<"transactions">;
+  amount: number;
+  direction: TransactionAggregateDirection;
+  teamCountryCode: string | null | undefined;
+}) {
+  if (
+    args.direction !== "income" ||
+    !isRevenueCategory(args.transaction.categorySlug ?? null)
+  ) {
+    return args.amount;
+  }
+
+  const effectiveTaxRate = getEffectiveTransactionTaxRate(
+    args.transaction,
+    args.teamCountryCode,
+  );
+
+  if (effectiveTaxRate <= 0) {
+    return args.amount;
+  }
+
+  return Math.round(
+    (args.amount - (args.amount * effectiveTaxRate) / (100 + effectiveTaxRate)) *
+      100,
+  ) / 100;
+}
+
+function getTransactionMetricAggregateEntries(
+  transaction: Doc<"transactions">,
+  teamCountryCode?: string | null,
+): TransactionAggregateEntry[] {
+  if (!shouldAggregateTransactionForMetrics(transaction)) {
+    return [];
+  }
+
+  const entries: TransactionAggregateEntry[] = [];
+  const nativeDirection = getTransactionAggregateDirection(transaction.amount);
+
+  if (nativeDirection) {
+    entries.push({
+      teamId: transaction.teamId,
+      scope: "native",
+      date: transaction.date,
+      currency: transaction.currency,
+      direction: nativeDirection,
+      categorySlug: transaction.categorySlug ?? null,
+      recurring: transaction.recurring ?? false,
+      amount: transaction.amount,
+      netAmount: getTransactionNetAggregateAmount({
+        transaction,
+        amount: transaction.amount,
+        direction: nativeDirection,
+        teamCountryCode,
+      }),
+    });
+  }
+
+  const baseAmount = getTransactionBaseAggregateAmount(transaction);
+  const baseDirection =
+    baseAmount === null ? null : getTransactionAggregateDirection(baseAmount);
+
+  if (transaction.baseCurrency && baseAmount !== null && baseDirection) {
+    entries.push({
+      teamId: transaction.teamId,
+      scope: "base",
+      date: transaction.date,
+      currency: transaction.baseCurrency,
+      direction: baseDirection,
+      categorySlug: transaction.categorySlug ?? null,
+      recurring: transaction.recurring ?? false,
+      amount: baseAmount,
+      netAmount: getTransactionNetAggregateAmount({
+        transaction,
+        amount: baseAmount,
+        direction: baseDirection,
+        teamCountryCode,
+      }),
+    });
+  }
+
+  return entries;
+}
+
+function getTransactionRecurringAggregateEntries(
+  transaction: Doc<"transactions">,
+): TransactionRecurringAggregateEntry[] {
+  if (!shouldAggregateTransactionForMetrics(transaction) || !transaction.recurring) {
+    return [];
+  }
+
+  const entries: TransactionRecurringAggregateEntry[] = [];
+  const nativeDirection = getTransactionAggregateDirection(transaction.amount);
+
+  if (nativeDirection) {
+    entries.push({
+      teamId: transaction.teamId,
+      scope: "native",
+      direction: nativeDirection,
+      currency: transaction.currency,
+      date: transaction.date,
+      name: transaction.name,
+      frequency: transaction.frequency ?? null,
+      categorySlug: transaction.categorySlug ?? null,
+      amount: transaction.amount,
+      createdAt: transaction.createdAt,
+    });
+  }
+
+  const baseAmount = getTransactionBaseAggregateAmount(transaction);
+  const baseDirection =
+    baseAmount === null ? null : getTransactionAggregateDirection(baseAmount);
+
+  if (transaction.baseCurrency && baseAmount !== null && baseDirection) {
+    entries.push({
+      teamId: transaction.teamId,
+      scope: "base",
+      direction: baseDirection,
+      currency: transaction.baseCurrency,
+      date: transaction.date,
+      name: transaction.name,
+      frequency: transaction.frequency ?? null,
+      categorySlug: transaction.categorySlug ?? null,
+      amount: baseAmount,
+      createdAt: transaction.createdAt,
+    });
+  }
+
+  return entries;
+}
+
+function serializeTransactionAggregateKey(key: TransactionAggregateKey) {
+  return [
+    key.teamId,
+    key.scope,
+    key.date,
+    key.currency,
+    key.direction,
+    key.categorySlug ?? "",
+    key.recurring ? "1" : "0",
+  ].join(":");
+}
+
+function serializeTransactionRecurringAggregateKey(
+  key: TransactionRecurringAggregateKey,
+) {
+  return JSON.stringify([
+    key.teamId,
+    key.scope,
+    key.direction,
+    key.currency,
+    key.date,
+    key.name,
+    key.frequency,
+    key.categorySlug,
+  ]);
+}
+
+function matchesTransactionAggregateKey(
+  entry: TransactionAggregateKey,
+  key: TransactionAggregateKey,
+) {
+  return (
+    entry.teamId === key.teamId &&
+    entry.scope === key.scope &&
+    entry.date === key.date &&
+    entry.currency === key.currency &&
+    entry.direction === key.direction &&
+    entry.categorySlug === key.categorySlug &&
+    entry.recurring === key.recurring
+  );
+}
+
+function matchesTransactionRecurringAggregateKey(
+  entry: TransactionRecurringAggregateKey,
+  key: TransactionRecurringAggregateKey,
+) {
+  return (
+    entry.teamId === key.teamId &&
+    entry.scope === key.scope &&
+    entry.direction === key.direction &&
+    entry.currency === key.currency &&
+    entry.date === key.date &&
+    entry.name === key.name &&
+    entry.frequency === key.frequency &&
+    entry.categorySlug === key.categorySlug
+  );
+}
+
+async function getTransactionAggregateRecord(
+  ctx: TransactionCtx,
+  key: TransactionAggregateKey,
+) {
+  return ctx.db
+    .query("transactionMetricAggregates")
+    .withIndex("by_team_scope_currency_date_direction_category_recurring", (q) =>
+      q
+        .eq("teamId", key.teamId)
+        .eq("scope", key.scope)
+        .eq("currency", key.currency)
+        .eq("date", key.date)
+        .eq("direction", key.direction)
+        .eq("categorySlug", key.categorySlug)
+        .eq("recurring", key.recurring),
+    )
+    .unique();
+}
+
+async function getTransactionAggregateEntriesForKey(
+  ctx: TransactionCtx,
+  key: TransactionAggregateKey,
+  teamCountryCode?: string | null,
+) {
+  const transactions = await ctx.db
+    .query("transactions")
+    .withIndex("by_team_and_date", (q) =>
+      q.eq("teamId", key.teamId).eq("date", key.date),
+    )
+    .collect();
+
+  return transactions.flatMap((transaction) =>
+    getTransactionMetricAggregateEntries(transaction, teamCountryCode).filter((entry) =>
+      matchesTransactionAggregateKey(entry, key),
+    ),
+  );
+}
+
+async function getTransactionRecurringAggregateRecord(
+  ctx: TransactionCtx,
+  key: TransactionRecurringAggregateKey,
+) {
+  return ctx.db
+    .query("transactionRecurringAggregates")
+    .withIndex(
+      "by_team_scope_direction_currency_name_frequency_category_date",
+      (q) =>
+        q
+          .eq("teamId", key.teamId)
+          .eq("scope", key.scope)
+          .eq("direction", key.direction)
+          .eq("currency", key.currency)
+          .eq("name", key.name)
+          .eq("frequency", key.frequency)
+          .eq("categorySlug", key.categorySlug)
+          .eq("date", key.date),
+    )
+    .unique();
+}
+
+async function syncTransactionMetricAggregateKey(
+  ctx: MutationCtx,
+  key: TransactionAggregateKey,
+) {
+  const existing = await getTransactionAggregateRecord(ctx, key);
+  const team = await ctx.db.get(key.teamId);
+  const entries = await getTransactionAggregateEntriesForKey(
+    ctx,
+    key,
+    team?.countryCode ?? null,
+  );
+
+  if (entries.length === 0) {
+    if (existing) {
+      await ctx.db.delete(existing._id);
+    }
+
+    return;
+  }
+
+  const timestamp = nowIso();
+  const totalAmount =
+    Math.round(
+      entries.reduce((sum, entry) => sum + entry.amount, 0) * 100,
+    ) / 100;
+  const totalNetAmount =
+    Math.round(
+      entries.reduce((sum, entry) => sum + entry.netAmount, 0) * 100,
+    ) / 100;
+
+  if (existing) {
+    await ctx.db.patch(existing._id, {
+      totalAmount,
+      totalNetAmount,
+      transactionCount: entries.length,
+      updatedAt: timestamp,
+    });
+
+    return;
+  }
+
+  await ctx.db.insert("transactionMetricAggregates", {
+    teamId: key.teamId,
+    scope: key.scope,
+    date: key.date,
+    currency: key.currency,
+    direction: key.direction,
+    categorySlug: key.categorySlug,
+    recurring: key.recurring,
+    totalAmount,
+    totalNetAmount,
+    transactionCount: entries.length,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  });
+}
+
+async function getTransactionRecurringAggregateEntriesForKey(
+  ctx: TransactionCtx,
+  key: TransactionRecurringAggregateKey,
+) {
+  const transactions = await ctx.db
+    .query("transactions")
+    .withIndex("by_team_and_date", (q) =>
+      q.eq("teamId", key.teamId).eq("date", key.date),
+    )
+    .collect();
+
+  return transactions.flatMap((transaction) =>
+    getTransactionRecurringAggregateEntries(transaction).filter((entry) =>
+      matchesTransactionRecurringAggregateKey(entry, key),
+    ),
+  );
+}
+
+async function syncTransactionRecurringAggregateKey(
+  ctx: MutationCtx,
+  key: TransactionRecurringAggregateKey,
+) {
+  const existing = await getTransactionRecurringAggregateRecord(ctx, key);
+  const entries = await getTransactionRecurringAggregateEntriesForKey(ctx, key);
+
+  if (entries.length === 0) {
+    if (existing) {
+      await ctx.db.delete(existing._id);
+    }
+
+    return;
+  }
+
+  const timestamp = nowIso();
+  const totalAmount =
+    Math.round(
+      entries.reduce((sum, entry) => sum + entry.amount, 0) * 100,
+    ) / 100;
+  const latestEntry = entries.reduce((latest, entry) =>
+    !latest || entry.createdAt > latest.createdAt ? entry : latest,
+  );
+
+  if (existing) {
+    await ctx.db.patch(existing._id, {
+      totalAmount,
+      transactionCount: entries.length,
+      latestAmount: latestEntry.amount,
+      latestTransactionCreatedAt: latestEntry.createdAt,
+      updatedAt: timestamp,
+    });
+
+    return;
+  }
+
+  await ctx.db.insert("transactionRecurringAggregates", {
+    teamId: key.teamId,
+    scope: key.scope,
+    direction: key.direction,
+    currency: key.currency,
+    date: key.date,
+    name: key.name,
+    frequency: key.frequency,
+    categorySlug: key.categorySlug,
+    totalAmount,
+    transactionCount: entries.length,
+    latestAmount: latestEntry.amount,
+    latestTransactionCreatedAt: latestEntry.createdAt,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  });
+}
+
+function collectTransactionMetricAggregateKeys(
+  keys: Map<string, TransactionAggregateKey>,
+  previous: Doc<"transactions"> | null,
+  next: Doc<"transactions"> | null,
+  teamCountryCode?: string | null,
+) {
+  for (const entry of [
+    ...(previous
+      ? getTransactionMetricAggregateEntries(previous, teamCountryCode)
+      : []),
+    ...(next ? getTransactionMetricAggregateEntries(next, teamCountryCode) : []),
+  ]) {
+    const { amount: _amount, netAmount: _netAmount, ...key } = entry;
+    keys.set(serializeTransactionAggregateKey(key), key);
+  }
+}
+
+function collectTransactionRecurringAggregateKeys(
+  keys: Map<string, TransactionRecurringAggregateKey>,
+  previous: Doc<"transactions"> | null,
+  next: Doc<"transactions"> | null,
+) {
+  for (const entry of [
+    ...(previous ? getTransactionRecurringAggregateEntries(previous) : []),
+    ...(next ? getTransactionRecurringAggregateEntries(next) : []),
+  ]) {
+    const { amount: _amount, createdAt: _createdAt, ...key } = entry;
+    keys.set(serializeTransactionRecurringAggregateKey(key), key);
+  }
+}
+
+function serializeTransactionMetricAggregate(
+  record: TransactionMetricAggregateDoc,
+) {
+  return {
+    scope: record.scope,
+    date: record.date,
+    currency: record.currency,
+    direction: record.direction,
+    categorySlug: record.categorySlug,
+    recurring: record.recurring,
+    totalAmount: record.totalAmount,
+    totalNetAmount: record.totalNetAmount ?? null,
+    transactionCount: record.transactionCount,
+    updatedAt: record.updatedAt,
+  };
+}
+
+function serializeTransactionRecurringAggregate(
+  record: TransactionRecurringAggregateDoc,
+) {
+  return {
+    scope: record.scope,
+    direction: record.direction,
+    currency: record.currency,
+    date: record.date,
+    name: record.name,
+    frequency: record.frequency ?? null,
+    categorySlug: record.categorySlug,
+    totalAmount: record.totalAmount,
+    transactionCount: record.transactionCount,
+    latestAmount: record.latestAmount,
+    latestTransactionCreatedAt: record.latestTransactionCreatedAt,
+    updatedAt: record.updatedAt,
   };
 }
 
@@ -331,6 +889,11 @@ export const serviceUpsertTransactions = mutation({
     const team = await getTeamOrThrow(ctx, args.publicTeamId);
     const timestamp = nowIso();
     const results = [];
+    const aggregateKeys = new Map<string, TransactionAggregateKey>();
+    const recurringAggregateKeys = new Map<
+      string,
+      TransactionRecurringAggregateKey
+    >();
 
     for (const transaction of args.transactions) {
       const existing =
@@ -395,6 +958,17 @@ export const serviceUpsertTransactions = mutation({
           throw new ConvexError("Failed to update transaction projection");
         }
 
+        collectTransactionMetricAggregateKeys(
+          aggregateKeys,
+          existing,
+          updated,
+          team.countryCode ?? null,
+        );
+        collectTransactionRecurringAggregateKeys(
+          recurringAggregateKeys,
+          existing,
+          updated,
+        );
         results.push(serializeTransaction(args.publicTeamId, updated));
         continue;
       }
@@ -409,7 +983,26 @@ export const serviceUpsertTransactions = mutation({
         throw new ConvexError("Failed to create transaction projection");
       }
 
+      collectTransactionMetricAggregateKeys(
+        aggregateKeys,
+        null,
+        inserted,
+        team.countryCode ?? null,
+      );
+      collectTransactionRecurringAggregateKeys(
+        recurringAggregateKeys,
+        null,
+        inserted,
+      );
       results.push(serializeTransaction(args.publicTeamId, inserted));
+    }
+
+    for (const key of aggregateKeys.values()) {
+      await syncTransactionMetricAggregateKey(ctx, key);
+    }
+
+    for (const key of recurringAggregateKeys.values()) {
+      await syncTransactionRecurringAggregateKey(ctx, key);
     }
 
     return results;
@@ -431,6 +1024,11 @@ export const serviceDeleteTransactions = mutation({
 
     const team = await getTeamOrThrow(ctx, args.publicTeamId);
     const deletedIds: string[] = [];
+    const aggregateKeys = new Map<string, TransactionAggregateKey>();
+    const recurringAggregateKeys = new Map<
+      string,
+      TransactionRecurringAggregateKey
+    >();
 
     for (const transactionId of [...new Set(args.transactionIds)]) {
       const transaction = await getTransactionByPublicId(ctx, {
@@ -444,6 +1042,25 @@ export const serviceDeleteTransactions = mutation({
 
       deletedIds.push(publicTransactionId(transaction));
       await ctx.db.delete(transaction._id);
+      collectTransactionMetricAggregateKeys(
+        aggregateKeys,
+        transaction,
+        null,
+        team.countryCode ?? null,
+      );
+      collectTransactionRecurringAggregateKeys(
+        recurringAggregateKeys,
+        transaction,
+        null,
+      );
+    }
+
+    for (const key of aggregateKeys.values()) {
+      await syncTransactionMetricAggregateKey(ctx, key);
+    }
+
+    for (const key of recurringAggregateKeys.values()) {
+      await syncTransactionRecurringAggregateKey(ctx, key);
     }
 
     return deletedIds;
@@ -692,6 +1309,102 @@ export const serviceListTransactionsPage = query({
         serializeTransaction(args.publicTeamId, record),
       ),
     };
+  },
+});
+
+export const serviceGetTransactionMetricAggregateRows = query({
+  args: {
+    serviceKey: v.string(),
+    publicTeamId: v.string(),
+    scope: transactionAggregateScope,
+    currency: v.string(),
+    dateFrom: nullableString,
+    dateTo: nullableString,
+  },
+  async handler(ctx, args) {
+    requireServiceKey(args.serviceKey);
+
+    const team = await getTeamByPublicTeamId(ctx, args.publicTeamId);
+
+    if (!team) {
+      return [];
+    }
+
+    const records = await ctx.db
+      .query("transactionMetricAggregates")
+      .withIndex("by_team_scope_currency_date", (q) => {
+        const range = q
+          .eq("teamId", team._id)
+          .eq("scope", args.scope)
+          .eq("currency", args.currency);
+
+        if (args.dateFrom && args.dateTo) {
+          return range.gte("date", args.dateFrom).lte("date", args.dateTo);
+        }
+
+        if (args.dateFrom) {
+          return range.gte("date", args.dateFrom);
+        }
+
+        if (args.dateTo) {
+          return range.lte("date", args.dateTo);
+        }
+
+        return range;
+      })
+      .order("asc")
+      .collect();
+
+    return records.map(serializeTransactionMetricAggregate);
+  },
+});
+
+export const serviceGetTransactionRecurringAggregateRows = query({
+  args: {
+    serviceKey: v.string(),
+    publicTeamId: v.string(),
+    scope: transactionAggregateScope,
+    direction: transactionAggregateDirection,
+    currency: v.string(),
+    dateFrom: nullableString,
+    dateTo: nullableString,
+  },
+  async handler(ctx, args) {
+    requireServiceKey(args.serviceKey);
+
+    const team = await getTeamByPublicTeamId(ctx, args.publicTeamId);
+
+    if (!team) {
+      return [];
+    }
+
+    const records = await ctx.db
+      .query("transactionRecurringAggregates")
+      .withIndex("by_team_scope_direction_currency_date", (q) => {
+        const range = q
+          .eq("teamId", team._id)
+          .eq("scope", args.scope)
+          .eq("direction", args.direction)
+          .eq("currency", args.currency);
+
+        if (args.dateFrom && args.dateTo) {
+          return range.gte("date", args.dateFrom).lte("date", args.dateTo);
+        }
+
+        if (args.dateFrom) {
+          return range.gte("date", args.dateFrom);
+        }
+
+        if (args.dateTo) {
+          return range.lte("date", args.dateTo);
+        }
+
+        return range;
+      })
+      .order("asc")
+      .collect();
+
+    return records.map(serializeTransactionRecurringAggregate);
   },
 });
 

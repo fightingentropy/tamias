@@ -1,6 +1,7 @@
 import { UTCDate } from "@date-fns/utc";
 import { addMonths, endOfMonth, format, parseISO, subMonths } from "date-fns";
 import type { Database } from "../../client";
+import { cacheAcrossRequests } from "../../utils/short-lived-cache";
 import { getRecurringInvoiceProjection } from "../invoice-recurring";
 import { getBillableHours } from "../tracker-entries";
 import type { ReportsResultItem } from "./core";
@@ -9,7 +10,9 @@ import { getOutstandingInvoices } from "./metrics";
 import {
   getExcludedCategorySlugs,
   getReportInvoices,
+  getReportTransactionRecurringAggregateRows,
   getReportTransactionAmounts,
+  getRecurringMonthlyEquivalent,
 } from "./shared";
 
 type RecurringTransactionProjection = Map<
@@ -24,44 +27,85 @@ async function getRecurringTransactionProjection(
   const { teamId, forecastMonths, currency } = params;
   const excludedCategorySlugs = getExcludedCategorySlugs();
   const sixMonthsAgo = format(subMonths(new Date(), 6), "yyyy-MM-dd");
-  const { amounts } = await getReportTransactionAmounts(db, {
+  const today = format(new Date(), "yyyy-MM-dd");
+  const aggregateData = await getReportTransactionRecurringAggregateRows(db, {
     teamId,
+    direction: "income",
     from: sixMonthsAgo,
-    to: format(new Date(), "yyyy-MM-dd"),
+    to: today,
     inputCurrency: currency,
   });
-  const recurringIncome = amounts
-    .filter((row) => row.transaction.recurring && row.amount > 0)
-    .filter((row) => {
-      const slug = row.transaction.categorySlug;
-      return slug === null || !excludedCategorySlugs.includes(slug);
-    })
-    .map((row) => ({
-      name: row.transaction.name,
-      amount: row.amount,
-      baseAmount: row.transaction.baseAmount,
-      baseCurrency: row.transaction.baseCurrency,
-      frequency: row.transaction.frequency,
-      date: row.transaction.date,
-    }));
 
   const recurringByName = new Map<
     string,
-    { amount: number; frequency: string | null; lastDate: string }
+    {
+      amount: number;
+      frequency: string | null;
+      lastDate: string;
+      lastCreatedAt: string;
+    }
   >();
 
-  for (const tx of recurringIncome) {
-    const existing = recurringByName.get(tx.name);
-    if (!existing || tx.date > existing.lastDate) {
-      const effectiveAmount =
-        currency && tx.baseCurrency === currency && tx.baseAmount !== null
-          ? tx.baseAmount
-          : tx.amount;
+  if (aggregateData) {
+    for (const row of aggregateData.rows) {
+      const slug = row.categorySlug;
 
-      recurringByName.set(tx.name, {
-        amount: effectiveAmount,
-        frequency: tx.frequency,
-        lastDate: tx.date,
+      if (slug !== null && excludedCategorySlugs.includes(slug)) {
+        continue;
+      }
+
+      const existing = recurringByName.get(row.name);
+      const shouldReplace =
+        !existing ||
+        row.date > existing.lastDate ||
+        (row.date === existing.lastDate &&
+          row.latestTransactionCreatedAt > existing.lastCreatedAt);
+
+      if (!shouldReplace) {
+        continue;
+      }
+
+      recurringByName.set(row.name, {
+        amount: row.latestAmount,
+        frequency: row.frequency,
+        lastDate: row.date,
+        lastCreatedAt: row.latestTransactionCreatedAt,
+      });
+    }
+  } else {
+    const reportTransactionData = await getReportTransactionAmounts(db, {
+      teamId,
+      from: sixMonthsAgo,
+      to: today,
+      inputCurrency: currency,
+    });
+
+    for (const row of reportTransactionData.amounts) {
+      if (!row.transaction.recurring || row.amount <= 0) {
+        continue;
+      }
+
+      const slug = row.transaction.categorySlug;
+      if (slug !== null && excludedCategorySlugs.includes(slug)) {
+        continue;
+      }
+
+      const existing = recurringByName.get(row.transaction.name);
+      const shouldReplace =
+        !existing ||
+        row.transaction.date > existing.lastDate ||
+        (row.transaction.date === existing.lastDate &&
+          row.transaction.createdAt > existing.lastCreatedAt);
+
+      if (!shouldReplace) {
+        continue;
+      }
+
+      recurringByName.set(row.transaction.name, {
+        amount: row.amount,
+        frequency: row.transaction.frequency,
+        lastDate: row.transaction.date,
+        lastCreatedAt: row.transaction.createdAt,
       });
     }
   }
@@ -75,22 +119,10 @@ async function getRecurringTransactionProjection(
     let count = 0;
 
     for (const [, recurring] of recurringByName) {
-      let monthlyAmount = recurring.amount;
-
-      switch (recurring.frequency) {
-        case "weekly":
-          monthlyAmount = recurring.amount * 4.33;
-          break;
-        case "biweekly":
-          monthlyAmount = recurring.amount * 2.17;
-          break;
-        case "semi_monthly":
-          monthlyAmount = recurring.amount * 2;
-          break;
-        case "annually":
-          monthlyAmount = recurring.amount / 12;
-          break;
-      }
+      const monthlyAmount = getRecurringMonthlyEquivalent(
+        recurring.amount,
+        recurring.frequency,
+      );
 
       monthTotal += monthlyAmount;
       count++;
@@ -452,7 +484,7 @@ interface EnhancedForecastDataPoint extends ForecastDataPoint {
   breakdown: ForecastBreakdown;
 }
 
-export async function getRevenueForecast(
+async function getRevenueForecastImpl(
   db: Database,
   params: GetRevenueForecastParams,
 ) {
@@ -771,3 +803,17 @@ export async function getRevenueForecast(
     },
   };
 }
+
+export const getRevenueForecast = cacheAcrossRequests({
+  keyPrefix: "revenue-forecast",
+  keyFn: (params: GetRevenueForecastParams) =>
+    [
+      params.teamId,
+      params.from,
+      params.to,
+      params.forecastMonths,
+      params.currency ?? "",
+      params.revenueType ?? "net",
+    ].join(":"),
+  load: getRevenueForecastImpl,
+});

@@ -1584,7 +1584,14 @@ function parseDateKey(value: string) {
     return null;
   }
 
-  const [, yearValue, monthValue, dayValue] = match;
+  const yearValue = match[1];
+  const monthValue = match[2];
+  const dayValue = match[3];
+
+  if (!yearValue || !monthValue || !dayValue) {
+    return null;
+  }
+
   const year = Number.parseInt(yearValue, 10);
   const month = Number.parseInt(monthValue, 10);
   const day = Number.parseInt(dayValue, 10);

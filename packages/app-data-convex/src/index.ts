@@ -726,6 +726,34 @@ export type TransactionRecord = {
   enrichmentCompleted: boolean;
 };
 
+export type TransactionMetricAggregateRowRecord = {
+  scope: "base" | "native";
+  date: string;
+  currency: string;
+  direction: "income" | "expense";
+  categorySlug: string | null;
+  recurring: boolean;
+  totalAmount: number;
+  totalNetAmount: number | null;
+  transactionCount: number;
+  updatedAt: string;
+};
+
+export type TransactionRecurringAggregateRowRecord = {
+  scope: "base" | "native";
+  direction: "income" | "expense";
+  currency: string;
+  date: string;
+  name: string;
+  frequency: TransactionFrequency | null;
+  categorySlug: string | null;
+  totalAmount: number;
+  transactionCount: number;
+  latestAmount: number;
+  latestTransactionCreatedAt: string;
+  updatedAt: string;
+};
+
 export type UpsertTransactionInConvexInput = {
   id: string;
   createdAt: string;
@@ -954,6 +982,44 @@ export type PublicInvoiceRecord = {
   recurringSequence?: number | null;
   payload: unknown;
   createdAt: string;
+  updatedAt: string;
+};
+
+export type InvoiceAggregateRowRecord = {
+  scopeKey: string;
+  customerId: string | null;
+  status: string;
+  currency: string | null;
+  invoiceCount: number;
+  totalAmount: number;
+  oldestDueDate: string | null;
+  latestIssueDate: string | null;
+  updatedAt: string;
+};
+
+export type InvoiceAggregateDateField = "issueDate" | "paidAt";
+
+export type InvoiceDateAggregateRowRecord = {
+  status: string;
+  dateField: InvoiceAggregateDateField;
+  date: string;
+  currency: string | null;
+  recurring: boolean;
+  invoiceCount: number;
+  totalAmount: number;
+  validPaymentCount: number;
+  onTimeCount: number;
+  totalDaysToPay: number;
+  updatedAt: string;
+};
+
+export type InvoiceAgingAggregateRowRecord = {
+  status: string;
+  currency: string | null;
+  issueDate: string | null;
+  dueDate: string | null;
+  invoiceCount: number;
+  totalAmount: number;
   updatedAt: string;
 };
 
@@ -3482,6 +3548,59 @@ export async function getPublicInvoicesByCustomerIdsFromConvex(args: {
   ) as Promise<PublicInvoiceRecord[]>;
 }
 
+export async function getInvoiceAggregateRowsFromConvex(args: {
+  teamId: string;
+  customerId?: string;
+  statuses?: string[];
+}) {
+  return createClient().query(
+    convexApi["publicInvoices"].serviceGetInvoiceAggregateRows,
+    serviceArgs({
+      publicTeamId: args.teamId,
+      customerId: args.customerId,
+      statuses: args.statuses,
+    }),
+  ) as Promise<InvoiceAggregateRowRecord[]>;
+}
+
+export async function getInvoiceDateAggregateRowsFromConvex(args: {
+  teamId: string;
+  statuses: string[];
+  dateField: InvoiceAggregateDateField;
+  dateFrom?: string | null;
+  dateTo?: string | null;
+  currency?: string | null;
+  recurring?: boolean;
+}) {
+  return createClient().query(
+    convexApi["publicInvoices"].serviceGetInvoiceDateAggregateRows,
+    serviceArgs({
+      publicTeamId: args.teamId,
+      statuses: args.statuses,
+      dateField: args.dateField,
+      dateFrom: args.dateFrom,
+      dateTo: args.dateTo,
+      currency: args.currency,
+      recurring: args.recurring,
+    }),
+  ) as Promise<InvoiceDateAggregateRowRecord[]>;
+}
+
+export async function getInvoiceAgingAggregateRowsFromConvex(args: {
+  teamId: string;
+  statuses: string[];
+  currency?: string | null;
+}) {
+  return createClient().query(
+    convexApi["publicInvoices"].serviceGetInvoiceAgingAggregateRows,
+    serviceArgs({
+      publicTeamId: args.teamId,
+      statuses: args.statuses,
+      currency: args.currency,
+    }),
+  ) as Promise<InvoiceAgingAggregateRowRecord[]>;
+}
+
 export async function getPublicInvoicesPageFromConvex(args: {
   teamId: string;
   cursor?: string | null;
@@ -3861,6 +3980,46 @@ export async function getTransactionsPageFromConvex(args: {
     isDone: boolean;
     continueCursor: string;
   }>;
+}
+
+export async function getTransactionMetricAggregateRowsFromConvex(args: {
+  teamId: string;
+  scope: "base" | "native";
+  currency: string;
+  dateFrom?: string | null;
+  dateTo?: string | null;
+}) {
+  return createClient().query(
+    convexApi["transactions"].serviceGetTransactionMetricAggregateRows,
+    serviceArgs({
+      publicTeamId: args.teamId,
+      scope: args.scope,
+      currency: args.currency,
+      dateFrom: args.dateFrom,
+      dateTo: args.dateTo,
+    }),
+  ) as Promise<TransactionMetricAggregateRowRecord[]>;
+}
+
+export async function getTransactionRecurringAggregateRowsFromConvex(args: {
+  teamId: string;
+  scope: "base" | "native";
+  direction: "income" | "expense";
+  currency: string;
+  dateFrom?: string | null;
+  dateTo?: string | null;
+}) {
+  return createClient().query(
+    convexApi["transactions"].serviceGetTransactionRecurringAggregateRows,
+    serviceArgs({
+      publicTeamId: args.teamId,
+      scope: args.scope,
+      direction: args.direction,
+      currency: args.currency,
+      dateFrom: args.dateFrom,
+      dateTo: args.dateTo,
+    }),
+  ) as Promise<TransactionRecurringAggregateRowRecord[]>;
 }
 
 export async function countTransactionsFromConvex(args: {

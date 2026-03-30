@@ -9,13 +9,16 @@ import {
 } from "date-fns";
 import type { Database } from "../../client";
 import { dedupeByDb } from "../../utils/dedupe";
+import { cacheAcrossRequests } from "../../utils/short-lived-cache";
 import {
+  buildMonthlyAggregateSeriesMap,
   buildMonthlySeriesMap,
   CONTRA_REVENUE_CATEGORIES,
   getCategoryInfo,
   getCogsCategorySlugs,
   getExcludedCategorySlugs,
   getPercentageIncrease,
+  getReportTransactionAggregateRows,
   getReportTransactionAmounts,
   getTargetCurrency,
   REVENUE_CATEGORIES,
@@ -39,9 +42,19 @@ export interface ReportsResultItem {
   currency: string;
 }
 
-export const getProfit = dedupeByDb<GetReportsParams, ReportsResultItem[]>(
-  (p) =>
-    `${p.teamId}:${p.from}:${p.to}:${p.currency ?? ""}:${p.revenueType ?? "net"}:${p.exactDates ?? false}`,
+function serializeProfitParams(params: GetReportsParams) {
+  return [
+    params.teamId,
+    params.from,
+    params.to,
+    params.currency ?? "",
+    params.revenueType ?? "net",
+    params.exactDates ?? false,
+  ].join(":");
+}
+
+const getProfitDeduped = dedupeByDb<GetReportsParams, ReportsResultItem[]>(
+  serializeProfitParams,
   getProfitImpl,
 );
 
@@ -79,39 +92,74 @@ async function getProfitImpl(db: Database, params: GetReportsParams) {
     ],
   );
   const excludedCategorySlugs = getExcludedCategorySlugs();
-  const { amounts: expenseTransactions } = await getReportTransactionAmounts(
-    db,
-    {
+  const aggregateData = await getReportTransactionAggregateRows(db, {
+    teamId,
+    from: format(fromDate, "yyyy-MM-dd"),
+    to: format(toDate, "yyyy-MM-dd"),
+    inputCurrency,
+  });
+  let cogsMap: Map<string, number>;
+  let operatingExpensesMap: Map<string, number>;
+
+  if (aggregateData) {
+    const negativeTransactions = aggregateData.rows.filter(
+      (row) => row.direction === "expense",
+    );
+
+    cogsMap = buildMonthlyAggregateSeriesMap(
+      negativeTransactions.filter(
+        (row) =>
+          row.categorySlug !== null &&
+          cogsCategorySlugs.includes(row.categorySlug) &&
+          !excludedCategorySlugs.includes(row.categorySlug),
+      ),
+      (row) => Math.abs(row.totalAmount),
+    );
+    operatingExpensesMap = buildMonthlyAggregateSeriesMap(
+      negativeTransactions.filter((row) => {
+        const slug = row.categorySlug;
+
+        if (slug && excludedCategorySlugs.includes(slug)) {
+          return false;
+        }
+
+        return slug === null || !cogsCategorySlugs.includes(slug);
+      }),
+      (row) => Math.abs(row.totalAmount),
+    );
+  } else {
+    const reportTransactionData = await getReportTransactionAmounts(db, {
       teamId,
       from: format(fromDate, "yyyy-MM-dd"),
       to: format(toDate, "yyyy-MM-dd"),
       inputCurrency,
-    },
-  );
-  const negativeTransactions = expenseTransactions.filter(
-    (row) => row.amount < 0,
-  );
-  const cogsMap = buildMonthlySeriesMap(
-    negativeTransactions.filter(
-      (row) =>
-        row.transaction.categorySlug !== null &&
-        cogsCategorySlugs.includes(row.transaction.categorySlug) &&
-        !excludedCategorySlugs.includes(row.transaction.categorySlug),
-    ),
-    (row) => Math.abs(row.amount),
-  );
-  const operatingExpensesMap = buildMonthlySeriesMap(
-    negativeTransactions.filter((row) => {
-      const slug = row.transaction.categorySlug;
+    });
+    const negativeTransactions = reportTransactionData.amounts.filter(
+      (row) => row.amount < 0,
+    );
 
-      if (slug && excludedCategorySlugs.includes(slug)) {
-        return false;
-      }
+    cogsMap = buildMonthlySeriesMap(
+      negativeTransactions.filter(
+        (row) =>
+          row.transaction.categorySlug !== null &&
+          cogsCategorySlugs.includes(row.transaction.categorySlug) &&
+          !excludedCategorySlugs.includes(row.transaction.categorySlug),
+      ),
+      (row) => Math.abs(row.amount),
+    );
+    operatingExpensesMap = buildMonthlySeriesMap(
+      negativeTransactions.filter((row) => {
+        const slug = row.transaction.categorySlug;
 
-      return slug === null || !cogsCategorySlugs.includes(slug);
-    }),
-    (row) => Math.abs(row.amount),
-  );
+        if (slug && excludedCategorySlugs.includes(slug)) {
+          return false;
+        }
+
+        return slug === null || !cogsCategorySlugs.includes(slug);
+      }),
+      (row) => Math.abs(row.amount),
+    );
+  }
 
   const netRevenueMap = new Map(
     netRevenueData.map((item) => [item.date, Number.parseFloat(item.value)]),
@@ -141,9 +189,25 @@ async function getProfitImpl(db: Database, params: GetReportsParams) {
   return results;
 }
 
-export const getRevenue = dedupeByDb<GetReportsParams, ReportsResultItem[]>(
-  (p) =>
-    `${p.teamId}:${p.from}:${p.to}:${p.currency ?? ""}:${p.revenueType ?? "gross"}:${p.exactDates ?? false}`,
+export const getProfit = cacheAcrossRequests({
+  keyPrefix: "profit-series",
+  keyFn: serializeProfitParams,
+  load: getProfitDeduped,
+});
+
+function serializeRevenueParams(params: GetReportsParams) {
+  return [
+    params.teamId,
+    params.from,
+    params.to,
+    params.currency ?? "",
+    params.revenueType ?? "gross",
+    params.exactDates ?? false,
+  ].join(":");
+}
+
+const getRevenueDeduped = dedupeByDb<GetReportsParams, ReportsResultItem[]>(
+  serializeRevenueParams,
   getRevenueImpl,
 );
 
@@ -164,47 +228,85 @@ async function getRevenueImpl(db: Database, params: GetReportsParams) {
     ? new UTCDate(parseISO(to))
     : endOfMonth(new UTCDate(parseISO(to)));
 
-  const { targetCurrency, countryCode, amounts } =
-    await getReportTransactionAmounts(db, {
+  const aggregateData = await getReportTransactionAggregateRows(db, {
+    teamId,
+    from: format(fromDate, "yyyy-MM-dd"),
+    to: format(toDate, "yyyy-MM-dd"),
+    inputCurrency,
+  });
+  const canUseAggregate =
+    aggregateData !== null &&
+    (revenueType !== "net" ||
+      aggregateData.rows.every((row) => row.totalNetAmount !== null));
+
+  const monthSeries = eachMonthOfInterval({ start: fromDate, end: toDate });
+  let targetCurrency: string | null;
+  let monthlyData: Map<string, number>;
+
+  if (canUseAggregate && aggregateData) {
+    targetCurrency = aggregateData.targetCurrency;
+    monthlyData = buildMonthlyAggregateSeriesMap(
+      aggregateData.rows.filter((row) => {
+        const slug = row.categorySlug;
+
+        return (
+          row.direction === "income" &&
+          Boolean(slug) &&
+          REVENUE_CATEGORIES.includes(
+            slug as (typeof REVENUE_CATEGORIES)[number],
+          ) &&
+          !CONTRA_REVENUE_CATEGORIES.includes(
+            slug as (typeof CONTRA_REVENUE_CATEGORIES)[number],
+          )
+        );
+      }),
+      (row) =>
+        revenueType === "net"
+          ? Number(row.totalNetAmount ?? row.totalAmount)
+          : row.totalAmount,
+    );
+  } else {
+    const reportTransactionData = await getReportTransactionAmounts(db, {
       teamId,
       from: format(fromDate, "yyyy-MM-dd"),
       to: format(toDate, "yyyy-MM-dd"),
       inputCurrency,
     });
 
-  const monthSeries = eachMonthOfInterval({ start: fromDate, end: toDate });
-  const monthlyData = buildMonthlySeriesMap(
-    amounts.filter((row) => {
-      const slug = row.transaction.categorySlug;
+    targetCurrency = reportTransactionData.targetCurrency;
+    monthlyData = buildMonthlySeriesMap(
+      reportTransactionData.amounts.filter((row) => {
+        const slug = row.transaction.categorySlug;
 
-      return (
-        row.amount > 0 &&
-        Boolean(slug) &&
-        REVENUE_CATEGORIES.includes(
-          slug as (typeof REVENUE_CATEGORIES)[number],
-        ) &&
-        !CONTRA_REVENUE_CATEGORIES.includes(
-          slug as (typeof CONTRA_REVENUE_CATEGORIES)[number],
-        )
-      );
-    }),
-    (row) => {
-      if (revenueType !== "net") {
-        return row.amount;
-      }
+        return (
+          row.amount > 0 &&
+          Boolean(slug) &&
+          REVENUE_CATEGORIES.includes(
+            slug as (typeof REVENUE_CATEGORIES)[number],
+          ) &&
+          !CONTRA_REVENUE_CATEGORIES.includes(
+            slug as (typeof CONTRA_REVENUE_CATEGORIES)[number],
+          )
+        );
+      }),
+      (row) => {
+        if (revenueType !== "net") {
+          return row.amount;
+        }
 
-      const categoryInfo = getCategoryInfo(
-        row.transaction.categorySlug,
-        countryCode,
-      );
-      const effectiveTaxRate =
-        row.transaction.taxRate ?? categoryInfo?.taxRate ?? 0;
+        const categoryInfo = getCategoryInfo(
+          row.transaction.categorySlug,
+          reportTransactionData.countryCode,
+        );
+        const effectiveTaxRate =
+          row.transaction.taxRate ?? categoryInfo?.taxRate ?? 0;
 
-      return roundMoney(
-        row.amount - (row.amount * effectiveTaxRate) / (100 + effectiveTaxRate),
-      );
-    },
-  );
+        return roundMoney(
+          row.amount - (row.amount * effectiveTaxRate) / (100 + effectiveTaxRate),
+        );
+      },
+    );
+  }
 
   const currencyStr = targetCurrency || "USD";
   const results: ReportsResultItem[] = monthSeries.map((monthStart) => {
@@ -221,7 +323,13 @@ async function getRevenueImpl(db: Database, params: GetReportsParams) {
   return results;
 }
 
-export async function getReports(db: Database, params: GetReportsParams) {
+export const getRevenue = cacheAcrossRequests({
+  keyPrefix: "revenue-series",
+  keyFn: serializeRevenueParams,
+  load: getRevenueDeduped,
+});
+
+async function getReportsImpl(db: Database, params: GetReportsParams) {
   const {
     teamId,
     from,
@@ -313,3 +421,23 @@ export async function getReports(db: Database, params: GetReportsParams) {
     }),
   };
 }
+
+export const getReports = cacheAcrossRequests({
+  keyPrefix: "reports",
+  keyFn: (params: GetReportsParams) => {
+    const type = params.type ?? "profit";
+    const revenueType =
+      params.revenueType ?? (type === "profit" ? "net" : "gross");
+
+    return [
+      params.teamId,
+      type,
+      params.from,
+      params.to,
+      params.currency ?? "",
+      revenueType,
+      params.exactDates ?? false,
+    ].join(":");
+  },
+  load: getReportsImpl,
+});

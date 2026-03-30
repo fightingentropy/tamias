@@ -1,5 +1,6 @@
 import { UTCDate } from "@date-fns/utc";
 import { getCategoryColor } from "@tamias/categories";
+import { getInvoiceAggregateRowsFromConvex } from "@tamias/app-data-convex";
 import {
   eachMonthOfInterval,
   endOfMonth,
@@ -10,21 +11,43 @@ import {
   subYears,
 } from "date-fns";
 import type { Database } from "../../client";
+import { cacheAcrossRequests } from "../../utils/short-lived-cache";
 import { getCashBalance } from "../bank-accounts";
 import { getProfit, getRevenue } from "./core";
 import {
+  buildMonthlyAggregateSeriesMap,
   buildMonthlySeriesMap,
   getCategoryInfo,
   getExcludedCategorySlugs,
   getMonthBucket,
+  getRecurringMonthlyEquivalent,
+  getReportTransactionAggregateRows,
   getReportInvoices,
+  getReportTransactionRecurringAggregateRows,
   getReportTransactionAmounts,
   getResolvedTransactionTaxRate,
   getResolvedTransactionTaxType,
   getTargetCurrency,
   humanizeCategorySlug,
+  normalizeRecurringFrequency,
   roundMoney,
 } from "./shared";
+
+function serializeMetricRangeParams(params: {
+  teamId: string;
+  from: string;
+  to: string;
+  currency?: string;
+  exactDates?: boolean;
+}) {
+  return [
+    params.teamId,
+    params.from,
+    params.to,
+    params.currency ?? "",
+    params.exactDates ?? false,
+  ].join(":");
+}
 
 export type GetBurnRateParams = {
   teamId: string;
@@ -39,31 +62,56 @@ interface BurnRateResultItem {
   currency: string;
 }
 
-export async function getBurnRate(db: Database, params: GetBurnRateParams) {
+async function getBurnRateImpl(db: Database, params: GetBurnRateParams) {
   const { teamId, from, to, currency: inputCurrency } = params;
 
   const fromDate = startOfMonth(new UTCDate(parseISO(from)));
   const toDate = endOfMonth(new UTCDate(parseISO(to)));
 
   const excludedCategorySlugs = getExcludedCategorySlugs();
-  const { targetCurrency, amounts } = await getReportTransactionAmounts(db, {
+  const aggregateData = await getReportTransactionAggregateRows(db, {
     teamId,
     from: format(fromDate, "yyyy-MM-dd"),
     to: format(toDate, "yyyy-MM-dd"),
     inputCurrency,
   });
   const monthSeries = eachMonthOfInterval({ start: fromDate, end: toDate });
-  const dataMap = buildMonthlySeriesMap(
-    amounts.filter((row) => {
-      const slug = row.transaction.categorySlug;
+  let targetCurrency: string | null = aggregateData?.targetCurrency ?? null;
+  let dataMap: Map<string, number>;
 
-      return (
-        row.amount < 0 &&
-        (slug === null || !excludedCategorySlugs.includes(slug))
-      );
-    }),
-    (row) => Math.abs(row.amount),
-  );
+  if (aggregateData) {
+    dataMap = buildMonthlyAggregateSeriesMap(
+      aggregateData.rows.filter((row) => {
+        const slug = row.categorySlug;
+
+        return (
+          row.direction === "expense" &&
+          (slug === null || !excludedCategorySlugs.includes(slug))
+        );
+      }),
+      (row) => Math.abs(row.totalAmount),
+    );
+  } else {
+    const reportTransactionData = await getReportTransactionAmounts(db, {
+      teamId,
+      from: format(fromDate, "yyyy-MM-dd"),
+      to: format(toDate, "yyyy-MM-dd"),
+      inputCurrency,
+    });
+
+    targetCurrency = reportTransactionData.targetCurrency;
+    dataMap = buildMonthlySeriesMap(
+      reportTransactionData.amounts.filter((row) => {
+        const slug = row.transaction.categorySlug;
+
+        return (
+          row.amount < 0 &&
+          (slug === null || !excludedCategorySlugs.includes(slug))
+        );
+      }),
+      (row) => Math.abs(row.amount),
+    );
+  }
 
   const results: BurnRateResultItem[] = monthSeries.map((monthStart) => {
     const monthKey = format(monthStart, "yyyy-MM-dd");
@@ -82,6 +130,12 @@ export async function getBurnRate(db: Database, params: GetBurnRateParams) {
   }));
 }
 
+export const getBurnRate = cacheAcrossRequests({
+  keyPrefix: "burn-rate",
+  keyFn: serializeMetricRangeParams,
+  load: getBurnRateImpl,
+});
+
 export type GetExpensesParams = {
   teamId: string;
   from: string;
@@ -98,7 +152,7 @@ interface ExpensesResultItem {
   recurring_value?: number;
 }
 
-export async function getExpenses(db: Database, params: GetExpensesParams) {
+async function getExpensesImpl(db: Database, params: GetExpensesParams) {
   const {
     teamId,
     from,
@@ -115,35 +169,67 @@ export async function getExpenses(db: Database, params: GetExpensesParams) {
     : endOfMonth(new UTCDate(parseISO(to)));
 
   const excludedCategorySlugs = getExcludedCategorySlugs();
-  const { targetCurrency, amounts } = await getReportTransactionAmounts(db, {
+  const aggregateData = await getReportTransactionAggregateRows(db, {
     teamId,
     from: format(fromDate, "yyyy-MM-dd"),
     to: format(toDate, "yyyy-MM-dd"),
     inputCurrency,
   });
   const monthSeries = eachMonthOfInterval({ start: fromDate, end: toDate });
-  const expenseTransactions = amounts.filter((row) => {
-    const slug = row.transaction.categorySlug;
-
-    return (
-      row.amount < 0 && (slug === null || !excludedCategorySlugs.includes(slug))
-    );
-  });
   const dataMap = new Map<string, { value: number; recurringValue: number }>();
+  let targetCurrency: string | null = aggregateData?.targetCurrency ?? null;
 
-  for (const row of expenseTransactions) {
-    const month = getMonthBucket(row.transaction.date);
-    const current = dataMap.get(month) ?? { value: 0, recurringValue: 0 };
+  if (aggregateData) {
+    for (const row of aggregateData.rows.filter((aggregateRow) => {
+      const slug = aggregateRow.categorySlug;
 
-    if (row.transaction.recurring) {
-      current.recurringValue = roundMoney(
-        current.recurringValue + Math.abs(row.amount),
+      return (
+        aggregateRow.direction === "expense" &&
+        (slug === null || !excludedCategorySlugs.includes(slug))
       );
-    } else {
-      current.value = roundMoney(current.value + Math.abs(row.amount));
-    }
+    })) {
+      const month = getMonthBucket(row.date);
+      const current = dataMap.get(month) ?? { value: 0, recurringValue: 0 };
+      const value = Math.abs(row.totalAmount);
 
-    dataMap.set(month, current);
+      if (row.recurring) {
+        current.recurringValue = roundMoney(current.recurringValue + value);
+      } else {
+        current.value = roundMoney(current.value + value);
+      }
+
+      dataMap.set(month, current);
+    }
+  } else {
+    const reportTransactionData = await getReportTransactionAmounts(db, {
+      teamId,
+      from: format(fromDate, "yyyy-MM-dd"),
+      to: format(toDate, "yyyy-MM-dd"),
+      inputCurrency,
+    });
+
+    targetCurrency = reportTransactionData.targetCurrency;
+
+    for (const row of reportTransactionData.amounts.filter((amountRow) => {
+      const slug = amountRow.transaction.categorySlug;
+
+      return (
+        amountRow.amount < 0 &&
+        (slug === null || !excludedCategorySlugs.includes(slug))
+      );
+    })) {
+      const month = getMonthBucket(row.transaction.date);
+      const current = dataMap.get(month) ?? { value: 0, recurringValue: 0 };
+      const value = Math.abs(row.amount);
+
+      if (row.transaction.recurring) {
+        current.recurringValue = roundMoney(current.recurringValue + value);
+      } else {
+        current.value = roundMoney(current.value + value);
+      }
+
+      dataMap.set(month, current);
+    }
   }
 
   const rawData: ExpensesResultItem[] = monthSeries.map((monthStart) => {
@@ -204,6 +290,12 @@ export async function getExpenses(db: Database, params: GetExpensesParams) {
   };
 }
 
+export const getExpenses = cacheAcrossRequests({
+  keyPrefix: "expenses",
+  keyFn: serializeMetricRangeParams,
+  load: getExpensesImpl,
+});
+
 export type GetSpendingParams = {
   teamId: string;
   from: string;
@@ -220,7 +312,7 @@ interface SpendingResultItem {
   percentage: number;
 }
 
-export async function getSpending(
+async function getSpendingImpl(
   db: Database,
   params: GetSpendingParams,
 ): Promise<SpendingResultItem[]> {
@@ -230,37 +322,73 @@ export async function getSpending(
   const toDate = endOfMonth(new UTCDate(parseISO(to)));
 
   const excludedCategorySlugs = getExcludedCategorySlugs();
-  const { targetCurrency, amounts } = await getReportTransactionAmounts(db, {
+  const aggregateData = await getReportTransactionAggregateRows(db, {
     teamId,
     from: format(fromDate, "yyyy-MM-dd"),
     to: format(toDate, "yyyy-MM-dd"),
     inputCurrency,
   });
-  const spendingTransactions = amounts.filter((row) => row.amount < 0);
-  const totalAmount = roundMoney(
-    spendingTransactions.reduce((sum, row) => {
-      const slug = row.transaction.categorySlug;
+  let targetCurrency: string | null = aggregateData?.targetCurrency ?? null;
+  let totalAmount = 0;
+  const categoryTotals = new Map<string, number>();
+  let uncategorizedAmount = 0;
+
+  if (aggregateData) {
+    for (const row of aggregateData.rows.filter(
+      (aggregateRow) => aggregateRow.direction === "expense",
+    )) {
+      const slug = row.categorySlug;
+      const amount = Math.abs(row.totalAmount);
 
       if (slug && excludedCategorySlugs.includes(slug)) {
-        return sum;
+        uncategorizedAmount = roundMoney(uncategorizedAmount + amount);
+        continue;
       }
 
-      return sum + Math.abs(row.amount);
-    }, 0),
-  );
-  const categoryTotals = new Map<string, number>();
+      totalAmount = roundMoney(totalAmount + amount);
 
-  for (const row of spendingTransactions) {
-    const slug = row.transaction.categorySlug;
+      if (!slug) {
+        uncategorizedAmount = roundMoney(uncategorizedAmount + amount);
+        continue;
+      }
 
-    if (!slug || excludedCategorySlugs.includes(slug)) {
-      continue;
+      categoryTotals.set(
+        slug,
+        roundMoney((categoryTotals.get(slug) ?? 0) + amount),
+      );
     }
+  } else {
+    const reportTransactionData = await getReportTransactionAmounts(db, {
+      teamId,
+      from: format(fromDate, "yyyy-MM-dd"),
+      to: format(toDate, "yyyy-MM-dd"),
+      inputCurrency,
+    });
 
-    categoryTotals.set(
-      slug,
-      roundMoney((categoryTotals.get(slug) ?? 0) + Math.abs(row.amount)),
-    );
+    targetCurrency = reportTransactionData.targetCurrency;
+    for (const row of reportTransactionData.amounts.filter(
+      (amountRow) => amountRow.amount < 0,
+    )) {
+      const slug = row.transaction.categorySlug;
+      const amount = Math.abs(row.amount);
+
+      if (slug && excludedCategorySlugs.includes(slug)) {
+        uncategorizedAmount = roundMoney(uncategorizedAmount + amount);
+        continue;
+      }
+
+      totalAmount = roundMoney(totalAmount + amount);
+
+      if (!slug) {
+        uncategorizedAmount = roundMoney(uncategorizedAmount + amount);
+        continue;
+      }
+
+      categoryTotals.set(
+        slug,
+        roundMoney((categoryTotals.get(slug) ?? 0) + amount),
+      );
+    }
   }
 
   const categorySpending = [...categoryTotals.entries()].map(
@@ -280,18 +408,6 @@ export async function getSpending(
             : Math.round(percentage * 100) / 100,
       };
     },
-  );
-
-  const uncategorizedAmount = roundMoney(
-    spendingTransactions.reduce((sum, row) => {
-      const slug = row.transaction.categorySlug;
-
-      if (slug === null || excludedCategorySlugs.includes(slug)) {
-        return sum + Math.abs(row.amount);
-      }
-
-      return sum;
-    }, 0),
   );
 
   if (uncategorizedAmount > 0) {
@@ -320,12 +436,18 @@ export async function getSpending(
     }));
 }
 
+export const getSpending = cacheAcrossRequests({
+  keyPrefix: "spending",
+  keyFn: serializeMetricRangeParams,
+  load: getSpendingImpl,
+});
+
 export type GetRunwayParams = {
   teamId: string;
   currency?: string;
 };
 
-export async function getRunway(db: Database, params: GetRunwayParams) {
+async function getRunwayImpl(db: Database, params: GetRunwayParams) {
   const { teamId, currency: inputCurrency } = params;
 
   const toDate = endOfMonth(new UTCDate());
@@ -368,6 +490,13 @@ export async function getRunway(db: Database, params: GetRunwayParams) {
   return Math.round(totalBalance / avgBurnRate);
 }
 
+export const getRunway = cacheAcrossRequests({
+  keyPrefix: "runway",
+  keyFn: (params: GetRunwayParams) =>
+    [params.teamId, params.currency ?? ""].join(":"),
+  load: getRunwayImpl,
+});
+
 export type GetSpendingForPeriodParams = {
   teamId: string;
   from: string;
@@ -377,7 +506,7 @@ export type GetSpendingForPeriodParams = {
   exactDates?: boolean;
 };
 
-export async function getSpendingForPeriod(
+async function getSpendingForPeriodImpl(
   db: Database,
   params: GetSpendingForPeriodParams,
 ) {
@@ -428,6 +557,12 @@ export async function getSpendingForPeriod(
   };
 }
 
+export const getSpendingForPeriod = cacheAcrossRequests({
+  keyPrefix: "spending-for-period",
+  keyFn: serializeMetricRangeParams,
+  load: getSpendingForPeriodImpl,
+});
+
 export type GetTaxParams = {
   teamId: string;
   type: "paid" | "collected";
@@ -438,7 +573,7 @@ export type GetTaxParams = {
   currency?: string;
 };
 
-export async function getTaxSummary(db: Database, params: GetTaxParams) {
+async function getTaxSummaryImpl(db: Database, params: GetTaxParams) {
   const {
     teamId,
     type,
@@ -602,6 +737,21 @@ export async function getTaxSummary(db: Database, params: GetTaxParams) {
   };
 }
 
+export const getTaxSummary = cacheAcrossRequests({
+  keyPrefix: "tax-summary",
+  keyFn: (params: GetTaxParams) =>
+    [
+      params.teamId,
+      params.type,
+      params.from,
+      params.to,
+      params.categorySlug ?? "",
+      params.taxType ?? "",
+      params.currency ?? "",
+    ].join(":"),
+  load: getTaxSummaryImpl,
+});
+
 export type GetGrowthRateParams = {
   teamId: string;
   from: string;
@@ -612,7 +762,7 @@ export type GetGrowthRateParams = {
   period?: "quarterly" | "monthly" | "yearly";
 };
 
-export async function getGrowthRate(db: Database, params: GetGrowthRateParams) {
+async function getGrowthRateImpl(db: Database, params: GetGrowthRateParams) {
   const {
     teamId,
     from,
@@ -757,6 +907,21 @@ export async function getGrowthRate(db: Database, params: GetGrowthRateParams) {
   };
 }
 
+export const getGrowthRate = cacheAcrossRequests({
+  keyPrefix: "growth-rate",
+  keyFn: (params: GetGrowthRateParams) =>
+    [
+      params.teamId,
+      params.from,
+      params.to,
+      params.currency ?? "",
+      params.type ?? "revenue",
+      params.revenueType ?? "net",
+      params.period ?? "quarterly",
+    ].join(":"),
+  load: getGrowthRateImpl,
+});
+
 export type GetProfitMarginParams = {
   teamId: string;
   from: string;
@@ -765,7 +930,7 @@ export type GetProfitMarginParams = {
   revenueType?: "gross" | "net";
 };
 
-export async function getProfitMargin(
+async function getProfitMarginImpl(
   db: Database,
   params: GetProfitMarginParams,
 ) {
@@ -875,6 +1040,19 @@ export async function getProfitMargin(
   };
 }
 
+export const getProfitMargin = cacheAcrossRequests({
+  keyPrefix: "profit-margin",
+  keyFn: (params: GetProfitMarginParams) =>
+    [
+      params.teamId,
+      params.from,
+      params.to,
+      params.currency ?? "",
+      params.revenueType ?? "net",
+    ].join(":"),
+  load: getProfitMarginImpl,
+});
+
 export type GetCashFlowParams = {
   teamId: string;
   from: string;
@@ -885,7 +1063,7 @@ export type GetCashFlowParams = {
   exactDates?: boolean;
 };
 
-export async function getCashFlow(db: Database, params: GetCashFlowParams) {
+async function getCashFlowImpl(db: Database, params: GetCashFlowParams) {
   const {
     teamId,
     from,
@@ -903,31 +1081,64 @@ export async function getCashFlow(db: Database, params: GetCashFlowParams) {
     : endOfMonth(new UTCDate(parseISO(to)));
 
   const excludedCategorySlugs = getExcludedCategorySlugs();
-  const { targetCurrency, amounts } = await getReportTransactionAmounts(db, {
+  const aggregateData = await getReportTransactionAggregateRows(db, {
     teamId,
     from: format(fromDate, "yyyy-MM-dd"),
     to: format(toDate, "yyyy-MM-dd"),
     inputCurrency,
   });
   const monthlyData = new Map<string, { income: number; expenses: number }>();
+  let targetCurrency: string | null = aggregateData?.targetCurrency ?? null;
 
-  for (const row of amounts) {
-    const slug = row.transaction.categorySlug;
+  if (aggregateData) {
+    for (const row of aggregateData.rows) {
+      const slug = row.categorySlug;
 
-    if (slug && excludedCategorySlugs.includes(slug)) {
-      continue;
+      if (slug && excludedCategorySlugs.includes(slug)) {
+        continue;
+      }
+
+      const month = getMonthBucket(row.date);
+      const current = monthlyData.get(month) ?? { income: 0, expenses: 0 };
+      const amount = row.totalAmount;
+
+      if (row.direction === "income" && amount > 0) {
+        current.income = roundMoney(current.income + amount);
+      } else if (row.direction === "expense" && amount < 0) {
+        current.expenses = roundMoney(current.expenses + Math.abs(amount));
+      }
+
+      monthlyData.set(month, current);
     }
+  } else {
+    const reportTransactionData = await getReportTransactionAmounts(db, {
+      teamId,
+      from: format(fromDate, "yyyy-MM-dd"),
+      to: format(toDate, "yyyy-MM-dd"),
+      inputCurrency,
+    });
 
-    const month = getMonthBucket(row.transaction.date);
-    const current = monthlyData.get(month) ?? { income: 0, expenses: 0 };
+    targetCurrency = reportTransactionData.targetCurrency;
 
-    if (row.amount > 0) {
-      current.income = roundMoney(current.income + row.amount);
-    } else if (row.amount < 0) {
-      current.expenses = roundMoney(current.expenses + Math.abs(row.amount));
+    for (const row of reportTransactionData.amounts) {
+      const slug = row.transaction.categorySlug;
+
+      if (slug && excludedCategorySlugs.includes(slug)) {
+        continue;
+      }
+
+      const month = getMonthBucket(row.transaction.date);
+      const current = monthlyData.get(month) ?? { income: 0, expenses: 0 };
+      const amount = row.amount;
+
+      if (amount > 0) {
+        current.income = roundMoney(current.income + amount);
+      } else if (amount < 0) {
+        current.expenses = roundMoney(current.expenses + Math.abs(amount));
+      }
+
+      monthlyData.set(month, current);
     }
-
-    monthlyData.set(month, current);
   }
 
   const monthSeries = eachMonthOfInterval({ start: fromDate, end: toDate });
@@ -981,6 +1192,20 @@ export async function getCashFlow(db: Database, params: GetCashFlowParams) {
   };
 }
 
+export const getCashFlow = cacheAcrossRequests({
+  keyPrefix: "cash-flow",
+  keyFn: (params: GetCashFlowParams) =>
+    [
+      params.teamId,
+      params.from,
+      params.to,
+      params.currency ?? "",
+      params.period ?? "monthly",
+      params.exactDates ?? false,
+    ].join(":"),
+  load: getCashFlowImpl,
+});
+
 export type GetOutstandingInvoicesParams = {
   teamId: string;
   currency?: string;
@@ -992,7 +1217,7 @@ export type GetOverdueInvoicesAlertParams = {
   currency?: string;
 };
 
-export async function getOverdueInvoicesAlert(
+async function getOverdueInvoicesAlertImpl(
   db: Database,
   params: GetOverdueInvoicesAlertParams,
 ) {
@@ -1004,28 +1229,32 @@ export async function getOverdueInvoicesAlert(
     { count: number; totalAmount: number; oldestDueDate: string | null }
   >();
 
-  for (const invoice of await getReportInvoices(db, {
+  for (const row of await getInvoiceAggregateRowsFromConvex({
     teamId,
-    inputCurrency: inputCurrency ?? undefined,
     statuses: ["overdue"],
   })) {
-    const currency = invoice.currency ?? targetCurrency ?? "USD";
+    const currency = row.currency ?? targetCurrency ?? "USD";
+
+    if (inputCurrency && currency !== inputCurrency) {
+      continue;
+    }
+
     const current = grouped.get(currency) ?? {
       count: 0,
       totalAmount: 0,
       oldestDueDate: null,
     };
 
-    current.count += 1;
+    current.count += Number(row.invoiceCount || 0);
     current.totalAmount = roundMoney(
-      current.totalAmount + Number(invoice.amount ?? 0),
+      current.totalAmount + Number(row.totalAmount ?? 0),
     );
 
     if (
-      invoice.dueDate &&
-      (!current.oldestDueDate || invoice.dueDate < current.oldestDueDate)
+      row.oldestDueDate &&
+      (!current.oldestDueDate || row.oldestDueDate < current.oldestDueDate)
     ) {
-      current.oldestDueDate = invoice.dueDate;
+      current.oldestDueDate = row.oldestDueDate;
     }
 
     grouped.set(currency, current);
@@ -1085,7 +1314,14 @@ export async function getOverdueInvoicesAlert(
   };
 }
 
-export async function getOutstandingInvoices(
+export async function getOverdueInvoicesAlert(
+  db: Database,
+  params: GetOverdueInvoicesAlertParams,
+) {
+  return getOverdueInvoicesAlertImpl(db, params);
+}
+
+async function getOutstandingInvoicesImpl(
   db: Database,
   params: GetOutstandingInvoicesParams,
 ) {
@@ -1099,21 +1335,25 @@ export async function getOutstandingInvoices(
   const statuses = new Set(status);
   const grouped = new Map<string, { count: number; totalAmount: number }>();
 
-  for (const invoice of await getReportInvoices(db, {
+  for (const row of await getInvoiceAggregateRowsFromConvex({
     teamId,
-    inputCurrency: inputCurrency ?? undefined,
     statuses: status,
   })) {
-    if (!statuses.has(invoice.status as (typeof status)[number])) {
+    if (!statuses.has(row.status as (typeof status)[number])) {
       continue;
     }
 
-    const currency = invoice.currency ?? targetCurrency ?? "USD";
+    const currency = row.currency ?? targetCurrency ?? "USD";
+
+    if (inputCurrency && currency !== inputCurrency) {
+      continue;
+    }
+
     const current = grouped.get(currency) ?? { count: 0, totalAmount: 0 };
 
-    current.count += 1;
+    current.count += Number(row.invoiceCount || 0);
     current.totalAmount = roundMoney(
-      current.totalAmount + Number(invoice.amount ?? 0),
+      current.totalAmount + Number(row.totalAmount ?? 0),
     );
     grouped.set(currency, current);
   }
@@ -1160,6 +1400,13 @@ export async function getOutstandingInvoices(
   };
 }
 
+export async function getOutstandingInvoices(
+  db: Database,
+  params: GetOutstandingInvoicesParams,
+) {
+  return getOutstandingInvoicesImpl(db, params);
+}
+
 export type GetRecurringExpensesParams = {
   teamId: string;
   currency?: string;
@@ -1170,13 +1417,19 @@ export type GetRecurringExpensesParams = {
 interface RecurringExpenseItem {
   name: string;
   amount: number;
-  frequency: "weekly" | "monthly" | "annually" | "irregular";
+  frequency:
+    | "weekly"
+    | "biweekly"
+    | "monthly"
+    | "semi_monthly"
+    | "annually"
+    | "irregular";
   categoryName: string | null;
   categorySlug: string | null;
   lastDate: string;
 }
 
-export async function getRecurringExpenses(
+async function getRecurringExpensesImpl(
   db: Database,
   params: GetRecurringExpensesParams,
 ) {
@@ -1184,10 +1437,11 @@ export async function getRecurringExpenses(
 
   const targetCurrency = await getTargetCurrency(db, teamId, inputCurrency);
   const excludedCategorySlugs = getExcludedCategorySlugs();
-  const { amounts } = await getReportTransactionAmounts(db, {
+  const aggregateData = await getReportTransactionRecurringAggregateRows(db, {
     teamId,
-    from: from ?? "0000-01-01",
-    to: to ?? "9999-12-31",
+    direction: "expense",
+    from,
+    to,
     inputCurrency,
   });
   const grouped = new Map<
@@ -1202,45 +1456,85 @@ export async function getRecurringExpenses(
     }
   >();
 
-  for (const row of amounts) {
-    if (!row.transaction.recurring || row.amount >= 0) {
-      continue;
+  if (aggregateData) {
+    for (const row of aggregateData.rows) {
+      const slug = row.categorySlug;
+
+      if (slug && excludedCategorySlugs.includes(slug)) {
+        continue;
+      }
+
+      const key = [
+        row.name,
+        normalizeRecurringFrequency(row.frequency),
+        slug ?? "",
+      ].join("\0");
+      const current = grouped.get(key) ?? {
+        name: row.name,
+        frequency: row.frequency,
+        categorySlug: slug,
+        total: 0,
+        count: 0,
+        lastDate: row.date,
+      };
+
+      current.total = roundMoney(current.total + Math.abs(row.totalAmount));
+      current.count += row.transactionCount;
+
+      if (row.date > current.lastDate) {
+        current.lastDate = row.date;
+      }
+
+      grouped.set(key, current);
     }
+  } else {
+    const reportTransactionData = await getReportTransactionAmounts(db, {
+      teamId,
+      from: from ?? "0000-01-01",
+      to: to ?? "9999-12-31",
+      inputCurrency,
+    });
 
-    const slug = row.transaction.categorySlug;
+    for (const row of reportTransactionData.amounts) {
+      if (!row.transaction.recurring || row.amount >= 0) {
+        continue;
+      }
 
-    if (slug && excludedCategorySlugs.includes(slug)) {
-      continue;
+      const slug = row.transaction.categorySlug;
+
+      if (slug && excludedCategorySlugs.includes(slug)) {
+        continue;
+      }
+
+      const key = [
+        row.transaction.name,
+        normalizeRecurringFrequency(row.transaction.frequency),
+        slug ?? "",
+      ].join("\0");
+      const current = grouped.get(key) ?? {
+        name: row.transaction.name,
+        frequency: row.transaction.frequency,
+        categorySlug: slug,
+        total: 0,
+        count: 0,
+        lastDate: row.transaction.date,
+      };
+
+      current.total = roundMoney(current.total + Math.abs(row.amount));
+      current.count += 1;
+
+      if (row.transaction.date > current.lastDate) {
+        current.lastDate = row.transaction.date;
+      }
+
+      grouped.set(key, current);
     }
-
-    const key = [
-      row.transaction.name,
-      row.transaction.frequency ?? "irregular",
-      slug ?? "",
-    ].join("\0");
-    const current = grouped.get(key) ?? {
-      name: row.transaction.name,
-      frequency: row.transaction.frequency,
-      categorySlug: slug,
-      total: 0,
-      count: 0,
-      lastDate: row.transaction.date,
-    };
-
-    current.total = roundMoney(current.total + Math.abs(row.amount));
-    current.count += 1;
-
-    if (row.transaction.date > current.lastDate) {
-      current.lastDate = row.transaction.date;
-    }
-
-    grouped.set(key, current);
   }
 
   const recurringExpenses = [...grouped.values()]
     .map((expense) => ({
       name: expense.name,
-      frequency: expense.frequency,
+      frequency: normalizeRecurringFrequency(expense.frequency),
       categorySlug: expense.categorySlug,
       amount: expense.count > 0 ? expense.total / expense.count : 0,
       count: expense.count,
@@ -1251,7 +1545,9 @@ export async function getRecurringExpenses(
 
   const frequencyTotals = {
     weekly: 0,
+    biweekly: 0,
     monthly: 0,
+    semi_monthly: 0,
     annually: 0,
     irregular: 0,
   };
@@ -1260,28 +1556,26 @@ export async function getRecurringExpenses(
 
   for (const expense of recurringExpenses) {
     const amount = Number(expense.amount);
-    const frequency = (expense.frequency || "irregular") as
-      | "weekly"
-      | "monthly"
-      | "annually"
-      | "irregular";
+    const frequency = normalizeRecurringFrequency(expense.frequency);
 
-    let monthlyEquivalent = 0;
+    const monthlyEquivalent = getRecurringMonthlyEquivalent(amount, frequency);
     switch (frequency) {
       case "weekly":
-        monthlyEquivalent = amount * 4.33;
         frequencyTotals.weekly += amount;
         break;
+      case "biweekly":
+        frequencyTotals.biweekly += amount;
+        break;
       case "monthly":
-        monthlyEquivalent = amount;
         frequencyTotals.monthly += amount;
         break;
+      case "semi_monthly":
+        frequencyTotals.semi_monthly += amount;
+        break;
       case "annually":
-        monthlyEquivalent = amount / 12;
         frequencyTotals.annually += amount;
         break;
       case "irregular":
-        monthlyEquivalent = amount;
         frequencyTotals.irregular += amount;
         break;
     }
@@ -1296,11 +1590,7 @@ export async function getRecurringExpenses(
   const expenses: RecurringExpenseItem[] = recurringExpenses.map((exp) => ({
     name: exp.name,
     amount: Number(Number(exp.amount).toFixed(2)),
-    frequency: (exp.frequency || "irregular") as
-      | "weekly"
-      | "monthly"
-      | "annually"
-      | "irregular",
+    frequency: normalizeRecurringFrequency(exp.frequency),
     categoryName: getCategoryInfo(exp.categorySlug, null)?.name ?? null,
     categorySlug: exp.categorySlug,
     lastDate: exp.lastDate,
@@ -1313,7 +1603,9 @@ export async function getRecurringExpenses(
       currency,
       byFrequency: {
         weekly: Number((frequencyTotals.weekly || 0).toFixed(2)),
+        biweekly: Number((frequencyTotals.biweekly || 0).toFixed(2)),
         monthly: Number((frequencyTotals.monthly || 0).toFixed(2)),
+        semi_monthly: Number((frequencyTotals.semi_monthly || 0).toFixed(2)),
         annually: Number((frequencyTotals.annually || 0).toFixed(2)),
         irregular: Number((frequencyTotals.irregular || 0).toFixed(2)),
       },
@@ -1325,3 +1617,15 @@ export async function getRecurringExpenses(
     },
   };
 }
+
+export const getRecurringExpenses = cacheAcrossRequests({
+  keyPrefix: "recurring-expenses",
+  keyFn: (params: GetRecurringExpensesParams) =>
+    [
+      params.teamId,
+      params.currency ?? "",
+      params.from ?? "",
+      params.to ?? "",
+    ].join(":"),
+  load: getRecurringExpensesImpl,
+});
