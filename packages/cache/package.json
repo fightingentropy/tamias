@@ -10,6 +10,7 @@
   },
   "exports": {
     "./chat-cache": "./src/chat-cache.ts",
-    "./banking-cache": "./src/banking-cache.ts"
+    "./banking-cache": "./src/banking-cache.ts",
+    "./local-cache": "./src/local-cache.ts"
   }
 }
