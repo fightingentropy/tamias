@@ -47,7 +47,7 @@ classDiagram
 
 ```mermaid
 flowchart TB
-    subgraph Redis["Redis Queue"]
+    subgraph AsyncQueue["Cloudflare Queue"]
         Q[accounting queue]
     end
 
@@ -347,7 +347,7 @@ flowchart TB
         end
     end
     
-    Redis[(Redis)] --> Worker
+    Queue[(Cloudflare Queue)] --> Worker
     DataStore[(Application Data Store)] --> DB1
     DataStore --> DB2
     DataStore --> DB3

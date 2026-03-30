@@ -1,7 +1,6 @@
 {
   "name": "@tamias/ai-artifacts",
   "version": "1.0.0",
-  "main": "src/index.ts",
   "private": true,
   "sideEffects": false,
   "scripts": {
@@ -11,7 +10,6 @@
     "typecheck": "tsc --noEmit"
   },
   "exports": {
-    ".": "./src/index.ts",
     "./balance-sheet": "./src/balance-sheet.ts",
     "./burn-rate": "./src/burn-rate.ts",
     "./business-health-score": "./src/business-health-score.ts",

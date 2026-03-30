@@ -2,6 +2,7 @@
   "extends": "@tamias/tsconfig/nextjs.json",
   "compilerOptions": {
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "@/*": ["./src/*"],
       "@convex/*": ["./convex/*"],

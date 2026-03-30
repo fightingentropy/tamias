@@ -9,8 +9,8 @@ import {
   SelectValue,
 } from "@tamias/ui/select";
 import { Monitor, Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { useTheme } from "@/components/theme-provider";
 
 type Theme = "dark" | "system" | "light";
 

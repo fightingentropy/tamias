@@ -91,32 +91,35 @@ export function prefetch<T extends ReturnType<TRPCQueryOptions<any>>>(
   const queryClient = getQueryClient();
 
   if (queryOptions.queryKey[1]?.type === "infinite") {
-    void queryClient.prefetchInfiniteQuery(queryOptions as any).catch(() => {
-      // Avoid unhandled promise rejections from fire-and-forget prefetches.
-    });
-  } else {
-    void queryClient.prefetchQuery(queryOptions).catch(() => {
+    return queryClient.prefetchInfiniteQuery(queryOptions as any).catch(() => {
       // Avoid unhandled promise rejections from fire-and-forget prefetches.
     });
   }
+
+  return queryClient.prefetchQuery(queryOptions).catch(() => {
+    // Avoid unhandled promise rejections from fire-and-forget prefetches.
+  });
 }
 
 export function batchPrefetch<T extends ReturnType<TRPCQueryOptions<any>>>(
   queryOptionsArray: T[],
 ) {
   const queryClient = getQueryClient();
+  return Promise.all(
+    queryOptionsArray.map((queryOptions) => {
+      if (queryOptions.queryKey[1]?.type === "infinite") {
+        return queryClient.prefetchInfiniteQuery(queryOptions as any).catch(
+          () => {
+            // Avoid unhandled promise rejections from fire-and-forget prefetches.
+          },
+        );
+      }
 
-  for (const queryOptions of queryOptionsArray) {
-    if (queryOptions.queryKey[1]?.type === "infinite") {
-      void queryClient.prefetchInfiniteQuery(queryOptions as any).catch(() => {
+      return queryClient.prefetchQuery(queryOptions).catch(() => {
         // Avoid unhandled promise rejections from fire-and-forget prefetches.
       });
-    } else {
-      void queryClient.prefetchQuery(queryOptions).catch(() => {
-        // Avoid unhandled promise rejections from fire-and-forget prefetches.
-      });
-    }
-  }
+    }),
+  );
 }
 
 /**

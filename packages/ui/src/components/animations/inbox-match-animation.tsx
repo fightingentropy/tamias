@@ -207,6 +207,7 @@ export function InboxMatchAnimation({
                     alt="Gmail"
                     width={16}
                     height={16}
+                    unoptimized
                     className="w-3 h-3 md:w-3.5 md:h-3.5 object-contain"
                   />
                 </span>

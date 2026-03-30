@@ -16,6 +16,11 @@ import {
 } from "../../schemas/widgets";
 import { protectedProcedure } from "../init";
 import {
+  getCashFlowWidgetData,
+  getGrowthRateWidgetData,
+  getRevenueSummaryWidgetData,
+} from "@tamias/app-services/widgets";
+import {
   getCashBalance,
   getCashFlow,
   getCustomerLifetimeValue,
@@ -31,11 +36,6 @@ import {
   getTaxSummary,
   getTopRevenueClient,
 } from "@tamias/app-data/queries";
-import {
-  getCashFlowWidgetData,
-  getGrowthRateWidgetData,
-  getRevenueSummaryWidgetData,
-} from "./widgets-shared";
 
 export const widgetFinanceProcedures = {
   getRunway: protectedProcedure
@@ -70,14 +70,22 @@ export const widgetFinanceProcedures = {
   getRevenueSummary: protectedProcedure
     .input(getRevenueSummarySchema)
     .query(async ({ ctx: { db, teamId }, input }) => {
-      return getRevenueSummaryWidgetData(db, teamId!, input);
+      return getRevenueSummaryWidgetData({
+        db,
+        teamId: teamId!,
+        input,
+      });
     }),
 
   getGrowthRate: protectedProcedure
     .input(getGrowthRateSchema)
     .query(async ({ ctx: { db, teamId }, input }) => {
       if (input.type === "revenue" && input.period === "quarterly") {
-        return getGrowthRateWidgetData(db, teamId!, input);
+        return getGrowthRateWidgetData({
+          db,
+          teamId: teamId!,
+          input,
+        });
       }
 
       const growthData = await getGrowthRate(db, {
@@ -137,7 +145,11 @@ export const widgetFinanceProcedures = {
     .input(getCashFlowSchema)
     .query(async ({ ctx: { db, teamId }, input }) => {
       if (input.period === "monthly") {
-        return getCashFlowWidgetData(db, teamId!, input);
+        return getCashFlowWidgetData({
+          db,
+          teamId: teamId!,
+          input,
+        });
       }
 
       const cashFlowData = await getCashFlow(db, {

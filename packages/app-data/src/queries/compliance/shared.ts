@@ -12,6 +12,7 @@ import {
   upsertFilingProfileInConvex,
 } from "@tamias/app-data-convex";
 import { getTeamById } from "../teams";
+import { cacheAcrossRequests } from "../../utils/short-lived-cache";
 
 export type TeamContext = {
   id: string;
@@ -127,13 +128,19 @@ export async function getHmrcProvider(
   return { provider: HmrcVatProvider.fromEnvironment(config), config };
 }
 
-export async function getFilingProfile(db: Database, teamId: string) {
+async function getFilingProfileImpl(db: Database, teamId: string) {
   void db;
   return getFilingProfileFromConvex({
     teamId,
     provider: "hmrc-vat",
   });
 }
+
+export const getFilingProfile = cacheAcrossRequests({
+  keyPrefix: "filing-profile",
+  keyFn: (teamId: string) => teamId,
+  load: getFilingProfileImpl,
+});
 
 export async function upsertFilingProfile(
   db: Database,

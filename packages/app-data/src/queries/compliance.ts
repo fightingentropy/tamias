@@ -2,7 +2,7 @@ export {
   getFilingProfile,
   upsertFilingProfile,
 } from "./compliance/shared";
-export { rebuildDerivedLedger } from "./compliance/ledger";
+export { listDerivedLedgerEntries } from "./compliance/ledger";
 export {
   addVatAdjustment,
   getEvidencePack,

@@ -1,5 +1,6 @@
 "use client";
 
+import { PolarEmbedCheckout } from "@polar-sh/checkout/embed";
 import { track } from "@tamias/events/client";
 import { LogEvents } from "@tamias/events/events";
 import { getPlanPricing } from "@tamias/plans";
@@ -15,11 +16,10 @@ import {
 } from "@tamias/ui/dialog";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { Textarea } from "@tamias/ui/textarea";
-import { PolarEmbedCheckout } from "@polar-sh/checkout/embed";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { useTheme } from "next-themes";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTheme } from "@/components/theme-provider";
 import { useUserQuery } from "@/hooks/use-user";
 import { useTRPC } from "@/trpc/client";
 

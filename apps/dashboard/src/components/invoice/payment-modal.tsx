@@ -1,5 +1,13 @@
 "use client";
 
+import {
+  Elements,
+  PaymentElement,
+  useElements,
+  useStripe,
+} from "@stripe/react-stripe-js";
+import type { Appearance } from "@stripe/stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 import { fromStripeAmount } from "@tamias/invoice/currency";
 import { Button } from "@tamias/ui/button";
 import { cn } from "@tamias/ui/cn";
@@ -9,18 +17,10 @@ import { Icons } from "@tamias/ui/icons";
 import { Skeleton } from "@tamias/ui/skeleton";
 import { Spinner } from "@tamias/ui/spinner";
 import { SubmitButton } from "@tamias/ui/submit-button";
-import {
-  Elements,
-  PaymentElement,
-  useElements,
-  useStripe,
-} from "@stripe/react-stripe-js";
-import type { Appearance } from "@stripe/stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
 import { motion } from "framer-motion";
-import { useTheme } from "next-themes";
 import { type RefObject, useEffect, useMemo, useRef, useState } from "react";
 import { useOnClickOutside } from "usehooks-ts";
+import { useTheme } from "@/components/theme-provider";
 import { useSuccessSound } from "@/hooks/use-success-sound";
 import { downloadFile } from "@/lib/download";
 

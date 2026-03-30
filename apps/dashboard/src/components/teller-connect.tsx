@@ -1,7 +1,7 @@
 import { track } from "@tamias/events/client";
 import { LogEvents } from "@tamias/events/events";
-import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { useTheme } from "@/components/theme-provider";
 import { useConnectParams } from "@/hooks/use-connect-params";
 import { BankConnectButton } from "./bank-connect-button";
 

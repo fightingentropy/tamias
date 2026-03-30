@@ -1,14 +1,14 @@
 "use client";
 
+import { PolarEmbedCheckout } from "@polar-sh/checkout/embed";
 import { track } from "@tamias/events/client";
 import { LogEvents } from "@tamias/events/events";
 import { PlanCards } from "@tamias/ui/plan-cards";
 import { SubmitButton } from "@tamias/ui/submit-button";
-import { PolarEmbedCheckout } from "@polar-sh/checkout/embed";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useTheme } from "next-themes";
 import { useEffect, useRef, useState } from "react";
 import { revalidateAfterCheckout } from "@/actions/revalidate-action";
+import { useTheme } from "@/components/theme-provider";
 import { useTRPC } from "@/trpc/client";
 
 const POLLING_TIMEOUT_MS = 30_000;

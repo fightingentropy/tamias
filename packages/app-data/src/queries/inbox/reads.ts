@@ -8,6 +8,7 @@ import {
 } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { separateBlocklistEntries } from "../../utils/blocklist";
+import { cacheAcrossRequests } from "../../utils/short-lived-cache";
 import { normalizeTimestampBoundary } from "../date-boundaries";
 import { getInboxBlocklist } from "../inbox-blocklist";
 import { countInboxItemsPaged, getInboxItemsPaged } from "../paged-records";
@@ -674,7 +675,7 @@ export type GetInboxStatsParams = {
   currency?: string;
 };
 
-export async function getInboxStats(
+async function getInboxStatsImpl(
   _db: Database,
   params: GetInboxStatsParams,
 ) {
@@ -740,3 +741,10 @@ export async function getInboxStats(
     },
   };
 }
+
+export const getInboxStats = cacheAcrossRequests({
+  keyPrefix: "inbox-stats",
+  keyFn: (params: GetInboxStatsParams) =>
+    [params.teamId, params.from, params.to, params.currency ?? ""].join(":"),
+  load: getInboxStatsImpl,
+});

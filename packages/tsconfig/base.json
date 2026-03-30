@@ -10,11 +10,13 @@
     "moduleDetection": "force",
     "moduleResolution": "NodeNext",
     "noUncheckedIndexedAccess": true,
+    "ignoreDeprecations": "6.0",
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
     "target": "ES2022",
     "baseUrl": ".",
+    "types": ["bun", "node"],
     "typeRoots": [
       "./node_modules/@types",
       "../../node_modules/@types",

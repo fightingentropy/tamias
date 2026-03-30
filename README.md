@@ -60,7 +60,7 @@ flowchart LR
 
 ### Request and data flow
 
-1. Requests into the dashboard hit `apps/dashboard/src/middleware.ts`.
+1. Requests into the dashboard hit `apps/dashboard/src/proxy.ts`.
    Locale rewriting happens there, and authenticated routes are gated with Convex Auth.
 2. The dashboard root layout mounts Convex auth, tRPC, i18n, theming, analytics, and shared client providers.
 3. The authenticated sidebar shell preloads the current user/team and mounts global chrome like the sidebar, header, timers, sheets, and export status.

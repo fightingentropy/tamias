@@ -22,7 +22,6 @@
     "@ai-sdk/google": "catalog:",
     "@ai-sdk/mistral": "catalog:",
     "@tamias/logger": "workspace:*",
-    "@tamias/utils": "workspace:*",
     "ai": "catalog:",
     "canvas": "^3.2.0",
     "mammoth": "^1.11.0",

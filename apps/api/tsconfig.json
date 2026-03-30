@@ -19,6 +19,7 @@
     "jsx": "react-jsx",
     "jsxImportSource": "react",
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "@app-data/*": ["../../packages/app-data/src/*"],
       "@tamias/job-client": ["../../packages/job-client/src/index.ts"]

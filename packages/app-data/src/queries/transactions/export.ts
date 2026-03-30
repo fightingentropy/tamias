@@ -10,11 +10,12 @@ import {
   deleteAccountingSyncRecordsForTransactions,
   getAccountingSyncStatus,
 } from "../accounting-sync";
+import { cacheAcrossRequests } from "../../utils/short-lived-cache";
 import { toConvexTransactionInput } from "./shared";
 
 const READY_FOR_EXPORT_COUNT_BATCH_SIZE = 250;
 
-export async function getTransactionsReadyForExportCount(
+async function getTransactionsReadyForExportCountImpl(
   db: Database,
   teamId: string,
 ): Promise<number> {
@@ -67,6 +68,12 @@ export async function getTransactionsReadyForExportCount(
 
   return count;
 }
+
+export const getTransactionsReadyForExportCount = cacheAcrossRequests({
+  keyPrefix: "transactions-review-count",
+  keyFn: (teamId: string) => teamId,
+  load: getTransactionsReadyForExportCountImpl,
+});
 
 export async function markTransactionsAsExported(
   _db: Database,

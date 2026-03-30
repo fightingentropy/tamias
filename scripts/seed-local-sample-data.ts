@@ -2491,7 +2491,7 @@ async function seedDocuments(context: SeedContext) {
         title: "AWS invoice February 2026",
         summary: "Cloud infrastructure bill covering EC2, RDS, CloudFront, and support.",
         content:
-          "Monthly AWS invoice for Acme Inc including EC2 compute, RDS PostgreSQL, S3 and CloudFront delivery, and business support.",
+          "Monthly AWS invoice for Acme Inc including EC2 compute, Amazon RDS database, S3 and CloudFront delivery, and business support.",
         date: dateOnly(subDays(context.today, 44)),
         language: "en",
         processingStatus: "completed",
@@ -2747,7 +2747,7 @@ async function seedInbox(context: SeedContext, transactions: TransactionRecord[]
           "Account ID: 4813-1908",
           "Customer: Acme Inc",
           "EC2 Linux instances ................. GBP 226.40",
-          "Amazon RDS PostgreSQL .............. GBP 138.12",
+          "Amazon RDS database ................ GBP 138.12",
           "S3 + CloudFront .................... GBP 97.89",
           "Business support ................... GBP 82.77",
           "Data transfer out .................. GBP 25.00",

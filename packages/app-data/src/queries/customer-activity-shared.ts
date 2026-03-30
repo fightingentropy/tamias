@@ -1,15 +1,21 @@
 import {
   getCustomersByIdsFromConvex,
   getCustomersPageFromConvex,
+  getInvoiceCustomerDateAggregateRowsFromConvex,
   getTrackerEntriesByRangeFromConvex,
   getTrackerProjectsByIdsFromConvex,
 } from "@tamias/app-data-convex";
-import {
-  getProjectedInvoicesByFilters,
-  type ProjectedInvoiceRecord,
-} from "./invoice-projections";
 import { normalizeTimestampBoundary } from "./date-boundaries";
 
+const ALL_INVOICE_STATUSES = [
+  "draft",
+  "overdue",
+  "paid",
+  "unpaid",
+  "canceled",
+  "scheduled",
+  "refunded",
+] as const;
 const RECENT_REVENUE_INVOICE_STATUSES = new Set<string>([
   "paid",
   "unpaid",
@@ -33,10 +39,6 @@ export type RecentCustomerActivity = {
   customerNameById: Map<string, string>;
 };
 
-function getProjectedCustomerName(invoice: ProjectedInvoiceRecord) {
-  return invoice.customer.name ?? invoice.customerName ?? "Unknown Customer";
-}
-
 function hasStringValue(value: string | null | undefined): value is string {
   return typeof value === "string" && value.length > 0;
 }
@@ -46,11 +48,12 @@ export async function getRecentCustomerActivity(args: {
   sinceIso: string;
   sinceDate: string;
 }): Promise<RecentCustomerActivity> {
-  const [recentInvoices, trackerEntries] = await Promise.all([
-    getProjectedInvoicesByFilters({
+  const [recentInvoiceRows, trackerEntries] = await Promise.all([
+    getInvoiceCustomerDateAggregateRowsFromConvex({
       teamId: args.teamId,
+      statuses: [...ALL_INVOICE_STATUSES],
       dateField: "createdAt",
-      from: args.sinceIso,
+      dateFrom: args.sinceIso,
     }),
     getTrackerEntriesByRangeFromConvex({
       teamId: args.teamId,
@@ -60,39 +63,32 @@ export async function getRecentCustomerActivity(args: {
   ]);
 
   const invoiceCountsByCustomerId = new Map<string, number>();
-  const topRevenueByCustomerKey = new Map<string, CustomerRevenueSummary>();
-  const customerNameById = new Map<string, string>();
+  const topRevenueByCustomerKey = new Map<
+    string,
+    Omit<CustomerRevenueSummary, "customerName">
+  >();
 
-  for (const invoice of recentInvoices) {
-    if (!hasStringValue(invoice.customerId)) {
-      continue;
-    }
-
-    customerNameById.set(
-      invoice.customerId,
-      getProjectedCustomerName(invoice),
-    );
+  for (const row of recentInvoiceRows) {
     invoiceCountsByCustomerId.set(
-      invoice.customerId,
-      (invoiceCountsByCustomerId.get(invoice.customerId) ?? 0) + 1,
+      row.customerId,
+      (invoiceCountsByCustomerId.get(row.customerId) ?? 0) + row.invoiceCount,
     );
 
-    if (!RECENT_REVENUE_INVOICE_STATUSES.has(invoice.status)) {
+    if (!RECENT_REVENUE_INVOICE_STATUSES.has(row.status)) {
       continue;
     }
 
-    const currency = invoice.currency ?? null;
-    const key = `${invoice.customerId}:${currency ?? "__null__"}`;
+    const currency = row.currency ?? null;
+    const key = `${row.customerId}:${currency ?? "__null__"}`;
     const current = topRevenueByCustomerKey.get(key) ?? {
-      customerId: invoice.customerId,
-      customerName: getProjectedCustomerName(invoice),
+      customerId: row.customerId,
       totalRevenue: 0,
       currency,
       invoiceCount: 0,
     };
 
-    current.totalRevenue += Number(invoice.amount) || 0;
-    current.invoiceCount += 1;
+    current.totalRevenue += row.totalAmount;
+    current.invoiceCount += row.invoiceCount;
     topRevenueByCustomerKey.set(key, current);
   }
 
@@ -136,18 +132,19 @@ export async function getRecentCustomerActivity(args: {
     );
   }
 
-  const missingCustomerIds = [
-    ...new Set(
-      [...invoiceCountsByCustomerId.keys(), ...trackerTimeByCustomerId.keys()].filter(
-        (customerId) => !customerNameById.has(customerId),
-      ),
-    ),
+  const customerNameById = new Map<string, string>();
+  const customerIds = [
+    ...new Set([
+      ...invoiceCountsByCustomerId.keys(),
+      ...trackerTimeByCustomerId.keys(),
+      ...[...topRevenueByCustomerKey.values()].map((row) => row.customerId),
+    ]),
   ];
 
-  if (missingCustomerIds.length > 0) {
+  if (customerIds.length > 0) {
     const customers = await getCustomersByIdsFromConvex({
       teamId: args.teamId,
-      customerIds: missingCustomerIds,
+      customerIds,
     });
 
     for (const customer of customers) {
@@ -158,7 +155,16 @@ export async function getRecentCustomerActivity(args: {
   return {
     invoiceCountsByCustomerId,
     trackerTimeByCustomerId,
-    topRevenueByCustomerKey,
+    topRevenueByCustomerKey: new Map(
+      [...topRevenueByCustomerKey.entries()].map(([key, row]) => [
+        key,
+        {
+          ...row,
+          customerName:
+            customerNameById.get(row.customerId) ?? "Unknown Customer",
+        },
+      ]),
+    ),
     customerNameById,
   };
 }

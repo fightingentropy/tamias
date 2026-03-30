@@ -55,13 +55,14 @@ import {
   addMonths,
   differenceInCalendarDays,
   endOfMonth,
-  format,
   isAfter,
   isValid,
   parseISO,
 } from "date-fns";
 import type { Database } from "../client";
-import { getFilingProfile, rebuildDerivedLedger } from "./compliance";
+import { cacheAcrossRequests } from "../utils/short-lived-cache";
+import { getFilingProfile } from "./compliance";
+import { listDerivedLedgerEntries } from "./compliance/ledger";
 import { getTeamById } from "./teams";
 import {
   renderAccountsAttachmentIxbrl,
@@ -2147,7 +2148,12 @@ async function loadLedgerEntries(
     profile: FilingProfileRecord;
   },
 ) {
-  const derivedEntries = await rebuildDerivedLedger(db, params);
+  void params.team;
+  void params.profile;
+
+  const derivedEntries = await listDerivedLedgerEntries(db, {
+    teamId: params.teamId,
+  });
   const otherEntries = await listComplianceJournalEntriesFromConvex({
     teamId: params.teamId,
     sourceTypes: ["manual_adjustment", "payroll_import"],
@@ -2247,7 +2253,7 @@ function buildYearEndWorkspacePayload(args: {
   };
 }
 
-export async function getYearEndDashboard(
+async function getYearEndDashboardImpl(
   db: Database,
   params: { teamId: string; periodKey?: string },
 ) {
@@ -2309,6 +2315,13 @@ export async function getYearEndDashboard(
     latestExportedAt: existingPack?.latestExportedAt ?? null,
   };
 }
+
+export const getYearEndDashboard = cacheAcrossRequests({
+  keyPrefix: "year-end-dashboard",
+  keyFn: (params: { teamId: string; periodKey?: string }) =>
+    [params.teamId, params.periodKey ?? ""].join(":"),
+  load: getYearEndDashboardImpl,
+});
 
 export async function getYearEndPack(
   db: Database,
@@ -3566,11 +3579,13 @@ export async function submitAnnualAccountsToCompaniesHouse(
     throw error;
   }
 
-  let identifiers:
-    | Awaited<ReturnType<typeof allocateCompaniesHouseSubmissionIdentifiers>>
-    | null = null;
+  let identifiers: Awaited<
+    ReturnType<typeof allocateCompaniesHouseSubmissionIdentifiers>
+  > | null = null;
   let requestSummary:
-    | (ReturnType<typeof buildCompaniesHouseAccountsSubmissionRequestSummary> & {
+    | (ReturnType<
+        typeof buildCompaniesHouseAccountsSubmissionRequestSummary
+      > & {
         submittedBy: string;
       })
     | null = null;

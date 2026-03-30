@@ -16,6 +16,7 @@ import {
   updateDocumentsStatusByNamesInConvex,
 } from "@tamias/app-data-convex";
 import type { Database } from "../client";
+import { cacheAcrossRequests } from "../utils/short-lived-cache";
 import {
   deleteTransactionAttachmentsByPathKeys,
   getTransactionAttachmentsByPathKeys,
@@ -426,7 +427,7 @@ export type GetRecentDocumentsParams = {
   limit?: number;
 };
 
-export async function getRecentDocuments(
+async function getRecentDocumentsImpl(
   _db: Database,
   params: GetRecentDocumentsParams,
 ) {
@@ -438,6 +439,13 @@ export async function getRecentDocuments(
     total: data.length,
   };
 }
+
+export const getRecentDocuments = cacheAcrossRequests({
+  keyPrefix: "recent-documents",
+  keyFn: (params: GetRecentDocumentsParams) =>
+    [params.teamId, params.limit ?? 5].join(":"),
+  load: getRecentDocumentsImpl,
+});
 
 export type GetRelatedDocumentsResponse = DocumentRecord & {
   titleSimilarity: number;

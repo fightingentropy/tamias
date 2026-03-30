@@ -319,7 +319,7 @@ export class GoCardLessApi {
     id,
   }: GetAccountsRequest): Promise<GetAccountsResponse | undefined> {
     try {
-      // Pre-resolve token once for all sub-requests to avoid repeated Redis lookups
+      // Pre-resolve token once for all sub-requests to avoid repeated token fetches
       const token = await this.#getAccessToken();
 
       const response = await this.getRequestion(id);

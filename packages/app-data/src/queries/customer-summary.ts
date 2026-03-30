@@ -1,4 +1,5 @@
 import type { Database } from "../client";
+import { cacheAcrossRequests } from "../utils/short-lived-cache";
 import {
   getRecentCustomerActivity,
   getRecentCustomerCounts,
@@ -22,7 +23,7 @@ export type CustomerPageSummary = {
   newCustomersCount: number;
 };
 
-export async function getCustomerPageSummary(
+async function getCustomerPageSummaryImpl(
   _db: Database,
   params: { teamId: string },
 ): Promise<CustomerPageSummary> {
@@ -77,3 +78,9 @@ export async function getCustomerPageSummary(
     newCustomersCount,
   };
 }
+
+export const getCustomerPageSummary = cacheAcrossRequests({
+  keyPrefix: "customer-page-summary",
+  keyFn: (params: { teamId: string }) => params.teamId,
+  load: getCustomerPageSummaryImpl,
+});

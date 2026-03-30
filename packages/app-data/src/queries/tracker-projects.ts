@@ -17,6 +17,7 @@ import {
   type TrackerProjectRecord,
 } from "@tamias/app-data-convex";
 import type { Database } from "../client";
+import { cacheAcrossRequests } from "../utils/short-lived-cache";
 import { createActivity } from "./activities";
 import { getTeamById } from "./index";
 
@@ -41,6 +42,21 @@ export type GetTrackerProjectsParams = {
   tags?: string[] | null;
   sort?: string[] | null;
 };
+
+function serializeTrackerProjectListParams(params: GetTrackerProjectsParams) {
+  return [
+    params.teamId,
+    params.cursor ?? "",
+    params.pageSize ?? 25,
+    params.q ?? "",
+    params.start ?? "",
+    params.end ?? "",
+    params.status ?? "",
+    [...(params.customers ?? [])].sort().join(","),
+    [...(params.tags ?? [])].sort().join(","),
+    (params.sort ?? []).join(","),
+  ].join(":");
+}
 
 type AssignedUser = {
   id: string;
@@ -638,7 +654,7 @@ function sortTrackerProjects(
   return ordered;
 }
 
-export async function getTrackerProjects(
+async function getTrackerProjectsImpl(
   db: Database,
   params: GetTrackerProjectsParams,
 ) {
@@ -697,6 +713,12 @@ export async function getTrackerProjects(
 
   return paginate(ordered, cursor, pageSize);
 }
+
+export const getTrackerProjects = cacheAcrossRequests({
+  keyPrefix: "tracker-projects",
+  keyFn: serializeTrackerProjectListParams,
+  load: getTrackerProjectsImpl,
+});
 
 export type DeleteTrackerProjectParams = {
   teamId: string;
@@ -784,7 +806,7 @@ export type GetTrackerProjectByIdParams = {
   id: string;
 };
 
-export async function getTrackerProjectById(
+async function getTrackerProjectByIdImpl(
   db: Database,
   params: GetTrackerProjectByIdParams,
 ) {
@@ -801,3 +823,10 @@ export async function getTrackerProjectById(
 
   return enriched ?? null;
 }
+
+export const getTrackerProjectById = cacheAcrossRequests({
+  keyPrefix: "tracker-project-by-id",
+  keyFn: (params: GetTrackerProjectByIdParams) =>
+    [params.teamId, params.id].join(":"),
+  load: getTrackerProjectByIdImpl,
+});

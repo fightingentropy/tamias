@@ -1,6 +1,7 @@
 import { UTCDate } from "@date-fns/utc";
 import { format, endOfMonth, startOfMonth, subMonths } from "date-fns";
 import type { Database } from "../../client";
+import { cacheAcrossRequests } from "../../utils/short-lived-cache";
 import {
   InvalidReportTypeError,
   ReportExpiredError,
@@ -49,11 +50,17 @@ export async function createReport(_db: Database, params: CreateReportParams) {
   });
 }
 
-export async function getReportByLinkId(_db: Database, linkId: string) {
+async function getReportByLinkIdImpl(_db: Database, linkId: string) {
   return getReportLinkByLinkIdFromConvex({ linkId });
 }
 
-export async function getChartDataByLinkId(db: Database, linkId: string) {
+export const getReportByLinkId = cacheAcrossRequests({
+  keyPrefix: "report-link",
+  keyFn: (linkId: string) => linkId,
+  load: getReportByLinkIdImpl,
+});
+
+async function getChartDataByLinkIdImpl(db: Database, linkId: string) {
   const report = await getReportByLinkId(db, linkId);
 
   if (!report) {
@@ -153,3 +160,9 @@ export async function getChartDataByLinkId(db: Database, linkId: string) {
       throw new InvalidReportTypeError();
   }
 }
+
+export const getChartDataByLinkId = cacheAcrossRequests({
+  keyPrefix: "report-link-chart-data",
+  keyFn: (linkId: string) => linkId,
+  load: getChartDataByLinkIdImpl,
+});

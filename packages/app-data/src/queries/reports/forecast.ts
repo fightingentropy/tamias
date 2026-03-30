@@ -9,9 +9,9 @@ import { getRevenue } from "./core";
 import { getOutstandingInvoices } from "./metrics";
 import {
   getExcludedCategorySlugs,
-  getReportInvoices,
+  getReportInvoiceAgingAggregateRows,
+  getReportInvoiceDateAggregateRows,
   getReportTransactionRecurringAggregateRows,
-  getReportTransactionAmounts,
   getRecurringMonthlyEquivalent,
 } from "./shared";
 
@@ -46,68 +46,30 @@ async function getRecurringTransactionProjection(
     }
   >();
 
-  if (aggregateData) {
-    for (const row of aggregateData.rows) {
-      const slug = row.categorySlug;
+  for (const row of aggregateData.rows) {
+    const slug = row.categorySlug;
 
-      if (slug !== null && excludedCategorySlugs.includes(slug)) {
-        continue;
-      }
-
-      const existing = recurringByName.get(row.name);
-      const shouldReplace =
-        !existing ||
-        row.date > existing.lastDate ||
-        (row.date === existing.lastDate &&
-          row.latestTransactionCreatedAt > existing.lastCreatedAt);
-
-      if (!shouldReplace) {
-        continue;
-      }
-
-      recurringByName.set(row.name, {
-        amount: row.latestAmount,
-        frequency: row.frequency,
-        lastDate: row.date,
-        lastCreatedAt: row.latestTransactionCreatedAt,
-      });
+    if (slug !== null && excludedCategorySlugs.includes(slug)) {
+      continue;
     }
-  } else {
-    const reportTransactionData = await getReportTransactionAmounts(db, {
-      teamId,
-      from: sixMonthsAgo,
-      to: today,
-      inputCurrency: currency,
+
+    const existing = recurringByName.get(row.name);
+    const shouldReplace =
+      !existing ||
+      row.date > existing.lastDate ||
+      (row.date === existing.lastDate &&
+        row.latestTransactionCreatedAt > existing.lastCreatedAt);
+
+    if (!shouldReplace) {
+      continue;
+    }
+
+    recurringByName.set(row.name, {
+      amount: row.latestAmount,
+      frequency: row.frequency,
+      lastDate: row.date,
+      lastCreatedAt: row.latestTransactionCreatedAt,
     });
-
-    for (const row of reportTransactionData.amounts) {
-      if (!row.transaction.recurring || row.amount <= 0) {
-        continue;
-      }
-
-      const slug = row.transaction.categorySlug;
-      if (slug !== null && excludedCategorySlugs.includes(slug)) {
-        continue;
-      }
-
-      const existing = recurringByName.get(row.transaction.name);
-      const shouldReplace =
-        !existing ||
-        row.transaction.date > existing.lastDate ||
-        (row.transaction.date === existing.lastDate &&
-          row.transaction.createdAt > existing.lastCreatedAt);
-
-      if (!shouldReplace) {
-        continue;
-      }
-
-      recurringByName.set(row.transaction.name, {
-        amount: row.amount,
-        frequency: row.transaction.frequency,
-        lastDate: row.transaction.date,
-        lastCreatedAt: row.transaction.createdAt,
-      });
-    }
   }
 
   const projection: RecurringTransactionProjection = new Map();
@@ -145,54 +107,39 @@ async function getTeamCollectionMetrics(
   teamId: string,
 ): Promise<TeamCollectionMetrics> {
   const twelveMonthsAgo = format(subMonths(new UTCDate(), 12), "yyyy-MM-dd");
-  const paidInvoices = (
-    await getReportInvoices(db, {
-      teamId,
-      statuses: ["paid"],
-      dateField: "paidAt",
-      from: twelveMonthsAgo,
-    })
-  ).filter((invoice) => Boolean(invoice.paidAt) && Boolean(invoice.issueDate));
+  const aggregateRows = await getReportInvoiceDateAggregateRows(db, {
+    teamId,
+    statuses: ["paid"],
+    dateField: "paidAt",
+    from: twelveMonthsAgo,
+  });
 
-  if (paidInvoices.length === 0) {
+  if (aggregateRows) {
+    const onTimeCount = aggregateRows.reduce(
+      (sum, row) => sum + row.onTimeCount,
+      0,
+    );
+    const totalDaysToPay = aggregateRows.reduce(
+      (sum, row) => sum + row.totalDaysToPay,
+      0,
+    );
+    const validPaymentCount = aggregateRows.reduce(
+      (sum, row) => sum + row.validPaymentCount,
+      0,
+    );
+
     return {
-      onTimeRate: 0.7,
-      avgDaysToPay: 30,
-      sampleSize: 0,
+      onTimeRate: validPaymentCount > 0 ? onTimeCount / validPaymentCount : 0.7,
+      avgDaysToPay:
+        validPaymentCount > 0 ? totalDaysToPay / validPaymentCount : 30,
+      sampleSize: validPaymentCount,
     };
   }
 
-  let onTimeCount = 0;
-  let totalDaysToPay = 0;
-  let validPaymentCount = 0;
-
-  for (const inv of paidInvoices) {
-    if (!inv.issueDate || !inv.paidAt) continue;
-
-    const issueDate = parseISO(inv.issueDate);
-    const paidDate = parseISO(inv.paidAt);
-    const daysToPay = Math.floor(
-      (paidDate.getTime() - issueDate.getTime()) / (1000 * 60 * 60 * 24),
-    );
-
-    if (daysToPay >= 0 && daysToPay <= 365) {
-      totalDaysToPay += daysToPay;
-      validPaymentCount++;
-
-      if (inv.dueDate) {
-        const dueDate = parseISO(inv.dueDate);
-        if (paidDate <= dueDate) {
-          onTimeCount++;
-        }
-      }
-    }
-  }
-
   return {
-    onTimeRate: validPaymentCount > 0 ? onTimeCount / validPaymentCount : 0.7,
-    avgDaysToPay:
-      validPaymentCount > 0 ? totalDaysToPay / validPaymentCount : 30,
-    sampleSize: validPaymentCount,
+    onTimeRate: 0.7,
+    avgDaysToPay: 30,
+    sampleSize: 0,
   };
 }
 
@@ -209,78 +156,78 @@ async function calculateExpectedCollections(
   teamMetrics: TeamCollectionMetrics,
   currency?: string,
 ): Promise<ExpectedCollections> {
-  const outstandingInvoices = await getReportInvoices(db, {
+  const aggregateRows = await getReportInvoiceAgingAggregateRows(db, {
     teamId,
     inputCurrency: currency,
     statuses: ["unpaid", "overdue"],
   });
 
-  if (outstandingInvoices.length === 0) {
+  if (aggregateRows) {
+    const now = new Date();
+    const teamFactor = teamMetrics.onTimeRate / 0.7;
+    let month1Total = 0;
+    let month2Total = 0;
+    let invoiceCount = 0;
+
+    for (const row of aggregateRows) {
+      const amount = row.totalAmount;
+      const daysSinceIssue = row.issueDate
+        ? Math.floor(
+            (now.getTime() - parseISO(row.issueDate).getTime()) /
+              (1000 * 60 * 60 * 24),
+          )
+        : 0;
+      const daysPastDue = row.dueDate
+        ? Math.floor(
+            (now.getTime() - parseISO(row.dueDate).getTime()) /
+              (1000 * 60 * 60 * 24),
+          )
+        : 0;
+
+      let baseProbability: number;
+      if (daysSinceIssue < 30) {
+        baseProbability = 0.85;
+      } else if (daysPastDue <= 0) {
+        baseProbability = 0.75;
+      } else if (daysPastDue <= 30) {
+        baseProbability = 0.5;
+      } else if (daysPastDue <= 60) {
+        baseProbability = 0.3;
+      } else if (daysPastDue <= 90) {
+        baseProbability = 0.15;
+      } else {
+        baseProbability = 0.05;
+      }
+
+      const adjustedProbability = Math.min(
+        0.95,
+        Math.max(0.05, baseProbability * teamFactor),
+      );
+      const expectedAmount = amount * adjustedProbability;
+
+      if (daysSinceIssue < 45) {
+        month1Total += expectedAmount;
+      } else {
+        month1Total += expectedAmount * 0.6;
+        month2Total += expectedAmount * 0.4;
+      }
+
+      invoiceCount += row.invoiceCount;
+    }
+
     return {
-      month1: 0,
-      month2: 0,
-      totalExpected: 0,
-      invoiceCount: 0,
+      month1: month1Total,
+      month2: month2Total,
+      totalExpected: month1Total + month2Total,
+      invoiceCount,
     };
   }
 
-  const now = new Date();
-  const teamFactor = teamMetrics.onTimeRate / 0.7;
-
-  let month1Total = 0;
-  let month2Total = 0;
-
-  for (const inv of outstandingInvoices) {
-    const amount = inv.amount ?? 0;
-    const daysSinceIssue = inv.issueDate
-      ? Math.floor(
-          (now.getTime() - parseISO(inv.issueDate).getTime()) /
-            (1000 * 60 * 60 * 24),
-        )
-      : 0;
-
-    const daysPastDue = inv.dueDate
-      ? Math.floor(
-          (now.getTime() - parseISO(inv.dueDate).getTime()) /
-            (1000 * 60 * 60 * 24),
-        )
-      : 0;
-
-    let baseProbability: number;
-    if (daysSinceIssue < 30) {
-      baseProbability = 0.85;
-    } else if (daysPastDue <= 0) {
-      baseProbability = 0.75;
-    } else if (daysPastDue <= 30) {
-      baseProbability = 0.5;
-    } else if (daysPastDue <= 60) {
-      baseProbability = 0.3;
-    } else if (daysPastDue <= 90) {
-      baseProbability = 0.15;
-    } else {
-      baseProbability = 0.05;
-    }
-
-    const adjustedProbability = Math.min(
-      0.95,
-      Math.max(0.05, baseProbability * teamFactor),
-    );
-
-    const expectedAmount = amount * adjustedProbability;
-
-    if (daysSinceIssue < 45) {
-      month1Total += expectedAmount;
-    } else {
-      month1Total += expectedAmount * 0.6;
-      month2Total += expectedAmount * 0.4;
-    }
-  }
-
   return {
-    month1: month1Total,
-    month2: month2Total,
-    totalExpected: month1Total + month2Total,
-    invoiceCount: outstandingInvoices.length,
+    month1: 0,
+    month2: 0,
+    totalExpected: 0,
+    invoiceCount: 0,
   };
 }
 
@@ -318,38 +265,42 @@ async function getHistoricalRecurringInvoiceAverage(
   const { teamId, currency } = params;
 
   const sixMonthsAgo = format(subMonths(new Date(), 6), "yyyy-MM-dd");
-  const paidRecurringInvoices = (
-    await getReportInvoices(db, {
-      teamId,
-      inputCurrency: currency,
-      statuses: ["paid"],
-      dateField: "paidAt",
-      from: sixMonthsAgo,
-    })
-  ).filter((invoice) => !!invoice.invoiceRecurringId && !!invoice.paidAt);
+  const aggregateRows = await getReportInvoiceDateAggregateRows(db, {
+    teamId,
+    inputCurrency: currency,
+    statuses: ["paid"],
+    dateField: "paidAt",
+    from: sixMonthsAgo,
+    recurring: true,
+  });
 
-  if (paidRecurringInvoices.length === 0) {
-    return 0;
+  if (aggregateRows) {
+    const monthlyTotals = new Map<string, number>();
+
+    for (const row of aggregateRows) {
+      if (!row.totalAmount) {
+        continue;
+      }
+
+      const monthKey = format(parseISO(row.date), "yyyy-MM");
+      monthlyTotals.set(
+        monthKey,
+        (monthlyTotals.get(monthKey) || 0) + row.totalAmount,
+      );
+    }
+
+    if (monthlyTotals.size === 0) {
+      return 0;
+    }
+
+    const totalRevenue = Array.from(monthlyTotals.values()).reduce(
+      (a, b) => a + b,
+      0,
+    );
+    return totalRevenue / monthlyTotals.size;
   }
 
-  const monthlyTotals = new Map<string, number>();
-
-  for (const inv of paidRecurringInvoices) {
-    if (!inv.paidAt || !inv.amount) continue;
-    const monthKey = format(parseISO(inv.paidAt), "yyyy-MM");
-    const amount = Number(inv.amount) || 0;
-    monthlyTotals.set(monthKey, (monthlyTotals.get(monthKey) || 0) + amount);
-  }
-
-  if (monthlyTotals.size === 0) {
-    return 0;
-  }
-
-  const totalRevenue = Array.from(monthlyTotals.values()).reduce(
-    (a, b) => a + b,
-    0,
-  );
-  return totalRevenue / monthlyTotals.size;
+  return 0;
 }
 
 async function calculateNonRecurringBaseline(
@@ -519,7 +470,7 @@ async function getRevenueForecastImpl(
     historicalData,
     outstandingInvoicesData,
     billableHoursData,
-    scheduledInvoicesData,
+    scheduledInvoiceAggregateRows,
     recurringInvoiceData,
     recurringTransactionData,
     teamCollectionMetrics,
@@ -541,14 +492,14 @@ async function getRevenueForecastImpl(
       date: new Date().toISOString(),
       view: "month",
     }),
-    getReportInvoices(db, {
+    getReportInvoiceDateAggregateRows(db, {
       teamId,
-      inputCurrency,
       statuses: ["scheduled"],
       dateField: "issueDate",
+      inputCurrency,
       from: forecastStartDate,
       to: forecastEndDate,
-    }).then((records) => records.filter((invoice) => !!invoice.issueDate)),
+    }),
     getRecurringInvoiceProjection(db, {
       teamId,
       forecastMonths,
@@ -571,14 +522,15 @@ async function getRevenueForecastImpl(
   const currency = historical[0]?.currency || inputCurrency || "USD";
 
   const scheduledByMonth = new Map<string, number>();
-  for (const invoice of scheduledInvoicesData) {
-    if (!invoice.issueDate) continue;
-    const monthKey = format(parseISO(invoice.issueDate), "yyyy-MM");
-    const amount = Number(invoice.amount) || 0;
-    scheduledByMonth.set(
-      monthKey,
-      (scheduledByMonth.get(monthKey) || 0) + amount,
-    );
+
+  if (scheduledInvoiceAggregateRows) {
+    for (const row of scheduledInvoiceAggregateRows) {
+      const monthKey = format(parseISO(row.date), "yyyy-MM");
+      scheduledByMonth.set(
+        monthKey,
+        (scheduledByMonth.get(monthKey) || 0) + row.totalAmount,
+      );
+    }
   }
 
   const expectedCollections = await calculateExpectedCollections(

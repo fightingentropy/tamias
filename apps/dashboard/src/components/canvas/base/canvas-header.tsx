@@ -9,7 +9,7 @@ import {
 } from "@tamias/ui/dropdown-menu";
 import { Icons } from "@tamias/ui/icons";
 import { useToast } from "@tamias/ui/use-toast";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/theme-provider";
 import {
   generateCanvasPdf,
   generateCanvasPdfBlob,

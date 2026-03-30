@@ -20,6 +20,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod/v3";
+import { getPasswordAuthErrorMessage } from "@/utils/password-auth-errors";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -74,7 +75,8 @@ export function PasswordAuthForm({ className }: PasswordAuthFormProps) {
         }
 
         setHasProvisionedSession(true);
-        const nextPath = user.fullName && user.teamId ? redirectTo : "/onboarding";
+        const nextPath =
+          user.fullName && user.teamId ? redirectTo : "/onboarding";
         router.replace(nextPath);
       })
       .catch((authError) => {
@@ -116,9 +118,7 @@ export function PasswordAuthForm({ className }: PasswordAuthFormProps) {
         flow: mode,
       });
     } catch (authError) {
-      setError(
-        authError instanceof Error ? authError.message : "Unable to sign in.",
-      );
+      setError(getPasswordAuthErrorMessage(authError, mode));
     } finally {
       setIsSubmitting(false);
     }

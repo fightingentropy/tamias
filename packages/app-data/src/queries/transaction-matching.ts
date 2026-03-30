@@ -23,7 +23,13 @@ import {
   type MatchType,
   scoreMatch,
 } from "../utils/transaction-matching";
-import { getInboxItemsPaged, getTransactionsPaged } from "./paged-records";
+import { getInboxItemsPaged } from "./paged-records";
+import {
+  getIndexedTransactionMatchCandidates,
+  getIsoDateDistanceInDays,
+  MATCHING_EXCLUDED_TRANSACTION_STATUSES,
+  shiftIsoDate,
+} from "./transactions/shared";
 
 const logger = createLoggerWithContext("matching");
 type ConvexUserId = CurrentUserIdentityRecord["convexId"];
@@ -176,13 +182,6 @@ async function getTeamSuggestions(
 
 const FORWARD_MATCH_INBOX_STATUSES: InboxItemStatus[] = ["pending", "no_match"];
 const HISTORY_SUGGESTION_LIMIT = 2000;
-const NON_POSTED_TRANSACTION_STATUSES = [
-  "pending",
-  "excluded",
-  "completed",
-  "archived",
-  "exported",
-] as const;
 
 export async function getInboxItemsForForwardMatching(
   _db: Database,
@@ -290,9 +289,9 @@ export async function getTeamCalibration(
       createdAtFrom: cutoff,
     })
   ).map((suggestion) => ({
-      status: suggestion.status,
-      confidenceScore: suggestion.confidenceScore,
-    }));
+    status: suggestion.status,
+    confidenceScore: suggestion.confidenceScore,
+  }));
 
   if (performanceData.length < 5) {
     const fallback = {
@@ -458,18 +457,6 @@ function extractDomainToken(url: string | null | undefined): string {
   return cleaned?.split(".")[0]?.toLowerCase() ?? "";
 }
 
-function shiftIsoDate(date: string, days: number) {
-  const shifted = new Date(`${date}T00:00:00.000Z`);
-  shifted.setUTCDate(shifted.getUTCDate() + days);
-  return shifted.toISOString().slice(0, 10);
-}
-
-function getIsoDateDistanceInDays(left: string, right: string) {
-  const leftTime = new Date(`${left}T00:00:00.000Z`).getTime();
-  const rightTime = new Date(`${right}T00:00:00.000Z`).getTime();
-  return Math.abs(leftTime - rightTime) / (1000 * 60 * 60 * 24);
-}
-
 async function fetchTeamPairHistory(
   _db: Database,
   teamId: string,
@@ -488,14 +475,13 @@ async function fetchTeamPairHistory(
       limit: HISTORY_SUGGESTION_LIMIT,
     },
   );
-  const rows = suggestions
-    .map((suggestion) => ({
-      status: suggestion.status,
-      confidenceScore: suggestion.confidenceScore,
-      createdAt: suggestion.createdAt,
-      inboxId: suggestion.inboxId,
-      transactionId: suggestion.transactionId,
-    }));
+  const rows = suggestions.map((suggestion) => ({
+    status: suggestion.status,
+    confidenceScore: suggestion.confidenceScore,
+    createdAt: suggestion.createdAt,
+    inboxId: suggestion.inboxId,
+    transactionId: suggestion.transactionId,
+  }));
   const inboxById = new Map(
     (
       await getInboxItemsFromConvex({
@@ -735,32 +721,23 @@ export async function findMatches(
     inboxDate,
     inboxItem.type === "invoice" ? 123 : 30,
   );
-  const candidateTransactionRows = await getTransactionsPaged({
-    teamId,
-    dateGte: candidateDateLowerBound,
-    dateLte: candidateDateUpperBound,
-    statusesNotIn: [...NON_POSTED_TRANSACTION_STATUSES],
-  });
-  const [attachedTransactionIds, pendingSuggestionRows, candidateTransactions] =
-    await Promise.all([
-      getTransactionIdsWithAttachmentsFromConvex({
-        teamId,
-        transactionIds: candidateTransactionRows.map((transaction) => transaction.id),
-      }),
-      getTransactionMatchSuggestionsFromConvex({
-        teamId,
-        transactionIds: candidateTransactionRows.map((transaction) => transaction.id),
-        statuses: ["pending"],
-      }),
-      Promise.resolve(candidateTransactionRows),
-    ]);
-  const attachedTransactionIdSet = new Set(attachedTransactionIds);
-  const pendingSuggestionIdSet = new Set(
-    pendingSuggestionRows.map((row) => row.transactionId),
-  );
-  const candidates = candidateTransactions
-    .filter((transaction) => !attachedTransactionIdSet.has(transaction.id))
-    .filter((transaction) => !pendingSuggestionIdSet.has(transaction.id))
+  const candidateTransactionRows = (
+    await getIndexedTransactionMatchCandidates({
+      teamId,
+      searchTerms: [
+        inboxItem.displayName,
+        inboxItem.fileName,
+        inboxItem.invoiceNumber,
+        inboxItem.website,
+        inboxItem.senderEmail,
+      ],
+      amount: inboxItem.amount,
+      dateGte: candidateDateLowerBound,
+      dateLte: candidateDateUpperBound,
+      statusesNotIn: MATCHING_EXCLUDED_TRANSACTION_STATUSES,
+      limit: 180,
+    })
+  )
     .filter((transaction) =>
       excludeTransactionIds ? !excludeTransactionIds.has(transaction.id) : true,
     )
@@ -814,6 +791,31 @@ export async function findMatches(
         getIsoDateDistanceInDays(right.date, inboxDate)
       );
     })
+    .slice(0, 90);
+  const [attachedTransactionIds, pendingSuggestionRows, candidateTransactions] =
+    await Promise.all([
+      getTransactionIdsWithAttachmentsFromConvex({
+        teamId,
+        transactionIds: candidateTransactionRows.map(
+          (transaction) => transaction.id,
+        ),
+      }),
+      getTransactionMatchSuggestionsFromConvex({
+        teamId,
+        transactionIds: candidateTransactionRows.map(
+          (transaction) => transaction.id,
+        ),
+        statuses: ["pending"],
+      }),
+      Promise.resolve(candidateTransactionRows),
+    ]);
+  const attachedTransactionIdSet = new Set(attachedTransactionIds);
+  const pendingSuggestionIdSet = new Set(
+    pendingSuggestionRows.map((row) => row.transactionId),
+  );
+  const candidates = candidateTransactions
+    .filter((transaction) => !attachedTransactionIdSet.has(transaction.id))
+    .filter((transaction) => !pendingSuggestionIdSet.has(transaction.id))
     .slice(0, 30)
     .map((transaction) => ({
       transactionId: transaction.id,

@@ -1,7 +1,6 @@
 {
   "name": "@tamias/api-contracts",
   "version": "1.0.0",
-  "main": "src/index.ts",
   "private": true,
   "sideEffects": false,
   "scripts": {
@@ -11,7 +10,6 @@
     "typecheck": "echo 'Types validated by @tamias/api and consumer packages'"
   },
   "exports": {
-    ".": "./src/index.ts",
     "./trpc": "./src/trpc.ts"
   },
   "dependencies": {

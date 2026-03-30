@@ -2,6 +2,7 @@ import { ConvexError, v } from "convex/values";
 import type { Doc, Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { mutation, query } from "./_generated/server";
+import { rebuildDerivedComplianceJournalEntriesForTeam } from "./complianceLedger";
 import { getTeamByPublicTeamId } from "./lib/identity";
 import { requireServiceKey } from "./lib/service";
 import { nowIso } from "../../../packages/domain/src/identity";
@@ -196,7 +197,9 @@ async function upsertTransactionCategoryRecord(
     taxType: args.taxType ?? undefined,
     taxReportingCode: args.taxReportingCode ?? undefined,
     excluded: args.excluded ?? undefined,
-    parentId: parent ? (parent.publicTransactionCategoryId ?? parent._id) : undefined,
+    parentId: parent
+      ? (parent.publicTransactionCategoryId ?? parent._id)
+      : undefined,
     createdAt: timestamp,
     updatedAt: timestamp,
   });
@@ -232,8 +235,7 @@ export const serviceListTransactionCategories = query({
     return categories
       .sort(
         (a, b) =>
-          Number(b.system) - Number(a.system) ||
-          a.name.localeCompare(b.name),
+          Number(b.system) - Number(a.system) || a.name.localeCompare(b.name),
       )
       .map((category) =>
         serializeTransactionCategory(args.publicTeamId, category),
@@ -256,7 +258,11 @@ export const serviceGetTransactionCategoryById = query({
       return null;
     }
 
-    const category = await getCategoryByExternalId(ctx, team._id, args.categoryId);
+    const category = await getCategoryByExternalId(
+      ctx,
+      team._id,
+      args.categoryId,
+    );
 
     if (!category) {
       return null;
@@ -286,7 +292,7 @@ export const serviceCreateTransactionCategory = mutation({
 
     const team = await getTeamOrThrow(ctx, args.publicTeamId);
 
-    return upsertTransactionCategoryRecord(ctx, {
+    const result = await upsertTransactionCategoryRecord(ctx, {
       publicTeamId: args.publicTeamId,
       teamId: team._id,
       id: args.id,
@@ -300,6 +306,10 @@ export const serviceCreateTransactionCategory = mutation({
       system: args.system,
       excluded: args.excluded,
     });
+
+    await rebuildDerivedComplianceJournalEntriesForTeam(ctx, team);
+
+    return result;
   },
 });
 
@@ -333,7 +343,10 @@ export const serviceUpdateTransactionCategory = mutation({
         .withIndex("by_team_and_parent", (q) =>
           q
             .eq("teamId", team._id)
-            .eq("parentId", category.publicTransactionCategoryId ?? category._id),
+            .eq(
+              "parentId",
+              category.publicTransactionCategoryId ?? category._id,
+            ),
         )
         .collect();
 
@@ -344,7 +357,7 @@ export const serviceUpdateTransactionCategory = mutation({
       }
     }
 
-    return upsertTransactionCategoryRecord(ctx, {
+    const result = await upsertTransactionCategoryRecord(ctx, {
       publicTeamId: args.publicTeamId,
       teamId: team._id,
       id: args.id,
@@ -355,8 +368,10 @@ export const serviceUpdateTransactionCategory = mutation({
         args.description !== undefined
           ? args.description
           : (category.description ?? null),
-      taxRate: args.taxRate !== undefined ? args.taxRate : (category.taxRate ?? null),
-      taxType: args.taxType !== undefined ? args.taxType : (category.taxType ?? null),
+      taxRate:
+        args.taxRate !== undefined ? args.taxRate : (category.taxRate ?? null),
+      taxType:
+        args.taxType !== undefined ? args.taxType : (category.taxType ?? null),
       taxReportingCode:
         args.taxReportingCode !== undefined
           ? args.taxReportingCode
@@ -367,8 +382,14 @@ export const serviceUpdateTransactionCategory = mutation({
           : (category.parentId ?? null),
       system: category.system,
       excluded:
-        args.excluded !== undefined ? args.excluded : (category.excluded ?? false),
+        args.excluded !== undefined
+          ? args.excluded
+          : (category.excluded ?? false),
     });
+
+    await rebuildDerivedComplianceJournalEntriesForTeam(ctx, team);
+
+    return result;
   },
 });
 
@@ -409,6 +430,7 @@ export const serviceDeleteTransactionCategory = mutation({
     }
 
     await ctx.db.delete(category._id);
+    await rebuildDerivedComplianceJournalEntriesForTeam(ctx, team);
 
     return { id: publicId };
   },
@@ -453,6 +475,8 @@ export const serviceUpsertTransactionCategories = mutation({
         }),
       );
     }
+
+    await rebuildDerivedComplianceJournalEntriesForTeam(ctx, team);
 
     return results;
   },

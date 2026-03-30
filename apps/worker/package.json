@@ -39,7 +39,6 @@
     "@tamias/insights": "workspace:*",
     "@tamias/invoice": "workspace:*",
     "@tamias/job-client": "workspace:*",
-    "@tamias/location": "workspace:*",
     "@tamias/logger": "workspace:*",
     "@tamias/notifications": "workspace:*",
     "@tamias/storage": "workspace:*",

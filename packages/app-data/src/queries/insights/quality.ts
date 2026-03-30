@@ -1,9 +1,9 @@
 import {
   getBankConnectionsFromConvex,
+  getInvoiceDateAggregateRowsFromConvex,
   getTransactionsFromConvex,
 } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
-import { getProjectedInvoicesByFilters } from "../invoice-projections";
 import { isDefined } from "./shared";
 
 export const DATA_QUALITY_THRESHOLDS = {
@@ -24,6 +24,16 @@ export type DataQualityResult = {
   };
 };
 
+const ALL_INVOICE_STATUSES = [
+  "draft",
+  "overdue",
+  "paid",
+  "unpaid",
+  "canceled",
+  "scheduled",
+  "refunded",
+] as const;
+
 export async function checkInsightDataQuality(
   db: Database,
   params: {
@@ -33,6 +43,8 @@ export async function checkInsightDataQuality(
   },
 ): Promise<DataQualityResult> {
   const { teamId, periodStart, periodEnd } = params;
+  const issueDateFrom = periodStart.slice(0, 10);
+  const issueDateTo = periodEnd.slice(0, 10);
 
   const [transactionResult, invoiceResult, bankConnectionResult] =
     await Promise.all([
@@ -44,12 +56,13 @@ export async function checkInsightDataQuality(
           transactions.filter((transaction) => transaction.date <= periodEnd)
             .length,
       ),
-      getProjectedInvoicesByFilters({
+      getInvoiceDateAggregateRowsFromConvex({
         teamId,
+        statuses: [...ALL_INVOICE_STATUSES],
         dateField: "issueDate",
-        from: periodStart,
-        to: periodEnd,
-      }).then((invoices) => invoices.length),
+        dateFrom: issueDateFrom,
+        dateTo: issueDateTo,
+      }).then((rows) => rows.reduce((sum, row) => sum + row.invoiceCount, 0)),
       getBankConnectionsFromConvex({
         teamId,
         enabled: true,

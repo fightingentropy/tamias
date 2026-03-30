@@ -8,7 +8,7 @@ const google = createGoogleGenerativeAI({
 });
 
 const EMBEDDING_CONFIG = {
-  model: google.textEmbedding("gemini-embedding-001"),
+  model: google.embedding("gemini-embedding-001"),
   providerOptions: {
     google: {
       outputDimensionality: 768,

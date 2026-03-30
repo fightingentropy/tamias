@@ -402,15 +402,6 @@ export type {
   UserData,
 } from "./base";
 export { invoiceSchema, transactionSchema, userSchema } from "./base";
-export type { NotificationType } from "./notification-types";
-// Export notification type definitions and utilities
-export {
-  allNotificationTypes,
-  getAllNotificationTypes,
-  getNotificationTypeByType,
-  getUserSettingsNotificationTypes,
-  shouldShowInSettings,
-} from "./notification-types";
 export type { NotificationTypes } from "./schemas";
 // Export schemas and types
 export {

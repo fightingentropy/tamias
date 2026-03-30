@@ -1,4 +1,6 @@
 import {
+  getInvoiceAggregateRowsFromConvex,
+  getInvoiceAnalyticsAggregateRowsFromConvex,
   getPublicInvoiceByPublicInvoiceIdFromConvex,
   getPublicInvoicesByIdsFromConvex,
   getPublicInvoicesPageFromConvex,
@@ -16,6 +18,7 @@ import {
   type ProjectedInvoiceRecord,
   getProjectedInvoicePayload,
 } from "./shared";
+import { cacheAcrossRequests } from "../../utils/short-lived-cache";
 
 const INVOICE_STATUSES = [
   "draft",
@@ -128,7 +131,10 @@ function getIndexedInvoiceOrder(sort: GetInvoicesParams["sort"]) {
 
   const [column, direction] = sort;
 
-  if (column !== "created_at" || (direction !== "asc" && direction !== "desc")) {
+  if (
+    column !== "created_at" ||
+    (direction !== "asc" && direction !== "desc")
+  ) {
     return null;
   }
 
@@ -256,7 +262,9 @@ async function getProjectedInvoicesByIdsInOrder(args: {
     records.flatMap((record) => {
       const payload = getProjectedInvoicePayload(record);
 
-      return payload && payload.teamId === args.teamId ? [[record.id, payload]] : [];
+      return payload && payload.teamId === args.teamId
+        ? [[record.id, payload]]
+        : [];
     }),
   );
 
@@ -280,7 +288,8 @@ async function getIndexedInvoicesPage(params: GetInvoicesParams) {
     recurring,
   } = params;
   const validStatuses = getValidInvoiceStatuses(statuses);
-  const singleStatus = validStatuses.length === 1 ? validStatuses[0] : undefined;
+  const singleStatus =
+    validStatuses.length === 1 ? validStatuses[0] : undefined;
   const order = getIndexedInvoiceOrder(sort) ?? "desc";
   const cursorState = decodeIndexedInvoiceCursor(cursor);
   let sourceCursor = cursorState.sourceCursor;
@@ -564,48 +573,95 @@ type PaymentStatusResult = {
   paymentStatus: string;
 };
 
-export async function getPaymentStatus(
+type PaymentStatusSample = {
+  dueDate: string;
+  paidAt: string | null;
+  status: "paid" | "unpaid" | "overdue";
+  count: number;
+};
+
+function getMostRecentPaymentStatusSamples(
+  rows: Array<{
+    dueDate: string | null;
+    date: string;
+    status: string;
+    invoiceCount: number;
+  }>,
+  currentDate: Date,
+  limit: number,
+): PaymentStatusSample[] {
+  const candidates = rows
+    .filter((row) => {
+      if (!row.dueDate || row.invoiceCount <= 0) {
+        return false;
+      }
+
+      if (row.status === "paid") {
+        return true;
+      }
+
+      if (row.status === "unpaid" || row.status === "overdue") {
+        return new Date(row.dueDate).getTime() < currentDate.getTime();
+      }
+
+      return false;
+    })
+    .sort((left, right) => {
+      const dueDateDelta =
+        new Date(right.dueDate!).getTime() - new Date(left.dueDate!).getTime();
+
+      if (dueDateDelta !== 0) {
+        return dueDateDelta;
+      }
+
+      return new Date(right.date).getTime() - new Date(left.date).getTime();
+    });
+
+  const samples: PaymentStatusSample[] = [];
+  let remaining = limit;
+
+  for (const row of candidates) {
+    if (remaining <= 0) {
+      break;
+    }
+
+    const count = Math.min(row.invoiceCount, remaining);
+    remaining -= count;
+    samples.push({
+      dueDate: row.dueDate!,
+      paidAt: row.status === "paid" ? row.date : null,
+      status: row.status as PaymentStatusSample["status"],
+      count,
+    });
+  }
+
+  return samples;
+}
+
+async function getPaymentStatusImpl(
   _db: Database,
   teamId: string,
 ): Promise<PaymentStatusResult> {
   const currentDate = new Date();
-  const invoiceData = (
-    await getProjectedInvoicesByFilters({
+  const [paidRows, openRows] = await Promise.all([
+    getInvoiceAnalyticsAggregateRowsFromConvex({
       teamId,
-      statuses: ["paid", "unpaid", "overdue"],
-    })
-  )
-    .filter((invoice) => {
-      if (!invoice.dueDate) {
-        return false;
-      }
+      dateField: "paidAt",
+      statuses: ["paid"],
+    }),
+    getInvoiceAnalyticsAggregateRowsFromConvex({
+      teamId,
+      dateField: "createdAt",
+      statuses: ["unpaid", "overdue"],
+    }),
+  ]);
+  const invoiceData = getMostRecentPaymentStatusSamples(
+    [...paidRows, ...openRows],
+    currentDate,
+    50,
+  );
 
-      const dueDate = new Date(invoice.dueDate);
-      const isOverdue = dueDate < currentDate;
-
-      return (
-        (invoice.status === "paid" && !!invoice.paidAt) ||
-        ((invoice.status === "unpaid" || invoice.status === "overdue") &&
-          !invoice.paidAt &&
-          isOverdue)
-      );
-    })
-    .sort((left, right) => {
-      const leftTime = left.dueDate ? new Date(left.dueDate).getTime() : 0;
-      const rightTime = right.dueDate ? new Date(right.dueDate).getTime() : 0;
-
-      return rightTime - leftTime;
-    })
-    .slice(0, 50)
-    .map((invoice) => ({
-      due_date: invoice.dueDate,
-      paid_at: invoice.paidAt,
-      status: invoice.status,
-      amount: invoice.amount,
-      currency: invoice.currency,
-    }));
-
-  if (!Array.isArray(invoiceData) || invoiceData.length === 0) {
+  if (invoiceData.length === 0) {
     return {
       score: 0,
       paymentStatus: "none",
@@ -618,18 +674,16 @@ export async function getPaymentStatus(
   let lateCount = 0;
 
   for (const invoice of invoiceData) {
-    if (!invoice.due_date) continue;
-
-    const dueDate = new Date(invoice.due_date as string);
+    const dueDate = new Date(invoice.dueDate);
     let daysOverdue = 0;
 
-    if (invoice.status === "paid" && invoice.paid_at) {
-      const paidDate = new Date(invoice.paid_at as string);
+    if (invoice.status === "paid" && invoice.paidAt) {
+      const paidDate = new Date(invoice.paidAt);
       daysOverdue =
         (paidDate.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24);
     } else if (
       (invoice.status === "unpaid" || invoice.status === "overdue") &&
-      invoice.paid_at === null
+      invoice.paidAt === null
     ) {
       daysOverdue =
         (currentDate.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24);
@@ -640,13 +694,13 @@ export async function getPaymentStatus(
     );
     const weight = daysSinceDue <= 90 ? 1.5 : 1.0;
 
-    totalWeightedDays += daysOverdue * weight;
-    totalWeight += weight;
+    totalWeightedDays += daysOverdue * weight * invoice.count;
+    totalWeight += weight * invoice.count;
 
     if (daysOverdue <= 3) {
-      onTimeCount++;
+      onTimeCount += invoice.count;
     } else {
-      lateCount++;
+      lateCount += invoice.count;
     }
   }
 
@@ -685,6 +739,12 @@ export async function getPaymentStatus(
   };
 }
 
+export const getPaymentStatus = cacheAcrossRequests({
+  keyPrefix: "invoice-payment-status",
+  keyFn: (teamId: string) => teamId,
+  load: getPaymentStatusImpl,
+});
+
 export type GetInvoiceSummaryParams = {
   teamId: string;
   statuses?: (
@@ -697,7 +757,7 @@ export type GetInvoiceSummaryParams = {
   )[];
 };
 
-export async function getInvoiceSummary(
+async function getInvoiceSummaryImpl(
   db: Database,
   params: GetInvoiceSummaryParams,
 ) {
@@ -706,45 +766,16 @@ export async function getInvoiceSummary(
   const team = await getTeamById(db, teamId);
   const baseCurrency = team?.baseCurrency || "USD";
   const validStatuses = getValidInvoiceStatuses(statuses);
-  const invoices =
-    validStatuses.length > 0
-      ? await getProjectedInvoicesByFilters({
-          teamId,
-          statuses: validStatuses,
-        })
-      : await getProjectedInvoicesForTeam(teamId);
-  const currencyTotals = invoices
-    .filter(
-      (invoice) =>
-        !statuses ||
-        statuses.length === 0 ||
-        statuses.some((status) => status === invoice.status),
-    )
-    .reduce<
-      Array<{
-        currency: string;
-        totalAmount: number;
-        invoiceCount: number;
-      }>
-    >((accumulator, invoice) => {
-      const currency = invoice.currency || baseCurrency;
-      const amount = Number(invoice.amount) || 0;
-      const existing = accumulator.find((entry) => entry.currency === currency);
-
-      if (existing) {
-        existing.totalAmount += amount;
-        existing.invoiceCount += 1;
-        return accumulator;
-      }
-
-      accumulator.push({
-        currency,
-        totalAmount: amount,
-        invoiceCount: 1,
-      });
-
-      return accumulator;
-    }, []);
+  const currencyTotals = (
+    await getInvoiceAggregateRowsFromConvex({
+      teamId,
+      statuses: validStatuses.length > 0 ? validStatuses : undefined,
+    })
+  ).map((row) => ({
+    currency: row.currency || baseCurrency,
+    totalAmount: Number(row.totalAmount) || 0,
+    invoiceCount: Number(row.invoiceCount) || 0,
+  }));
 
   if (currencyTotals.length === 0) {
     return {
@@ -818,4 +849,11 @@ export async function getInvoiceSummary(
     currency: baseCurrency,
     breakdown: breakdown.length > 1 ? breakdown : undefined,
   };
+}
+
+export async function getInvoiceSummary(
+  db: Database,
+  params: GetInvoiceSummaryParams,
+) {
+  return getInvoiceSummaryImpl(db, params);
 }

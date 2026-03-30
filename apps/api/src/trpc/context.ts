@@ -4,7 +4,7 @@ import {
 } from "@tamias/auth-session";
 import { getRequestAuthDependencies } from "@tamias/app-services/auth";
 import type { Database } from "@tamias/app-data/client";
-import { db } from "@tamias/app-data/client";
+import { createDatabase } from "@tamias/app-data/client";
 
 export type GeoContext = {
   country: string | null;
@@ -84,7 +84,7 @@ export async function createTRPCContextFromHeaders(
 
   return {
     session: auth.session,
-    db,
+    db: createDatabase(),
     geo: getGeoContext(headers),
     teamId: auth.teamId,
     isInternalRequest: auth.isInternalRequest,

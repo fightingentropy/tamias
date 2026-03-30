@@ -15,6 +15,11 @@ import {
 } from "@tamias/app-data-convex";
 import { nanoid } from "nanoid";
 import type { Database } from "../client";
+import {
+  createQueryCacheKey,
+  getOrSetQueryCacheValue,
+} from "../client";
+import { cacheAcrossRequests } from "../utils/short-lived-cache";
 import { getTeamById } from "./index";
 
 type ConvexUserId = CurrentUserIdentityRecord["convexId"];
@@ -172,79 +177,88 @@ export async function getCashBalance(
   db: Database,
   params: GetCashBalanceParams,
 ) {
-  const { teamId, currency: targetCurrency } = params;
+  return getOrSetQueryCacheValue(
+    db,
+    createQueryCacheKey("bank-accounts:cash-balance", {
+      teamId: params.teamId,
+      currency: params.currency ?? null,
+    }),
+    async () => {
+      const { teamId, currency: targetCurrency } = params;
 
-  // Get team's base currency if no target currency specified
-  let baseCurrency = targetCurrency;
-  if (!baseCurrency) {
-    const team = await getTeamById(db, teamId);
-    baseCurrency = team?.baseCurrency || "USD";
-  }
+      // Get team's base currency if no target currency specified
+      let baseCurrency = targetCurrency;
+      if (!baseCurrency) {
+        const team = await getTeamById(db, teamId);
+        baseCurrency = team?.baseCurrency || "USD";
+      }
 
-  const accounts = (
-    await getBankAccountsFromConvex({
-      teamId,
-      enabled: true,
-    })
-  ).filter(
-    (account) =>
-      !!account.type &&
-      CASH_ACCOUNT_TYPES.includes(
-        account.type as (typeof CASH_ACCOUNT_TYPES)[number],
-      ),
+      const accounts = (
+        await getBankAccountsFromConvex({
+          teamId,
+          enabled: true,
+        })
+      ).filter(
+        (account) =>
+          !!account.type &&
+          CASH_ACCOUNT_TYPES.includes(
+            account.type as (typeof CASH_ACCOUNT_TYPES)[number],
+          ),
+      );
+
+      let totalBalance = 0;
+      const accountBreakdown: Array<{
+        id: string;
+        name: string;
+        originalBalance: number;
+        originalCurrency: string;
+        convertedBalance: number;
+        convertedCurrency: string;
+        type: string;
+        logoUrl?: string;
+      }> = [];
+
+      for (const account of accounts) {
+        const balance = Number(account.balance) || 0;
+        const accountCurrency: string = account.currency || baseCurrency;
+
+        let convertedBalance = balance;
+
+        // Use baseBalance if available and currencies match, otherwise use original balance
+        if (
+          accountCurrency !== baseCurrency &&
+          account.baseBalance &&
+          account.baseCurrency === baseCurrency
+        ) {
+          convertedBalance = Number(account.baseBalance);
+        } else if (accountCurrency !== baseCurrency) {
+          // If no baseBalance available, use original balance as fallback
+          // In a real scenario, you'd want to fetch exchange rates here
+          convertedBalance = balance;
+        }
+
+        totalBalance += convertedBalance;
+
+        accountBreakdown.push({
+          id: account.id,
+          name: account.name || "Unknown Account",
+          originalBalance: balance,
+          originalCurrency: accountCurrency,
+          convertedBalance,
+          convertedCurrency: baseCurrency,
+          type: account.type || "depository",
+          logoUrl: account.bankConnection?.logoUrl || undefined,
+        });
+      }
+
+      return {
+        totalBalance: Math.round(totalBalance * 100) / 100,
+        currency: baseCurrency,
+        accountCount: accounts.length,
+        accountBreakdown,
+      };
+    },
   );
-
-  let totalBalance = 0;
-  const accountBreakdown: Array<{
-    id: string;
-    name: string;
-    originalBalance: number;
-    originalCurrency: string;
-    convertedBalance: number;
-    convertedCurrency: string;
-    type: string;
-    logoUrl?: string;
-  }> = [];
-
-  for (const account of accounts) {
-    const balance = Number(account.balance) || 0;
-    const accountCurrency: string = account.currency || baseCurrency;
-
-    let convertedBalance = balance;
-
-    // Use baseBalance if available and currencies match, otherwise use original balance
-    if (
-      accountCurrency !== baseCurrency &&
-      account.baseBalance &&
-      account.baseCurrency === baseCurrency
-    ) {
-      convertedBalance = Number(account.baseBalance);
-    } else if (accountCurrency !== baseCurrency) {
-      // If no baseBalance available, use original balance as fallback
-      // In a real scenario, you'd want to fetch exchange rates here
-      convertedBalance = balance;
-    }
-
-    totalBalance += convertedBalance;
-
-    accountBreakdown.push({
-      id: account.id,
-      name: account.name || "Unknown Account",
-      originalBalance: balance,
-      originalCurrency: accountCurrency,
-      convertedBalance,
-      convertedCurrency: baseCurrency,
-      type: account.type || "depository",
-      logoUrl: account.bankConnection?.logoUrl || undefined,
-    });
-  }
-
-  return {
-    totalBalance: Math.round(totalBalance * 100) / 100,
-    currency: baseCurrency,
-    accountCount: accounts.length,
-    accountBreakdown,
-  };
 }
 
 export type GetNetPositionParams = {
@@ -274,7 +288,7 @@ export type GetNetPositionParams = {
  * @see getBalanceSheet - For complete assets/liabilities including loans
  * @see getCashBalance - For cash-only calculation
  */
-export async function getNetPosition(
+async function getNetPositionImpl(
   db: Database,
   params: GetNetPositionParams,
 ) {
@@ -353,3 +367,10 @@ export async function getNetPosition(
     creditAccountCount: creditAccounts.length,
   };
 }
+
+export const getNetPosition = cacheAcrossRequests({
+  keyPrefix: "net-position",
+  keyFn: (params: GetNetPositionParams) =>
+    [params.teamId, params.currency ?? ""].join(":"),
+  load: getNetPositionImpl,
+});

@@ -10,9 +10,7 @@
     "typecheck": "echo 'Types validated by @tamias/api and consumer packages'"
   },
   "exports": {
-    ".": "./src/index.ts",
-    "./internal": "./src/internal.ts",
-    "./fetch-with-retry": "./src/fetch-with-retry.ts"
+    ".": "./src/index.ts"
   },
   "dependencies": {
     "@tamias/api-contracts": "workspace:*",

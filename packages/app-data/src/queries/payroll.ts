@@ -20,6 +20,7 @@ import { parseISO } from "date-fns";
 import type { Database } from "../client";
 import { getFilingProfile } from "./compliance";
 import { getTeamById } from "./teams";
+import { cacheAcrossRequests } from "../utils/short-lived-cache";
 
 type TeamContext = {
   id: string;
@@ -286,7 +287,7 @@ function buildLiabilitySummary(runs: PayrollRunRecord[], currency: string) {
   };
 }
 
-export async function getPayrollDashboard(
+async function getPayrollDashboardImpl(
   db: Database,
   params: { teamId: string },
 ) {
@@ -316,6 +317,12 @@ export async function getPayrollDashboard(
     latestRun: runs[0] ?? null,
   };
 }
+
+export const getPayrollDashboard = cacheAcrossRequests({
+  keyPrefix: "payroll-dashboard",
+  keyFn: (params: { teamId: string }) => params.teamId,
+  load: getPayrollDashboardImpl,
+});
 
 export async function listPayrollRuns(
   db: Database,

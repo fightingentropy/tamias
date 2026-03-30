@@ -1,6 +1,7 @@
 import {
   getInboxItemsPageFromConvex,
   getInboxItemsFromConvex,
+  getInvoiceAnalyticsAggregateRowsFromConvex,
   getTrackerEntriesByRangeFromConvex,
   getTrackerProjectsByIdsFromConvex,
   getTrackerProjectsFromConvex,
@@ -32,12 +33,21 @@ async function getInvoiceActivityStats(
   params: GetInsightActivityDataParams,
 ): Promise<InvoiceActivityStats> {
   const { teamId, from, to } = params;
-  const [sentInvoices, paidInvoices] = await Promise.all([
-    getProjectedInvoicesByFilters({
+  const fromBoundary = normalizeTimestampBoundary(from, "start");
+  const toBoundary = normalizeTimestampBoundary(to, "end");
+  const [sentRows, paidRows, paidInvoices] = await Promise.all([
+    getInvoiceAnalyticsAggregateRowsFromConvex({
       teamId,
       dateField: "sentAt",
-      from,
-      to,
+      dateFrom: fromBoundary,
+      dateTo: toBoundary,
+    }),
+    getInvoiceAnalyticsAggregateRowsFromConvex({
+      teamId,
+      statuses: ["paid"],
+      dateField: "paidAt",
+      dateFrom: fromBoundary,
+      dateTo: toBoundary,
     }),
     getProjectedInvoicesByFilters({
       teamId,
@@ -52,8 +62,8 @@ async function getInvoiceActivityStats(
   )[0];
 
   return {
-    sent: sentInvoices.length,
-    paid: paidInvoices.length,
+    sent: sentRows.reduce((sum, row) => sum + row.invoiceCount, 0),
+    paid: paidRows.reduce((sum, row) => sum + row.invoiceCount, 0),
     largestPayment:
       largestPayment && Number(largestPayment.amount) > 0
         ? {

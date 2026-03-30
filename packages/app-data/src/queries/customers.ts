@@ -8,6 +8,7 @@ import {
   getCustomersByIdsFromConvex,
   getCustomersPageFromConvex,
   getCustomersFromConvex,
+  getInvoiceAggregateRowsFromConvex,
   getPublicInvoicesByCustomerIdsFromConvex,
   getTagsByIdsFromConvex,
   getTrackerProjectsByCustomerIdsFromConvex,
@@ -20,6 +21,7 @@ import {
 } from "@tamias/app-data-convex";
 import { generateToken } from "@tamias/invoice/token";
 import type { Database } from "../client";
+import { cacheAcrossRequests } from "../utils/short-lived-cache";
 import { createActivity } from "./activities";
 import {
   getExchangeRatesBatch,
@@ -809,16 +811,19 @@ export type GetCustomerInvoiceSummaryParams = {
   teamId: string;
 };
 
-export async function getCustomerInvoiceSummary(
+async function getCustomerInvoiceSummaryImpl(
   db: Database,
   params: GetCustomerInvoiceSummaryParams,
 ) {
   const { customerId, teamId } = params;
   const team = await getTeamById(db, teamId);
   const baseCurrency = team?.baseCurrency || "USD";
-  const invoiceData = await getProjectedInvoicesForCustomers(teamId, [customerId]);
+  const summaryRows = await getInvoiceAggregateRowsFromConvex({
+    teamId,
+    customerId,
+  });
 
-  if (invoiceData.length === 0) {
+  if (summaryRows.length === 0) {
     return {
       totalAmount: 0,
       paidAmount: 0,
@@ -830,8 +835,8 @@ export async function getCustomerInvoiceSummary(
 
   const currenciesToConvert = [
     ...new Set(
-      invoiceData
-        .map((invoice) => invoice.currency || baseCurrency)
+      summaryRows
+        .map((row) => row.currency || baseCurrency)
         .filter((currency) => currency !== baseCurrency),
     ),
   ];
@@ -859,9 +864,10 @@ export async function getCustomerInvoiceSummary(
   let outstandingAmount = 0;
   let invoiceCount = 0;
 
-  for (const invoice of invoiceData) {
-    const amount = Number(invoice.amount) || 0;
-    const currency = invoice.currency || baseCurrency;
+  for (const row of summaryRows) {
+    const amount = Number(row.totalAmount) || 0;
+    const rowCount = Number(row.invoiceCount) || 0;
+    const currency = row.currency || baseCurrency;
     let convertedAmount = amount;
     let canConvert = true;
 
@@ -879,14 +885,14 @@ export async function getCustomerInvoiceSummary(
       continue;
     }
 
-    if (invoice.status === "paid") {
+    if (row.status === "paid") {
       paidAmount += convertedAmount;
       totalAmount += convertedAmount;
-      invoiceCount += 1;
-    } else if (invoice.status === "unpaid" || invoice.status === "overdue") {
+      invoiceCount += rowCount;
+    } else if (row.status === "unpaid" || row.status === "overdue") {
       outstandingAmount += convertedAmount;
       totalAmount += convertedAmount;
-      invoiceCount += 1;
+      invoiceCount += rowCount;
     }
   }
 
@@ -897,6 +903,13 @@ export async function getCustomerInvoiceSummary(
     invoiceCount,
     currency: baseCurrency,
   };
+}
+
+export async function getCustomerInvoiceSummary(
+  db: Database,
+  params: GetCustomerInvoiceSummaryParams,
+) {
+  return getCustomerInvoiceSummaryImpl(db, params);
 }
 
 export type ToggleCustomerPortalParams = {
@@ -920,7 +933,7 @@ export type GetCustomerByPortalIdParams = {
   portalId: string;
 };
 
-export async function getCustomerByPortalId(
+async function getCustomerByPortalIdImpl(
   db: Database,
   params: GetCustomerByPortalIdParams,
 ) {
@@ -949,6 +962,12 @@ export async function getCustomerByPortalId(
   };
 }
 
+export const getCustomerByPortalId = cacheAcrossRequests({
+  keyPrefix: "customer-by-portal-id",
+  keyFn: (params: GetCustomerByPortalIdParams) => params.portalId,
+  load: getCustomerByPortalIdImpl,
+});
+
 export type GetCustomerPortalInvoicesParams = {
   customerId: string;
   teamId: string;
@@ -956,7 +975,7 @@ export type GetCustomerPortalInvoicesParams = {
   pageSize?: number;
 };
 
-export async function getCustomerPortalInvoices(
+async function getCustomerPortalInvoicesImpl(
   _db: Database,
   params: GetCustomerPortalInvoicesParams,
 ) {
@@ -994,3 +1013,15 @@ export async function getCustomerPortalInvoices(
     hasMore: data.length === pageSize,
   };
 }
+
+export const getCustomerPortalInvoices = cacheAcrossRequests({
+  keyPrefix: "customer-portal-invoices",
+  keyFn: (params: GetCustomerPortalInvoicesParams) =>
+    [
+      params.teamId,
+      params.customerId,
+      params.cursor ?? "",
+      params.pageSize ?? 10,
+    ].join(":"),
+  load: getCustomerPortalInvoicesImpl,
+});

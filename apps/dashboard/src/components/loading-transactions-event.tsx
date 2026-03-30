@@ -4,8 +4,8 @@ import { Button } from "@tamias/ui/button";
 import { cn } from "@tamias/ui/cn";
 import { useQueryClient } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
-import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { useTheme } from "@/components/theme-provider";
 import { useConnectParams } from "@/hooks/use-connect-params";
 import { useInitialConnectionStatus } from "@/hooks/use-initial-connection-status";
 

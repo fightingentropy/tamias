@@ -10,10 +10,10 @@ import {
 import { useToast } from "@tamias/ui/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { nanoid } from "nanoid";
-import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
 import { useScript } from "usehooks-ts";
+import { useTheme } from "@/components/theme-provider";
 import { useTeamQuery } from "@/hooks/use-team";
 import { useTRPC } from "@/trpc/client";
 import { getUrl } from "@/utils/environment";

@@ -16,17 +16,13 @@ import { getCashBalance } from "../bank-accounts";
 import { getProfit, getRevenue } from "./core";
 import {
   buildMonthlyAggregateSeriesMap,
-  buildMonthlySeriesMap,
   getCategoryInfo,
   getExcludedCategorySlugs,
   getMonthBucket,
   getRecurringMonthlyEquivalent,
   getReportTransactionAggregateRows,
-  getReportInvoices,
   getReportTransactionRecurringAggregateRows,
-  getReportTransactionAmounts,
-  getResolvedTransactionTaxRate,
-  getResolvedTransactionTaxType,
+  getReportTransactionTaxAggregateRows,
   getTargetCurrency,
   humanizeCategorySlug,
   normalizeRecurringFrequency,
@@ -76,42 +72,18 @@ async function getBurnRateImpl(db: Database, params: GetBurnRateParams) {
     inputCurrency,
   });
   const monthSeries = eachMonthOfInterval({ start: fromDate, end: toDate });
-  let targetCurrency: string | null = aggregateData?.targetCurrency ?? null;
-  let dataMap: Map<string, number>;
+  const targetCurrency = aggregateData.targetCurrency;
+  const dataMap = buildMonthlyAggregateSeriesMap(
+    aggregateData.rows.filter((row) => {
+      const slug = row.categorySlug;
 
-  if (aggregateData) {
-    dataMap = buildMonthlyAggregateSeriesMap(
-      aggregateData.rows.filter((row) => {
-        const slug = row.categorySlug;
-
-        return (
-          row.direction === "expense" &&
-          (slug === null || !excludedCategorySlugs.includes(slug))
-        );
-      }),
-      (row) => Math.abs(row.totalAmount),
-    );
-  } else {
-    const reportTransactionData = await getReportTransactionAmounts(db, {
-      teamId,
-      from: format(fromDate, "yyyy-MM-dd"),
-      to: format(toDate, "yyyy-MM-dd"),
-      inputCurrency,
-    });
-
-    targetCurrency = reportTransactionData.targetCurrency;
-    dataMap = buildMonthlySeriesMap(
-      reportTransactionData.amounts.filter((row) => {
-        const slug = row.transaction.categorySlug;
-
-        return (
-          row.amount < 0 &&
-          (slug === null || !excludedCategorySlugs.includes(slug))
-        );
-      }),
-      (row) => Math.abs(row.amount),
-    );
-  }
+      return (
+        row.direction === "expense" &&
+        (slug === null || !excludedCategorySlugs.includes(slug))
+      );
+    }),
+    (row) => Math.abs(row.totalAmount),
+  );
 
   const results: BurnRateResultItem[] = monthSeries.map((monthStart) => {
     const monthKey = format(monthStart, "yyyy-MM-dd");
@@ -177,59 +149,27 @@ async function getExpensesImpl(db: Database, params: GetExpensesParams) {
   });
   const monthSeries = eachMonthOfInterval({ start: fromDate, end: toDate });
   const dataMap = new Map<string, { value: number; recurringValue: number }>();
-  let targetCurrency: string | null = aggregateData?.targetCurrency ?? null;
+  const targetCurrency = aggregateData.targetCurrency;
 
-  if (aggregateData) {
-    for (const row of aggregateData.rows.filter((aggregateRow) => {
-      const slug = aggregateRow.categorySlug;
+  for (const row of aggregateData.rows.filter((aggregateRow) => {
+    const slug = aggregateRow.categorySlug;
 
-      return (
-        aggregateRow.direction === "expense" &&
-        (slug === null || !excludedCategorySlugs.includes(slug))
-      );
-    })) {
-      const month = getMonthBucket(row.date);
-      const current = dataMap.get(month) ?? { value: 0, recurringValue: 0 };
-      const value = Math.abs(row.totalAmount);
+    return (
+      aggregateRow.direction === "expense" &&
+      (slug === null || !excludedCategorySlugs.includes(slug))
+    );
+  })) {
+    const month = getMonthBucket(row.date);
+    const current = dataMap.get(month) ?? { value: 0, recurringValue: 0 };
+    const value = Math.abs(row.totalAmount);
 
-      if (row.recurring) {
-        current.recurringValue = roundMoney(current.recurringValue + value);
-      } else {
-        current.value = roundMoney(current.value + value);
-      }
-
-      dataMap.set(month, current);
+    if (row.recurring) {
+      current.recurringValue = roundMoney(current.recurringValue + value);
+    } else {
+      current.value = roundMoney(current.value + value);
     }
-  } else {
-    const reportTransactionData = await getReportTransactionAmounts(db, {
-      teamId,
-      from: format(fromDate, "yyyy-MM-dd"),
-      to: format(toDate, "yyyy-MM-dd"),
-      inputCurrency,
-    });
 
-    targetCurrency = reportTransactionData.targetCurrency;
-
-    for (const row of reportTransactionData.amounts.filter((amountRow) => {
-      const slug = amountRow.transaction.categorySlug;
-
-      return (
-        amountRow.amount < 0 &&
-        (slug === null || !excludedCategorySlugs.includes(slug))
-      );
-    })) {
-      const month = getMonthBucket(row.transaction.date);
-      const current = dataMap.get(month) ?? { value: 0, recurringValue: 0 };
-      const value = Math.abs(row.amount);
-
-      if (row.transaction.recurring) {
-        current.recurringValue = roundMoney(current.recurringValue + value);
-      } else {
-        current.value = roundMoney(current.value + value);
-      }
-
-      dataMap.set(month, current);
-    }
+    dataMap.set(month, current);
   }
 
   const rawData: ExpensesResultItem[] = monthSeries.map((monthStart) => {
@@ -328,67 +268,33 @@ async function getSpendingImpl(
     to: format(toDate, "yyyy-MM-dd"),
     inputCurrency,
   });
-  let targetCurrency: string | null = aggregateData?.targetCurrency ?? null;
+  const targetCurrency = aggregateData.targetCurrency;
   let totalAmount = 0;
   const categoryTotals = new Map<string, number>();
   let uncategorizedAmount = 0;
 
-  if (aggregateData) {
-    for (const row of aggregateData.rows.filter(
-      (aggregateRow) => aggregateRow.direction === "expense",
-    )) {
-      const slug = row.categorySlug;
-      const amount = Math.abs(row.totalAmount);
+  for (const row of aggregateData.rows.filter(
+    (aggregateRow) => aggregateRow.direction === "expense",
+  )) {
+    const slug = row.categorySlug;
+    const amount = Math.abs(row.totalAmount);
 
-      if (slug && excludedCategorySlugs.includes(slug)) {
-        uncategorizedAmount = roundMoney(uncategorizedAmount + amount);
-        continue;
-      }
-
-      totalAmount = roundMoney(totalAmount + amount);
-
-      if (!slug) {
-        uncategorizedAmount = roundMoney(uncategorizedAmount + amount);
-        continue;
-      }
-
-      categoryTotals.set(
-        slug,
-        roundMoney((categoryTotals.get(slug) ?? 0) + amount),
-      );
+    if (slug && excludedCategorySlugs.includes(slug)) {
+      uncategorizedAmount = roundMoney(uncategorizedAmount + amount);
+      continue;
     }
-  } else {
-    const reportTransactionData = await getReportTransactionAmounts(db, {
-      teamId,
-      from: format(fromDate, "yyyy-MM-dd"),
-      to: format(toDate, "yyyy-MM-dd"),
-      inputCurrency,
-    });
 
-    targetCurrency = reportTransactionData.targetCurrency;
-    for (const row of reportTransactionData.amounts.filter(
-      (amountRow) => amountRow.amount < 0,
-    )) {
-      const slug = row.transaction.categorySlug;
-      const amount = Math.abs(row.amount);
+    totalAmount = roundMoney(totalAmount + amount);
 
-      if (slug && excludedCategorySlugs.includes(slug)) {
-        uncategorizedAmount = roundMoney(uncategorizedAmount + amount);
-        continue;
-      }
-
-      totalAmount = roundMoney(totalAmount + amount);
-
-      if (!slug) {
-        uncategorizedAmount = roundMoney(uncategorizedAmount + amount);
-        continue;
-      }
-
-      categoryTotals.set(
-        slug,
-        roundMoney((categoryTotals.get(slug) ?? 0) + amount),
-      );
+    if (!slug) {
+      uncategorizedAmount = roundMoney(uncategorizedAmount + amount);
+      continue;
     }
+
+    categoryTotals.set(
+      slug,
+      roundMoney((categoryTotals.get(slug) ?? 0) + amount),
+    );
   }
 
   const categorySpending = [...categoryTotals.entries()].map(
@@ -590,9 +496,11 @@ async function getTaxSummaryImpl(db: Database, params: GetTaxParams) {
   );
   const toDate = format(endOfMonth(new UTCDate(parseISO(to))), "yyyy-MM-dd");
   const excludedCategorySlugs = getExcludedCategorySlugs();
-  const { countryCode, targetCurrency, amounts } =
-    await getReportTransactionAmounts(db, {
+  const direction = type === "paid" ? "expense" : "income";
+  const { countryCode, targetCurrency, rows } =
+    await getReportTransactionTaxAggregateRows(db, {
       teamId,
+      direction,
       from: fromDate,
       to: toDate,
       inputCurrency,
@@ -612,8 +520,8 @@ async function getTaxSummaryImpl(db: Database, params: GetTaxParams) {
     }
   >();
 
-  for (const row of amounts) {
-    const slug = row.transaction.categorySlug;
+  for (const row of rows) {
+    const slug = row.categorySlug;
 
     if (slug && excludedCategorySlugs.includes(slug)) {
       continue;
@@ -623,60 +531,39 @@ async function getTaxSummaryImpl(db: Database, params: GetTaxParams) {
       continue;
     }
 
-    if (type === "paid" ? row.amount >= 0 : row.amount <= 0) {
+    if (taxType && row.taxType !== taxType) {
       continue;
     }
 
-    const resolvedTaxType = getResolvedTransactionTaxType(
-      row.transaction,
-      countryCode,
-    );
-
-    if (taxType && resolvedTaxType !== taxType) {
-      continue;
-    }
-
-    const resolvedTaxRate = getResolvedTransactionTaxRate(
-      row.transaction,
-      countryCode,
-    );
     const resolvedSlug = slug ?? "uncategorized";
-    const resolvedCurrency =
-      targetCurrency ??
-      inputCurrency ??
-      row.transaction.baseCurrency ??
-      row.transaction.currency;
-    const key = `${resolvedSlug}:${resolvedTaxType ?? ""}:${resolvedCurrency ?? ""}`;
+    const resolvedCurrency = row.currency ?? targetCurrency ?? inputCurrency;
+    const key = `${resolvedSlug}:${row.taxType ?? ""}:${resolvedCurrency ?? ""}`;
     const existing = grouped.get(key);
-    const taxAmount =
-      resolvedTaxRate > 0
-        ? Math.abs((row.amount * resolvedTaxRate) / (100 + resolvedTaxRate))
-        : 0;
 
     if (existing) {
-      existing.total_tax_amount += taxAmount;
-      existing.total_transaction_amount += Math.abs(row.amount);
-      existing.transaction_count += 1;
-      existing.total_tax_rate += resolvedTaxRate;
-      if (row.transaction.date < existing.earliest_date) {
-        existing.earliest_date = row.transaction.date;
+      existing.total_tax_amount += row.totalTaxAmount;
+      existing.total_transaction_amount += Math.abs(row.totalTransactionAmount);
+      existing.transaction_count += row.transactionCount;
+      existing.total_tax_rate += row.taxRate * row.transactionCount;
+      if (row.date < existing.earliest_date) {
+        existing.earliest_date = row.date;
       }
-      if (row.transaction.date > existing.latest_date) {
-        existing.latest_date = row.transaction.date;
+      if (row.date > existing.latest_date) {
+        existing.latest_date = row.date;
       }
       continue;
     }
 
     grouped.set(key, {
       category_slug: resolvedSlug,
-      total_tax_amount: taxAmount,
-      total_transaction_amount: Math.abs(row.amount),
-      transaction_count: 1,
-      total_tax_rate: resolvedTaxRate,
-      tax_type: resolvedTaxType,
+      total_tax_amount: row.totalTaxAmount,
+      total_transaction_amount: Math.abs(row.totalTransactionAmount),
+      transaction_count: row.transactionCount,
+      total_tax_rate: row.taxRate * row.transactionCount,
+      tax_type: row.taxType,
       currency: resolvedCurrency,
-      earliest_date: row.transaction.date,
-      latest_date: row.transaction.date,
+      earliest_date: row.date,
+      latest_date: row.date,
     });
   }
 
@@ -1088,57 +975,26 @@ async function getCashFlowImpl(db: Database, params: GetCashFlowParams) {
     inputCurrency,
   });
   const monthlyData = new Map<string, { income: number; expenses: number }>();
-  let targetCurrency: string | null = aggregateData?.targetCurrency ?? null;
+  const targetCurrency = aggregateData.targetCurrency;
 
-  if (aggregateData) {
-    for (const row of aggregateData.rows) {
-      const slug = row.categorySlug;
+  for (const row of aggregateData.rows) {
+    const slug = row.categorySlug;
 
-      if (slug && excludedCategorySlugs.includes(slug)) {
-        continue;
-      }
-
-      const month = getMonthBucket(row.date);
-      const current = monthlyData.get(month) ?? { income: 0, expenses: 0 };
-      const amount = row.totalAmount;
-
-      if (row.direction === "income" && amount > 0) {
-        current.income = roundMoney(current.income + amount);
-      } else if (row.direction === "expense" && amount < 0) {
-        current.expenses = roundMoney(current.expenses + Math.abs(amount));
-      }
-
-      monthlyData.set(month, current);
+    if (slug && excludedCategorySlugs.includes(slug)) {
+      continue;
     }
-  } else {
-    const reportTransactionData = await getReportTransactionAmounts(db, {
-      teamId,
-      from: format(fromDate, "yyyy-MM-dd"),
-      to: format(toDate, "yyyy-MM-dd"),
-      inputCurrency,
-    });
 
-    targetCurrency = reportTransactionData.targetCurrency;
+    const month = getMonthBucket(row.date);
+    const current = monthlyData.get(month) ?? { income: 0, expenses: 0 };
+    const amount = row.totalAmount;
 
-    for (const row of reportTransactionData.amounts) {
-      const slug = row.transaction.categorySlug;
-
-      if (slug && excludedCategorySlugs.includes(slug)) {
-        continue;
-      }
-
-      const month = getMonthBucket(row.transaction.date);
-      const current = monthlyData.get(month) ?? { income: 0, expenses: 0 };
-      const amount = row.amount;
-
-      if (amount > 0) {
-        current.income = roundMoney(current.income + amount);
-      } else if (amount < 0) {
-        current.expenses = roundMoney(current.expenses + Math.abs(amount));
-      }
-
-      monthlyData.set(month, current);
+    if (row.direction === "income" && amount > 0) {
+      current.income = roundMoney(current.income + amount);
+    } else if (row.direction === "expense" && amount < 0) {
+      current.expenses = roundMoney(current.expenses + Math.abs(amount));
     }
+
+    monthlyData.set(month, current);
   }
 
   const monthSeries = eachMonthOfInterval({ start: fromDate, end: toDate });
@@ -1456,79 +1312,35 @@ async function getRecurringExpensesImpl(
     }
   >();
 
-  if (aggregateData) {
-    for (const row of aggregateData.rows) {
-      const slug = row.categorySlug;
+  for (const row of aggregateData.rows) {
+    const slug = row.categorySlug;
 
-      if (slug && excludedCategorySlugs.includes(slug)) {
-        continue;
-      }
-
-      const key = [
-        row.name,
-        normalizeRecurringFrequency(row.frequency),
-        slug ?? "",
-      ].join("\0");
-      const current = grouped.get(key) ?? {
-        name: row.name,
-        frequency: row.frequency,
-        categorySlug: slug,
-        total: 0,
-        count: 0,
-        lastDate: row.date,
-      };
-
-      current.total = roundMoney(current.total + Math.abs(row.totalAmount));
-      current.count += row.transactionCount;
-
-      if (row.date > current.lastDate) {
-        current.lastDate = row.date;
-      }
-
-      grouped.set(key, current);
+    if (slug && excludedCategorySlugs.includes(slug)) {
+      continue;
     }
-  } else {
-    const reportTransactionData = await getReportTransactionAmounts(db, {
-      teamId,
-      from: from ?? "0000-01-01",
-      to: to ?? "9999-12-31",
-      inputCurrency,
-    });
 
-    for (const row of reportTransactionData.amounts) {
-      if (!row.transaction.recurring || row.amount >= 0) {
-        continue;
-      }
+    const key = [
+      row.name,
+      normalizeRecurringFrequency(row.frequency),
+      slug ?? "",
+    ].join("\0");
+    const current = grouped.get(key) ?? {
+      name: row.name,
+      frequency: row.frequency,
+      categorySlug: slug,
+      total: 0,
+      count: 0,
+      lastDate: row.date,
+    };
 
-      const slug = row.transaction.categorySlug;
+    current.total = roundMoney(current.total + Math.abs(row.totalAmount));
+    current.count += row.transactionCount;
 
-      if (slug && excludedCategorySlugs.includes(slug)) {
-        continue;
-      }
-
-      const key = [
-        row.transaction.name,
-        normalizeRecurringFrequency(row.transaction.frequency),
-        slug ?? "",
-      ].join("\0");
-      const current = grouped.get(key) ?? {
-        name: row.transaction.name,
-        frequency: row.transaction.frequency,
-        categorySlug: slug,
-        total: 0,
-        count: 0,
-        lastDate: row.transaction.date,
-      };
-
-      current.total = roundMoney(current.total + Math.abs(row.amount));
-      current.count += 1;
-
-      if (row.transaction.date > current.lastDate) {
-        current.lastDate = row.transaction.date;
-      }
-
-      grouped.set(key, current);
+    if (row.date > current.lastDate) {
+      current.lastDate = row.date;
     }
+
+    grouped.set(key, current);
   }
 
   const recurringExpenses = [...grouped.values()]

@@ -1,16 +1,17 @@
 import { UTCDate } from "@date-fns/utc";
 import { format, parseISO } from "date-fns";
 import type { Database } from "../../client";
+import { cacheAcrossRequests } from "../../utils/short-lived-cache";
 import { getBankAccountsFromConvex } from "@tamias/app-data-convex";
 import { getCashBalance } from "../bank-accounts";
 import { getExchangeRatesBatch } from "../exhange-rates";
-import { getInboxItemsPaged } from "../paged-records";
 import {
   CONTRA_REVENUE_CATEGORIES,
   getCategoryInfo,
   getExcludedCategorySlugs,
-  getReportInvoices,
-  getReportTransactionAmounts,
+  getReportInboxLiabilityAggregateRows,
+  getReportInvoiceDateAggregateRows,
+  getReportTransactionAggregateRows,
   getTargetCurrency,
   getTeamReportContext,
   REVENUE_CATEGORIES,
@@ -78,7 +79,7 @@ export type BalanceSheetResult = {
   currency: string;
 };
 
-export async function getBalanceSheet(
+async function getBalanceSheetImpl(
   db: Database,
   params: GetBalanceSheetParams,
 ): Promise<BalanceSheetResult> {
@@ -94,7 +95,7 @@ export async function getBalanceSheet(
 
   const [
     accountBalanceData,
-    reportTransactionData,
+    transactionAggregateData,
     accountsReceivableInvoices,
     bankAccountsData,
     unmatchedBillsData,
@@ -103,19 +104,20 @@ export async function getBalanceSheet(
       teamId,
       currency: inputCurrency,
     }),
-    getReportTransactionAmounts(db, {
+    getReportTransactionAggregateRows(db, {
       teamId,
       from: "1900-01-01",
       to: asOfDateStr,
       inputCurrency,
     }),
     Promise.all([
-      getReportInvoices(db, {
+      getReportInvoiceDateAggregateRows(db, {
         teamId,
         inputCurrency,
         statuses: ["unpaid", "overdue"],
+        dateField: "issueDate",
       }),
-      getReportInvoices(db, {
+      getReportInvoiceDateAggregateRows(db, {
         teamId,
         inputCurrency,
         statuses: ["scheduled"],
@@ -123,8 +125,8 @@ export async function getBalanceSheet(
         to: asOfDateStr,
       }),
     ]).then(([outstandingInvoices, scheduledInvoices]) => [
-      ...outstandingInvoices,
-      ...scheduledInvoices.filter((invoice) => !!invoice.issueDate),
+      ...(outstandingInvoices ?? []),
+      ...(scheduledInvoices ?? []),
     ]),
     getBankAccountsFromConvex({
       teamId,
@@ -138,24 +140,16 @@ export async function getBalanceSheet(
           account.type === "other_liability",
       ),
     ),
-    getInboxItemsPaged({ teamId }).then((items) =>
-      items
-        .filter((item) => item.transactionId == null)
-        .filter((item) => item.amount !== null)
-        .filter((item) => item.status !== "done" && item.status !== "deleted")
-        .filter((item) => item.date !== null && item.date <= asOfDateStr)
-        .map((item) => ({
-          amount: item.amount,
-          currency: item.currency,
-          baseAmount: item.baseAmount,
-          baseCurrency: item.baseCurrency,
-        })),
-    ),
+    getReportInboxLiabilityAggregateRows(db, {
+      teamId,
+      to: asOfDateStr,
+    }),
   ]);
 
-  const balanceSheetTransactions = reportTransactionData.amounts.filter(
+  const balanceSheetTransactions = transactionAggregateData.rows.filter(
     (row) => {
-      const slug = row.transaction.categorySlug;
+      const slug = row.categorySlug;
+
       return !slug || !excludedCategorySlugs.includes(slug);
     },
   );
@@ -163,12 +157,13 @@ export async function getBalanceSheet(
     const totals = new Map<string, number>();
 
     for (const row of balanceSheetTransactions) {
-      const slug = row.transaction.categorySlug;
+      const slug = row.categorySlug;
+
       if (!slug || !slugs.includes(slug)) {
         continue;
       }
 
-      totals.set(slug, (totals.get(slug) ?? 0) + row.amount);
+      totals.set(slug, (totals.get(slug) ?? 0) + row.totalAmount);
     }
 
     return Array.from(totals.entries()).map(([categorySlug, amount]) => ({
@@ -177,8 +172,8 @@ export async function getBalanceSheet(
     }));
   };
   const outstandingInvoicesData = accountsReceivableInvoices.map((invoice) => ({
-    amount: invoice.amount,
-    currency: invoice.currency,
+    amount: invoice.totalAmount,
+    currency: invoice.currency ?? currency,
   }));
   const assetTransactions = groupTransactionsByCategory([
     "prepaid-expenses",
@@ -190,13 +185,13 @@ export async function getBalanceSheet(
   const fixedAssetTransactionsForDepreciation = balanceSheetTransactions
     .filter((row) =>
       ["fixed-assets", "equipment", "software"].includes(
-        row.transaction.categorySlug ?? "",
+        row.categorySlug ?? "",
       ),
     )
     .map((row) => ({
-      categorySlug: row.transaction.categorySlug,
-      amount: Math.abs(row.amount),
-      date: row.transaction.date,
+      categorySlug: row.categorySlug,
+      amount: Math.abs(row.totalAmount),
+      date: row.date,
     }));
   const liabilityTransactions = groupTransactionsByCategory([
     "loan-proceeds",
@@ -205,10 +200,10 @@ export async function getBalanceSheet(
     "leases",
   ]);
   const loanProceedsTransactions = balanceSheetTransactions
-    .filter((row) => row.transaction.categorySlug === "loan-proceeds")
+    .filter((row) => row.categorySlug === "loan-proceeds")
     .map((row) => ({
-      amount: Math.abs(row.amount),
-      date: row.transaction.date,
+      amount: Math.abs(row.totalAmount),
+      date: row.date,
     }));
   const equityTransactions = groupTransactionsByCategory([
     "capital-investment",
@@ -217,17 +212,18 @@ export async function getBalanceSheet(
   const allRevenueTransactions = [
     {
       amount: balanceSheetTransactions.reduce((sum, row) => {
-        const slug = row.transaction.categorySlug;
+        const slug = row.categorySlug;
+
         if (!slug) {
           return sum;
         }
 
         if (
+          row.direction === "income" &&
           (REVENUE_CATEGORIES as readonly string[]).includes(slug) &&
-          !(CONTRA_REVENUE_CATEGORIES as readonly string[]).includes(slug) &&
-          row.amount > 0
+          !(CONTRA_REVENUE_CATEGORIES as readonly string[]).includes(slug)
         ) {
-          return sum + row.amount;
+          return sum + row.totalAmount;
         }
 
         return sum;
@@ -237,9 +233,9 @@ export async function getBalanceSheet(
   const allExpenseTransactions = [
     {
       amount: balanceSheetTransactions.reduce((sum, row) => {
-        const slug = row.transaction.categorySlug;
+        const slug = row.categorySlug;
 
-        if (row.amount >= 0) {
+        if (row.direction !== "expense") {
           return sum;
         }
 
@@ -256,7 +252,7 @@ export async function getBalanceSheet(
           return sum;
         }
 
-        return sum + Math.abs(row.amount);
+        return sum + Math.abs(row.totalAmount);
       }, 0),
     },
   ];
@@ -340,10 +336,8 @@ export async function getBalanceSheet(
 
   let accountsPayable = 0;
   const billsData = unmatchedBillsData as Array<{
-    amount: number | null;
+    totalAmount: number;
     currency: string | null;
-    baseAmount: number | null;
-    baseCurrency: string | null;
   }>;
 
   const billsCurrencyPairs: Array<{ base: string; target: string }> = [];
@@ -353,30 +347,17 @@ export async function getBalanceSheet(
   }> = [];
 
   for (const bill of billsData) {
-    if (bill.baseAmount !== null && bill.baseCurrency !== null) {
-      const baseAmountValue = Number(bill.baseAmount) || 0;
-      if (bill.baseCurrency === currency) {
-        accountsPayable += Math.abs(baseAmountValue);
-      } else {
-        billsNeedingConversion.push({
-          amount: Math.abs(baseAmountValue),
-          currency: bill.baseCurrency,
-        });
-        billsCurrencyPairs.push({ base: bill.baseCurrency, target: currency });
-      }
-    } else {
-      const amount = Number(bill.amount) || 0;
-      const billCurrency = bill.currency || currency;
+    const amount = Number(bill.totalAmount) || 0;
+    const billCurrency = bill.currency || currency;
 
-      if (billCurrency === currency) {
-        accountsPayable += Math.abs(amount);
-      } else {
-        billsNeedingConversion.push({
-          amount: Math.abs(amount),
-          currency: billCurrency,
-        });
-        billsCurrencyPairs.push({ base: billCurrency, target: currency });
-      }
+    if (billCurrency === currency) {
+      accountsPayable += Math.abs(amount);
+    } else {
+      billsNeedingConversion.push({
+        amount: Math.abs(amount),
+        currency: billCurrency,
+      });
+      billsCurrencyPairs.push({ base: billCurrency, target: currency });
     }
   }
 
@@ -708,3 +689,10 @@ export async function getBalanceSheet(
     currency,
   };
 }
+
+export const getBalanceSheet = cacheAcrossRequests({
+  keyPrefix: "balance-sheet",
+  keyFn: (params: GetBalanceSheetParams) =>
+    [params.teamId, params.currency ?? "", params.asOf ?? ""].join(":"),
+  load: getBalanceSheetImpl,
+});

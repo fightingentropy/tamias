@@ -10,32 +10,25 @@ import {
 } from "@tamias/categories";
 import { format, parseISO, startOfMonth } from "date-fns";
 import type { Database } from "../../client";
+import { createQueryCacheKey, getOrSetQueryCacheValue } from "../../client";
 import {
-  createQueryCacheKey,
-  getOrSetQueryCacheValue,
-} from "../../client";
-import {
+  getInboxLiabilityAggregateRowsFromConvex,
   getInvoiceAgingAggregateRowsFromConvex,
   getInvoiceDateAggregateRowsFromConvex,
+  type InboxLiabilityAggregateRowRecord,
   type InvoiceAggregateDateField,
   type InvoiceAgingAggregateRowRecord,
   type InvoiceDateAggregateRowRecord,
-  getTransactionRecurringAggregateRowsFromConvex,
   getTransactionMetricAggregateRowsFromConvex,
-  type PublicInvoiceFilterDateField,
+  getTransactionRecurringAggregateRowsFromConvex,
+  getTransactionTaxAggregateRowsFromConvex,
   type TransactionMetricAggregateRowRecord,
   type TransactionRecurringAggregateRowRecord,
+  type TransactionTaxAggregateRowRecord,
   type TransactionRecord,
 } from "@tamias/app-data-convex";
-import {
-  getProjectedInvoicesByFilters,
-  type ProjectedInvoiceRecord,
-} from "../invoice-projections";
+import { type ProjectedInvoiceRecord } from "../invoice-projections";
 import { normalizeTimestampBoundary } from "../date-boundaries";
-import {
-  getProjectedInvoicesPaged,
-  getTransactionsPaged,
-} from "../paged-records";
 import { getTeamById } from "../teams";
 
 export function getPercentageIncrease(a: number, b: number) {
@@ -51,10 +44,6 @@ const CACHE_TTL = 5 * 60 * 1000;
 const cogsSlugsCache = new Map<
   string,
   { slugs: string[]; timestamp: number }
->();
-const reportInvoiceCache = new WeakMap<
-  Database,
-  Map<string, CachedReportInvoiceEntry[]>
 >();
 
 type TeamReportContext = {
@@ -74,14 +63,11 @@ type CategoryInfo = {
   taxType: string | null;
 };
 
-export type ReportTransactionAmount = {
-  transaction: TransactionRecord;
-  amount: number;
-};
-
 export type ReportTransactionAggregateRow = TransactionMetricAggregateRowRecord;
 export type ReportTransactionRecurringAggregateRow =
   TransactionRecurringAggregateRowRecord;
+export type ReportTransactionTaxAggregateRow = TransactionTaxAggregateRowRecord;
+export type ReportInboxLiabilityAggregateRow = InboxLiabilityAggregateRowRecord;
 export type ReportInvoiceDateAggregateRow = InvoiceDateAggregateRowRecord;
 export type ReportInvoiceAgingAggregateRow = InvoiceAgingAggregateRowRecord;
 export type RecurringFrequency =
@@ -91,19 +77,6 @@ export type RecurringFrequency =
   | "semi_monthly"
   | "annually"
   | "irregular";
-
-type NormalizedReportInvoiceQuery = {
-  teamId: string;
-  inputCurrency: string | null;
-  statuses: ProjectedInvoiceRecord["status"][] | null;
-  dateField: PublicInvoiceFilterDateField | null;
-  from: string | null;
-  to: string | null;
-};
-
-type CachedReportInvoiceEntry = NormalizedReportInvoiceQuery & {
-  invoices: ProjectedInvoiceRecord[];
-};
 
 const categoryLookupCache = new Map<string, Map<string, CategoryInfo>>();
 
@@ -305,123 +278,6 @@ export function getRecurringMonthlyEquivalent(
   }
 }
 
-function getReportTransactionAmountValue(
-  transaction: TransactionRecord,
-  params: {
-    targetCurrency: string | null;
-    inputCurrency?: string;
-  },
-) {
-  if (params.inputCurrency && params.targetCurrency) {
-    if (
-      transaction.baseCurrency === params.targetCurrency &&
-      transaction.baseAmount !== null
-    ) {
-      return transaction.baseAmount;
-    }
-
-    return transaction.amount;
-  }
-
-  return transaction.baseAmount;
-}
-
-function matchesReportTransactionCurrency(
-  transaction: TransactionRecord,
-  params: {
-    targetCurrency: string | null;
-    inputCurrency?: string;
-  },
-) {
-  if (!params.targetCurrency) {
-    return true;
-  }
-
-  if (params.inputCurrency) {
-    return (
-      transaction.currency === params.targetCurrency ||
-      transaction.baseCurrency === params.targetCurrency
-    );
-  }
-
-  return transaction.baseCurrency === params.targetCurrency;
-}
-
-export async function getReportTransactionAmounts(
-  db: Database,
-  params: {
-    teamId: string;
-    from: string;
-    to: string;
-    inputCurrency?: string;
-  },
-) {
-  return getOrSetQueryCacheValue(
-    db,
-    createQueryCacheKey("reports:transaction-amounts", {
-      teamId: params.teamId,
-      from: params.from,
-      to: params.to,
-      inputCurrency: params.inputCurrency ?? null,
-    }),
-    async () => {
-      const context = await getTeamReportContext(
-        db,
-        params.teamId,
-        params.inputCurrency,
-      );
-      const transactions = await getTransactionsPaged({
-        db,
-        teamId: params.teamId,
-        dateGte: params.from,
-        dateLte: params.to,
-        statusesNotIn: ["excluded"],
-      });
-
-      const amounts: ReportTransactionAmount[] = [];
-
-      for (const transaction of transactions) {
-        if (transaction.date > params.to) {
-          continue;
-        }
-
-        if (transaction.internal || transaction.status === "excluded") {
-          continue;
-        }
-
-        if (
-          !matchesReportTransactionCurrency(transaction, {
-            targetCurrency: context.currency,
-            inputCurrency: params.inputCurrency,
-          })
-        ) {
-          continue;
-        }
-
-        const amount = getReportTransactionAmountValue(transaction, {
-          targetCurrency: context.currency,
-          inputCurrency: params.inputCurrency,
-        });
-
-        if (amount === null) {
-          continue;
-        }
-
-        amounts.push({
-          transaction,
-          amount,
-        });
-      }
-
-      return {
-        targetCurrency: context.currency,
-        countryCode: context.countryCode,
-        amounts,
-      };
-    },
-  );
-}
-
 export async function getReportTransactionAggregateRows(
   db: Database,
   params: {
@@ -447,7 +303,11 @@ export async function getReportTransactionAggregateRows(
       );
 
       if (!context.currency) {
-        return null;
+        return {
+          targetCurrency: null,
+          countryCode: context.countryCode,
+          rows: [] as TransactionMetricAggregateRowRecord[],
+        };
       }
 
       const scope =
@@ -461,10 +321,6 @@ export async function getReportTransactionAggregateRows(
         dateFrom: params.from,
         dateTo: params.to,
       });
-
-      if (rows.length === 0) {
-        return null;
-      }
 
       return {
         targetCurrency: context.currency,
@@ -502,7 +358,11 @@ export async function getReportTransactionRecurringAggregateRows(
       );
 
       if (!context.currency) {
-        return null;
+        return {
+          targetCurrency: null,
+          countryCode: context.countryCode,
+          rows: [] as TransactionRecurringAggregateRowRecord[],
+        };
       }
 
       const scope =
@@ -518,9 +378,61 @@ export async function getReportTransactionRecurringAggregateRows(
         dateTo: params.to,
       });
 
-      if (rows.length === 0) {
-        return null;
+      return {
+        targetCurrency: context.currency,
+        countryCode: context.countryCode,
+        rows,
+      };
+    },
+  );
+}
+
+export async function getReportTransactionTaxAggregateRows(
+  db: Database,
+  params: {
+    teamId: string;
+    direction: "income" | "expense";
+    from: string;
+    to: string;
+    inputCurrency?: string;
+  },
+) {
+  return getOrSetQueryCacheValue(
+    db,
+    createQueryCacheKey("reports:transaction-tax-aggregates", {
+      teamId: params.teamId,
+      direction: params.direction,
+      from: params.from,
+      to: params.to,
+      inputCurrency: params.inputCurrency ?? null,
+    }),
+    async () => {
+      const context = await getTeamReportContext(
+        db,
+        params.teamId,
+        params.inputCurrency,
+      );
+
+      if (!context.currency) {
+        return {
+          targetCurrency: null,
+          countryCode: context.countryCode,
+          rows: [] as TransactionTaxAggregateRowRecord[],
+        };
       }
+
+      const scope =
+        !params.inputCurrency || context.currency === context.baseCurrency
+          ? "base"
+          : "native";
+      const rows = await getTransactionTaxAggregateRowsFromConvex({
+        teamId: params.teamId,
+        scope,
+        direction: params.direction,
+        currency: context.currency,
+        dateFrom: params.from,
+        dateTo: params.to,
+      });
 
       return {
         targetCurrency: context.currency,
@@ -556,7 +468,9 @@ export async function getReportInvoiceDateAggregateRows(
       statuses: normalizedStatuses,
       dateField: params.dateField,
       inputCurrency: params.inputCurrency ?? null,
-      from: params.from ? normalizeTimestampBoundary(params.from, "start") : null,
+      from: params.from
+        ? normalizeTimestampBoundary(params.from, "start")
+        : null,
       to: params.to ? normalizeTimestampBoundary(params.to, "end") : null,
       recurring: params.recurring ?? null,
     }),
@@ -611,21 +525,28 @@ export async function getReportInvoiceAgingAggregateRows(
   );
 }
 
-export function buildMonthlySeriesMap(
-  transactions: ReportTransactionAmount[],
-  getValue: (row: ReportTransactionAmount) => number,
+export async function getReportInboxLiabilityAggregateRows(
+  db: Database,
+  params: {
+    teamId: string;
+    from?: string;
+    to?: string;
+  },
 ) {
-  const monthlyValues = new Map<string, number>();
-
-  for (const row of transactions) {
-    const month = getMonthBucket(row.transaction.date);
-    monthlyValues.set(
-      month,
-      roundMoney((monthlyValues.get(month) ?? 0) + getValue(row)),
-    );
-  }
-
-  return monthlyValues;
+  return getOrSetQueryCacheValue(
+    db,
+    createQueryCacheKey("reports:inbox-liability-aggregates", {
+      teamId: params.teamId,
+      from: params.from ?? null,
+      to: params.to ?? null,
+    }),
+    () =>
+      getInboxLiabilityAggregateRowsFromConvex({
+        teamId: params.teamId,
+        dateFrom: params.from ?? null,
+        dateTo: params.to ?? null,
+      }),
+  );
 }
 
 export function buildMonthlyAggregateSeriesMap(
@@ -645,25 +566,6 @@ export function buildMonthlyAggregateSeriesMap(
   return monthlyValues;
 }
 
-function getReportInvoiceCacheBucket(db: Database, teamId: string) {
-  let cacheByDb = reportInvoiceCache.get(db);
-
-  if (!cacheByDb) {
-    cacheByDb = new Map();
-    reportInvoiceCache.set(db, cacheByDb);
-  }
-
-  const existing = cacheByDb.get(teamId);
-
-  if (existing) {
-    return existing;
-  }
-
-  const bucket: CachedReportInvoiceEntry[] = [];
-  cacheByDb.set(teamId, bucket);
-  return bucket;
-}
-
 function normalizeReportInvoiceStatuses(
   statuses?: ProjectedInvoiceRecord["status"][],
 ) {
@@ -673,196 +575,6 @@ function normalizeReportInvoiceStatuses(
 
   return [...new Set(statuses)].sort();
 }
-
-function normalizeReportInvoiceQuery(params: {
-  teamId: string;
-  inputCurrency?: string;
-  statuses?: ProjectedInvoiceRecord["status"][];
-  dateField?: PublicInvoiceFilterDateField;
-  from?: string;
-  to?: string;
-}): NormalizedReportInvoiceQuery {
-  return {
-    teamId: params.teamId,
-    inputCurrency: params.inputCurrency ?? null,
-    statuses: normalizeReportInvoiceStatuses(params.statuses),
-    dateField: params.dateField ?? null,
-    from: params.from ? normalizeTimestampBoundary(params.from, "start") : null,
-    to: params.to ? normalizeTimestampBoundary(params.to, "end") : null,
-  };
-}
-
-function normalizeInvoiceDateValue(value: string | null | undefined) {
-  if (!value) {
-    return null;
-  }
-
-  return normalizeTimestampBoundary(value, "start");
-}
-
-function doesCachedReportInvoiceQueryContain(
-  cached: NormalizedReportInvoiceQuery,
-  requested: NormalizedReportInvoiceQuery,
-) {
-  const currencyMatches =
-    requested.inputCurrency === null
-      ? cached.inputCurrency === null
-      : cached.inputCurrency === null ||
-        cached.inputCurrency === requested.inputCurrency;
-
-  if (!currencyMatches) {
-    return false;
-  }
-
-  const statusesMatch =
-    requested.statuses === null
-      ? cached.statuses === null
-      : cached.statuses === null ||
-        requested.statuses.every((status) => cached.statuses!.includes(status));
-
-  if (!statusesMatch) {
-    return false;
-  }
-
-  if (requested.dateField === null) {
-    return (
-      cached.dateField === null && cached.from === null && cached.to === null
-    );
-  }
-
-  if (cached.dateField !== null && cached.dateField !== requested.dateField) {
-    return false;
-  }
-
-  if (cached.dateField === null) {
-    return cached.from === null && cached.to === null;
-  }
-
-  const lowerBoundMatches =
-    cached.from === null ||
-    (requested.from !== null && cached.from <= requested.from);
-  const upperBoundMatches =
-    cached.to === null || (requested.to !== null && cached.to >= requested.to);
-
-  return lowerBoundMatches && upperBoundMatches;
-}
-
-function filterReportInvoicesForQuery(
-  invoices: ProjectedInvoiceRecord[],
-  query: NormalizedReportInvoiceQuery,
-) {
-  return invoices.filter((invoice) => {
-    if (query.inputCurrency && invoice.currency !== query.inputCurrency) {
-      return false;
-    }
-
-    if (query.statuses && !query.statuses.includes(invoice.status)) {
-      return false;
-    }
-
-    if (
-      query.dateField &&
-      (query.from !== null || query.to !== null)
-    ) {
-      const value = normalizeInvoiceDateValue(invoice[query.dateField]);
-
-      if (!value) {
-        return false;
-      }
-
-      if (query.from !== null && value < query.from) {
-        return false;
-      }
-
-      if (query.to !== null && value > query.to) {
-        return false;
-      }
-    }
-
-    return true;
-  });
-}
-
-async function loadReportInvoicesQuery(
-  query: NormalizedReportInvoiceQuery,
-): Promise<ProjectedInvoiceRecord[]> {
-  if (
-    query.statuses !== null ||
-    query.dateField !== null ||
-    query.from !== null ||
-    query.to !== null
-  ) {
-    if (query.dateField === "createdAt") {
-      const invoices = await getProjectedInvoicesPaged({
-        teamId: query.teamId,
-        statuses: query.statuses ?? undefined,
-        createdAtFrom: query.from ?? undefined,
-        createdAtTo: query.to ?? undefined,
-      });
-
-      return filterReportInvoicesForQuery(invoices, query);
-    }
-
-    return getProjectedInvoicesByFilters({
-      teamId: query.teamId,
-      statuses: query.statuses ?? undefined,
-      currency: query.inputCurrency ?? undefined,
-      dateField: query.dateField ?? undefined,
-      from: query.from ?? undefined,
-      to: query.to ?? undefined,
-    });
-  }
-
-  const invoices = await getProjectedInvoicesPaged({ teamId: query.teamId });
-
-  return filterReportInvoicesForQuery(invoices, query);
-}
-
-export async function getReportInvoices(
-  db: Database,
-  params: {
-    teamId: string;
-    inputCurrency?: string;
-    statuses?: ProjectedInvoiceRecord["status"][];
-    dateField?: "createdAt" | "issueDate" | "sentAt" | "dueDate" | "paidAt";
-    from?: string;
-    to?: string;
-  },
-): Promise<ProjectedInvoiceRecord[]> {
-  const query = normalizeReportInvoiceQuery(params);
-  const bucket = getReportInvoiceCacheBucket(db, query.teamId);
-  const cached = bucket.find((entry) =>
-    doesCachedReportInvoiceQueryContain(entry, query),
-  );
-
-  if (cached) {
-    return filterReportInvoicesForQuery(cached.invoices, query);
-  }
-
-  return getOrSetQueryCacheValue(
-    db,
-    createQueryCacheKey("reports:invoices", query),
-    async () => {
-      const retryCached = bucket.find((entry) =>
-        doesCachedReportInvoiceQueryContain(entry, query),
-      );
-
-      if (retryCached) {
-        return filterReportInvoicesForQuery(retryCached.invoices, query);
-      }
-
-      const invoices = await loadReportInvoicesQuery(query);
-
-      bucket.push({
-        ...query,
-        invoices,
-      });
-
-      return invoices;
-    },
-  );
-}
-
 export function getResolvedTransactionTaxRate(
   transaction: TransactionRecord,
   countryCode: string | null,

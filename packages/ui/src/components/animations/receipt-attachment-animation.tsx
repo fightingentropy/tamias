@@ -59,6 +59,7 @@ export function ReceiptAttachmentAnimation({
                   alt="Gmail"
                   width={14}
                   height={14}
+                  unoptimized
                   className="object-contain w-3 h-3 md:w-3.5 md:h-3.5"
                 />
                 <MdOutlineMoreVert

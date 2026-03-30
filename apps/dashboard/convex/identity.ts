@@ -7,6 +7,7 @@ import {
 } from "../../../packages/domain/src/identity";
 import type { Doc, Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
+import { rebuildDerivedComplianceJournalEntriesForTeam } from "./complianceLedger";
 import {
   createConvexTeamForUser,
   ensureCurrentAppUserRecord,
@@ -35,7 +36,11 @@ type InsightEligibleTeamCandidate = {
   team: Doc<"teams">;
 };
 
-function getTrialActive(team: { plan?: string; canceledAt?: string; createdAt: string }) {
+function getTrialActive(team: {
+  plan?: string;
+  canceledAt?: string;
+  createdAt: string;
+}) {
   if (team.plan === "starter" || team.plan === "pro") {
     return true;
   }
@@ -44,7 +49,10 @@ function getTrialActive(team: { plan?: string; canceledAt?: string; createdAt: s
     return false;
   }
 
-  return Date.parse(team.createdAt) + TRIAL_PERIOD_DAYS * 24 * 60 * 60 * 1000 > Date.now();
+  return (
+    Date.parse(team.createdAt) + TRIAL_PERIOD_DAYS * 24 * 60 * 60 * 1000 >
+    Date.now()
+  );
 }
 
 function buildInviteCode() {
@@ -101,20 +109,22 @@ async function serializeTeamInvite(
     email: invite.email ?? null,
     code: invite.code ?? null,
     role: invite.role,
-    user: invitedByUser && invitedByUserId
-      ? {
-          id: invitedByUserId,
-          fullName: invitedByUser.fullName ?? null,
-          email: invitedByUser.email ?? null,
-        }
-      : null,
-    team: team && teamId
-      ? {
-          id: teamId,
-          name: team.name ?? null,
-          logoUrl: team.logoUrl ?? null,
-        }
-      : null,
+    user:
+      invitedByUser && invitedByUserId
+        ? {
+            id: invitedByUserId,
+            fullName: invitedByUser.fullName ?? null,
+            email: invitedByUser.email ?? null,
+          }
+        : null,
+    team:
+      team && teamId
+        ? {
+            id: teamId,
+            name: team.name ?? null,
+            logoUrl: team.logoUrl ?? null,
+          }
+        : null,
   };
 }
 
@@ -122,7 +132,7 @@ async function pickFallbackTeamId(
   ctx: IdentityCtx,
   appUserId: Id<"appUsers">,
   excludedTeamId: Id<"teams">,
-) : Promise<Id<"teams"> | null> {
+): Promise<Id<"teams"> | null> {
   const memberships = await ctx.db
     .query("teamMembers")
     .withIndex("by_app_user_id", (q) => q.eq("appUserId", appUserId))
@@ -207,7 +217,10 @@ export const currentSession = query({
         .filter((publicTeamId): publicTeamId is string => !!publicTeamId),
       convexTeamMembershipIds: membershipTeams
         .map((membershipTeam) => membershipTeam?._id)
-        .filter((membershipTeamId): membershipTeamId is Id<"teams"> => !!membershipTeamId),
+        .filter(
+          (membershipTeamId): membershipTeamId is Id<"teams"> =>
+            !!membershipTeamId,
+        ),
     };
   },
 });
@@ -370,8 +383,7 @@ export const updateCurrentTeam = mutation({
     }
 
     if (args.heardAbout !== undefined) {
-      patch.heardAbout =
-        normalizeOptionalString(args.heardAbout) ?? undefined;
+      patch.heardAbout = normalizeOptionalString(args.heardAbout) ?? undefined;
     }
 
     if (args.canceledAt !== undefined) {
@@ -388,6 +400,10 @@ export const updateCurrentTeam = mutation({
 
     if (!updatedTeam) {
       throw new Error("Failed to update Convex team");
+    }
+
+    if (args.baseCurrency !== undefined || args.countryCode !== undefined) {
+      await rebuildDerivedComplianceJournalEntriesForTeam(ctx, updatedTeam);
     }
 
     return serializeTeam(updatedTeam);
@@ -646,11 +662,13 @@ export const serviceUpdateTeamByPublicTeamId = mutation({
     }
 
     if (args.baseCurrency !== undefined) {
-      patch.baseCurrency = normalizeOptionalString(args.baseCurrency) ?? undefined;
+      patch.baseCurrency =
+        normalizeOptionalString(args.baseCurrency) ?? undefined;
     }
 
     if (args.countryCode !== undefined) {
-      patch.countryCode = normalizeOptionalString(args.countryCode) ?? undefined;
+      patch.countryCode =
+        normalizeOptionalString(args.countryCode) ?? undefined;
     }
 
     if (args.fiscalYearStartMonth !== undefined) {
@@ -677,7 +695,8 @@ export const serviceUpdateTeamByPublicTeamId = mutation({
     }
 
     if (args.companyType !== undefined) {
-      patch.companyType = normalizeOptionalString(args.companyType) ?? undefined;
+      patch.companyType =
+        normalizeOptionalString(args.companyType) ?? undefined;
     }
 
     if (args.heardAbout !== undefined) {
@@ -736,9 +755,7 @@ export const serviceListAllTeams = query({
     return (await ctx.db.query("teams").collect())
       .map((team) => serializeTeam(team))
       .filter(
-        (
-          team,
-        ): team is Exclude<ReturnType<typeof serializeTeam>, null> =>
+        (team): team is Exclude<ReturnType<typeof serializeTeam>, null> =>
           team !== null,
       )
       .sort((left, right) => left.id.localeCompare(right.id));
@@ -769,7 +786,9 @@ export const serviceListInsightEligibleTeams = query({
         publicId: publicTeamId(team),
         team,
       }))
-      .filter((entry): entry is InsightEligibleTeamCandidate => !!entry.publicId)
+      .filter(
+        (entry): entry is InsightEligibleTeamCandidate => !!entry.publicId,
+      )
       .filter(({ publicId, team }) => {
         if (!team.baseCurrency) {
           return false;
@@ -885,7 +904,9 @@ export const serviceCreateTeamForUserId = mutation({
       .collect();
 
     const teams = (
-      await Promise.all(memberships.map((membership) => ctx.db.get(membership.teamId)))
+      await Promise.all(
+        memberships.map((membership) => ctx.db.get(membership.teamId)),
+      )
     ).filter((team): team is NonNullable<typeof team> => team !== null);
 
     const activeTeamCount = teams.filter(getTrialActive).length;
@@ -1221,7 +1242,9 @@ export const serviceCreateTeamInvites = mutation({
       return (
         !!normalizedEmail &&
         index ===
-          self.findIndex((candidate) => normalizeEmail(candidate.email) === normalizedEmail)
+          self.findIndex(
+            (candidate) => normalizeEmail(candidate.email) === normalizedEmail,
+          )
       );
     });
 
@@ -1244,7 +1267,9 @@ export const serviceCreateTeamInvites = mutation({
       .collect();
 
     const pendingInviteEmails = new Set(
-      pendingInvites.map((invite) => normalizeEmail(invite.email)).filter(Boolean),
+      pendingInvites
+        .map((invite) => normalizeEmail(invite.email))
+        .filter(Boolean),
     );
 
     const skippedInvites: {
@@ -1260,7 +1285,11 @@ export const serviceCreateTeamInvites = mutation({
         continue;
       }
 
-      if (!uniqueInvites.some((candidate) => normalizeEmail(candidate.email) === normalizedEmail)) {
+      if (
+        !uniqueInvites.some(
+          (candidate) => normalizeEmail(candidate.email) === normalizedEmail,
+        )
+      ) {
         skippedInvites.push({
           email: invite.email,
           reason: "duplicate",
@@ -1284,7 +1313,11 @@ export const serviceCreateTeamInvites = mutation({
         continue;
       }
 
-      if (!validInvites.some((candidate) => normalizeEmail(candidate.email) === normalizedEmail)) {
+      if (
+        !validInvites.some(
+          (candidate) => normalizeEmail(candidate.email) === normalizedEmail,
+        )
+      ) {
         validInvites.push({
           ...invite,
           email: normalizedEmail,
@@ -1399,7 +1432,10 @@ export const serviceDeclineTeamInvite = mutation({
   async handler(ctx, args) {
     requireServiceKey(args.serviceKey);
 
-    const invite = await getTeamInviteByPublicInviteId(ctx, args.publicInviteId);
+    const invite = await getTeamInviteByPublicInviteId(
+      ctx,
+      args.publicInviteId,
+    );
 
     if (!invite) {
       return null;

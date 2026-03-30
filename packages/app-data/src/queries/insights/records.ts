@@ -1,5 +1,6 @@
 import { createInsightInConvex, updateInsightInConvex } from "@tamias/app-data-convex";
 import type { Database, DatabaseOrTransaction } from "../../client";
+import { cacheAcrossRequests } from "../../utils/short-lived-cache";
 import type {
   ExpenseAnomaly,
   InsightActivity,
@@ -151,7 +152,7 @@ export type GetLatestInsightParams = {
   periodType?: InsightPeriodType;
 };
 
-export async function getLatestInsight(
+async function getLatestInsightImpl(
   db: Database,
   params: GetLatestInsightParams,
 ) {
@@ -167,6 +168,13 @@ export async function getLatestInsight(
       .sort(compareInsightGeneratedAtDesc)[0] ?? null
   );
 }
+
+export const getLatestInsight = cacheAcrossRequests({
+  keyPrefix: "latest-insight",
+  keyFn: (params: GetLatestInsightParams) =>
+    [params.teamId, params.periodType ?? ""].join(":"),
+  load: getLatestInsightImpl,
+});
 
 export async function insightExistsForPeriod(
   db: Database,

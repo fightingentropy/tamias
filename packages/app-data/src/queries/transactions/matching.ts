@@ -17,11 +17,12 @@ import {
 import {
   buildTransactionAttachmentLookups,
   compareTransactionsByDateDesc,
+  getIndexedTransactionMatchCandidates,
   getIsoDateDistanceInDays,
+  MATCHING_EXCLUDED_TRANSACTION_STATUSES,
   getTransactionSearchText,
   shiftIsoDate,
 } from "./shared";
-import { getTransactionsPaged } from "../paged-records";
 
 const logger = createLoggerWithContext("transactions");
 
@@ -329,17 +330,20 @@ export async function searchTransactionMatch(
       const inboxBaseAmount = Math.abs(item.baseAmount || 0);
       const inboxDate = item.date;
       const candidateTransactions = (
-        await getTransactionsPaged({
+        await getIndexedTransactionMatchCandidates({
           teamId,
+          searchTerms: [
+            item.displayName,
+            item.fileName,
+            item.invoiceNumber,
+            item.website,
+            item.senderEmail,
+          ],
+          amount: item.amount,
           dateGte: shiftIsoDate(inboxDate, -90),
           dateLte: shiftIsoDate(inboxDate, 30),
-          statusesNotIn: [
-            "pending",
-            "excluded",
-            "completed",
-            "archived",
-            "exported",
-          ],
+          statusesNotIn: MATCHING_EXCLUDED_TRANSACTION_STATUSES,
+          limit: Math.max(maxResults * 12, 120),
         })
       )
         .filter((transaction) => {

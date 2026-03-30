@@ -1,5 +1,6 @@
 import {
   getCustomersByIdsFromConvex,
+  getInvoiceAgingAggregateRowsFromConvex,
   getTrackerEntriesByProjectIdsFromConvex,
   getTrackerProjectsFromConvex,
 } from "@tamias/app-data-convex";
@@ -266,24 +267,29 @@ export async function getUpcomingInvoicesForInsight(
   },
 ): Promise<UpcomingInvoicesResult> {
   const { teamId, fromDate, toDate, currency } = params;
-  const matchingInvoices = (
-    await getProjectedInvoicesByFilters({
+  const dueDateFrom = fromDate.toISOString().slice(0, 10);
+  const dueDateTo = toDate.toISOString().slice(0, 10);
+  const matchingRows = (
+    await getInvoiceAgingAggregateRowsFromConvex({
       teamId,
       statuses: ["unpaid", "overdue"],
-      currency,
-      dateField: "dueDate",
-      from: fromDate.toISOString(),
-      to: toDate.toISOString(),
+      currency: currency ?? null,
     })
-  ).filter((invoice) => !!invoice.dueDate);
-  const row = matchingInvoices.length
+  ).filter(
+    (row) =>
+      !!row.dueDate && row.dueDate >= dueDateFrom && row.dueDate <= dueDateTo,
+  );
+  const row = matchingRows.length
     ? {
-        totalAmount: matchingInvoices.reduce(
-          (sum, invoice) => sum + (Number(invoice.amount) || 0),
+        totalAmount: matchingRows.reduce(
+          (sum, aggregateRow) => sum + aggregateRow.totalAmount,
           0,
         ),
-        invoiceCount: matchingInvoices.length,
-        currency: matchingInvoices[0]?.currency ?? null,
+        invoiceCount: matchingRows.reduce(
+          (sum, aggregateRow) => sum + aggregateRow.invoiceCount,
+          0,
+        ),
+        currency: matchingRows[0]?.currency ?? null,
       }
     : null;
 
@@ -310,28 +316,32 @@ export async function getOverdueInvoicesSummary(
   },
 ): Promise<OverdueInvoicesSummary> {
   const { teamId, asOfDate, currency } = params;
-  const overdueInvoices = (
-    await getProjectedInvoicesByFilters({
+  const asOfBoundary = asOfDate.toISOString().slice(0, 10);
+  const overdueRows = (
+    await getInvoiceAgingAggregateRowsFromConvex({
       teamId,
       statuses: ["overdue"],
-      currency,
+      currency: currency ?? null,
     })
-  ).filter((invoice) => !!invoice.dueDate);
+  ).filter((row) => !!row.dueDate && row.dueDate < asOfBoundary);
 
   const summaryResult =
-    overdueInvoices.length > 0
+    overdueRows.length > 0
       ? {
-          totalAmount: overdueInvoices.reduce(
-            (sum, invoice) => sum + (Number(invoice.amount) || 0),
+          totalAmount: overdueRows.reduce(
+            (sum, aggregateRow) => sum + aggregateRow.totalAmount,
             0,
           ),
-          invoiceCount: overdueInvoices.length,
+          invoiceCount: overdueRows.reduce(
+            (sum, aggregateRow) => sum + aggregateRow.invoiceCount,
+            0,
+          ),
           oldestDueDate:
-            [...overdueInvoices]
-              .map((invoice) => invoice.dueDate!)
+            [...overdueRows]
+              .map((aggregateRow) => aggregateRow.dueDate!)
               .sort((left, right) => left.localeCompare(right))[0] ??
             asOfDate.toISOString(),
-          currency: overdueInvoices[0]?.currency ?? null,
+          currency: overdueRows[0]?.currency ?? null,
         }
       : null;
 

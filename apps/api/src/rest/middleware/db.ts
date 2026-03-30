@@ -1,11 +1,11 @@
-import { db } from "@tamias/app-data/client";
+import { createDatabase } from "@tamias/app-data/client";
 import type { MiddlewareHandler } from "hono";
 
 /**
- * Attaches the shared query context to the request.
+ * Attaches a request-scoped query context to the request.
  */
 export const withDatabase: MiddlewareHandler = async (c, next) => {
-  c.set("db", db);
+  c.set("db", createDatabase());
 
   await next();
 };

@@ -1,6 +1,7 @@
 import { ConvexError, v } from "convex/values";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { mutation, query } from "./_generated/server";
+import { rebuildDerivedComplianceJournalEntriesForTeam } from "./complianceLedger";
 import { getTeamByPublicTeamId } from "./lib/identity";
 import { requireServiceKey } from "./lib/service";
 import { nowIso } from "../../../packages/domain/src/identity";
@@ -309,8 +310,7 @@ export const serviceUpsertFilingProfile = mutation({
         countryCode: args.countryCode,
         companyName: args.companyName ?? undefined,
         companyNumber: args.companyNumber ?? undefined,
-        companyAuthenticationCode:
-          args.companyAuthenticationCode ?? undefined,
+        companyAuthenticationCode: args.companyAuthenticationCode ?? undefined,
         utr: args.utr ?? undefined,
         vrn: args.vrn ?? undefined,
         vatScheme: args.vatScheme ?? undefined,
@@ -342,6 +342,8 @@ export const serviceUpsertFilingProfile = mutation({
       if (!updated) {
         throw new ConvexError("Failed to update filing profile");
       }
+
+      await rebuildDerivedComplianceJournalEntriesForTeam(ctx, team);
 
       return serializeFilingProfile(args.publicTeamId, {
         _id: updated._id,
@@ -423,6 +425,8 @@ export const serviceUpsertFilingProfile = mutation({
     if (!inserted) {
       throw new ConvexError("Failed to create filing profile");
     }
+
+    await rebuildDerivedComplianceJournalEntriesForTeam(ctx, team);
 
     return serializeFilingProfile(args.publicTeamId, {
       _id: inserted._id,
@@ -774,7 +778,9 @@ export const serviceGetLatestVatReturn = query({
       .query("vatReturns")
       .withIndex("by_team_id", (q) => q.eq("teamId", team._id))
       .collect();
-    const latest = records.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
+    const latest = records.sort((a, b) =>
+      b.updatedAt.localeCompare(a.updatedAt),
+    )[0];
 
     if (!latest) {
       return null;
@@ -843,7 +849,8 @@ export const serviceUpsertVatReturn = mutation({
 
     if (existing) {
       await ctx.db.patch(existing._id, {
-        publicVatReturnId: existing.publicVatReturnId ?? args.vatReturnId ?? undefined,
+        publicVatReturnId:
+          existing.publicVatReturnId ?? args.vatReturnId ?? undefined,
         obligationId: args.obligationId ?? undefined,
         periodStart: args.periodStart,
         periodEnd: args.periodEnd,

@@ -1,7 +1,12 @@
 import { paginationOptsValidator } from "convex/server";
 import { ConvexError, v } from "convex/values";
 import type { Doc, Id } from "./_generated/dataModel";
-import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
+import {
+  mutation,
+  query,
+  type MutationCtx,
+  type QueryCtx,
+} from "./_generated/server";
 import { nowIso } from "../../../packages/domain/src/identity";
 import {
   buildAbsoluteAmountSearchValue,
@@ -12,6 +17,7 @@ import { getTeamByPublicTeamId } from "./lib/identity";
 import { requireServiceKey } from "./lib/service";
 
 type InboxCtx = QueryCtx | MutationCtx;
+type InboxLiabilityAggregateDoc = Doc<"inboxLiabilityAggregates">;
 
 const nullableString = v.optional(v.union(v.string(), v.null()));
 const nullableNumber = v.optional(v.union(v.number(), v.null()));
@@ -106,7 +112,9 @@ function inboxFilePathKey(filePath: string[]) {
   return filePath.join("\u0000");
 }
 
-function publicInboxId(inboxItem: Pick<Doc<"inboxItems">, "_id" | "publicInboxId">) {
+function publicInboxId(
+  inboxItem: Pick<Doc<"inboxItems">, "_id" | "publicInboxId">,
+) {
   return inboxItem.publicInboxId ?? inboxItem._id;
 }
 
@@ -119,7 +127,10 @@ function publicSuggestionId(
   return suggestion.publicSuggestionId ?? suggestion._id;
 }
 
-function serializeInboxItem(publicTeamId: string, inboxItem: Doc<"inboxItems">) {
+function serializeInboxItem(
+  publicTeamId: string,
+  inboxItem: Doc<"inboxItems">,
+) {
   return {
     id: publicInboxId(inboxItem),
     teamId: publicTeamId,
@@ -136,7 +147,8 @@ function serializeInboxItem(publicTeamId: string, inboxItem: Doc<"inboxItems">) 
     date: inboxItem.date ?? null,
     forwardedTo: inboxItem.forwardedTo ?? null,
     referenceId: inboxItem.referenceId ?? null,
-    meta: (inboxItem.meta as Record<string, unknown> | null | undefined) ?? null,
+    meta:
+      (inboxItem.meta as Record<string, unknown> | null | undefined) ?? null,
     status: inboxItem.status,
     website: inboxItem.website ?? null,
     senderEmail: inboxItem.senderEmail ?? null,
@@ -221,6 +233,232 @@ function isInboxItemSearchEligible(item: {
   );
 }
 
+type InboxLiabilityAggregateKey = {
+  teamId: Id<"teams">;
+  date: string;
+  currency: string | null;
+};
+
+type InboxLiabilityAggregateEntry = InboxLiabilityAggregateKey & {
+  amount: number;
+};
+
+function shouldAggregateInboxLiability(item: Doc<"inboxItems">) {
+  return (
+    item.transactionId == null &&
+    item.amount !== undefined &&
+    item.amount !== null &&
+    item.date !== undefined &&
+    item.date !== null &&
+    item.status !== "done" &&
+    item.status !== "deleted"
+  );
+}
+
+function getInboxLiabilityAggregateEntry(
+  item: Doc<"inboxItems">,
+): InboxLiabilityAggregateEntry | null {
+  if (!shouldAggregateInboxLiability(item)) {
+    return null;
+  }
+
+  const hasBaseAmount =
+    item.baseAmount !== undefined &&
+    item.baseAmount !== null &&
+    item.baseCurrency !== undefined;
+
+  return {
+    teamId: item.teamId,
+    date: item.date!,
+    currency: hasBaseAmount
+      ? (item.baseCurrency ?? null)
+      : (item.currency ?? null),
+    amount: Math.abs(hasBaseAmount ? item.baseAmount! : item.amount!),
+  };
+}
+
+function serializeInboxLiabilityAggregateKey(key: InboxLiabilityAggregateKey) {
+  return JSON.stringify([key.teamId, key.date, key.currency]);
+}
+
+async function getInboxLiabilityAggregateRecord(
+  ctx: InboxCtx,
+  key: InboxLiabilityAggregateKey,
+) {
+  return ctx.db
+    .query("inboxLiabilityAggregates")
+    .withIndex("by_team_date_currency", (q) =>
+      q
+        .eq("teamId", key.teamId)
+        .eq("date", key.date)
+        .eq("currency", key.currency),
+    )
+    .unique();
+}
+
+async function getInboxLiabilityAggregateEntriesForKey(
+  ctx: InboxCtx,
+  key: InboxLiabilityAggregateKey,
+) {
+  const records = await ctx.db
+    .query("inboxItems")
+    .withIndex("by_team_and_date", (q) =>
+      q.eq("teamId", key.teamId).eq("date", key.date),
+    )
+    .collect();
+
+  return records.flatMap((record) => {
+    const entry = getInboxLiabilityAggregateEntry(record);
+
+    return entry &&
+      entry.date === key.date &&
+      entry.currency === key.currency &&
+      entry.teamId === key.teamId
+      ? [entry]
+      : [];
+  });
+}
+
+async function syncInboxLiabilityAggregateKey(
+  ctx: MutationCtx,
+  key: InboxLiabilityAggregateKey,
+) {
+  const existing = await getInboxLiabilityAggregateRecord(ctx, key);
+  const entries = await getInboxLiabilityAggregateEntriesForKey(ctx, key);
+
+  if (entries.length === 0) {
+    if (existing) {
+      await ctx.db.delete(existing._id);
+    }
+
+    return;
+  }
+
+  const timestamp = nowIso();
+  const totalAmount =
+    Math.round(entries.reduce((sum, entry) => sum + entry.amount, 0) * 100) /
+    100;
+
+  if (existing) {
+    await ctx.db.patch(existing._id, {
+      totalAmount,
+      itemCount: entries.length,
+      updatedAt: timestamp,
+    });
+
+    return;
+  }
+
+  await ctx.db.insert("inboxLiabilityAggregates", {
+    teamId: key.teamId,
+    date: key.date,
+    currency: key.currency ?? undefined,
+    totalAmount,
+    itemCount: entries.length,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  });
+}
+
+function collectInboxLiabilityAggregateKeys(
+  keys: Map<string, InboxLiabilityAggregateKey>,
+  previous: Doc<"inboxItems"> | null,
+  next: Doc<"inboxItems"> | null,
+) {
+  for (const entry of [
+    ...(previous ? [getInboxLiabilityAggregateEntry(previous)] : []),
+    ...(next ? [getInboxLiabilityAggregateEntry(next)] : []),
+  ]) {
+    if (!entry) {
+      continue;
+    }
+
+    const { amount: _amount, ...key } = entry;
+    keys.set(serializeInboxLiabilityAggregateKey(key), key);
+  }
+}
+
+function serializeInboxLiabilityAggregate(record: InboxLiabilityAggregateDoc) {
+  return {
+    date: record.date,
+    currency: record.currency ?? null,
+    totalAmount: record.totalAmount,
+    itemCount: record.itemCount,
+    updatedAt: record.updatedAt,
+  };
+}
+
+function buildInboxLiabilityAggregateBackfillMap(records: Doc<"inboxItems">[]) {
+  const aggregateMap = new Map<
+    string,
+    InboxLiabilityAggregateKey & { totalAmount: number; itemCount: number }
+  >();
+
+  for (const record of records) {
+    const entry = getInboxLiabilityAggregateEntry(record);
+
+    if (!entry) {
+      continue;
+    }
+
+    const { amount, ...key } = entry;
+    const serializedKey = serializeInboxLiabilityAggregateKey(key);
+    const existing = aggregateMap.get(serializedKey);
+
+    if (existing) {
+      existing.totalAmount =
+        Math.round((existing.totalAmount + amount) * 100) / 100;
+      existing.itemCount += 1;
+      continue;
+    }
+
+    aggregateMap.set(serializedKey, {
+      ...key,
+      totalAmount: Math.round(amount * 100) / 100,
+      itemCount: 1,
+    });
+  }
+
+  return aggregateMap;
+}
+
+async function rebuildInboxLiabilityAggregatesForTeam(
+  ctx: MutationCtx,
+  team: Pick<Doc<"teams">, "_id" | "publicTeamId">,
+) {
+  const timestamp = nowIso();
+  const records = await ctx.db
+    .query("inboxItems")
+    .withIndex("by_team_id", (q) => q.eq("teamId", team._id))
+    .collect();
+  const aggregateMap = buildInboxLiabilityAggregateBackfillMap(records);
+
+  for (const record of await ctx.db
+    .query("inboxLiabilityAggregates")
+    .withIndex("by_team_and_date", (q) => q.eq("teamId", team._id))
+    .collect()) {
+    await ctx.db.delete(record._id);
+  }
+
+  for (const entry of aggregateMap.values()) {
+    await ctx.db.insert("inboxLiabilityAggregates", {
+      teamId: entry.teamId,
+      date: entry.date,
+      currency: entry.currency ?? undefined,
+      totalAmount: entry.totalAmount,
+      itemCount: entry.itemCount,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    });
+  }
+
+  return {
+    teamId: team.publicTeamId ?? String(team._id),
+    inboxItemCount: records.length,
+    inboxLiabilityAggregateRows: aggregateMap.size,
+  };
+}
+
 async function getInboxTeamOrThrow(ctx: InboxCtx, publicTeamId: string) {
   const team = await getTeamByPublicTeamId(ctx, publicTeamId);
 
@@ -240,9 +478,7 @@ async function getInboxItemByPublicId(
 ) {
   const byLegacyId = await ctx.db
     .query("inboxItems")
-    .withIndex("by_public_inbox_id", (q) =>
-      q.eq("publicInboxId", args.inboxId),
-    )
+    .withIndex("by_public_inbox_id", (q) => q.eq("publicInboxId", args.inboxId))
     .unique();
 
   if (byLegacyId && byLegacyId.teamId === args.teamId) {
@@ -268,15 +504,10 @@ async function getInboxItemByPublicId(
   return null;
 }
 
-async function getInboxItemByPublicIdAnyTeam(
-  ctx: InboxCtx,
-  inboxId: string,
-) {
+async function getInboxItemByPublicIdAnyTeam(ctx: InboxCtx, inboxId: string) {
   const byLegacyId = await ctx.db
     .query("inboxItems")
-    .withIndex("by_public_inbox_id", (q) =>
-      q.eq("publicInboxId", inboxId),
-    )
+    .withIndex("by_public_inbox_id", (q) => q.eq("publicInboxId", inboxId))
     .unique();
 
   if (byLegacyId) {
@@ -298,10 +529,7 @@ async function getInboxItemByPublicIdAnyTeam(
   }
 }
 
-async function getSuggestionByPublicId(
-  ctx: InboxCtx,
-  suggestionId: string,
-) {
+async function getSuggestionByPublicId(ctx: InboxCtx, suggestionId: string) {
   const byLegacyId = await ctx.db
     .query("transactionMatchSuggestions")
     .withIndex("by_public_suggestion_id", (q) =>
@@ -314,9 +542,7 @@ async function getSuggestionByPublicId(
   }
 
   try {
-    return await ctx.db.get(
-      suggestionId as Id<"transactionMatchSuggestions">,
-    );
+    return await ctx.db.get(suggestionId as Id<"transactionMatchSuggestions">);
   } catch (error) {
     if (
       !(error instanceof Error) ||
@@ -448,9 +674,7 @@ export const serviceGetInboxItems = query({
     const statuses = args.statuses ? new Set(args.statuses) : null;
 
     return records
-      .filter((record) =>
-        statuses ? statuses.has(record.status) : true,
-      )
+      .filter((record) => (statuses ? statuses.has(record.status) : true))
       .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
       .map((record) => serializeInboxItem(args.publicTeamId, record));
   },
@@ -500,13 +724,15 @@ export const serviceListInboxItemsByDatePage = query({
         return range;
       });
 
-    const result = await baseQuery.order(args.order ?? "desc").paginate(
-      args.paginationOpts,
-    );
+    const result = await baseQuery
+      .order(args.order ?? "desc")
+      .paginate(args.paginationOpts);
 
     return {
       ...result,
-      page: result.page.map((record) => serializeInboxItem(args.publicTeamId, record)),
+      page: result.page.map((record) =>
+        serializeInboxItem(args.publicTeamId, record),
+      ),
     };
   },
 });
@@ -558,34 +784,34 @@ export const serviceListInboxItemsPage = query({
 
             return range;
           })
-      : ctx.db
-          .query("inboxItems")
-          .withIndex("by_team_and_created_at", (q) => {
-            const range = q.eq("teamId", team._id);
+      : ctx.db.query("inboxItems").withIndex("by_team_and_created_at", (q) => {
+          const range = q.eq("teamId", team._id);
 
-            if (args.createdAtFrom && args.createdAtTo) {
-              return range
-                .gte("createdAt", args.createdAtFrom)
-                .lte("createdAt", args.createdAtTo);
-            }
+          if (args.createdAtFrom && args.createdAtTo) {
+            return range
+              .gte("createdAt", args.createdAtFrom)
+              .lte("createdAt", args.createdAtTo);
+          }
 
-            if (args.createdAtFrom) {
-              return range.gte("createdAt", args.createdAtFrom);
-            }
+          if (args.createdAtFrom) {
+            return range.gte("createdAt", args.createdAtFrom);
+          }
 
-            if (args.createdAtTo) {
-              return range.lte("createdAt", args.createdAtTo);
-            }
+          if (args.createdAtTo) {
+            return range.lte("createdAt", args.createdAtTo);
+          }
 
-            return range;
-          });
+          return range;
+        });
 
     const orderedQuery = baseQuery.order(args.order ?? "desc");
     const result = await orderedQuery.paginate(args.paginationOpts);
 
     return {
       ...result,
-      page: result.page.map((record) => serializeInboxItem(args.publicTeamId, record)),
+      page: result.page.map((record) =>
+        serializeInboxItem(args.publicTeamId, record),
+      ),
     };
   },
 });
@@ -617,7 +843,9 @@ export const serviceSearchInboxItems = query({
       )
       .take(Math.max(1, Math.min(args.limit ?? 100, 400)));
 
-    return records.map((record) => serializeInboxItem(args.publicTeamId, record));
+    return records.map((record) =>
+      serializeInboxItem(args.publicTeamId, record),
+    );
   },
 });
 
@@ -723,9 +951,7 @@ export const serviceGetAllInboxItems = query({
       .flatMap((record) => {
         const publicTeamId = teams.get(record.teamId);
 
-        return publicTeamId
-          ? [serializeInboxItem(publicTeamId, record)]
-          : [];
+        return publicTeamId ? [serializeInboxItem(publicTeamId, record)] : [];
       })
       .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
   },
@@ -743,8 +969,15 @@ export const serviceUpsertInboxItems = mutation({
       return [];
     }
 
-    const teamCache = new Map<string, Awaited<ReturnType<typeof getInboxTeamOrThrow>>>();
+    const teamCache = new Map<
+      string,
+      Awaited<ReturnType<typeof getInboxTeamOrThrow>>
+    >();
     const results = [];
+    const liabilityAggregateKeys = new Map<
+      string,
+      InboxLiabilityAggregateKey
+    >();
 
     for (const item of args.items) {
       let team = teamCache.get(item.publicTeamId);
@@ -809,7 +1042,8 @@ export const serviceUpsertInboxItems = mutation({
 
       if (existing) {
         await ctx.db.patch(existing._id, {
-          publicInboxId: existing.publicInboxId ?? item.id ?? crypto.randomUUID(),
+          publicInboxId:
+            existing.publicInboxId ?? item.id ?? crypto.randomUUID(),
           ...payload,
         });
 
@@ -819,6 +1053,11 @@ export const serviceUpsertInboxItems = mutation({
           throw new ConvexError("Failed to update inbox item");
         }
 
+        collectInboxLiabilityAggregateKeys(
+          liabilityAggregateKeys,
+          existing,
+          updated,
+        );
         results.push(serializeInboxItem(item.publicTeamId, updated));
         continue;
       }
@@ -833,7 +1072,16 @@ export const serviceUpsertInboxItems = mutation({
         throw new ConvexError("Failed to create inbox item");
       }
 
+      collectInboxLiabilityAggregateKeys(
+        liabilityAggregateKeys,
+        null,
+        inserted,
+      );
       results.push(serializeInboxItem(item.publicTeamId, inserted));
+    }
+
+    for (const key of liabilityAggregateKeys.values()) {
+      await syncInboxLiabilityAggregateKey(ctx, key);
     }
 
     return results;
@@ -904,9 +1152,7 @@ export const serviceGetTransactionMatchSuggestions = query({
     const statuses = args.statuses ? new Set(args.statuses) : null;
 
     return records
-      .filter((record) =>
-        statuses ? statuses.has(record.status) : true,
-      )
+      .filter((record) => (statuses ? statuses.has(record.status) : true))
       .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
       .map((record) => serializeSuggestion(args.publicTeamId, record));
   },
@@ -982,7 +1228,10 @@ export const serviceUpsertTransactionMatchSuggestions = mutation({
       return [];
     }
 
-    const teamCache = new Map<string, Awaited<ReturnType<typeof getInboxTeamOrThrow>>>();
+    const teamCache = new Map<
+      string,
+      Awaited<ReturnType<typeof getInboxTeamOrThrow>>
+    >();
     const results = [];
 
     for (const suggestion of args.suggestions) {
@@ -1029,16 +1278,16 @@ export const serviceUpsertTransactionMatchSuggestions = mutation({
       if (existing) {
         await ctx.db.patch(existing._id, {
           publicSuggestionId:
-            existing.publicSuggestionId ??
-            suggestion.id ??
-            crypto.randomUUID(),
+            existing.publicSuggestionId ?? suggestion.id ?? crypto.randomUUID(),
           ...payload,
         });
 
         const updated = await ctx.db.get(existing._id);
 
         if (!updated) {
-          throw new ConvexError("Failed to update transaction match suggestion");
+          throw new ConvexError(
+            "Failed to update transaction match suggestion",
+          );
         }
 
         results.push(serializeSuggestion(suggestion.publicTeamId, updated));
@@ -1056,6 +1305,80 @@ export const serviceUpsertTransactionMatchSuggestions = mutation({
       }
 
       results.push(serializeSuggestion(suggestion.publicTeamId, inserted));
+    }
+
+    return results;
+  },
+});
+
+export const serviceGetInboxLiabilityAggregateRows = query({
+  args: {
+    serviceKey: v.string(),
+    publicTeamId: v.string(),
+    dateFrom: nullableString,
+    dateTo: nullableString,
+  },
+  async handler(ctx, args) {
+    requireServiceKey(args.serviceKey);
+
+    const team = await getTeamByPublicTeamId(ctx, args.publicTeamId);
+
+    if (!team) {
+      return [];
+    }
+
+    const records = await ctx.db
+      .query("inboxLiabilityAggregates")
+      .withIndex("by_team_and_date", (q) => {
+        const range = q.eq("teamId", team._id);
+
+        if (args.dateFrom && args.dateTo) {
+          return range.gte("date", args.dateFrom).lte("date", args.dateTo);
+        }
+
+        if (args.dateFrom) {
+          return range.gte("date", args.dateFrom);
+        }
+
+        if (args.dateTo) {
+          return range.lte("date", args.dateTo);
+        }
+
+        return range;
+      })
+      .order("asc")
+      .collect();
+
+    return records.map(serializeInboxLiabilityAggregate);
+  },
+});
+
+export const serviceRebuildInboxLiabilityAggregates = mutation({
+  args: {
+    serviceKey: v.string(),
+    publicTeamId: v.optional(v.union(v.string(), v.null())),
+  },
+  async handler(ctx, args) {
+    requireServiceKey(args.serviceKey);
+
+    const teams = args.publicTeamId
+      ? [await getTeamByPublicTeamId(ctx, args.publicTeamId)]
+      : (await ctx.db.query("teams").collect()).filter(
+          (team) => !!team.publicTeamId,
+        );
+
+    const validTeams = teams.filter(
+      (team): team is NonNullable<(typeof teams)[number]> => team !== null,
+    );
+
+    if (args.publicTeamId && validTeams.length === 0) {
+      throw new ConvexError("Convex inbox team not found");
+    }
+
+    const results = [];
+
+    for (const team of validTeams) {
+      results.push(await rebuildInboxLiabilityAggregatesForTeam(ctx, team));
     }
 
     return results;

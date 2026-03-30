@@ -1,7 +1,6 @@
 {
   "name": "@tamias/convex-model",
   "version": "1.0.0",
-  "main": "src/index.ts",
   "private": true,
   "sideEffects": false,
   "scripts": {
@@ -11,7 +10,6 @@
     "typecheck": "tsc --noEmit"
   },
   "exports": {
-    ".": "./src/index.ts",
     "./api": "./src/api.ts",
     "./data-model": "./src/data-model.ts"
   },

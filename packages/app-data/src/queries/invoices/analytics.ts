@@ -1,4 +1,5 @@
 import { UTCDate } from "@date-fns/utc";
+import { getInvoiceAnalyticsAggregateRowsFromConvex } from "@tamias/app-data-convex";
 import {
   eachMonthOfInterval,
   endOfMonth,
@@ -7,9 +8,8 @@ import {
   startOfMonth,
 } from "date-fns";
 import type { Database } from "../../client";
-import { getProjectedInvoicesByFilters } from "../invoice-projections";
+import { cacheAcrossRequests } from "../../utils/short-lived-cache";
 import { getCustomerPageSummary } from "../customer-summary";
-import { getTeamById } from "../teams";
 
 export type GetMostActiveClientParams = {
   teamId: string;
@@ -37,7 +37,7 @@ export type GetAverageDaysToPaymentParams = {
   teamId: string;
 };
 
-export async function getAverageDaysToPayment(
+async function getAverageDaysToPaymentImpl(
   _db: Database,
   params: GetAverageDaysToPaymentParams,
 ) {
@@ -46,32 +46,36 @@ export async function getAverageDaysToPayment(
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-  const paidInvoices = (await getProjectedInvoicesByFilters({
+  const rows = await getInvoiceAnalyticsAggregateRowsFromConvex({
     teamId,
-    statuses: ["paid"],
     dateField: "paidAt",
-    from: thirtyDaysAgo.toISOString(),
-  })).filter((invoice) => !!invoice.paidAt && !!invoice.sentAt);
+    statuses: ["paid"],
+    dateFrom: thirtyDaysAgo.toISOString(),
+  });
+  const validCount = rows.reduce(
+    (sum, row) => sum + row.sentToPaidValidCount,
+    0,
+  );
+  const totalDays = rows.reduce((sum, row) => sum + row.sentToPaidTotalDays, 0);
 
-  if (paidInvoices.length === 0) {
+  if (validCount === 0) {
     return 0;
   }
 
-  const totalDays = paidInvoices.reduce((sum, invoice) => {
-    const paidAt = invoice.paidAt ? new Date(invoice.paidAt).getTime() : 0;
-    const sentAt = invoice.sentAt ? new Date(invoice.sentAt).getTime() : 0;
-
-    return sum + (paidAt - sentAt) / (1000 * 60 * 60 * 24);
-  }, 0);
-
-  return Math.round(totalDays / paidInvoices.length);
+  return Math.round(totalDays / validCount);
 }
+
+export const getAverageDaysToPayment = cacheAcrossRequests({
+  keyPrefix: "average-days-to-payment",
+  keyFn: (params: GetAverageDaysToPaymentParams) => params.teamId,
+  load: getAverageDaysToPaymentImpl,
+});
 
 export type GetAverageInvoiceSizeParams = {
   teamId: string;
 };
 
-export async function getAverageInvoiceSize(
+async function getAverageInvoiceSizeImpl(
   _db: Database,
   params: GetAverageInvoiceSizeParams,
 ) {
@@ -89,12 +93,12 @@ export async function getAverageInvoiceSize(
     }
   >();
 
-  for (const invoice of await getProjectedInvoicesByFilters({
+  for (const row of await getInvoiceAnalyticsAggregateRowsFromConvex({
     teamId,
     dateField: "sentAt",
-    from: thirtyDaysAgo.toISOString(),
+    dateFrom: thirtyDaysAgo.toISOString(),
   })) {
-    const currency = invoice.currency ?? null;
+    const currency = row.currency ?? null;
     const key = currency ?? "__null__";
     const current = grouped.get(key) ?? {
       currency,
@@ -102,8 +106,8 @@ export async function getAverageInvoiceSize(
       invoiceCount: 0,
     };
 
-    current.totalAmount += Number(invoice.amount) || 0;
-    current.invoiceCount += 1;
+    current.totalAmount += row.totalAmount;
+    current.invoiceCount += row.invoiceCount;
     grouped.set(key, current);
   }
 
@@ -116,6 +120,12 @@ export async function getAverageInvoiceSize(
     invoiceCount: entry.invoiceCount,
   }));
 }
+
+export const getAverageInvoiceSize = cacheAcrossRequests({
+  keyPrefix: "average-invoice-size",
+  keyFn: (params: GetAverageInvoiceSizeParams) => params.teamId,
+  load: getAverageInvoiceSizeImpl,
+});
 
 export type GetInvoicePaymentAnalysisParams = {
   teamId: string;
@@ -149,36 +159,23 @@ export type InvoicePaymentAnalysisResult = {
   };
 };
 
-export async function getInvoicePaymentAnalysis(
-  db: Database,
+async function getInvoicePaymentAnalysisImpl(
+  _db: Database,
   params: GetInvoicePaymentAnalysisParams,
 ): Promise<InvoicePaymentAnalysisResult> {
   const { teamId, from, to, currency: inputCurrency } = params;
 
   const fromDate = startOfMonth(new UTCDate(parseISO(from)));
   const toDate = endOfMonth(new UTCDate(parseISO(to)));
-
-  const team = await getTeamById(db, teamId);
-  const targetCurrency = inputCurrency || team?.baseCurrency || "USD";
-  const allInvoices = (await getProjectedInvoicesByFilters({
+  const allRows = await getInvoiceAnalyticsAggregateRowsFromConvex({
     teamId,
-    currency: inputCurrency,
     dateField: "createdAt",
-    from: fromDate.toISOString(),
-    to: toDate.toISOString(),
-  }))
-    .map((invoice) => ({
-      id: invoice.id,
-      amount: invoice.amount,
-      currency: invoice.currency,
-      status: invoice.status,
-      dueDate: invoice.dueDate,
-      paidAt: invoice.paidAt,
-      createdAt: invoice.createdAt,
-      issueDate: invoice.issueDate,
-    }));
+    dateFrom: fromDate.toISOString(),
+    dateTo: toDate.toISOString(),
+    currency: inputCurrency ?? null,
+  });
 
-  if (allInvoices.length === 0) {
+  if (allRows.length === 0) {
     return {
       metrics: {
         averageDaysToPay: 0,
@@ -200,60 +197,45 @@ export async function getInvoicePaymentAnalysis(
     };
   }
 
-  const paidInvoices = allInvoices.filter(
-    (invoice) => invoice.status === "paid",
+  const now = new Date();
+  const paidRows = allRows.filter((row) => row.status === "paid");
+  const unpaidRows = allRows.filter(
+    (row) => row.status === "unpaid" || row.status === "overdue",
   );
-  const unpaidInvoices = allInvoices.filter(
-    (invoice) => invoice.status === "unpaid" || invoice.status === "overdue",
+  const overdueRows = allRows.filter(
+    (row) =>
+      row.status === "overdue" ||
+      (row.status === "unpaid" && row.dueDate && parseISO(row.dueDate) < now),
   );
-  const overdueInvoices = allInvoices.filter(
-    (invoice) =>
-      (invoice.status === "overdue" ||
-        (invoice.status === "unpaid" &&
-          invoice.dueDate &&
-          parseISO(invoice.dueDate) < new Date())) &&
-      !invoice.paidAt,
+  const totalInvoices = allRows.reduce((sum, row) => sum + row.invoiceCount, 0);
+  const paidInvoices = paidRows.reduce((sum, row) => sum + row.invoiceCount, 0);
+  const unpaidInvoices = unpaidRows.reduce(
+    (sum, row) => sum + row.invoiceCount,
+    0,
   );
-
-  let totalDaysToPay = 0;
-  let paidCount = 0;
-
-  for (const invoice of paidInvoices) {
-    if (invoice.paidAt) {
-      const issueDate =
-        invoice.issueDate || invoice.createdAt || invoice.dueDate;
-      if (issueDate) {
-        const daysToPay =
-          (new Date(invoice.paidAt).getTime() - parseISO(issueDate).getTime()) /
-          (1000 * 60 * 60 * 24);
-        if (daysToPay >= 0) {
-          totalDaysToPay += daysToPay;
-          paidCount++;
-        }
-      }
-    }
-  }
+  const overdueInvoices = overdueRows.reduce(
+    (sum, row) => sum + row.invoiceCount,
+    0,
+  );
+  const overdueAmount = overdueRows.reduce(
+    (sum, row) => sum + row.totalAmount,
+    0,
+  );
+  const totalDaysToPay = paidRows.reduce(
+    (sum, row) => sum + row.issueToPaidTotalDays,
+    0,
+  );
+  const paidCount = paidRows.reduce(
+    (sum, row) => sum + row.issueToPaidValidCount,
+    0,
+  );
 
   const averageDaysToPay =
     paidCount > 0 ? Math.round(totalDaysToPay / paidCount) : 0;
   const paymentRate =
-    allInvoices.length > 0
-      ? Math.round((paidInvoices.length / allInvoices.length) * 100)
-      : 0;
+    totalInvoices > 0 ? Math.round((paidInvoices / totalInvoices) * 100) : 0;
   const overdueRate =
-    allInvoices.length > 0
-      ? Math.round((overdueInvoices.length / allInvoices.length) * 100)
-      : 0;
-
-  let overdueAmount = 0;
-  for (const invoice of overdueInvoices) {
-    const amount = Number(invoice.amount) || 0;
-    if (invoice.currency === targetCurrency) {
-      overdueAmount += amount;
-    } else {
-      overdueAmount += amount;
-    }
-  }
+    totalInvoices > 0 ? Math.round((overdueInvoices / totalInvoices) * 100) : 0;
 
   let paymentScore = 100;
   if (averageDaysToPay > 30) {
@@ -268,60 +250,45 @@ export async function getInvoicePaymentAnalysis(
 
   const monthSeries = eachMonthOfInterval({ start: fromDate, end: toDate });
   const paymentTrends = monthSeries.map((monthStart) => {
-    const monthEnd = endOfMonth(monthStart);
     const monthStr = format(monthStart, "yyyy-MM");
-
-    const monthInvoices = allInvoices.filter((invoice) => {
-      const invoiceDate = invoice.createdAt || invoice.issueDate;
-      if (!invoiceDate) return false;
-      const invoiceDateObj = parseISO(invoiceDate);
-      return invoiceDateObj >= monthStart && invoiceDateObj <= monthEnd;
-    });
-
-    const monthPaid = monthInvoices.filter(
-      (invoice) => invoice.status === "paid",
+    const monthRows = allRows.filter(
+      (row) => format(parseISO(row.date), "yyyy-MM") === monthStr,
     );
-    let monthTotalDays = 0;
-    let monthPaidCount = 0;
-
-    for (const invoice of monthPaid) {
-      if (invoice.paidAt) {
-        const issueDate =
-          invoice.issueDate || invoice.createdAt || invoice.dueDate;
-        if (issueDate) {
-          const daysToPay =
-            (new Date(invoice.paidAt).getTime() -
-              parseISO(issueDate).getTime()) /
-            (1000 * 60 * 60 * 24);
-          if (daysToPay >= 0) {
-            monthTotalDays += daysToPay;
-            monthPaidCount++;
-          }
-        }
-      }
-    }
-
+    const monthInvoices = monthRows.reduce(
+      (sum, row) => sum + row.invoiceCount,
+      0,
+    );
+    const monthPaidRows = monthRows.filter((row) => row.status === "paid");
+    const monthPaid = monthPaidRows.reduce(
+      (sum, row) => sum + row.invoiceCount,
+      0,
+    );
+    const monthTotalDays = monthPaidRows.reduce(
+      (sum, row) => sum + row.issueToPaidTotalDays,
+      0,
+    );
+    const monthPaidCount = monthPaidRows.reduce(
+      (sum, row) => sum + row.issueToPaidValidCount,
+      0,
+    );
     const monthAvgDays =
       monthPaidCount > 0 ? Math.round(monthTotalDays / monthPaidCount) : 0;
     const monthPaymentRate =
-      monthInvoices.length > 0
-        ? Math.round((monthPaid.length / monthInvoices.length) * 100)
-        : 0;
+      monthInvoices > 0 ? Math.round((monthPaid / monthInvoices) * 100) : 0;
 
     return {
       month: monthStr,
       averageDaysToPay: monthAvgDays,
       paymentRate: monthPaymentRate,
-      invoiceCount: monthInvoices.length,
+      invoiceCount: monthInvoices,
     };
   });
 
   let oldestDays = 0;
-  const now = new Date();
-  for (const invoice of overdueInvoices) {
-    if (invoice.dueDate) {
+  for (const row of overdueRows) {
+    if (row.dueDate) {
       const daysOverdue =
-        (now.getTime() - parseISO(invoice.dueDate).getTime()) /
+        (now.getTime() - parseISO(row.dueDate).getTime()) /
         (1000 * 60 * 60 * 24);
       oldestDays = Math.max(oldestDays, Math.round(daysOverdue));
     }
@@ -333,17 +300,24 @@ export async function getInvoicePaymentAnalysis(
       paymentRate,
       overdueRate,
       paymentScore: Math.round(paymentScore),
-      totalInvoices: allInvoices.length,
-      paidInvoices: paidInvoices.length,
-      unpaidInvoices: unpaidInvoices.length,
-      overdueInvoices: overdueInvoices.length,
+      totalInvoices,
+      paidInvoices,
+      unpaidInvoices,
+      overdueInvoices,
       overdueAmount: Math.round(overdueAmount * 100) / 100,
     },
     paymentTrends,
     overdueSummary: {
-      count: overdueInvoices.length,
+      count: overdueInvoices,
       totalAmount: Math.round(overdueAmount * 100) / 100,
       oldestDays,
     },
   };
 }
+
+export const getInvoicePaymentAnalysis = cacheAcrossRequests({
+  keyPrefix: "invoice-payment-analysis",
+  keyFn: (params: GetInvoicePaymentAnalysisParams) =>
+    [params.teamId, params.from, params.to, params.currency ?? ""].join(":"),
+  load: getInvoicePaymentAnalysisImpl,
+});

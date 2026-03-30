@@ -15,10 +15,12 @@ import { validateResponse } from "../../utils/validate-response";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import {
   deleteInbox,
-  getInboxById,
   updateInbox,
 } from "@tamias/app-data/queries";
-import { getInboxPage } from "@tamias/app-services/inbox";
+import {
+  getInboxItemForTeam,
+  getInboxPage,
+} from "@tamias/app-services/inbox";
 import { withRequiredScope } from "../middleware";
 
 const app = new OpenAPIHono<Context>();
@@ -98,9 +100,10 @@ app.openapi(
     const teamId = c.get("teamId");
     const { id } = c.req.valid("param");
 
-    const result = await getInboxById(db, {
-      id,
+    const result = await getInboxItemForTeam({
+      db,
       teamId,
+      inboxId: id,
     });
 
     return c.json(validateResponse(result, inboxItemResponseSchema));
@@ -171,9 +174,10 @@ app.openapi(
     const { download = true } = c.req.valid("query");
 
     // First, verify the inbox item exists and belongs to the team
-    const inboxItem = await getInboxById(db, {
-      id,
+    const inboxItem = await getInboxItemForTeam({
+      db,
       teamId,
+      inboxId: id,
     });
 
     if (!inboxItem) {

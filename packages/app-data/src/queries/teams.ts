@@ -15,13 +15,28 @@ import {
   updateTeamByIdInConvexIdentity,
 } from "@tamias/app-data-convex";
 import type { Database, QueryClient } from "../client";
+import { cacheAcrossRequests } from "../utils/short-lived-cache";
 
 export type TeamRecord = TeamIdentityRecord;
 type ConvexUserId = CurrentUserIdentityRecord["convexId"];
 
-export const getTeamById = async (_db: Database | QueryClient, id: string) => {
+async function getTeamByIdImpl(
+  _db: Database | QueryClient,
+  id: string,
+) {
   return getTeamByIdFromConvexIdentity({ teamId: id });
-};
+}
+
+const getTeamByIdCached = cacheAcrossRequests({
+  keyPrefix: "team-by-id",
+  keyFn: (id: string) => id,
+  load: async (_db: Database, id: string) =>
+    getTeamByIdImpl(_db as Database | QueryClient, id),
+});
+
+export async function getTeamById(_db: Database | QueryClient, id: string) {
+  return getTeamByIdCached(_db as Database, id);
+}
 
 export const getTeamByInboxId = async (
   _db: Database | QueryClient,
@@ -98,7 +113,7 @@ export const createTeam = async (_db: Database, params: CreateTeamParams) => {
   return team;
 };
 
-export async function getTeamMembers(_db: Database, teamId: string) {
+async function getTeamMembersImpl(_db: Database, teamId: string) {
   const members = await getTeamMembersFromConvexIdentity({ teamId });
 
   return members.map((member) => ({
@@ -108,8 +123,16 @@ export async function getTeamMembers(_db: Database, teamId: string) {
     fullName: member.user.fullName,
     avatarUrl: member.user.avatarUrl,
     email: member.user.email,
+    timezone: member.user.timezone,
+    locale: member.user.locale,
   }));
 }
+
+export const getTeamMembers = cacheAcrossRequests({
+  keyPrefix: "team-members",
+  keyFn: (teamId: string) => teamId,
+  load: getTeamMembersImpl,
+});
 
 type DeleteTeamParams = {
   teamId: string;
@@ -168,11 +191,11 @@ export async function getTeamOwnerInfo(
   _db: Database,
   teamId: string,
 ): Promise<TeamOwnerInfo> {
-  const [owner] = await getTeamMembersFromConvexIdentity({ teamId });
+  const [owner] = await getTeamMembers(_db, teamId);
 
   return {
-    timezone: owner?.user.timezone || "UTC",
-    locale: owner?.user.locale || "en",
+    timezone: owner?.timezone || "UTC",
+    locale: owner?.locale || "en",
   };
 }
 
@@ -295,7 +318,7 @@ function getHourInTimezone(date: Date, timezone: string): number {
 }
 
 export async function getTeamOwnerContact(_db: Database, teamId: string) {
-  const members = await getTeamMembersFromConvexIdentity({ teamId });
+  const members = await getTeamMembers(_db, teamId);
   const owner = members.find((member) => member.role === "owner");
 
   if (!owner) {
@@ -303,8 +326,8 @@ export async function getTeamOwnerContact(_db: Database, teamId: string) {
   }
 
   return {
-    email: owner.user.email,
-    fullName: owner.user.fullName,
+    email: owner.email,
+    fullName: owner.fullName,
   };
 }
 

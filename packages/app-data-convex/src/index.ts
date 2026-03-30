@@ -167,6 +167,14 @@ export type InboxItemRecord = {
   groupedInboxId: string | null;
 };
 
+export type InboxLiabilityAggregateRowRecord = {
+  date: string;
+  currency: string | null;
+  totalAmount: number;
+  itemCount: number;
+  updatedAt: string;
+};
+
 export type UpsertInboxItemInConvexInput = {
   teamId: string;
   id?: string;
@@ -754,6 +762,20 @@ export type TransactionRecurringAggregateRowRecord = {
   updatedAt: string;
 };
 
+export type TransactionTaxAggregateRowRecord = {
+  scope: "base" | "native";
+  date: string;
+  currency: string;
+  direction: "income" | "expense";
+  categorySlug: string | null;
+  taxType: string | null;
+  taxRate: number;
+  totalTaxAmount: number;
+  totalTransactionAmount: number;
+  transactionCount: number;
+  updatedAt: string;
+};
+
 export type UpsertTransactionInConvexInput = {
   id: string;
   createdAt: string;
@@ -998,6 +1020,11 @@ export type InvoiceAggregateRowRecord = {
 };
 
 export type InvoiceAggregateDateField = "issueDate" | "paidAt";
+export type InvoiceCustomerAggregateDateField = "createdAt" | "paidAt";
+export type InvoiceAnalyticsAggregateDateField =
+  | "createdAt"
+  | "sentAt"
+  | "paidAt";
 
 export type InvoiceDateAggregateRowRecord = {
   status: string;
@@ -1010,6 +1037,32 @@ export type InvoiceDateAggregateRowRecord = {
   validPaymentCount: number;
   onTimeCount: number;
   totalDaysToPay: number;
+  updatedAt: string;
+};
+
+export type InvoiceCustomerDateAggregateRowRecord = {
+  customerId: string;
+  status: string;
+  dateField: InvoiceCustomerAggregateDateField;
+  date: string;
+  currency: string | null;
+  invoiceCount: number;
+  totalAmount: number;
+  updatedAt: string;
+};
+
+export type InvoiceAnalyticsAggregateRowRecord = {
+  dateField: InvoiceAnalyticsAggregateDateField;
+  date: string;
+  status: string;
+  currency: string | null;
+  dueDate: string | null;
+  invoiceCount: number;
+  totalAmount: number;
+  issueToPaidValidCount: number;
+  issueToPaidTotalDays: number;
+  sentToPaidValidCount: number;
+  sentToPaidTotalDays: number;
   updatedAt: string;
 };
 
@@ -1789,11 +1842,10 @@ const apiWithComplianceState = api as typeof api & {
 
 const apiWithComplianceLedger = api as typeof api & {
   complianceLedger: {
-    serviceDeleteComplianceJournalEntries: any;
     serviceListComplianceJournalEntries: any;
-    serviceInsertComplianceJournalEntries: any;
     serviceUpsertComplianceJournalEntry: any;
     serviceDeleteComplianceJournalEntryBySource: any;
+    serviceRebuildDerivedComplianceJournalEntries: any;
   };
 };
 
@@ -2663,6 +2715,21 @@ export async function getInboxItemInfoFromConvex(args: { inboxId: string }) {
       inboxId: args.inboxId,
     }),
   ) as Promise<InboxItemRecord | null>;
+}
+
+export async function getInboxLiabilityAggregateRowsFromConvex(args: {
+  teamId: string;
+  dateFrom?: string | null;
+  dateTo?: string | null;
+}) {
+  return createClient().query(
+    convexApi["inbox"].serviceGetInboxLiabilityAggregateRows,
+    serviceArgs({
+      publicTeamId: args.teamId,
+      dateFrom: args.dateFrom,
+      dateTo: args.dateTo,
+    }),
+  ) as Promise<InboxLiabilityAggregateRowRecord[]>;
 }
 
 export async function getAllInboxItemsFromConvex() {
@@ -3586,6 +3653,48 @@ export async function getInvoiceDateAggregateRowsFromConvex(args: {
   ) as Promise<InvoiceDateAggregateRowRecord[]>;
 }
 
+export async function getInvoiceCustomerDateAggregateRowsFromConvex(args: {
+  teamId: string;
+  statuses: string[];
+  dateField: InvoiceCustomerAggregateDateField;
+  dateFrom?: string | null;
+  dateTo?: string | null;
+  currency?: string | null;
+}) {
+  return createClient().query(
+    convexApi["publicInvoices"].serviceGetInvoiceCustomerDateAggregateRows,
+    serviceArgs({
+      publicTeamId: args.teamId,
+      statuses: args.statuses,
+      dateField: args.dateField,
+      dateFrom: args.dateFrom,
+      dateTo: args.dateTo,
+      currency: args.currency,
+    }),
+  ) as Promise<InvoiceCustomerDateAggregateRowRecord[]>;
+}
+
+export async function getInvoiceAnalyticsAggregateRowsFromConvex(args: {
+  teamId: string;
+  dateField: InvoiceAnalyticsAggregateDateField;
+  statuses?: string[];
+  dateFrom?: string | null;
+  dateTo?: string | null;
+  currency?: string | null;
+}) {
+  return createClient().query(
+    convexApi["publicInvoices"].serviceGetInvoiceAnalyticsAggregateRows,
+    serviceArgs({
+      publicTeamId: args.teamId,
+      dateField: args.dateField,
+      statuses: args.statuses,
+      dateFrom: args.dateFrom,
+      dateTo: args.dateTo,
+      currency: args.currency,
+    }),
+  ) as Promise<InvoiceAnalyticsAggregateRowRecord[]>;
+}
+
 export async function getInvoiceAgingAggregateRowsFromConvex(args: {
   teamId: string;
   statuses: string[];
@@ -3599,6 +3708,27 @@ export async function getInvoiceAgingAggregateRowsFromConvex(args: {
       currency: args.currency,
     }),
   ) as Promise<InvoiceAgingAggregateRowRecord[]>;
+}
+
+export async function rebuildInvoiceReportAggregatesInConvex(args: {
+  teamId?: string | null;
+}) {
+  return createClient().mutation(
+    convexApi["publicInvoices"].serviceRebuildInvoiceReportAggregates,
+    serviceArgs({
+      publicTeamId: args.teamId ?? null,
+    }),
+  ) as Promise<
+    Array<{
+      teamId: string;
+      invoiceCount: number;
+      invoiceAggregateRows: number;
+      invoiceDateAggregateRows: number;
+      invoiceCustomerDateAggregateRows: number;
+      invoiceAnalyticsAggregateRows: number;
+      invoiceAgingAggregateRows: number;
+    }>
+  >;
 }
 
 export async function getPublicInvoicesPageFromConvex(args: {
@@ -3894,6 +4024,9 @@ export async function getTransactionsByIdsFromConvex(args: {
 export async function searchTransactionsFromConvex(args: {
   teamId: string;
   query: string;
+  dateGte?: string | null;
+  dateLte?: string | null;
+  statusesNotIn?: TransactionStatus[];
   limit?: number;
 }) {
   return createClient().query(
@@ -3901,6 +4034,9 @@ export async function searchTransactionsFromConvex(args: {
     serviceArgs({
       publicTeamId: args.teamId,
       query: args.query,
+      dateGte: args.dateGte,
+      dateLte: args.dateLte,
+      statusesNotIn: args.statusesNotIn,
       limit: args.limit,
     }),
   ) as Promise<TransactionRecord[]>;
@@ -3910,6 +4046,9 @@ export async function getTransactionsByAmountRangeFromConvex(args: {
   teamId: string;
   minAmount: number;
   maxAmount: number;
+  dateGte?: string | null;
+  dateLte?: string | null;
+  statusesNotIn?: TransactionStatus[];
   limit?: number;
 }) {
   return createClient().query(
@@ -3918,6 +4057,9 @@ export async function getTransactionsByAmountRangeFromConvex(args: {
       publicTeamId: args.teamId,
       minAmount: args.minAmount,
       maxAmount: args.maxAmount,
+      dateGte: args.dateGte,
+      dateLte: args.dateLte,
+      statusesNotIn: args.statusesNotIn,
       limit: args.limit,
     }),
   ) as Promise<TransactionRecord[]>;
@@ -4020,6 +4162,46 @@ export async function getTransactionRecurringAggregateRowsFromConvex(args: {
       dateTo: args.dateTo,
     }),
   ) as Promise<TransactionRecurringAggregateRowRecord[]>;
+}
+
+export async function getTransactionTaxAggregateRowsFromConvex(args: {
+  teamId: string;
+  scope: "base" | "native";
+  direction: "income" | "expense";
+  currency: string;
+  dateFrom?: string | null;
+  dateTo?: string | null;
+}) {
+  return createClient().query(
+    convexApi["transactions"].serviceGetTransactionTaxAggregateRows,
+    serviceArgs({
+      publicTeamId: args.teamId,
+      scope: args.scope,
+      direction: args.direction,
+      currency: args.currency,
+      dateFrom: args.dateFrom,
+      dateTo: args.dateTo,
+    }),
+  ) as Promise<TransactionTaxAggregateRowRecord[]>;
+}
+
+export async function rebuildTransactionReportAggregatesInConvex(args: {
+  teamId?: string | null;
+}) {
+  return createClient().mutation(
+    convexApi["transactions"].serviceRebuildTransactionReportAggregates,
+    serviceArgs({
+      publicTeamId: args.teamId ?? null,
+    }),
+  ) as Promise<
+    Array<{
+      teamId: string;
+      transactionCount: number;
+      transactionMetricAggregateRows: number;
+      transactionRecurringAggregateRows: number;
+      transactionTaxAggregateRows: number;
+    }>
+  >;
 }
 
 export async function countTransactionsFromConvex(args: {
@@ -5781,58 +5963,40 @@ export async function listVatSubmissionsFromConvex(args: { teamId: string }) {
   ) as Promise<VatReturnRecord[]>;
 }
 
-export async function replaceComplianceJournalEntriesInConvex(args: {
-  teamId: string;
-  entries: ComplianceJournalEntryRecord[];
-  sourceTypes?: ComplianceJournalSourceType[];
+export async function rebuildDerivedComplianceJournalEntriesInConvex(args: {
+  teamId?: string | null;
 }) {
-  await createClient().mutation(
+  return createClient().mutation(
     apiWithComplianceLedger.complianceLedger
-      .serviceDeleteComplianceJournalEntries,
+      .serviceRebuildDerivedComplianceJournalEntries,
     serviceArgs({
-      publicTeamId: args.teamId,
-      sourceTypes: args.sourceTypes,
+      publicTeamId: args.teamId ?? null,
     }),
-  );
+  ) as Promise<
+    Array<{
+      teamId: string;
+      transactionCount: number;
+      invoiceCount: number;
+      journalEntryCount: number;
+    }>
+  >;
+}
 
-  const chunkSize = 250;
-
-  for (let index = 0; index < args.entries.length; index += chunkSize) {
-    const entries = args.entries.slice(index, index + chunkSize);
-
-    await createClient().mutation(
-      apiWithComplianceLedger.complianceLedger
-        .serviceInsertComplianceJournalEntries,
-      serviceArgs({
-        publicTeamId: args.teamId,
-        entries: entries.map((entry) => ({
-          journalEntryId: entry.journalEntryId,
-          entryDate: entry.entryDate,
-          reference: entry.reference ?? undefined,
-          description: entry.description ?? undefined,
-          sourceType: entry.sourceType,
-          sourceId: entry.sourceId,
-          currency: entry.currency,
-          meta: entry.meta ?? undefined,
-          lines: entry.lines.map((line) => ({
-            accountCode: line.accountCode,
-            description: line.description ?? undefined,
-            debit: line.debit ?? 0,
-            credit: line.credit ?? 0,
-            taxRate: line.taxRate ?? undefined,
-            taxAmount: line.taxAmount ?? undefined,
-            taxType: line.taxType ?? undefined,
-            vatBox: line.vatBox ?? undefined,
-            meta: line.meta ?? undefined,
-          })),
-        })),
-      }),
-    );
-  }
-
-  return {
-    count: args.entries.length,
-  };
+export async function rebuildInboxLiabilityAggregatesInConvex(args: {
+  teamId?: string | null;
+}) {
+  return createClient().mutation(
+    convexApi["inbox"].serviceRebuildInboxLiabilityAggregates,
+    serviceArgs({
+      publicTeamId: args.teamId ?? null,
+    }),
+  ) as Promise<
+    Array<{
+      teamId: string;
+      inboxItemCount: number;
+      inboxLiabilityAggregateRows: number;
+    }>
+  >;
 }
 
 export async function listComplianceJournalEntriesFromConvex(args: {
@@ -6140,9 +6304,7 @@ export async function listSubmissionEventsFromConvex(args: {
   ) as Promise<SubmissionEventRecord[]>;
 }
 
-export async function allocateFilingSequenceInConvex(args: {
-  scope: string;
-}) {
+export async function allocateFilingSequenceInConvex(args: { scope: string }) {
   return createClient().mutation(
     apiWithFilingSequences.filingSequences.serviceAllocateFilingSequence,
     serviceArgs({

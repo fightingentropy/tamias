@@ -461,6 +461,17 @@ export default defineSchema({
       searchField: "searchText",
       filterFields: ["teamId", "searchEligible"],
     }),
+  inboxLiabilityAggregates: defineTable({
+    teamId: v.id("teams"),
+    date: v.string(),
+    currency: v.optional(v.union(v.string(), v.null())),
+    totalAmount: v.number(),
+    itemCount: v.number(),
+    createdAt: v.string(),
+    updatedAt: v.string(),
+  })
+    .index("by_team_and_date", ["teamId", "date"])
+    .index("by_team_date_currency", ["teamId", "date", "currency"]),
   transactionMatchSuggestions: defineTable({
     publicSuggestionId: v.optional(v.string()),
     teamId: v.id("teams"),
@@ -817,6 +828,59 @@ export default defineSchema({
       "recurring",
       "date",
     ]),
+  invoiceCustomerDateAggregates: defineTable({
+    teamId: v.id("teams"),
+    customerId: v.string(),
+    status: v.string(),
+    dateField: v.union(v.literal("createdAt"), v.literal("paidAt")),
+    date: v.string(),
+    currency: v.string(),
+    invoiceCount: v.number(),
+    totalAmount: v.number(),
+    createdAt: v.string(),
+    updatedAt: v.string(),
+  })
+    .index("by_team_status_date_field_date", [
+      "teamId",
+      "status",
+      "dateField",
+      "date",
+    ])
+    .index("by_team_customer_status_date_field_currency_date", [
+      "teamId",
+      "customerId",
+      "status",
+      "dateField",
+      "currency",
+      "date",
+    ]),
+  invoiceAnalyticsAggregates: defineTable({
+    teamId: v.id("teams"),
+    dateField: v.union(
+      v.literal("createdAt"),
+      v.literal("sentAt"),
+      v.literal("paidAt"),
+    ),
+    date: v.string(),
+    status: v.string(),
+    currency: v.string(),
+    dueDate: v.union(v.string(), v.null()),
+    invoiceCount: v.number(),
+    totalAmount: v.number(),
+    issueToPaidValidCount: v.number(),
+    issueToPaidTotalDays: v.number(),
+    sentToPaidValidCount: v.number(),
+    sentToPaidTotalDays: v.number(),
+    createdAt: v.string(),
+    updatedAt: v.string(),
+  })
+    .index("by_team_date_field_date", ["teamId", "dateField", "date"])
+    .index("by_team_date_field_status_date", [
+      "teamId",
+      "dateField",
+      "status",
+      "date",
+    ]),
   invoiceAgingAggregates: defineTable({
     teamId: v.id("teams"),
     status: v.string(),
@@ -1051,7 +1115,12 @@ export default defineSchema({
     createdAt: v.string(),
     updatedAt: v.string(),
   })
-    .index("by_team_scope_currency_date", ["teamId", "scope", "currency", "date"])
+    .index("by_team_scope_currency_date", [
+      "teamId",
+      "scope",
+      "currency",
+      "date",
+    ])
     .index("by_team_scope_currency_date_direction_category_recurring", [
       "teamId",
       "scope",
@@ -1102,6 +1171,38 @@ export default defineSchema({
       "frequency",
       "categorySlug",
       "date",
+    ]),
+  transactionTaxAggregates: defineTable({
+    teamId: v.id("teams"),
+    scope: v.union(v.literal("base"), v.literal("native")),
+    date: v.string(),
+    currency: v.string(),
+    direction: v.union(v.literal("income"), v.literal("expense")),
+    categorySlug: v.union(v.string(), v.null()),
+    taxType: v.union(v.string(), v.null()),
+    taxRate: v.number(),
+    totalTaxAmount: v.number(),
+    totalTransactionAmount: v.number(),
+    transactionCount: v.number(),
+    createdAt: v.string(),
+    updatedAt: v.string(),
+  })
+    .index("by_team_scope_direction_currency_date", [
+      "teamId",
+      "scope",
+      "direction",
+      "currency",
+      "date",
+    ])
+    .index("by_team_scope_currency_date_direction_category_tax_type_tax_rate", [
+      "teamId",
+      "scope",
+      "currency",
+      "date",
+      "direction",
+      "categorySlug",
+      "taxType",
+      "taxRate",
     ]),
   trackerProjects: defineTable({
     publicTrackerProjectId: v.optional(v.string()),

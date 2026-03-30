@@ -15,6 +15,7 @@ import {
 } from "@tamias/compliance";
 import type { Database } from "../client";
 import { createSubmissionEventInConvex } from "@tamias/app-data-convex";
+import { cacheAcrossRequests } from "../utils/short-lived-cache";
 import { getAppByAppId, setAppConfig } from "./apps";
 import { getFilingProfile } from "./compliance/shared";
 import { getYearEndPack } from "./year-end";
@@ -148,7 +149,7 @@ async function createAccountsSubmissionEvent(args: {
   });
 }
 
-export async function getCompaniesHouseConnection(
+async function getCompaniesHouseConnectionImpl(
   db: Database,
   params: { teamId: string },
 ) {
@@ -180,7 +181,13 @@ export async function getCompaniesHouseConnection(
   };
 }
 
-export async function getCompaniesHouseAccountsStatus(
+export const getCompaniesHouseConnection = cacheAcrossRequests({
+  keyPrefix: "companies-house-connection",
+  keyFn: (params: { teamId: string }) => params.teamId,
+  load: getCompaniesHouseConnectionImpl,
+});
+
+async function getCompaniesHouseAccountsStatusImpl(
   db: Database,
   params: { teamId: string },
 ) {
@@ -308,6 +315,12 @@ export async function getCompaniesHouseAccountsStatus(
     };
   }
 }
+
+export const getCompaniesHouseAccountsStatus = cacheAcrossRequests({
+  keyPrefix: "companies-house-accounts-status",
+  keyFn: (params: { teamId: string }) => params.teamId,
+  load: getCompaniesHouseAccountsStatusImpl,
+});
 
 export async function createCompaniesHouseRegisteredOfficeAddressDraft(
   db: Database,

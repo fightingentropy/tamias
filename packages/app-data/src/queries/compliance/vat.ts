@@ -15,6 +15,7 @@ import {
   subYears,
 } from "date-fns";
 import type { Database } from "../../client";
+import { cacheAcrossRequests } from "../../utils/short-lived-cache";
 import {
   countComplianceAdjustmentsByVatReturnIdFromConvex,
   countSourceLinksBySourceTypesFromConvex,
@@ -44,7 +45,7 @@ import {
   getHmrcVatApp,
   getTeamContext,
 } from "./shared";
-import { listJournalRowsForPeriod, rebuildDerivedLedger } from "./ledger";
+import { listDerivedLedgerEntries, listJournalRowsForPeriod } from "./ledger";
 
 type ConvexUserId = CurrentUserIdentityRecord["convexId"];
 
@@ -322,10 +323,8 @@ export async function recalculateVatDraft(
   const context = await getDraftContext(db, params);
 
   const journalRows = listJournalRowsForPeriod(
-    await rebuildDerivedLedger(db, {
+    await listDerivedLedgerEntries(db, {
       teamId: params.teamId,
-      team: context.team,
-      profile: context.profile,
     }),
     context.obligation.periodStart,
     context.obligation.periodEnd,
@@ -592,7 +591,7 @@ export async function submitVatReturn(
   };
 }
 
-export async function listVatSubmissions(
+async function listVatSubmissionsImpl(
   db: Database,
   params: { teamId: string },
 ) {
@@ -602,6 +601,12 @@ export async function listVatSubmissions(
   });
 }
 
+export const listVatSubmissions = cacheAcrossRequests({
+  keyPrefix: "vat-submissions",
+  keyFn: (params: { teamId: string }) => params.teamId,
+  load: listVatSubmissionsImpl,
+});
+
 export async function getEvidencePack(params: GetEvidencePackParams) {
   return getEvidencePackByIdFromConvex({
     teamId: params.teamId,
@@ -609,10 +614,7 @@ export async function getEvidencePack(params: GetEvidencePackParams) {
   });
 }
 
-export async function getVatDashboard(
-  db: Database,
-  params: { teamId: string },
-) {
+async function getVatDashboardImpl(db: Database, params: { teamId: string }) {
   const team = await getTeamContext(db, params.teamId);
   const profile = await getFilingProfile(db, params.teamId);
   const app = await getHmrcVatApp(db, params.teamId);
@@ -637,3 +639,9 @@ export async function getVatDashboard(
     latestSubmission,
   };
 }
+
+export const getVatDashboard = cacheAcrossRequests({
+  keyPrefix: "vat-dashboard",
+  keyFn: (params: { teamId: string }) => params.teamId,
+  load: getVatDashboardImpl,
+});

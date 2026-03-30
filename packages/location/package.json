@@ -12,7 +12,6 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./countries": "./src/countries.ts",
     "./countries-intl": "./src/countries-intl.ts",
     "./currencies": "./src/currencies.ts",
     "./country-flags": "./src/country-flags.ts",

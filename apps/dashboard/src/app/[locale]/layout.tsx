@@ -16,6 +16,26 @@ import { Providers } from "./providers";
 const appUrl = getAppUrl();
 const staticParams = getStaticParams();
 const supportedLocales = new Set(staticParams.map((params) => params.locale));
+const themeBootstrapScript = `
+globalThis.__name=globalThis.__name||function(target){return target;};
+(() => {
+  try {
+    const root = document.documentElement;
+    const themes = ["light", "dark"];
+    const storedTheme = localStorage.getItem("theme") || "system";
+    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+    const resolvedTheme = storedTheme === "system" ? systemTheme : storedTheme;
+
+    root.classList.remove(...themes);
+    if (themes.includes(resolvedTheme)) {
+      root.classList.add(resolvedTheme);
+      root.style.colorScheme = resolvedTheme;
+    }
+  } catch {}
+})();
+`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
@@ -111,8 +131,7 @@ export default async function Layout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html:
-              "globalThis.__name=globalThis.__name||function(target){return target;};",
+            __html: themeBootstrapScript,
           }}
         />
       </head>

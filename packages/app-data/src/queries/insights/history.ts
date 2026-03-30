@@ -6,6 +6,7 @@ import {
   startOfQuarter,
 } from "date-fns";
 import type { Database } from "../../client";
+import { cacheAcrossRequests } from "../../utils/short-lived-cache";
 import type { InsightPredictions } from "../../types/insights";
 import { listCompletedWeeklyInsights } from "./shared";
 
@@ -75,7 +76,7 @@ export type InsightHistoryData = {
   weeksOfHistory: number;
 };
 
-export async function getInsightHistory(
+async function getInsightHistoryImpl(
   db: Database,
   params: {
     teamId: string;
@@ -128,6 +129,22 @@ export async function getInsightHistory(
     weeksOfHistory: weeks.length,
   };
 }
+
+export const getInsightHistory = cacheAcrossRequests({
+  keyPrefix: "insight-history",
+  keyFn: (params: {
+    teamId: string;
+    weeksBack?: number;
+    excludeCurrentPeriod?: { year: number; number: number };
+  }) =>
+    [
+      params.teamId,
+      params.weeksBack ?? 52,
+      params.excludeCurrentPeriod?.year ?? "",
+      params.excludeCurrentPeriod?.number ?? "",
+    ].join(":"),
+  load: getInsightHistoryImpl,
+});
 
 export type RollingAverages = {
   avgRevenue: number;

@@ -1,5 +1,5 @@
-import { db } from "@tamias/app-data/client";
-import { getInbox } from "@tamias/app-data/queries";
+import { createDatabase } from "@tamias/app-data/client";
+import { getInboxPage } from "@tamias/app-services/inbox";
 import { getAppUrl } from "@tamias/utils/envs";
 import { formatAmount, formatDate } from "@tamias/utils/format";
 import { tool } from "ai";
@@ -55,17 +55,18 @@ export const getInboxTool = tool({
     }
 
     try {
-      const params = {
+      const result = await getInboxPage({
+        db: createDatabase(),
         teamId,
-        cursor: cursor ?? null,
-        pageSize,
-        q: q ?? null,
-        status: status ?? null,
-        sort: sort ?? null,
-        order: order ?? null,
-      };
-
-      const result = await getInbox(db, params);
+        input: {
+          cursor: cursor ?? null,
+          pageSize,
+          q: q ?? null,
+          status: status ?? null,
+          sort: sort ?? null,
+          order: order ?? null,
+        },
+      });
 
       if (result.data.length === 0) {
         yield { text: "No inbox items found matching your criteria." };

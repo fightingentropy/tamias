@@ -26,6 +26,7 @@ export * from "./invoices";
 export * from "./invoice-templates";
 export * from "./insights";
 export * from "./notification-settings";
+export * from "./paged-records";
 export * from "./payroll";
 export * from "./reports";
 export * from "./search";

@@ -1,19 +1,30 @@
 import { parseISO } from "date-fns";
-import type { Database } from "../client";
 import {
-  getProjectedInvoicesByFilters,
-  type ProjectedInvoiceRecord,
-} from "./index";
+  getCustomersByIdsFromConvex,
+  getInvoiceCustomerDateAggregateRowsFromConvex,
+} from "@tamias/app-data-convex";
+import type { Database } from "../client";
+import { cacheAcrossRequests } from "../utils/short-lived-cache";
+import { normalizeTimestampBoundary } from "./date-boundaries";
 import { getCustomerPageSummary } from "./customer-summary";
 
-const REVENUE_INVOICE_STATUSES = new Set<string>(["paid", "unpaid", "overdue"]);
+const CUSTOMER_REVENUE_STATUSES = ["paid", "unpaid", "overdue"] as const;
 
-function getProjectedCustomerName(invoice: ProjectedInvoiceRecord) {
-  return invoice.customer.name ?? invoice.customerName ?? "Unknown Customer";
+function roundMoney(value: number) {
+  return Math.round(value * 100) / 100;
 }
 
-function hasStringValue(value: string | null | undefined): value is string {
-  return typeof value === "string" && value.length > 0;
+async function getCustomerNameMap(teamId: string, customerIds: string[]) {
+  if (customerIds.length === 0) {
+    return new Map<string, string>();
+  }
+
+  const customers = await getCustomersByIdsFromConvex({
+    teamId,
+    customerIds: [...new Set(customerIds)],
+  });
+
+  return new Map(customers.map((customer) => [customer.id, customer.name]));
 }
 
 /**
@@ -44,39 +55,48 @@ export type GetRevenueConcentrationParams = {
  * Returns the top customer and their share of total revenue.
  * Warns if a single customer accounts for >50% of revenue.
  */
-export async function getRevenueConcentration(
+async function getRevenueConcentrationImpl(
   _db: Database,
   params: GetRevenueConcentrationParams,
 ): Promise<RevenueConcentration> {
   const { teamId, from, to, currency } = params;
+  const rows = await getInvoiceCustomerDateAggregateRowsFromConvex({
+    teamId,
+    statuses: ["paid"],
+    dateField: "paidAt",
+    dateFrom: normalizeTimestampBoundary(from, "start"),
+    dateTo: normalizeTimestampBoundary(to, "end"),
+    currency,
+  });
+
+  if (rows.length === 0) {
+    return {
+      topCustomer: null,
+      totalRevenue: 0,
+      customerCount: 0,
+      isConcentrated: false,
+      currency,
+    };
+  }
+
+  const customerNames = await getCustomerNameMap(
+    teamId,
+    rows.map((row) => row.customerId),
+  );
   const customerRevenueMap = new Map<
     string,
     { customerId: string; customerName: string; revenue: number }
   >();
 
-  for (const invoice of await getProjectedInvoicesByFilters({
-    teamId,
-    statuses: ["paid"],
-    currency,
-    dateField: "paidAt",
-    from,
-    to,
-  })) {
-    if (
-      !hasStringValue(invoice.customerId) ||
-      !hasStringValue(invoice.paidAt)
-    ) {
-      continue;
-    }
-
-    const current = customerRevenueMap.get(invoice.customerId) ?? {
-      customerId: invoice.customerId,
-      customerName: getProjectedCustomerName(invoice),
+  for (const row of rows) {
+    const current = customerRevenueMap.get(row.customerId) ?? {
+      customerId: row.customerId,
+      customerName: customerNames.get(row.customerId) ?? "Unknown Customer",
       revenue: 0,
     };
 
-    current.revenue += Number(invoice.amount) || 0;
-    customerRevenueMap.set(invoice.customerId, current);
+    current.revenue = roundMoney(current.revenue + row.totalAmount);
+    customerRevenueMap.set(row.customerId, current);
   }
 
   const customerRevenue = [...customerRevenueMap.values()].sort(
@@ -122,6 +142,13 @@ export async function getRevenueConcentration(
   };
 }
 
+export const getRevenueConcentration = cacheAcrossRequests({
+  keyPrefix: "revenue-concentration",
+  keyFn: (params: GetRevenueConcentrationParams) =>
+    [params.teamId, params.from, params.to, params.currency].join(":"),
+  load: getRevenueConcentrationImpl,
+});
+
 export type GetTopRevenueClientParams = {
   teamId: string;
 };
@@ -149,70 +176,19 @@ export type GetCustomerLifetimeValueParams = {
   currency?: string;
 };
 
-export async function getCustomerLifetimeValue(
+async function getCustomerLifetimeValueImpl(
   _db: Database,
   params: GetCustomerLifetimeValueParams,
 ) {
   const { teamId, currency } = params;
-  const grouped = new Map<
-    string,
-    {
-      customerId: string;
-      customerName: string;
-      totalRevenue: number;
-      invoiceCount: number;
-      firstInvoiceDate: string;
-      lastInvoiceDate: string;
-      currency: string | null;
-    }
-  >();
-
-  for (const invoice of await getProjectedInvoicesByFilters({
+  const rows = await getInvoiceCustomerDateAggregateRowsFromConvex({
     teamId,
-    statuses: ["paid", "unpaid", "overdue"],
-    currency,
-  })) {
-    if (
-      !hasStringValue(invoice.customerId) ||
-      !REVENUE_INVOICE_STATUSES.has(invoice.status)
-    ) {
-      continue;
-    }
+    statuses: [...CUSTOMER_REVENUE_STATUSES],
+    dateField: "createdAt",
+    currency: currency ?? null,
+  });
 
-    const invoiceCurrency = invoice.currency ?? null;
-
-    if (currency && invoiceCurrency !== currency) {
-      continue;
-    }
-
-    const key = `${invoice.customerId}:${invoiceCurrency ?? "__null__"}`;
-    const current = grouped.get(key) ?? {
-      customerId: invoice.customerId,
-      customerName: getProjectedCustomerName(invoice),
-      totalRevenue: 0,
-      invoiceCount: 0,
-      firstInvoiceDate: invoice.createdAt,
-      lastInvoiceDate: invoice.createdAt,
-      currency: invoiceCurrency,
-    };
-
-    current.totalRevenue += Number(invoice.amount) || 0;
-    current.invoiceCount += 1;
-
-    if (invoice.createdAt < current.firstInvoiceDate) {
-      current.firstInvoiceDate = invoice.createdAt;
-    }
-
-    if (invoice.createdAt > current.lastInvoiceDate) {
-      current.lastInvoiceDate = invoice.createdAt;
-    }
-
-    grouped.set(key, current);
-  }
-
-  const customerValues = [...grouped.values()];
-
-  if (customerValues.length === 0) {
+  if (rows.length === 0) {
     return {
       summary: {
         averageCLV: 0,
@@ -229,6 +205,52 @@ export async function getCustomerLifetimeValue(
       },
     };
   }
+
+  const customerNames = await getCustomerNameMap(
+    teamId,
+    rows.map((row) => row.customerId),
+  );
+  const grouped = new Map<
+    string,
+    {
+      customerId: string;
+      customerName: string;
+      totalRevenue: number;
+      invoiceCount: number;
+      firstInvoiceDate: string;
+      lastInvoiceDate: string;
+      currency: string | null;
+    }
+  >();
+
+  for (const row of rows) {
+    const invoiceCurrency = row.currency ?? null;
+    const key = `${row.customerId}:${invoiceCurrency ?? "__null__"}`;
+    const current = grouped.get(key) ?? {
+      customerId: row.customerId,
+      customerName: customerNames.get(row.customerId) ?? "Unknown Customer",
+      totalRevenue: 0,
+      invoiceCount: 0,
+      firstInvoiceDate: row.date,
+      lastInvoiceDate: row.date,
+      currency: invoiceCurrency,
+    };
+
+    current.totalRevenue = roundMoney(current.totalRevenue + row.totalAmount);
+    current.invoiceCount += row.invoiceCount;
+
+    if (row.date < current.firstInvoiceDate) {
+      current.firstInvoiceDate = row.date;
+    }
+
+    if (row.date > current.lastInvoiceDate) {
+      current.lastInvoiceDate = row.date;
+    }
+
+    grouped.set(key, current);
+  }
+
+  const customerValues = [...grouped.values()];
 
   // Calculate customer lifespans and active status
   const thirtyDaysAgo = new Date();
@@ -317,3 +339,10 @@ export async function getCustomerLifetimeValue(
     },
   };
 }
+
+export const getCustomerLifetimeValue = cacheAcrossRequests({
+  keyPrefix: "customer-lifetime-value",
+  keyFn: (params: GetCustomerLifetimeValueParams) =>
+    [params.teamId, params.currency ?? ""].join(":"),
+  load: getCustomerLifetimeValueImpl,
+});

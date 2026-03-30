@@ -12,17 +12,13 @@ import { dedupeByDb } from "../../utils/dedupe";
 import { cacheAcrossRequests } from "../../utils/short-lived-cache";
 import {
   buildMonthlyAggregateSeriesMap,
-  buildMonthlySeriesMap,
   CONTRA_REVENUE_CATEGORIES,
-  getCategoryInfo,
   getCogsCategorySlugs,
   getExcludedCategorySlugs,
   getPercentageIncrease,
   getReportTransactionAggregateRows,
-  getReportTransactionAmounts,
   getTargetCurrency,
   REVENUE_CATEGORIES,
-  roundMoney,
 } from "./shared";
 
 export type GetReportsParams = {
@@ -98,68 +94,31 @@ async function getProfitImpl(db: Database, params: GetReportsParams) {
     to: format(toDate, "yyyy-MM-dd"),
     inputCurrency,
   });
-  let cogsMap: Map<string, number>;
-  let operatingExpensesMap: Map<string, number>;
+  const negativeTransactions = aggregateData.rows.filter(
+    (row) => row.direction === "expense",
+  );
 
-  if (aggregateData) {
-    const negativeTransactions = aggregateData.rows.filter(
-      (row) => row.direction === "expense",
-    );
+  const cogsMap = buildMonthlyAggregateSeriesMap(
+    negativeTransactions.filter(
+      (row) =>
+        row.categorySlug !== null &&
+        cogsCategorySlugs.includes(row.categorySlug) &&
+        !excludedCategorySlugs.includes(row.categorySlug),
+    ),
+    (row) => Math.abs(row.totalAmount),
+  );
+  const operatingExpensesMap = buildMonthlyAggregateSeriesMap(
+    negativeTransactions.filter((row) => {
+      const slug = row.categorySlug;
 
-    cogsMap = buildMonthlyAggregateSeriesMap(
-      negativeTransactions.filter(
-        (row) =>
-          row.categorySlug !== null &&
-          cogsCategorySlugs.includes(row.categorySlug) &&
-          !excludedCategorySlugs.includes(row.categorySlug),
-      ),
-      (row) => Math.abs(row.totalAmount),
-    );
-    operatingExpensesMap = buildMonthlyAggregateSeriesMap(
-      negativeTransactions.filter((row) => {
-        const slug = row.categorySlug;
+      if (slug && excludedCategorySlugs.includes(slug)) {
+        return false;
+      }
 
-        if (slug && excludedCategorySlugs.includes(slug)) {
-          return false;
-        }
-
-        return slug === null || !cogsCategorySlugs.includes(slug);
-      }),
-      (row) => Math.abs(row.totalAmount),
-    );
-  } else {
-    const reportTransactionData = await getReportTransactionAmounts(db, {
-      teamId,
-      from: format(fromDate, "yyyy-MM-dd"),
-      to: format(toDate, "yyyy-MM-dd"),
-      inputCurrency,
-    });
-    const negativeTransactions = reportTransactionData.amounts.filter(
-      (row) => row.amount < 0,
-    );
-
-    cogsMap = buildMonthlySeriesMap(
-      negativeTransactions.filter(
-        (row) =>
-          row.transaction.categorySlug !== null &&
-          cogsCategorySlugs.includes(row.transaction.categorySlug) &&
-          !excludedCategorySlugs.includes(row.transaction.categorySlug),
-      ),
-      (row) => Math.abs(row.amount),
-    );
-    operatingExpensesMap = buildMonthlySeriesMap(
-      negativeTransactions.filter((row) => {
-        const slug = row.transaction.categorySlug;
-
-        if (slug && excludedCategorySlugs.includes(slug)) {
-          return false;
-        }
-
-        return slug === null || !cogsCategorySlugs.includes(slug);
-      }),
-      (row) => Math.abs(row.amount),
-    );
-  }
+      return slug === null || !cogsCategorySlugs.includes(slug);
+    }),
+    (row) => Math.abs(row.totalAmount),
+  );
 
   const netRevenueMap = new Map(
     netRevenueData.map((item) => [item.date, Number.parseFloat(item.value)]),
@@ -234,79 +193,28 @@ async function getRevenueImpl(db: Database, params: GetReportsParams) {
     to: format(toDate, "yyyy-MM-dd"),
     inputCurrency,
   });
-  const canUseAggregate =
-    aggregateData !== null &&
-    (revenueType !== "net" ||
-      aggregateData.rows.every((row) => row.totalNetAmount !== null));
-
   const monthSeries = eachMonthOfInterval({ start: fromDate, end: toDate });
-  let targetCurrency: string | null;
-  let monthlyData: Map<string, number>;
+  const targetCurrency = aggregateData.targetCurrency;
+  const monthlyData = buildMonthlyAggregateSeriesMap(
+    aggregateData.rows.filter((row) => {
+      const slug = row.categorySlug;
 
-  if (canUseAggregate && aggregateData) {
-    targetCurrency = aggregateData.targetCurrency;
-    monthlyData = buildMonthlyAggregateSeriesMap(
-      aggregateData.rows.filter((row) => {
-        const slug = row.categorySlug;
-
-        return (
-          row.direction === "income" &&
-          Boolean(slug) &&
-          REVENUE_CATEGORIES.includes(
-            slug as (typeof REVENUE_CATEGORIES)[number],
-          ) &&
-          !CONTRA_REVENUE_CATEGORIES.includes(
-            slug as (typeof CONTRA_REVENUE_CATEGORIES)[number],
-          )
-        );
-      }),
-      (row) =>
-        revenueType === "net"
-          ? Number(row.totalNetAmount ?? row.totalAmount)
-          : row.totalAmount,
-    );
-  } else {
-    const reportTransactionData = await getReportTransactionAmounts(db, {
-      teamId,
-      from: format(fromDate, "yyyy-MM-dd"),
-      to: format(toDate, "yyyy-MM-dd"),
-      inputCurrency,
-    });
-
-    targetCurrency = reportTransactionData.targetCurrency;
-    monthlyData = buildMonthlySeriesMap(
-      reportTransactionData.amounts.filter((row) => {
-        const slug = row.transaction.categorySlug;
-
-        return (
-          row.amount > 0 &&
-          Boolean(slug) &&
-          REVENUE_CATEGORIES.includes(
-            slug as (typeof REVENUE_CATEGORIES)[number],
-          ) &&
-          !CONTRA_REVENUE_CATEGORIES.includes(
-            slug as (typeof CONTRA_REVENUE_CATEGORIES)[number],
-          )
-        );
-      }),
-      (row) => {
-        if (revenueType !== "net") {
-          return row.amount;
-        }
-
-        const categoryInfo = getCategoryInfo(
-          row.transaction.categorySlug,
-          reportTransactionData.countryCode,
-        );
-        const effectiveTaxRate =
-          row.transaction.taxRate ?? categoryInfo?.taxRate ?? 0;
-
-        return roundMoney(
-          row.amount - (row.amount * effectiveTaxRate) / (100 + effectiveTaxRate),
-        );
-      },
-    );
-  }
+      return (
+        row.direction === "income" &&
+        Boolean(slug) &&
+        REVENUE_CATEGORIES.includes(
+          slug as (typeof REVENUE_CATEGORIES)[number],
+        ) &&
+        !CONTRA_REVENUE_CATEGORIES.includes(
+          slug as (typeof CONTRA_REVENUE_CATEGORIES)[number],
+        )
+      );
+    }),
+    (row) =>
+      revenueType === "net"
+        ? Number(row.totalNetAmount ?? row.totalAmount)
+        : row.totalAmount,
+  );
 
   const currencyStr = targetCurrency || "USD";
   const results: ReportsResultItem[] = monthSeries.map((monthStart) => {

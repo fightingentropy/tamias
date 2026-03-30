@@ -6,6 +6,7 @@ import {
   type ShortLinkRecord,
 } from "@tamias/app-data-convex";
 import type { Database } from "../client";
+import { cacheAcrossRequests } from "../utils/short-lived-cache";
 
 type ConvexUserId = CurrentUserIdentityRecord["convexId"];
 
@@ -55,11 +56,17 @@ function toCreatedShortLink(record: CreatedShortLinkRecord) {
   };
 }
 
-export async function getShortLinkByShortId(_db: Database, shortId: string) {
+async function getShortLinkByShortIdImpl(_db: Database, shortId: string) {
   const result = await getShortLinkByShortIdFromConvex({ shortId });
 
   return result ? toShortLinkRecord(result) : null;
 }
+
+export const getShortLinkByShortId = cacheAcrossRequests({
+  keyPrefix: "short-link",
+  keyFn: (shortId: string) => shortId,
+  load: getShortLinkByShortIdImpl,
+});
 
 type CreateShortLinkData = {
   url: string;

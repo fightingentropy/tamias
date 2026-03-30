@@ -1,4 +1,8 @@
 import {
+  getActiveSubscriptionForTeam,
+  getBillingOrdersPageForTeam,
+} from "@tamias/app-services/billing";
+import {
   cancelSubscriptionSchema,
   createCheckoutSchema,
   getBillingOrdersSchema,
@@ -7,7 +11,7 @@ import { createTRPCRouter, protectedProcedure } from "../init";
 import { api } from "../../utils/polar";
 import { getTeamById, updateTeamById } from "@tamias/app-data/queries";
 import { createLoggerWithContext } from "@tamias/logger";
-import { getPlanIntervalByProductId, getPlanProductId } from "@tamias/plans";
+import { getPlanProductId } from "@tamias/plans";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -50,58 +54,11 @@ export const billingRouter = createTRPCRouter({
   orders: protectedProcedure
     .input(getBillingOrdersSchema)
     .query(async ({ input, ctx: { teamId } }) => {
-      try {
-        const customer = await api.customers.getExternal({
-          externalId: teamId!,
-        });
-
-        const ordersResult = await api.orders.list({
-          customerId: customer.id,
-          page: input.cursor ? Number(input.cursor) : 1,
-          limit: input.pageSize,
-        });
-
-        const orders = ordersResult.result.items;
-        const pagination = ordersResult.result.pagination;
-
-        // Filter orders to only include those where metadata.teamId matches teamId
-        const filteredOrders = orders.filter((order) => {
-          const organizationId = order.metadata?.teamId;
-          return organizationId === teamId;
-        });
-
-        return {
-          data: filteredOrders.map((order) => ({
-            id: order.id,
-            createdAt: order.createdAt,
-            amount: {
-              amount: order.totalAmount,
-              currency: order.currency,
-            },
-            status: order.status,
-            product: {
-              name: order.product?.name || "Subscription",
-            },
-            invoiceId: order.isInvoiceGenerated ? order.id : null,
-          })),
-          meta: {
-            hasNextPage:
-              (input.cursor ? Number(input.cursor) : 1) < pagination.maxPage,
-            cursor:
-              (input.cursor ? Number(input.cursor) : 1) < pagination.maxPage
-                ? ((input.cursor ? Number(input.cursor) : 1) + 1).toString()
-                : undefined,
-          },
-        };
-      } catch {
-        return {
-          data: [],
-          meta: {
-            hasNextPage: false,
-            cursor: undefined,
-          },
-        };
-      }
+      return getBillingOrdersPageForTeam({
+        teamId: teamId!,
+        cursor: input.cursor,
+        pageSize: input.pageSize,
+      });
     }),
 
   getInvoice: protectedProcedure
@@ -200,28 +157,8 @@ export const billingRouter = createTRPCRouter({
       }
     }),
 
-  getActiveSubscription: protectedProcedure.query(
-    async ({ ctx: { teamId } }) => {
-      try {
-        const subscriptions = await api.subscriptions.list({
-          externalCustomerId: teamId!,
-        });
-
-        const active = subscriptions.result.items.find(
-          (s) => s.status === "active" || s.status === "past_due",
-        );
-
-        if (!active) {
-          return null;
-        }
-
-        const interval = getPlanIntervalByProductId(active.productId);
-
-        return { isYearly: interval === "year" };
-      } catch {
-        return null;
-      }
-    },
+  getActiveSubscription: protectedProcedure.query(async ({ ctx: { teamId } }) =>
+    getActiveSubscriptionForTeam(teamId!),
   ),
 
   getPortalUrl: protectedProcedure.mutation(async ({ ctx: { teamId } }) => {
