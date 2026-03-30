@@ -1,6 +1,6 @@
 import "server-only";
 
-import { getTagsForTeam } from "@tamias/app-services/tags";
+import { getTags } from "@tamias/app-data/queries/tags";
 import { cache } from "react";
 import { getCurrentSession, getRequestDb } from "./context";
 
@@ -14,8 +14,7 @@ export const getCurrentTeamTagsLocally = cache(async () => {
     return [];
   }
 
-  return getTagsForTeam({
-    db: requestDb,
+  return getTags(requestDb, {
     teamId: session.teamId,
   });
 });

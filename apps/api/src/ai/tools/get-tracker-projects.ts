@@ -1,5 +1,5 @@
 import { db } from "@tamias/app-data/client";
-import { getTrackerProjectsPage } from "@tamias/app-services/tracker";
+import { getTrackerProjects } from "@tamias/app-data/queries/tracker-projects";
 import { getAppUrl } from "@tamias/utils/envs";
 import { formatAmount, formatDate } from "@tamias/utils/format";
 import { tool } from "ai";
@@ -47,20 +47,17 @@ export const getTrackerProjectsTool = tool({
     }
 
     try {
-      const result = await getTrackerProjectsPage({
-        db,
+      const result = await getTrackerProjects(db, {
         teamId,
-        input: {
-          cursor: cursor ?? null,
-          sort: sort ?? null,
-          pageSize,
-          q: q ?? null,
-          start: start ?? null,
-          end: end ?? null,
-          status: status ?? null,
-          customers: customers ?? null,
-          tags: tags ?? null,
-        },
+        cursor: cursor ?? null,
+        sort: sort ?? null,
+        pageSize,
+        q: q ?? null,
+        start: start ?? null,
+        end: end ?? null,
+        status: status ?? null,
+        customers: customers ?? null,
+        tags: tags ?? null,
       });
 
       if (result.data.length === 0) {

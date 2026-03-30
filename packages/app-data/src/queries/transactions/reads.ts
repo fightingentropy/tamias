@@ -1,24 +1,25 @@
 import {
-  CONTRA_REVENUE_CATEGORIES,
-  REVENUE_CATEGORIES,
-} from "@tamias/categories";
-import {
-  getBankAccountsFromConvex,
   countTransactionsFromConvex,
+  getBankAccountsFromConvex,
   getTaggedTransactionIdsFromConvex,
+  getTaggedTransactionsFromConvex,
+  getTaggedTransactionsPageFromConvex,
   getTeamMembersFromConvexIdentity,
   getTransactionAttachmentsForTransactionIdsFromConvex,
-  getTransactionIdsForTagIdsFromConvex,
   getTransactionIdsWithAttachmentsFromConvex,
-  getTransactionTagAssignmentsForTransactionIdsFromConvex,
   getTransactionsByIdsFromConvex,
-  getTransactionsPageFromConvex,
   getTransactionsFromConvex,
+  getTransactionsPageFromConvex,
+  getTransactionTagAssignmentsForTransactionIdsFromConvex,
   type TransactionRecord,
   type TransactionStatus,
 } from "@tamias/app-data-convex";
-import type { Database } from "../../client";
+import {
+  CONTRA_REVENUE_CATEGORIES,
+  REVENUE_CATEGORIES,
+} from "@tamias/categories";
 import { resolveTaxValues } from "@tamias/utils/tax";
+import type { Database } from "../../client";
 import { getAccountingSyncStatus } from "../accounting-sync";
 import { getTransactionCategoryContext } from "../transaction-categories";
 import {
@@ -32,7 +33,6 @@ import {
   expandTransactionCategories,
   getComparableTransactionAmount,
   getFullTransactionData,
-  getPendingSuggestionTransactionIds,
   getPendingSuggestionTransactionIdsForTransactions,
   getTransactionDerivedState,
   isActiveWorkflowStatus,
@@ -124,7 +124,7 @@ function getIndexedPageOrder(sort: GetTransactionsParams["sort"]) {
 function decodeReviewPageCursor(
   cursor: string | null | undefined,
 ): ReviewPageCursorState {
-  if (!cursor || !cursor.startsWith(REVIEW_PAGE_CURSOR_PREFIX)) {
+  if (!cursor?.startsWith(REVIEW_PAGE_CURSOR_PREFIX)) {
     return {
       sourceCursor: null,
       sourceExhausted: false,
@@ -196,6 +196,42 @@ function canUseIndexedTransactionPage(args: {
     !args.assignees?.length &&
     !args.type &&
     !args.end &&
+    !args.recurring?.length &&
+    !args.amountRange?.length &&
+    !args.amount?.length &&
+    !args.manual &&
+    args.exported !== true &&
+    args.fulfilled == null
+  );
+}
+
+function canUseIndexedTaggedTransactionPage(args: {
+  sort: GetTransactionsParams["sort"];
+  q: GetTransactionsParams["q"];
+  statuses: GetTransactionsParams["statuses"];
+  attachments: GetTransactionsParams["attachments"];
+  categories: GetTransactionsParams["categories"];
+  tags: GetTransactionsParams["tags"];
+  accounts: GetTransactionsParams["accounts"];
+  assignees: GetTransactionsParams["assignees"];
+  type: GetTransactionsParams["type"];
+  recurring: GetTransactionsParams["recurring"];
+  amountRange: GetTransactionsParams["amountRange"];
+  amount: GetTransactionsParams["amount"];
+  manual: GetTransactionsParams["manual"];
+  exported: GetTransactionsParams["exported"];
+  fulfilled: GetTransactionsParams["fulfilled"];
+}) {
+  return (
+    getIndexedPageOrder(args.sort) !== null &&
+    !args.q &&
+    !args.statuses?.length &&
+    !args.attachments &&
+    !args.categories?.length &&
+    Boolean(args.tags?.length) &&
+    !args.accounts?.length &&
+    !args.assignees?.length &&
+    !args.type &&
     !args.recurring?.length &&
     !args.amountRange?.length &&
     !args.amount?.length &&
@@ -434,8 +470,8 @@ async function buildProcessedTransactionPage(args: {
       return {
         ...transaction,
         hasPendingSuggestion:
-          derivedStateByTransactionId.get(transaction.id)?.hasPendingSuggestion ??
-          false,
+          derivedStateByTransactionId.get(transaction.id)
+            ?.hasPendingSuggestion ?? false,
         attachments: currentAttachments.map((attachment) => ({
           id: attachment.id,
           filename: attachment.name,
@@ -446,8 +482,7 @@ async function buildProcessedTransactionPage(args: {
         isFulfilled:
           transactionIdsWithAttachments.has(transaction.id) ||
           transaction.status === "completed",
-        isExported:
-          transaction.status === "exported" || Boolean(syncedRecord),
+        isExported: transaction.status === "exported" || Boolean(syncedRecord),
         exportProvider: syncedRecord?.provider ?? null,
         exportedAt: syncedRecord?.syncedAt ?? null,
         hasExportError: Boolean(errorRecord),
@@ -482,7 +517,10 @@ async function getIndexedReviewTransactionPage(args: {
   let bufferedIds = [...cursorState.bufferedIds];
   const eligibleTransactions: TransactionRecord[] = [];
 
-  while (eligibleTransactions.length <= args.pageSize && bufferedIds.length > 0) {
+  while (
+    eligibleTransactions.length <= args.pageSize &&
+    bufferedIds.length > 0
+  ) {
     const bufferedTransactions = await getTransactionsByIdsInOrder({
       teamId: args.teamId,
       transactionIds: bufferedIds.slice(
@@ -529,7 +567,9 @@ async function getIndexedReviewTransactionPage(args: {
 
   const transactions = eligibleTransactions.slice(0, args.pageSize);
   const nextBufferedIds = [
-    ...eligibleTransactions.slice(args.pageSize).map((transaction) => transaction.id),
+    ...eligibleTransactions
+      .slice(args.pageSize)
+      .map((transaction) => transaction.id),
     ...bufferedIds,
   ];
   const hasNextPage = nextBufferedIds.length > 0;
@@ -613,6 +653,46 @@ export async function getTransactions(
   }
 
   if (
+    canUseIndexedTaggedTransactionPage({
+      sort,
+      q,
+      statuses,
+      attachments,
+      categories: filterCategories,
+      tags: filterTags,
+      accounts: filterAccounts,
+      assignees: filterAssignees,
+      type,
+      recurring: filterRecurring,
+      amountRange: filterAmountRange,
+      amount: filterAmount,
+      manual: filterManual,
+      exported,
+      fulfilled,
+    })
+  ) {
+    const indexedPage = await getTaggedTransactionsPageFromConvex({
+      teamId,
+      tagIds: filterTags ?? [],
+      cursor,
+      pageSize,
+      order: getIndexedPageOrder(sort) ?? undefined,
+      dateGte: start ?? undefined,
+      dateLte: end ?? undefined,
+      statusesNotIn: convexStatusesNotIn,
+    });
+
+    return buildProcessedTransactionPage({
+      db,
+      teamId,
+      transactions: indexedPage.page,
+      cursor,
+      nextCursor: indexedPage.isDone ? undefined : indexedPage.continueCursor,
+      hasNextPage: !indexedPage.isDone,
+    });
+  }
+
+  if (
     canUseIndexedTransactionPage({
       sort,
       q,
@@ -652,30 +732,37 @@ export async function getTransactions(
   }
 
   const convexBankAccountId =
-    filterAccounts && filterAccounts.length === 1 ? filterAccounts[0] : undefined;
+    filterAccounts && filterAccounts.length === 1
+      ? filterAccounts[0]
+      : undefined;
   const [
     teamMembers,
-    accountingSyncRecords,
     categoryContext,
     bankAccounts,
-    pendingSuggestionIds,
-    attachmentTransactionIds,
     allTransactions,
     taggedTransactionIdsForSort,
   ] = await Promise.all([
     getTeamMembersFromConvexIdentity({ teamId }),
-    getAccountingSyncStatus(db, { teamId }),
     getTransactionCategoryContext(db, teamId),
     getBankAccountsFromConvex({ teamId }),
-    getPendingSuggestionTransactionIds(db, teamId),
-    getTransactionIdsWithAttachmentsFromConvex({ teamId }),
-    getTransactionsFromConvex({
-      teamId,
-      bankAccountId: convexBankAccountId,
-      dateGte: start ?? undefined,
-      statusesNotIn: convexStatusesNotIn,
-    }),
-    sort?.[0] === "tags" ? getTaggedTransactionIdsFromConvex({ teamId }) : [],
+    filterTags && filterTags.length > 0
+      ? getTaggedTransactionsFromConvex({
+          teamId,
+          tagIds: filterTags,
+          dateGte: start ?? undefined,
+          dateLte: end ?? undefined,
+          statusesNotIn: convexStatusesNotIn,
+        })
+      : getTransactionsFromConvex({
+          teamId,
+          bankAccountId: convexBankAccountId,
+          dateGte: start ?? undefined,
+          dateLte: end ?? undefined,
+          statusesNotIn: convexStatusesNotIn,
+        }),
+    sort?.[0] === "tags" && (!filterTags || filterTags.length === 0)
+      ? getTaggedTransactionIdsFromConvex({ teamId })
+      : [],
   ]);
   const assignedUserById = buildAssignedUserLookup(teamMembers);
   const orderedAssigneeIds = [...assignedUserById.values()]
@@ -697,115 +784,13 @@ export async function getTransactions(
   const bankAccountsById = new Map(
     bankAccounts.map((account) => [account.id, account]),
   );
-
-  const {
-    syncedByTransactionId,
-    errorByTransactionId,
-    syncedTransactionIds,
-    errorTransactionIds,
-  } = buildAccountingSyncLookups(accountingSyncRecords);
-  const syncedTransactionIdSet = new Set(syncedTransactionIds);
-  const errorTransactionIdSet = new Set(errorTransactionIds);
-  const attachmentTransactionIdSet = new Set(attachmentTransactionIds);
   const taggedTransactionIdSet = new Set(taggedTransactionIdsForSort);
-  const filterTaggedTransactionIds =
-    filterTags && filterTags.length > 0
-      ? new Set(
-          await getTransactionIdsForTagIdsFromConvex({
-            teamId,
-            tagIds: filterTags,
-          }),
-        )
-      : null;
 
-  if (filterTaggedTransactionIds && filterTaggedTransactionIds.size === 0) {
-    return {
-      meta: {
-        cursor: undefined,
-        hasPreviousPage: false,
-        hasNextPage: false,
-      },
-      data: [],
-    };
-  }
-
-  const derivedStateByTransactionId = new Map(
-    allTransactions.map((transaction) => [
-      transaction.id,
-      getTransactionDerivedState(transaction, {
-        pendingSuggestionIds,
-        attachmentTransactionIds: attachmentTransactionIdSet,
-        syncedTransactionIds: syncedTransactionIdSet,
-        errorTransactionIds: errorTransactionIdSet,
-      }),
-    ]),
-  );
-
-  const filteredTransactions = allTransactions
+  const prefilteredTransactions = allTransactions
     .filter((transaction) => (end ? transaction.date <= end : true))
     .filter((transaction) =>
       q ? matchesTransactionSearchQuery(transaction, q) : true,
     )
-    .filter((transaction) => {
-      const derived = derivedStateByTransactionId.get(transaction.id)!;
-
-      if (attachments === "include") {
-        return derived.isFulfilled;
-      }
-
-      if (attachments === "exclude") {
-        return !derived.isFulfilled;
-      }
-
-      return true;
-    })
-    .filter((transaction) => {
-      const derived = derivedStateByTransactionId.get(transaction.id)!;
-
-      if (!statuses || statuses.length === 0) {
-        return isActiveWorkflowStatus(transaction.status);
-      }
-
-      return statuses.some((status) => {
-        switch (status) {
-          case "blank":
-            return (
-              isActiveWorkflowStatus(transaction.status) &&
-              !derived.isFulfilled &&
-              !derived.isExported &&
-              !derived.hasExportError
-            );
-          case "receipt_match":
-            return (
-              isActiveWorkflowStatus(transaction.status) &&
-              derived.hasPendingSuggestion &&
-              !derived.isFulfilled &&
-              !derived.isExported
-            );
-          case "in_review":
-            return (
-              isActiveWorkflowStatus(transaction.status) &&
-              derived.isFulfilled &&
-              !derived.isExported &&
-              !derived.hasExportError
-            );
-          case "export_error":
-            return (
-              isActiveWorkflowStatus(transaction.status) &&
-              derived.hasExportError &&
-              !derived.isExported
-            );
-          case "exported":
-            return derived.isExported;
-          case "excluded":
-            return transaction.status === "excluded";
-          case "archived":
-            return transaction.status === "archived";
-          default:
-            return false;
-        }
-      });
-    })
     .filter((transaction) => {
       if (!filterCategories || filterCategories.length === 0) {
         return true;
@@ -828,11 +813,6 @@ export async function getTransactions(
         ? expandedSlugs.has(transaction.categorySlug)
         : false;
     })
-    .filter((transaction) =>
-      filterTaggedTransactionIds
-        ? filterTaggedTransactionIds.has(transaction.id)
-        : true,
-    )
     .filter((transaction) => {
       if (!filterRecurring || filterRecurring.length === 0) {
         return true;
@@ -961,6 +941,120 @@ export async function getTransactions(
       }
 
       return true;
+    });
+
+  if (prefilteredTransactions.length === 0) {
+    return {
+      meta: {
+        cursor: undefined,
+        hasPreviousPage: false,
+        hasNextPage: false,
+      },
+      data: [],
+    };
+  }
+
+  const candidateTransactionIds = prefilteredTransactions.map(
+    (transaction) => transaction.id,
+  );
+  const [accountingSyncRecords, pendingSuggestionIds, attachmentTransactionIds] =
+    await Promise.all([
+      getAccountingSyncStatus(db, {
+        teamId,
+        transactionIds: candidateTransactionIds,
+      }),
+      getPendingSuggestionTransactionIdsForTransactions(db, {
+        teamId,
+        transactionIds: candidateTransactionIds,
+      }),
+      getTransactionIdsWithAttachmentsFromConvex({
+        teamId,
+        transactionIds: candidateTransactionIds,
+      }),
+    ]);
+
+  const {
+    syncedByTransactionId,
+    errorByTransactionId,
+    syncedTransactionIds,
+    errorTransactionIds,
+  } = buildAccountingSyncLookups(accountingSyncRecords);
+  const syncedTransactionIdSet = new Set(syncedTransactionIds);
+  const errorTransactionIdSet = new Set(errorTransactionIds);
+  const attachmentTransactionIdSet = new Set(attachmentTransactionIds);
+
+  const derivedStateByTransactionId = new Map(
+    prefilteredTransactions.map((transaction) => [
+      transaction.id,
+      getTransactionDerivedState(transaction, {
+        pendingSuggestionIds,
+        attachmentTransactionIds: attachmentTransactionIdSet,
+        syncedTransactionIds: syncedTransactionIdSet,
+        errorTransactionIds: errorTransactionIdSet,
+      }),
+    ]),
+  );
+
+  const filteredTransactions = prefilteredTransactions
+    .filter((transaction) => {
+      const derived = derivedStateByTransactionId.get(transaction.id)!;
+
+      if (attachments === "include") {
+        return derived.isFulfilled;
+      }
+
+      if (attachments === "exclude") {
+        return !derived.isFulfilled;
+      }
+
+      return true;
+    })
+    .filter((transaction) => {
+      const derived = derivedStateByTransactionId.get(transaction.id)!;
+
+      if (!statuses || statuses.length === 0) {
+        return isActiveWorkflowStatus(transaction.status);
+      }
+
+      return statuses.some((status) => {
+        switch (status) {
+          case "blank":
+            return (
+              isActiveWorkflowStatus(transaction.status) &&
+              !derived.isFulfilled &&
+              !derived.isExported &&
+              !derived.hasExportError
+            );
+          case "receipt_match":
+            return (
+              isActiveWorkflowStatus(transaction.status) &&
+              derived.hasPendingSuggestion &&
+              !derived.isFulfilled &&
+              !derived.isExported
+            );
+          case "in_review":
+            return (
+              isActiveWorkflowStatus(transaction.status) &&
+              derived.isFulfilled &&
+              !derived.isExported &&
+              !derived.hasExportError
+            );
+          case "export_error":
+            return (
+              isActiveWorkflowStatus(transaction.status) &&
+              derived.hasExportError &&
+              !derived.isExported
+            );
+          case "exported":
+            return derived.isExported;
+          case "excluded":
+            return transaction.status === "excluded";
+          case "archived":
+            return transaction.status === "archived";
+          default:
+            return false;
+        }
+      });
     })
     .filter((transaction) => {
       const derived = derivedStateByTransactionId.get(transaction.id)!;

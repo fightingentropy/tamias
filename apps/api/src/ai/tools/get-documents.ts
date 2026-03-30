@@ -1,5 +1,5 @@
 import { db } from "@tamias/app-data/client";
-import { getDocumentsPage } from "@tamias/app-services/documents";
+import { getDocuments } from "@tamias/app-data/queries/documents";
 import { getAppUrl } from "@tamias/utils/envs";
 import { formatDate } from "@tamias/utils/format";
 import { tool } from "ai";
@@ -34,17 +34,14 @@ export const getDocumentsTool = tool({
     }
 
     try {
-      const result = await getDocumentsPage({
-        db,
+      const result = await getDocuments(db, {
         teamId,
-        input: {
-          cursor: cursor ?? null,
-          pageSize,
-          q: q ?? null,
-          tags: tags ?? null,
-          start: start ?? null,
-          end: end ?? null,
-        },
+        cursor: cursor ?? null,
+        pageSize,
+        q: q ?? null,
+        tags: tags ?? null,
+        start: start ?? null,
+        end: end ?? null,
       });
 
       if (result.data.length === 0) {

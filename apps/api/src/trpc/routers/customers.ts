@@ -1,4 +1,21 @@
 import {
+  clearCustomerEnrichment,
+  deleteCustomer,
+  getCustomerById,
+  getCustomerInvoiceSummary,
+  getCustomers,
+  toggleCustomerPortal,
+  updateCustomerEnrichmentStatus,
+  upsertCustomer,
+} from "@tamias/app-data/queries";
+import {
+  getCustomerPortalData,
+  getCustomerPortalInvoicesPage,
+} from "@tamias/app-services/public-reads";
+import { enqueue } from "@tamias/job-client";
+import { createLoggerWithContext } from "@tamias/logger";
+import { TRPCError } from "@trpc/server";
+import {
   deleteCustomerSchema,
   enrichCustomerSchema,
   getCustomerByIdSchema,
@@ -10,24 +27,6 @@ import {
   upsertCustomerSchema,
 } from "../../schemas/customers";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../init";
-import {
-  getCustomerPortalData,
-  getCustomerPortalInvoicesPage,
-} from "@tamias/app-services/public-reads";
-import { getCustomersPage } from "@tamias/app-services/customers";
-import {
-  clearCustomerEnrichment,
-  deleteCustomer,
-  getCustomerById,
-  getCustomerInvoiceSummary,
-  getCustomers,
-  toggleCustomerPortal,
-  updateCustomerEnrichmentStatus,
-  upsertCustomer,
-} from "@tamias/app-data/queries";
-import { enqueue } from "@tamias/job-client";
-import { createLoggerWithContext } from "@tamias/logger";
-import { TRPCError } from "@trpc/server";
 
 const logger = createLoggerWithContext("trpc:customers");
 
@@ -35,10 +34,9 @@ export const customersRouter = createTRPCRouter({
   get: protectedProcedure
     .input(getCustomersSchema.optional())
     .query(async ({ ctx: { teamId, db }, input }) => {
-      return getCustomersPage({
-        db,
+      return getCustomers(db, {
         teamId: teamId!,
-        input,
+        ...input,
       });
     }),
 

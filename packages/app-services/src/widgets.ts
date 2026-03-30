@@ -11,8 +11,8 @@ import {
   getOverdueInvoicesAlert,
   getProfitMargin,
   getRecentDocuments,
-  getReports,
   getRecurringExpenses,
+  getReports,
   getRevenueForecast,
   getRunway,
   getSpending,
@@ -21,12 +21,11 @@ import {
   getTopRevenueClient,
   getTrackedTime,
 } from "@tamias/app-data/queries";
+import { getPaymentStatus } from "@tamias/app-data/queries/invoices";
 import { api } from "@tamias/convex-model/api";
 import type { Id } from "@tamias/convex-model/data-model";
 import type { WidgetType } from "@tamias/domain";
-import { format } from "date-fns";
 import { getConvexServiceKey, getSharedConvexClient } from "./convex-client";
-import { getInvoicePaymentStatusForTeam } from "./invoices";
 
 function serviceArgs<T extends Record<string, unknown>>(args: T) {
   return {
@@ -541,10 +540,7 @@ export async function getContextualHydratableWidgetData(args: {
         weekStartsOnMonday: args.weekStartsOnMonday,
       });
     case "invoice-payment-score":
-      return getInvoicePaymentStatusForTeam({
-        db: args.db,
-        teamId: args.teamId,
-      });
+      return getPaymentStatus(args.db, args.teamId);
     default:
       return null;
   }

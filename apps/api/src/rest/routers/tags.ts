@@ -1,4 +1,11 @@
-import type { Context } from "../types";
+import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import {
+  createTag,
+  deleteTag,
+  getTagById,
+  updateTag,
+} from "@tamias/app-data/queries";
+import { getTags } from "@tamias/app-data/queries/tags";
 import {
   createTagSchema,
   deleteTagSchema,
@@ -7,15 +14,8 @@ import {
   updateTagSchema,
 } from "../../schemas/tags";
 import { validateResponse } from "../../utils/validate-response";
-import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
-import {
-  createTag,
-  deleteTag,
-  getTagById,
-  updateTag,
-} from "@tamias/app-data/queries";
-import { getTagsForTeam } from "@tamias/app-services/tags";
 import { withRequiredScope } from "../middleware";
+import type { Context } from "../types";
 
 const app = new OpenAPIHono<Context>();
 
@@ -44,7 +44,7 @@ app.openapi(
     const db = c.get("db");
     const teamId = c.get("teamId");
 
-    const result = await getTagsForTeam({ db, teamId });
+    const result = await getTags(db, { teamId });
 
     return c.json(
       validateResponse(

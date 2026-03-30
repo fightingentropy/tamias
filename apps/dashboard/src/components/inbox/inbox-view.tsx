@@ -73,7 +73,15 @@ export function InboxView() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useSuspenseInfiniteQuery({
       ...infiniteQueryOptions,
-      refetchInterval: 5_000,
+      refetchInterval: (query) => {
+        const items =
+          query.state.data?.pages.flatMap((page) => page.data) ?? [];
+        const hasProcessingItems = items.some((item) =>
+          ["processing", "pending", "analyzing"].includes(item.status ?? ""),
+        );
+
+        return wasJustConnected || hasProcessingItems ? 5_000 : false;
+      },
     });
 
   const tableData = useMemo(() => {
@@ -144,7 +152,10 @@ export function InboxView() {
         });
       }
 
-      if (item.status === "suggested_match" && previousStatus !== "suggested_match") {
+      if (
+        item.status === "suggested_match" &&
+        previousStatus !== "suggested_match"
+      ) {
         playMatchSound();
       }
 
@@ -161,7 +172,14 @@ export function InboxView() {
     }
 
     previousItemsRef.current = currentItems;
-  }, [params.inboxId, playMatchSound, queryClient, tableData, trpc.inbox.getById, trpc.transactions.get]);
+  }, [
+    params.inboxId,
+    playMatchSound,
+    queryClient,
+    tableData,
+    trpc.inbox.getById,
+    trpc.transactions.get,
+  ]);
 
   const rowVirtualizer = useVirtualizer({
     count: tableData.length,

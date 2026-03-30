@@ -1,16 +1,15 @@
-import { getCustomerPageSummaryForTeam } from "@tamias/app-services/customers";
 import {
   getAverageDaysToPayment,
   getAverageInvoiceSize,
 } from "@tamias/app-data/queries";
+import { getCustomerPageSummary } from "@tamias/app-data/queries/customer-summary";
 import { protectedProcedure } from "../init";
 
 export const invoiceAnalyticsProcedures = {
   mostActiveClient: protectedProcedure.query(
     async ({ ctx: { db, teamId } }) => {
       return (
-        await getCustomerPageSummaryForTeam({
-          db,
+        await getCustomerPageSummary(db, {
           teamId: teamId!,
         })
       ).mostActiveClient;
@@ -20,8 +19,7 @@ export const invoiceAnalyticsProcedures = {
   inactiveClientsCount: protectedProcedure.query(
     async ({ ctx: { db, teamId } }) => {
       return (
-        await getCustomerPageSummaryForTeam({
-          db,
+        await getCustomerPageSummary(db, {
           teamId: teamId!,
         })
       ).inactiveClientsCount;
@@ -43,8 +41,7 @@ export const invoiceAnalyticsProcedures = {
   topRevenueClient: protectedProcedure.query(
     async ({ ctx: { db, teamId } }) => {
       return (
-        await getCustomerPageSummaryForTeam({
-          db,
+        await getCustomerPageSummary(db, {
           teamId: teamId!,
         })
       ).topRevenueClient;
@@ -54,8 +51,7 @@ export const invoiceAnalyticsProcedures = {
   newCustomersCount: protectedProcedure.query(
     async ({ ctx: { db, teamId } }) => {
       return (
-        await getCustomerPageSummaryForTeam({
-          db,
+        await getCustomerPageSummary(db, {
           teamId: teamId!,
         })
       ).newCustomersCount;

@@ -283,7 +283,7 @@ export function findForbiddenApiPackageImports(rootDir: string): string[] {
       const relativePath = normalizePath(rootDir, pathname);
       if (
         isInside(relativePath, "apps/api") ||
-        isInside(relativePath, "packages/api-contracts")
+        isInside(relativePath, "packages/trpc")
       ) {
         return null;
       }
@@ -373,7 +373,7 @@ export function findMissingInternalWorkspaceDependencies(
   const workspaces = listWorkspacePackages(rootDir);
 
   return walkSourceFiles(rootDir)
-    .map((pathname) => {
+    .flatMap((pathname) => {
       const owner = getWorkspacePackageForFile(rootDir, workspaces, pathname);
       if (!owner) {
         return [];
@@ -397,7 +397,6 @@ export function findMissingInternalWorkspaceDependencies(
 
       return missingDependencies;
     })
-    .flat()
     .sort();
 }
 
@@ -578,7 +577,7 @@ function main() {
       apiAliasViolations,
     ),
     formatViolations(
-      "Forbidden direct @tamias/api imports found outside apps/api and packages/api-contracts:",
+      "Forbidden direct @tamias/api imports found outside apps/api and packages/trpc:",
       apiPackageViolations,
     ),
     formatViolations(

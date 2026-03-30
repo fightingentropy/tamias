@@ -1,7 +1,9 @@
 import "server-only";
 
-import { getTrackerProjectsPage } from "@tamias/app-services/tracker";
-import type { GetTrackerProjectsParams } from "@tamias/app-data/queries/tracker-projects";
+import {
+  type GetTrackerProjectsParams,
+  getTrackerProjects,
+} from "@tamias/app-data/queries/tracker-projects";
 import { cache } from "react";
 import { getCurrentSession, getRequestDb } from "./context";
 
@@ -23,10 +25,9 @@ export const getTrackerProjectsLocally = cache(
       };
     }
 
-    return getTrackerProjectsPage({
-      db: requestDb,
+    return getTrackerProjects(requestDb, {
       teamId: session.teamId,
-      input,
+      ...input,
     });
   },
 );

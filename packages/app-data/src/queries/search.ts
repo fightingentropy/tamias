@@ -2,7 +2,11 @@ import {
   getCustomersPageFromConvex,
   getDocumentsPageFromConvex,
   getPublicInvoicesPageFromConvex,
+  searchCustomersFromConvex,
+  searchDocumentsFromConvex,
+  searchPublicInvoicesFromConvex,
   getTrackerProjectsPageFromConvex,
+  searchTrackerProjectsFromConvex,
   getTransactionsPageFromConvex,
   type CustomerRecord,
   type DocumentRecord,
@@ -546,13 +550,45 @@ function toTransactionCandidate(
 }
 
 async function loadCustomerCandidates(params: SearchCandidateLoadParams) {
+  const itemsPerTableLimit = params.itemsPerTableLimit ?? 5;
+
+  if (params.searchTerm) {
+    const records = await searchCustomersFromConvex({
+      teamId: params.teamId,
+      query: params.searchTerm,
+      status: params.status,
+      limit: Math.min(Math.max(itemsPerTableLimit * 8, 80), 200),
+    });
+    const matches: SearchCandidate[] = [];
+
+    for (const customer of records) {
+      if (customer.isArchived) {
+        continue;
+      }
+
+      const candidate = toCustomerCandidate(customer);
+
+      if (!matchesSemanticCandidate(candidate, params)) {
+        continue;
+      }
+
+      matches.push(candidate);
+
+      if (matches.length >= itemsPerTableLimit) {
+        break;
+      }
+    }
+
+    return matches;
+  }
+
   const pageSize = getSearchPageSize({
     searchTerm: params.searchTerm,
-    itemsPerTableLimit: params.itemsPerTableLimit ?? 5,
+    itemsPerTableLimit,
   });
 
   return collectSearchMatches({
-    itemsPerTableLimit: params.itemsPerTableLimit ?? 5,
+    itemsPerTableLimit,
     pageSize,
     loadPage: (cursor) =>
       getCustomersPageFromConvex({
@@ -568,13 +604,44 @@ async function loadCustomerCandidates(params: SearchCandidateLoadParams) {
 }
 
 async function loadDocumentCandidates(params: SearchCandidateLoadParams) {
+  const itemsPerTableLimit = params.itemsPerTableLimit ?? 5;
+
+  if (params.searchTerm) {
+    const records = await searchDocumentsFromConvex({
+      teamId: params.teamId,
+      query: params.searchTerm,
+      limit: Math.min(Math.max(itemsPerTableLimit * 8, 80), 200),
+    });
+    const matches: SearchCandidate[] = [];
+
+    for (const document of records) {
+      if (!isSearchableDocument(document)) {
+        continue;
+      }
+
+      const candidate = toDocumentCandidate(document);
+
+      if (!matchesSemanticCandidate(candidate, params)) {
+        continue;
+      }
+
+      matches.push(candidate);
+
+      if (matches.length >= itemsPerTableLimit) {
+        break;
+      }
+    }
+
+    return matches;
+  }
+
   const pageSize = getSearchPageSize({
     searchTerm: params.searchTerm,
-    itemsPerTableLimit: params.itemsPerTableLimit ?? 5,
+    itemsPerTableLimit,
   });
 
   return collectSearchMatches({
-    itemsPerTableLimit: params.itemsPerTableLimit ?? 5,
+    itemsPerTableLimit,
     pageSize,
     loadPage: (cursor) =>
       getDocumentsPageFromConvex({
@@ -589,18 +656,68 @@ async function loadDocumentCandidates(params: SearchCandidateLoadParams) {
   });
 }
 
+async function loadIndexedInvoiceCandidates(args: {
+  teamId: string;
+  searchTerm: string;
+  itemsPerTableLimit: number;
+  status?: InvoiceStatus;
+  matchesCandidate: (candidate: SearchCandidate) => boolean;
+}) {
+  const records = await searchPublicInvoicesFromConvex({
+    teamId: args.teamId,
+    query: args.searchTerm,
+    status: args.status,
+    limit: Math.min(Math.max(args.itemsPerTableLimit * 8, 80), 200),
+  });
+  const matches: SearchCandidate[] = [];
+
+  for (const record of records) {
+    const projected = getProjectedInvoicePayload(record);
+
+    if (!projected || projected.teamId !== args.teamId) {
+      continue;
+    }
+
+    const candidate = toInvoiceCandidate(projected);
+
+    if (!args.matchesCandidate(candidate)) {
+      continue;
+    }
+
+    matches.push(candidate);
+
+    if (matches.length >= args.itemsPerTableLimit) {
+      break;
+    }
+  }
+
+  return matches;
+}
+
 async function loadInvoiceCandidates(params: SearchCandidateLoadParams) {
   const statusFilter =
     params.status && INVOICE_SEARCH_STATUSES.has(params.status as InvoiceStatus)
       ? (params.status as InvoiceStatus)
       : undefined;
+  const itemsPerTableLimit = params.itemsPerTableLimit ?? 5;
+
+  if (params.searchTerm) {
+    return loadIndexedInvoiceCandidates({
+      teamId: params.teamId,
+      searchTerm: params.searchTerm,
+      itemsPerTableLimit,
+      status: statusFilter,
+      matchesCandidate: (candidate) => matchesSemanticCandidate(candidate, params),
+    });
+  }
+
   const pageSize = getSearchPageSize({
     searchTerm: params.searchTerm,
-    itemsPerTableLimit: params.itemsPerTableLimit ?? 5,
+    itemsPerTableLimit,
   });
 
   return collectSearchMatches({
-    itemsPerTableLimit: params.itemsPerTableLimit ?? 5,
+    itemsPerTableLimit,
     pageSize,
     loadPage: (cursor) =>
       getPublicInvoicesPageFromConvex({
@@ -622,19 +739,52 @@ async function loadInvoiceCandidates(params: SearchCandidateLoadParams) {
 }
 
 async function loadTrackerProjectCandidates(params: SearchCandidateLoadParams) {
+  const itemsPerTableLimit = params.itemsPerTableLimit ?? 5;
+  const statusFilter =
+    params.status && TRACKER_PROJECT_SEARCH_STATUSES.has(params.status)
+      ? (params.status as "in_progress" | "completed")
+      : undefined;
+
+  if (params.searchTerm) {
+    const records = await searchTrackerProjectsFromConvex({
+      teamId: params.teamId,
+      query: params.searchTerm,
+      status: statusFilter,
+      limit: Math.min(Math.max(itemsPerTableLimit * 8, 80), 200),
+    });
+    const matches: SearchCandidate[] = [];
+
+    for (const project of records) {
+      const candidate = toTrackerProjectCandidate(project);
+
+      if (!matchesSemanticCandidate(candidate, params)) {
+        continue;
+      }
+
+      matches.push(candidate);
+
+      if (matches.length >= itemsPerTableLimit) {
+        break;
+      }
+    }
+
+    return matches;
+  }
+
   const pageSize = getSearchPageSize({
     searchTerm: params.searchTerm,
-    itemsPerTableLimit: params.itemsPerTableLimit ?? 5,
+    itemsPerTableLimit,
   });
 
   return collectSearchMatches({
-    itemsPerTableLimit: params.itemsPerTableLimit ?? 5,
+    itemsPerTableLimit,
     pageSize,
     loadPage: (cursor) =>
       getTrackerProjectsPageFromConvex({
         teamId: params.teamId,
         cursor,
         pageSize,
+        status: statusFilter,
         order: "desc",
       }),
     toCandidate: (project) => toTrackerProjectCandidate(project),
@@ -754,6 +904,35 @@ async function collectSearchMatches<TRecord>(args: {
 }
 
 async function loadRawCustomerCandidates(params: RawSearchCandidateLoadParams) {
+  if (params.searchTerm) {
+    const records = await searchCustomersFromConvex({
+      teamId: params.teamId,
+      query: params.searchTerm,
+      limit: Math.min(Math.max(params.itemsPerTableLimit * 8, 80), 200),
+    });
+    const matches: SearchCandidate[] = [];
+
+    for (const customer of records) {
+      if (customer.isArchived) {
+        continue;
+      }
+
+      const candidate = toCustomerCandidate(customer);
+
+      if (!matchesSearchTerm(candidate, params.searchTerm)) {
+        continue;
+      }
+
+      matches.push(candidate);
+
+      if (matches.length >= params.itemsPerTableLimit) {
+        break;
+      }
+    }
+
+    return matches;
+  }
+
   const pageSize = getSearchPageSize(params);
 
   return collectSearchMatches({
@@ -774,6 +953,35 @@ async function loadRawCustomerCandidates(params: RawSearchCandidateLoadParams) {
 }
 
 async function loadRawDocumentCandidates(params: RawSearchCandidateLoadParams) {
+  if (params.searchTerm) {
+    const records = await searchDocumentsFromConvex({
+      teamId: params.teamId,
+      query: params.searchTerm,
+      limit: Math.min(Math.max(params.itemsPerTableLimit * 8, 80), 200),
+    });
+    const matches: SearchCandidate[] = [];
+
+    for (const document of records) {
+      if (!isSearchableDocument(document)) {
+        continue;
+      }
+
+      const candidate = toDocumentCandidate(document);
+
+      if (!matchesSearchTerm(candidate, params.searchTerm)) {
+        continue;
+      }
+
+      matches.push(candidate);
+
+      if (matches.length >= params.itemsPerTableLimit) {
+        break;
+      }
+    }
+
+    return matches;
+  }
+
   const pageSize = getSearchPageSize(params);
 
   return collectSearchMatches({
@@ -794,6 +1002,16 @@ async function loadRawDocumentCandidates(params: RawSearchCandidateLoadParams) {
 }
 
 async function loadRawInvoiceCandidates(params: RawSearchCandidateLoadParams) {
+  if (params.searchTerm) {
+    return loadIndexedInvoiceCandidates({
+      teamId: params.teamId,
+      searchTerm: params.searchTerm,
+      itemsPerTableLimit: params.itemsPerTableLimit,
+      matchesCandidate: (candidate) =>
+        matchesSearchTerm(candidate, params.searchTerm),
+    });
+  }
+
   const pageSize = getSearchPageSize(params);
 
   return collectSearchMatches({
@@ -821,6 +1039,31 @@ async function loadRawInvoiceCandidates(params: RawSearchCandidateLoadParams) {
 async function loadRawTrackerProjectCandidates(
   params: RawSearchCandidateLoadParams,
 ) {
+  if (params.searchTerm) {
+    const records = await searchTrackerProjectsFromConvex({
+      teamId: params.teamId,
+      query: params.searchTerm,
+      limit: Math.min(Math.max(params.itemsPerTableLimit * 8, 80), 200),
+    });
+    const matches: SearchCandidate[] = [];
+
+    for (const project of records) {
+      const candidate = toTrackerProjectCandidate(project);
+
+      if (!matchesSearchTerm(candidate, params.searchTerm)) {
+        continue;
+      }
+
+      matches.push(candidate);
+
+      if (matches.length >= params.itemsPerTableLimit) {
+        break;
+      }
+    }
+
+    return matches;
+  }
+
   const pageSize = getSearchPageSize(params);
 
   return collectSearchMatches({

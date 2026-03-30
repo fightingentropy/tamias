@@ -3,7 +3,7 @@ export type {
   AppRouter,
   RouterInputs,
   RouterOutputs,
-} from "@tamias/api-contracts/trpc";
+} from "@tamias/api/trpc/routers/_app";
 
 // Internal client
 export { createInternalClient, getInternalClient } from "./internal";

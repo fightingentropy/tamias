@@ -1,20 +1,22 @@
 import {
-  getCustomersByIdsFromConvex,
-  deleteTrackerProjectInConvex,
   type CurrentUserIdentityRecord,
-  getTeamMembersFromConvexIdentity,
+  deleteTrackerProjectInConvex,
+  getCustomersByIdsFromConvex,
+  getTaggedTrackerProjectsFromConvex,
+  getTaggedTrackerProjectsPageFromConvex,
   getTagsByIdsFromConvex,
+  getTeamMembersFromConvexIdentity,
   getTrackerEntriesByProjectIdsFromConvex,
   getTrackerProjectAssignmentsForProjectIdsFromConvex,
   getTrackerProjectByIdFromConvex,
-  getTrackerProjectIdsForTagIdsFromConvex,
   getTrackerProjectsByIdsFromConvex,
-  getTrackerProjectsPageFromConvex,
   getTrackerProjectsFromConvex,
+  getTrackerProjectsPageFromConvex,
   replaceTrackerProjectTagsInConvex,
-  upsertTrackerProjectInConvex,
+  searchTrackerProjectsFromConvex,
   type TrackerEntryRecord,
   type TrackerProjectRecord,
+  upsertTrackerProjectInConvex,
 } from "@tamias/app-data-convex";
 import type { Database } from "../client";
 import { cacheAcrossRequests } from "../utils/short-lived-cache";
@@ -110,7 +112,7 @@ function matchesProjectSearch(
 function decodeIndexedTrackerProjectCursor(
   cursor: string | null | undefined,
 ): IndexedTrackerProjectCursorState {
-  if (!cursor || !cursor.startsWith(TRACKER_PROJECT_PAGE_CURSOR_PREFIX)) {
+  if (!cursor?.startsWith(TRACKER_PROJECT_PAGE_CURSOR_PREFIX)) {
     return {
       sourceCursor: null,
       sourceExhausted: false,
@@ -155,9 +157,7 @@ function encodeIndexedTrackerProjectCursor(
   ).toString("base64url")}`;
 }
 
-function getIndexedTrackerProjectOrder(
-  sort: GetTrackerProjectsParams["sort"],
-) {
+function getIndexedTrackerProjectOrder(sort: GetTrackerProjectsParams["sort"]) {
   if (!sort || sort.length === 0) {
     return "desc" as const;
   }
@@ -182,6 +182,10 @@ function getIndexedTrackerProjectBatchSize(pageSize: number) {
   return Math.min(Math.max(pageSize * 3, 50), 200);
 }
 
+function getIndexedTrackerProjectSearchLimit(pageSize: number) {
+  return Math.min(Math.max(pageSize * 20, 100), 400);
+}
+
 function canUseIndexedTrackerProjectPage(sort?: string[] | null) {
   return getIndexedTrackerProjectOrder(sort) !== null;
 }
@@ -202,6 +206,27 @@ function paginate<T>(items: T[], cursor?: string | null, pageSize = 25) {
     },
     data,
   };
+}
+
+async function getTrackerProjectSearchCandidates(args: {
+  teamId: string;
+  query: string;
+  status?: "in_progress" | "completed" | null;
+  limit: number;
+  order: "asc" | "desc";
+}) {
+  return (
+    await searchTrackerProjectsFromConvex({
+      teamId: args.teamId,
+      query: args.query,
+      status: args.status ?? undefined,
+      limit: args.limit,
+    })
+  ).sort((left, right) =>
+    args.order === "asc"
+      ? left.createdAt.localeCompare(right.createdAt)
+      : right.createdAt.localeCompare(left.createdAt),
+  );
 }
 
 async function getTeamName(db: Database, teamId: string) {
@@ -430,7 +455,6 @@ function matchesIndexedTrackerProjectCandidate(
     start?: string | null;
     end?: string | null;
     customerIds?: Set<string> | null;
-    trackerProjectIds?: Set<string> | null;
   },
 ) {
   if (args.status && project.status !== args.status) {
@@ -449,10 +473,6 @@ function matchesIndexedTrackerProjectCandidate(
     if (!project.customerId || !args.customerIds.has(project.customerId)) {
       return false;
     }
-  }
-
-  if (args.trackerProjectIds && !args.trackerProjectIds.has(project.id)) {
-    return false;
   }
 
   return matchesProjectSearch(project, args.q);
@@ -486,7 +506,9 @@ async function getTrackerProjectsByIdsInOrder(args: {
     teamId: args.teamId,
     projectIds: args.projectIds,
   });
-  const projectsById = new Map(projects.map((project) => [project.id, project]));
+  const projectsById = new Map(
+    projects.map((project) => [project.id, project]),
+  );
 
   return args.projectIds.flatMap((projectId) => {
     const project = projectsById.get(projectId);
@@ -513,24 +535,7 @@ async function getIndexedTrackerProjectsPage(
   } = params;
   const order = getIndexedTrackerProjectOrder(sort) ?? "desc";
   const customerIds = customers?.length ? new Set(customers) : null;
-  const trackerProjectIds =
-    tags?.length
-      ? new Set(
-          await getTrackerProjectIdsForTagIdsFromConvex({
-            teamId,
-            tagIds: tags,
-          }),
-        )
-      : null;
-
-  if (trackerProjectIds && trackerProjectIds.size === 0) {
-    return buildTrackerProjectPageResponse({
-      cursor,
-      nextCursor: undefined,
-      hasNextPage: false,
-      data: [],
-    });
-  }
+  const hasTagFilter = Boolean(tags?.length);
 
   const cursorState = decodeIndexedTrackerProjectCursor(cursor);
   let sourceCursor = cursorState.sourceCursor;
@@ -554,20 +559,59 @@ async function getIndexedTrackerProjectsPage(
           start,
           end,
           customerIds,
-          trackerProjectIds,
         }),
       ),
     );
   }
 
-  while (eligibleProjects.length <= pageSize && !sourceExhausted) {
-    const result = await getTrackerProjectsPageFromConvex({
+  if (
+    eligibleProjects.length <= pageSize &&
+    !hasTagFilter &&
+    q &&
+    !sourceExhausted &&
+    !sourceCursor &&
+    bufferedIds.length === 0
+  ) {
+    const searchCandidates = await getTrackerProjectSearchCandidates({
       teamId,
-      cursor: sourceCursor,
-      pageSize: getIndexedTrackerProjectBatchSize(pageSize),
-      status: status ?? undefined,
+      query: q,
+      status,
+      limit: getIndexedTrackerProjectSearchLimit(pageSize),
       order,
     });
+
+    eligibleProjects.push(
+      ...searchCandidates.filter((project) =>
+        matchesIndexedTrackerProjectCandidate(project, {
+          q,
+          status,
+          start,
+          end,
+          customerIds,
+        }),
+      ),
+    );
+    sourceExhausted = true;
+  }
+
+  while (eligibleProjects.length <= pageSize && !sourceExhausted) {
+    const previousSourceCursor = sourceCursor;
+    const result = hasTagFilter
+      ? await getTaggedTrackerProjectsPageFromConvex({
+          teamId,
+          tagIds: tags ?? [],
+          cursor: sourceCursor,
+          pageSize: getIndexedTrackerProjectBatchSize(pageSize),
+          status: status ?? undefined,
+          order,
+        })
+      : await getTrackerProjectsPageFromConvex({
+          teamId,
+          cursor: sourceCursor,
+          pageSize: getIndexedTrackerProjectBatchSize(pageSize),
+          status: status ?? undefined,
+          order,
+        });
 
     eligibleProjects.push(
       ...result.page.filter((project) =>
@@ -577,7 +621,6 @@ async function getIndexedTrackerProjectsPage(
           start,
           end,
           customerIds,
-          trackerProjectIds,
         }),
       ),
     );
@@ -585,7 +628,10 @@ async function getIndexedTrackerProjectsPage(
     sourceCursor = result.isDone ? null : result.continueCursor;
     sourceExhausted = result.isDone;
 
-    if (result.page.length === 0) {
+    if (
+      result.page.length === 0 &&
+      (result.isDone || sourceCursor === previousSourceCursor)
+    ) {
       break;
     }
   }
@@ -638,7 +684,6 @@ function sortTrackerProjects(
           return left.name.localeCompare(right.name);
         case "tags":
           return left.tags.length - right.tags.length;
-        case "created_at":
         default:
           return left.createdAt.localeCompare(right.createdAt);
       }
@@ -675,7 +720,16 @@ async function getTrackerProjectsImpl(
     return getIndexedTrackerProjectsPage(db, params);
   }
 
-  let projects = await getTrackerProjectsFromConvex({ teamId });
+  let projects = tagIds?.length
+    ? await getTaggedTrackerProjectsFromConvex({
+        teamId,
+        tagIds,
+        status: status ?? undefined,
+      })
+    : await getTrackerProjectsFromConvex({
+        teamId,
+        status: status ?? undefined,
+      });
 
   if (status) {
     projects = projects.filter((project) => project.status === status);
@@ -691,18 +745,6 @@ async function getTrackerProjectsImpl(
     const customerSet = new Set(customerIds);
     projects = projects.filter(
       (project) => project.customerId && customerSet.has(project.customerId),
-    );
-  }
-
-  if (tagIds?.length) {
-    const trackerProjectIds = await getTrackerProjectIdsForTagIdsFromConvex({
-      teamId,
-      tagIds,
-    });
-    const trackerProjectIdSet = new Set(trackerProjectIds);
-
-    projects = projects.filter((project) =>
-      trackerProjectIdSet.has(project.id),
     );
   }
 

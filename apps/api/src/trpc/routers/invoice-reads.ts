@@ -1,4 +1,18 @@
 import {
+  getInvoiceById,
+  getInvoiceSummary,
+  getInvoices,
+  getPaymentStatus,
+  markInvoiceViewed,
+  searchInvoiceNumber,
+} from "@tamias/app-data/queries";
+import {
+  getInvoiceByToken,
+  getInvoiceIdFromToken,
+} from "@tamias/app-services/invoice-by-token";
+import { TRPCError } from "@trpc/server";
+import { z } from "zod";
+import {
   getInvoiceByIdSchema,
   getInvoiceByTokenSchema,
   getInvoicesSchema,
@@ -6,31 +20,14 @@ import {
   searchInvoiceNumberSchema,
 } from "../../schemas/invoice";
 import { protectedProcedure, publicProcedure } from "../init";
-import {
-  getInvoiceByToken,
-  getInvoiceIdFromToken,
-} from "@tamias/app-services/invoice-by-token";
-import {
-  getInvoicePaymentStatusForTeam,
-  getInvoicesPage,
-  getInvoiceSummaryForTeam,
-} from "@tamias/app-services/invoices";
-import {
-  getInvoiceById,
-  markInvoiceViewed,
-  searchInvoiceNumber,
-} from "@tamias/app-data/queries";
-import { TRPCError } from "@trpc/server";
-import { z } from "zod";
 
 export const invoiceReadProcedures = {
   get: protectedProcedure
     .input(getInvoicesSchema.optional())
     .query(async ({ input, ctx: { db, teamId } }) => {
-      return getInvoicesPage({
-        db,
+      return getInvoices(db, {
         teamId: teamId!,
-        input,
+        ...input,
       });
     }),
 
@@ -68,10 +65,7 @@ export const invoiceReadProcedures = {
     }),
 
   paymentStatus: protectedProcedure.query(async ({ ctx: { db, teamId } }) =>
-    getInvoicePaymentStatusForTeam({
-      db,
-      teamId: teamId!,
-    }),
+    getPaymentStatus(db, teamId!),
   ),
 
   searchInvoiceNumber: protectedProcedure
@@ -86,8 +80,7 @@ export const invoiceReadProcedures = {
   invoiceSummary: protectedProcedure
     .input(invoiceSummarySchema.optional())
     .query(async ({ ctx: { db, teamId }, input }) => {
-      return getInvoiceSummaryForTeam({
-        db,
+      return getInvoiceSummary(db, {
         teamId: teamId!,
         statuses: input?.statuses,
       });

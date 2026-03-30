@@ -1,6 +1,6 @@
 import {
-  getInboxItemsPageFromConvex,
   getInboxItemsFromConvex,
+  getInboxStatusCountSummaryFromConvex,
   getInvoiceAnalyticsAggregateRowsFromConvex,
   getTrackerEntriesByRangeFromConvex,
   getTrackerProjectsByIdsFromConvex,
@@ -163,36 +163,14 @@ async function countInboxItemsCreatedBetween(args: {
 }) {
   const fromBoundary = normalizeTimestampBoundary(args.from, "start");
   const toBoundary = normalizeTimestampBoundary(args.to, "end");
-  let cursor: string | null = null;
-  let matchedCount = 0;
+  const summary = await getInboxStatusCountSummaryFromConvex({
+    teamId: args.teamId,
+    createdAtFrom: fromBoundary,
+    createdAtTo: toBoundary,
+    rangeStatus: args.status,
+  });
 
-  while (true) {
-    const page = await getInboxItemsPageFromConvex({
-      teamId: args.teamId,
-      cursor,
-      pageSize: ACTIVITY_PAGE_SIZE,
-      status: args.status,
-      order: "desc",
-    });
-
-    for (const item of page.page) {
-      if (item.createdAt > toBoundary) {
-        continue;
-      }
-
-      if (item.createdAt < fromBoundary) {
-        return matchedCount;
-      }
-
-      matchedCount += 1;
-    }
-
-    if (page.isDone) {
-      return matchedCount;
-    }
-
-    cursor = page.continueCursor;
-  }
+  return summary.rangeCount;
 }
 
 async function getInboxActivityStats(

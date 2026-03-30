@@ -1,25 +1,24 @@
 import {
+  deleteTrackerProject,
+  getTrackerProjectById,
+  upsertTrackerProject,
+} from "@tamias/app-data/queries";
+import { getTrackerProjects } from "@tamias/app-data/queries/tracker-projects";
+import {
   deleteTrackerProjectSchema,
   getTrackerProjectByIdSchema,
   getTrackerProjectsSchema,
   upsertTrackerProjectSchema,
 } from "../../schemas/tracker-projects";
 import { createTRPCRouter, protectedProcedure } from "../init";
-import { getTrackerProjectsPage } from "@tamias/app-services/tracker";
-import {
-  deleteTrackerProject,
-  getTrackerProjectById,
-  upsertTrackerProject,
-} from "@tamias/app-data/queries";
 
 export const trackerProjectsRouter = createTRPCRouter({
   get: protectedProcedure
     .input(getTrackerProjectsSchema.optional())
     .query(async ({ input, ctx: { db, teamId } }) => {
-      return getTrackerProjectsPage({
-        db,
+      return getTrackerProjects(db, {
         teamId: teamId!,
-        input,
+        ...input,
       });
     }),
 

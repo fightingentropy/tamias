@@ -1,14 +1,13 @@
 import {
+  getInboxItemsByAmountRangeFromConvex,
   getInboxItemByIdFromConvex,
-  getInboxItemsFromConvex,
   getTransactionMatchSuggestionsPageFromConvex,
   getTransactionByIdFromConvex,
   getTransactionIdsWithAttachmentsFromConvex,
   getTransactionMatchSuggestionsFromConvex,
-  getTransactionsByIdsFromConvex,
+  searchInboxItemsFromConvex,
   type CurrentUserIdentityRecord,
   type InboxItemRecord,
-  type InboxItemStatus,
   type MatchSuggestionStatus,
   upsertTransactionMatchSuggestionsInConvex,
 } from "@tamias/app-data-convex";
@@ -23,7 +22,6 @@ import {
   type MatchType,
   scoreMatch,
 } from "../utils/transaction-matching";
-import { getInboxItemsPaged } from "./paged-records";
 import {
   getIndexedTransactionMatchCandidates,
   getIsoDateDistanceInDays,
@@ -122,9 +120,6 @@ type TeamPairHistoryRow = {
   status: string;
   confidenceScore: number | null;
   createdAt: string;
-  inboxName: string | null;
-  transactionName: string;
-  merchantName: string | null;
 };
 type TeamPairHistoryMap = Map<string, TeamPairHistoryRow[]>;
 const CALIBRATION_CACHE_TTL_MS = 5 * 60 * 1000;
@@ -180,26 +175,57 @@ async function getTeamSuggestions(
   return params?.limit ? rows.slice(0, params.limit) : rows;
 }
 
-const FORWARD_MATCH_INBOX_STATUSES: InboxItemStatus[] = ["pending", "no_match"];
 const HISTORY_SUGGESTION_LIMIT = 2000;
 
-export async function getInboxItemsForForwardMatching(
-  _db: Database,
-  teamId: string,
-) {
-  return (
-    await Promise.all(
-      FORWARD_MATCH_INBOX_STATUSES.map((status) =>
-        getInboxItemsPaged({
-          teamId,
-          status,
-          order: "desc",
+async function getIndexedInboxMatchCandidates(params: {
+  teamId: string;
+  amount: number | null | undefined;
+  searchTerms: Array<string | null | undefined>;
+  limit: number;
+}) {
+  const searchTerms = [
+    ...new Set(
+      params.searchTerms
+        .map((term) => term?.trim())
+        .filter((term): term is string => Boolean(term)),
+    ),
+  ];
+  const absoluteAmount = Math.abs(params.amount ?? 0);
+  const amountTolerance = Math.max(1, absoluteAmount * 0.35);
+  const searchAmount = Math.round(absoluteAmount * 100);
+  const searchTolerance = Math.ceil(amountTolerance * 100);
+  const [textCandidateGroups, amountCandidates] = await Promise.all([
+    Promise.all(
+      searchTerms.map((searchTerm) =>
+        searchInboxItemsFromConvex({
+          teamId: params.teamId,
+          query: searchTerm,
+          limit: params.limit,
         }),
       ),
-    )
-  )
-    .flat()
-    .filter((item) => item.transactionId == null && item.date !== null);
+    ),
+    absoluteAmount > 0
+      ? getInboxItemsByAmountRangeFromConvex({
+          teamId: params.teamId,
+          minAmount: Math.max(0, searchAmount - searchTolerance),
+          maxAmount: searchAmount + searchTolerance,
+          limit: params.limit,
+        })
+      : Promise.resolve([]),
+  ]);
+
+  return [
+    ...new Map(
+      [...textCandidateGroups.flat(), ...amountCandidates]
+        .filter(
+          (item) =>
+            item.transactionId == null &&
+            item.date !== null &&
+            (item.status === "pending" || item.status === "no_match"),
+        )
+        .map((item) => [item.id, item]),
+    ).values(),
+  ];
 }
 
 async function getInboxItemById(teamId: string, inboxId: string) {
@@ -475,52 +501,25 @@ async function fetchTeamPairHistory(
       limit: HISTORY_SUGGESTION_LIMIT,
     },
   );
-  const rows = suggestions.map((suggestion) => ({
-    status: suggestion.status,
-    confidenceScore: suggestion.confidenceScore,
-    createdAt: suggestion.createdAt,
-    inboxId: suggestion.inboxId,
-    transactionId: suggestion.transactionId,
-  }));
-  const inboxById = new Map(
-    (
-      await getInboxItemsFromConvex({
-        teamId,
-        ids: [...new Set(rows.map((row) => row.inboxId))],
-      })
-    ).map((item) => [item.id, item]),
-  );
-  const transactionsById = new Map(
-    (
-      await getTransactionsByIdsFromConvex({
-        teamId,
-        transactionIds: rows.map((row) => row.transactionId),
-      })
-    ).map((transaction) => [transaction.id, transaction]),
-  );
-
   const map: TeamPairHistoryMap = new Map();
-  for (const row of rows) {
-    const transaction = transactionsById.get(row.transactionId);
-    const inboxName = inboxById.get(row.inboxId)?.displayName ?? null;
-
-    if (!transaction) {
+  for (const suggestion of suggestions) {
+    if (
+      !suggestion.normalizedInboxName ||
+      !suggestion.normalizedTransactionName
+    ) {
       continue;
     }
 
-    const key = `${normalizeNameForLearning(inboxName)}\0${normalizeNameForLearning(transaction.merchantName || transaction.name)}`;
+    const key = `${suggestion.normalizedInboxName}\0${suggestion.normalizedTransactionName}`;
     let entries = map.get(key);
     if (!entries) {
       entries = [];
       map.set(key, entries);
     }
     entries.push({
-      status: row.status,
-      confidenceScore: row.confidenceScore,
-      createdAt: row.createdAt,
-      inboxName,
-      transactionName: transaction.name,
-      merchantName: transaction.merchantName,
+      status: suggestion.status,
+      confidenceScore: suggestion.confidenceScore,
+      createdAt: suggestion.createdAt,
     });
   }
   pairHistoryCache.set(teamId, {
@@ -976,7 +975,17 @@ export async function findInboxMatches(
   const transactionAmount = Math.abs(transactionItem.amount || 0);
   const transactionBaseAmount = Math.abs(transactionItem.baseAmount || 0);
   const inboxItems =
-    candidateInboxItems ?? (await getInboxItemsForForwardMatching(db, teamId));
+    candidateInboxItems ??
+    (await getIndexedInboxMatchCandidates({
+      teamId,
+      amount: transactionItem.amount,
+      searchTerms: [
+        transactionItem.name,
+        transactionItem.merchantName,
+        transactionItem.counterpartyName,
+      ],
+      limit: 120,
+    }));
 
   const candidates = inboxItems
     .filter((candidate) => candidate.transactionId == null)

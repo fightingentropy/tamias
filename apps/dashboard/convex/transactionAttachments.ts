@@ -76,6 +76,45 @@ async function getTeamOrThrow(ctx: TransactionAttachmentCtx, publicTeamId: strin
   return team;
 }
 
+async function getTransactionByPublicId(
+  ctx: TransactionAttachmentCtx,
+  args: {
+    transactionId: string;
+    teamId: Id<"teams">;
+  },
+) {
+  const db = ctx.db as any;
+
+  const byLegacyId = await db
+    .query("transactions")
+    .withIndex("by_public_transaction_id", (q: any) =>
+      q.eq("publicTransactionId", args.transactionId),
+    )
+    .unique();
+
+  if (byLegacyId && byLegacyId.teamId === args.teamId) {
+    return byLegacyId;
+  }
+
+  try {
+    const byDocId = await db.get(args.transactionId as any);
+
+    if (byDocId && byDocId.teamId === args.teamId) {
+      return byDocId;
+    }
+  } catch (error) {
+    if (
+      !(error instanceof Error) ||
+      !error.message.includes("db.get") ||
+      !error.message.includes("Unable to decode ID")
+    ) {
+      throw error;
+    }
+  }
+
+  return null;
+}
+
 async function getTransactionAttachmentByPublicId(
   ctx: TransactionAttachmentCtx,
   args: {
@@ -161,6 +200,37 @@ async function getAttachmentsByPathKeys(
   return attachments.flat();
 }
 
+async function syncTransactionHasAttachmentFlag(
+  ctx: MutationCtx,
+  args: {
+    teamId: Id<"teams">;
+    transactionId: string;
+  },
+) {
+  const [transaction, attachments] = await Promise.all([
+    getTransactionByPublicId(ctx, {
+      transactionId: args.transactionId,
+      teamId: args.teamId,
+    }),
+    getAttachmentsByTransactionIds(ctx, args.teamId, [args.transactionId]),
+  ]);
+
+  if (!transaction) {
+    return;
+  }
+
+  const hasAttachment = attachments.length > 0;
+
+  if ((transaction.hasAttachment ?? false) === hasAttachment) {
+    return;
+  }
+
+  await ctx.db.patch(transaction._id, {
+    hasAttachment,
+    updatedAt: nowIso(),
+  });
+}
+
 function sortAttachments(
   left: { createdAt: string; id?: string; _id?: string },
   right: { createdAt: string; id?: string; _id?: string },
@@ -189,6 +259,7 @@ export const serviceCreateTransactionAttachments = mutation({
     const db = ctx.db as any;
     const timestamp = nowIso();
     const results: SerializedTransactionAttachment[] = [];
+    const affectedTransactionIds = new Set<string>();
 
     for (const attachment of args.attachments) {
       const pathKey = pathKeyFromPath(attachment.path);
@@ -210,6 +281,12 @@ export const serviceCreateTransactionAttachments = mutation({
       );
 
       if (matchingExisting) {
+        if (matchingExisting.transactionId) {
+          affectedTransactionIds.add(matchingExisting.transactionId);
+        }
+        if (attachment.transactionId) {
+          affectedTransactionIds.add(attachment.transactionId);
+        }
         await db.patch(matchingExisting._id, {
           transactionId: attachment.transactionId ?? undefined,
           type: attachment.type,
@@ -252,6 +329,17 @@ export const serviceCreateTransactionAttachments = mutation({
       }
 
       results.push(serializeTransactionAttachment(args.publicTeamId, inserted));
+
+      if (attachment.transactionId) {
+        affectedTransactionIds.add(attachment.transactionId);
+      }
+    }
+
+    for (const transactionId of affectedTransactionIds) {
+      await syncTransactionHasAttachmentFlag(ctx, {
+        teamId: team._id,
+        transactionId,
+      });
     }
 
     return results.sort(sortAttachments);
@@ -396,54 +484,6 @@ export const serviceGetTransactionAttachmentsByPathKeys = query({
   },
 });
 
-export const serviceGetTransactionIdsWithAttachments = query({
-  args: {
-    serviceKey: v.string(),
-    publicTeamId: v.string(),
-    transactionIds: v.optional(v.array(v.string())),
-  },
-  async handler(ctx, args) {
-    requireServiceKey(args.serviceKey);
-    const db = ctx.db as any;
-
-    const team = await getTeamByPublicTeamId(ctx, args.publicTeamId);
-
-    if (!team) {
-      return [];
-    }
-
-    if (args.transactionIds && args.transactionIds.length > 0) {
-      const results: string[] = [];
-
-      for (const transactionId of [...new Set(args.transactionIds)]) {
-        const attachments = await db
-          .query("transactionAttachments")
-          .withIndex("by_team_and_transaction", (q: any) =>
-            q.eq("teamId", team._id).eq("transactionId", transactionId),
-          )
-          .collect();
-
-        if (attachments.length > 0) {
-          results.push(transactionId);
-        }
-      }
-
-      return results;
-    }
-
-    const attachments = await db
-      .query("transactionAttachments")
-      .withIndex("by_team_id", (q: any) => q.eq("teamId", team._id))
-      .collect();
-
-    return [...new Set(
-      attachments
-        .map((attachment: { transactionId?: string }) => attachment.transactionId)
-        .filter((id: string | undefined): id is string => Boolean(id)),
-    )].sort();
-  },
-});
-
 export const serviceDeleteTransactionAttachment = mutation({
   args: {
     serviceKey: v.string(),
@@ -465,6 +505,13 @@ export const serviceDeleteTransactionAttachment = mutation({
 
     await db.delete(attachment._id);
 
+    if (attachment.transactionId) {
+      await syncTransactionHasAttachmentFlag(ctx, {
+        teamId: team._id,
+        transactionId: attachment.transactionId,
+      });
+    }
+
     return serializeTransactionAttachment(args.publicTeamId, attachment);
   },
 });
@@ -485,6 +532,7 @@ export const serviceDeleteTransactionAttachmentsByIds = mutation({
 
     const deletedIds: string[] = [];
     const seen = new Set<string>();
+    const affectedTransactionIds = new Set<string>();
 
     for (const id of [...new Set(args.ids)]) {
       const attachment = await getTransactionAttachmentByPublicId(ctx, {
@@ -497,11 +545,25 @@ export const serviceDeleteTransactionAttachmentsByIds = mutation({
       }
 
       await db.delete(attachment._id);
+      if (attachment.transactionId) {
+        affectedTransactionIds.add(attachment.transactionId);
+      }
 
       const publicId = publicTransactionAttachmentId(attachment);
       if (!seen.has(publicId)) {
         seen.add(publicId);
         deletedIds.push(publicId);
+      }
+    }
+
+    const team = await getTeamByPublicTeamId(ctx, args.publicTeamId);
+
+    if (team) {
+      for (const transactionId of affectedTransactionIds) {
+        await syncTransactionHasAttachmentFlag(ctx, {
+          teamId: team._id,
+          transactionId,
+        });
       }
     }
 
@@ -537,9 +599,13 @@ export const serviceDeleteTransactionAttachmentsByPathKeys = mutation({
 
     const deletedIds: string[] = [];
     const seen = new Set<string>();
+    const affectedTransactionIds = new Set<string>();
 
     for (const attachment of attachments) {
       await db.delete(attachment._id);
+      if (attachment.transactionId) {
+        affectedTransactionIds.add(attachment.transactionId);
+      }
 
       const publicId = publicTransactionAttachmentId(attachment);
       if (!seen.has(publicId)) {
@@ -548,6 +614,84 @@ export const serviceDeleteTransactionAttachmentsByPathKeys = mutation({
       }
     }
 
+    for (const transactionId of affectedTransactionIds) {
+      await syncTransactionHasAttachmentFlag(ctx, {
+        teamId: team._id,
+        transactionId,
+      });
+    }
+
     return { deletedIds, count: deletedIds.length };
+  },
+});
+
+export const serviceRebuildTransactionAttachmentFlags = mutation({
+  args: {
+    serviceKey: v.string(),
+    publicTeamId: v.optional(v.union(v.string(), v.null())),
+  },
+  async handler(ctx, args) {
+    requireServiceKey(args.serviceKey);
+
+    const teams = args.publicTeamId
+      ? [await getTeamByPublicTeamId(ctx, args.publicTeamId)]
+      : (await ctx.db.query("teams").collect()).filter(
+          (team) => !!team.publicTeamId,
+        );
+
+    const validTeams = teams.filter(
+      (team): team is NonNullable<(typeof teams)[number]> => team !== null,
+    );
+
+    if (args.publicTeamId && validTeams.length === 0) {
+      throw new ConvexError("Convex transaction attachment team not found");
+    }
+
+    const results = [];
+
+    for (const team of validTeams) {
+      const [transactions, attachments] = await Promise.all([
+        (ctx.db as any)
+          .query("transactions")
+          .withIndex("by_team_id", (q: any) => q.eq("teamId", team._id))
+          .collect(),
+        (ctx.db as any)
+          .query("transactionAttachments")
+          .withIndex("by_team_id", (q: any) => q.eq("teamId", team._id))
+          .collect(),
+      ]);
+
+      const attachedTransactionIds = new Set<string>(
+        attachments
+          .map((attachment: { transactionId?: string }) => attachment.transactionId)
+          .filter((transactionId): transactionId is string => Boolean(transactionId)),
+      );
+      let updatedTransactionCount = 0;
+
+      for (const transaction of transactions) {
+        const publicId = transaction.publicTransactionId ?? transaction._id;
+        const hasAttachment =
+          attachedTransactionIds.has(publicId) ||
+          attachedTransactionIds.has(transaction._id);
+
+        if ((transaction.hasAttachment ?? false) === hasAttachment) {
+          continue;
+        }
+
+        await ctx.db.patch(transaction._id, {
+          hasAttachment,
+          updatedAt: nowIso(),
+        });
+        updatedTransactionCount++;
+      }
+
+      results.push({
+        teamId: team.publicTeamId ?? team._id,
+        transactionCount: transactions.length,
+        updatedTransactionCount,
+      });
+    }
+
+    return results;
   },
 });

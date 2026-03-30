@@ -1,16 +1,15 @@
+import { createTag, deleteTag, updateTag } from "@tamias/app-data/queries";
+import { getTags } from "@tamias/app-data/queries/tags";
 import {
   createTagSchema,
   deleteTagSchema,
   updateTagSchema,
 } from "../../schemas/tags";
 import { createTRPCRouter, protectedProcedure } from "../init";
-import { getTagsForTeam } from "@tamias/app-services/tags";
-import { createTag, deleteTag, updateTag } from "@tamias/app-data/queries";
 
 export const tagsRouter = createTRPCRouter({
   get: protectedProcedure.query(async ({ ctx: { db, teamId } }) => {
-    return getTagsForTeam({
-      db,
+    return getTags(db, {
       teamId: teamId!,
     });
   }),

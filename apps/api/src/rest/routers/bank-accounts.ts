@@ -1,4 +1,13 @@
-import type { Context } from "../types";
+import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import {
+  createBankAccount,
+  deleteBankAccount,
+  getBankAccountById,
+  updateBankAccount,
+} from "@tamias/app-data/queries";
+import { getBankAccounts } from "@tamias/app-data/queries/bank-accounts";
+import { chatCache } from "@tamias/cache/chat-cache";
+import { HTTPException } from "hono/http-exception";
 import {
   bankAccountResponseSchema,
   bankAccountsResponseSchema,
@@ -9,17 +18,8 @@ import {
   updateBankAccountSchema,
 } from "../../schemas/bank-accounts";
 import { validateResponse } from "../../utils/validate-response";
-import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
-import { chatCache } from "@tamias/cache/chat-cache";
-import { getBankAccountsForTeam } from "@tamias/app-services/bank";
-import {
-  createBankAccount,
-  deleteBankAccount,
-  getBankAccountById,
-  updateBankAccount,
-} from "@tamias/app-data/queries";
-import { HTTPException } from "hono/http-exception";
 import { withRequiredScope } from "../middleware";
+import type { Context } from "../types";
 
 const app = new OpenAPIHono<Context>();
 
@@ -52,10 +52,9 @@ app.openapi(
     const teamId = c.get("teamId");
     const params = c.req.valid("query");
 
-    const data = await getBankAccountsForTeam({
-      db,
+    const data = await getBankAccounts(db, {
       teamId,
-      input: params,
+      ...params,
     });
 
     return c.json(

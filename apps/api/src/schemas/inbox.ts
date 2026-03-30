@@ -227,23 +227,6 @@ export const retryMatchingSchema = z.object({
   }),
 });
 
-export const getInboxByStatusSchema = z.object({
-  status: z
-    .enum([
-      "processing",
-      "pending",
-      "archived",
-      "new",
-      "analyzing",
-      "suggested_match",
-      "no_match",
-      "done",
-      "deleted",
-      "other",
-    ])
-    .optional(),
-});
-
 export const confirmMatchSchema = z.object({
   suggestionId: z.string(),
   inboxId: z.string(),

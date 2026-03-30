@@ -2,7 +2,7 @@ import { TZDate } from "@date-fns/tz";
 import {
   getPublicInvoicesByStatusesFromConvex,
   getTransactionIdsWithAttachmentsFromConvex,
-  getTransactionsFromConvex,
+  getTransactionsByAmountRangeFromConvex,
 } from "@tamias/app-data-convex";
 import {
   createAttachments,
@@ -34,6 +34,7 @@ type ProcessResult = {
 };
 
 const INVOICE_STATUS_CHECK_CONCURRENCY = 10;
+const INVOICE_MATCH_CANDIDATE_LIMIT = 100;
 
 export class InvoiceStatusSchedulerProcessor extends BaseProcessor<InvoiceStatusSchedulerPayload> {
   async process(
@@ -236,25 +237,41 @@ export class InvoiceStatusSchedulerProcessor extends BaseProcessor<InvoiceStatus
       subDays(new TZDate(new Date(), timezone), 3),
       "yyyy-MM-dd",
     );
+    const invoiceAmount =
+      typeof invoice.amount === "number" && Number.isFinite(invoice.amount)
+        ? invoice.amount
+        : null;
+    const invoiceCurrency = (invoice.currency ?? "").toUpperCase();
+
+    if (invoiceAmount === null || !invoiceCurrency) {
+      return [];
+    }
+
+    const amountSearchValue = Math.round(Math.abs(invoiceAmount) * 100);
+    const candidateTransactions = await getTransactionsByAmountRangeFromConvex({
+      teamId: invoice.teamId,
+      minAmount: amountSearchValue,
+      maxAmount: amountSearchValue,
+      dateGte: threeDaysAgo,
+      statusesNotIn: ["completed"],
+      limit: INVOICE_MATCH_CANDIDATE_LIMIT,
+    });
+    const candidateTransactionIds = candidateTransactions.map(
+      (transaction) => transaction.id,
+    );
     const attachedTransactionIdSet = new Set(
       await getTransactionIdsWithAttachmentsFromConvex({
         teamId: invoice.teamId,
+        transactionIds: candidateTransactionIds,
       }),
     );
-    const invoiceCurrency = (invoice.currency ?? "").toUpperCase();
 
-    return (
-      await getTransactionsFromConvex({
-        teamId: invoice.teamId,
-        dateGte: threeDaysAgo,
-      })
-    )
-      .filter((transaction) => transaction.amount === invoice.amount)
+    return candidateTransactions
+      .filter((transaction) => transaction.amount === invoiceAmount)
       .filter((transaction) => transaction.currency === invoiceCurrency)
       .filter(
         (transaction) =>
-          !attachedTransactionIdSet.has(transaction.id) &&
-          transaction.status !== "completed",
+          !attachedTransactionIdSet.has(transaction.id),
       )
       .map((transaction) => ({ id: transaction.id }));
   }

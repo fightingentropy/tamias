@@ -1,8 +1,8 @@
-import type { Id } from "@tamias/convex-model/data-model";
 import type { Database } from "@tamias/app-data/client";
-import { type ChatUserContext, chatCache } from "@tamias/cache/chat-cache";
-import { getBankAccountsForTeam } from "@tamias/app-services/bank";
 import { getTeamById, getUserByConvexId } from "@tamias/app-data/queries";
+import { getBankAccounts } from "@tamias/app-data/queries/bank-accounts";
+import { type ChatUserContext, chatCache } from "@tamias/cache/chat-cache";
+import type { Id } from "@tamias/convex-model/data-model";
 import { logger } from "@tamias/logger";
 import { HTTPException } from "hono/http-exception";
 
@@ -35,12 +35,9 @@ export async function getUserContext({
 
   // If team context not cached, fetch bank account status
   if (!teamContext) {
-    const bankAccounts = await getBankAccountsForTeam({
-      db,
+    const bankAccounts = await getBankAccounts(db, {
       teamId,
-      input: {
-        enabled: true,
-      },
+      enabled: true,
     });
     const hasBankAccounts = bankAccounts.length > 0;
 

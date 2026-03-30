@@ -74,7 +74,9 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
       pageSize: 20,
       status: ["unread", "read"], // Exclude archived notifications from query
     }),
-    refetchInterval: isPageVisible ? 10_000 : false,
+    staleTime: 60_000,
+    refetchInterval: isOpen && isPageVisible ? 10_000 : false,
+    refetchOnWindowFocus: true,
   });
 
   // Separate query for archived notifications
@@ -86,7 +88,9 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
         status: "archived", // Only archived notifications
       }),
       enabled: isOpen,
+      staleTime: 60_000,
       refetchInterval: isOpen && isPageVisible ? 30_000 : false,
+      refetchOnWindowFocus: true,
     });
 
   // Mutations

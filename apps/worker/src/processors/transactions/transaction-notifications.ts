@@ -1,5 +1,5 @@
 import {
-  getTransactionsFromConvex,
+  getUnnotifiedTransactionsFromConvex,
   upsertTransactionsInConvex,
 } from "@tamias/app-data-convex";
 import { Notifications } from "@tamias/notifications";
@@ -27,9 +27,9 @@ export class TransactionNotificationsProcessor extends BaseProcessor<Transaction
 
     await this.updateProgress(job, 20, undefined, "loading-transactions");
 
-    const pendingTransactions = (
-      await getTransactionsFromConvex({ teamId })
-    ).filter((transaction) => transaction.notified === false);
+    const pendingTransactions = await getUnnotifiedTransactionsFromConvex({
+      teamId,
+    });
 
     if (pendingTransactions.length > 0) {
       await upsertTransactionsInConvex({

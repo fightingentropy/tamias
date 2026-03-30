@@ -1,4 +1,5 @@
-import type { Context } from "../types";
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { getDocuments } from "@tamias/app-data/queries/documents";
 import {
   deleteDocumentResponseSchema,
   deleteDocumentSchema,
@@ -11,8 +12,7 @@ import {
 } from "../../schemas/documents";
 import { getVaultSignedUrl } from "../../services/storage";
 import { validateResponse } from "../../utils/validate-response";
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import { getDocumentsPage } from "@tamias/app-services/documents";
+import type { Context } from "../types";
 
 const errorResponseSchema = z.object({
   error: z.string(),
@@ -52,14 +52,11 @@ app.openapi(
     const teamId = c.get("teamId");
     const { pageSize, cursor, ...filter } = c.req.valid("query");
 
-    const result = await getDocumentsPage({
-      db,
+    const result = await getDocuments(db, {
       teamId,
-      input: {
-        pageSize,
-        cursor,
-        ...filter,
-      },
+      pageSize,
+      cursor,
+      ...filter,
     });
 
     return c.json(validateResponse(result, documentsResponseSchema));

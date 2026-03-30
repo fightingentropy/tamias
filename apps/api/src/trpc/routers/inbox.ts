@@ -8,7 +8,6 @@ import {
   deleteInboxSchema,
   getInboxBlocklistSchema,
   getInboxByIdSchema,
-  getInboxByStatusSchema,
   getInboxSchema,
   matchTransactionSchema,
   processAttachmentsSchema,
@@ -28,7 +27,6 @@ import {
   deleteInboxBlocklist,
   deleteInboxMany,
   getInboxById,
-  getInboxByStatus,
   getInboxSearch,
   matchTransaction,
   unmatchTransaction,
@@ -223,16 +221,6 @@ export const inboxRouter = createTRPCRouter({
         id: input.id,
         teamId: teamId!,
         userId: session.user.id,
-      });
-    }),
-
-  // Get inbox items by status
-  getByStatus: protectedProcedure
-    .input(getInboxByStatusSchema)
-    .query(async ({ ctx: { db, teamId }, input }) => {
-      return getInboxByStatus(db, {
-        teamId: teamId!,
-        status: input.status,
       });
     }),
 

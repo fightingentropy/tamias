@@ -14,7 +14,6 @@ const mockGetInboxById = mock(
 const mockUpdateInbox = mock(() => ({}));
 const mockDeleteInbox = mock(() => ({}));
 const mockDeleteInboxMany = mock(() => [] as Array<{ id: string }>);
-const mockGetInboxByStatus = mock(() => [] as any[]);
 
 // Mock the module
 mock.module("@tamias/app-data/queries", () => ({
@@ -24,7 +23,6 @@ mock.module("@tamias/app-data/queries", () => ({
   updateInbox: mockUpdateInbox,
   deleteInbox: mockDeleteInbox,
   deleteInboxMany: mockDeleteInboxMany,
-  getInboxByStatus: mockGetInboxByStatus,
   getInboxSearch: mock(() => []),
   getInboxBlocklist: mock(() => []),
   createInboxBlocklist: mock(() => ({})),
@@ -140,21 +138,5 @@ describe("tRPC: inbox.delete", () => {
     // inbox.delete returns void, so we just check it doesn't throw
     await caller.delete({ id: "a1b2c3d4-5e6f-4a7b-8c9d-0e1f2a3b4c5d" });
     expect(mockDeleteInbox).toHaveBeenCalled();
-  });
-});
-
-describe("tRPC: inbox.getByStatus", () => {
-  beforeEach(() => {
-    mockGetInboxByStatus.mockReset();
-    mockGetInboxByStatus.mockImplementation(() => [
-      { id: "item-1", displayName: "Test", status: "pending" },
-    ]);
-  });
-
-  test("returns inbox items by status", async () => {
-    const caller = createCaller(createTestContext());
-    const result = await caller.getByStatus({ status: "pending" });
-
-    expect(result).toHaveLength(1);
   });
 });

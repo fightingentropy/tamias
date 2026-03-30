@@ -1,4 +1,16 @@
 import {
+  checkDocumentAttachments,
+  deleteDocument,
+  getDocumentById,
+  getRelatedDocuments,
+  updateDocumentProcessingStatus,
+  updateDocuments,
+} from "@tamias/app-data/queries";
+import { getDocuments } from "@tamias/app-data/queries/documents";
+import { isMimeTypeSupportedForProcessing } from "@tamias/documents/utils";
+import { enqueue } from "@tamias/job-client";
+import { TRPCError } from "@trpc/server";
+import {
   deleteDocumentSchema,
   getDocumentSchema,
   getDocumentsSchema,
@@ -8,29 +20,16 @@ import {
   signedUrlSchema,
   signedUrlsSchema,
 } from "../../schemas/documents";
-import { createTRPCRouter, protectedProcedure } from "../init";
-import { getDocumentsPage } from "@tamias/app-services/documents";
-import {
-  checkDocumentAttachments,
-  deleteDocument,
-  getDocumentById,
-  getRelatedDocuments,
-  updateDocumentProcessingStatus,
-  updateDocuments,
-} from "@tamias/app-data/queries";
-import { isMimeTypeSupportedForProcessing } from "@tamias/documents/utils";
-import { enqueue } from "@tamias/job-client";
-import { TRPCError } from "@trpc/server";
 import { getVaultSignedUrl, removeVaultFile } from "../../services/storage";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const documentsRouter = createTRPCRouter({
   get: protectedProcedure
     .input(getDocumentsSchema)
     .query(async ({ input, ctx: { db, teamId } }) => {
-      return getDocumentsPage({
-        db,
+      return getDocuments(db, {
         teamId: teamId!,
-        input,
+        ...input,
       });
     }),
 
@@ -73,7 +72,7 @@ export const documentsRouter = createTRPCRouter({
         teamId: teamId!,
       });
 
-      if (!document || !document.pathTokens) {
+      if (!document?.pathTokens) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Document not found",

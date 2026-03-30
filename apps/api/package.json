@@ -25,15 +25,12 @@
   "dependencies": {
     "@ai-sdk-tools/agents": "^1.2.0",
     "@ai-sdk-tools/artifacts": "^1.2.0",
-    "@ai-sdk-tools/cache": "^1.2.0",
     "@ai-sdk/anthropic": "catalog:",
     "@ai-sdk/openai": "catalog:",
-    "@ai-sdk/react": "catalog:",
     "@date-fns/tz": "catalog:",
     "@hono/mcp": "^0.2.5",
     "@hono/trpc-server": "^0.4.2",
     "@hono/zod-openapi": "1.2.4",
-    "@hono/zod-validator": "^0.7.6",
     "@tamias/accounting": "workspace:*",
     "@tamias/contracts": "workspace:*",
     "@tamias/ai-artifacts": "workspace:*",
@@ -69,20 +66,16 @@
     "@sindresorhus/slugify": "catalog:",
     "@trpc/server": "^11.16.0",
     "ai": "catalog:",
-    "camelcase-keys": "catalog:",
     "date-fns": "catalog:",
     "hono": "catalog:",
     "jose": "catalog:",
     "nanoid": "catalog:",
     "parse-duration": "^2.1.4",
-    "pino": "catalog:",
     "resend": "catalog:",
-    "snakecase-keys": "^9.0.2",
     "stripe": "^21.0.1",
     "superjson": "^2.2.6",
     "uuid": "catalog:",
-    "zod": "catalog:",
-    "zod-openapi": "^5.4.5"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "wrangler": "^4.43.0"

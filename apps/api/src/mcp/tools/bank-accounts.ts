@@ -1,5 +1,5 @@
+import { getBankAccounts } from "@tamias/app-data/queries/bank-accounts";
 import { getBankAccountsSchema } from "../../schemas/bank-accounts";
-import { getBankAccountsForTeam } from "@tamias/app-services/bank";
 import { hasScope, READ_ONLY_ANNOTATIONS, type RegisterTools } from "../types";
 
 export const registerBankAccountTools: RegisterTools = (server, ctx) => {
@@ -19,13 +19,10 @@ export const registerBankAccountTools: RegisterTools = (server, ctx) => {
       annotations: READ_ONLY_ANNOTATIONS,
     },
     async (params) => {
-      const result = await getBankAccountsForTeam({
-        db,
+      const result = await getBankAccounts(db, {
         teamId,
-        input: {
-          enabled: params.enabled,
-          manual: params.manual,
-        },
+        enabled: params.enabled,
+        manual: params.manual,
       });
 
       return {

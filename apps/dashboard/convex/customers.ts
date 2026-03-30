@@ -7,6 +7,7 @@ import {
   normalizeOptionalString,
   nowIso,
 } from "../../../packages/domain/src/identity";
+import { buildSearchIndexText, buildSearchQuery } from "../../../packages/domain/src/text-search";
 import { getTeamByPublicTeamId, publicTeamId } from "./lib/identity";
 import { requireServiceKey } from "./lib/service";
 
@@ -237,6 +238,55 @@ function normalizeCustomerValues(
   };
 }
 
+function getCustomerSearchText(
+  customer: Pick<
+    Doc<"customers">,
+    | "name"
+    | "email"
+    | "billingEmail"
+    | "website"
+    | "phone"
+    | "contact"
+    | "note"
+    | "description"
+    | "industry"
+    | "city"
+    | "state"
+    | "country"
+    | "financeContact"
+    | "financeContactEmail"
+    | "status"
+    | "preferredCurrency"
+    | "externalId"
+    | "vatNumber"
+    | "companyType"
+  >,
+) {
+  return (
+    buildSearchIndexText([
+      customer.name,
+      customer.email,
+      customer.billingEmail,
+      customer.website,
+      customer.phone,
+      customer.contact,
+      customer.note,
+      customer.description,
+      customer.industry,
+      customer.city,
+      customer.state,
+      customer.country,
+      customer.financeContact,
+      customer.financeContactEmail,
+      customer.status,
+      customer.preferredCurrency,
+      customer.externalId,
+      customer.vatNumber,
+      customer.companyType,
+    ]) || undefined
+  );
+}
+
 export const serviceGetCustomerById = query({
   args: {
     serviceKey: v.string(),
@@ -365,6 +415,42 @@ export const serviceListCustomersPage = query({
   },
 });
 
+export const serviceSearchCustomers = query({
+  args: {
+    serviceKey: v.string(),
+    teamId: v.string(),
+    query: v.string(),
+    status: nullableString,
+    limit: v.optional(v.number()),
+  },
+  async handler(ctx, args) {
+    requireServiceKey(args.serviceKey);
+
+    const team = await getTeamByPublicTeamId(ctx, args.teamId);
+    const searchQuery = buildSearchQuery(args.query);
+
+    if (!team || searchQuery.length === 0) {
+      return [];
+    }
+
+    const customers = await ctx.db
+      .query("customers")
+      .withSearchIndex("search_by_team", (q) =>
+        q.search("searchText", searchQuery).eq("teamId", team._id),
+      )
+      .take(Math.max(1, Math.min((args.limit ?? 100) * 4, 400)));
+
+    return customers
+      .filter((customer) =>
+        args.status === undefined || args.status === null
+          ? true
+          : customer.status === args.status,
+      )
+      .slice(0, args.limit ?? customers.length)
+      .map((customer) => serializeCustomer(customer, args.teamId));
+  },
+});
+
 export const serviceUpsertCustomer = mutation({
   args: {
     serviceKey: v.string(),
@@ -425,6 +511,11 @@ export const serviceUpsertCustomer = mutation({
     const timestamp = nowIso();
     const customerId = args.id ?? crypto.randomUUID();
     const normalized = normalizeCustomerValues(args);
+    const searchText = getCustomerSearchText({
+      ...normalized,
+      name: normalized.name,
+      email: normalized.email,
+    });
     const existing = await getCustomerByPublicId(ctx, {
       customerId,
       teamId: team._id,
@@ -481,6 +572,7 @@ export const serviceUpsertCustomer = mutation({
         enrichedAt: normalized.enrichedAt,
         portalEnabled: normalized.portalEnabled ?? false,
         portalId: normalized.portalId,
+        searchText,
         updatedAt: timestamp,
       });
 
@@ -544,6 +636,7 @@ export const serviceUpsertCustomer = mutation({
       enrichedAt: normalized.enrichedAt,
       portalEnabled: normalized.portalEnabled ?? false,
       portalId: normalized.portalId,
+      searchText,
     });
 
     const inserted = await ctx.db.get(insertedId);
@@ -553,6 +646,61 @@ export const serviceUpsertCustomer = mutation({
     }
 
     return serializeCustomer(inserted, args.teamId);
+  },
+});
+
+export const serviceRebuildCustomerSearchTexts = mutation({
+  args: {
+    serviceKey: v.string(),
+    teamId: nullableString,
+  },
+  async handler(ctx, args) {
+    requireServiceKey(args.serviceKey);
+
+    const teams = args.teamId
+      ? [await getTeamByPublicTeamId(ctx, args.teamId)]
+      : (await ctx.db.query("teams").collect()).filter(
+          (team) => !!team.publicTeamId,
+        );
+
+    const validTeams = teams.filter(
+      (team): team is NonNullable<(typeof teams)[number]> => team !== null,
+    );
+
+    if (args.teamId && validTeams.length === 0) {
+      throw new ConvexError("Convex customer team not found");
+    }
+
+    const results = [];
+
+    for (const team of validTeams) {
+      const customers = await ctx.db
+        .query("customers")
+        .withIndex("by_team_id", (q) => q.eq("teamId", team._id))
+        .collect();
+      let updatedCustomerCount = 0;
+
+      for (const customer of customers) {
+        const searchText = getCustomerSearchText(customer);
+
+        if (customer.searchText === searchText) {
+          continue;
+        }
+
+        await ctx.db.patch(customer._id, {
+          searchText,
+        });
+        updatedCustomerCount += 1;
+      }
+
+      results.push({
+        teamId: team.publicTeamId ?? team._id,
+        customerCount: customers.length,
+        updatedCustomerCount,
+      });
+    }
+
+    return results;
   },
 });
 
@@ -791,6 +939,17 @@ export const serviceUpdateCustomerEnrichment = mutation({
         normalizeOptionalString(args.primaryLanguage) ?? undefined,
       fiscalYearEnd: normalizeOptionalString(args.fiscalYearEnd) ?? undefined,
       vatNumber: normalizeOptionalString(args.vatNumber) ?? undefined,
+      searchText: getCustomerSearchText({
+        ...customer,
+        description: normalizeOptionalString(args.description) ?? undefined,
+        industry: normalizeOptionalString(args.industry) ?? undefined,
+        companyType: normalizeOptionalString(args.companyType) ?? undefined,
+        financeContact:
+          normalizeOptionalString(args.financeContact) ?? undefined,
+        financeContactEmail:
+          normalizeEmail(args.financeContactEmail) ?? undefined,
+        vatNumber: normalizeOptionalString(args.vatNumber) ?? undefined,
+      }),
       enrichmentStatus: "completed",
       enrichedAt: nowIso(),
       updatedAt: nowIso(),
@@ -903,6 +1062,14 @@ export const serviceClearCustomerEnrichment = mutation({
       ceoName: undefined,
       financeContact: undefined,
       financeContactEmail: undefined,
+      searchText: getCustomerSearchText({
+        ...customer,
+        description: undefined,
+        industry: undefined,
+        companyType: undefined,
+        financeContact: undefined,
+        financeContactEmail: undefined,
+      }),
       primaryLanguage: undefined,
       fiscalYearEnd: undefined,
       enrichmentStatus: undefined,

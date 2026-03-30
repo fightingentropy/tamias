@@ -1,6 +1,7 @@
 import { paginationOptsValidator } from "convex/server";
 import { ConvexError, v } from "convex/values";
 import { nowIso } from "../../../packages/domain/src/identity";
+import { buildSearchIndexText, buildSearchQuery } from "../../../packages/domain/src/text-search";
 import type { Doc } from "./_generated/dataModel";
 import {
   type MutationCtx,
@@ -138,6 +139,23 @@ function getStringFieldFromPayload(payload: PublicInvoicePayload, key: string) {
     : null;
 }
 
+function getNestedStringFieldFromPayload(
+  payload: PublicInvoicePayload,
+  path: string[],
+) {
+  let current: unknown = payload;
+
+  for (const key of path) {
+    if (!current || typeof current !== "object" || !(key in current)) {
+      return null;
+    }
+
+    current = (current as Record<string, unknown>)[key];
+  }
+
+  return typeof current === "string" && current.length > 0 ? current : null;
+}
+
 function getNumberFieldFromPayload(payload: PublicInvoicePayload, key: string) {
   return typeof payload[key] === "number" ? payload[key] : null;
 }
@@ -186,6 +204,25 @@ function getDueDateFromPayload(payload: PublicInvoicePayload) {
 
 function getPaidAtFromPayload(payload: PublicInvoicePayload) {
   return getStringFieldFromPayload(payload, "paidAt");
+}
+
+function getInvoiceSearchText(
+  payload: PublicInvoicePayload,
+  invoiceNumberOverride?: string | null,
+) {
+  return (
+    buildSearchIndexText([
+      invoiceNumberOverride ?? getInvoiceNumberFromPayload(payload),
+      getCustomerNameFromPayload(payload),
+      getStringFieldFromPayload(payload, "status"),
+      getStringFieldFromPayload(payload, "note"),
+      getStringFieldFromPayload(payload, "sentTo"),
+      getCurrencyFromPayload(payload),
+      getNestedStringFieldFromPayload(payload, ["customer", "name"]),
+      getNestedStringFieldFromPayload(payload, ["customer", "email"]),
+      getNestedStringFieldFromPayload(payload, ["customer", "billingEmail"]),
+    ]) || undefined
+  );
 }
 
 function getPublicInvoiceProjectionFields(
@@ -1630,6 +1667,39 @@ async function rebuildInvoiceReportAggregatesForTeam(
   };
 }
 
+async function rebuildPublicInvoiceSearchTextsForTeam(
+  ctx: MutationCtx,
+  team: Pick<TeamDoc, "_id" | "publicTeamId">,
+) {
+  const records = await ctx.db
+    .query("publicInvoices")
+    .withIndex("by_team_id", (q) => q.eq("teamId", team._id))
+    .collect();
+  let updatedInvoiceCount = 0;
+
+  for (const record of records) {
+    const searchText = getInvoiceSearchText(
+      record.payload as PublicInvoicePayload,
+      record.invoiceNumber,
+    );
+
+    if (record.searchText === searchText) {
+      continue;
+    }
+
+    await ctx.db.patch(record._id, {
+      searchText,
+    });
+    updatedInvoiceCount += 1;
+  }
+
+  return {
+    teamId: team.publicTeamId ?? team._id,
+    invoiceCount: records.length,
+    updatedInvoiceCount,
+  };
+}
+
 function serializeInvoiceAggregate(record: InvoiceAggregateDoc) {
   return {
     scopeKey: record.scopeKey,
@@ -2201,6 +2271,7 @@ export const serviceUpsertPublicInvoice = mutation({
       args.invoiceNumber,
     );
     const invoiceNumber = projectionFields.invoiceNumber ?? null;
+    const searchText = getInvoiceSearchText(payload, args.invoiceNumber);
     const existing =
       (await ctx.db
         .query("publicInvoices")
@@ -2238,6 +2309,7 @@ export const serviceUpsertPublicInvoice = mutation({
         paymentIntentId: args.paymentIntentId ?? undefined,
         viewedAt: args.viewedAt ?? undefined,
         ...projectionFields,
+        searchText,
         payload,
         updatedAt: timestamp,
       });
@@ -2282,6 +2354,7 @@ export const serviceUpsertPublicInvoice = mutation({
       paymentIntentId: args.paymentIntentId ?? undefined,
       viewedAt: args.viewedAt ?? undefined,
       ...projectionFields,
+      searchText,
       payload,
       createdAt: timestamp,
       updatedAt: timestamp,
@@ -3041,6 +3114,38 @@ export const serviceRebuildInvoiceReportAggregates = mutation({
   },
 });
 
+export const serviceRebuildPublicInvoiceSearchTexts = mutation({
+  args: {
+    serviceKey: v.string(),
+    publicTeamId: v.optional(v.union(v.string(), v.null())),
+  },
+  async handler(ctx, args) {
+    requireServiceKey(args.serviceKey);
+
+    const teams = args.publicTeamId
+      ? [await getTeamByPublicTeamId(ctx, args.publicTeamId)]
+      : (await ctx.db.query("teams").collect()).filter(
+          (team) => !!team.publicTeamId,
+        );
+
+    const validTeams = teams.filter(
+      (team): team is NonNullable<(typeof teams)[number]> => team !== null,
+    );
+
+    if (args.publicTeamId && validTeams.length === 0) {
+      throw new ConvexError("Convex public invoice team not found");
+    }
+
+    const results = [];
+
+    for (const team of validTeams) {
+      results.push(await rebuildPublicInvoiceSearchTextsForTeam(ctx, team));
+    }
+
+    return results;
+  },
+});
+
 export const serviceGetPublicInvoicesByIds = query({
   args: {
     serviceKey: v.string(),
@@ -3180,6 +3285,57 @@ export const serviceListPublicInvoicesPage = query({
         }),
       ),
     };
+  },
+});
+
+export const serviceSearchPublicInvoices = query({
+  args: {
+    serviceKey: v.string(),
+    publicTeamId: v.string(),
+    query: v.string(),
+    status: v.optional(v.union(v.string(), v.null())),
+    limit: v.optional(v.number()),
+  },
+  async handler(ctx, args) {
+    requireServiceKey(args.serviceKey);
+
+    const team = await getTeamByPublicTeamId(ctx, args.publicTeamId);
+    const searchQuery = buildSearchQuery(args.query);
+
+    if (!team || searchQuery.length === 0) {
+      return [];
+    }
+
+    const records = await ctx.db
+      .query("publicInvoices")
+      .withSearchIndex("search_by_team", (q) =>
+        q.search("searchText", searchQuery).eq("teamId", team._id),
+      )
+      .take(Math.max(1, Math.min((args.limit ?? 100) * 4, 400)));
+
+    return records
+      .filter((record) =>
+        args.status === undefined || args.status === null
+          ? true
+          : record.status === args.status,
+      )
+      .slice(0, args.limit ?? records.length)
+      .map((record) =>
+        serializePublicInvoice({
+          _id: record._id,
+          publicInvoiceId: record.publicInvoiceId,
+          token: record.token,
+          status: record.status,
+          paymentIntentId: record.paymentIntentId,
+          viewedAt: record.viewedAt,
+          invoiceNumber: record.invoiceNumber,
+          invoiceRecurringId: record.invoiceRecurringId,
+          recurringSequence: record.recurringSequence,
+          payload: record.payload as PublicInvoicePayload,
+          createdAt: record.createdAt,
+          updatedAt: record.updatedAt,
+        }),
+      );
   },
 });
 

@@ -1,5 +1,10 @@
-import { withRequiredScope } from "../middleware";
-import type { Context } from "../types";
+import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import {
+  deleteCustomer,
+  getCustomerById,
+  getCustomers,
+  upsertCustomer,
+} from "@tamias/app-data/queries";
 import {
   customerResponseSchema,
   customersResponseSchema,
@@ -8,13 +13,8 @@ import {
   upsertCustomerSchema,
 } from "../../schemas/customers";
 import { validateResponse } from "../../utils/validate-response";
-import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
-import { getCustomersPage } from "@tamias/app-services/customers";
-import {
-  deleteCustomer,
-  getCustomerById,
-  upsertCustomer,
-} from "@tamias/app-data/queries";
+import { withRequiredScope } from "../middleware";
+import type { Context } from "../types";
 
 const app = new OpenAPIHono<Context>();
 
@@ -47,13 +47,10 @@ app.openapi(
     const teamId = c.get("teamId");
     const { q, ...query } = c.req.valid("query");
 
-    const result = await getCustomersPage({
-      db,
+    const result = await getCustomers(db, {
       teamId,
-      input: {
-        ...query,
-        q,
-      },
+      ...query,
+      q,
     });
 
     return c.json(validateResponse(result, customersResponseSchema));

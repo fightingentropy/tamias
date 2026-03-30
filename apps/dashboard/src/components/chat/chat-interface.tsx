@@ -1,29 +1,17 @@
 "use client";
 
-import { useChat, useChatActions, useDataPart } from "@ai-sdk-tools/store";
-import { useAuthToken } from "@convex-dev/auth/react";
-import type { UIChatMessage } from "@tamias/contracts/chat";
 import { cn } from "@tamias/ui/cn";
 import { Conversation, ConversationContent } from "@tamias/ui/conversation";
-import { DefaultChatTransport, generateId } from "ai";
 import dynamic from "next/dynamic";
 import { parseAsString, useQueryState } from "nuqs";
-import { useEffect, useMemo, useRef } from "react";
-import { useCurrentUser } from "@/components/current-user-provider";
 import { Portal } from "@/components/portal";
 import { useChatInterface } from "@/hooks/use-chat-interface";
 import { useChatStatus } from "@/hooks/use-chat-status";
-import { useMetricsFilter } from "@/hooks/use-metrics-filter";
 import { useOverviewTab } from "@/hooks/use-overview-tab";
 import type { Geo } from "@/utils/geo";
-import {
-  ChatHeader,
-  ChatInput,
-  type ChatInputMessage,
-  ChatMessages,
-  ChatStatusIndicators,
-} from "./";
+import { ChatHeader, ChatInput, ChatMessages, ChatStatusIndicators } from "./";
 import { SuggestedPrompts } from "./suggested-prompts";
+import { useDashboardChatSession } from "./use-dashboard-chat-session";
 
 // Dynamically load Canvas (15 chart components) - only loads when user opens an artifact
 const Canvas = dynamic(
@@ -36,84 +24,8 @@ type Props = {
 };
 
 export function ChatInterface({ geo }: Props) {
-  const token = useAuthToken();
-  const user = useCurrentUser();
-  const { chatId: routeChatId, isHome } = useChatInterface();
-  const chatId = useMemo(() => routeChatId ?? generateId(), [routeChatId]);
-  const { reset } = useChatActions();
-  const prevChatIdRef = useRef<string | null>(routeChatId);
-  const [, clearSuggestions] = useDataPart<{ prompts: string[] }>(
-    "suggestions",
-  );
-
-  // Get current dashboard metrics filter state (source of truth for AI tool defaults)
-  const { period, from, to, currency, revenueType } = useMetricsFilter();
-
-  // Reset chat state when navigating away from a chat (sidebar, browser back, etc.)
-  useEffect(() => {
-    const prevChatId = prevChatIdRef.current;
-    const currentChatId = routeChatId;
-
-    // If we had a chatId before and now we don't (navigated away), reset
-    // Or if we're switching to a different chatId, reset
-    if (prevChatId && prevChatId !== currentChatId) {
-      reset();
-      clearSuggestions();
-    }
-
-    // Update the ref for next comparison
-    prevChatIdRef.current = currentChatId;
-  }, [routeChatId, reset, clearSuggestions]);
-
-  const authenticatedFetch = useMemo(
-    () =>
-      Object.assign(
-        async (url: RequestInfo | URL, requestOptions?: RequestInit) => {
-          if (!token) {
-            throw new Error("Not authenticated");
-          }
-
-          return fetch(url, {
-            ...requestOptions,
-            headers: {
-              ...requestOptions?.headers,
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          });
-        },
-      ),
-    [token],
-  );
-
-  const { messages, status } = useChat<UIChatMessage>({
-    id: chatId,
-    transport: new DefaultChatTransport({
-      api: `${process.env.NEXT_PUBLIC_API_URL}/chat`,
-      fetch: authenticatedFetch,
-      prepareSendMessagesRequest({ messages, id }) {
-        const lastMessage = messages[messages.length - 1] as ChatInputMessage;
-
-        const agentChoice = lastMessage.metadata?.agentChoice;
-        const toolChoice = lastMessage.metadata?.toolChoice;
-
-        return {
-          body: {
-            id,
-            country: geo?.country,
-            city: geo?.city,
-            message: lastMessage,
-            agentChoice,
-            toolChoice,
-            aiProvider: user.aiProvider,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            // Dashboard metrics filter state - source of truth for AI tool defaults
-            metricsFilter: { period, from, to, currency, revenueType },
-          },
-        };
-      },
-    }),
-  });
+  const { isHome } = useChatInterface();
+  const { messages, status } = useDashboardChatSession({ geo });
 
   const {
     agentStatus,

@@ -16,7 +16,6 @@ import {
   calculateNameScore as calculateUnifiedNameScore,
   scoreMatch,
 } from "../../utils/transaction-matching";
-import { getInboxItemsByDatePaged } from "../paged-records";
 import { getTransactionIdsWithAttachments } from "../transaction-attachments";
 import {
   compareNullableDates,
@@ -35,6 +34,62 @@ function isInboxSearchCandidate(item: InboxItemRecord) {
     item.type !== "other" &&
     item.transactionId == null
   );
+}
+
+function getInboxAmountSearchWindow(amount: number) {
+  const absoluteAmount = Math.abs(amount);
+  const tolerance = Math.max(1, absoluteAmount * 0.25);
+
+  return {
+    minAmount: Math.max(0, Math.round((absoluteAmount - tolerance) * 100)),
+    maxAmount: Math.round((absoluteAmount + tolerance) * 100),
+  };
+}
+
+async function getIndexedInboxSearchCandidates(args: {
+  teamId: string;
+  searchTerms: Array<string | null | undefined>;
+  amount?: number | null;
+  limit: number;
+}) {
+  const searchTerms = [
+    ...new Set(
+      args.searchTerms
+        .map((searchTerm) => searchTerm?.trim())
+        .filter((searchTerm): searchTerm is string => Boolean(searchTerm)),
+    ),
+  ];
+  const amountWindow =
+    args.amount !== null && args.amount !== undefined
+      ? getInboxAmountSearchWindow(args.amount)
+      : null;
+  const [textCandidateGroups, amountCandidates] = await Promise.all([
+    Promise.all(
+      searchTerms.map((searchTerm) =>
+        searchInboxItemsFromConvex({
+          teamId: args.teamId,
+          query: searchTerm,
+          limit: args.limit,
+        }),
+      ),
+    ),
+    amountWindow
+      ? getInboxItemsByAmountRangeFromConvex({
+          teamId: args.teamId,
+          minAmount: amountWindow.minAmount,
+          maxAmount: amountWindow.maxAmount,
+          limit: args.limit,
+        })
+      : Promise.resolve([]),
+  ]);
+
+  return [
+    ...new Map(
+      [...textCandidateGroups.flat(), ...amountCandidates]
+        .filter(isInboxSearchCandidate)
+        .map((item) => [item.id, item]),
+    ).values(),
+  ];
 }
 
 async function getRecentInboxSearchItems(teamId: string, limit: number) {
@@ -187,15 +242,25 @@ export async function getInboxSearch(
         const unifiedTransactionBaseAmount = Math.abs(
           transaction.baseAmount || 0,
         );
-        const items = (await getInboxItemsByDatePaged({
+        const dateGte = shiftIsoDate(transaction.date, -123);
+        const dateLte = shiftIsoDate(transaction.date, 30);
+        const items = await getIndexedInboxSearchCandidates({
           teamId,
-          dateGte: shiftIsoDate(transaction.date, -123),
-          dateLte: shiftIsoDate(transaction.date, 30),
-          order: "desc",
-        })).filter(isInboxSearchCandidate);
+          searchTerms: [
+            transaction.name,
+            transaction.merchantName,
+            transaction.counterpartyName,
+          ],
+          amount: transaction.amount,
+          limit: Math.max(limit * 12, 120),
+        });
 
         return items
           .filter((candidate) => candidate.date !== null)
+          .filter(
+            (candidate) =>
+              candidate.date! >= dateGte && candidate.date! <= dateLte,
+          )
           .filter((candidate) => {
             const nameScore = calculateUnifiedNameScore(
               candidate.displayName,

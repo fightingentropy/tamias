@@ -1,4 +1,4 @@
-import type { AppRouter } from "@tamias/api-contracts/trpc";
+import type { AppRouter } from "@tamias/api/trpc/routers/_app";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import superjson from "superjson";
 import { fetchWithRetry } from "./fetch-with-retry";

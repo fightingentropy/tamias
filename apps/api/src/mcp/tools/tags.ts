@@ -1,5 +1,5 @@
-import { getTagsForTeam } from "@tamias/app-services/tags";
 import { getTagById } from "@tamias/app-data/queries";
+import { getTags } from "@tamias/app-data/queries/tags";
 import { z } from "zod";
 import { hasScope, READ_ONLY_ANNOTATIONS, type RegisterTools } from "../types";
 
@@ -20,7 +20,7 @@ export const registerTagTools: RegisterTools = (server, ctx) => {
       annotations: READ_ONLY_ANNOTATIONS,
     },
     async () => {
-      const result = await getTagsForTeam({ db, teamId });
+      const result = await getTags(db, { teamId });
 
       return {
         content: [{ type: "text", text: JSON.stringify(result, null, 2) }],

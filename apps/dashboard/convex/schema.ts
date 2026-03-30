@@ -442,6 +442,7 @@ export default defineSchema({
     .index("by_public_inbox_id", ["publicInboxId"])
     .index("by_team_id", ["teamId"])
     .index("by_reference_id", ["referenceId"])
+    .index("by_status_created_at", ["status", "createdAt"])
     .index("by_team_and_reference_id", ["teamId", "referenceId"])
     .index("by_team_and_created_at", ["teamId", "createdAt"])
     .index("by_team_and_status", ["teamId", "status"])
@@ -472,11 +473,38 @@ export default defineSchema({
   })
     .index("by_team_and_date", ["teamId", "date"])
     .index("by_team_date_currency", ["teamId", "date", "currency"]),
+  inboxStatusAggregates: defineTable({
+    teamId: v.id("teams"),
+    status: v.union(
+      v.literal("new"),
+      v.literal("archived"),
+      v.literal("processing"),
+      v.literal("done"),
+      v.literal("pending"),
+      v.literal("analyzing"),
+      v.literal("suggested_match"),
+      v.literal("no_match"),
+      v.literal("other"),
+      v.literal("deleted"),
+    ),
+    createdAtDay: v.string(),
+    itemCount: v.number(),
+    createdAt: v.string(),
+    updatedAt: v.string(),
+  })
+    .index("by_team_and_created_at_day", ["teamId", "createdAtDay"])
+    .index("by_team_status_created_at_day", [
+      "teamId",
+      "status",
+      "createdAtDay",
+    ]),
   transactionMatchSuggestions: defineTable({
     publicSuggestionId: v.optional(v.string()),
     teamId: v.id("teams"),
     inboxId: v.string(),
     transactionId: v.string(),
+    normalizedInboxName: v.optional(v.string()),
+    normalizedTransactionName: v.optional(v.string()),
     confidenceScore: v.number(),
     amountScore: v.optional(v.number()),
     currencyScore: v.optional(v.number()),
@@ -682,6 +710,7 @@ export default defineSchema({
     enrichedAt: v.optional(v.string()),
     portalEnabled: v.optional(v.boolean()),
     portalId: v.optional(v.string()),
+    searchText: v.optional(v.string()),
     createdAt: v.string(),
     updatedAt: v.string(),
   })
@@ -689,7 +718,11 @@ export default defineSchema({
     .index("by_team_id", ["teamId"])
     .index("by_team_created_at", ["teamId", "createdAt"])
     .index("by_portal_id", ["portalId"])
-    .index("by_team_and_enrichment_status", ["teamId", "enrichmentStatus"]),
+    .index("by_team_and_enrichment_status", ["teamId", "enrichmentStatus"])
+    .searchIndex("search_by_team", {
+      searchField: "searchText",
+      filterFields: ["teamId"],
+    }),
   invoiceProducts: defineTable({
     publicInvoiceProductId: v.optional(v.string()),
     teamId: v.id("teams"),
@@ -750,6 +783,7 @@ export default defineSchema({
     sentAt: v.optional(v.string()),
     dueDate: v.optional(v.string()),
     paidAt: v.optional(v.string()),
+    searchText: v.optional(v.string()),
     payload: v.any(),
     createdAt: v.string(),
     updatedAt: v.string(),
@@ -777,7 +811,11 @@ export default defineSchema({
     .index("by_team_status_paid_at", ["teamId", "status", "paidAt"])
     .index("by_payment_intent_id", ["paymentIntentId"])
     .index("by_status", ["status"])
-    .index("by_token", ["token"]),
+    .index("by_token", ["token"])
+    .searchIndex("search_by_team", {
+      searchField: "searchText",
+      filterFields: ["teamId"],
+    }),
   invoiceAggregates: defineTable({
     teamId: v.id("teams"),
     scopeKey: v.string(),
@@ -940,6 +978,7 @@ export default defineSchema({
     content: v.optional(v.string()),
     date: v.optional(v.string()),
     language: v.optional(v.string()),
+    searchText: v.optional(v.string()),
     processingStatus: v.union(
       v.literal("pending"),
       v.literal("processing"),
@@ -952,7 +991,11 @@ export default defineSchema({
     .index("by_name", ["name"])
     .index("by_team_and_name", ["teamId", "name"])
     .index("by_team_and_created_at", ["teamId", "createdAt"])
-    .index("by_team_and_date", ["teamId", "date"]),
+    .index("by_team_and_date", ["teamId", "date"])
+    .searchIndex("search_by_team", {
+      searchField: "searchText",
+      filterFields: ["teamId"],
+    }),
   documentTagEmbeddings: defineTable({
     slug: v.string(),
     name: v.string(),
@@ -977,13 +1020,21 @@ export default defineSchema({
     documentId: v.string(),
     tagId: v.string(),
     documentTagId: v.id("documentTags"),
+    documentCreatedAt: v.optional(v.string()),
+    documentDate: v.optional(v.string()),
     createdAt: v.string(),
     updatedAt: v.string(),
   })
     .index("by_team_id", ["teamId"])
     .index("by_team_and_document", ["teamId", "documentId"])
     .index("by_team_and_tag", ["teamId", "tagId"])
-    .index("by_team_document_tag", ["teamId", "documentId", "tagId"]),
+    .index("by_team_document_tag", ["teamId", "documentId", "tagId"])
+    .index("by_team_tag_and_document_created_at", [
+      "teamId",
+      "tagId",
+      "documentCreatedAt",
+      "documentId",
+    ]),
   tags: defineTable({
     publicTagId: v.optional(v.string()),
     teamId: v.id("teams"),
@@ -999,6 +1050,7 @@ export default defineSchema({
     teamId: v.id("teams"),
     transactionId: v.string(),
     tagId: v.string(),
+    transactionDate: v.optional(v.string()),
     createdAt: v.string(),
     updatedAt: v.string(),
   })
@@ -1006,7 +1058,13 @@ export default defineSchema({
     .index("by_team_id", ["teamId"])
     .index("by_team_and_transaction", ["teamId", "transactionId"])
     .index("by_team_and_tag", ["teamId", "tagId"])
-    .index("by_team_transaction_tag", ["teamId", "transactionId", "tagId"]),
+    .index("by_team_transaction_tag", ["teamId", "transactionId", "tagId"])
+    .index("by_team_tag_transaction_date", [
+      "teamId",
+      "tagId",
+      "transactionDate",
+      "transactionId",
+    ]),
   transactionAttachments: defineTable({
     publicTransactionAttachmentId: v.optional(v.string()),
     teamId: v.id("teams"),
@@ -1084,6 +1142,7 @@ export default defineSchema({
     ),
     merchantName: v.optional(v.string()),
     enrichmentCompleted: v.optional(v.boolean()),
+    hasAttachment: v.optional(v.boolean()),
     searchText: v.optional(v.string()),
     searchAmount: v.optional(v.number()),
   })
@@ -1091,10 +1150,12 @@ export default defineSchema({
     .index("by_team_id", ["teamId"])
     .index("by_team_and_date", ["teamId", "date"])
     .index("by_team_and_bank_account", ["teamId", "bankAccountId"])
+    .index("by_team_bank_account_date", ["teamId", "bankAccountId", "date"])
     .index("by_team_and_enrichment_completed", [
       "teamId",
       "enrichmentCompleted",
     ])
+    .index("by_team_notified_date", ["teamId", "notified", "date"])
     .index("by_team_and_internal_id", ["teamId", "internalId"])
     .index("by_team_and_search_amount", ["teamId", "searchAmount"])
     .searchIndex("search_by_team", {
@@ -1215,6 +1276,7 @@ export default defineSchema({
     currency: v.optional(v.string()),
     billable: v.optional(v.boolean()),
     rate: v.optional(v.number()),
+    searchText: v.optional(v.string()),
     createdAt: v.string(),
     updatedAt: v.string(),
   })
@@ -1223,7 +1285,11 @@ export default defineSchema({
     .index("by_team_created_at", ["teamId", "createdAt"])
     .index("by_team_and_status", ["teamId", "status"])
     .index("by_team_status_created_at", ["teamId", "status", "createdAt"])
-    .index("by_team_and_customer", ["teamId", "customerId"]),
+    .index("by_team_and_customer", ["teamId", "customerId"])
+    .searchIndex("search_by_team", {
+      searchField: "searchText",
+      filterFields: ["teamId"],
+    }),
   trackerEntries: defineTable({
     publicTrackerEntryId: v.optional(v.string()),
     teamId: v.id("teams"),
@@ -1251,13 +1317,20 @@ export default defineSchema({
     teamId: v.id("teams"),
     trackerProjectId: v.string(),
     tagId: v.string(),
+    projectCreatedAt: v.optional(v.string()),
     createdAt: v.string(),
     updatedAt: v.string(),
   })
     .index("by_team_id", ["teamId"])
     .index("by_team_and_project", ["teamId", "trackerProjectId"])
     .index("by_team_and_tag", ["teamId", "tagId"])
-    .index("by_team_project_tag", ["teamId", "trackerProjectId", "tagId"]),
+    .index("by_team_project_tag", ["teamId", "trackerProjectId", "tagId"])
+    .index("by_team_tag_project_created_at", [
+      "teamId",
+      "tagId",
+      "projectCreatedAt",
+      "trackerProjectId",
+    ]),
   customerTags: defineTable({
     customerId: v.string(),
     tagId: v.string(),

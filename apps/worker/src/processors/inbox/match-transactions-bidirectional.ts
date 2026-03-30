@@ -2,7 +2,6 @@ import {
   calculateInboxSuggestions,
   findInboxMatches,
   getInboxById,
-  getInboxItemsForForwardMatching,
   getPendingInboxForMatching,
   getTransactionById,
   hasSuggestion,
@@ -33,11 +32,6 @@ export class MatchTransactionsBidirectionalProcessor extends BaseProcessor<Match
       newTransactionCount: newTransactionIds.length,
     });
 
-    const forwardCandidateInboxItems = await getInboxItemsForForwardMatching(
-      db,
-      teamId,
-    );
-
     // PHASE 1: Forward matching - Find inbox items for new transactions
     const forwardMatches = new Map<string, string>(); // transactionId -> inboxId
     const claimedInboxIds = new Set<string>();
@@ -54,7 +48,6 @@ export class MatchTransactionsBidirectionalProcessor extends BaseProcessor<Match
         const inboxMatch = await findInboxMatches(db, {
           teamId,
           transactionId,
-          candidateInboxItems: forwardCandidateInboxItems,
           excludeInboxIds: claimedInboxIds,
         });
 

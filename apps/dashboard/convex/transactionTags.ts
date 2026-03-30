@@ -1,4 +1,5 @@
 import { ConvexError, v } from "convex/values";
+import type { Doc, Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { mutation, query } from "./_generated/server";
 import { getTeamByPublicTeamId } from "./lib/identity";
@@ -12,6 +13,51 @@ type TagRecord = {
   publicTagId?: string;
   name: string;
 };
+
+async function getTransactionForTeamByExternalId(
+  ctx: TransactionTagCtx,
+  args: {
+    teamId: Id<"teams">;
+    transactionId: string;
+  },
+) {
+  const byLegacyId = await ctx.db
+    .query("transactions")
+    .withIndex("by_public_transaction_id", (q) =>
+      q.eq("publicTransactionId", args.transactionId),
+    )
+    .unique();
+
+  if (byLegacyId && byLegacyId.teamId === args.teamId) {
+    return byLegacyId;
+  }
+
+  try {
+    const byDocId = await ctx.db.get(
+      args.transactionId as Id<"transactions">,
+    );
+
+    if (byDocId && byDocId.teamId === args.teamId) {
+      return byDocId;
+    }
+  } catch (error) {
+    if (
+      !(error instanceof Error) ||
+      !error.message.includes("db.get") ||
+      !error.message.includes("Unable to decode ID")
+    ) {
+      throw error;
+    }
+  }
+
+  return null;
+}
+
+function getTransactionTagSortFields(transaction: Pick<Doc<"transactions">, "date">) {
+  return {
+    transactionDate: transaction.date,
+  };
+}
 
 function serializeTransactionTagAssignment(
   teamId: string,
@@ -133,6 +179,15 @@ async function upsertAssignment(
   },
 ) {
   const { team, tag } = await getTagOrThrow(ctx, args);
+  const transaction = await getTransactionForTeamByExternalId(ctx, {
+    teamId: team._id,
+    transactionId: args.transactionId,
+  });
+
+  if (!transaction) {
+    throw new ConvexError("Convex transaction tag target not found");
+  }
+
   const existing = await ctx.db
     .query("transactionTags")
     .withIndex("by_team_transaction_tag", (q) =>
@@ -153,6 +208,7 @@ async function upsertAssignment(
     teamId: team._id,
     transactionId: args.transactionId,
     tagId: args.tagId,
+    ...getTransactionTagSortFields(transaction),
     createdAt: timestamp,
     updatedAt: timestamp,
   });
@@ -200,40 +256,6 @@ export const serviceGetTransactionTagAssignmentsForTransactionIds = query({
   },
 });
 
-export const serviceGetTransactionIdsForTagIds = query({
-  args: {
-    serviceKey: v.string(),
-    teamId: v.string(),
-    tagIds: v.array(v.string()),
-  },
-  async handler(ctx, args) {
-    requireServiceKey(args.serviceKey);
-
-    if (args.tagIds.length === 0) {
-      return [];
-    }
-
-    const team = await getTeamByPublicTeamId(ctx, args.teamId);
-
-    if (!team) {
-      return [];
-    }
-
-    const assignments = await Promise.all(
-      [...new Set(args.tagIds)].map((tagId) =>
-        ctx.db
-          .query("transactionTags")
-          .withIndex("by_team_and_tag", (q) =>
-            q.eq("teamId", team._id).eq("tagId", tagId),
-          )
-          .collect(),
-      ),
-    );
-
-    return [...new Set(assignments.flat().map((assignment) => assignment.transactionId))];
-  },
-});
-
 export const serviceGetTaggedTransactionIds = query({
   args: {
     serviceKey: v.string(),
@@ -254,6 +276,80 @@ export const serviceGetTaggedTransactionIds = query({
       .collect();
 
     return [...new Set(assignments.map((assignment) => assignment.transactionId))];
+  },
+});
+
+export const serviceRebuildTransactionTagSortFields = mutation({
+  args: {
+    serviceKey: v.string(),
+    teamId: v.optional(v.union(v.string(), v.null())),
+  },
+  async handler(ctx, args) {
+    requireServiceKey(args.serviceKey);
+
+    const teams = args.teamId
+      ? [await getTeamByPublicTeamId(ctx, args.teamId)]
+      : (await ctx.db.query("teams").collect()).filter(
+          (team) => !!team.publicTeamId,
+        );
+
+    const validTeams = teams.filter(
+      (team): team is NonNullable<(typeof teams)[number]> => team !== null,
+    );
+
+    if (args.teamId && validTeams.length === 0) {
+      throw new ConvexError("Convex transaction tag team not found");
+    }
+
+    const results = [];
+
+    for (const team of validTeams) {
+      const assignments = await ctx.db
+        .query("transactionTags")
+        .withIndex("by_team_id", (q) => q.eq("teamId", team._id))
+        .collect();
+      let updatedAssignmentCount = 0;
+      let deletedAssignmentCount = 0;
+
+      for (const assignment of assignments) {
+        const transaction = await getTransactionForTeamByExternalId(ctx, {
+          teamId: team._id,
+          transactionId: assignment.transactionId,
+        });
+
+        if (!transaction) {
+          await ctx.db.delete(assignment._id);
+          deletedAssignmentCount += 1;
+          continue;
+        }
+
+        const canonicalTransactionId =
+          transaction.publicTransactionId ?? transaction._id;
+        const sortFields = getTransactionTagSortFields(transaction);
+
+        if (
+          assignment.transactionId === canonicalTransactionId &&
+          assignment.transactionDate === sortFields.transactionDate
+        ) {
+          continue;
+        }
+
+        await ctx.db.patch(assignment._id, {
+          transactionId: canonicalTransactionId,
+          ...sortFields,
+        });
+        updatedAssignmentCount += 1;
+      }
+
+      results.push({
+        teamId: team.publicTeamId ?? team._id,
+        assignmentCount: assignments.length,
+        updatedAssignmentCount,
+        deletedAssignmentCount,
+      });
+    }
+
+    return results;
   },
 });
 

@@ -3,11 +3,46 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import type { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import { nowIso } from "../../../packages/domain/src/identity";
+import { buildSearchIndexText } from "../../../packages/domain/src/text-search";
 import {
   getAppUserByAuthUserId,
   getTeamByPublicTeamId,
   publicUserId,
 } from "./lib/identity";
+
+const DOCUMENT_SEARCH_SNIPPET_LIMIT = 4000;
+
+function getDocumentSearchSnippet(value: string | null | undefined) {
+  if (!value) {
+    return undefined;
+  }
+
+  return value.slice(0, DOCUMENT_SEARCH_SNIPPET_LIMIT);
+}
+
+function getVaultDocumentSearchText(args: {
+  path: string;
+  pathTokens: string[];
+  tag?: string | null;
+  title?: string | null;
+  summary?: string | null;
+  body?: string | null;
+  content?: string | null;
+  language?: string | null;
+}) {
+  return (
+    buildSearchIndexText([
+      args.path,
+      args.pathTokens.join(" "),
+      args.title,
+      getDocumentSearchSnippet(args.summary),
+      getDocumentSearchSnippet(args.body),
+      getDocumentSearchSnippet(args.content),
+      args.tag,
+      args.language,
+    ]) || undefined
+  );
+}
 
 function hasInternalAccess(internalKey?: string) {
   return Boolean(
@@ -91,6 +126,10 @@ async function syncVaultDocument(
     contentType: args.contentType,
     size: args.size,
   });
+  const searchText = getVaultDocumentSearchText({
+    path: args.path,
+    pathTokens: args.pathTokens,
+  });
 
   if (existing) {
     const publicDocumentId = existing.publicDocumentId ?? existing._id;
@@ -118,6 +157,7 @@ async function syncVaultDocument(
       objectId: args.storageId,
       ownerUserId: publicUserId(owner) ?? undefined,
       ownerAppUserId: owner?._id,
+      searchText,
       processingStatus: "pending",
     });
 
@@ -135,6 +175,7 @@ async function syncVaultDocument(
     objectId: args.storageId,
     ownerUserId: publicUserId(owner) ?? undefined,
     ownerAppUserId: owner?._id,
+    searchText,
     processingStatus: "pending",
   });
 }

@@ -1,10 +1,11 @@
 import { createLoggerWithContext } from "@tamias/logger";
 import {
   deleteTransactionMatchSuggestionsInConvex,
-  getAllInboxItemsFromConvex,
   getInboxItemByIdFromConvex,
   getInboxItemInfoFromConvex,
   getInboxItemsFromConvex,
+  getPendingInboxItemsToNoMatchFromConvex,
+  getTransactionMatchSuggestionsFromConvex,
   getTransactionByIdFromConvex,
   type InboxItemRecord,
   type TransactionRecord,
@@ -19,8 +20,7 @@ import {
 import {
   buildInboxTransactionSummary,
   clearInboxSuggestions,
-  getTeamInboxItems,
-  getTeamMatchSuggestions,
+  getRelatedInboxItems,
   markInboxItems,
   patchTransactionFields,
   type InboxConvexUserId,
@@ -233,8 +233,7 @@ export async function matchTransaction(
   params: MatchTransactionParams,
 ) {
   const { id, transactionId, teamId } = params;
-  const [allItems, result, targetTransaction] = await Promise.all([
-    getTeamInboxItems(teamId),
+  const [result, targetTransaction] = await Promise.all([
     getInboxItemByIdFromConvex({ teamId, inboxId: id }),
     getTransactionByIdFromConvex({ teamId, transactionId }),
   ]);
@@ -248,10 +247,7 @@ export async function matchTransaction(
   }
 
   const primaryItemId = result.groupedInboxId || result.id;
-  const relatedItems = allItems.filter(
-    (item) =>
-      item.id === primaryItemId || item.groupedInboxId === primaryItemId,
-  );
+  const relatedItems = await getRelatedInboxItems(teamId, result);
   const alreadyMatched = relatedItems.find((item) => item.transactionId);
 
   if (alreadyMatched) {
@@ -355,28 +351,27 @@ export async function unmatchTransaction(
   params: UnmatchTransactionParams & { userId?: InboxConvexUserId },
 ) {
   const { id, teamId, userId } = params;
-  const [allItems, allSuggestions, result] = await Promise.all([
-    getTeamInboxItems(teamId),
-    getTeamMatchSuggestions(teamId),
-    getInboxItemByIdFromConvex({ teamId, inboxId: id }),
-  ]);
+  const result = await getInboxItemByIdFromConvex({ teamId, inboxId: id });
 
   if (!result) {
     return null;
   }
 
-  const primaryItemId = result.groupedInboxId || result.id;
-  const relatedItems = allItems.filter(
-    (item) =>
-      item.id === primaryItemId || item.groupedInboxId === primaryItemId,
-  );
+  const relatedItems = await getRelatedInboxItems(teamId, result);
   const transactionId = relatedItems.find(
     (item) => item.transactionId,
   )?.transactionId;
 
   if (transactionId) {
+    const transactionSuggestions = await getTransactionMatchSuggestionsFromConvex(
+      {
+        teamId,
+        transactionId,
+        statuses: ["confirmed"],
+      },
+    );
     const originalSuggestions = relatedItems.flatMap((item) =>
-      allSuggestions.filter(
+      transactionSuggestions.filter(
         (suggestion) =>
           suggestion.inboxId === item.id &&
           suggestion.transactionId === transactionId &&
@@ -686,13 +681,24 @@ export async function updateInboxStatusToNoMatch(
   _db: Database,
   params: UpdateInboxStatusToNoMatchParams,
 ): Promise<UpdateInboxStatusToNoMatchResult> {
-  const items = await getAllInboxItemsFromConvex();
-  const toUpdate = items.filter(
-    (item) =>
-      item.status === "pending" &&
-      item.createdAt < params.cutoffDate &&
-      item.transactionId == null,
-  );
+  const toUpdate: InboxItemRecord[] = [];
+  let cursor: string | null = null;
+
+  while (true) {
+    const result = await getPendingInboxItemsToNoMatchFromConvex({
+      createdAtTo: params.cutoffDate,
+      cursor,
+      pageSize: 200,
+    });
+
+    toUpdate.push(...result.page);
+
+    if (result.isDone) {
+      break;
+    }
+
+    cursor = result.continueCursor;
+  }
 
   if (toUpdate.length > 0) {
     await markInboxItems(toUpdate, {

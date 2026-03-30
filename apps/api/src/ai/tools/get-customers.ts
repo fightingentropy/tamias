@@ -1,5 +1,5 @@
 import { db } from "@tamias/app-data/client";
-import { getCustomersPage } from "@tamias/app-services/customers";
+import { getCustomers } from "@tamias/app-data/queries/customers";
 import { getAppUrl } from "@tamias/utils/envs";
 import { formatDate } from "@tamias/utils/format";
 import { tool } from "ai";
@@ -38,15 +38,12 @@ export const getCustomersTool = tool({
     }
 
     try {
-      const result = await getCustomersPage({
-        db,
+      const result = await getCustomers(db, {
         teamId,
-        input: {
-          cursor: cursor ?? null,
-          sort: sort ?? null,
-          pageSize,
-          q: q ?? null,
-        },
+        cursor: cursor ?? null,
+        sort: sort ?? null,
+        pageSize,
+        q: q ?? null,
       });
 
       if (result.data.length === 0) {

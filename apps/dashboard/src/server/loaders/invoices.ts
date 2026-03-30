@@ -1,13 +1,13 @@
 import "server-only";
 
-import {
-  getInvoicePaymentStatusForTeam,
-  getInvoicesPage,
-  getInvoiceSummaryForTeam,
-} from "@tamias/app-services/invoices";
 import type {
   GetInvoiceSummaryParams,
   GetInvoicesParams,
+} from "@tamias/app-data/queries/invoices";
+import {
+  getInvoiceSummary,
+  getInvoices,
+  getPaymentStatus,
 } from "@tamias/app-data/queries/invoices";
 import { cache } from "react";
 import { getCurrentSession, getRequestDb } from "./context";
@@ -30,10 +30,9 @@ export const getInvoiceListLocally = cache(
       };
     }
 
-    return getInvoicesPage({
-      db: requestDb,
+    return getInvoices(requestDb, {
       teamId: session.teamId,
-      input,
+      ...input,
     });
   },
 );
@@ -53,8 +52,7 @@ export const getInvoiceSummaryLocally = cache(
       };
     }
 
-    return getInvoiceSummaryForTeam({
-      db: requestDb,
+    return getInvoiceSummary(requestDb, {
       teamId: session.teamId,
       statuses,
     });
@@ -74,8 +72,5 @@ export const getInvoicePaymentStatusLocally = cache(async () => {
     };
   }
 
-  return getInvoicePaymentStatusForTeam({
-    db: requestDb,
-    teamId: session.teamId,
-  });
+  return getPaymentStatus(requestDb, session.teamId);
 });

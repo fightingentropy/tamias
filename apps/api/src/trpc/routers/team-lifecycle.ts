@@ -1,24 +1,20 @@
+import { createTeam, deleteTeam, getTeamById } from "@tamias/app-data/queries";
+import { getBankConnections } from "@tamias/app-data/queries/bank-connections";
+import { upsertTransactionCategoriesInConvex } from "@tamias/app-data-convex";
+import {
+  getTeamMembersFromConvex,
+  hasTeamAccessInConvex,
+  leaveTeamInConvex,
+} from "@tamias/app-services/identity";
+import { chatCache } from "@tamias/cache/chat-cache";
+import { CATEGORIES, getTaxRateForCategory } from "@tamias/categories";
+import { enqueue } from "@tamias/job-client";
+import { TRPCError } from "@trpc/server";
 import {
   createTeamSchema,
   deleteTeamSchema,
   leaveTeamSchema,
 } from "../../schemas/team";
-import { CATEGORIES, getTaxRateForCategory } from "@tamias/categories";
-import {
-  hasTeamAccessInConvex,
-  getTeamMembersFromConvex,
-  leaveTeamInConvex,
-} from "@tamias/app-services/identity";
-import { getBankConnectionsForTeam } from "@tamias/app-services/bank";
-import { chatCache } from "@tamias/cache/chat-cache";
-import {
-  createTeam,
-  deleteTeam,
-  getTeamById,
-} from "@tamias/app-data/queries";
-import { upsertTransactionCategoriesInConvex } from "@tamias/app-data-convex";
-import { enqueue } from "@tamias/job-client";
-import { TRPCError } from "@trpc/server";
 import { protectedProcedure } from "../init";
 import {
   buildTeamSystemCategoryInputs,
@@ -128,8 +124,7 @@ export const teamLifecycleProcedures = {
         });
       }
 
-      const bankConnections = await getBankConnectionsForTeam({
-        db,
+      const bankConnections = await getBankConnections(db, {
         teamId: input.teamId,
       });
 

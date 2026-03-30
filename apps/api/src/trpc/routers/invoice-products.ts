@@ -1,4 +1,15 @@
 import {
+  createInvoiceProduct,
+  deleteInvoiceProduct,
+  getInvoiceProductById,
+  getInvoiceProducts,
+  incrementProductUsage,
+  saveLineItemAsProduct,
+  updateInvoiceProduct,
+  upsertInvoiceProduct,
+} from "@tamias/app-data/queries";
+import { TRPCError } from "@trpc/server";
+import {
   createInvoiceProductSchema,
   deleteInvoiceProductSchema,
   getInvoiceProductSchema,
@@ -8,17 +19,6 @@ import {
   upsertInvoiceProductSchema,
 } from "../../schemas/invoice";
 import { createTRPCRouter, protectedProcedure } from "../init";
-import { getInvoiceProductsForTeam } from "@tamias/app-services/invoice-products";
-import {
-  createInvoiceProduct,
-  deleteInvoiceProduct,
-  getInvoiceProductById,
-  incrementProductUsage,
-  saveLineItemAsProduct,
-  updateInvoiceProduct,
-  upsertInvoiceProduct,
-} from "@tamias/app-data/queries";
-import { TRPCError } from "@trpc/server";
 
 export const invoiceProductsRouter = createTRPCRouter({
   get: protectedProcedure
@@ -31,14 +31,11 @@ export const invoiceProductsRouter = createTRPCRouter({
         currency,
       } = input || {};
 
-      return getInvoiceProductsForTeam({
-        teamId: teamId!,
-        input: {
-          sortBy,
-          limit,
-          includeInactive,
-          currency,
-        },
+      return getInvoiceProducts(teamId!, {
+        sortBy,
+        limit,
+        includeInactive,
+        currency,
       });
     }),
 

@@ -5,8 +5,13 @@ import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/s
 import { getTeamByPublicTeamId } from "./lib/identity";
 import { requireServiceKey } from "./lib/service";
 import { nowIso } from "../../../packages/domain/src/identity";
+import { buildSearchIndexText, buildSearchQuery } from "../../../packages/domain/src/text-search";
 
 type TrackerProjectCtx = QueryCtx | MutationCtx;
+type TaggedTrackerProjectCursor = {
+  createdAt: string;
+  trackerProjectId: string;
+};
 
 const trackerProjectStatus = v.union(
   v.literal("in_progress"),
@@ -88,30 +93,104 @@ function serializeTrackerProject(
   };
 }
 
-export const serviceGetTrackerProjects = query({
-  args: {
-    serviceKey: v.string(),
-    teamId: v.string(),
+function getTrackerProjectSearchText(
+  project: {
+    name: string;
+    description?: string | null;
+    status?: "in_progress" | "completed" | null;
+    currency?: string | null;
   },
-  async handler(ctx, args) {
-    requireServiceKey(args.serviceKey);
+) {
+  return (
+    buildSearchIndexText([
+      project.name,
+      project.description,
+      project.status,
+      project.currency,
+    ]) || undefined
+  );
+}
 
-    const team = await getTeamByPublicTeamId(ctx, args.teamId);
+function encodeTaggedTrackerProjectCursor(cursor: TaggedTrackerProjectCursor) {
+  return btoa(JSON.stringify(cursor))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
 
-    if (!team) {
-      return [];
+function decodeTaggedTrackerProjectCursor(
+  cursor: string | null | undefined,
+): TaggedTrackerProjectCursor | null {
+  if (!cursor) {
+    return null;
+  }
+
+  try {
+    const normalizedCursor = cursor.replace(/-/g, "+").replace(/_/g, "/");
+    const paddedCursor =
+      normalizedCursor + "=".repeat((4 - (normalizedCursor.length % 4)) % 4);
+    const parsed = JSON.parse(atob(paddedCursor)) as Partial<TaggedTrackerProjectCursor>;
+
+    if (
+      typeof parsed.createdAt !== "string" ||
+      typeof parsed.trackerProjectId !== "string"
+    ) {
+      throw new ConvexError("Invalid tagged tracker project cursor");
     }
 
-    const projects = await ctx.db
-      .query("trackerProjects")
-      .withIndex("by_team_id", (q) => q.eq("teamId", team._id))
-      .collect();
+    return {
+      createdAt: parsed.createdAt,
+      trackerProjectId: parsed.trackerProjectId,
+    };
+  } catch {
+    throw new ConvexError("Invalid tagged tracker project cursor");
+  }
+}
 
-    return projects
-      .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
-      .map((project) => serializeTrackerProject(args.teamId, project));
-  },
-});
+function compareTaggedTrackerProjectRows(
+  left: Pick<Doc<"trackerProjectTags">, "projectCreatedAt" | "trackerProjectId">,
+  right: Pick<Doc<"trackerProjectTags">, "projectCreatedAt" | "trackerProjectId">,
+  order: "asc" | "desc",
+) {
+  const createdAtComparison =
+    left.projectCreatedAt!.localeCompare(right.projectCreatedAt!);
+
+  if (createdAtComparison !== 0) {
+    return order === "asc" ? createdAtComparison : -createdAtComparison;
+  }
+
+  const trackerProjectIdComparison = left.trackerProjectId.localeCompare(
+    right.trackerProjectId,
+  );
+
+  return order === "asc"
+    ? trackerProjectIdComparison
+    : -trackerProjectIdComparison;
+}
+
+function isTaggedTrackerProjectRowPastCursor(
+  assignment: Pick<Doc<"trackerProjectTags">, "projectCreatedAt" | "trackerProjectId">,
+  cursor: TaggedTrackerProjectCursor | null,
+  order: "asc" | "desc",
+) {
+  if (!cursor || !assignment.projectCreatedAt) {
+    return false;
+  }
+
+  if (order === "asc") {
+    return (
+      assignment.projectCreatedAt < cursor.createdAt ||
+      (assignment.projectCreatedAt === cursor.createdAt &&
+        assignment.trackerProjectId <= cursor.trackerProjectId)
+    );
+  }
+
+  return (
+    assignment.projectCreatedAt > cursor.createdAt ||
+    (assignment.projectCreatedAt === cursor.createdAt &&
+      assignment.trackerProjectId >= cursor.trackerProjectId)
+  );
+}
 
 export const serviceListTrackerProjectsPage = query({
   args: {
@@ -155,6 +234,174 @@ export const serviceListTrackerProjectsPage = query({
         serializeTrackerProject(args.teamId, project),
       ),
     };
+  },
+});
+
+export const serviceListTaggedTrackerProjectsPage = query({
+  args: {
+    serviceKey: v.string(),
+    teamId: v.string(),
+    tagIds: v.array(v.string()),
+    status: v.optional(trackerProjectStatus),
+    cursor: v.optional(v.union(v.string(), v.null())),
+    pageSize: v.number(),
+    order: v.optional(trackerProjectOrderValidator),
+  },
+  async handler(ctx, args) {
+    requireServiceKey(args.serviceKey);
+
+    const team = await getTeamByPublicTeamId(ctx, args.teamId);
+
+    if (!team || args.tagIds.length === 0) {
+      return {
+        page: [],
+        isDone: true,
+        continueCursor: null,
+      };
+    }
+
+    const order = args.order ?? "desc";
+    const pageSize = Math.max(1, Math.min(args.pageSize, 100));
+    const cursor = decodeTaggedTrackerProjectCursor(args.cursor ?? null);
+    const tagIds = [...new Set(args.tagIds)];
+    let takeCount = Math.max(pageSize * 4, 50);
+    let mayHaveMoreRows = false;
+    let lastScannedRow: Pick<
+      Doc<"trackerProjectTags">,
+      "trackerProjectId" | "projectCreatedAt"
+    > | null = null;
+    let taggedRows: Array<
+      Pick<Doc<"trackerProjectTags">, "trackerProjectId" | "projectCreatedAt">
+    > = [];
+
+    while (true) {
+      const rowsByTag = await Promise.all(
+        tagIds.map((tagId) =>
+          ctx.db
+            .query("trackerProjectTags")
+            .withIndex("by_team_tag_project_created_at", (range) => {
+              const scoped = range.eq("teamId", team._id).eq("tagId", tagId);
+
+              if (cursor?.createdAt) {
+                return order === "asc"
+                  ? scoped.gte("projectCreatedAt", cursor.createdAt)
+                  : scoped.lte("projectCreatedAt", cursor.createdAt);
+              }
+
+              return scoped;
+            })
+            .order(order)
+            .take(takeCount),
+        ),
+      );
+
+      mayHaveMoreRows = rowsByTag.some((rows) => rows.length === takeCount);
+      taggedRows = [
+        ...new Map(
+          rowsByTag
+            .flat()
+            .filter(
+              (assignment) =>
+                assignment.projectCreatedAt &&
+                !isTaggedTrackerProjectRowPastCursor(assignment, cursor, order),
+            )
+            .map((assignment) => [assignment.trackerProjectId, assignment]),
+        ).values(),
+      ].sort((left, right) => compareTaggedTrackerProjectRows(left, right, order));
+      lastScannedRow = taggedRows.at(-1) ?? null;
+
+      if (
+        taggedRows.length >= pageSize ||
+        !mayHaveMoreRows ||
+        takeCount >= 400
+      ) {
+        break;
+      }
+
+      takeCount = Math.min(takeCount * 2, 400);
+    }
+
+    const serializedRows: Array<{
+      row: Pick<Doc<"trackerProjectTags">, "trackerProjectId" | "projectCreatedAt">;
+      project: ReturnType<typeof serializeTrackerProject>;
+    }> = [];
+
+    for (const row of taggedRows) {
+      const project = await getTrackerProjectByPublicId(ctx, {
+        projectId: row.trackerProjectId,
+        teamId: team._id,
+      });
+
+      if (!project) {
+        continue;
+      }
+
+      if (args.status && project.status !== args.status) {
+        continue;
+      }
+
+      serializedRows.push({
+        row,
+        project: serializeTrackerProject(args.teamId, project),
+      });
+
+      if (serializedRows.length >= pageSize) {
+        break;
+      }
+    }
+
+    const lastReturnedRow = serializedRows.at(-1)?.row ?? null;
+    const hasBufferedResults = taggedRows.length > serializedRows.length;
+    const hasNextPage =
+      (serializedRows.length === pageSize && (hasBufferedResults || mayHaveMoreRows)) ||
+      (serializedRows.length < pageSize && mayHaveMoreRows);
+    const nextCursorRow = lastReturnedRow ?? lastScannedRow;
+
+    return {
+      page: serializedRows.map((entry) => entry.project),
+      isDone: !hasNextPage,
+      continueCursor:
+        hasNextPage && nextCursorRow?.projectCreatedAt
+          ? encodeTaggedTrackerProjectCursor({
+              createdAt: nextCursorRow.projectCreatedAt,
+              trackerProjectId: nextCursorRow.trackerProjectId,
+            })
+          : null,
+    };
+  },
+});
+
+export const serviceSearchTrackerProjects = query({
+  args: {
+    serviceKey: v.string(),
+    teamId: v.string(),
+    query: v.string(),
+    status: v.optional(trackerProjectStatus),
+    limit: v.optional(v.number()),
+  },
+  async handler(ctx, args) {
+    requireServiceKey(args.serviceKey);
+
+    const team = await getTeamByPublicTeamId(ctx, args.teamId);
+    const searchQuery = buildSearchQuery(args.query);
+
+    if (!team || searchQuery.length === 0) {
+      return [];
+    }
+
+    const projects = await ctx.db
+      .query("trackerProjects")
+      .withSearchIndex("search_by_team", (q) =>
+        q.search("searchText", searchQuery).eq("teamId", team._id),
+      )
+      .take(Math.max(1, Math.min((args.limit ?? 100) * 4, 400)));
+
+    return projects
+      .filter((project) =>
+        args.status === undefined ? true : project.status === args.status,
+      )
+      .slice(0, args.limit ?? projects.length)
+      .map((project) => serializeTrackerProject(args.teamId, project));
   },
 });
 
@@ -277,6 +524,13 @@ export const serviceUpsertTrackerProject = mutation({
     });
 
     if (existing) {
+      const searchText = getTrackerProjectSearchText({
+        name: args.name,
+        description: args.description ?? undefined,
+        status: args.status ?? existing.status,
+        currency: args.currency ?? undefined,
+      });
+
       await ctx.db.patch(existing._id, {
         name: args.name,
         description: args.description ?? undefined,
@@ -286,6 +540,7 @@ export const serviceUpsertTrackerProject = mutation({
         currency: args.currency ?? undefined,
         billable: args.billable ?? undefined,
         rate: args.rate ?? undefined,
+        searchText,
         updatedAt: timestamp,
       });
 
@@ -298,6 +553,13 @@ export const serviceUpsertTrackerProject = mutation({
       return serializeTrackerProject(args.teamId, updated);
     }
 
+    const searchText = getTrackerProjectSearchText({
+      name: args.name,
+      description: args.description ?? undefined,
+      status: args.status ?? "in_progress",
+      currency: args.currency ?? undefined,
+    });
+
     const insertedId = await ctx.db.insert("trackerProjects", {
       publicTrackerProjectId: args.id,
       teamId: team._id,
@@ -309,6 +571,7 @@ export const serviceUpsertTrackerProject = mutation({
       currency: args.currency ?? undefined,
       billable: args.billable ?? false,
       rate: args.rate ?? undefined,
+      searchText,
       createdAt: timestamp,
       updatedAt: timestamp,
     });
@@ -320,6 +583,61 @@ export const serviceUpsertTrackerProject = mutation({
     }
 
     return serializeTrackerProject(args.teamId, inserted);
+  },
+});
+
+export const serviceRebuildTrackerProjectSearchTexts = mutation({
+  args: {
+    serviceKey: v.string(),
+    teamId: v.optional(v.union(v.string(), v.null())),
+  },
+  async handler(ctx, args) {
+    requireServiceKey(args.serviceKey);
+
+    const teams = args.teamId
+      ? [await getTeamByPublicTeamId(ctx, args.teamId)]
+      : (await ctx.db.query("teams").collect()).filter(
+          (team) => !!team.publicTeamId,
+        );
+
+    const validTeams = teams.filter(
+      (team): team is NonNullable<(typeof teams)[number]> => team !== null,
+    );
+
+    if (args.teamId && validTeams.length === 0) {
+      throw new ConvexError("Convex tracker project team not found");
+    }
+
+    const results = [];
+
+    for (const team of validTeams) {
+      const projects = await ctx.db
+        .query("trackerProjects")
+        .withIndex("by_team_id", (q) => q.eq("teamId", team._id))
+        .collect();
+      let updatedProjectCount = 0;
+
+      for (const project of projects) {
+        const searchText = getTrackerProjectSearchText(project);
+
+        if (project.searchText === searchText) {
+          continue;
+        }
+
+        await ctx.db.patch(project._id, {
+          searchText,
+        });
+        updatedProjectCount += 1;
+      }
+
+      results.push({
+        teamId: team.publicTeamId ?? team._id,
+        projectCount: projects.length,
+        updatedProjectCount,
+      });
+    }
+
+    return results;
   },
 });
 

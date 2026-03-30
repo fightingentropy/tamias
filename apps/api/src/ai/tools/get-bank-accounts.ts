@@ -1,5 +1,5 @@
 import { db } from "@tamias/app-data/client";
-import { getBankAccountsForTeam } from "@tamias/app-services/bank";
+import { getBankAccounts } from "@tamias/app-data/queries/bank-accounts";
 import { getAppUrl } from "@tamias/utils/envs";
 import { formatAmount } from "@tamias/utils/format";
 import { tool } from "ai";
@@ -33,13 +33,10 @@ export const getBankAccountsTool = tool({
     throwIfBankAccountsRequired(appContext);
 
     try {
-      const accounts = await getBankAccountsForTeam({
-        db,
+      const accounts = await getBankAccounts(db, {
         teamId,
-        input: {
-          enabled: enabled ?? undefined,
-          manual: manual ?? undefined,
-        },
+        enabled: enabled ?? undefined,
+        manual: manual ?? undefined,
       });
 
       if (accounts.length === 0) {

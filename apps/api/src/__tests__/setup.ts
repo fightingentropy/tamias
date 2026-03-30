@@ -251,7 +251,6 @@ const dbQueriesMock = new Proxy(
     updateInbox: mock(() => ({})),
     deleteInbox: mock(() => ({})),
     deleteInboxMany: mock(() => []),
-    getInboxByStatus: mock(() => ({ pending: 0, completed: 0 })),
     getInboxSearch: mock(() => []),
     getInboxBlocklist: mock(() => []),
     createInboxBlocklist: mock(() => ({})),

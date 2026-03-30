@@ -1,17 +1,4 @@
 import {
-  deleteTrackerEntrySchema,
-  startTimerSchema,
-  stopTimerSchema,
-  upsertTrackerEntriesSchema,
-} from "../../schemas/tracker-entries";
-import {
-  deleteTrackerProjectSchema,
-  getTrackerProjectByIdSchema,
-  getTrackerProjectsSchema,
-  upsertTrackerProjectSchema,
-} from "../../schemas/tracker-projects";
-import { getTrackerProjectsPage } from "@tamias/app-services/tracker";
-import {
   deleteTrackerEntry,
   deleteTrackerProject,
   getTimerStatus,
@@ -23,8 +10,21 @@ import {
   upsertTrackerEntries,
   upsertTrackerProject,
 } from "@tamias/app-data/queries";
+import { getTrackerProjects } from "@tamias/app-data/queries/tracker-projects";
 import type { CurrentUserIdentityRecord } from "@tamias/app-data-convex";
 import { z } from "zod";
+import {
+  deleteTrackerEntrySchema,
+  startTimerSchema,
+  stopTimerSchema,
+  upsertTrackerEntriesSchema,
+} from "../../schemas/tracker-entries";
+import {
+  deleteTrackerProjectSchema,
+  getTrackerProjectByIdSchema,
+  getTrackerProjectsSchema,
+  upsertTrackerProjectSchema,
+} from "../../schemas/tracker-projects";
 import { hasScope, READ_ONLY_ANNOTATIONS, type RegisterTools } from "../types";
 
 type ConvexUserId = CurrentUserIdentityRecord["convexId"];
@@ -80,20 +80,17 @@ export const registerTrackerTools: RegisterTools = (server, ctx) => {
         annotations: READ_ONLY_ANNOTATIONS,
       },
       async (params) => {
-        const result = await getTrackerProjectsPage({
-          db,
+        const result = await getTrackerProjects(db, {
           teamId,
-          input: {
-            cursor: params.cursor ?? null,
-            pageSize: params.pageSize ?? 25,
-            q: params.q ?? null,
-            status: params.status ?? null,
-            customers: params.customers ?? null,
-            start: params.start ?? null,
-            end: params.end ?? null,
-            sort: params.sort ?? null,
-            tags: params.tags ?? null,
-          },
+          cursor: params.cursor ?? null,
+          pageSize: params.pageSize ?? 25,
+          q: params.q ?? null,
+          status: params.status ?? null,
+          customers: params.customers ?? null,
+          start: params.start ?? null,
+          end: params.end ?? null,
+          sort: params.sort ?? null,
+          tags: params.tags ?? null,
         });
 
         return {

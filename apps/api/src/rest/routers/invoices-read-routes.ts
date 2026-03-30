@@ -1,4 +1,11 @@
-import type { Context } from "../types";
+import { createRoute, type OpenAPIHono } from "@hono/zod-openapi";
+import { getInvoiceById } from "@tamias/app-data/queries";
+import {
+  getInvoiceSummary,
+  getInvoices,
+  getPaymentStatus,
+} from "@tamias/app-data/queries/invoices";
+import { HTTPException } from "hono/http-exception";
 import {
   getInvoiceByIdSchema,
   getInvoicesSchema,
@@ -9,15 +16,8 @@ import {
   invoicesResponseSchema,
 } from "../../schemas/invoice";
 import { validateResponse } from "../../utils/validate-response";
-import { createRoute, type OpenAPIHono } from "@hono/zod-openapi";
-import {
-  getInvoicePaymentStatusForTeam,
-  getInvoicesPage,
-  getInvoiceSummaryForTeam,
-} from "@tamias/app-services/invoices";
-import { getInvoiceById } from "@tamias/app-data/queries";
-import { HTTPException } from "hono/http-exception";
 import { withRequiredScope } from "../middleware";
+import type { Context } from "../types";
 import {
   serializeInvoiceForRest,
   serializeInvoicePageForRest,
@@ -53,15 +53,12 @@ export function registerInvoiceReadRoutes(app: OpenAPIHono<Context>) {
       const teamId = c.get("teamId");
       const { pageSize, cursor, sort, ...filter } = c.req.valid("query");
 
-      const result = await getInvoicesPage({
-        db,
+      const result = await getInvoices(db, {
         teamId,
-        input: {
-          pageSize,
-          cursor,
-          sort,
-          ...filter,
-        },
+        pageSize,
+        cursor,
+        sort,
+        ...filter,
       });
 
       return c.json(
@@ -96,10 +93,7 @@ export function registerInvoiceReadRoutes(app: OpenAPIHono<Context>) {
       const db = c.get("db");
       const teamId = c.get("teamId");
 
-      const result = await getInvoicePaymentStatusForTeam({
-        db,
-        teamId,
-      });
+      const result = await getPaymentStatus(db, teamId);
 
       return c.json(validateResponse(result, getPaymentStatusResponseSchema));
     },
@@ -134,8 +128,7 @@ export function registerInvoiceReadRoutes(app: OpenAPIHono<Context>) {
       const teamId = c.get("teamId");
       const { statuses } = c.req.valid("query");
 
-      const result = await getInvoiceSummaryForTeam({
-        db,
+      const result = await getInvoiceSummary(db, {
         teamId,
         statuses,
       });

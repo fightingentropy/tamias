@@ -1,4 +1,10 @@
-import type { Context } from "../types";
+import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import {
+  deleteTrackerProject,
+  getTrackerProjectById,
+  upsertTrackerProject,
+} from "@tamias/app-data/queries";
+import { getTrackerProjects } from "@tamias/app-data/queries/tracker-projects";
 import {
   deleteTrackerProjectSchema,
   getTrackerProjectByIdSchema,
@@ -8,14 +14,8 @@ import {
   upsertTrackerProjectSchema,
 } from "../../schemas/tracker-projects";
 import { validateResponse } from "../../utils/validate-response";
-import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
-import { getTrackerProjectsPage } from "@tamias/app-services/tracker";
-import {
-  deleteTrackerProject,
-  getTrackerProjectById,
-  upsertTrackerProject,
-} from "@tamias/app-data/queries";
 import { withRequiredScope } from "../middleware";
+import type { Context } from "../types";
 
 const app = new OpenAPIHono<Context>();
 
@@ -49,15 +49,12 @@ app.openapi(
 
     const { cursor, pageSize, sort, ...filter } = c.req.valid("query");
 
-    const result = await getTrackerProjectsPage({
-      db,
+    const result = await getTrackerProjects(db, {
       teamId,
-      input: {
-        cursor,
-        pageSize,
-        ...filter,
-        sort,
-      },
+      cursor,
+      pageSize,
+      ...filter,
+      sort,
     });
 
     return c.json(validateResponse(result, trackerProjectsResponseSchema));

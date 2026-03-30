@@ -1,4 +1,5 @@
 import { ConvexError, v } from "convex/values";
+import type { Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { mutation, query } from "./_generated/server";
 import { getTeamByPublicTeamId } from "./lib/identity";
@@ -85,6 +86,49 @@ async function getDocumentTagByExternalId(
   return { team, tag };
 }
 
+async function getDocumentForTeamByExternalId(
+  ctx: DocumentTagContext,
+  args: { teamId: Id<"teams">; documentId: string },
+) {
+  const byLegacyId = await ctx.db
+    .query("documents")
+    .withIndex("by_public_document_id", (q) =>
+      q.eq("publicDocumentId", args.documentId),
+    )
+    .unique();
+
+  if (byLegacyId && byLegacyId.teamId === args.teamId) {
+    return byLegacyId;
+  }
+
+  try {
+    const byDocId = await ctx.db.get(args.documentId as Id<"documents">);
+
+    if (byDocId && byDocId.teamId === args.teamId) {
+      return byDocId;
+    }
+  } catch (error) {
+    if (
+      !(error instanceof Error) ||
+      !error.message.includes("db.get") ||
+      !error.message.includes("Unable to decode ID")
+    ) {
+      throw error;
+    }
+  }
+
+  return null;
+}
+
+function getDocumentAssignmentSortFields(
+  document: { createdAt: string; date?: string | null },
+) {
+  return {
+    documentCreatedAt: document.createdAt,
+    documentDate: document.date ?? undefined,
+  };
+}
+
 async function upsertDocumentTagAssignmentRecord(
   ctx: MutationCtx,
   args: {
@@ -97,8 +141,14 @@ async function upsertDocumentTagAssignmentRecord(
     teamId: args.teamId,
     tagId: args.tagId,
   });
+  const document = team
+    ? await getDocumentForTeamByExternalId(ctx, {
+        teamId: team._id,
+        documentId: args.documentId,
+      })
+    : null;
 
-  if (!team || !tag) {
+  if (!team || !tag || !document) {
     throw new ConvexError("Convex document tag assignment target not found");
   }
 
@@ -113,6 +163,23 @@ async function upsertDocumentTagAssignmentRecord(
     .unique();
 
   if (existing) {
+    const sortFields = getDocumentAssignmentSortFields(document);
+
+    if (
+      existing.documentCreatedAt !== sortFields.documentCreatedAt ||
+      existing.documentDate !== sortFields.documentDate
+    ) {
+      await ctx.db.patch(existing._id, sortFields);
+
+      const updated = await ctx.db.get(existing._id);
+
+      if (!updated) {
+        throw new ConvexError("Failed to update document tag assignment");
+      }
+
+      return serializeDocumentTagAssignment(args.teamId, updated, tag);
+    }
+
     return serializeDocumentTagAssignment(args.teamId, existing, tag);
   }
 
@@ -122,6 +189,7 @@ async function upsertDocumentTagAssignmentRecord(
     documentId: args.documentId,
     tagId: args.tagId,
     documentTagId: tag._id,
+    ...getDocumentAssignmentSortFields(document),
     createdAt: timestamp,
     updatedAt: timestamp,
   });
@@ -466,32 +534,71 @@ export const serviceGetDocumentTagAssignmentsForDocumentIds = query({
   },
 });
 
-export const serviceGetDocumentIdsForTagIds = query({
+export const serviceRebuildDocumentTagAssignmentSortFields = mutation({
   args: {
     serviceKey: v.string(),
-    teamId: v.string(),
-    tagIds: v.array(v.string()),
+    teamId: v.optional(v.union(v.string(), v.null())),
   },
   async handler(ctx, args) {
     requireServiceKey(args.serviceKey);
 
-    const team = await getTeamByPublicTeamId(ctx, args.teamId);
+    const teams = args.teamId
+      ? [await getTeamByPublicTeamId(ctx, args.teamId)]
+      : (await ctx.db.query("teams").collect()).filter(
+          (team) => !!team.publicTeamId,
+        );
 
-    if (!team || args.tagIds.length === 0) {
-      return [];
-    }
-
-    const assignmentsByTag = await Promise.all(
-      args.tagIds.map((tagId) =>
-        ctx.db
-          .query("documentTagAssignments")
-          .withIndex("by_team_and_tag", (q) =>
-            q.eq("teamId", team._id).eq("tagId", tagId),
-          )
-          .collect(),
-      ),
+    const validTeams = teams.filter(
+      (team): team is NonNullable<(typeof teams)[number]> => team !== null,
     );
 
-    return [...new Set(assignmentsByTag.flat().map((entry) => entry.documentId))];
+    if (args.teamId && validTeams.length === 0) {
+      throw new ConvexError("Convex document tag assignment team not found");
+    }
+
+    const results = [];
+
+    for (const team of validTeams) {
+      const assignments = await ctx.db
+        .query("documentTagAssignments")
+        .withIndex("by_team_id", (q) => q.eq("teamId", team._id))
+        .collect();
+      let updatedAssignmentCount = 0;
+      let deletedAssignmentCount = 0;
+
+      for (const assignment of assignments) {
+        const document = await getDocumentForTeamByExternalId(ctx, {
+          teamId: team._id,
+          documentId: assignment.documentId,
+        });
+
+        if (!document) {
+          await ctx.db.delete(assignment._id);
+          deletedAssignmentCount += 1;
+          continue;
+        }
+
+        const sortFields = getDocumentAssignmentSortFields(document);
+
+        if (
+          assignment.documentCreatedAt === sortFields.documentCreatedAt &&
+          assignment.documentDate === sortFields.documentDate
+        ) {
+          continue;
+        }
+
+        await ctx.db.patch(assignment._id, sortFields);
+        updatedAssignmentCount += 1;
+      }
+
+      results.push({
+        teamId: team.publicTeamId ?? team._id,
+        assignmentCount: assignments.length,
+        updatedAssignmentCount,
+        deletedAssignmentCount,
+      });
+    }
+
+    return results;
   },
 });

@@ -80,7 +80,17 @@ export function DataTable({ initialSettings }: Props) {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } =
     useSuspenseInfiniteQuery({
       ...infiniteQueryOptions,
-      refetchInterval: 10_000,
+      refetchInterval: (query) => {
+        const customers =
+          query.state.data?.pages.flatMap((page) => page.data) ?? [];
+        const hasInFlightEnrichment = customers.some(
+          (customer) =>
+            customer.enrichmentStatus === "pending" ||
+            customer.enrichmentStatus === "processing",
+        );
+
+        return hasInFlightEnrichment ? 10_000 : false;
+      },
     });
 
   const deleteCustomerMutation = useMutation(

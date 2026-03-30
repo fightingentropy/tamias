@@ -1,7 +1,7 @@
-import { CATEGORIES } from "@tamias/categories";
-import { getTagsForTeam } from "@tamias/app-services/tags";
-import { getTeamById } from "@tamias/app-data/queries";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { getTeamById } from "@tamias/app-data/queries";
+import { getTags } from "@tamias/app-data/queries/tags";
+import { CATEGORIES } from "@tamias/categories";
 import { hasScope, type McpContext } from "./types";
 
 export function registerResources(server: McpServer, ctx: McpContext): void {
@@ -64,7 +64,7 @@ export function registerResources(server: McpServer, ctx: McpContext): void {
         mimeType: "application/json",
       },
       async () => {
-        const tags = await getTagsForTeam({ db, teamId });
+        const tags = await getTags(db, { teamId });
         return {
           contents: [
             {

@@ -1,4 +1,15 @@
 import {
+  addProviderAccounts,
+  createBankConnection,
+  deleteBankConnection,
+  reconnectBankConnection,
+  updateBankConnectionReconnectById,
+} from "@tamias/app-data/queries";
+import { getBankConnections } from "@tamias/app-data/queries/bank-connections";
+import { chatCache } from "@tamias/cache/chat-cache";
+import { enqueue, startCloudflareWorkflow } from "@tamias/job-client";
+import { TRPCError } from "@trpc/server";
+import {
   addProviderAccountsSchema,
   createBankConnectionSchema,
   deleteBankConnectionSchema,
@@ -7,28 +18,14 @@ import {
   updateBankConnectionReconnectByIdSchema,
 } from "../../schemas/bank-connections";
 import { createTRPCRouter, protectedProcedure } from "../init";
-import { getBankConnectionsForTeam } from "@tamias/app-services/bank";
-import { chatCache } from "@tamias/cache/chat-cache";
-import {
-  addProviderAccounts,
-  createBankConnection,
-  deleteBankConnection,
-  reconnectBankConnection,
-  updateBankConnectionReconnectById,
-} from "@tamias/app-data/queries";
-import { enqueue, startCloudflareWorkflow } from "@tamias/job-client";
-import { TRPCError } from "@trpc/server";
 
 export const bankConnectionsRouter = createTRPCRouter({
   get: protectedProcedure
     .input(getBankConnectionsSchema)
     .query(async ({ ctx: { db, teamId }, input }) => {
-      return getBankConnectionsForTeam({
-        db,
+      return getBankConnections(db, {
         teamId: teamId!,
-        input: {
-          enabled: input?.enabled,
-        },
+        enabled: input?.enabled,
       });
     }),
 

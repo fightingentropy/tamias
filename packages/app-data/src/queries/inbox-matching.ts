@@ -9,7 +9,6 @@ import {
 import type { Database } from "../client";
 import { createActivity } from "./activities";
 import { matchTransaction, updateInbox } from "./inbox";
-import { getInboxItemsPaged } from "./paged-records";
 import {
   createMatchSuggestion,
   findMatches,
@@ -312,48 +311,6 @@ export async function declineSuggestedMatch(
     teamId,
     status: "pending",
   });
-}
-
-export async function getInboxByStatus(
-  _db: Database,
-  params: {
-    teamId: string;
-    status?:
-      | "processing"
-      | "pending"
-      | "archived"
-      | "new"
-      | "analyzing"
-      | "suggested_match"
-      | "no_match"
-      | "done"
-      | "deleted"
-      | "other";
-  },
-) {
-  const items = params.status
-    ? await getInboxItemsPaged({
-        teamId: params.teamId,
-        status: params.status,
-        order: "desc",
-      })
-    : await getInboxItemsPaged({
-        teamId: params.teamId,
-        order: "desc",
-      });
-
-  return items
-    .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
-    .map((item) => ({
-      id: item.id,
-      displayName: item.displayName,
-      amount: item.amount,
-      currency: item.currency,
-      date: item.date,
-      status: item.status,
-      createdAt: item.createdAt,
-      transactionId: item.transactionId,
-    }));
 }
 
 export type PendingInboxItem = {

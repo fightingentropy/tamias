@@ -1,15 +1,4 @@
 import {
-  createBankAccountSchema,
-  deleteBankAccountSchema,
-  getBankAccountDetailsSchema,
-  getBankAccountsSchema,
-  getTransactionCountSchema,
-  updateBankAccountSchema,
-} from "../../schemas/bank-accounts";
-import { createTRPCRouter, protectedProcedure } from "../init";
-import { getBankAccountsForTeam } from "@tamias/app-services/bank";
-import { chatCache } from "@tamias/cache/chat-cache";
-import {
   createBankAccount,
   deleteBankAccount,
   getBankAccountDetails,
@@ -19,19 +8,27 @@ import {
   getTransactionCountByBankAccountId,
   updateBankAccount,
 } from "@tamias/app-data/queries";
+import { getBankAccounts } from "@tamias/app-data/queries/bank-accounts";
+import { chatCache } from "@tamias/cache/chat-cache";
 import { TRPCError } from "@trpc/server";
+import {
+  createBankAccountSchema,
+  deleteBankAccountSchema,
+  getBankAccountDetailsSchema,
+  getBankAccountsSchema,
+  getTransactionCountSchema,
+  updateBankAccountSchema,
+} from "../../schemas/bank-accounts";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const bankAccountsRouter = createTRPCRouter({
   get: protectedProcedure
     .input(getBankAccountsSchema.optional())
     .query(async ({ input, ctx: { db, teamId } }) => {
-      return getBankAccountsForTeam({
-        db,
+      return getBankAccounts(db, {
         teamId: teamId!,
-        input: {
-          enabled: input?.enabled,
-          manual: input?.manual,
-        },
+        enabled: input?.enabled,
+        manual: input?.manual,
       });
     }),
 

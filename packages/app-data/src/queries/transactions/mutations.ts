@@ -2,8 +2,8 @@ import {
   addTransactionTagToTransactionsInConvex,
   deleteTransactionsInConvex,
   deleteTransactionTagsForTransactionsInConvex,
+  getTransactionsByInternalIdsFromConvex,
   getTransactionsByIdsFromConvex,
-  getTransactionsFromConvex,
   upsertTransactionsInConvex,
   type TransactionRecord,
 } from "@tamias/app-data-convex";
@@ -59,7 +59,10 @@ export async function deleteTransactionsByInternalIds(
   const fullIds = new Set(
     params.internalIds.map((id) => `${params.teamId}_${id}`),
   );
-  const deleted = (await getTransactionsFromConvex({ teamId: params.teamId }))
+  const deleted = (await getTransactionsByInternalIdsFromConvex({
+    teamId: params.teamId,
+    internalIds: [...fullIds],
+  }))
     .filter((transaction) => fullIds.has(transaction.internalId))
     .map((transaction) => ({ id: transaction.id }));
 

@@ -1,7 +1,9 @@
 import "server-only";
 
-import { getDocumentsPage } from "@tamias/app-services/documents";
-import type { GetDocumentsParams } from "@tamias/app-data/queries/documents";
+import {
+  type GetDocumentsParams,
+  getDocuments,
+} from "@tamias/app-data/queries/documents";
 import { cache } from "react";
 import { getCurrentSession, getRequestDb } from "./context";
 
@@ -23,10 +25,9 @@ export const getDocumentsLocally = cache(
       };
     }
 
-    return getDocumentsPage({
-      db: requestDb,
+    return getDocuments(requestDb, {
       teamId: session.teamId,
-      input,
+      ...input,
     });
   },
 );

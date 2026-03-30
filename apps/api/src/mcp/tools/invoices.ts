@@ -1,4 +1,16 @@
 import {
+  allocateNextInvoiceNumber,
+  deleteInvoice,
+  duplicateInvoice,
+  getInvoiceById,
+  updateInvoice,
+} from "@tamias/app-data/queries";
+import {
+  getInvoiceSummary,
+  getInvoices,
+} from "@tamias/app-data/queries/invoices";
+import { z } from "zod";
+import {
   deleteInvoiceSchema,
   duplicateInvoiceSchema,
   getInvoiceByIdSchema,
@@ -6,18 +18,6 @@ import {
   invoiceSummarySchema,
   updateInvoiceSchema,
 } from "../../schemas/invoice";
-import {
-  getInvoicesPage,
-  getInvoiceSummaryForTeam,
-} from "@tamias/app-services/invoices";
-import {
-  allocateNextInvoiceNumber,
-  deleteInvoice,
-  duplicateInvoice,
-  getInvoiceById,
-  updateInvoice,
-} from "@tamias/app-data/queries";
-import { z } from "zod";
 import { hasScope, READ_ONLY_ANNOTATIONS, type RegisterTools } from "../types";
 
 // Annotations for write operations
@@ -63,19 +63,16 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
         annotations: READ_ONLY_ANNOTATIONS,
       },
       async (params) => {
-        const result = await getInvoicesPage({
-          db,
+        const result = await getInvoices(db, {
           teamId,
-          input: {
-            cursor: params.cursor ?? null,
-            pageSize: params.pageSize ?? 25,
-            q: params.q ?? null,
-            start: params.start ?? null,
-            end: params.end ?? null,
-            statuses: params.statuses ?? null,
-            customers: params.customers ?? null,
-            sort: params.sort ?? null,
-          },
+          cursor: params.cursor ?? null,
+          pageSize: params.pageSize ?? 25,
+          q: params.q ?? null,
+          start: params.start ?? null,
+          end: params.end ?? null,
+          statuses: params.statuses ?? null,
+          customers: params.customers ?? null,
+          sort: params.sort ?? null,
         });
 
         return {
@@ -120,8 +117,7 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
         annotations: READ_ONLY_ANNOTATIONS,
       },
       async (params) => {
-        const result = await getInvoiceSummaryForTeam({
-          db,
+        const result = await getInvoiceSummary(db, {
           teamId,
           statuses: params.statuses,
         });

@@ -1,9 +1,7 @@
 import "server-only";
 
-import {
-  getBankAccountsForTeam,
-  getBankConnectionsForTeam,
-} from "@tamias/app-services/bank";
+import { getBankAccounts } from "@tamias/app-data/queries/bank-accounts";
+import { getBankConnections } from "@tamias/app-data/queries/bank-connections";
 import { cache } from "react";
 import { getCurrentSession, getRequestDb } from "./context";
 
@@ -17,10 +15,9 @@ export const getBankConnectionsLocally = cache(async (enabled?: boolean) => {
     return [];
   }
 
-  return getBankConnectionsForTeam({
-    db: requestDb,
+  return getBankConnections(requestDb, {
     teamId: session.teamId,
-    input: { enabled },
+    enabled,
   });
 });
 
@@ -35,13 +32,10 @@ export const getBankAccountsLocally = cache(
       return [];
     }
 
-    return getBankAccountsForTeam({
-      db: requestDb,
+    return getBankAccounts(requestDb, {
       teamId: session.teamId,
-      input: {
-        enabled,
-        manual,
-      },
+      enabled,
+      manual,
     });
   },
 );

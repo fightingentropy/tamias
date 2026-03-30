@@ -1,6 +1,7 @@
 import {
   getInboxAccountsByIdsFromConvex,
   getInboxItemByIdFromConvex,
+  getInboxItemsFromConvex,
   getTransactionByIdFromConvex,
   getTransactionMatchSuggestionsFromConvex,
   getTransactionsByIdsFromConvex,
@@ -14,7 +15,6 @@ import {
   type TransactionMatchSuggestionRecord,
   type TransactionRecord,
 } from "@tamias/app-data-convex";
-import { getInboxItemsPaged } from "../paged-records";
 
 export type InboxConvexUserId = CurrentUserIdentityRecord["convexId"];
 
@@ -320,8 +320,34 @@ export async function hydrateInboxItems(
   }));
 }
 
-export async function getTeamInboxItems(teamId: string) {
-  return getInboxItemsPaged({ teamId, order: "desc" });
+export async function getRelatedInboxItems(
+  teamId: string,
+  item: InboxItemRecord,
+) {
+  const primaryInboxId = item.groupedInboxId ?? item.id;
+  const [resolvedPrimaryItem, groupedItems] = await Promise.all([
+    item.groupedInboxId
+      ? getInboxItemByIdFromConvex({
+          teamId,
+          inboxId: primaryInboxId,
+        })
+      : Promise.resolve(item),
+    getInboxItemsFromConvex({
+      teamId,
+      groupedInboxIds: [primaryInboxId],
+    }),
+  ]);
+  const itemsById = new Map<string, InboxItemRecord>();
+
+  itemsById.set((resolvedPrimaryItem ?? item).id, resolvedPrimaryItem ?? item);
+
+  for (const groupedItem of groupedItems) {
+    itemsById.set(groupedItem.id, groupedItem);
+  }
+
+  return [...itemsById.values()].sort((left, right) =>
+    right.createdAt.localeCompare(left.createdAt),
+  );
 }
 
 export async function getTeamMatchSuggestions(

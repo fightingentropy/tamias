@@ -1,10 +1,10 @@
 import "server-only";
 
+import { getCustomerPageSummary } from "@tamias/app-data/queries/customer-summary";
 import {
-  getCustomerPageSummaryForTeam,
-  getCustomersPage,
-} from "@tamias/app-services/customers";
-import type { GetCustomersParams } from "@tamias/app-data/queries/customers";
+  type GetCustomersParams,
+  getCustomers,
+} from "@tamias/app-data/queries/customers";
 import { cache } from "react";
 import { getCurrentSession, getRequestDb } from "./context";
 
@@ -23,8 +23,7 @@ const getCustomerSummaryLocally = cache(async () => {
     };
   }
 
-  return getCustomerPageSummaryForTeam({
-    db: requestDb,
+  return getCustomerPageSummary(requestDb, {
     teamId: session.teamId,
   });
 });
@@ -47,10 +46,9 @@ export const getCustomersLocally = cache(
       };
     }
 
-    return getCustomersPage({
-      db: requestDb,
+    return getCustomers(requestDb, {
       teamId: session.teamId,
-      input,
+      ...input,
     });
   },
 );

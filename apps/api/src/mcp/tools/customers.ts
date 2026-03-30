@@ -1,16 +1,16 @@
 import {
+  deleteCustomer,
+  getCustomerById,
+  getCustomers,
+  upsertCustomer,
+} from "@tamias/app-data/queries";
+import { z } from "zod";
+import {
   deleteCustomerSchema,
   getCustomerByIdSchema,
   getCustomersSchema,
   upsertCustomerSchema,
 } from "../../schemas/customers";
-import { getCustomersPage } from "@tamias/app-services/customers";
-import {
-  deleteCustomer,
-  getCustomerById,
-  upsertCustomer,
-} from "@tamias/app-data/queries";
-import { z } from "zod";
 import { hasScope, READ_ONLY_ANNOTATIONS, type RegisterTools } from "../types";
 
 // Annotations for write operations
@@ -56,15 +56,12 @@ export const registerCustomerTools: RegisterTools = (server, ctx) => {
         annotations: READ_ONLY_ANNOTATIONS,
       },
       async (params) => {
-        const result = await getCustomersPage({
-          db,
+        const result = await getCustomers(db, {
           teamId,
-          input: {
-            cursor: params.cursor ?? null,
-            pageSize: params.pageSize ?? 25,
-            q: params.q ?? null,
-            sort: params.sort ?? null,
-          },
+          cursor: params.cursor ?? null,
+          pageSize: params.pageSize ?? 25,
+          q: params.q ?? null,
+          sort: params.sort ?? null,
         });
 
         return {

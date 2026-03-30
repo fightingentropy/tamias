@@ -18,6 +18,8 @@ import { requireServiceKey } from "./lib/service";
 
 type InboxCtx = QueryCtx | MutationCtx;
 type InboxLiabilityAggregateDoc = Doc<"inboxLiabilityAggregates">;
+type InboxStatusAggregateDoc = Doc<"inboxStatusAggregates">;
+type InboxItemStatusValue = Doc<"inboxItems">["status"];
 
 const nullableString = v.optional(v.union(v.string(), v.null()));
 const nullableNumber = v.optional(v.union(v.number(), v.null()));
@@ -175,6 +177,8 @@ function serializeSuggestion(
     teamId: publicTeamId,
     inboxId: suggestion.inboxId,
     transactionId: suggestion.transactionId,
+    normalizedInboxName: suggestion.normalizedInboxName ?? null,
+    normalizedTransactionName: suggestion.normalizedTransactionName ?? null,
     confidenceScore: suggestion.confidenceScore,
     amountScore: suggestion.amountScore ?? null,
     currencyScore: suggestion.currencyScore ?? null,
@@ -210,6 +214,15 @@ function buildInboxItemSearchText(item: {
   ]);
 }
 
+function normalizeSuggestionLearningName(input: string | null | undefined) {
+  if (!input) return "";
+  return input
+    .toLowerCase()
+    .replace(/[.,\-_'"()&]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function isInboxItemSearchEligible(item: {
   status:
     | "new"
@@ -241,6 +254,12 @@ type InboxLiabilityAggregateKey = {
 
 type InboxLiabilityAggregateEntry = InboxLiabilityAggregateKey & {
   amount: number;
+};
+
+type InboxStatusAggregateKey = {
+  teamId: Id<"teams">;
+  status: InboxItemStatusValue;
+  createdAtDay: string;
 };
 
 function shouldAggregateInboxLiability(item: Doc<"inboxItems">) {
@@ -459,6 +478,279 @@ async function rebuildInboxLiabilityAggregatesForTeam(
   };
 }
 
+function getInboxStatusAggregateKey(
+  item: Doc<"inboxItems">,
+): InboxStatusAggregateKey {
+  return {
+    teamId: item.teamId,
+    status: item.status,
+    createdAtDay: item.createdAt.slice(0, 10),
+  };
+}
+
+function serializeInboxStatusAggregateKey(key: InboxStatusAggregateKey) {
+  return JSON.stringify([key.teamId, key.status, key.createdAtDay]);
+}
+
+async function getInboxStatusAggregateRecord(
+  ctx: InboxCtx,
+  key: InboxStatusAggregateKey,
+) {
+  return ctx.db
+    .query("inboxStatusAggregates")
+    .withIndex("by_team_status_created_at_day", (q) =>
+      q
+        .eq("teamId", key.teamId)
+        .eq("status", key.status)
+        .eq("createdAtDay", key.createdAtDay),
+    )
+    .unique();
+}
+
+async function getInboxStatusAggregateItemCountForKey(
+  ctx: InboxCtx,
+  key: InboxStatusAggregateKey,
+) {
+  const createdAtFrom = `${key.createdAtDay}T00:00:00.000Z`;
+  const createdAtTo = `${key.createdAtDay}T23:59:59.999Z`;
+  const records = await ctx.db
+    .query("inboxItems")
+    .withIndex("by_team_status_created_at", (q) =>
+      q
+        .eq("teamId", key.teamId)
+        .eq("status", key.status)
+        .gte("createdAt", createdAtFrom)
+        .lte("createdAt", createdAtTo),
+    )
+    .collect();
+
+  return records.length;
+}
+
+async function syncInboxStatusAggregateKey(
+  ctx: MutationCtx,
+  key: InboxStatusAggregateKey,
+) {
+  const existing = await getInboxStatusAggregateRecord(ctx, key);
+  const itemCount = await getInboxStatusAggregateItemCountForKey(ctx, key);
+
+  if (itemCount === 0) {
+    if (existing) {
+      await ctx.db.delete(existing._id);
+    }
+
+    return;
+  }
+
+  const timestamp = nowIso();
+
+  if (existing) {
+    await ctx.db.patch(existing._id, {
+      itemCount,
+      updatedAt: timestamp,
+    });
+
+    return;
+  }
+
+  await ctx.db.insert("inboxStatusAggregates", {
+    teamId: key.teamId,
+    status: key.status,
+    createdAtDay: key.createdAtDay,
+    itemCount,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  });
+}
+
+function collectInboxStatusAggregateKeys(
+  keys: Map<string, InboxStatusAggregateKey>,
+  previous: Doc<"inboxItems"> | null,
+  next: Doc<"inboxItems"> | null,
+) {
+  for (const item of [previous, next]) {
+    if (!item) {
+      continue;
+    }
+
+    const key = getInboxStatusAggregateKey(item);
+    keys.set(serializeInboxStatusAggregateKey(key), key);
+  }
+}
+
+function createEmptyInboxStatusCounts() {
+  return {
+    new: 0,
+    archived: 0,
+    processing: 0,
+    done: 0,
+    pending: 0,
+    analyzing: 0,
+    suggested_match: 0,
+    no_match: 0,
+    other: 0,
+    deleted: 0,
+  };
+}
+
+function buildInboxStatusAggregateBackfillMap(records: Doc<"inboxItems">[]) {
+  const aggregateMap = new Map<
+    string,
+    InboxStatusAggregateKey & { itemCount: number }
+  >();
+
+  for (const record of records) {
+    const key = getInboxStatusAggregateKey(record);
+    const serializedKey = serializeInboxStatusAggregateKey(key);
+    const existing = aggregateMap.get(serializedKey);
+
+    if (existing) {
+      existing.itemCount += 1;
+      continue;
+    }
+
+    aggregateMap.set(serializedKey, {
+      ...key,
+      itemCount: 1,
+    });
+  }
+
+  return aggregateMap;
+}
+
+async function rebuildInboxStatusAggregatesForTeam(
+  ctx: MutationCtx,
+  team: Pick<Doc<"teams">, "_id" | "publicTeamId">,
+) {
+  const timestamp = nowIso();
+  const records = await ctx.db
+    .query("inboxItems")
+    .withIndex("by_team_id", (q) => q.eq("teamId", team._id))
+    .collect();
+  const aggregateMap = buildInboxStatusAggregateBackfillMap(records);
+
+  for (const record of await ctx.db
+    .query("inboxStatusAggregates")
+    .withIndex("by_team_and_created_at_day", (q) => q.eq("teamId", team._id))
+    .collect()) {
+    await ctx.db.delete(record._id);
+  }
+
+  for (const entry of aggregateMap.values()) {
+    await ctx.db.insert("inboxStatusAggregates", {
+      teamId: entry.teamId,
+      status: entry.status,
+      createdAtDay: entry.createdAtDay,
+      itemCount: entry.itemCount,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    });
+  }
+
+  return {
+    teamId: team.publicTeamId ?? String(team._id),
+    inboxItemCount: records.length,
+    inboxStatusAggregateRows: aggregateMap.size,
+  };
+}
+
+async function countInboxItemsInCreatedAtRange(
+  ctx: QueryCtx,
+  args: {
+    teamId: Id<"teams">;
+    status: InboxItemStatusValue;
+    createdAtFrom: string;
+    createdAtTo: string;
+  },
+) {
+  const records = await ctx.db
+    .query("inboxItems")
+    .withIndex("by_team_status_created_at", (q) =>
+      q
+        .eq("teamId", args.teamId)
+        .eq("status", args.status)
+        .gte("createdAt", args.createdAtFrom)
+        .lte("createdAt", args.createdAtTo),
+    )
+    .collect();
+
+  return records.length;
+}
+
+async function getInboxStatusRangeCountFromAggregates(
+  ctx: QueryCtx,
+  args: {
+    teamId: Id<"teams">;
+    status: InboxItemStatusValue;
+    createdAtFrom: string;
+    createdAtTo: string;
+    aggregateRows: InboxStatusAggregateDoc[];
+  },
+) {
+  const fromDay = args.createdAtFrom.slice(0, 10);
+  const toDay = args.createdAtTo.slice(0, 10);
+  const fullFromDayStart = `${fromDay}T00:00:00.000Z`;
+  const fullToDayEnd = `${toDay}T23:59:59.999Z`;
+  const includesFullFromDay = args.createdAtFrom === fullFromDayStart;
+  const includesFullToDay = args.createdAtTo === fullToDayEnd;
+
+  if (fromDay === toDay) {
+    if (includesFullFromDay && includesFullToDay) {
+      return args.aggregateRows.reduce(
+        (sum, row) =>
+          row.status === args.status && row.createdAtDay === fromDay
+            ? sum + row.itemCount
+            : sum,
+        0,
+      );
+    }
+
+    return countInboxItemsInCreatedAtRange(ctx, args);
+  }
+
+  let count = 0;
+
+  for (const row of args.aggregateRows) {
+    if (row.status !== args.status) {
+      continue;
+    }
+
+    if (row.createdAtDay > fromDay && row.createdAtDay < toDay) {
+      count += row.itemCount;
+      continue;
+    }
+
+    if (row.createdAtDay === fromDay && includesFullFromDay) {
+      count += row.itemCount;
+      continue;
+    }
+
+    if (row.createdAtDay === toDay && includesFullToDay) {
+      count += row.itemCount;
+    }
+  }
+
+  if (!includesFullFromDay) {
+    count += await countInboxItemsInCreatedAtRange(ctx, {
+      teamId: args.teamId,
+      status: args.status,
+      createdAtFrom: args.createdAtFrom,
+      createdAtTo: `${fromDay}T23:59:59.999Z`,
+    });
+  }
+
+  if (!includesFullToDay) {
+    count += await countInboxItemsInCreatedAtRange(ctx, {
+      teamId: args.teamId,
+      status: args.status,
+      createdAtFrom: `${toDay}T00:00:00.000Z`,
+      createdAtTo: args.createdAtTo,
+    });
+  }
+
+  return count;
+}
+
 async function getInboxTeamOrThrow(ctx: InboxCtx, publicTeamId: string) {
   const team = await getTeamByPublicTeamId(ctx, publicTeamId);
 
@@ -527,6 +819,103 @@ async function getInboxItemByPublicIdAnyTeam(ctx: InboxCtx, inboxId: string) {
 
     return null;
   }
+}
+
+async function getTransactionByPublicId(
+  ctx: InboxCtx,
+  args: {
+    transactionId: string;
+    teamId: Id<"teams">;
+  },
+) {
+  const byLegacyId = await ctx.db
+    .query("transactions")
+    .withIndex("by_public_transaction_id", (q) =>
+      q.eq("publicTransactionId", args.transactionId),
+    )
+    .unique();
+
+  if (byLegacyId && byLegacyId.teamId === args.teamId) {
+    return byLegacyId;
+  }
+
+  try {
+    const byDocId = await ctx.db.get(args.transactionId as Id<"transactions">);
+
+    if (byDocId && byDocId.teamId === args.teamId) {
+      return byDocId;
+    }
+  } catch (error) {
+    if (
+      !(error instanceof Error) ||
+      !error.message.includes("db.get") ||
+      !error.message.includes("Unable to decode ID")
+    ) {
+      throw error;
+    }
+  }
+
+  return null;
+}
+
+type SuggestionLookupCache = {
+  inboxItems: Map<string, Promise<Doc<"inboxItems"> | null>>;
+  transactions: Map<string, Promise<Doc<"transactions"> | null>>;
+};
+
+async function getSuggestionLearningFields(
+  ctx: InboxCtx,
+  args: {
+    teamId: Id<"teams">;
+    inboxId: string;
+    transactionId: string;
+    cache?: SuggestionLookupCache;
+  },
+) {
+  const inboxLookup = args.cache?.inboxItems.get(args.inboxId);
+  const inboxPromise =
+    inboxLookup ??
+    getInboxItemByPublicId(ctx, {
+      inboxId: args.inboxId,
+      teamId: args.teamId,
+    });
+  if (!inboxLookup) {
+    args.cache?.inboxItems.set(args.inboxId, inboxPromise);
+  }
+
+  const transactionLookup = args.cache?.transactions.get(args.transactionId);
+  const transactionPromise =
+    transactionLookup ??
+    getTransactionByPublicId(ctx, {
+      transactionId: args.transactionId,
+      teamId: args.teamId,
+    });
+  if (!transactionLookup) {
+    args.cache?.transactions.set(args.transactionId, transactionPromise);
+  }
+
+  const [inboxItem, transaction] = await Promise.all([
+    inboxPromise,
+    transactionPromise,
+  ]);
+  const normalizedInboxName = normalizeSuggestionLearningName(
+    inboxItem?.displayName,
+  );
+  const normalizedTransactionName = normalizeSuggestionLearningName(
+    transaction?.merchantName || transaction?.name,
+  );
+
+  if (!normalizedInboxName || !normalizedTransactionName) {
+    return {
+      normalizedInboxName: undefined,
+      normalizedTransactionName: undefined,
+    };
+  }
+
+  return {
+    normalizedInboxName,
+    normalizedTransactionName,
+  };
 }
 
 async function getSuggestionByPublicId(ctx: InboxCtx, suggestionId: string) {
@@ -931,14 +1320,25 @@ export const serviceGetInboxItemInfo = query({
   },
 });
 
-export const serviceGetAllInboxItems = query({
+export const serviceListPendingInboxItemsToNoMatch = query({
   args: {
     serviceKey: v.string(),
+    createdAtTo: v.string(),
+    paginationOpts: paginationOptsValidator,
   },
   async handler(ctx, args) {
     requireServiceKey(args.serviceKey);
 
-    const records = await ctx.db.query("inboxItems").collect();
+    const result = await ctx.db
+      .query("inboxItems")
+      .withIndex("by_status_created_at", (q) =>
+        q.eq("status", "pending").lte("createdAt", args.createdAtTo),
+      )
+      .order("desc")
+      .paginate(args.paginationOpts);
+    const records = result.page.filter(
+      (record) => record.transactionId == null,
+    );
     const teamIds = [...new Set(records.map((record) => record.teamId))];
     const teams = new Map<Id<"teams">, string | null>();
 
@@ -947,13 +1347,14 @@ export const serviceGetAllInboxItems = query({
       teams.set(teamId, team?.publicTeamId ?? null);
     }
 
-    return records
-      .flatMap((record) => {
+    return {
+      ...result,
+      page: records.flatMap((record) => {
         const publicTeamId = teams.get(record.teamId);
 
         return publicTeamId ? [serializeInboxItem(publicTeamId, record)] : [];
-      })
-      .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+      }),
+    };
   },
 });
 
@@ -978,6 +1379,7 @@ export const serviceUpsertInboxItems = mutation({
       string,
       InboxLiabilityAggregateKey
     >();
+    const statusAggregateKeys = new Map<string, InboxStatusAggregateKey>();
 
     for (const item of args.items) {
       let team = teamCache.get(item.publicTeamId);
@@ -1058,6 +1460,7 @@ export const serviceUpsertInboxItems = mutation({
           existing,
           updated,
         );
+        collectInboxStatusAggregateKeys(statusAggregateKeys, existing, updated);
         results.push(serializeInboxItem(item.publicTeamId, updated));
         continue;
       }
@@ -1077,11 +1480,16 @@ export const serviceUpsertInboxItems = mutation({
         null,
         inserted,
       );
+      collectInboxStatusAggregateKeys(statusAggregateKeys, null, inserted);
       results.push(serializeInboxItem(item.publicTeamId, inserted));
     }
 
     for (const key of liabilityAggregateKeys.values()) {
       await syncInboxLiabilityAggregateKey(ctx, key);
+    }
+
+    for (const key of statusAggregateKeys.values()) {
+      await syncInboxStatusAggregateKey(ctx, key);
     }
 
     return results;
@@ -1232,6 +1640,10 @@ export const serviceUpsertTransactionMatchSuggestions = mutation({
       string,
       Awaited<ReturnType<typeof getInboxTeamOrThrow>>
     >();
+    const suggestionLookupCache: SuggestionLookupCache = {
+      inboxItems: new Map(),
+      transactions: new Map(),
+    };
     const results = [];
 
     for (const suggestion of args.suggestions) {
@@ -1257,10 +1669,17 @@ export const serviceUpsertTransactionMatchSuggestions = mutation({
           .unique());
 
       const timestamp = suggestion.updatedAt ?? nowIso();
+      const learningFields = await getSuggestionLearningFields(ctx, {
+        teamId: team._id,
+        inboxId: suggestion.inboxId,
+        transactionId: suggestion.transactionId,
+        cache: suggestionLookupCache,
+      });
       const payload = {
         teamId: team._id,
         inboxId: suggestion.inboxId,
         transactionId: suggestion.transactionId,
+        ...learningFields,
         confidenceScore: suggestion.confidenceScore,
         amountScore: suggestion.amountScore ?? undefined,
         currencyScore: suggestion.currencyScore ?? undefined,
@@ -1311,6 +1730,73 @@ export const serviceUpsertTransactionMatchSuggestions = mutation({
   },
 });
 
+export const serviceRebuildTransactionMatchSuggestionLearningFields = mutation({
+  args: {
+    serviceKey: v.string(),
+    publicTeamId: v.optional(v.union(v.string(), v.null())),
+  },
+  async handler(ctx, args) {
+    requireServiceKey(args.serviceKey);
+
+    const teams = args.publicTeamId
+      ? [await getTeamByPublicTeamId(ctx, args.publicTeamId)]
+      : (await ctx.db.query("teams").collect()).filter(
+          (team) => !!team.publicTeamId,
+        );
+
+    const validTeams = teams.filter(
+      (team): team is NonNullable<(typeof teams)[number]> => team !== null,
+    );
+
+    if (args.publicTeamId && validTeams.length === 0) {
+      throw new ConvexError("Convex inbox team not found");
+    }
+
+    const results = [];
+
+    for (const team of validTeams) {
+      const cache: SuggestionLookupCache = {
+        inboxItems: new Map(),
+        transactions: new Map(),
+      };
+      const suggestions = await ctx.db
+        .query("transactionMatchSuggestions")
+        .withIndex("by_team_id", (q) => q.eq("teamId", team._id))
+        .collect();
+      let updatedSuggestionCount = 0;
+
+      for (const suggestion of suggestions) {
+        const learningFields = await getSuggestionLearningFields(ctx, {
+          teamId: team._id,
+          inboxId: suggestion.inboxId,
+          transactionId: suggestion.transactionId,
+          cache,
+        });
+
+        if (
+          suggestion.normalizedInboxName ===
+            learningFields.normalizedInboxName &&
+          suggestion.normalizedTransactionName ===
+            learningFields.normalizedTransactionName
+        ) {
+          continue;
+        }
+
+        await ctx.db.patch(suggestion._id, learningFields);
+        updatedSuggestionCount++;
+      }
+
+      results.push({
+        teamId: team.publicTeamId ?? team._id,
+        suggestionCount: suggestions.length,
+        updatedSuggestionCount,
+      });
+    }
+
+    return results;
+  },
+});
+
 export const serviceGetInboxLiabilityAggregateRows = query({
   args: {
     serviceKey: v.string(),
@@ -1353,6 +1839,54 @@ export const serviceGetInboxLiabilityAggregateRows = query({
   },
 });
 
+export const serviceGetInboxStatusCountSummary = query({
+  args: {
+    serviceKey: v.string(),
+    publicTeamId: v.string(),
+    createdAtFrom: nullableString,
+    createdAtTo: nullableString,
+    rangeStatus: v.optional(inboxItemStatus),
+  },
+  async handler(ctx, args) {
+    requireServiceKey(args.serviceKey);
+
+    const team = await getTeamByPublicTeamId(ctx, args.publicTeamId);
+    const totals = createEmptyInboxStatusCounts();
+
+    if (!team) {
+      return {
+        totals,
+        rangeCount: 0,
+      };
+    }
+
+    const aggregateRows = await ctx.db
+      .query("inboxStatusAggregates")
+      .withIndex("by_team_and_created_at_day", (q) => q.eq("teamId", team._id))
+      .collect();
+
+    for (const row of aggregateRows) {
+      totals[row.status] += row.itemCount;
+    }
+
+    const rangeCount =
+      args.rangeStatus && args.createdAtFrom && args.createdAtTo
+        ? await getInboxStatusRangeCountFromAggregates(ctx, {
+            teamId: team._id,
+            status: args.rangeStatus,
+            createdAtFrom: args.createdAtFrom,
+            createdAtTo: args.createdAtTo,
+            aggregateRows,
+          })
+        : 0;
+
+    return {
+      totals,
+      rangeCount,
+    };
+  },
+});
+
 export const serviceRebuildInboxLiabilityAggregates = mutation({
   args: {
     serviceKey: v.string(),
@@ -1379,6 +1913,38 @@ export const serviceRebuildInboxLiabilityAggregates = mutation({
 
     for (const team of validTeams) {
       results.push(await rebuildInboxLiabilityAggregatesForTeam(ctx, team));
+    }
+
+    return results;
+  },
+});
+
+export const serviceRebuildInboxStatusAggregates = mutation({
+  args: {
+    serviceKey: v.string(),
+    publicTeamId: v.optional(v.union(v.string(), v.null())),
+  },
+  async handler(ctx, args) {
+    requireServiceKey(args.serviceKey);
+
+    const teams = args.publicTeamId
+      ? [await getTeamByPublicTeamId(ctx, args.publicTeamId)]
+      : (await ctx.db.query("teams").collect()).filter(
+          (team) => !!team.publicTeamId,
+        );
+
+    const validTeams = teams.filter(
+      (team): team is NonNullable<(typeof teams)[number]> => team !== null,
+    );
+
+    if (args.publicTeamId && validTeams.length === 0) {
+      throw new ConvexError("Convex inbox team not found");
+    }
+
+    const results = [];
+
+    for (const team of validTeams) {
+      results.push(await rebuildInboxStatusAggregatesForTeam(ctx, team));
     }
 
     return results;

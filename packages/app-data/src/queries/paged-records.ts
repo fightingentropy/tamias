@@ -330,34 +330,3 @@ export async function getInboxItemsByDatePaged(args: {
     cursor = result.continueCursor;
   }
 }
-
-export async function countInboxItemsPaged(args: {
-  teamId: string;
-  status?: InboxItemStatus;
-  createdAtFrom?: string;
-  createdAtTo?: string;
-  pageSize?: number;
-}) {
-  let cursor: string | null = null;
-  let count = 0;
-
-  while (true) {
-    const result = await getInboxItemsPageFromConvex({
-      teamId: args.teamId,
-      cursor,
-      pageSize: args.pageSize ?? DEFAULT_PAGE_SIZE,
-      status: args.status,
-      order: "asc",
-      createdAtFrom: args.createdAtFrom,
-      createdAtTo: args.createdAtTo,
-    });
-
-    count += result.page.length;
-
-    if (result.isDone) {
-      return count;
-    }
-
-    cursor = result.continueCursor;
-  }
-}

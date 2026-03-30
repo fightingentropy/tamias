@@ -1,16 +1,16 @@
 import {
+  type DocumentProcessingStatus,
+  type DocumentRecord,
+  type DocumentTagAssignmentRecord,
   deleteDocumentInConvex,
   deleteDocumentTagAssignmentInConvex,
   getDocumentByIdFromConvex,
+  getDocumentByNameFromConvex,
   getDocumentsByIdsFromConvex,
   getDocumentsPageFromConvex,
-  getDocumentByNameFromConvex,
-  getDocumentIdsForTagIdsFromConvex,
-  getDocumentsFromConvex,
   getDocumentTagAssignmentsForDocumentIdsFromConvex,
-  type DocumentRecord,
-  type DocumentTagAssignmentRecord,
-  type DocumentProcessingStatus,
+  getTaggedDocumentsPageFromConvex,
+  searchDocumentsFromConvex,
   updateDocumentByNameInConvex,
   updateDocumentProcessingStatusInConvex,
   updateDocumentsStatusByNamesInConvex,
@@ -33,7 +33,10 @@ type IndexedDocumentCursorState = {
 function groupAssignmentsByDocumentId(
   assignments: DocumentTagAssignmentRecord[],
 ) {
-  const assignmentsByDocumentId = new Map<string, DocumentTagAssignmentRecord[]>();
+  const assignmentsByDocumentId = new Map<
+    string,
+    DocumentTagAssignmentRecord[]
+  >();
 
   for (const assignment of assignments) {
     const current = assignmentsByDocumentId.get(assignment.documentId) ?? [];
@@ -44,7 +47,10 @@ function groupAssignmentsByDocumentId(
   return assignmentsByDocumentId;
 }
 
-async function getAssignmentsByDocumentId(teamId: string, documentIds: string[]) {
+async function getAssignmentsByDocumentId(
+  teamId: string,
+  documentIds: string[],
+) {
   if (documentIds.length === 0) {
     return new Map<string, DocumentTagAssignmentRecord[]>();
   }
@@ -63,6 +69,11 @@ function isFolderPlaceholder(document: Pick<DocumentRecord, "name">) {
 
 function normalizeText(value: string | null | undefined) {
   return value?.trim().toLowerCase() ?? "";
+}
+
+function normalizeDocumentQuery(query: string | null | undefined) {
+  const normalized = query?.trim();
+  return normalized ? normalized : null;
 }
 
 function tokenizeDocumentText(document: Partial<DocumentRecord>) {
@@ -87,11 +98,7 @@ function tokenizeDocumentText(document: Partial<DocumentRecord>) {
 }
 
 function matchesQuery(document: DocumentRecord, query: string) {
-  const tokens = query
-    .trim()
-    .toLowerCase()
-    .split(/\s+/)
-    .filter(Boolean);
+  const tokens = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
 
   if (tokens.length === 0) {
     return true;
@@ -130,7 +137,7 @@ function matchesDateRange(
 function decodeIndexedDocumentCursor(
   cursor: string | null | undefined,
 ): IndexedDocumentCursorState {
-  if (!cursor || !cursor.startsWith(DOCUMENT_PAGE_CURSOR_PREFIX)) {
+  if (!cursor?.startsWith(DOCUMENT_PAGE_CURSOR_PREFIX)) {
     return {
       sourceCursor: null,
       sourceExhausted: false,
@@ -177,6 +184,10 @@ function getIndexedDocumentBatchSize(pageSize: number) {
   return Math.min(Math.max(pageSize * 3, 50), 200);
 }
 
+function getIndexedDocumentSearchLimit(pageSize: number) {
+  return Math.min(Math.max(pageSize * 20, 100), 400);
+}
+
 function calculateDocumentSimilarity(
   left: Partial<DocumentRecord>,
   right: Partial<DocumentRecord>,
@@ -199,10 +210,97 @@ function calculateDocumentSimilarity(
   return intersection / Math.max(leftTerms.size, rightTerms.size);
 }
 
-async function getTeamDocuments(teamId: string) {
-  return (await getDocumentsFromConvex({ teamId })).filter(
-    (document) => !isFolderPlaceholder(document),
+function getRelatedDocumentSearchQueries(document: Partial<DocumentRecord>) {
+  const tokenQuery = [...tokenizeDocumentText(document)].slice(0, 6).join(" ");
+
+  return [
+    document.title,
+    document.tag,
+    document.name
+      ?.split("/")
+      .pop()
+      ?.replace(/\.[^.]+$/, ""),
+    tokenQuery,
+  ]
+    .map((value) => normalizeText(value))
+    .filter(
+      (value, index, values) =>
+        value.length >= 3 && values.indexOf(value) === index,
+    );
+}
+
+async function getRecentDocumentsPage(args: { teamId: string; limit: number }) {
+  const documents: DocumentRecord[] = [];
+  let cursor: string | null = null;
+
+  while (documents.length < args.limit) {
+    const result = await getDocumentsPageFromConvex({
+      teamId: args.teamId,
+      cursor,
+      pageSize: Math.max(args.limit * 2, 20),
+      order: "desc",
+    });
+
+    documents.push(
+      ...result.page.filter((document) => !isFolderPlaceholder(document)),
+    );
+
+    if (result.isDone) {
+      break;
+    }
+
+    cursor = result.continueCursor;
+  }
+
+  return documents.slice(0, args.limit);
+}
+
+async function getDocumentSearchCandidates(args: {
+  teamId: string;
+  query: string;
+  limit: number;
+}) {
+  return (
+    await searchDocumentsFromConvex({
+      teamId: args.teamId,
+      query: args.query,
+      limit: args.limit,
+    })
+  )
+    .filter((document) => !isFolderPlaceholder(document))
+    .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+}
+
+async function getRelatedDocumentCandidates(args: {
+  teamId: string;
+  source: DocumentRecord;
+  pageSize: number;
+}) {
+  const queries = getRelatedDocumentSearchQueries(args.source);
+
+  if (queries.length === 0) {
+    return [];
+  }
+
+  const searchResults = await Promise.all(
+    queries.map((query) =>
+      searchDocumentsFromConvex({
+        teamId: args.teamId,
+        query,
+        limit: Math.max(args.pageSize * 4, 20),
+      }),
+    ),
   );
+
+  return [
+    ...new Map(
+      searchResults
+        .flat()
+        .filter((document) => !isFolderPlaceholder(document))
+        .filter((document) => document.id !== args.source.id)
+        .map((document) => [document.id, document]),
+    ).values(),
+  ];
 }
 
 async function getDocumentsByIdsInOrder(args: {
@@ -213,10 +311,20 @@ async function getDocumentsByIdsInOrder(args: {
     return [];
   }
 
-  const documents = await getDocumentsByIdsFromConvex({
-    teamId: args.teamId,
-    documentIds: args.documentIds,
-  });
+  const documents = (
+    await Promise.all(
+      Array.from(
+        {
+          length: Math.ceil(args.documentIds.length / 200),
+        },
+        (_, index) =>
+          getDocumentsByIdsFromConvex({
+            teamId: args.teamId,
+            documentIds: args.documentIds.slice(index * 200, (index + 1) * 200),
+          }),
+      ),
+    )
+  ).flat();
   const documentsById = new Map(
     documents.map((document) => [document.id, document]),
   );
@@ -243,7 +351,10 @@ async function attachAssignments<TDocument extends { id: string }>(
   }));
 }
 
-async function deleteDocumentTagAssignments(teamId: string, documentId: string) {
+async function deleteDocumentTagAssignments(
+  teamId: string,
+  documentId: string,
+) {
   const assignments = await getDocumentTagAssignmentsForDocumentIdsFromConvex({
     teamId,
     documentIds: [documentId],
@@ -288,9 +399,10 @@ export async function getDocumentById(
     return null;
   }
 
-  const assignmentsByDocumentId = await getAssignmentsByDocumentId(params.teamId, [
-    document.id,
-  ]);
+  const assignmentsByDocumentId = await getAssignmentsByDocumentId(
+    params.teamId,
+    [document.id],
+  );
 
   return {
     ...document,
@@ -310,29 +422,20 @@ export type GetDocumentsParams = {
 };
 
 export async function getDocuments(_db: Database, params: GetDocumentsParams) {
-  const { teamId, pageSize = 20, cursor, tags, q, start, end, language } = params;
-  const taggedDocumentIds =
-    tags && tags.length > 0
-      ? new Set(
-          await getDocumentIdsForTagIdsFromConvex({
-            teamId,
-            tagIds: tags,
-          }),
-        )
-      : null;
-
-  if (taggedDocumentIds && taggedDocumentIds.size === 0) {
-    return {
-      meta: {
-        cursor: null,
-        hasPreviousPage: Boolean(cursor),
-        hasNextPage: false,
-      },
-      data: [],
-    };
-  }
-
+  const {
+    teamId,
+    pageSize = 20,
+    cursor,
+    tags,
+    q,
+    start,
+    end,
+    language,
+  } = params;
+  const normalizedQuery = normalizeDocumentQuery(q);
   const cursorState = decodeIndexedDocumentCursor(cursor);
+  const hasTagFilter = Boolean(tags?.length);
+
   let sourceCursor = cursorState.sourceCursor;
   let sourceExhausted = cursorState.sourceExhausted;
   let bufferedIds = [...cursorState.bufferedIds];
@@ -343,15 +446,11 @@ export async function getDocuments(_db: Database, params: GetDocumentsParams) {
       return false;
     }
 
-    if (taggedDocumentIds && !taggedDocumentIds.has(document.id)) {
-      return false;
-    }
-
     if (language && document.language !== language) {
       return false;
     }
 
-    if (q && !matchesQuery(document, q)) {
+    if (normalizedQuery && !matchesQuery(document, normalizedQuery)) {
       return false;
     }
 
@@ -371,13 +470,44 @@ export async function getDocuments(_db: Database, params: GetDocumentsParams) {
     );
   }
 
-  while (eligibleDocuments.length <= pageSize && !sourceExhausted) {
-    const result = await getDocumentsPageFromConvex({
+  if (
+    eligibleDocuments.length <= pageSize &&
+    !hasTagFilter &&
+    normalizedQuery &&
+    !sourceExhausted &&
+    !sourceCursor &&
+    bufferedIds.length === 0
+  ) {
+    const searchCandidates = await getDocumentSearchCandidates({
       teamId,
-      cursor: sourceCursor,
-      pageSize: getIndexedDocumentBatchSize(pageSize),
-      order: "desc",
+      query: normalizedQuery,
+      limit: getIndexedDocumentSearchLimit(pageSize),
     });
+
+    eligibleDocuments.push(
+      ...searchCandidates.filter(matchesIndexedDocumentCandidate),
+    );
+    sourceExhausted = true;
+  }
+
+  while (eligibleDocuments.length <= pageSize && !sourceExhausted) {
+    const previousSourceCursor = sourceCursor;
+    const result = hasTagFilter
+      ? await getTaggedDocumentsPageFromConvex({
+          teamId,
+          tagIds: tags ?? [],
+          cursor: sourceCursor,
+          pageSize: getIndexedDocumentBatchSize(pageSize),
+          order: "desc",
+          start,
+          end,
+        })
+      : await getDocumentsPageFromConvex({
+          teamId,
+          cursor: sourceCursor,
+          pageSize: getIndexedDocumentBatchSize(pageSize),
+          order: "desc",
+        });
 
     eligibleDocuments.push(
       ...result.page.filter(matchesIndexedDocumentCandidate),
@@ -386,7 +516,7 @@ export async function getDocuments(_db: Database, params: GetDocumentsParams) {
     sourceCursor = result.isDone ? null : result.continueCursor;
     sourceExhausted = result.isDone;
 
-    if (result.page.length === 0) {
+    if (result.page.length === 0 && (result.isDone || sourceCursor === previousSourceCursor)) {
       break;
     }
   }
@@ -432,7 +562,10 @@ async function getRecentDocumentsImpl(
   params: GetRecentDocumentsParams,
 ) {
   const { teamId, limit = 5 } = params;
-  const data = (await getTeamDocuments(teamId)).slice(0, limit);
+  const data = await getRecentDocumentsPage({
+    teamId,
+    limit,
+  });
 
   return {
     data: await attachAssignments(teamId, data),
@@ -457,15 +590,22 @@ export async function getRelatedDocuments(
   params: GetRelatedDocumentsParams,
 ) {
   const { id, pageSize, teamId } = params;
-  const allDocuments = await getTeamDocuments(teamId);
-  const source = allDocuments.find((document) => document.id === id);
+  const source = await getDocumentByIdFromConvex({
+    teamId,
+    documentId: id,
+  });
 
-  if (!source) {
+  if (!source || isFolderPlaceholder(source)) {
     return [];
   }
 
-  const candidates = allDocuments
-    .filter((document) => document.id !== id)
+  const candidates = (
+    await getRelatedDocumentCandidates({
+      teamId,
+      source,
+      pageSize,
+    })
+  )
     .map((document) => ({
       ...document,
       titleSimilarity: calculateDocumentSimilarity(source, document),

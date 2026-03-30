@@ -6,19 +6,19 @@ import {
   getTaxTypeForCountry,
   REVENUE_CATEGORIES,
 } from "../../../packages/categories/src/index";
-import type { Doc, Id } from "./_generated/dataModel";
-import {
-  mutation,
-  query,
-  type MutationCtx,
-  type QueryCtx,
-} from "./_generated/server";
 import { nowIso } from "../../../packages/domain/src/identity";
 import {
   buildAbsoluteAmountSearchValue,
   buildSearchIndexText,
   buildSearchQuery,
 } from "../../../packages/domain/src/text-search";
+import type { Doc, Id } from "./_generated/dataModel";
+import {
+  type MutationCtx,
+  mutation,
+  type QueryCtx,
+  query,
+} from "./_generated/server";
 import { syncTransactionComplianceJournalEntriesForChanges } from "./complianceLedger";
 import { getTeamByPublicTeamId } from "./lib/identity";
 import { requireServiceKey } from "./lib/service";
@@ -101,6 +101,7 @@ const transactionRecord = v.object({
   frequency: v.optional(v.union(transactionFrequency, v.null())),
   merchantName: nullableString,
   enrichmentCompleted: nullableBoolean,
+  hasAttachment: nullableBoolean,
 });
 
 type TransactionMetricAggregateDoc = Doc<"transactionMetricAggregates">;
@@ -171,6 +172,10 @@ type TransactionTaxAggregateBackfillEntry = {
   totalTransactionAmount: number;
   transactionCount: number;
 };
+type TaggedTransactionCursor = {
+  date: string;
+  transactionId: string;
+};
 
 function roundAggregateAmount(value: number) {
   return Math.round(value * 100) / 100;
@@ -178,6 +183,88 @@ function roundAggregateAmount(value: number) {
 
 function roundAggregateTaxRate(value: number) {
   return Math.round(value * 10000) / 10000;
+}
+
+function decodeTaggedTransactionCursor(
+  cursor: string | null | undefined,
+): TaggedTransactionCursor | null {
+  if (!cursor) {
+    return null;
+  }
+
+  try {
+    const normalizedCursor = cursor.replace(/-/g, "+").replace(/_/g, "/");
+    const paddedCursor =
+      normalizedCursor + "=".repeat((4 - (normalizedCursor.length % 4)) % 4);
+    const parsed = JSON.parse(
+      atob(paddedCursor),
+    ) as Partial<TaggedTransactionCursor>;
+
+    if (
+      typeof parsed.date !== "string" ||
+      typeof parsed.transactionId !== "string"
+    ) {
+      throw new ConvexError("Invalid tagged transaction cursor");
+    }
+
+    return {
+      date: parsed.date,
+      transactionId: parsed.transactionId,
+    };
+  } catch {
+    throw new ConvexError("Invalid tagged transaction cursor");
+  }
+}
+
+function encodeTaggedTransactionCursor(cursor: TaggedTransactionCursor) {
+  return btoa(JSON.stringify(cursor))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
+}
+
+function compareTaggedTransactionRows(
+  left: Pick<Doc<"transactionTags">, "transactionDate" | "transactionId">,
+  right: Pick<Doc<"transactionTags">, "transactionDate" | "transactionId">,
+  order: "asc" | "desc",
+) {
+  const dateComparison = left.transactionDate!.localeCompare(
+    right.transactionDate!,
+  );
+
+  if (dateComparison !== 0) {
+    return order === "asc" ? dateComparison : -dateComparison;
+  }
+
+  const transactionIdComparison = left.transactionId.localeCompare(
+    right.transactionId,
+  );
+
+  return order === "asc" ? transactionIdComparison : -transactionIdComparison;
+}
+
+function isTaggedTransactionRowPastCursor(
+  row: Pick<Doc<"transactionTags">, "transactionDate" | "transactionId">,
+  cursor: TaggedTransactionCursor | null,
+  order: "asc" | "desc",
+) {
+  if (!cursor || !row.transactionDate) {
+    return false;
+  }
+
+  if (order === "asc") {
+    return (
+      row.transactionDate < cursor.date ||
+      (row.transactionDate === cursor.date &&
+        row.transactionId <= cursor.transactionId)
+    );
+  }
+
+  return (
+    row.transactionDate > cursor.date ||
+    (row.transactionDate === cursor.date &&
+      row.transactionId >= cursor.transactionId)
+  );
 }
 
 function publicTransactionId(
@@ -221,6 +308,7 @@ function serializeTransaction(
     frequency: transaction.frequency ?? null,
     merchantName: transaction.merchantName ?? null,
     enrichmentCompleted: transaction.enrichmentCompleted ?? false,
+    hasAttachment: transaction.hasAttachment ?? false,
   };
 }
 
@@ -1218,6 +1306,95 @@ async function getTransactionByPublicId(
   return null;
 }
 
+async function listTransactionTagAssignmentsForTransactionIds(
+  ctx: TransactionCtx,
+  args: {
+    teamId: Id<"teams">;
+    transactionIds: string[];
+  },
+) {
+  const assignments = await Promise.all(
+    [...new Set(args.transactionIds)].map((transactionId) =>
+      ctx.db
+        .query("transactionTags")
+        .withIndex("by_team_and_transaction", (q) =>
+          q.eq("teamId", args.teamId).eq("transactionId", transactionId),
+        )
+        .collect(),
+    ),
+  );
+
+  return [
+    ...new Map(
+      assignments.flat().map((assignment) => [assignment._id, assignment]),
+    ).values(),
+  ];
+}
+
+async function syncTransactionTagAssignmentsForTransaction(
+  ctx: MutationCtx,
+  args: {
+    teamId: Id<"teams">;
+    transaction: Pick<
+      Doc<"transactions">,
+      "_id" | "publicTransactionId" | "date"
+    >;
+  },
+) {
+  const canonicalTransactionId = publicTransactionId(args.transaction);
+  const assignments = await listTransactionTagAssignmentsForTransactionIds(
+    ctx,
+    {
+      teamId: args.teamId,
+      transactionIds: [canonicalTransactionId, args.transaction._id],
+    },
+  );
+
+  if (assignments.length === 0) {
+    return;
+  }
+
+  const timestamp = nowIso();
+
+  for (const assignment of assignments) {
+    if (
+      assignment.transactionId === canonicalTransactionId &&
+      assignment.transactionDate === args.transaction.date
+    ) {
+      continue;
+    }
+
+    await ctx.db.patch(assignment._id, {
+      transactionId: canonicalTransactionId,
+      transactionDate: args.transaction.date,
+      updatedAt: timestamp,
+    });
+  }
+}
+
+async function deleteTransactionTagAssignmentsForTransaction(
+  ctx: MutationCtx,
+  args: {
+    teamId: Id<"teams">;
+    transaction: Pick<Doc<"transactions">, "_id" | "publicTransactionId">;
+  },
+) {
+  const assignments = await listTransactionTagAssignmentsForTransactionIds(
+    ctx,
+    {
+      teamId: args.teamId,
+      transactionIds: [
+        publicTransactionId(args.transaction),
+        args.transaction._id,
+      ],
+    },
+  );
+
+  for (const assignment of assignments) {
+    await ctx.db.delete(assignment._id);
+  }
+}
+
 async function getTransactionByPublicIdAnyTeam(
   ctx: TransactionCtx,
   transactionId: string,
@@ -1303,78 +1480,6 @@ function filterTransactions(
     .sort(sortTransactions);
 }
 
-async function listTransactionsForArgs(
-  ctx: QueryCtx,
-  args: {
-    publicTeamId: string;
-    transactionIds?: string[];
-    bankAccountId?: string | null;
-    enrichmentCompleted?: boolean;
-    dateGte?: string | null;
-    statusesNotIn?: Array<
-      "posted" | "pending" | "excluded" | "completed" | "archived" | "exported"
-    >;
-    limit?: number;
-  },
-) {
-  const team = await getTeamByPublicTeamId(ctx, args.publicTeamId);
-
-  if (!team) {
-    return [];
-  }
-
-  let records: Doc<"transactions">[] = [];
-
-  if (args.transactionIds && args.transactionIds.length > 0) {
-    const resolved = await Promise.all(
-      [...new Set(args.transactionIds)].map((transactionId) =>
-        getTransactionByPublicId(ctx, {
-          transactionId,
-          teamId: team._id,
-        }),
-      ),
-    );
-
-    records = resolved.filter(
-      (record): record is Doc<"transactions"> => record !== null,
-    );
-  } else if (args.bankAccountId) {
-    records = await ctx.db
-      .query("transactions")
-      .withIndex("by_team_and_bank_account", (q) =>
-        q.eq("teamId", team._id).eq("bankAccountId", args.bankAccountId!),
-      )
-      .collect();
-  } else if (args.enrichmentCompleted !== undefined) {
-    records = await ctx.db
-      .query("transactions")
-      .withIndex("by_team_and_enrichment_completed", (q) =>
-        q
-          .eq("teamId", team._id)
-          .eq("enrichmentCompleted", args.enrichmentCompleted!),
-      )
-      .collect();
-  } else if (args.dateGte) {
-    records = await ctx.db
-      .query("transactions")
-      .withIndex("by_team_and_date", (q) =>
-        q.eq("teamId", team._id).gte("date", args.dateGte!),
-      )
-      .collect();
-  } else {
-    records = await ctx.db
-      .query("transactions")
-      .withIndex("by_team_id", (q) => q.eq("teamId", team._id))
-      .collect();
-  }
-
-  return filterTransactions(records, {
-    statusesNotIn: args.statusesNotIn,
-    enrichmentCompleted: args.enrichmentCompleted,
-    dateGte: args.dateGte ?? undefined,
-  }).slice(0, args.limit ?? records.length);
-}
-
 export const serviceUpsertTransactions = mutation({
   args: {
     serviceKey: v.string(),
@@ -1447,6 +1552,7 @@ export const serviceUpsertTransactions = mutation({
         frequency: transaction.frequency ?? undefined,
         merchantName: transaction.merchantName ?? undefined,
         enrichmentCompleted: transaction.enrichmentCompleted ?? false,
+        hasAttachment: transaction.hasAttachment ?? existing?.hasAttachment ?? false,
         searchText:
           buildTransactionProjectionSearchText(transaction) || undefined,
         searchAmount:
@@ -1464,6 +1570,11 @@ export const serviceUpsertTransactions = mutation({
         if (!updated) {
           throw new ConvexError("Failed to update transaction projection");
         }
+
+        await syncTransactionTagAssignmentsForTransaction(ctx, {
+          teamId: team._id,
+          transaction: updated,
+        });
 
         collectTransactionMetricAggregateKeys(
           aggregateKeys,
@@ -1499,6 +1610,11 @@ export const serviceUpsertTransactions = mutation({
       if (!inserted) {
         throw new ConvexError("Failed to create transaction projection");
       }
+
+      await syncTransactionTagAssignmentsForTransaction(ctx, {
+        teamId: team._id,
+        transaction: inserted,
+      });
 
       collectTransactionMetricAggregateKeys(
         aggregateKeys,
@@ -1583,6 +1699,10 @@ export const serviceDeleteTransactions = mutation({
       }
 
       deletedIds.push(publicTransactionId(transaction));
+      await deleteTransactionTagAssignmentsForTransaction(ctx, {
+        teamId: team._id,
+        transaction,
+      });
       await ctx.db.delete(transaction._id);
       collectTransactionMetricAggregateKeys(
         aggregateKeys,
@@ -1717,6 +1837,70 @@ export const serviceGetTransactionsByIds = query({
   },
 });
 
+export const serviceGetTransactionsByInternalIds = query({
+  args: {
+    serviceKey: v.string(),
+    publicTeamId: v.string(),
+    internalIds: v.array(v.string()),
+  },
+  async handler(ctx, args) {
+    requireServiceKey(args.serviceKey);
+
+    if (args.internalIds.length === 0) {
+      return [];
+    }
+
+    const team = await getTeamByPublicTeamId(ctx, args.publicTeamId);
+
+    if (!team) {
+      return [];
+    }
+
+    const records = await Promise.all(
+      [...new Set(args.internalIds)].map((internalId) =>
+        ctx.db
+          .query("transactions")
+          .withIndex("by_team_and_internal_id", (q) =>
+            q.eq("teamId", team._id).eq("internalId", internalId),
+          )
+          .unique(),
+      ),
+    );
+
+    return records
+      .filter((record): record is Doc<"transactions"> => record !== null)
+      .sort(sortTransactions)
+      .map((record) => serializeTransaction(args.publicTeamId, record));
+  },
+});
+
+export const serviceListUnnotifiedTransactions = query({
+  args: {
+    serviceKey: v.string(),
+    publicTeamId: v.string(),
+  },
+  async handler(ctx, args) {
+    requireServiceKey(args.serviceKey);
+
+    const team = await getTeamByPublicTeamId(ctx, args.publicTeamId);
+
+    if (!team) {
+      return [];
+    }
+
+    const records = await ctx.db
+      .query("transactions")
+      .withIndex("by_team_notified_date", (q) =>
+        q.eq("teamId", team._id).eq("notified", false),
+      )
+      .collect();
+
+    return records
+      .sort(sortTransactions)
+      .map((record) => serializeTransaction(args.publicTeamId, record));
+  },
+});
+
 export const serviceSearchTransactions = query({
   args: {
     serviceKey: v.string(),
@@ -1794,26 +1978,6 @@ export const serviceGetTransactionsByAmountRange = query({
   },
 });
 
-export const serviceListTransactions = query({
-  args: {
-    serviceKey: v.string(),
-    publicTeamId: v.string(),
-    transactionIds: v.optional(v.array(v.string())),
-    bankAccountId: nullableString,
-    enrichmentCompleted: v.optional(v.boolean()),
-    dateGte: nullableString,
-    statusesNotIn: v.optional(v.array(transactionStatus)),
-    limit: v.optional(v.number()),
-  },
-  async handler(ctx, args) {
-    requireServiceKey(args.serviceKey);
-
-    return (await listTransactionsForArgs(ctx, args)).map((record) =>
-      serializeTransaction(args.publicTeamId, record),
-    );
-  },
-});
-
 export const serviceListTransactionsPage = query({
   args: {
     serviceKey: v.string(),
@@ -1885,6 +2049,261 @@ export const serviceListTransactionsPage = query({
       page: result.page.map((record) =>
         serializeTransaction(args.publicTeamId, record),
       ),
+    };
+  },
+});
+
+export const serviceListTransactionsByBankAccountPage = query({
+  args: {
+    serviceKey: v.string(),
+    publicTeamId: v.string(),
+    bankAccountId: v.string(),
+    dateGte: nullableString,
+    dateLte: nullableString,
+    statusesNotIn: v.optional(v.array(transactionStatus)),
+    order: v.optional(transactionOrder),
+    paginationOpts: paginationOptsValidator,
+  },
+  async handler(ctx, args) {
+    requireServiceKey(args.serviceKey);
+
+    const team = await getTeamByPublicTeamId(ctx, args.publicTeamId);
+
+    if (!team) {
+      return {
+        page: [],
+        isDone: true,
+        continueCursor: args.paginationOpts.cursor ?? "",
+        splitCursor: null,
+        pageStatus: null,
+      };
+    }
+
+    const baseTransactionsQuery = ctx.db
+      .query("transactions")
+      .withIndex("by_team_bank_account_date", (q) => {
+        const range = q
+          .eq("teamId", team._id)
+          .eq("bankAccountId", args.bankAccountId);
+
+        if (args.dateGte && args.dateLte) {
+          return range.gte("date", args.dateGte).lte("date", args.dateLte);
+        }
+
+        if (args.dateGte) {
+          return range.gte("date", args.dateGte);
+        }
+
+        if (args.dateLte) {
+          return range.lte("date", args.dateLte);
+        }
+
+        return range;
+      });
+
+    const orderedTransactionsQuery = baseTransactionsQuery.order(
+      args.order ?? "desc",
+    );
+
+    const filteredTransactionsQuery =
+      (args.statusesNotIn?.length ?? 0) > 0
+        ? orderedTransactionsQuery.filter((q) => {
+            const excludedStatuses = [...new Set(args.statusesNotIn)];
+
+            return q.and(
+              ...excludedStatuses.map((status) =>
+                q.neq(q.field("status"), status),
+              ),
+            );
+          })
+        : orderedTransactionsQuery;
+
+    const result = await filteredTransactionsQuery.paginate(
+      args.paginationOpts,
+    );
+
+    return {
+      ...result,
+      page: result.page.map((record) =>
+        serializeTransaction(args.publicTeamId, record),
+      ),
+    };
+  },
+});
+
+export const serviceListTaggedTransactionsPage = query({
+  args: {
+    serviceKey: v.string(),
+    publicTeamId: v.string(),
+    tagIds: v.array(v.string()),
+    dateGte: nullableString,
+    dateLte: nullableString,
+    statusesNotIn: v.optional(v.array(transactionStatus)),
+    order: v.optional(transactionOrder),
+    cursor: v.optional(v.union(v.string(), v.null())),
+    pageSize: v.number(),
+  },
+  async handler(ctx, args) {
+    requireServiceKey(args.serviceKey);
+
+    const team = await getTeamByPublicTeamId(ctx, args.publicTeamId);
+
+    if (!team || args.tagIds.length === 0) {
+      return {
+        page: [],
+        isDone: true,
+        continueCursor: null,
+      };
+    }
+
+    const order = args.order ?? "desc";
+    const pageSize = Math.max(1, Math.min(args.pageSize, 100));
+    const cursor = decodeTaggedTransactionCursor(args.cursor ?? null);
+    const tagIds = [...new Set(args.tagIds)];
+    const lowerBound =
+      order === "asc"
+        ? ([args.dateGte, cursor?.date]
+            .filter((value): value is string => !!value)
+            .sort()
+            .at(-1) ?? null)
+        : (args.dateGte ?? null);
+    const upperBound =
+      order === "desc"
+        ? ([args.dateLte, cursor?.date]
+            .filter((value): value is string => !!value)
+            .sort()
+            .at(0) ?? null)
+        : (args.dateLte ?? null);
+    let takeCount = Math.max(pageSize * 4, 50);
+    let mayHaveMoreRows = false;
+    let lastScannedRow: Pick<
+      Doc<"transactionTags">,
+      "transactionDate" | "transactionId"
+    > | null = null;
+    let taggedRows: Array<
+      Pick<Doc<"transactionTags">, "transactionDate" | "transactionId">
+    > = [];
+
+    while (true) {
+      const rowsByTag = await Promise.all(
+        tagIds.map((tagId) => {
+          const query = ctx.db.query("transactionTags");
+
+          if (lowerBound && upperBound) {
+            return query
+              .withIndex("by_team_tag_transaction_date", (range) =>
+                range
+                  .eq("teamId", team._id)
+                  .eq("tagId", tagId)
+                  .gte("transactionDate", lowerBound)
+                  .lte("transactionDate", upperBound),
+              )
+              .order(order)
+              .take(takeCount);
+          }
+
+          if (lowerBound) {
+            return query
+              .withIndex("by_team_tag_transaction_date", (range) =>
+                range
+                  .eq("teamId", team._id)
+                  .eq("tagId", tagId)
+                  .gte("transactionDate", lowerBound),
+              )
+              .order(order)
+              .take(takeCount);
+          }
+
+          if (upperBound) {
+            return query
+              .withIndex("by_team_tag_transaction_date", (range) =>
+                range
+                  .eq("teamId", team._id)
+                  .eq("tagId", tagId)
+                  .lte("transactionDate", upperBound),
+              )
+              .order(order)
+              .take(takeCount);
+          }
+
+          return query
+            .withIndex("by_team_tag_transaction_date", (range) =>
+              range.eq("teamId", team._id).eq("tagId", tagId),
+            )
+            .order(order)
+            .take(takeCount);
+        }),
+      );
+
+      mayHaveMoreRows = rowsByTag.some((rows) => rows.length === takeCount);
+      taggedRows = [
+        ...new Map(
+          rowsByTag
+            .flat()
+            .filter(
+              (row) =>
+                row.transactionDate &&
+                !isTaggedTransactionRowPastCursor(row, cursor, order),
+            )
+            .map((row) => [row.transactionId, row]),
+        ).values(),
+      ].sort((left, right) => compareTaggedTransactionRows(left, right, order));
+      lastScannedRow = taggedRows.at(-1) ?? null;
+
+      if (
+        taggedRows.length >= pageSize ||
+        !mayHaveMoreRows ||
+        takeCount >= 400
+      ) {
+        break;
+      }
+
+      takeCount = Math.min(takeCount * 2, 400);
+    }
+
+    const records: Doc<"transactions">[] = [];
+
+    for (const row of taggedRows) {
+      const transaction = await getTransactionByPublicId(ctx, {
+        transactionId: row.transactionId,
+        teamId: team._id,
+      });
+
+      if (!transaction) {
+        continue;
+      }
+
+      if (
+        args.statusesNotIn?.length &&
+        args.statusesNotIn.includes(transaction.status)
+      ) {
+        continue;
+      }
+
+      records.push(transaction);
+
+      if (records.length === pageSize) {
+        break;
+      }
+    }
+
+    const hasMoreTaggedRows = taggedRows.length > records.length;
+    const continueCursor =
+      records.length === pageSize &&
+      (hasMoreTaggedRows || mayHaveMoreRows) &&
+      lastScannedRow
+        ? encodeTaggedTransactionCursor({
+            date: lastScannedRow.transactionDate!,
+            transactionId: lastScannedRow.transactionId,
+          })
+        : null;
+
+    return {
+      page: records.map((record) =>
+        serializeTransaction(args.publicTeamId, record),
+      ),
+      isDone: continueCursor === null,
+      continueCursor,
     };
   },
 });
@@ -2072,60 +2491,91 @@ export const serviceCountTransactions = query({
     publicTeamId: v.string(),
     bankAccountId: nullableString,
     dateGte: nullableString,
+    dateLte: nullableString,
     statusesNotIn: v.optional(v.array(transactionStatus)),
   },
   async handler(ctx, args) {
     requireServiceKey(args.serviceKey);
 
-    const transactions = await listTransactionsForArgs(ctx, {
-      publicTeamId: args.publicTeamId,
-      bankAccountId: args.bankAccountId,
-      dateGte: args.dateGte,
-      statusesNotIn: args.statusesNotIn,
-    });
+    const team = await getTeamByPublicTeamId(ctx, args.publicTeamId);
 
-    return transactions.length;
-  },
-});
-
-export const serviceGetAllTransactions = query({
-  args: {
-    serviceKey: v.string(),
-  },
-  async handler(ctx, args) {
-    requireServiceKey(args.serviceKey);
-
-    const records = await ctx.db.query("transactions").collect();
-    const teamIds = [...new Set(records.map((record) => record.teamId))];
-    const teams = new Map<Id<"teams">, string | null>();
-
-    for (const teamId of teamIds) {
-      const team = await ctx.db.get(teamId);
-      teams.set(teamId, team?.publicTeamId ?? null);
+    if (!team) {
+      return 0;
     }
 
-    const serialized = records.flatMap((record) => {
-      const publicTeamId = teams.get(record.teamId);
+    const baseTransactionsQuery = args.bankAccountId
+      ? ctx.db
+          .query("transactions")
+          .withIndex("by_team_bank_account_date", (q) => {
+            const range = q
+              .eq("teamId", team._id)
+              .eq("bankAccountId", args.bankAccountId!);
 
-      return publicTeamId ? [serializeTransaction(publicTeamId, record)] : [];
-    });
+            if (args.dateGte && args.dateLte) {
+              return range.gte("date", args.dateGte).lte("date", args.dateLte);
+            }
 
-    serialized.sort((left, right) => {
-      const dateComparison = right.date.localeCompare(left.date);
+            if (args.dateGte) {
+              return range.gte("date", args.dateGte);
+            }
 
-      if (dateComparison !== 0) {
-        return dateComparison;
+            if (args.dateLte) {
+              return range.lte("date", args.dateLte);
+            }
+
+            return range;
+          })
+      : args.dateGte || args.dateLte
+        ? ctx.db.query("transactions").withIndex("by_team_and_date", (q) => {
+            const range = q.eq("teamId", team._id);
+
+            if (args.dateGte && args.dateLte) {
+              return range.gte("date", args.dateGte).lte("date", args.dateLte);
+            }
+
+            if (args.dateGte) {
+              return range.gte("date", args.dateGte);
+            }
+
+            if (args.dateLte) {
+              return range.lte("date", args.dateLte);
+            }
+
+            return range;
+          })
+        : ctx.db
+            .query("transactions")
+            .withIndex("by_team_id", (q) => q.eq("teamId", team._id));
+
+    const filteredTransactionsQuery =
+      (args.statusesNotIn?.length ?? 0) > 0
+        ? baseTransactionsQuery.filter((q) => {
+            const excludedStatuses = [...new Set(args.statusesNotIn)];
+
+            return q.and(
+              ...excludedStatuses.map((status) =>
+                q.neq(q.field("status"), status),
+              ),
+            );
+          })
+        : baseTransactionsQuery;
+
+    let count = 0;
+    let cursor: string | null = null;
+
+    while (true) {
+      const result = await filteredTransactionsQuery.paginate({
+        numItems: 500,
+        cursor,
+      });
+
+      count += result.page.length;
+
+      if (result.isDone) {
+        return count;
       }
 
-      const createdAtComparison = right.createdAt.localeCompare(left.createdAt);
-
-      if (createdAtComparison !== 0) {
-        return createdAtComparison;
-      }
-
-      return right.id.localeCompare(left.id);
-    });
-
-    return serialized;
+      cursor = result.continueCursor;
+    }
   },
 });

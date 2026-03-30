@@ -1,4 +1,5 @@
 import { ConvexError, v } from "convex/values";
+import type { Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { mutation, query } from "./_generated/server";
 import { getTeamByPublicTeamId } from "./lib/identity";
@@ -6,6 +7,51 @@ import { requireServiceKey } from "./lib/service";
 import { nowIso } from "../../../packages/domain/src/identity";
 
 type TrackerProjectTagCtx = QueryCtx | MutationCtx;
+
+async function getTrackerProjectForTeamByExternalId(
+  ctx: TrackerProjectTagCtx,
+  args: {
+    teamId: Id<"teams">;
+    trackerProjectId: string;
+  },
+) {
+  const byLegacyId = await ctx.db
+    .query("trackerProjects")
+    .withIndex("by_public_tracker_project_id", (q) =>
+      q.eq("publicTrackerProjectId", args.trackerProjectId),
+    )
+    .unique();
+
+  if (byLegacyId && byLegacyId.teamId === args.teamId) {
+    return byLegacyId;
+  }
+
+  try {
+    const byDocId = await ctx.db.get(
+      args.trackerProjectId as Id<"trackerProjects">,
+    );
+
+    if (byDocId && byDocId.teamId === args.teamId) {
+      return byDocId;
+    }
+  } catch (error) {
+    if (
+      !(error instanceof Error) ||
+      !error.message.includes("db.get") ||
+      !error.message.includes("Unable to decode ID")
+    ) {
+      throw error;
+    }
+  }
+
+  return null;
+}
+
+function getTrackerProjectTagSortFields(project: { createdAt: string }) {
+  return {
+    projectCreatedAt: project.createdAt,
+  };
+}
 
 function serializeTrackerProjectTagAssignment(
   teamId: string,
@@ -94,37 +140,69 @@ export const serviceGetTrackerProjectTagAssignmentsForProjectIds = query({
   },
 });
 
-export const serviceGetTrackerProjectIdsForTagIds = query({
+export const serviceRebuildTrackerProjectTagSortFields = mutation({
   args: {
     serviceKey: v.string(),
-    teamId: v.string(),
-    tagIds: v.array(v.string()),
+    teamId: v.optional(v.union(v.string(), v.null())),
   },
   async handler(ctx, args) {
     requireServiceKey(args.serviceKey);
 
-    if (args.tagIds.length === 0) {
-      return [];
-    }
+    const teams = args.teamId
+      ? [await getTeamByPublicTeamId(ctx, args.teamId)]
+      : (await ctx.db.query("teams").collect()).filter(
+          (team) => !!team.publicTeamId,
+        );
 
-    const team = await getTeamByPublicTeamId(ctx, args.teamId);
-
-    if (!team) {
-      return [];
-    }
-
-    const assignments = await Promise.all(
-      [...new Set(args.tagIds)].map((tagId) =>
-        ctx.db
-          .query("trackerProjectTags")
-          .withIndex("by_team_and_tag", (q) =>
-            q.eq("teamId", team._id).eq("tagId", tagId),
-          )
-          .collect(),
-      ),
+    const validTeams = teams.filter(
+      (team): team is NonNullable<(typeof teams)[number]> => team !== null,
     );
 
-    return [...new Set(assignments.flat().map((assignment) => assignment.trackerProjectId))];
+    if (args.teamId && validTeams.length === 0) {
+      throw new ConvexError("Convex tracker project tag team not found");
+    }
+
+    const results = [];
+
+    for (const team of validTeams) {
+      const assignments = await ctx.db
+        .query("trackerProjectTags")
+        .withIndex("by_team_id", (q) => q.eq("teamId", team._id))
+        .collect();
+      let updatedAssignmentCount = 0;
+      let deletedAssignmentCount = 0;
+
+      for (const assignment of assignments) {
+        const project = await getTrackerProjectForTeamByExternalId(ctx, {
+          teamId: team._id,
+          trackerProjectId: assignment.trackerProjectId,
+        });
+
+        if (!project) {
+          await ctx.db.delete(assignment._id);
+          deletedAssignmentCount += 1;
+          continue;
+        }
+
+        const sortFields = getTrackerProjectTagSortFields(project);
+
+        if (assignment.projectCreatedAt === sortFields.projectCreatedAt) {
+          continue;
+        }
+
+        await ctx.db.patch(assignment._id, sortFields);
+        updatedAssignmentCount += 1;
+      }
+
+      results.push({
+        teamId: team.publicTeamId ?? team._id,
+        assignmentCount: assignments.length,
+        updatedAssignmentCount,
+        deletedAssignmentCount,
+      });
+    }
+
+    return results;
   },
 });
 
@@ -139,6 +217,15 @@ export const serviceReplaceTrackerProjectTags = mutation({
     requireServiceKey(args.serviceKey);
 
     const team = await getTeamOrThrow(ctx, args.teamId);
+    const project = await getTrackerProjectForTeamByExternalId(ctx, {
+      teamId: team._id,
+      trackerProjectId: args.trackerProjectId,
+    });
+
+    if (!project) {
+      throw new ConvexError("Convex tracker project tag target not found");
+    }
+
     const currentAssignments = await listAssignmentsForProject(ctx, args);
     const currentTagIds = new Set(currentAssignments.map((assignment) => assignment.tagId));
     const nextTagIds = [...new Set(args.tagIds)];
@@ -160,6 +247,7 @@ export const serviceReplaceTrackerProjectTags = mutation({
         teamId: team._id,
         trackerProjectId: args.trackerProjectId,
         tagId,
+        ...getTrackerProjectTagSortFields(project),
         createdAt: timestamp,
         updatedAt: timestamp,
       });

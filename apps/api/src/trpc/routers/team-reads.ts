@@ -1,3 +1,5 @@
+import { getAvailablePlans } from "@tamias/app-data/queries";
+import { getBankConnections } from "@tamias/app-data/queries/bank-connections";
 import {
   getInvitesByEmailFromConvex,
   getTeamByPublicTeamIdFromConvexIdentity,
@@ -5,9 +7,7 @@ import {
   getTeamMembersFromConvex,
   listTeamsForUserFromConvex,
 } from "@tamias/app-services/identity";
-import { getBankConnectionsForTeam } from "@tamias/app-services/bank";
 import { getInboxAccountsForTeam } from "@tamias/app-services/inbox";
-import { getAvailablePlans } from "@tamias/app-data/queries";
 import { protectedProcedure } from "../init";
 
 export const teamReadProcedures = {
@@ -61,7 +61,7 @@ export const teamReadProcedures = {
       }
 
       const [bankConnections, inboxAccounts] = await Promise.all([
-        getBankConnectionsForTeam({ db, teamId }),
+        getBankConnections(db, { teamId }),
         getInboxAccountsForTeam(teamId),
       ]);
 

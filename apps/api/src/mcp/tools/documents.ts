@@ -1,7 +1,7 @@
-import { getDocumentsSchema } from "../../schemas/documents";
-import { getDocumentsPage } from "@tamias/app-services/documents";
 import { getDocumentById } from "@tamias/app-data/queries";
+import { getDocuments } from "@tamias/app-data/queries/documents";
 import { z } from "zod";
+import { getDocumentsSchema } from "../../schemas/documents";
 import { hasScope, READ_ONLY_ANNOTATIONS, type RegisterTools } from "../types";
 
 export const registerDocumentTools: RegisterTools = (server, ctx) => {
@@ -21,15 +21,12 @@ export const registerDocumentTools: RegisterTools = (server, ctx) => {
       annotations: READ_ONLY_ANNOTATIONS,
     },
     async (params) => {
-      const result = await getDocumentsPage({
-        db,
+      const result = await getDocuments(db, {
         teamId,
-        input: {
-          cursor: params.cursor ?? null,
-          pageSize: params.pageSize ?? 25,
-          q: params.q ?? null,
-          tags: params.tags ?? null,
-        },
+        cursor: params.cursor ?? null,
+        pageSize: params.pageSize ?? 25,
+        q: params.q ?? null,
+        tags: params.tags ?? null,
       });
 
       return {

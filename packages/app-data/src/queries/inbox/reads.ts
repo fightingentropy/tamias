@@ -1,8 +1,11 @@
 import { createLoggerWithContext } from "@tamias/logger";
 import {
+  getInboxItemsByAmountRangeFromConvex,
   getInboxItemByIdFromConvex,
   getInboxItemsFromConvex,
   getInboxItemsPageFromConvex,
+  getInboxStatusCountSummaryFromConvex,
+  searchInboxItemsFromConvex,
   getTransactionByIdFromConvex,
   type InboxItemRecord,
 } from "@tamias/app-data-convex";
@@ -11,7 +14,7 @@ import { separateBlocklistEntries } from "../../utils/blocklist";
 import { cacheAcrossRequests } from "../../utils/short-lived-cache";
 import { normalizeTimestampBoundary } from "../date-boundaries";
 import { getInboxBlocklist } from "../inbox-blocklist";
-import { countInboxItemsPaged, getInboxItemsPaged } from "../paged-records";
+import { getInboxItemsPaged } from "../paged-records";
 import {
   getTransactionAttachmentsByIds,
   getTransactionIdsWithAttachments,
@@ -22,7 +25,6 @@ import {
   compareNullableStrings,
   filePathEquals,
   getPendingSuggestionForInbox,
-  getTeamInboxItems,
   getTeamMatchSuggestions,
   hydrateInboxItems,
   includesSearch,
@@ -120,11 +122,53 @@ function getIndexedInboxBatchSize(pageSize: number) {
   return Math.min(Math.max(pageSize * 3, 100), 250);
 }
 
+function normalizeInboxQuery(query: string | null | undefined) {
+  const trimmed = query?.trim();
+  return trimmed ? trimmed : null;
+}
+
+function isAmountLikeInboxQuery(query: string | null | undefined) {
+  const normalizedQuery = normalizeInboxQuery(query);
+
+  if (!normalizedQuery) {
+    return false;
+  }
+
+  return /[\d]/.test(normalizedQuery) &&
+    /^[\d\s,.\-+£$€]+$/.test(normalizedQuery);
+}
+
+function parseInboxQueryAmount(query: string | null | undefined) {
+  const normalizedQuery = normalizeInboxQuery(query);
+
+  if (!normalizedQuery) {
+    return null;
+  }
+
+  const numeric = Number.parseFloat(normalizedQuery.replace(/[^\d.-]/g, ""));
+
+  if (Number.isNaN(numeric) || !Number.isFinite(numeric)) {
+    return null;
+  }
+
+  return numeric;
+}
+
+function getInboxQueryAmountTolerance(amount: number) {
+  return Math.max(1, Math.abs(amount) * 0.1);
+}
+
 function canUseIndexedInboxPage(args: {
   sort: string | null | undefined;
   q: string | null | undefined;
 }) {
-  return (!args.sort || args.sort === "date") && !args.q;
+  const query = normalizeInboxQuery(args.q);
+
+  if (query) {
+    return true;
+  }
+
+  return !args.sort || args.sort === "date";
 }
 
 function matchesInboxTab(
@@ -152,6 +196,127 @@ function matchesIndexedInboxCandidate(
     (args.status ? item.status === args.status : true) &&
     matchesInboxTab(item, args.tab)
   );
+}
+
+function matchesInboxQuery(
+  item: Pick<
+    InboxItemRecord,
+    "amount" | "description" | "displayName" | "fileName"
+  >,
+  query: string | null | undefined,
+) {
+  const normalizedQuery = normalizeInboxQuery(query);
+
+  if (!normalizedQuery) {
+    return true;
+  }
+
+  const numeric = isAmountLikeInboxQuery(normalizedQuery)
+    ? parseInboxQueryAmount(normalizedQuery)
+    : null;
+
+  if (numeric !== null) {
+    const amount = Math.abs(item.amount ?? 0);
+    const tolerance = getInboxQueryAmountTolerance(numeric);
+
+    return (
+      includesSearch(item.displayName, normalizedQuery) ||
+      includesSearch(item.fileName, normalizedQuery) ||
+      includesSearch(item.description, normalizedQuery) ||
+      Math.abs(amount - Math.abs(numeric)) <= tolerance
+    );
+  }
+
+  return (
+    includesSearch(item.displayName, normalizedQuery) ||
+    includesSearch(item.fileName, normalizedQuery) ||
+    includesSearch(item.description, normalizedQuery)
+  );
+}
+
+function compareInboxListItems(
+  left: Pick<InboxItemRecord, "createdAt" | "date" | "displayName">,
+  right: Pick<InboxItemRecord, "createdAt" | "date" | "displayName">,
+  args: {
+    order: string | null | undefined;
+    sort: string | null | undefined;
+  },
+) {
+  const { order, sort } = args;
+
+  if (sort === "alphabetical") {
+    const comparison = compareNullableStrings(
+      left.displayName,
+      right.displayName,
+    );
+    return order === "desc" ? -comparison : comparison;
+  }
+
+  if (sort === "document_date") {
+    const comparison = compareNullableDates(
+      left.date,
+      right.date,
+      order === "desc" ? "desc" : "asc",
+    );
+
+    if (comparison !== 0) {
+      return order === "desc" ? -comparison : comparison;
+    }
+
+    return order === "desc"
+      ? right.createdAt.localeCompare(left.createdAt)
+      : left.createdAt.localeCompare(right.createdAt);
+  }
+
+  return order === "desc"
+    ? left.createdAt.localeCompare(right.createdAt)
+    : right.createdAt.localeCompare(left.createdAt);
+}
+
+function getIndexedInboxSearchLimit(pageSize: number) {
+  return Math.min(Math.max(pageSize * 20, 100), 400);
+}
+
+async function getIndexedInboxQueryCandidates(args: {
+  teamId: string;
+  query: string;
+  limit: number;
+}) {
+  const numericAmount = isAmountLikeInboxQuery(args.query)
+    ? parseInboxQueryAmount(args.query)
+    : null;
+  const [textCandidates, amountCandidates] = await Promise.all([
+    searchInboxItemsFromConvex({
+      teamId: args.teamId,
+      query: args.query,
+      limit: args.limit,
+    }),
+    numericAmount !== null
+      ? getInboxItemsByAmountRangeFromConvex({
+          teamId: args.teamId,
+          minAmount: Math.max(
+            0,
+            Math.round(
+              (Math.abs(numericAmount) -
+                getInboxQueryAmountTolerance(numericAmount)) *
+                100,
+            ),
+          ),
+          maxAmount: Math.round(
+            (Math.abs(numericAmount) +
+              getInboxQueryAmountTolerance(numericAmount)) *
+              100,
+          ),
+          limit: args.limit,
+        })
+      : Promise.resolve([]),
+  ]);
+
+  return [
+    ...new Map(
+      [...textCandidates, ...amountCandidates].map((item) => [item.id, item]),
+    ).values(),
+  ];
 }
 
 async function getInboxItemsByIdsInOrder(args: {
@@ -238,6 +403,7 @@ async function getIndexedInboxPage(
   let sourceExhausted = cursorState.sourceExhausted;
   let bufferedIds = [...cursorState.bufferedIds];
   const eligibleItems: InboxItemRecord[] = [];
+  const normalizedQuery = normalizeInboxQuery(params.q);
 
   while (eligibleItems.length <= pageSize && bufferedIds.length > 0) {
     const takeCount = pageSize + 1 - eligibleItems.length;
@@ -257,6 +423,40 @@ async function getIndexedInboxPage(
         }),
       ),
     );
+  }
+
+  if (
+    eligibleItems.length <= pageSize &&
+    normalizedQuery &&
+    !sourceExhausted &&
+    !sourceCursor &&
+    bufferedIds.length === 0
+  ) {
+    const searchCandidates = await getIndexedInboxQueryCandidates({
+      teamId,
+      query: normalizedQuery,
+      limit: getIndexedInboxSearchLimit(pageSize),
+    });
+
+    eligibleItems.push(
+      ...searchCandidates
+        .filter((item) =>
+          matchesIndexedInboxCandidate(item, {
+            status,
+            tab,
+            blockedDomains,
+            blockedEmails,
+          }),
+        )
+        .filter((item) => matchesInboxQuery(item, normalizedQuery))
+        .sort((left, right) =>
+          compareInboxListItems(left, right, {
+            order,
+            sort: params.sort,
+          }),
+        ),
+    );
+    sourceExhausted = true;
   }
 
   while (eligibleItems.length <= pageSize && !sourceExhausted) {
@@ -332,19 +532,32 @@ export type GetInboxParams = {
 };
 
 export async function getInbox(db: Database, params: GetInboxParams) {
-  const { teamId, cursor, order, sort, pageSize = 20, q, status, tab } = params;
+  const {
+    teamId,
+    cursor,
+    order,
+    sort,
+    pageSize = 20,
+    q,
+    status,
+    tab,
+  } = params;
+  const normalizedQuery = normalizeInboxQuery(q);
 
   if (
     canUseIndexedInboxPage({
       sort,
-      q,
+      q: normalizedQuery,
     })
   ) {
-    return getIndexedInboxPage(db, params);
+    return getIndexedInboxPage(db, {
+      ...params,
+      q: normalizedQuery,
+    });
   }
 
   const [items, blocklistEntries] = await Promise.all([
-    getTeamInboxItems(teamId),
+    getInboxItemsPaged({ teamId, order: "desc" }),
     getInboxBlocklist(db, { teamId }),
   ]);
   const relatedCountByGroupedInboxId = new Map<string, number>();
@@ -374,56 +587,19 @@ export async function getInbox(db: Database, params: GetInboxParams) {
         : item.type !== "other" && item.status !== "other",
     )
     .filter((item) => {
-      if (!q) {
-        return true;
-      }
-
-      const numeric = Number.parseFloat(q);
-
-      if (!Number.isNaN(numeric) && Number.isFinite(numeric)) {
-        return String(item.amount ?? "").includes(q);
-      }
-
-      return (
-        includesSearch(item.displayName, q) ||
-        includesSearch(item.fileName, q) ||
-        includesSearch(item.description, q)
-      );
+      return matchesInboxQuery(item, normalizedQuery);
     })
     .map((item) => ({
       ...item,
       relatedCount: relatedCountByGroupedInboxId.get(item.id) ?? 0,
     }));
 
-  filtered.sort((left, right) => {
-    if (sort === "alphabetical") {
-      const comparison = compareNullableStrings(
-        left.displayName,
-        right.displayName,
-      );
-      return order === "desc" ? -comparison : comparison;
-    }
-
-    if (sort === "document_date") {
-      const comparison = compareNullableDates(
-        left.date,
-        right.date,
-        order === "desc" ? "desc" : "asc",
-      );
-
-      if (comparison !== 0) {
-        return order === "desc" ? -comparison : comparison;
-      }
-
-      return order === "desc"
-        ? right.createdAt.localeCompare(left.createdAt)
-        : left.createdAt.localeCompare(right.createdAt);
-    }
-
-    return order === "desc"
-      ? left.createdAt.localeCompare(right.createdAt)
-      : right.createdAt.localeCompare(left.createdAt);
-  });
+  filtered.sort((left, right) =>
+    compareInboxListItems(left, right, {
+      order,
+      sort,
+    }),
+  );
 
   const offset = cursor ? Number.parseInt(cursor, 10) : 0;
   const paged = filtered.slice(offset, offset + pageSize);
@@ -682,36 +858,26 @@ async function getInboxStatsImpl(
   const { teamId, from, to, currency } = params;
   const fromBoundary = normalizeTimestampBoundary(from, "start");
   const toBoundary = normalizeTimestampBoundary(to, "end");
-  const [
-    newItems,
-    archivedItems,
-    processingItems,
-    doneItems,
-    pendingItems,
-    analyzingItems,
-    suggestedMatchItems,
-    noMatchItems,
-    otherItems,
-    recentMatches,
-    suggestions,
-  ] = await Promise.all([
-    countInboxItemsPaged({ teamId, status: "new" }),
-    countInboxItemsPaged({ teamId, status: "archived" }),
-    countInboxItemsPaged({ teamId, status: "processing" }),
-    countInboxItemsPaged({ teamId, status: "done" }),
-    countInboxItemsPaged({ teamId, status: "pending" }),
-    countInboxItemsPaged({ teamId, status: "analyzing" }),
-    countInboxItemsPaged({ teamId, status: "suggested_match" }),
-    countInboxItemsPaged({ teamId, status: "no_match" }),
-    countInboxItemsPaged({ teamId, status: "other" }),
-    countInboxItemsPaged({
+  const [statusSummary, suggestions] = await Promise.all([
+    getInboxStatusCountSummaryFromConvex({
       teamId,
-      status: "done",
       createdAtFrom: fromBoundary,
       createdAtTo: toBoundary,
+      rangeStatus: "done",
     }),
     getTeamMatchSuggestions(teamId, ["pending"]),
   ]);
+
+  const { totals, rangeCount: recentMatches } = statusSummary;
+  const newItems = totals.new;
+  const archivedItems = totals.archived;
+  const processingItems = totals.processing;
+  const doneItems = totals.done;
+  const pendingItems = totals.pending;
+  const analyzingItems = totals.analyzing;
+  const suggestedMatchItems = totals.suggested_match;
+  const noMatchItems = totals.no_match;
+  const otherItems = totals.other;
 
   const stats = {
     newItems,
