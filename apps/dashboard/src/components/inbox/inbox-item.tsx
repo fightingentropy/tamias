@@ -40,7 +40,7 @@ export const InboxItem = forwardRef<HTMLButtonElement, Props>(
     const isSelectionMode = Object.keys(selectedIds).length > 0;
     const isSelected =
       isBulkSelected || (!isSelectionMode && isNavigationSelected);
-    const isProcessing = item.status === "processing" || item.status === "new";
+    const isProcessing = item.status === "processing";
 
     const handleClick = (e: React.MouseEvent) => {
       // If shift is held, handle range selection

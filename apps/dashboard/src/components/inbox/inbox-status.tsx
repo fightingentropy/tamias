@@ -16,7 +16,7 @@ type Props = {
 
 export function InboxStatus({ item }: Props) {
   // Don't show status for processing items - let skeleton handle the visual feedback
-  if (item.status === "processing" || item.status === "new") {
+  if (item.status === "processing") {
     return null;
   }
 
@@ -83,7 +83,7 @@ export function InboxStatus({ item }: Props) {
     );
   }
 
-  if (item.status === "pending") {
+  if (item.status === "new" || item.status === "pending") {
     return (
       <TooltipProvider delayDuration={0}>
         <Tooltip>

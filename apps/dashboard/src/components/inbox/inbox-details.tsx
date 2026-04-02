@@ -203,7 +203,7 @@ export function InboxDetails() {
     handleOnDelete();
   });
 
-  const isProcessing = data?.status === "processing" || data?.status === "new";
+  const isProcessing = data?.status === "processing";
   const isOtherDocument = data?.status === "other" || data?.type === "other";
 
   useEffect(() => {

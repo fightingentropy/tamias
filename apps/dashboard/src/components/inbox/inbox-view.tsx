@@ -77,7 +77,9 @@ export function InboxView() {
         const items =
           query.state.data?.pages.flatMap((page) => page.data) ?? [];
         const hasProcessingItems = items.some((item) =>
-          ["processing", "pending", "analyzing"].includes(item.status ?? ""),
+          ["new", "processing", "pending", "analyzing"].includes(
+            item.status ?? "",
+          ),
         );
 
         return wasJustConnected || hasProcessingItems ? 5_000 : false;
