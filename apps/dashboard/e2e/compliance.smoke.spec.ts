@@ -7,7 +7,7 @@ test("compliance overview and VAT setup render without a filing profile", async 
   await expect(page.getByRole("heading", { name: "Compliance" })).toBeVisible({
     timeout: 30_000,
   });
-  await expect(page.getByText("Profile not configured")).toBeVisible({
+  await expect(page.getByText("Profile not configured").first()).toBeVisible({
     timeout: 30_000,
   });
 

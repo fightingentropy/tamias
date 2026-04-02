@@ -12,10 +12,9 @@ import {
 } from "@tamias/ui/tooltip";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import Link from "next/link";
+import Link from "@/framework/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useOnClickOutside } from "usehooks-ts";
-import { revalidateAfterTeamChange } from "@/actions/revalidate-action";
 import { useCurrentUser } from "@/components/current-user-provider";
 import { useTRPC } from "@/trpc/client";
 
@@ -93,7 +92,7 @@ export function TeamDropdown({ isExpanded = false }: Props) {
       onSuccess: async () => {
         await queryClient.invalidateQueries();
         setIsChangingTeam(false);
-        await revalidateAfterTeamChange();
+        window.location.assign("/dashboard");
       },
     }),
   );

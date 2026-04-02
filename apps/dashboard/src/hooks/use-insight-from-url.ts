@@ -3,7 +3,7 @@
 import { useChatActions, useChatId } from "@ai-sdk-tools/store";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams } from "@/framework/navigation";
 import { useEffect, useRef } from "react";
 import { useChatInterface } from "@/hooks/use-chat-interface";
 import { useTRPC } from "@/trpc/client";

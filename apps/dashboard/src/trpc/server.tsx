@@ -1,6 +1,6 @@
-import "server-only";
 
 import type { AppRouter } from "@tamias/trpc";
+import { getApiUrl } from "@tamias/utils/envs";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { createTRPCClient, httpBatchLink, loggerLink } from "@trpc/client";
 import {
@@ -19,8 +19,7 @@ export const getQueryClient = cache(makeQueryClient);
 
 // Server-side: prefer an explicitly configured internal API URL when present.
 // Falls back to the public API URL for local dev and standard deployments.
-const API_BASE_URL =
-  process.env.API_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL;
+const API_BASE_URL = process.env.API_INTERNAL_URL || getApiUrl();
 
 const SSR_FETCH_TIMEOUT_MS = 8_000;
 

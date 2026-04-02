@@ -1,5 +1,6 @@
 "use client";
 
+import { getWhatsAppNumber } from "@tamias/utils/envs";
 import { Button } from "@tamias/ui/button";
 import {
   Dialog,
@@ -23,6 +24,7 @@ interface ConnectWhatsAppProps {
 export function ConnectWhatsApp({ showTrigger = true }: ConnectWhatsAppProps) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+  const whatsappNumber = getWhatsAppNumber();
   const [open, setOpen] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
   const [copied, setCopied] = useState(false);
@@ -45,7 +47,6 @@ export function ConnectWhatsApp({ showTrigger = true }: ConnectWhatsAppProps) {
   );
 
   // WhatsApp number from environment
-  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
   const inboxId = team?.inboxId || "";
   const message = `Connect to Tamias: ${inboxId}`;
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;

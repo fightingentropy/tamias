@@ -1,5 +1,4 @@
 import { useMutation } from "@tanstack/react-query";
-import JSZip from "jszip";
 import { saveFile } from "@/lib/save-file";
 import { useTRPC } from "@/trpc/client";
 
@@ -55,6 +54,7 @@ async function zipAndDownloadFiles(
     throw new Error("Failed to generate download links for selected files.");
   }
 
+  const { default: JSZip } = await import("jszip");
   const zip = new JSZip();
 
   const filePromises = validSignedFiles.map(async (file) => {

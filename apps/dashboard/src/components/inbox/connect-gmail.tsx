@@ -3,7 +3,7 @@
 import { Icons } from "@tamias/ui/icons";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/framework/navigation";
 import { useTRPC } from "@/trpc/client";
 
 type Props = {

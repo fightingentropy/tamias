@@ -9,7 +9,7 @@ import {
 } from "@tamias/ui/hover-card";
 import { Icons } from "@tamias/ui/icons";
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
+import Link from "@/framework/link";
 import { useEffect, useMemo, useState } from "react";
 import { BankLogo } from "@/components/bank-logo";
 import { useTRPC } from "@/trpc/client";

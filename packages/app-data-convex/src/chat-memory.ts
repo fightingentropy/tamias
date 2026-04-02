@@ -29,7 +29,7 @@ export type ChatSessionRecord = {
 function getConvexUrl() {
   return (
     process.env.CONVEX_URL ||
-    process.env.NEXT_PUBLIC_CONVEX_URL ||
+    process.env.TAMIAS_CONVEX_URL ||
     process.env.CONVEX_SITE_URL
   );
 }
@@ -57,7 +57,7 @@ function createClient() {
   const convexUrl = getConvexUrl();
 
   if (!convexUrl) {
-    throw new Error("Missing CONVEX_URL or NEXT_PUBLIC_CONVEX_URL");
+    throw new Error("Missing CONVEX_URL");
   }
 
   return new ConvexHttpClient(convexUrl, { logger: false });

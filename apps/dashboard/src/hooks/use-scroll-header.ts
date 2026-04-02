@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/framework/navigation";
 import { type RefObject, useEffect, useRef } from "react";
 
 /**

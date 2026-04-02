@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuthToken } from "@convex-dev/auth/react";
+import { getApiUrl } from "@tamias/utils/envs";
 import { useCallback, useRef, useState } from "react";
 
 interface UseAudioRecordingReturn {
@@ -13,6 +14,7 @@ interface UseAudioRecordingReturn {
 
 export function useAudioRecording(): UseAudioRecordingReturn {
   const token = useAuthToken();
+  const apiUrl = getApiUrl();
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -119,20 +121,17 @@ export function useAudioRecording(): UseAudioRecordingReturn {
           ),
         );
 
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/transcription`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              audio: base64Audio,
-              mimeType: audioBlob.type,
-            }),
+        const response = await fetch(`${apiUrl}/transcription`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
-        );
+          body: JSON.stringify({
+            audio: base64Audio,
+            mimeType: audioBlob.type,
+          }),
+        });
 
         if (!response.ok) {
           const errorText = await response.text();
@@ -160,7 +159,7 @@ export function useAudioRecording(): UseAudioRecordingReturn {
         setIsProcessing(false);
       }
     },
-    [token],
+    [apiUrl, token],
   );
 
   return {

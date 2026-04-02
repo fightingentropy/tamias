@@ -11,7 +11,7 @@ import {
 import { Skeleton } from "@tamias/ui/skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import Link from "next/link";
+import Link from "@/framework/link";
 import { useTRPC } from "@/trpc/client";
 
 // Provider display information

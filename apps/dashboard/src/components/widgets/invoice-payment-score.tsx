@@ -79,8 +79,7 @@ export function InvoicePaymentScoreWidget() {
         <div>
           <h2 className="text-sm text-[#666] mb-4">
             {data?.paymentStatus
-              ? // @ts-expect-error
-                t(`payment_status_description.${data?.paymentStatus}`)
+              ? t(`payment_status_description.${data?.paymentStatus}`)
               : "No payment history yet"}
           </h2>
           <div className="space-y-4">

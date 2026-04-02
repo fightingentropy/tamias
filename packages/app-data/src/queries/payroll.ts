@@ -15,7 +15,6 @@ import {
   upsertPayrollRunInConvex,
 } from "@tamias/app-data-convex";
 import { uploadVaultFile } from "@tamias/storage";
-import archiver from "archiver";
 import { parseISO } from "date-fns";
 import type { Database } from "../client";
 import { getFilingProfile } from "./compliance";
@@ -443,6 +442,8 @@ export async function importPayrollRun(
 }
 
 async function buildZipBundle(files: Array<{ name: string; data: Buffer }>) {
+  const { default: archiver } = await import("archiver");
+
   return new Promise<Buffer>((resolve, reject) => {
     const chunks: Buffer[] = [];
     const stream = new PassThrough();

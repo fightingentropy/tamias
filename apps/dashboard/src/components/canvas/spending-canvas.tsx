@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@tamias/ui/table";
-import Link from "next/link";
+import Link from "@/framework/link";
 import { parseAsInteger, useQueryState } from "nuqs";
 import {
   BaseCanvas,

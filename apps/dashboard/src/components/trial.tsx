@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@tamias/ui/button";
-import Link from "next/link";
+import Link from "@/framework/link";
 import { useCurrentUser } from "@/components/current-user-provider";
 import { getTrialDaysLeft, isTrialExpired } from "@/utils/trial";
 

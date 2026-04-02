@@ -16,7 +16,7 @@ import { Input } from "@tamias/ui/input";
 import { Label } from "@tamias/ui/label";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/framework/navigation";
 import { useState } from "react";
 import { Plans } from "@/components/plans";
 import { UpgradeFAQ } from "@/components/upgrade-faq";

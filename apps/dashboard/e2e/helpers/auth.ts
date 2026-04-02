@@ -57,3 +57,16 @@ export async function signUpWithPassword(
     })
     .not.toBe("/login");
 }
+
+export async function signInWithPassword(
+  page: Page,
+  credentials: SmokeUserCredentials,
+): Promise<void> {
+  await page.goto("/login", { waitUntil: "networkidle" });
+  await page.waitForTimeout(2000);
+  await page.getByLabel("Email").fill(credentials.email);
+  await page.getByLabel("Password").fill(credentials.password);
+  await page.getByRole("button", { name: "Sign in" }).click();
+
+  await expect(page).toHaveURL("/dashboard", { timeout: 30_000 });
+}

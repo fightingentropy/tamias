@@ -6,6 +6,7 @@ import {
   defaultEmailHeading,
   defaultEmailSubject,
 } from "@tamias/email/defaults";
+import { getApiUrl } from "@tamias/utils/envs";
 import { Button } from "@tamias/ui/button";
 import { Icons } from "@tamias/ui/icons";
 import { Sheet, SheetContent } from "@tamias/ui/sheet";
@@ -129,6 +130,7 @@ function EditableMultilineText({
 }
 
 export function EmailPreview() {
+  const apiUrl = getApiUrl();
   const { emailPreview, setParams } = useInvoiceParams();
   const { watch, setValue } = useFormContext();
   const { data: user } = useUserQuery();
@@ -333,7 +335,7 @@ export function EmailPreview() {
                   ? `invoice-${invoiceNumber}.pdf`
                   : "invoice.pdf";
                 downloadFile(
-                  `${process.env.NEXT_PUBLIC_API_URL}/files/download/invoice?token=${token}`,
+                  `${apiUrl}/files/download/invoice?token=${token}`,
                   filename,
                 );
               }}

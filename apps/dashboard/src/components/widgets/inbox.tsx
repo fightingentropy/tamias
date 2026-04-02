@@ -2,7 +2,7 @@ import { useChatActions, useChatId } from "@ai-sdk-tools/store";
 import { Icons } from "@tamias/ui/icons";
 import { useQuery } from "@tanstack/react-query";
 import { endOfDay, startOfDay, subDays } from "date-fns";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/framework/navigation";
 import { useChatInterface } from "@/hooks/use-chat-interface";
 import { useMetricsFilter } from "@/hooks/use-metrics-filter";
 import { useTRPC } from "@/trpc/client";

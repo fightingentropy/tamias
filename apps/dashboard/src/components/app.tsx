@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@tamias/ui/card";
 import { ScrollArea } from "@tamias/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader } from "@tamias/ui/sheet";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Image from "next/image";
+import Image from "@/framework/image";
 import { parseAsBoolean, parseAsString, useQueryStates } from "nuqs";
 import { useState } from "react";
 import { useTRPC } from "@/trpc/client";

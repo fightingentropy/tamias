@@ -14,7 +14,7 @@ Tamias is a Turborepo monorepo for the product workspace, API, Cloudflare async 
 | Dashboard | `apps/dashboard` | `http://localhost:3001` | Main authenticated app, public invoice/customer/report links, auth, SSR, client providers, lightweight public homepage |
 | API | `apps/api` | `http://localhost:3003` | Hono API on Cloudflare Workers with tRPC, REST, OpenAPI, MCP, webhooks, health/readiness endpoints |
 | Worker | `apps/worker` | `http://127.0.0.1:8787` | Cloudflare async worker with queues, workflows, recurring schedules, notifications, and document processing |
-| Website | `apps/website` | `http://localhost:3000` | Marketing site, docs, integrations catalog, comparison pages, and MCP install guides |
+| Website | `apps/dashboard` | `https://tamias.xyz` | Marketing site, docs, integrations catalog, comparison pages, and MCP install guides served from the dashboard deployment |
 | Convex | `apps/dashboard/convex` | external local deployment | Durable app data, auth/identity sync, chat memory, widgets, links, files, operational state |
 
 ## Product areas
@@ -38,8 +38,7 @@ The current codebase covers these main product surfaces:
 
 ```mermaid
 flowchart LR
-  Browser["Browser"] --> Dashboard["Dashboard<br/>Next.js app router"]
-  Browser --> Website["Website<br/>Next.js marketing/docs"]
+  Browser["Browser"] --> Dashboard["Dashboard deployment<br/>Next.js app + marketing/docs"]
   AIClient["AI / MCP Client"] --> MCP["API MCP endpoint"]
 
   Dashboard -->|SSR local queries| QueryLayer["packages/app-data query layer"]
@@ -60,8 +59,8 @@ flowchart LR
 
 ### Request and data flow
 
-1. Requests into the dashboard hit `apps/dashboard/src/proxy.ts`.
-   Locale rewriting happens there, and authenticated routes are gated with Convex Auth.
+1. Requests into the dashboard deployment hit `apps/dashboard/src/middleware.ts`.
+   Locale rewriting, website-host rewrites into `/site`, and authenticated route gating all happen there.
 2. The dashboard root layout mounts Convex auth, tRPC, i18n, theming, analytics, and shared client providers.
 3. The authenticated sidebar shell preloads the current user/team and mounts global chrome like the sidebar, header, timers, sheets, and export status.
 4. Hot server-rendered reads use `apps/dashboard/src/server/local-queries.ts`, which calls the shared query layer directly instead of round-tripping through HTTP for every SSR request.
@@ -108,7 +107,7 @@ flowchart LR
 
 ### Frontend
 
-- Next.js 16 App Router in `apps/dashboard` and `apps/website`
+- Next.js 16 App Router in `apps/dashboard`
 - React 19
 - Shared UI primitives in `packages/ui`
 - TanStack Query + tRPC client
@@ -186,7 +185,6 @@ bun install
 cp apps/dashboard/.env-example apps/dashboard/.env.local
 cp apps/api/.env-template apps/api/.env
 cp apps/worker/.env-template apps/worker/.env
-cp apps/website/.env-template apps/website/.env.local
 ```
 
 ### Minimum env checklist
@@ -196,11 +194,10 @@ Copy the templates first, then make sure these values exist and line up across s
 #### Dashboard
 
 ```dotenv
-NEXT_PUBLIC_URL=http://localhost:3001
-NEXT_PUBLIC_API_URL=http://localhost:3003
+DASHBOARD_URL=http://localhost:3001
+WEBSITE_URL=http://localhost:3000
+API_URL=http://localhost:3003
 
-NEXT_PUBLIC_CONVEX_URL=...
-NEXT_PUBLIC_CONVEX_SITE_URL=...
 CONVEX_URL=...
 CONVEX_SITE_URL=...
 
@@ -263,7 +260,7 @@ INVOICE_JWT_SECRET=...
 #### Important env notes
 
 - `INTERNAL_API_KEY`, `INVOICE_JWT_SECRET`, and `FILE_KEY_SECRET` must match everywhere they are used.
-- The website env file is only needed for site features like docs chat/contact flows. It is not part of the core product runtime.
+- Marketing/docs features now run inside `apps/dashboard`, so site env values should be configured there.
 - `HMRC_CT_ENVIRONMENT` defaults to `test`. Keep it there in deployed environments until you intentionally want live HMRC CT filing.
 - In `test`, CT submissions use `HMRC_CT_TEST_UTR` when present. In `production`, the filing profile UTR is required.
 - Companies House annual accounts filing uses the XML gateway presenter runtime on the API service; it does not use the OAuth app credentials.
@@ -297,15 +294,7 @@ That starts:
 - API
 - worker
 
-It does not start:
-
-- the separate `apps/website` marketing/docs site
-
-Run the website separately when you need it:
-
-```bash
-bun run dev:website
-```
+Marketing/docs routes are now served by the dashboard app. In local development, the merged site can be previewed through the internal `/site` path when needed.
 
 ### Separate terminal startup
 
@@ -323,10 +312,6 @@ bun run dev:api
 
 ```bash
 cd apps/worker && bun run dev
-```
-
-```bash
-bun run dev:website
 ```
 
 ### First login
@@ -350,7 +335,7 @@ There is no seeded demo account.
 | Scalar API docs | `http://localhost:3003/` |
 | MCP endpoint | `http://localhost:3003/mcp` |
 | Worker | `http://127.0.0.1:8787` |
-| Website | `http://localhost:3000` |
+| Website preview | `http://localhost:3001/site` |
 | Public invoice link | `http://localhost:3001/i/<token>` |
 | Customer portal | `http://localhost:3001/p/<portalId>` |
 | Public report | `http://localhost:3001/r/<linkId>` |
@@ -365,7 +350,6 @@ bun run dev
 bun run dev:local
 bun run dev:dashboard
 bun run dev:api
-bun run dev:website
 bun run build
 bun run test
 bun run test:e2e
@@ -383,8 +367,6 @@ bun run deploy:cloudflare:api:production
 bun run deploy:cloudflare:api:staging
 bun run deploy:cloudflare:worker:production
 bun run deploy:cloudflare:worker:staging
-bun run deploy:cloudflare:website:production
-bun run deploy:cloudflare:website:staging
 ```
 
 ### Cloudflare preflight
@@ -396,9 +378,6 @@ bun run preflight:cloudflare:api:production
 bun run preflight:cloudflare:dashboard
 bun run preflight:cloudflare:dashboard:staging
 bun run preflight:cloudflare:dashboard:production
-bun run preflight:cloudflare:website
-bun run preflight:cloudflare:website:staging
-bun run preflight:cloudflare:website:production
 bun run preflight:cloudflare:worker
 bun run preflight:cloudflare:worker:staging
 bun run preflight:cloudflare:worker:production
@@ -408,12 +387,12 @@ bun run preflight:cloudflare:production
 
 ## Deployment notes
 
-- `apps/api`, `apps/dashboard`, `apps/website`, and `apps/worker` deploy through Cloudflare.
-- `apps/api/wrangler.jsonc`, `apps/dashboard/wrangler.jsonc`, `apps/website/wrangler.jsonc`, and `apps/worker/wrangler.jsonc` are the deploy/runtime entrypoints.
+- `apps/api`, `apps/dashboard`, and `apps/worker` deploy through Cloudflare.
+- `apps/api/wrangler.jsonc`, `apps/dashboard/wrangler.jsonc`, and `apps/worker/wrangler.jsonc` are the deploy/runtime entrypoints.
 - `apps/api` and `apps/dashboard` bind directly to `apps/worker` through a Cloudflare service binding named `ASYNC_WORKER`.
-- `apps/dashboard` and `apps/website` use explicit `build:cf`, `deploy:cf`, `preview:cf`, and `preflight:cf` scripts so Cloudflare-specific operations do not piggyback on generic app commands.
-- Dashboard and website preflight now includes both the OpenNext build and a Wrangler `deploy --dry-run` against the matching `wrangler.jsonc`.
-- API, dashboard, website, and worker each expose environment-specific staging/production preflight commands in addition to the default local/development preflight.
+- `apps/dashboard` now serves both `app.tamias.xyz` and `tamias.xyz`; marketing/docs routes are host-rewritten into the internal `/site` tree.
+- Dashboard preflight includes both the OpenNext build and a Wrangler `deploy --dry-run` against the matching `wrangler.jsonc`.
+- API, dashboard, and worker each expose environment-specific staging/production preflight commands in addition to the default local/development preflight.
 - GitHub Actions deploys expect these repository secrets:
   - `CLOUDFLARE_API_TOKEN`
   - `CLOUDFLARE_ACCOUNT_ID`
@@ -430,7 +409,7 @@ bun run preflight:cloudflare:production
 
 There are two documentation layers in this repo:
 
-- Public/docs site content in `apps/website/src/app/docs`
+- Public/docs site content in `apps/dashboard/src/app/[locale]/site/docs`
 - Deeper engineering notes in `docs`
 
 Current internal docs include:
@@ -446,7 +425,7 @@ Current internal docs include:
 ## Troubleshooting
 
 - Dashboard loads but API-backed data fails:
-  `NEXT_PUBLIC_API_URL` is wrong, or the API is not running.
+  `API_URL` is wrong, or the API is not running.
 - Login/signup fails:
   Convex is not running, or the Convex URLs do not match the active deployment.
 - Queue-backed features do nothing:

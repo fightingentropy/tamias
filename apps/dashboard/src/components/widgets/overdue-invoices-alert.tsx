@@ -3,7 +3,7 @@
 import { useChatActions, useChatId } from "@ai-sdk-tools/store";
 import { Icons } from "@tamias/ui/icons";
 import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/framework/navigation";
 import { FormatAmount } from "@/components/format-amount";
 import { useChatInterface } from "@/hooks/use-chat-interface";
 import { useI18n } from "@/locales/client";
@@ -81,7 +81,6 @@ export function OverdueInvoicesAlertWidget() {
 
     return t("overdue_invoices.description", {
       count,
-      // @ts-expect-error
       days: daysOverdue,
       dayText,
     });

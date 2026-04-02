@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@tamias/ui/table";
 import { format, parseISO } from "date-fns";
-import Link from "next/link";
+import Link from "@/framework/link";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import {
   BaseCanvas,

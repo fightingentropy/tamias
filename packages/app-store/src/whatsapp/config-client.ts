@@ -1,10 +1,10 @@
 import { baseConfig } from "./config-base";
+import whatsappImage from "./assets/whatsapp.jpg";
 import { onInitialize } from "./initialize";
 
-// Client-side config with images - only imported by Next.js dashboard
-// This file uses require() which works in webpack/bundler contexts but not in bun runtime
+// Client-side config with images for dashboard/browser surfaces.
 export default {
   ...baseConfig,
   onInitialize,
-  images: [require("./assets/whatsapp.jpg")],
+  images: [whatsappImage.src],
 };

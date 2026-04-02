@@ -1,7 +1,6 @@
 "use client";
 
 import * as AvatarPrimitive from "@radix-ui/react-avatar";
-import Image from "next/image";
 import * as React from "react";
 import { cn } from "../utils";
 
@@ -20,29 +19,62 @@ const Avatar = React.forwardRef<
 ));
 Avatar.displayName = AvatarPrimitive.Root.displayName;
 
-export const AvatarImageNext = React.forwardRef<
-  React.ElementRef<typeof Image>,
-  React.ComponentPropsWithoutRef<typeof Image>
->(({ className, onError, onLoad, ...props }, ref) => {
-  const [hasError, setHasError] = React.useState(false);
+type AvatarImageNextProps = Omit<
+  React.ImgHTMLAttributes<HTMLImageElement>,
+  "src"
+> & {
+  src?: string | { src: string; width?: number; height?: number };
+  fill?: boolean;
+  priority?: boolean;
+  quality?: number;
+  unoptimized?: boolean;
+  onLoadingComplete?: (img: HTMLImageElement) => void;
+};
 
-  if (hasError || !props.src) {
+export const AvatarImageNext = React.forwardRef<
+  HTMLImageElement,
+  AvatarImageNextProps
+>(
+  (
+    {
+      className,
+      onError,
+      onLoad,
+      onLoadingComplete,
+      src,
+      fill: _fill,
+      priority: _priority,
+      quality: _quality,
+      unoptimized: _unoptimized,
+      ...props
+    },
+    ref,
+  ) => {
+  const [hasError, setHasError] = React.useState(false);
+  const resolvedSrc = typeof src === "string" ? src : src?.src;
+
+  if (hasError || !resolvedSrc) {
     return null;
   }
 
   return (
-    <Image
+    <img
       ref={ref}
       className={cn("aspect-square h-full w-full absolute z-10", className)}
+      src={resolvedSrc}
       onError={(e) => {
         setHasError(true);
         onError?.(e);
       }}
-      onLoad={onLoad}
+      onLoad={(e) => {
+        onLoad?.(e);
+        onLoadingComplete?.(e.currentTarget);
+      }}
       {...props}
     />
   );
-});
+},
+);
 
 AvatarImageNext.displayName = "AvatarImageNext";
 

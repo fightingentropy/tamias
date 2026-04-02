@@ -2,8 +2,6 @@ import { getSupportEmail } from "@tamias/utils/envs";
 
 export const Cookies = {
   PreferredSignInProvider: "preferred-signin-provider",
-  // Unified table settings cookie (used by transactions, customers, invoices)
-  TableSettings: "table-settings",
   InboxFilter: "inbox-filter-v2",
   InboxOrder: "inbox-order",
 

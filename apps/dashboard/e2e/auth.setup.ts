@@ -6,6 +6,7 @@ import {
   signUpWithPassword,
 } from "./helpers/auth";
 import { ensureSmokeUserProfile } from "./helpers/convex";
+import { expectDashboardAssistantReady } from "./helpers/dashboard";
 
 test("create authenticated smoke user", async ({ page }) => {
   const credentials = createSmokeUserCredentials();
@@ -13,11 +14,7 @@ test("create authenticated smoke user", async ({ page }) => {
   await signUpWithPassword(page, credentials);
   await ensureSmokeUserProfile(credentials.email);
   await page.goto("/dashboard");
-  await expect(
-    page.locator('textarea[placeholder="Ask anything"]:visible'),
-  ).toBeVisible({
-    timeout: 30_000,
-  });
+  await expectDashboardAssistantReady(page);
   await saveSmokeUserCredentials(credentials);
   await page.context().storageState({ path: AUTH_STATE_PATH });
 });

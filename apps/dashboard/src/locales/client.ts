@@ -1,17 +1,67 @@
 "use client";
 
-import { createI18nClient } from "next-international/client";
+import {
+  createElement,
+  createContext,
+  useContext,
+  useMemo,
+  type ReactNode,
+} from "react";
+import {
+  createTranslator,
+  getStaticLocaleParams,
+  languages,
+  type Locale,
+} from "./shared";
 
-// NOTE: Also update proxy.ts to support locale
-export const languages = ["en"];
+type I18nContextValue = {
+  locale: Locale;
+  t: ReturnType<typeof createTranslator>;
+};
 
-export const {
-  useScopedI18n,
-  I18nProviderClient,
-  useCurrentLocale,
-  useChangeLocale,
-  useI18n,
-} = createI18nClient({
-  en: () => import("./en"),
-  // sv: () => import("./sv"),
+const I18nContext = createContext<I18nContextValue>({
+  locale: "en",
+  t: createTranslator("en"),
 });
+
+type ProviderProps = {
+  locale: string;
+  children: ReactNode;
+};
+
+export function I18nProviderClient({ locale, children }: ProviderProps) {
+  const resolvedLocale = (languages.includes(locale as Locale) ? locale : "en") as Locale;
+
+  const value = useMemo(
+    () => ({
+      locale: resolvedLocale,
+      t: createTranslator(resolvedLocale),
+    }),
+    [resolvedLocale],
+  );
+
+  return createElement(I18nContext.Provider, { value }, children);
+}
+
+export function useI18n() {
+  return useContext(I18nContext).t;
+}
+
+export function useScopedI18n(scope: string) {
+  const t = useI18n();
+  return (key: string, params?: Record<string, unknown>) =>
+    t(`${scope}.${key}`, params);
+}
+
+export function useCurrentLocale() {
+  return useContext(I18nContext).locale;
+}
+
+export function useChangeLocale() {
+  return () => {
+    throw new Error("Changing locales is not implemented in the TanStack migration path.");
+  };
+}
+
+export { languages };
+export const getStaticParams = getStaticLocaleParams;

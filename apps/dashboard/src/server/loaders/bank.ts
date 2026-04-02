@@ -1,4 +1,3 @@
-import "server-only";
 
 import { getBankAccounts } from "@tamias/app-data/queries/bank-accounts";
 import { getBankConnections } from "@tamias/app-data/queries/bank-connections";

@@ -1,12 +1,21 @@
 {
-  "extends": "@tamias/tsconfig/nextjs.json",
+  "extends": "@tamias/tsconfig/base.json",
   "compilerOptions": {
     "baseUrl": ".",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowArbitraryExtensions": true,
     "ignoreDeprecations": "6.0",
+    "jsx": "preserve",
+    "noEmit": true,
     "paths": {
       "@/*": ["./src/*"],
       "@convex/*": ["./convex/*"],
-      "@app-data/*": ["../../packages/app-data/src/*"]
+      "@app-data/*": ["../../packages/app-data/src/*"],
+      "@convex-dev/auth/react": ["./src/framework/convex-auth-client.tsx"],
+      "nuqs": ["./src/framework/nuqs/index.tsx"],
+      "nuqs/server": ["./src/framework/nuqs/server.ts"],
+      "nuqs/adapters/tanstack-router": ["./src/framework/nuqs/tanstack-router.tsx"]
     },
     "strict": true
   },
@@ -14,10 +23,8 @@
     "**/*.ts",
     "**/*.tsx",
     "../../types",
-    "next-env.d.ts",
-    "next.config.js",
-    "tailwind.config.ts",
-    ".next/types/**/*.ts"
+    "vite.config.mts",
+    "tailwind.config.ts"
   ],
-  "exclude": ["node_modules", ".next"]
+  "exclude": ["node_modules"]
 }

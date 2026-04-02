@@ -7,7 +7,7 @@ import { Input } from "@tamias/ui/input";
 import { Skeleton } from "@tamias/ui/skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/framework/navigation";
 import {
   createContext,
   type ReactNode,

@@ -1,8 +1,8 @@
 "use client";
 
 import { cn } from "@tamias/ui/cn";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Link from "@/framework/link";
+import { usePathname } from "@/framework/navigation";
 
 type Item = {
   path: string;

@@ -41,7 +41,7 @@ import {
 } from "@tamias/ui/table";
 import { useToast } from "@tamias/ui/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import Link from "next/link";
+import Link from "@/framework/link";
 import { useEffect, useMemo, useState } from "react";
 import {
   type EditableJournalLine,

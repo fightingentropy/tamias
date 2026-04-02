@@ -1,5 +1,3 @@
-import type { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
-
 export type Geo = {
   country?: string;
   city?: string;
@@ -17,7 +15,7 @@ export type Geo = {
  * Requires "Add visitor location headers" managed transform enabled in Cloudflare.
  * Falls back gracefully when headers aren't present.
  */
-export function geolocation(headers: ReadonlyHeaders): Geo {
+export function geolocation(headers: Headers): Geo {
   return {
     country: headers.get("cf-ipcountry") ?? undefined,
     city: headers.get("cf-ipcity") ?? undefined,

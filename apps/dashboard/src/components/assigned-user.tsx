@@ -1,5 +1,5 @@
 import { Avatar } from "@tamias/ui/avatar";
-import Image from "next/image";
+import Image from "@/framework/image";
 
 type Props = {
   avatarUrl?: string | null;

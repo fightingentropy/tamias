@@ -31,7 +31,7 @@ import { Loader2, MoreHorizontal } from "lucide-react";
 import { useI18n } from "@/locales/client";
 import "@tanstack/react-table";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/framework/navigation";
 import { useTRPC } from "@/trpc/client";
 
 type TeamMember = RouterOutputs["team"]["members"][number];

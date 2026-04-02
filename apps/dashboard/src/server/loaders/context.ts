@@ -1,4 +1,3 @@
-import "server-only";
 
 import type { Database } from "@tamias/app-data/client";
 import { createDatabase } from "@tamias/app-data/client";

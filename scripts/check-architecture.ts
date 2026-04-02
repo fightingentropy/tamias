@@ -3,8 +3,6 @@ import { dirname, join, relative, resolve } from "node:path";
 
 const SKIPPED_DIRECTORIES = new Set([
   ".git",
-  ".next",
-  ".open-next",
   ".turbo",
   ".wrangler",
   "build",

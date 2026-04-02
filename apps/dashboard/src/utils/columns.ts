@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { cookies } from "@tamias/utils/request-runtime";
 import {
   type AllTableSettings,
   mergeWithDefaults,

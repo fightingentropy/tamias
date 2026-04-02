@@ -1,39 +1,13 @@
-"use server";
-
-import { LogEvents } from "@tamias/events/events";
-import { enqueue } from "@tamias/job-client";
 import { z } from "zod";
-import { authActionClient } from "@/actions/safe-action";
+import { postAction } from "@/actions/post-action";
 
-export const reconnectConnectionAction = authActionClient
-  .schema(
-    z.object({
-      connectionId: z.string(),
-      provider: z.string(),
-    }),
-  )
-  .metadata({
-    name: "reconnect-connection",
-    track: {
-      event: LogEvents.ReconnectConnection.name,
-      channel: LogEvents.ReconnectConnection.channel,
-    },
-  })
-  .action(
-    async ({ parsedInput: { connectionId, provider }, ctx: { teamId } }) => {
-      const event = await enqueue(
-        "reconnect-connection",
-        {
-          teamId: teamId!,
-          connectionId,
-          provider,
-        },
-        "transactions",
-        {
-          publicTeamId: teamId!,
-        },
-      );
+export const reconnectConnectionActionSchema = z.object({
+  connectionId: z.string(),
+  provider: z.string(),
+});
 
-      return event;
-    },
-  );
+export function reconnectConnectionAction(
+  input: z.infer<typeof reconnectConnectionActionSchema>,
+) : Promise<{ runId?: string }> {
+  return postAction("/api/actions/transactions/reconnect", input);
+}

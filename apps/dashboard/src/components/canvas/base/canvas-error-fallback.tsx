@@ -1,7 +1,7 @@
 "use client";
 
 import { Icons } from "@tamias/ui/icons";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/framework/navigation";
 import { useCallback } from "react";
 import { BaseCanvas } from "./base-canvas";
 import { CanvasContent } from "./canvas-content";

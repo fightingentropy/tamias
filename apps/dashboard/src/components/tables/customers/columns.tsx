@@ -20,7 +20,7 @@ import {
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import type { ColumnDef } from "@tanstack/react-table";
 import { formatDistanceToNowStrict } from "date-fns";
-import Link from "next/link";
+import Link from "@/framework/link";
 import { memo, useCallback } from "react";
 import { FormatAmount } from "@/components/format-amount";
 import { useCustomerParams } from "@/hooks/use-customer-params";

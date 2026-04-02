@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@tamias/ui/select";
-import Link from "next/link";
+import Link from "@/framework/link";
 import { useUserMutation, useUserQuery } from "@/hooks/use-user";
 
 const providerOptions: Array<{

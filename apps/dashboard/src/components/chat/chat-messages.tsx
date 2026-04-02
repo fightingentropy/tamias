@@ -4,7 +4,7 @@ import { Message, MessageAvatar, MessageContent } from "@tamias/ui/message";
 import { Response } from "@tamias/ui/response";
 import type { UIMessage } from "ai";
 import { PaperclipIcon } from "lucide-react";
-import Image from "next/image";
+import Image from "@/framework/image";
 import { ArtifactToggleIcon } from "@/components/chat/artifact-toggle-icon";
 import { ChatMessageActions } from "@/components/chat/chat-message-actions";
 import { ConnectBankMessage } from "@/components/chat/connect-bank-message";

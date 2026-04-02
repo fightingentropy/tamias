@@ -1,8 +1,8 @@
 import { baseConfig } from "./config-base";
+import fortnoxImage from "./assets/fortnox.jpg";
 
-// Client-side config with images - only imported by Next.js dashboard
-// This file uses require() which works in webpack/bundler contexts but not in bun runtime
+// Client-side config with images for dashboard/browser surfaces.
 export default {
   ...baseConfig,
-  images: [require("./assets/fortnox.jpg")],
+  images: [fortnoxImage.src],
 };

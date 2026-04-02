@@ -1,3 +1,5 @@
+import { getApiUrl } from "@tamias/utils/envs";
+
 export const onInitialize = async ({
   accessToken,
   onComplete,
@@ -5,7 +7,7 @@ export const onInitialize = async ({
   accessToken: string;
   onComplete?: () => void;
 }) => {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
+  const apiUrl = getApiUrl();
   const response = await fetch(`${apiUrl}/apps/slack/install-url`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,

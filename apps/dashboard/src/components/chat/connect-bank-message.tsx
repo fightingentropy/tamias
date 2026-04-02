@@ -2,7 +2,7 @@
 
 import { Button } from "@tamias/ui/button";
 import { Icons } from "@tamias/ui/icons";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/framework/navigation";
 import { useConnectParams } from "@/hooks/use-connect-params";
 
 export function ConnectBankMessage() {

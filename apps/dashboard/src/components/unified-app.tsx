@@ -20,7 +20,7 @@ import { Sheet, SheetContent, SheetHeader } from "@tamias/ui/sheet";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { useToast } from "@tamias/ui/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Image from "next/image";
+import Image from "@/framework/image";
 import { parseAsBoolean, parseAsString, useQueryStates } from "nuqs";
 import { useEffect, useState } from "react";
 import { useAppOAuth } from "@/hooks/use-app-oauth";

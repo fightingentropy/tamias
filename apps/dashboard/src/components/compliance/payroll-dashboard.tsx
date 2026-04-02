@@ -15,7 +15,7 @@ import { SubmitButton } from "@tamias/ui/submit-button";
 import { Textarea } from "@tamias/ui/textarea";
 import { useToast } from "@tamias/ui/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import Link from "next/link";
+import Link from "@/framework/link";
 import { useMemo, useState } from "react";
 import {
   type EditableJournalLine,

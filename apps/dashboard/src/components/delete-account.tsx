@@ -25,7 +25,6 @@ import { Label } from "@tamias/ui/label";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
-import { redirectAfterAccountDeletion } from "@/actions/revalidate-action";
 import { useTRPC } from "@/trpc/client";
 
 export function DeleteAccount() {
@@ -36,7 +35,7 @@ export function DeleteAccount() {
     trpc.user.delete.mutationOptions({
       onSuccess: async () => {
         await signOut();
-        await redirectAfterAccountDeletion();
+        window.location.assign("/");
       },
     }),
   );

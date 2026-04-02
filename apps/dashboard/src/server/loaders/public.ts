@@ -1,4 +1,3 @@
-import "server-only";
 
 import { getInvoiceByToken } from "@tamias/app-services/invoice-by-token";
 import {

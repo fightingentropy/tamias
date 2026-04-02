@@ -6,7 +6,6 @@ import { SubmitButton } from "@tamias/ui/submit-button";
 import { TableRow as BaseTableRow, TableCell } from "@tamias/ui/table";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { revalidateAfterTeamChange } from "@/actions/revalidate-action";
 import { useTRPC } from "@/trpc/client";
 
 type Props = {
@@ -25,7 +24,7 @@ export function TableRow({ row }: Props) {
       },
       onSuccess: async () => {
         await queryClient.invalidateQueries();
-        await revalidateAfterTeamChange();
+        window.location.assign("/dashboard");
       },
       onError: () => {
         setIsLoading(false);

@@ -4,7 +4,7 @@ import type { RouterOutputs } from "@tamias/trpc";
 import { Button } from "@tamias/ui/button";
 import { Input } from "@tamias/ui/input";
 import type { Table } from "@tanstack/react-table";
-import Link from "next/link";
+import Link from "@/framework/link";
 
 type Props = {
   table?: Table<RouterOutputs["team"]["list"][number]>;

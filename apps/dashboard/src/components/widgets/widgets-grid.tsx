@@ -23,7 +23,7 @@ import { CSS } from "@dnd-kit/utilities";
 import type { AppRouter } from "@tamias/trpc";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
-import dynamic from "next/dynamic";
+import dynamic from "@/framework/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { useOnClickOutside } from "usehooks-ts";
 import { useCurrentUser } from "@/components/current-user-provider";

@@ -1,7 +1,6 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { MdCheck, MdSearch } from "react-icons/md";
 
@@ -340,7 +339,7 @@ export function BulkReconciliationAnimation({
           className="absolute left-1/2 -translate-x-1/2 z-50 pointer-events-none"
           style={{ top: "20%" }}
         >
-          <Image
+          <img
             src="/images/dragdrop.svg"
             alt="Drag and drop"
             width={120}
@@ -464,7 +463,7 @@ export function BulkReconciliationAnimation({
                 <span className="font-sans text-[10px] md:text-[11px]">
                   Export
                 </span>
-                <Image
+                <img
                   src="/images/xero.svg"
                   alt="Xero"
                   width={12}

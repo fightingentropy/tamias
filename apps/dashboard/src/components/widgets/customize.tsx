@@ -2,7 +2,7 @@
 
 import { Button } from "@tamias/ui/button";
 import { Icons } from "@tamias/ui/icons";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/framework/navigation";
 import { useMetricsCustomize } from "@/hooks/use-metrics-customize";
 import { useOverviewTab } from "@/hooks/use-overview-tab";
 import { useIsCustomizing, useWidgetActions } from "./widget-provider";

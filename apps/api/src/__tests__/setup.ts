@@ -471,11 +471,7 @@ mock.module("@tamias/app-data/client", () => ({
 
 // Set required environment variables for tests
 process.env.CONVEX_URL = process.env.CONVEX_URL || "http://127.0.0.1:3210";
-process.env.NEXT_PUBLIC_CONVEX_URL =
-  process.env.NEXT_PUBLIC_CONVEX_URL || process.env.CONVEX_URL;
 process.env.CONVEX_SITE_URL =
   process.env.CONVEX_SITE_URL || "http://127.0.0.1:3211";
-process.env.NEXT_PUBLIC_CONVEX_SITE_URL =
-  process.env.NEXT_PUBLIC_CONVEX_SITE_URL || process.env.CONVEX_SITE_URL;
 process.env.TAMIAS_DASHBOARD_URL =
   process.env.TAMIAS_DASHBOARD_URL || "https://tamias.xyz";

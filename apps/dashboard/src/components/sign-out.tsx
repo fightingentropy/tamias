@@ -2,7 +2,7 @@
 
 import { useAuthActions } from "@convex-dev/auth/react";
 import { DropdownMenuItem } from "@tamias/ui/dropdown-menu";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/framework/navigation";
 import { useState } from "react";
 
 export function SignOut() {

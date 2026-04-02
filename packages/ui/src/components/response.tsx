@@ -1,7 +1,6 @@
 "use client";
 
 import { getAppUrl } from "@tamias/utils/envs";
-import Link from "next/link";
 import { type ComponentProps, memo } from "react";
 import { Streamdown } from "streamdown";
 import { cn } from "../utils";
@@ -101,10 +100,15 @@ export const Response = memo(
         a: (props) => {
           // if the href starts with the app url, open in the same window
           if (props.href?.startsWith(getAppUrl())) {
+            const { children, className, ...anchorProps } = props;
+
             return (
-              <Link href={props.href} className="underline">
-                {props.children}
-              </Link>
+              <a
+                {...anchorProps}
+                className={cn(className, "underline")}
+              >
+                {children}
+              </a>
             );
           }
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { getGoogleApiKey } from "@tamias/utils/envs";
 import { cn } from "@tamias/ui/cn";
 import {
   CommandEmpty,
@@ -89,12 +90,13 @@ export function SearchAddressInput({
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const ref = useRef<HTMLDivElement>(null);
+  const googleApiKey = getGoogleApiKey();
   const [isOpen, setOpen] = useState(false);
   const [selected, setSelected] = useState<Option | null>(null);
   const [inputValue, setInputValue] = useState<string>(defaultValue || "");
 
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY as string,
+    googleMapsApiKey: googleApiKey,
     libraries,
   });
 

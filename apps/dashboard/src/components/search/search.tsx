@@ -1,5 +1,6 @@
 "use client";
 
+import { getApiUrl } from "@tamias/utils/envs";
 import {
   Command,
   CommandEmpty,
@@ -13,7 +14,7 @@ import { Spinner } from "@tamias/ui/spinner";
 import { formatDate } from "@tamias/utils/format";
 import { useQuery } from "@tanstack/react-query";
 import { formatISO } from "date-fns";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/framework/navigation";
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -60,6 +61,8 @@ interface SearchItem {
   };
   action?: () => void;
 }
+
+const apiUrl = getApiUrl();
 
 function CopyButton({ path }: { path: string }) {
   const [isCopied, setIsCopied] = useState(false);
@@ -293,7 +296,7 @@ const SearchResultItemDisplay = ({
             <div className="flex items-center gap-2 invisible group-hover/item:visible group-focus/item:visible group-aria-selected/item:visible">
               <CopyButton path={`?documentId=${item.id}`} />
               <DownloadButton
-                href={`${process.env.NEXT_PUBLIC_API_URL}/files/download/file?path=${item.data?.path_tokens?.join("/")}&filename=${
+                href={`${apiUrl}/files/download/file?path=${item.data?.path_tokens?.join("/")}&filename=${
                   (item.data?.title ||
                     (item.data?.name as string)?.split("/").at(-1) ||
                     "") as string
@@ -350,7 +353,7 @@ const SearchResultItemDisplay = ({
             <div className="flex items-center gap-2 invisible group-hover/item:visible group-focus/item:visible group-aria-selected/item:visible">
               <CopyButton path={`?invoiceId=${item.id}&type=details`} />
               <DownloadButton
-                href={`${process.env.NEXT_PUBLIC_API_URL}/files/download/invoice?id=${item.id}&size=${item?.data?.template?.size}`}
+                href={`${apiUrl}/files/download/invoice?id=${item.id}&size=${item?.data?.template?.size}`}
                 filename={`${item.data.invoice_number || "invoice"}.pdf`}
               />
               <Icons.ArrowOutward className="size-4 dark:text-[#666] text-primary hover:!text-primary cursor-pointer" />
@@ -390,7 +393,7 @@ const SearchResultItemDisplay = ({
             <div className="flex items-center gap-2 invisible group-hover/item:visible group-focus/item:visible group-aria-selected/item:visible">
               <CopyButton path={`/inbox?inboxId=${item.id}`} />
               <DownloadButton
-                href={`${process.env.NEXT_PUBLIC_API_URL}/files/download/file?path=${item.data?.file_path?.join("/")}&filename=${item.data?.file_name || ""}`}
+                href={`${apiUrl}/files/download/file?path=${item.data?.file_path?.join("/")}&filename=${item.data?.file_name || ""}`}
                 filename={item.data?.file_name || "download"}
               />
               <Icons.ArrowOutward className="size-4 dark:text-[#666] text-primary hover:!text-primary cursor-pointer" />

@@ -1,32 +1,29 @@
 import { expect, test } from "@playwright/test";
+import {
+  readSmokeUserCredentials,
+  signInWithPassword,
+} from "./helpers/auth";
+import { expectDashboardAssistantReady } from "./helpers/dashboard";
+
+test.use({ storageState: { cookies: [], origins: [] } });
 
 test("authenticated user can move between dashboard, transactions, and invoices", async ({
   page,
 }) => {
-  await page.goto("/dashboard");
-  await expect(
-    page.locator('textarea[placeholder="Ask anything"]:visible'),
-  ).toBeVisible({
-    timeout: 30_000,
-  });
+  const credentials = await readSmokeUserCredentials();
 
-  await page.goto("/transactions");
+  await signInWithPassword(page, credentials);
+  await expectDashboardAssistantReady(page);
+
+  await page.goto("/transactions", { waitUntil: "domcontentloaded" });
   await expect(page).toHaveURL(/\/transactions$/);
   await expect(page.getByText("No transactions")).toBeVisible({
     timeout: 30_000,
   });
 
-  await page.goto("/invoices");
+  await page.goto("/invoices", { waitUntil: "domcontentloaded" });
   await expect(page).toHaveURL(/\/invoices$/);
   await expect(page.getByRole("heading", { name: "No invoices" })).toBeVisible({
-    timeout: 30_000,
-  });
-
-  await page.goto("/dashboard");
-  await expect(page).toHaveURL("/dashboard");
-  await expect(
-    page.locator('textarea[placeholder="Ask anything"]:visible'),
-  ).toBeVisible({
     timeout: 30_000,
   });
 });

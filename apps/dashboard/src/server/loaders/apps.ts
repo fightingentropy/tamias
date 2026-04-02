@@ -1,4 +1,3 @@
-import "server-only";
 
 import { getOAuthApplicationInfo } from "@tamias/app-services/oauth-application-info";
 import {

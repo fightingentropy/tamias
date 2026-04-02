@@ -1,8 +1,20 @@
 import path from "node:path";
 import { defineConfig, devices } from "@playwright/test";
 
-const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3001";
+const appBaseURL =
+  process.env.PLAYWRIGHT_BASE_URL ?? "http://app.tamias.test:3001";
+const websiteBaseURL =
+  process.env.PLAYWRIGHT_WEBSITE_URL ?? "http://tamias.test:3001";
+const localBaseURL =
+  process.env.PLAYWRIGHT_LOCAL_BASE_URL ?? "http://127.0.0.1:3001";
+const webServerURL =
+  process.env.PLAYWRIGHT_WEB_SERVER_URL ??
+  new URL("/login", localBaseURL).toString();
 const repoRoot = path.resolve(process.cwd(), "../..");
+const authStatePath = path.join(process.cwd(), "playwright/.auth/user.json");
+const webServerCommand = `DASHBOARD_URL=${appBaseURL} WEBSITE_URL=${websiteBaseURL} API_URL=http://localhost:3003 bun run --cwd apps/dashboard build:start && DASHBOARD_URL=${appBaseURL} WEBSITE_URL=${websiteBaseURL} API_URL=http://localhost:3003 bun run --cwd apps/dashboard preview:start`;
+const hostResolverRules =
+  "MAP tamias.test 127.0.0.1, MAP *.tamias.test 127.0.0.1";
 
 export default defineConfig({
   testDir: "./e2e",
@@ -16,7 +28,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
-    baseURL,
+    baseURL: localBaseURL,
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
@@ -25,21 +37,31 @@ export default defineConfig({
     {
       name: "setup",
       testMatch: /.*\.setup\.ts/,
-    },
-    {
-      name: "chromium",
       use: {
         ...devices["Desktop Chrome"],
-        storageState: "playwright/.auth/user.json",
+        storageState: { cookies: [], origins: [] },
+        launchOptions: {
+          args: [`--host-resolver-rules=${hostResolverRules}`],
+        },
       },
+    },
+    {
+      name: "chromium-start",
       dependencies: ["setup"],
-      testIgnore: /.*\.setup\.ts/,
+      testMatch: /.*\.smoke\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: authStatePath,
+        launchOptions: {
+          args: [`--host-resolver-rules=${hostResolverRules}`],
+        },
+      },
     },
   ],
   webServer: {
-    command: "bun run dev:local",
+    command: webServerCommand,
     cwd: repoRoot,
-    url: baseURL,
+    url: webServerURL,
     timeout: 180_000,
     reuseExistingServer: !process.env.CI,
   },

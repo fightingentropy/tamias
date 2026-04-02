@@ -3,7 +3,7 @@
 import { cn } from "@tamias/ui/cn";
 import { Icons } from "@tamias/ui/icons";
 import { Skeleton } from "@tamias/ui/skeleton";
-import Link from "next/link";
+import Link from "@/framework/link";
 import { Suspense, useState } from "react";
 import { MainMenu } from "./main-menu";
 import { TeamDropdown } from "./team-dropdown";

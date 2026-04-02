@@ -5,15 +5,15 @@ import {
 } from "@tamias/auth-session";
 import { resolveTamiasUserSession } from "@tamias/app-services/auth";
 import { getLocationHeaders } from "@tamias/location";
-import { convexAuthNextjsToken } from "@convex-dev/auth/nextjs/server";
-import { headers } from "next/headers";
+import { headers } from "@tamias/utils/request-runtime";
 import { cache } from "react";
 import { measureAuthResolution } from "@/server/perf";
+import { getConvexAuthToken } from "@/start/auth/server";
 import { getRequestTraceHeaders } from "@/utils/request-trace";
 
 export const getServerRequestContext = cache(async () => {
   const [token, headersList] = await Promise.all([
-    convexAuthNextjsToken(),
+    getConvexAuthToken(),
     headers(),
   ]);
   const session = await measureAuthResolution("resolve-session", () =>

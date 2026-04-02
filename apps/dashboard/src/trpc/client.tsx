@@ -2,6 +2,7 @@
 
 import { useAuthToken } from "@convex-dev/auth/react";
 import type { AppRouter } from "@tamias/trpc";
+import { getApiUrl } from "@tamias/utils/envs";
 import type { QueryClient } from "@tanstack/react-query";
 import { isServer, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, loggerLink, TRPCUntypedClient } from "@trpc/client";
@@ -14,6 +15,7 @@ import superjson from "superjson";
 import { makeQueryClient } from "./query-client";
 
 const TRPCContext = createContext<TRPCOptionsProxy<AppRouter> | null>(null);
+const apiUrl = getApiUrl();
 const trpcBrowserConsole = {
   log: (...args: unknown[]) => console.log(...args),
   warn: (...args: unknown[]) => console.warn(...args),
@@ -63,7 +65,7 @@ export function TRPCReactProvider(
               (opts.direction === "down" && opts.result instanceof Error),
           }),
           httpBatchLink({
-            url: `${process.env.NEXT_PUBLIC_API_URL}/trpc`,
+            url: `${apiUrl}/trpc`,
             transformer: superjson,
             fetch,
             headers() {

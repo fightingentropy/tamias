@@ -1,6 +1,7 @@
 "use client";
 
 import { closestCenter, DndContext } from "@dnd-kit/core";
+import { getAppUrl } from "@tamias/utils/envs";
 import { Table, TableBody } from "@tamias/ui/table";
 import { Tooltip, TooltipProvider } from "@tamias/ui/tooltip";
 import { toast } from "@tamias/ui/use-toast";
@@ -66,6 +67,7 @@ type Props = {
 };
 
 export function DataTable({ initialSettings, initialTab }: Props) {
+  const dashboardUrl = getAppUrl();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { data: user } = useUserQuery();
@@ -255,7 +257,7 @@ export function DataTable({ initialSettings, initialTab }: Props) {
   const copyUrl = useCallback((id: string) => {
     try {
       window.navigator.clipboard.writeText(
-        `${process.env.NEXT_PUBLIC_URL}/transactions/?transactionId=${id}`,
+        `${dashboardUrl}/transactions/?transactionId=${id}`,
       );
 
       toast({
@@ -268,7 +270,7 @@ export function DataTable({ initialSettings, initialTab }: Props) {
         variant: "error",
       });
     }
-  }, []);
+  }, [dashboardUrl]);
 
   const updateTransaction = useCallback(
     (data: {

@@ -4,8 +4,6 @@ import {
   getVatDashboard,
   listVatSubmissions,
 } from "@tamias/app-data/queries/compliance";
-import { getPayrollDashboard } from "@tamias/app-data/queries/payroll";
-import { getYearEndDashboard } from "@tamias/app-data/queries/year-end";
 
 export async function getComplianceProfileForTeam(args: {
   db: Database;
@@ -36,6 +34,10 @@ export async function getYearEndDashboardForTeam(args: {
   db: Database;
   teamId: string;
 }) {
+  const { getYearEndDashboard } = await import(
+    "@tamias/app-data/queries/year-end"
+  );
+
   return getYearEndDashboard(args.db, {
     teamId: args.teamId,
   });
@@ -45,6 +47,10 @@ export async function getPayrollDashboardForTeam(args: {
   db: Database;
   teamId: string;
 }) {
+  const { getPayrollDashboard } = await import(
+    "@tamias/app-data/queries/payroll"
+  );
+
   return getPayrollDashboard(args.db, {
     teamId: args.teamId,
   });

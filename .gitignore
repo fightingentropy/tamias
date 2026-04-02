@@ -11,11 +11,6 @@ playwright-report
 test-results
 apps/dashboard/playwright/.auth
 
-# next.js
-.next/
-out/
-next-env.d.ts
-
 # expo
 .expo/
 dist/
@@ -46,7 +41,7 @@ yarn-error.log*
 # turbo
 .turbo
 .wrangler
-.open-next
+.tanstack
 
 # react-email
 .react-email

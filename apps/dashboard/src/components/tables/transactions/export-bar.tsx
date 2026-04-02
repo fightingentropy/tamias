@@ -11,7 +11,7 @@ import { Icons } from "@tamias/ui/icons";
 import { Spinner } from "@tamias/ui/spinner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import Link from "next/link";
+import Link from "@/framework/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ExportTransactionsModal } from "@/components/modals/export-transactions-modal";
 import { Portal } from "@/components/portal";

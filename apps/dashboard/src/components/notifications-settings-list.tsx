@@ -5,8 +5,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@tamias/ui/card";
-import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import { Suspense } from "react";
+import { ErrorBoundary } from "./error-boundary";
 import { ErrorFallback } from "./error-fallback";
 import {
   NotificationSettings,

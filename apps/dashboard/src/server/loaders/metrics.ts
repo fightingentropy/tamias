@@ -1,4 +1,3 @@
-import "server-only";
 
 import type { SearchParams } from "nuqs/server";
 import {

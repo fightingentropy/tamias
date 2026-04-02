@@ -24,7 +24,7 @@ import {
 import { Icons } from "@tamias/ui/icons";
 import { ScrollArea, ScrollBar } from "@tamias/ui/scroll-area";
 import { TableCell, TableRow } from "@tamias/ui/table";
-import Link from "next/link";
+import Link from "@/framework/link";
 import { TrackerCreateInvoice } from "@/components/tracker-create-invoice";
 import { TrackerExportCSV } from "@/components/tracker-export-csv";
 import { TrackerStatus } from "@/components/tracker-status";

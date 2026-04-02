@@ -3,7 +3,7 @@
 import { Button } from "@tamias/ui/button";
 import { Icons } from "@tamias/ui/icons";
 import { Sheet, SheetContent } from "@tamias/ui/sheet";
-import Link from "next/link";
+import Link from "@/framework/link";
 import { useState } from "react";
 import { MainMenu } from "./main-menu";
 

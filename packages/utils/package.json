@@ -4,6 +4,10 @@
   "main": "src/index.ts",
   "private": true,
   "sideEffects": false,
+  "dependencies": {
+    "@tanstack/react-start": "^1.167.16",
+    "@tanstack/start-storage-context": "1.166.23"
+  },
   "scripts": {
     "clean": "rm -rf .turbo node_modules",
     "lint": "biome check .",
@@ -18,6 +22,7 @@
     "./account-matching": "./src/account-matching.ts",
     "./envs": "./src/envs.ts",
     "./format": "./src/format.ts",
+    "./request-runtime": "./src/request-runtime.ts",
     "./sanitize-redirect": "./src/sanitize-redirect.ts",
     "./tax": "./src/tax.ts"
   }

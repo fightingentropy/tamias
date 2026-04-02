@@ -8,6 +8,7 @@ import {
 } from "@ai-sdk-tools/store";
 import { useAuthToken } from "@convex-dev/auth/react";
 import type { UIChatMessage } from "@tamias/contracts/chat";
+import { getApiUrl } from "@tamias/utils/envs";
 import { DefaultChatTransport, generateId } from "ai";
 import { useEffect, useMemo, useRef } from "react";
 import { useCurrentUser } from "@/components/current-user-provider";
@@ -21,6 +22,7 @@ type Props = {
 
 export function useDashboardChatSession({ geo }: Props) {
   const token = useAuthToken();
+  const apiUrl = getApiUrl();
   const user = useCurrentUser();
   const storedChatId = useChatId();
   const { chatId: routeChatId } = useChatInterface();
@@ -72,7 +74,7 @@ export function useDashboardChatSession({ geo }: Props) {
   return useChat<UIChatMessage>({
     id: chatId,
     transport: new DefaultChatTransport({
-      api: `${process.env.NEXT_PUBLIC_API_URL}/chat`,
+      api: `${apiUrl}/chat`,
       fetch: authenticatedFetch,
       prepareSendMessagesRequest({ messages, id }) {
         const lastMessage = messages[messages.length - 1] as UIChatMessage;

@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@tamias/ui/card";
 import { Icons } from "@tamias/ui/icons";
-import { useRouter } from "next/navigation";
+import { useAppRouter } from "@/framework/navigation";
 
 export type OAuthErrorType =
   | "missing_params"
@@ -47,7 +47,7 @@ export function OAuthErrorMessage({
   customMessage,
   details,
 }: OAuthErrorMessageProps) {
-  const router = useRouter();
+  const router = useAppRouter();
 
   const getErrorContent = () => {
     switch (errorType) {

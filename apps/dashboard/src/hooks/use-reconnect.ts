@@ -2,9 +2,9 @@
 
 import { useToast } from "@tamias/ui/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { useAction } from "next-safe-action/hooks";
 import { parseAsString, useQueryStates } from "nuqs";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useAction } from "@/actions/use-action";
 import { manualSyncTransactionsAction } from "@/actions/transactions/manual-sync-transactions-action";
 import { reconnectConnectionAction } from "@/actions/transactions/reconnect-connection-action";
 import { useSyncStatus } from "@/hooks/use-sync-status";
@@ -58,8 +58,9 @@ export function useReconnect({
 
   // Manual sync action (for sync button)
   const manualSyncTransactions = useAction(manualSyncTransactionsAction, {
-    onExecute: () => setSyncing(true),
-    onSuccess: ({ data }) => {
+    onSuccess: (data) => {
+      setSyncing(true);
+
       if (data?.runId) {
         setRunId(data.runId);
       }
@@ -79,8 +80,9 @@ export function useReconnect({
 
   // Reconnect action (for reconnect flow)
   const reconnectConnection = useAction(reconnectConnectionAction, {
-    onExecute: () => setSyncing(true),
-    onSuccess: ({ data }) => {
+    onSuccess: (data) => {
+      setSyncing(true);
+
       if (data?.runId) {
         setRunId(data.runId);
       }
@@ -176,6 +178,7 @@ export function useReconnect({
       !hasTriggeredRef.current
     ) {
       hasTriggeredRef.current = true;
+      setSyncing(true);
 
       reconnectConnection.execute({
         connectionId,
@@ -189,6 +192,7 @@ export function useReconnect({
 
   // Trigger reconnect manually (for Teller which uses embedded SDK)
   const triggerReconnect = useCallback(() => {
+    setSyncing(true);
     reconnectConnection.execute({
       connectionId,
       provider: provider as Provider,
@@ -197,6 +201,7 @@ export function useReconnect({
 
   // Trigger manual sync (for sync button)
   const triggerManualSync = useCallback(() => {
+    setSyncing(true);
     manualSyncTransactions.execute({
       connectionId,
     });

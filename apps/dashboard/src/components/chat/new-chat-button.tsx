@@ -3,7 +3,7 @@
 import { useChatActions } from "@ai-sdk-tools/store";
 import { Button } from "@tamias/ui/button";
 import { Icons } from "@tamias/ui/icons";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/framework/navigation";
 
 export function NewChatButton() {
   const router = useRouter();

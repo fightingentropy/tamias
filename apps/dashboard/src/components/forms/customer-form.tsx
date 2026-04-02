@@ -25,7 +25,7 @@ import { SubmitButton } from "@tamias/ui/submit-button";
 import { Textarea } from "@tamias/ui/textarea";
 import { isValidEmailList } from "@tamias/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import dynamic from "next/dynamic";
+import dynamic from "@/framework/dynamic";
 import { z } from "zod/v3";
 import { useCustomerParams } from "@/hooks/use-customer-params";
 import { useInvoiceParams } from "@/hooks/use-invoice-params";

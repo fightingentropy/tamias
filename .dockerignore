@@ -12,7 +12,6 @@ bun.lockb
 
 # Build outputs and caches
 .turbo
-.next
 dist
 build
 out

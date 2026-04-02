@@ -1,4 +1,3 @@
-import "server-only";
 
 import { getCustomerPageSummary } from "@tamias/app-data/queries/customer-summary";
 import {

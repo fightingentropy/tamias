@@ -4,7 +4,7 @@ import { apps as appStoreApps } from "@tamias/app-store";
 import type { UnifiedApp } from "@tamias/app-store/types";
 import { Button } from "@tamias/ui/button";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "@/framework/navigation";
 import { useEffect } from "react";
 import { AppConnectionToast } from "@/components/app-connection-toast";
 import { ConnectWhatsApp } from "@/components/inbox/connect-whatsapp";

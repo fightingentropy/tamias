@@ -4,9 +4,9 @@ import { Button } from "@tamias/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@tamias/ui/popover";
 import { Textarea } from "@tamias/ui/textarea";
 import { Loader2 } from "lucide-react";
-import { useAction } from "next-safe-action/hooks";
 import { useState } from "react";
 import { sendFeebackAction } from "@/actions/send-feedback-action";
+import { useAction } from "@/actions/use-action";
 
 export function FeedbackForm() {
   const [value, setValue] = useState("");

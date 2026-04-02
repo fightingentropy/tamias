@@ -1,5 +1,6 @@
 "use client";
 
+import { getApiUrl } from "@tamias/utils/envs";
 import { Button } from "@tamias/ui/button";
 import { Icons } from "@tamias/ui/icons";
 import { Spinner } from "@tamias/ui/spinner";
@@ -11,7 +12,6 @@ import {
 } from "@tamias/ui/tooltip";
 import { useToast } from "@tamias/ui/use-toast";
 import { motion } from "framer-motion";
-import JSZip from "jszip";
 import { useEffect, useRef, useState } from "react";
 import { MdContentCopy, MdOutlineFileDownload } from "react-icons/md";
 import { useCopyToClipboard } from "usehooks-ts";
@@ -48,6 +48,7 @@ export default function InvoiceToolbar({
   isPaymentOpen,
   useOverlay,
 }: Props) {
+  const apiUrl = getApiUrl();
   const [, copy] = useCopyToClipboard();
   const { toast } = useToast();
   const [internalPaymentOpen, setInternalPaymentOpen] = useState(false);
@@ -82,8 +83,8 @@ export default function InvoiceToolbar({
     try {
       if (isPaid) {
         // For paid invoices, download both invoice and receipt as a zip
+        const { default: JSZip } = await import("jszip");
         const zip = new JSZip();
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
         // Fetch both PDFs in parallel for better performance
         const [invoiceResponse, receiptResponse] = await Promise.all([
@@ -117,7 +118,7 @@ export default function InvoiceToolbar({
       } else {
         // Download invoice only
         await downloadFile(
-          `${process.env.NEXT_PUBLIC_API_URL}/files/download/invoice?token=${token}`,
+          `${apiUrl}/files/download/invoice?token=${token}`,
           `${invoiceNumber}.pdf`,
         );
       }

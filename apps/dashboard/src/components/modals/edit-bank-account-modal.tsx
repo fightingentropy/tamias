@@ -100,6 +100,8 @@ export function EditBankAccountModal({
   }
 
   const accountTypes = () => {
+    const translate = t as (key: string) => string;
+
     return [
       "depository",
       "credit",
@@ -108,8 +110,7 @@ export function EditBankAccountModal({
       "other_liability",
     ].map((type) => (
       <SelectItem key={type} value={type}>
-        {/* @ts-expect-error */}
-        {t(`account_type.${type}`)}
+        {translate(`account_type.${type}`)}
       </SelectItem>
     ));
   };

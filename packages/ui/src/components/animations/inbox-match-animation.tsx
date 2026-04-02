@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import type { IconType } from "react-icons";
 import {
@@ -202,12 +201,11 @@ export function InboxMatchAnimation({
             >
               <div className="flex items-start gap-1.5 md:gap-2">
                 <span className="inline-flex w-5 h-5 md:w-6 md:h-6 items-center justify-center bg-secondary border border-border flex-shrink-0">
-                  <Image
+                  <img
                     src="/images/gmail.svg"
                     alt="Gmail"
                     width={16}
                     height={16}
-                    unoptimized
                     className="w-3 h-3 md:w-3.5 md:h-3.5 object-contain"
                   />
                 </span>

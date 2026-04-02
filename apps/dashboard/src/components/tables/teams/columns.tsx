@@ -23,7 +23,7 @@ import { toast } from "@tamias/ui/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef, FilterFn, Row } from "@tanstack/react-table";
 import { Loader2, MoreHorizontal } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/framework/navigation";
 import { useI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/client";
 

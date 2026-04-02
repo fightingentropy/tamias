@@ -4,7 +4,7 @@ import type { RouterOutputs } from "@tamias/trpc";
 import { Avatar, AvatarFallback, AvatarImage } from "@tamias/ui/avatar";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/framework/navigation";
 import { useTRPC } from "@/trpc/client";
 
 type Props = {

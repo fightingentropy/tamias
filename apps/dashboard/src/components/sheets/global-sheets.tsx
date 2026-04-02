@@ -1,6 +1,6 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import dynamic from "@/framework/dynamic";
 import { useEffect, useState } from "react";
 import { ConnectTransactionsModal } from "@/components/modals/connect-transactions-modal";
 import { ImportModal } from "@/components/modals/import-modal";

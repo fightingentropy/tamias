@@ -1,3 +1,4 @@
+import { getApiUrl } from "@tamias/utils/envs";
 import { useMemo } from "react";
 import { useUserQuery } from "@/hooks/use-user";
 
@@ -26,6 +27,7 @@ type FileUrlOptions =
  */
 export function useFileUrl(options: FileUrlOptions | null) {
   const { data: user, isLoading } = useUserQuery();
+  const apiUrl = getApiUrl();
 
   const result = useMemo(() => {
     if (!options) {
@@ -76,7 +78,7 @@ export function useFileUrl(options: FileUrlOptions | null) {
 
     if (options.type === "invoice") {
       // Build invoice download URL
-      const baseUrl = `${process.env.NEXT_PUBLIC_API_URL}/files/download/invoice`;
+      const baseUrl = `${apiUrl}/files/download/invoice`;
       const url = new URL(baseUrl);
       url.searchParams.set("id", options.invoiceId);
       url.searchParams.set("fk", user.fileKey);
@@ -93,7 +95,7 @@ export function useFileUrl(options: FileUrlOptions | null) {
     // Build URL from file path
     const { type, filePath, filename } = options;
     const endpointPath = type === "download" ? `${type}/file` : type;
-    const baseUrl = `${process.env.NEXT_PUBLIC_API_URL}/files/${endpointPath}`;
+    const baseUrl = `${apiUrl}/files/${endpointPath}`;
     const url = new URL(baseUrl);
 
     if (type === "download") {
@@ -112,7 +114,7 @@ export function useFileUrl(options: FileUrlOptions | null) {
       isLoading: false,
       hasFileKey: true,
     };
-  }, [options, user?.fileKey, isLoading]);
+  }, [apiUrl, options, user?.fileKey, isLoading]);
 
   return result;
 }

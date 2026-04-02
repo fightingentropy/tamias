@@ -2,6 +2,11 @@ import { Button } from "@tamias/ui/button";
 import { Icons } from "@tamias/ui/icons";
 import { Spinner } from "@tamias/ui/spinner";
 import {
+  getPlaidEnvironment,
+  getTellerApplicationId,
+  getTellerEnvironment,
+} from "@tamias/utils/envs";
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -54,6 +59,9 @@ export function ReconnectProvider({
   const { theme } = useTheme();
   const trpc = useTRPC();
   const { data: team } = useTeamQuery();
+  const plaidEnvironment = getPlaidEnvironment();
+  const tellerApplicationId = getTellerApplicationId();
+  const tellerEnvironment = getTellerEnvironment();
   const [plaidToken, setPlaidToken] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -82,7 +90,7 @@ export function ReconnectProvider({
   const { open: openPlaid } = usePlaidLink({
     token: plaidToken,
     publicKey: "",
-    env: process.env.NEXT_PUBLIC_PLAID_ENVIRONMENT!,
+    env: plaidEnvironment,
     clientName: "Tamias",
     product: ["transactions"],
     onSuccess: () => {
@@ -98,8 +106,8 @@ export function ReconnectProvider({
   const openTeller = () => {
     // @ts-expect-error
     const teller = window.TellerConnect.setup({
-      applicationId: process.env.NEXT_PUBLIC_TELLER_APPLICATION_ID!,
-      environment: process.env.NEXT_PUBLIC_TELLER_ENVIRONMENT,
+      applicationId: tellerApplicationId,
+      environment: tellerEnvironment,
       enrollmentId,
       appearance: theme,
       onSuccess: () => {

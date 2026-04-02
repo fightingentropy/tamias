@@ -3,8 +3,8 @@
 import { cn } from "@tamias/ui/cn";
 import { Icons } from "@tamias/ui/icons";
 import { Skeleton } from "@tamias/ui/skeleton";
-import dynamic from "next/dynamic";
-import Image from "next/image";
+import dynamic from "@/framework/dynamic";
+import Image from "@/framework/image";
 import { useState } from "react";
 import { FilePreviewIcon } from "@/components/file-preview-icon";
 import { useFileUrl } from "@/hooks/use-file-url";

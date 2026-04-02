@@ -1,5 +1,5 @@
 {
-  "extends": "@tamias/tsconfig/nextjs.json",
+  "extends": "@tamias/tsconfig/react-library.json",
   "include": ["src"],
   "exclude": ["node_modules"]
 }

@@ -10,7 +10,8 @@ import { fetchWithRetry } from "./fetch-with-retry";
 export function createInternalClient() {
   const apiUrl =
     process.env.API_INTERNAL_URL ||
-    process.env.NEXT_PUBLIC_API_URL ||
+    process.env.API_URL ||
+    process.env.TAMIAS_API_URL ||
     "http://localhost:3003";
 
   const internalApiKey = process.env.INTERNAL_API_KEY;
@@ -23,9 +24,13 @@ export function createInternalClient() {
 
   const trpcUrl = `${apiUrl}/trpc`;
 
-  if (!process.env.API_INTERNAL_URL && !process.env.NEXT_PUBLIC_API_URL) {
+  if (
+    !process.env.API_INTERNAL_URL &&
+    !process.env.API_URL &&
+    !process.env.TAMIAS_API_URL
+  ) {
     console.warn(
-      `[trpc-internal] Neither API_INTERNAL_URL nor NEXT_PUBLIC_API_URL is set, falling back to ${trpcUrl}`,
+      `[trpc-internal] Neither API_INTERNAL_URL nor API_URL is set, falling back to ${trpcUrl}`,
     );
   }
 

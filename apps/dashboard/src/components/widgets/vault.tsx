@@ -1,7 +1,7 @@
 import { Icons } from "@tamias/ui/icons";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/framework/navigation";
 import { useTRPC } from "@/trpc/client";
 import { BaseWidget } from "./base";
 import { WIDGET_POLLING_CONFIG } from "./widget-config";

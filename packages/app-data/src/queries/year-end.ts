@@ -49,7 +49,6 @@ import {
   upsertYearEndPackInConvex,
 } from "@tamias/app-data-convex";
 import { uploadVaultFile } from "@tamias/storage";
-import archiver from "archiver";
 import {
   addDays,
   addMonths,
@@ -2475,6 +2474,8 @@ function buildCsvChecksum(value: string) {
 }
 
 async function buildZipBundle(files: Array<{ name: string; data: Buffer }>) {
+  const { default: archiver } = await import("archiver");
+
   return new Promise<Buffer>((resolve, reject) => {
     const chunks: Buffer[] = [];
     const stream = new PassThrough();

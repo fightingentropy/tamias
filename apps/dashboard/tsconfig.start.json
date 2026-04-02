@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.start.tsbuildinfo",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@convex/*": ["./convex/*"],
+      "@app-data/*": ["../../packages/app-data/src/*"],
+      "@convex-dev/auth/react": ["./src/framework/convex-auth-client.tsx"],
+      "nuqs": ["./src/framework/nuqs/index.tsx"],
+      "nuqs/server": ["./src/framework/nuqs/server.ts"],
+      "nuqs/adapters/tanstack-router": ["./src/framework/nuqs/tanstack-router.tsx"]
+    }
+  },
+  "include": [
+    "vite.config.mts",
+    "src/types/**/*.d.ts",
+    "src/start/**/*.ts",
+    "src/start/**/*.tsx",
+    "../../packages/ui/src/**/*.d.ts",
+    "../../types"
+  ],
+  "exclude": ["node_modules"]
+}

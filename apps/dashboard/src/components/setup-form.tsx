@@ -12,7 +12,7 @@ import {
 import { Input } from "@tamias/ui/input";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/framework/navigation";
 import { useRef, useState } from "react";
 import { z } from "zod/v3";
 import { useUserMutation } from "@/hooks/use-user";

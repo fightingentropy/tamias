@@ -11,7 +11,7 @@ import {
 } from "@tamias/ui/card";
 import { Icons } from "@tamias/ui/icons";
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
+import Link from "@/framework/link";
 import { useTRPC } from "@/trpc/client";
 
 function formatDate(value?: string | null) {

@@ -1,7 +1,8 @@
 import { createHash } from "node:crypto";
-import { differenceInCalendarDays, parseISO } from "date-fns";
 import { roundCurrency } from "@tamias/compliance";
+import { differenceInCalendarDays, parseISO } from "date-fns";
 import {
+  type Ct600Draft,
   escapeHtml,
   escapeXml,
   formatDraftAmount,
@@ -13,7 +14,6 @@ import {
   HMRC_CT_COMPUTATIONS_2024_ENTRY_POINT,
   humanizeToken,
   SMALL_PROFITS_RATE_START,
-  type Ct600Draft,
   type StatutoryAccountsDraft,
 } from "./shared";
 
@@ -589,6 +589,41 @@ export function renderAccountsAttachmentIxbrl(draft: StatutoryAccountsDraft) {
   const signingDirector = directorContexts.find(
     (context) => context.name === draft.signingDirectorName,
   );
+  const formattedPeriodStart = formatDraftDate(draft.periodStart);
+  const formattedPeriodEnd = formatDraftDate(draft.periodEnd);
+  const formattedApprovalDate = draft.approvalDate
+    ? formatDraftDate(draft.approvalDate)
+    : null;
+  const registeredNumberText = draft.companyNumber
+    ? `Registered Number ${draft.companyNumber}`
+    : "Registered Number unavailable";
+  const coverTitle = isDormant
+    ? "Dormant accounts"
+    : "Unaudited statutory accounts";
+  const statementsMarkup = [
+    draft.accountsPreparedUnderSmallCompaniesRegime
+      ? `<li><ix:nonNumeric name="direp:StatementThatAccountsHaveBeenPreparedInAccordanceWithProvisionsSmallCompaniesRegime" contextRef="${durationContextId}">${escapeXml(
+          buildSmallCompaniesRegimeStatement(),
+        )}</ix:nonNumeric></li>`
+      : null,
+    draft.auditExemptionClaimed
+      ? `<li><ix:nonNumeric name="direp:StatementThatCompanyEntitledToExemptionFromAuditUnderSection477CompaniesAct2006RelatingToSmallCompanies" contextRef="${durationContextId}">${escapeXml(
+          buildAuditExemptionStatement(),
+        )}</ix:nonNumeric></li>`
+      : null,
+    draft.membersDidNotRequireAudit
+      ? `<li><ix:nonNumeric name="direp:StatementThatMembersHaveNotRequiredCompanyToObtainAnAudit" contextRef="${durationContextId}">${escapeXml(
+          buildMembersNoAuditStatement(),
+        )}</ix:nonNumeric></li>`
+      : null,
+    draft.directorsAcknowledgeResponsibilities
+      ? `<li><ix:nonNumeric name="direp:StatementThatDirectorsAcknowledgeTheirResponsibilitiesUnderCompaniesAct" contextRef="${durationContextId}">${escapeXml(
+          buildDirectorsResponsibilitiesStatement(),
+        )}</ix:nonNumeric></li>`
+      : null,
+  ]
+    .filter(Boolean)
+    .join("");
   const readyBanner = draft.filingReadiness.isReady
     ? `<div class="banner banner-ready"><strong>Filing-ready accounts attachment.</strong> This document contains the statutory disclosures and taxonomy-backed facts required for the supported small-company filing path.</div>`
     : `<div class="banner banner-draft"><strong>Draft review attachment.</strong> Clear the filing-readiness blockers before treating this accounts attachment as filing-ready.</div>`;
@@ -608,25 +643,63 @@ export function renderAccountsAttachmentIxbrl(draft: StatutoryAccountsDraft) {
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
     <title>${escapeXml(draft.companyName)} accounts attachment</title>
     <style type="text/css">
-      body { font-family: Georgia, "Times New Roman", serif; margin: 40px auto; max-width: 920px; color: #101828; line-height: 1.5; }
-      h1, h2 { margin-bottom: 0.4rem; }
-      h1 { font-size: 2rem; }
-      h2 { font-size: 1.1rem; margin-top: 2rem; border-bottom: 1px solid #d0d5dd; padding-bottom: 0.35rem; }
-      p, li, td, th { font-size: 0.95rem; }
-      table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; }
-      th, td { border-bottom: 1px solid #eaecf0; padding: 8px 0; text-align: left; vertical-align: top; }
-      .amount { text-align: right; white-space: nowrap; }
-      .muted { color: #475467; }
-      .banner { border-radius: 10px; padding: 16px; margin: 1rem 0; }
+      body { font-family: "Times New Roman", Times, serif; margin: 0; color: #101828; line-height: 1.45; }
+      h1, h2, h3 { font-weight: bold; color: black; margin: 0; }
+      h1 { font-size: 1.2rem; }
+      h2 { font-size: 1rem; }
+      h2.middle, h3.middle { text-align: center; }
+      h3 { font-size: 0.98rem; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+      p, li, td, th, div { font-size: 0.95rem; }
+      .hidden { display: none; }
+      div.pagebreak { page-break-after: always; }
+      div.accountspage { width: 100%; box-sizing: border-box; }
+      div.titlepage { font-weight: bold; margin-top: 5em; text-align: center; }
+      div.accountsheader { font-weight: bold; width: 100%; display: block; }
+      div.accountsheader::after { content: ""; display: block; clear: both; }
+      span.left { float: left; width: 70%; }
+      span.right { float: right; width: 30%; text-align: right; }
+      .dotted-line { border-top: 1px dotted #101828; margin: 1rem 0 1.5rem 0; }
+      .banner { border-radius: 8px; padding: 12px 14px; margin: 1rem 0 1.25rem 0; }
       .banner-ready { background: #ecfdf3; border: 1px solid #86efac; }
       .banner-draft { background: #fff7ed; border: 1px solid #fdba74; }
-      .meta { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 1rem; }
-      .meta-card { border: 1px solid #eaecf0; border-radius: 10px; padding: 12px; }
-      .meta-label { color: #475467; display: block; font-size: 0.8rem; margin-bottom: 0.25rem; }
+      .title-subtitle { margin-top: 0.8rem; font-weight: normal; }
+      .section { margin-top: 1.2cm; }
+      .section:first-of-type { margin-top: 0; }
+      .summary { margin-top: 0.5rem; }
+      .detail-table,
+      .statement-table,
+      .notes-table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; }
+      .detail-table th,
+      .detail-table td,
+      .statement-table th,
+      .statement-table td,
+      .notes-table th,
+      .notes-table td { border-bottom: 1px solid #d0d5dd; padding: 8px 0; text-align: left; vertical-align: top; }
+      .detail-table th { width: 32%; font-weight: normal; }
+      .amount { text-align: right; white-space: nowrap; }
+      .statement-table .total td,
+      .statement-table .total th { border-top: 1px solid #101828; border-bottom: 2px solid #101828; font-weight: bold; }
+      .statement-table .section-row th { padding-top: 1rem; font-weight: bold; }
+      .lower-alpha { list-style-type: lower-alpha; padding-left: 1.5rem; margin: 0.75rem 0 0 0; }
+      .lower-alpha li { margin-bottom: 0.6rem; }
+      .muted { color: #475467; }
+      .approval { margin-top: 1rem; }
+      .review-columns { display: grid; gap: 1.2rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .review-columns ul { margin: 0.5rem 0 0 1.25rem; }
+      @media screen, projection, tv {
+        body { margin: 2% 4%; background-color: #d0d5dd; }
+        div.accountspage { background-color: white; padding: 2em; width: 21cm; min-height: 29.7cm; margin: 2em auto; box-shadow: 0 12px 36px rgba(16, 24, 40, 0.12); }
+        div.titlepage { padding: 5em 2em 2em 2em; margin: 2em auto; }
+      }
+      @media print {
+        body { margin: 0; background: white; }
+        div.accountspage { padding: 1.5cm; min-height: 27.7cm; }
+        div.accountspage:last-child { page-break-after: auto; }
+      }
     </style>
   </head>
   <body xml:lang="en-GB">
-    <div style="display:none">
+    <div class="hidden">
       <ix:header>
         <ix:references>
           <link:schemaRef xlink:type="simple" xlink:href="${escapeXml(
@@ -707,222 +780,331 @@ export function renderAccountsAttachmentIxbrl(draft: StatutoryAccountsDraft) {
         </ix:resources>
       </ix:header>
     </div>
-    <div style="display:none">
+    <div class="hidden">
       <ix:nonNumeric name="bus:AccountingStandardsApplied" contextRef="${accountingStandardsContextId}"></ix:nonNumeric>
       <ix:nonNumeric name="bus:AccountsStatusAuditedOrUnaudited" contextRef="${accountsStatusContextId}"></ix:nonNumeric>
       <ix:nonNumeric name="bus:AccountsType" contextRef="${accountsTypeContextId}"></ix:nonNumeric>
       <ix:nonNumeric name="bus:EntityTradingStatus" contextRef="${durationContextId}"></ix:nonNumeric>
-    </div>
-    <h1><ix:nonNumeric name="bus:EntityCurrentLegalOrRegisteredName" contextRef="${durationContextId}">${escapeXml(
-      draft.companyName,
-    )}</ix:nonNumeric></h1>
-    <p class="muted">
-      iXBRL accounts attachment for the period
       <ix:nonNumeric name="bus:StartDateForPeriodCoveredByReport" contextRef="${instantContextId}">${escapeXml(
         draft.periodStart,
       )}</ix:nonNumeric>
-      to
       <ix:nonNumeric name="bus:EndDateForPeriodCoveredByReport" contextRef="${instantContextId}">${escapeXml(
         draft.periodEnd,
-      )}</ix:nonNumeric>.
-    </p>
-    ${readyBanner}
-    <div class="meta">
-      ${
-        draft.companyNumber
-          ? `<div class="meta-card"><span class="meta-label">Company number</span><ix:nonNumeric name="bus:UKCompaniesHouseRegisteredNumber" contextRef="${durationContextId}">${escapeXml(
-              draft.companyNumber,
-            )}</ix:nonNumeric></div>`
-          : ""
-      }
-      <div class="meta-card"><span class="meta-label">Balance sheet date</span><ix:nonNumeric name="bus:BalanceSheetDate" contextRef="${instantContextId}">${escapeXml(
+      )}</ix:nonNumeric>
+      <ix:nonNumeric name="bus:BalanceSheetDate" contextRef="${instantContextId}">${escapeXml(
         draft.periodEnd,
-      )}</ix:nonNumeric></div>
-      <div class="meta-card"><span class="meta-label">Approval date</span>${
+      )}</ix:nonNumeric>
+      <ix:nonNumeric name="bus:EntityDormantTruefalse" contextRef="${durationContextId}">${String(
+        isDormant,
+      )}</ix:nonNumeric>
+      ${
         draft.approvalDate
           ? `<ix:nonNumeric name="core:DateAuthorisationFinancialStatementsForIssue" contextRef="${instantContextId}">${escapeXml(
               draft.approvalDate,
             )}</ix:nonNumeric>`
-          : "Missing"
-      }</div>
-      <div class="meta-card"><span class="meta-label">Dormant</span><ix:nonNumeric name="bus:EntityDormantTruefalse" contextRef="${durationContextId}">${String(
-        isDormant,
-      )}</ix:nonNumeric></div>
-      <div class="meta-card"><span class="meta-label">Accounts due date</span>${escapeXml(
-        draft.accountsDueDate,
-      )}</div>
-    </div>
-
-    <div class="section">
-      <h2>Company information</h2>
-      ${
-        draft.principalActivity
-          ? `<p><strong>Principal activity:</strong> <ix:nonNumeric name="bus:DescriptionPrincipalActivities" contextRef="${durationContextId}">${escapeXml(
-              draft.principalActivity,
-            )}</ix:nonNumeric></p>`
-          : ""
-      }
-      ${
-        directorContexts.length
-          ? `<div><strong>Directors:</strong><ul>${directorContexts
-              .map(
-                (context) =>
-                  `<li><ix:nonNumeric name="bus:NameEntityOfficer" contextRef="${context.id}">${escapeXml(
-                    context.name,
-                  )}</ix:nonNumeric></li>`,
-              )
-              .join("")}</ul></div>`
           : ""
       }
     </div>
+    <div class="titlepage accountspage pagebreak">
+      ${
+        draft.companyNumber
+          ? `<p>Registered Number <ix:nonNumeric name="bus:UKCompaniesHouseRegisteredNumber" contextRef="${durationContextId}">${escapeXml(
+              draft.companyNumber,
+            )}</ix:nonNumeric></p>`
+          : `<p>${escapeXml(registeredNumberText)}</p>`
+      }
+      <p><ix:nonNumeric name="bus:EntityCurrentLegalOrRegisteredName" contextRef="${durationContextId}">${escapeXml(
+        draft.companyName,
+      )}</ix:nonNumeric></p>
+      <p>${escapeXml(coverTitle)}</p>
+      <p>For the year ended ${escapeXml(formattedPeriodEnd)}</p>
+      <p class="dotted-line"></p>
+      <p class="title-subtitle">
+        Prepared for the supported small-company filing path in ${escapeXml(
+          draft.accountingBasis,
+        )}.
+      </p>
+    </div>
 
-    <div class="section">
-      <h2>Directors' statements and approval</h2>
+    <div class="accountspage pagebreak">
+      <div class="accountsheader">
+        <h2>
+          <span class="left">${escapeXml(draft.companyName)}</span>
+          <span class="right">${escapeXml(registeredNumberText)}</span>
+        </h2>
+      </div>
+
+      <div class="section">
+        <h3 class="middle">Company information</h3>
+        <p class="dotted-line"></p>
+        ${readyBanner}
+        <p class="summary">
+          Statutory accounts for the period ${escapeXml(formattedPeriodStart)} to
+          ${escapeXml(formattedPeriodEnd)}.
+        </p>
+        <table class="detail-table">
+          <tbody>
+            <tr>
+              <th>Balance sheet date</th>
+              <td>${escapeXml(formattedPeriodEnd)}</td>
+            </tr>
+            <tr>
+              <th>Accounts due date</th>
+              <td>${escapeXml(formatDraftDate(draft.accountsDueDate))}</td>
+            </tr>
+            <tr>
+              <th>Accounting basis</th>
+              <td>${escapeXml(draft.accountingBasis)}</td>
+            </tr>
+            <tr>
+              <th>Reporting currency</th>
+              <td>${escapeXml(draft.currency.toUpperCase())}</td>
+            </tr>
+            <tr>
+              <th>Dormant company</th>
+              <td>${escapeXml(isDormant ? "Yes" : "No")}</td>
+            </tr>
+            ${
+              draft.principalActivity
+                ? `<tr>
+              <th>Principal activity</th>
+              <td><ix:nonNumeric name="bus:DescriptionPrincipalActivities" contextRef="${durationContextId}">${escapeXml(
+                draft.principalActivity,
+              )}</ix:nonNumeric></td>
+            </tr>`
+                : ""
+            }
+            ${
+              directorContexts.length
+                ? `<tr>
+              <th>Directors</th>
+              <td>${directorContexts
+                .map(
+                  (context) =>
+                    `<div><ix:nonNumeric name="bus:NameEntityOfficer" contextRef="${context.id}">${escapeXml(
+                      context.name,
+                    )}</ix:nonNumeric></div>`,
+                )
+                .join("")}</td>
+            </tr>`
+                : ""
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="accountspage pagebreak">
+      <div class="accountsheader">
+        <h2>
+          <span class="left">${escapeXml(draft.companyName)}</span>
+          <span class="right">${escapeXml(registeredNumberText)}</span>
+        </h2>
+      </div>
+
+      <div id="balancesheet" class="section">
+        <h3 class="middle">Balance Sheet as at ${escapeXml(
+          formattedPeriodEnd,
+        )}</h3>
+        <p class="dotted-line"></p>
+        <table class="statement-table">
+          <thead>
+            <tr>
+              <th>Line</th>
+              <th class="amount">${escapeXml(draft.currency.toUpperCase())}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Total assets</th>
+              <td class="amount"><ix:nonFraction name="core:TotalAssets" contextRef="${instantContextId}" unitRef="${monetaryUnitId}" decimals="2">${formatIxbrlAmount(
+                draft.statementOfFinancialPosition.assets,
+              )}</ix:nonFraction></td>
+            </tr>
+            <tr>
+              <th>Creditors</th>
+              <td class="amount"><ix:nonFraction name="core:Creditors" contextRef="${instantContextId}" unitRef="${monetaryUnitId}" decimals="2">${formatIxbrlAmount(
+                draft.statementOfFinancialPosition.liabilities,
+              )}</ix:nonFraction></td>
+            </tr>
+            <tr>
+              <th>Total assets less current liabilities</th>
+              <td class="amount"><ix:nonFraction name="core:TotalAssetsLessCurrentLiabilities" contextRef="${instantContextId}" unitRef="${monetaryUnitId}" decimals="2">${formatIxbrlAmount(
+                totalAssetsLessCurrentLiabilities,
+              )}</ix:nonFraction></td>
+            </tr>
+            <tr class="total">
+              <th>Net assets or liabilities</th>
+              <td class="amount"><ix:nonFraction name="core:NetAssetsLiabilities" contextRef="${instantContextId}" unitRef="${monetaryUnitId}" decimals="2">${formatIxbrlAmount(
+                draft.statementOfFinancialPosition.netAssets,
+              )}</ix:nonFraction></td>
+            </tr>
+            ${
+              Math.abs(currentTaxForPeriod) > 0.009
+                ? `<tr>
+              <th>Corporation tax payable</th>
+              <td class="amount"><ix:nonFraction name="core:CorporationTaxPayable" contextRef="${instantContextId}" unitRef="${monetaryUnitId}" decimals="2">${formatIxbrlAmount(
+                currentTaxForPeriod,
+              )}</ix:nonFraction></td>
+            </tr>`
+                : ""
+            }
+          </tbody>
+        </table>
+      </div>
+
       ${
-        draft.accountsPreparedUnderSmallCompaniesRegime
-          ? `<p><ix:nonNumeric name="direp:StatementThatAccountsHaveBeenPreparedInAccordanceWithProvisionsSmallCompaniesRegime" contextRef="${durationContextId}">${escapeXml(
-              buildSmallCompaniesRegimeStatement(),
-            )}</ix:nonNumeric></p>`
+        statementsMarkup
+          ? `<div id="statements" class="section">
+        <h3>Statements</h3>
+        <ol class="lower-alpha">
+          ${statementsMarkup}
+        </ol>
+      </div>`
           : ""
       }
-      ${
-        draft.auditExemptionClaimed
-          ? `<p><ix:nonNumeric name="direp:StatementThatCompanyEntitledToExemptionFromAuditUnderSection477CompaniesAct2006RelatingToSmallCompanies" contextRef="${durationContextId}">${escapeXml(
-              buildAuditExemptionStatement(),
-            )}</ix:nonNumeric></p>`
-          : ""
-      }
-      ${
-        draft.membersDidNotRequireAudit
-          ? `<p><ix:nonNumeric name="direp:StatementThatMembersHaveNotRequiredCompanyToObtainAnAudit" contextRef="${durationContextId}">${escapeXml(
-              buildMembersNoAuditStatement(),
-            )}</ix:nonNumeric></p>`
-          : ""
-      }
-      ${
-        draft.directorsAcknowledgeResponsibilities
-          ? `<p><ix:nonNumeric name="direp:StatementThatDirectorsAcknowledgeTheirResponsibilitiesUnderCompaniesAct" contextRef="${durationContextId}">${escapeXml(
-              buildDirectorsResponsibilitiesStatement(),
-            )}</ix:nonNumeric></p>`
-          : ""
-      }
+
       ${
         draft.signingDirectorName && draft.approvalDate
-          ? `<p><ix:nonNumeric name="core:DescriptionBodyAuthorisingFinancialStatements" contextRef="${durationContextId}">Board of directors</ix:nonNumeric> approved these financial statements, and they were signed on its behalf by ${
-              signingDirector
-                ? `<span><ix:nonNumeric name="bus:NameEntityOfficer" contextRef="${signingDirector.id}">${escapeXml(
-                    signingDirector.name,
-                  )}</ix:nonNumeric><ix:nonNumeric name="core:DirectorSigningFinancialStatements" contextRef="${signingDirector.id}"></ix:nonNumeric></span>`
-                : escapeXml(draft.signingDirectorName)
-            } on <ix:nonNumeric name="core:DateAuthorisationFinancialStatementsForIssue" contextRef="${instantContextId}">${escapeXml(
-              draft.approvalDate,
-            )}</ix:nonNumeric>.</p>`
+          ? `<div id="approval" class="section approval">
+        <h3>Approval</h3>
+        <p><ix:nonNumeric name="core:DescriptionBodyAuthorisingFinancialStatements" contextRef="${durationContextId}">Board of directors</ix:nonNumeric> approved these financial statements on ${escapeXml(
+          formattedApprovalDate ?? "",
+        )}.</p>
+        <p>
+          Signed on behalf of the board by
+          ${
+            signingDirector
+              ? `<span class="officername"><ix:nonNumeric name="bus:NameEntityOfficer" contextRef="${signingDirector.id}">${escapeXml(
+                  signingDirector.name,
+                )}</ix:nonNumeric><ix:nonNumeric name="core:DirectorSigningFinancialStatements" contextRef="${signingDirector.id}"></ix:nonNumeric></span>`
+              : escapeXml(draft.signingDirectorName)
+          }.
+        </p>
+      </div>`
           : ""
       }
     </div>
 
-    <div class="section">
-      <h2>Statement of financial position</h2>
-      <table>
-        <thead><tr><th>Line</th><th class="amount">Tagged value</th></tr></thead>
-        <tbody>
-          <tr><td>Total assets</td><td class="amount"><ix:nonFraction name="core:TotalAssets" contextRef="${instantContextId}" unitRef="${monetaryUnitId}" decimals="2">${formatIxbrlAmount(
-            draft.statementOfFinancialPosition.assets,
-          )}</ix:nonFraction></td></tr>
-          <tr><td>Creditors</td><td class="amount"><ix:nonFraction name="core:Creditors" contextRef="${instantContextId}" unitRef="${monetaryUnitId}" decimals="2">${formatIxbrlAmount(
-            draft.statementOfFinancialPosition.liabilities,
-          )}</ix:nonFraction></td></tr>
-          <tr><td>Total assets less current liabilities</td><td class="amount"><ix:nonFraction name="core:TotalAssetsLessCurrentLiabilities" contextRef="${instantContextId}" unitRef="${monetaryUnitId}" decimals="2">${formatIxbrlAmount(
-            totalAssetsLessCurrentLiabilities,
-          )}</ix:nonFraction></td></tr>
-          <tr><td>Net assets or liabilities</td><td class="amount"><ix:nonFraction name="core:NetAssetsLiabilities" contextRef="${instantContextId}" unitRef="${monetaryUnitId}" decimals="2">${formatIxbrlAmount(
-            draft.statementOfFinancialPosition.netAssets,
-          )}</ix:nonFraction></td></tr>
-          ${
-            Math.abs(currentTaxForPeriod) > 0.009
-              ? `<tr><td>Corporation tax payable</td><td class="amount"><ix:nonFraction name="core:CorporationTaxPayable" contextRef="${instantContextId}" unitRef="${monetaryUnitId}" decimals="2">${formatIxbrlAmount(
+    <div class="accountspage">
+      <div class="accountsheader">
+        <h2>
+          <span class="left">${escapeXml(draft.companyName)}</span>
+          <span class="right">${escapeXml(registeredNumberText)}</span>
+        </h2>
+      </div>
+
+      <div id="notes" class="section">
+        <h3 class="middle">Notes to the financial statements</h3>
+        <p class="dotted-line"></p>
+        <div class="section">
+          <h2>Profit and loss summary</h2>
+          <table class="notes-table">
+            <thead>
+              <tr><th>Line</th><th class="amount">Tagged value</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Profit or loss before tax</td>
+                <td class="amount"><ix:nonFraction name="core:ProfitLossBeforeTax" contextRef="${durationContextId}" unitRef="${monetaryUnitId}" decimals="2">${formatIxbrlAmount(
+                  profitBeforeTax,
+                )}</ix:nonFraction></td>
+              </tr>
+              <tr>
+                <td>Current tax for period</td>
+                <td class="amount"><ix:nonFraction name="core:CurrentTaxForPeriod" contextRef="${durationContextId}" unitRef="${monetaryUnitId}" decimals="2">${formatIxbrlAmount(
                   currentTaxForPeriod,
-                )}</ix:nonFraction></td></tr>`
-              : ""
-          }
-        </tbody>
-      </table>
-    </div>
+                )}</ix:nonFraction></td>
+              </tr>
+              <tr>
+                <td>Profit or loss</td>
+                <td class="amount"><ix:nonFraction name="core:ProfitLoss" contextRef="${durationContextId}" unitRef="${monetaryUnitId}" decimals="2">${formatIxbrlAmount(
+                  profitAfterTax,
+                )}</ix:nonFraction></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-    <div class="section">
-      <h2>Profit and loss summary</h2>
-      <table>
-        <thead><tr><th>Line</th><th class="amount">Tagged value</th></tr></thead>
-        <tbody>
-          <tr><td>Profit or loss before tax</td><td class="amount"><ix:nonFraction name="core:ProfitLossBeforeTax" contextRef="${durationContextId}" unitRef="${monetaryUnitId}" decimals="2">${formatIxbrlAmount(
-            profitBeforeTax,
-          )}</ix:nonFraction></td></tr>
-          <tr><td>Current tax for period</td><td class="amount"><ix:nonFraction name="core:CurrentTaxForPeriod" contextRef="${durationContextId}" unitRef="${monetaryUnitId}" decimals="2">${formatIxbrlAmount(
-            currentTaxForPeriod,
-          )}</ix:nonFraction></td></tr>
-          <tr><td>Profit or loss</td><td class="amount"><ix:nonFraction name="core:ProfitLoss" contextRef="${durationContextId}" unitRef="${monetaryUnitId}" decimals="2">${formatIxbrlAmount(
-            profitAfterTax,
-          )}</ix:nonFraction></td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="section">
-      <h2>Share capital and employees</h2>
-      <table>
-        <thead><tr><th>Line</th><th class="amount">Tagged value</th></tr></thead>
-        <tbody>
-          ${
-            draft.ordinaryShareCount != null
-              ? `<tr><td>Ordinary shares in issue</td><td class="amount"><ix:nonFraction name="core:NumberOrdinarySharesInIssueExcludingTreasuryOwnShares" contextRef="${instantContextId}" unitRef="${sharesUnitId}" decimals="0">${formatIxbrlWholeNumber(
+        <div class="section">
+          <h2>Share capital and employees</h2>
+          <table class="notes-table">
+            <thead>
+              <tr><th>Line</th><th class="amount">Tagged value</th></tr>
+            </thead>
+            <tbody>
+              ${
+                draft.ordinaryShareCount != null
+                  ? `<tr>
+                <td>Ordinary shares in issue</td>
+                <td class="amount"><ix:nonFraction name="core:NumberOrdinarySharesInIssueExcludingTreasuryOwnShares" contextRef="${instantContextId}" unitRef="${sharesUnitId}" decimals="0">${formatIxbrlWholeNumber(
                   draft.ordinaryShareCount,
-                )}</ix:nonFraction></td></tr>
-                 <tr><td>Shares issued and fully paid</td><td class="amount"><ix:nonFraction name="core:NumberSharesIssuedFullyPaid" contextRef="${instantContextId}" unitRef="${sharesUnitId}" decimals="0">${formatIxbrlWholeNumber(
-                   draft.ordinaryShareCount,
-                 )}</ix:nonFraction></td></tr>`
-              : ""
-          }
-          ${
-            draft.statementOfFinancialPosition.shareCapital
-              ? `<tr><td>Nominal value of allotted share capital</td><td class="amount"><ix:nonFraction name="core:NominalValueAllottedShareCapital" contextRef="${durationContextId}" unitRef="${monetaryUnitId}" decimals="2">${formatIxbrlAmount(
+                )}</ix:nonFraction></td>
+              </tr>
+              <tr>
+                <td>Shares issued and fully paid</td>
+                <td class="amount"><ix:nonFraction name="core:NumberSharesIssuedFullyPaid" contextRef="${instantContextId}" unitRef="${sharesUnitId}" decimals="0">${formatIxbrlWholeNumber(
+                  draft.ordinaryShareCount,
+                )}</ix:nonFraction></td>
+              </tr>`
+                  : ""
+              }
+              ${
+                draft.statementOfFinancialPosition.shareCapital
+                  ? `<tr>
+                <td>Nominal value of allotted share capital</td>
+                <td class="amount"><ix:nonFraction name="core:NominalValueAllottedShareCapital" contextRef="${durationContextId}" unitRef="${monetaryUnitId}" decimals="2">${formatIxbrlAmount(
                   draft.statementOfFinancialPosition.shareCapital,
-                )}</ix:nonFraction></td></tr>`
-              : ""
-          }
-          ${
-            draft.averageEmployeeCount != null
-              ? `<tr><td>Average number of employees</td><td class="amount"><ix:nonFraction name="core:AverageNumberEmployeesDuringPeriod" contextRef="${durationContextId}" unitRef="${pureUnitId}" decimals="0">${formatIxbrlWholeNumber(
+                )}</ix:nonFraction></td>
+              </tr>`
+                  : ""
+              }
+              ${
+                draft.averageEmployeeCount != null
+                  ? `<tr>
+                <td>Average number of employees</td>
+                <td class="amount"><ix:nonFraction name="core:AverageNumberEmployeesDuringPeriod" contextRef="${durationContextId}" unitRef="${pureUnitId}" decimals="0">${formatIxbrlWholeNumber(
                   draft.averageEmployeeCount,
-                )}</ix:nonFraction></td></tr>`
-              : ""
-          }
-          ${
-            draft.ordinaryShareNominalValue != null
-              ? `<tr><td>Nominal value per ordinary share</td><td class="amount">${escapeXml(
+                )}</ix:nonFraction></td>
+              </tr>`
+                  : ""
+              }
+              ${
+                draft.ordinaryShareNominalValue != null
+                  ? `<tr>
+                <td>Nominal value per ordinary share</td>
+                <td class="amount">${escapeXml(
                   formatDraftAmount(
                     draft.ordinaryShareNominalValue,
                     draft.currency,
                   ),
-                )}</td></tr>`
-              : ""
-          }
-        </tbody>
-      </table>
-    </div>
+                )}</td>
+              </tr>`
+                  : ""
+              }
+            </tbody>
+          </table>
+        </div>
 
-    ${
-      draft.filingReadiness.isReady
-        ? ""
-        : `<div class="section">
-      <h2>Review items</h2>
-      ${renderBulletList(draft.reviewItems)}
+        ${
+          draft.filingReadiness.isReady
+            ? ""
+            : `<div class="section">
+          <h2>Review notes</h2>
+          <div class="review-columns">
+            <div>
+              <strong>Review items</strong>
+              ${renderBulletList(draft.reviewItems)}
+            </div>
+            <div>
+              <strong>Limitations</strong>
+              ${renderBulletList(draft.limitations)}
+            </div>
+          </div>
+        </div>`
+        }
+      </div>
     </div>
-
-    <div class="section">
-      <h2>Limitations</h2>
-      ${renderBulletList(draft.limitations)}
-    </div>`
-    }
   </body>
 </html>`;
 }

@@ -2,7 +2,7 @@
 
 import { cn } from "@tamias/ui/cn";
 import { Conversation, ConversationContent } from "@tamias/ui/conversation";
-import dynamic from "next/dynamic";
+import dynamic from "@/framework/dynamic";
 import { parseAsString, useQueryState } from "nuqs";
 import { Portal } from "@/components/portal";
 import { useChatInterface } from "@/hooks/use-chat-interface";

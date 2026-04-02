@@ -2,6 +2,7 @@
 
 import type { OAuthErrorCode } from "@tamias/app-store/oauth-errors";
 import { useAuthToken } from "@convex-dev/auth/react";
+import { getApiUrl } from "@tamias/utils/envs";
 import { useEffect, useRef, useState } from "react";
 import { isOAuthMessage, OAUTH_CHANNEL_NAME } from "@/utils/oauth-message";
 
@@ -13,6 +14,7 @@ interface UseAppOAuthOptions {
 const POPUP_WIDTH = 600;
 const POPUP_HEIGHT = 800;
 const TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
+const apiUrl = getApiUrl();
 
 export function useAppOAuth({
   installUrlEndpoint,
@@ -104,7 +106,6 @@ export function useAppOAuth({
         throw new Error("Not authenticated");
       }
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
       const response = await fetch(`${apiUrl}${installUrlEndpoint}`, {
         headers: {
           Authorization: `Bearer ${token}`,

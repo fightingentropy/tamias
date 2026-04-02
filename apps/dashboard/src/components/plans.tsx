@@ -7,7 +7,6 @@ import { PlanCards } from "@tamias/ui/plan-cards";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { revalidateAfterCheckout } from "@/actions/revalidate-action";
 import { useTheme } from "@/components/theme-provider";
 import { useTRPC } from "@/trpc/client";
 
@@ -78,7 +77,7 @@ export function Plans() {
         setIsSubmitting(false);
       }
 
-      revalidateAfterCheckout();
+      window.location.assign("/dashboard");
     }
   }, [isPollingForPlan, user?.team?.plan]);
 

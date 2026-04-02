@@ -2,11 +2,12 @@
 
 import { track } from "@tamias/events/client";
 import { LogEvents } from "@tamias/events/events";
+import { getPlaidEnvironment } from "@tamias/utils/envs";
 import { Button } from "@tamias/ui/button";
 import { Input } from "@tamias/ui/input";
 import { Skeleton } from "@tamias/ui/skeleton";
 import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/framework/navigation";
 import { useEffect, useRef, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
 import { useDebounceValue, useScript } from "usehooks-ts";
@@ -130,6 +131,7 @@ export function BankSearchContent({
 }: BankSearchContentProps) {
   const trpc = useTRPC();
   const router = useRouter();
+  const plaidEnvironment = getPlaidEnvironment();
   const [plaidToken, setPlaidToken] = useState<string | undefined>();
   const teamCountryCode = defaultCountryCode || "";
 
@@ -160,7 +162,7 @@ export function BankSearchContent({
   const { open: openPlaid } = usePlaidLink({
     token: plaidToken,
     publicKey: "",
-    env: process.env.NEXT_PUBLIC_PLAID_ENVIRONMENT!,
+    env: plaidEnvironment,
     clientName: "Tamias",
     product: ["transactions"],
     onSuccess: async (public_token, metadata) => {

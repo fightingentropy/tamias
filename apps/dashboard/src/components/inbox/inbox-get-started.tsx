@@ -8,9 +8,8 @@ import {
   AccordionTrigger,
 } from "@tamias/ui/accordion";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/framework/navigation";
 import { useEffect, useRef } from "react";
-import { revalidateInbox } from "@/actions/revalidate-action";
 import { AppConnectionToast } from "@/components/app-connection-toast";
 import { ConnectGmail } from "@/components/inbox/connect-gmail";
 import { ConnectOutlook } from "@/components/inbox/connect-outlook";
@@ -36,8 +35,7 @@ export function InboxGetStarted() {
       queryKey: trpc.inbox.get.infiniteQueryKey(),
     });
 
-    // Revalidate server-side cache
-    await revalidateInbox();
+    await router.refresh();
 
     // Navigate to inbox
     if (inboxId) {
@@ -69,7 +67,6 @@ export function InboxGetStarted() {
         queryKey: trpc.inbox.get.infiniteQueryKey(),
       });
 
-      await revalidateInbox();
       router.refresh();
       setParams({ inboxId: firstInboxItem.id });
     })();

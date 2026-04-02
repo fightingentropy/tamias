@@ -1,5 +1,6 @@
 "use client";
 
+import { getApiUrl } from "@tamias/utils/envs";
 import { SheetHeader } from "@tamias/ui/sheet";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { DocumentActions } from "@/components/document-actions";
@@ -12,6 +13,7 @@ import { useTRPC } from "@/trpc/client";
 import { formatSize } from "@/utils/format";
 
 export function DocumentDetails() {
+  const apiUrl = getApiUrl();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { params } = useDocumentParams();
@@ -64,7 +66,7 @@ export function DocumentDetails() {
       <div className="h-full max-h-[763px] p-0 pb-4 overflow-x-auto scrollbar-hide">
         <div className="flex flex-col flex-grow min-h-0 relative h-full w-full items-center justify-center">
           <FileViewer
-            url={`${process.env.NEXT_PUBLIC_API_URL}/files/proxy?filePath=vault/${data?.pathTokens?.join("/")}`}
+            url={`${apiUrl}/files/proxy?filePath=vault/${data?.pathTokens?.join("/")}`}
             // @ts-expect-error - mimetype is not typed (JSONB)
             mimeType={data?.metadata?.mimetype}
             maxWidth={565}

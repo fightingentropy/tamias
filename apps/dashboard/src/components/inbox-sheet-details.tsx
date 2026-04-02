@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImageNext } from "@tamias/ui/avatar";
 import { Separator } from "@tamias/ui/separator";
 import { SheetHeader } from "@tamias/ui/sheet";
 import { Skeleton } from "@tamias/ui/skeleton";
+import { getApiUrl } from "@tamias/utils/envs";
 import { formatDate, getInitials } from "@tamias/utils/format";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { FileViewer } from "@/components/file-viewer";
@@ -15,6 +16,7 @@ import { useTRPC } from "@/trpc/client";
 import { getWebsiteLogo } from "@/utils/logos";
 
 export function InboxSheetDetails() {
+  const apiUrl = getApiUrl();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { params } = useInboxParams();
@@ -121,7 +123,7 @@ export function InboxSheetDetails() {
           <div className="h-full flex items-center justify-center">
             <FileViewer
               mimeType={data.contentType}
-              url={`${process.env.NEXT_PUBLIC_API_URL}/files/proxy?filePath=vault/${data.filePath.join("/")}`}
+              url={`${apiUrl}/files/proxy?filePath=vault/${data.filePath.join("/")}`}
               maxWidth={565}
             />
           </div>

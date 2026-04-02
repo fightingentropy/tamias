@@ -3,7 +3,7 @@
 import { track } from "@tamias/events/client";
 import { LogEvents } from "@tamias/events/events";
 import { useToast } from "@tamias/ui/use-toast";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "@/framework/navigation";
 import { useEffect, useRef } from "react";
 import {
   type AppOAuthErrorCode,

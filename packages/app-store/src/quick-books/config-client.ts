@@ -1,8 +1,8 @@
 import { baseConfig } from "./config-base";
+import quickBooksImage from "./assets/quickbooks.jpg";
 
-// Client-side config with images - only imported by Next.js dashboard
-// This file uses require() which works in webpack/bundler contexts but not in bun runtime
+// Client-side config with images for dashboard/browser surfaces.
 export default {
   ...baseConfig,
-  images: [require("./assets/quickbooks.jpg")],
+  images: [quickBooksImage.src],
 };

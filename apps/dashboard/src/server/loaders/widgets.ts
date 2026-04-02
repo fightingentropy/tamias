@@ -1,4 +1,3 @@
-import "server-only";
 
 import { TZDate } from "@date-fns/tz";
 import {

@@ -1,7 +1,6 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { MdCheck, MdDeleteOutline, MdOutlineMoreVert } from "react-icons/md";
 
@@ -54,12 +53,11 @@ export function ReceiptAttachmentAnimation({
                 <MdDeleteOutline className="text-muted-foreground" size={14} />
               </div>
               <div className="flex items-center gap-2">
-                <Image
+                <img
                   src="/images/gmail.svg"
                   alt="Gmail"
                   width={14}
                   height={14}
-                  unoptimized
                   className="object-contain w-3 h-3 md:w-3.5 md:h-3.5"
                 />
                 <MdOutlineMoreVert

@@ -7,10 +7,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@tamias/ui/tooltip";
-import { useAction } from "next-safe-action/hooks";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDebounceValue } from "usehooks-ts";
 import { getTaxRateAction } from "@/actions/ai/get-tax-rate";
+import { useAction } from "@/actions/use-action";
 
 type Props = {
   name?: string;
@@ -32,7 +32,7 @@ export function TaxRateAssistant({
   const requestedNames = useRef(new Set<string>());
 
   const getTaxRate = useAction(getTaxRateAction, {
-    onSuccess: ({ data }) => {
+    onSuccess: (data) => {
       setLoading(false);
 
       if (data) {

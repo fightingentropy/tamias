@@ -3,7 +3,7 @@
 import { useChatActions } from "@ai-sdk-tools/store";
 import { Button } from "@tamias/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/framework/navigation";
 import { useChatInterface } from "@/hooks/use-chat-interface";
 import { useOverviewTab } from "@/hooks/use-overview-tab";
 

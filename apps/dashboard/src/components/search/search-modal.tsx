@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent } from "@tamias/ui/dialog";
 import { Spinner } from "@tamias/ui/spinner";
-import dynamic from "next/dynamic";
+import dynamic from "@/framework/dynamic";
 import { useEffect } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { loadSearchModule, prefetchSearchModule } from "@/lib/search-module";

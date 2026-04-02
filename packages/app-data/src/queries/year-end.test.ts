@@ -1,5 +1,5 @@
-import { spawnSync } from "node:child_process";
 import { describe, expect, test } from "bun:test";
+import { spawnSync } from "node:child_process";
 import {
   buildCt600Draft,
   buildStatutoryAccountsDraft,
@@ -74,8 +74,7 @@ function makeProfile(
     countryCode: "GB" as const,
     companyName: overrides.companyName ?? "Tamias Ltd",
     companyNumber: overrides.companyNumber ?? "12345678",
-    companyAuthenticationCode:
-      overrides.companyAuthenticationCode ?? "ABC123",
+    companyAuthenticationCode: overrides.companyAuthenticationCode ?? "ABC123",
     utr: overrides.utr ?? "2288403582",
     vrn: null,
     vatScheme: null,
@@ -109,7 +108,8 @@ function makeReadyProfile(
 ) {
   return {
     ...makeProfile({
-      principalActivity: "Software development and bookkeeping platform services",
+      principalActivity:
+        "Software development and bookkeeping platform services",
       directors: ["Erlin Hoxha"],
       signingDirectorName: "Erlin Hoxha",
       approvalDate: "2026-04-10",
@@ -155,9 +155,9 @@ function makeAdjustment(
   };
 }
 
-function buildBasicSnapshot(adjustments: ReturnType<typeof makeAdjustment>[] = [
-  makeAdjustment(),
-]) {
+function buildBasicSnapshot(
+  adjustments: ReturnType<typeof makeAdjustment>[] = [makeAdjustment()],
+) {
   return buildYearEndPackSnapshot({
     period: BASE_PERIOD,
     currency: "GBP",
@@ -334,8 +334,16 @@ function buildSnapshotForProfit(args: {
         sourceId: "sale",
         currency: "GBP",
         lines: [
-          { accountCode: "1000", debit: args.accountingProfitBeforeTax, credit: 0 },
-          { accountCode: "4000", debit: 0, credit: args.accountingProfitBeforeTax },
+          {
+            accountCode: "1000",
+            debit: args.accountingProfitBeforeTax,
+            credit: 0,
+          },
+          {
+            accountCode: "4000",
+            debit: 0,
+            credit: args.accountingProfitBeforeTax,
+          },
         ],
       },
     ],
@@ -412,34 +420,31 @@ function makeCloseCompanyLoansSchedule(
     filingProfileId: "profile-1",
     periodKey: overrides.periodKey ?? BASE_PERIOD.periodKey,
     beforeEndPeriod: overrides.beforeEndPeriod ?? true,
-    loansMade:
-      overrides.loansMade ?? [{ name: "Participator Ltd", amountOfLoan: 1000 }],
+    loansMade: overrides.loansMade ?? [
+      { name: "Participator Ltd", amountOfLoan: 1000 },
+    ],
     taxChargeable:
       "taxChargeable" in overrides ? (overrides.taxChargeable ?? null) : 337.5,
-    reliefEarlierThan:
-      overrides.reliefEarlierThan ??
-      [
-        {
-          name: "Participator Ltd",
-          amountRepaid: 200,
-          amountReleasedOrWrittenOff: null,
-          date: "2025-12-30",
-        },
-      ],
+    reliefEarlierThan: overrides.reliefEarlierThan ?? [
+      {
+        name: "Participator Ltd",
+        amountRepaid: 200,
+        amountReleasedOrWrittenOff: null,
+        date: "2025-12-30",
+      },
+    ],
     reliefEarlierDue:
       "reliefEarlierDue" in overrides
         ? (overrides.reliefEarlierDue ?? null)
         : 67.5,
-    loanLaterReliefNow:
-      overrides.loanLaterReliefNow ??
-      [
-        {
-          name: "Participator Ltd",
-          amountRepaid: null,
-          amountReleasedOrWrittenOff: 100,
-          date: "2026-01-15",
-        },
-      ],
+    loanLaterReliefNow: overrides.loanLaterReliefNow ?? [
+      {
+        name: "Participator Ltd",
+        amountRepaid: null,
+        amountReleasedOrWrittenOff: 100,
+        date: "2026-01-15",
+      },
+    ],
     reliefLaterDue:
       "reliefLaterDue" in overrides
         ? (overrides.reliefLaterDue ?? null)
@@ -533,7 +538,9 @@ describe("year-end helpers", () => {
     });
 
     if (result.status !== 0) {
-      throw new Error(result.stderr || "Failed to resolve annual period in subprocess");
+      throw new Error(
+        result.stderr || "Failed to resolve annual period in subprocess",
+      );
     }
 
     expect(JSON.parse(result.stdout)).toEqual(BASE_PERIOD);
@@ -557,7 +564,9 @@ describe("year-end helpers", () => {
     });
 
     if (result.status !== 0) {
-      throw new Error(result.stderr || "Failed to resolve explicit period key in subprocess");
+      throw new Error(
+        result.stderr || "Failed to resolve explicit period key in subprocess",
+      );
     }
 
     expect(JSON.parse(result.stdout)).toEqual(BASE_PERIOD);
@@ -676,10 +685,14 @@ describe("year-end helpers", () => {
       "<SupplementaryPages><CT600A>yes</CT600A></SupplementaryPages>",
     );
     expect(xml).toContain("<LoansByCloseCompanies>");
-    expect(xml).toContain("<LoansToParticipators>236.25</LoansToParticipators>");
+    expect(xml).toContain(
+      "<LoansToParticipators>236.25</LoansToParticipators>",
+    );
     expect(xml).toContain("<CT600AreliefDue>yes</CT600AreliefDue>");
     expect(xml).toContain("<BeforeEndPeriod>yes</BeforeEndPeriod>");
-    expect(xml).toContain("<TotalLoansOutstanding>700.00</TotalLoansOutstanding>");
+    expect(xml).toContain(
+      "<TotalLoansOutstanding>700.00</TotalLoansOutstanding>",
+    );
   });
 
   test("blocks the filing-ready path when CT600A Part 1 is incomplete", () => {
@@ -763,15 +776,26 @@ describe("year-end helpers", () => {
 
     expect(statutoryDraft.filingReadiness.isReady).toBe(true);
     expect(ct600Draft.filingReadiness.isReady).toBe(true);
-    expect(ct600Draft.computationBreakdown.totalProfitsChargeableToCorporationTax).toBe(
-      655,
-    );
+    expect(
+      ct600Draft.computationBreakdown.totalProfitsChargeableToCorporationTax,
+    ).toBe(655);
     expect(ct600Draft.corporationTax).toBe(124.45);
 
     const accountsAttachment = renderAccountsAttachmentIxbrl(statutoryDraft);
-    const computationsAttachment = renderComputationsAttachmentIxbrl(ct600Draft);
+    const computationsAttachment =
+      renderComputationsAttachmentIxbrl(ct600Draft);
 
     expect(accountsAttachment).toContain("Filing-ready accounts attachment.");
+    expect(accountsAttachment).toContain(
+      'class="titlepage accountspage pagebreak"',
+    );
+    expect(accountsAttachment).toContain(
+      "div.pagebreak { page-break-after: always; }",
+    );
+    expect(accountsAttachment).toContain('class="accountspage pagebreak"');
+    expect(accountsAttachment).toContain("Balance Sheet as at 31 March 2026");
+    expect(accountsAttachment).toContain("Notes to the financial statements");
+    expect(accountsAttachment).toContain("Registered Number 12345678");
     expect(accountsAttachment).toContain(
       "direp:StatementThatAccountsHaveBeenPreparedInAccordanceWithProvisionsSmallCompaniesRegime",
     );
@@ -798,16 +822,14 @@ describe("year-end helpers", () => {
       "Filing-ready computation attachment.",
     );
     expect(computationsAttachment).toContain("ct-comp:ProfitLossPerAccounts");
-    expect(computationsAttachment).toContain(
-      "ct-comp:AdjustmentsDepreciation",
-    );
-    expect(computationsAttachment).toContain(
-      "ct-comp:QualifyingUKDonations",
-    );
+    expect(computationsAttachment).toContain("ct-comp:AdjustmentsDepreciation");
+    expect(computationsAttachment).toContain("ct-comp:QualifyingUKDonations");
     expect(computationsAttachment).toContain(
       "ct-comp:TradingLossesBroughtForwardValueClaimedAgainstTradingProfits",
     );
-    expect(computationsAttachment).toContain('context id="ct-context-trade-detail"');
+    expect(computationsAttachment).toContain(
+      'context id="ct-context-trade-detail"',
+    );
     expect(computationsAttachment).toContain(
       'dimension="ct-comp:BusinessNameDimension"',
     );
@@ -839,7 +861,8 @@ describe("year-end helpers", () => {
     });
 
     const accountsAttachment = renderAccountsAttachmentIxbrl(statutoryDraft);
-    const computationsAttachment = renderComputationsAttachmentIxbrl(ct600Draft);
+    const computationsAttachment =
+      renderComputationsAttachmentIxbrl(ct600Draft);
     const xml = renderCt600DraftXml(ct600Draft, {
       accountsAttachmentXhtml: accountsAttachment,
       computationsAttachmentXhtml: computationsAttachment,

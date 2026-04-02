@@ -1,5 +1,9 @@
 import { track } from "@tamias/events/client";
 import { LogEvents } from "@tamias/events/events";
+import {
+  getTellerApplicationId,
+  getTellerEnvironment,
+} from "@tamias/utils/envs";
 import { useEffect, useState } from "react";
 import { useTheme } from "@/components/theme-provider";
 import { useConnectParams } from "@/hooks/use-connect-params";
@@ -15,13 +19,15 @@ export function TellerConnect({ id, onSelect, connectRef }: Props) {
   const [institution, setInstitution] = useState<string | undefined>();
   const { setParams } = useConnectParams();
   const { theme } = useTheme();
+  const tellerApplicationId = getTellerApplicationId();
+  const tellerEnvironment = getTellerEnvironment();
 
   useEffect(() => {
     if (institution) {
       // @ts-expect-error
       const teller = window.TellerConnect.setup({
-        applicationId: process.env.NEXT_PUBLIC_TELLER_APPLICATION_ID!,
-        environment: process.env.NEXT_PUBLIC_TELLER_ENVIRONMENT,
+        applicationId: tellerApplicationId,
+        environment: tellerEnvironment,
         institution,
         appearance: theme,
         onSuccess: (authorization: {
@@ -62,7 +68,7 @@ export function TellerConnect({ id, onSelect, connectRef }: Props) {
         teller.open();
       }, 1000);
     }
-  }, [institution]);
+  }, [institution, tellerApplicationId, tellerEnvironment, theme, setParams]);
 
   return (
     <BankConnectButton

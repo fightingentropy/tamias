@@ -1,7 +1,7 @@
 "use client";
 
 import { Skeleton } from "@tamias/ui/skeleton";
-import dynamic from "next/dynamic";
+import dynamic from "@/framework/dynamic";
 import { useFileUrl } from "@/hooks/use-file-url";
 import { FilePreviewIcon } from "./file-preview-icon";
 

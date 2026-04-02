@@ -2,9 +2,10 @@
 
 import { cn } from "@tamias/ui/cn";
 import { Tabs, TabsList, TabsTrigger } from "@tamias/ui/tabs";
-import { useAction } from "next-safe-action/hooks";
-import { setWeeklyCalendarAction } from "@/actions/set-weekly-calendar-action";
+import { addYears } from "date-fns";
 import { useTrackerParams } from "@/hooks/use-tracker-params";
+import { setClientCookie } from "@/utils/client-cookies";
+import { Cookies } from "@/utils/constants";
 
 const options = [
   {
@@ -23,11 +24,12 @@ type Props = {
 
 export function TrackerCalendarType({ selectedView }: Props) {
   const { setParams } = useTrackerParams();
-  const setWeeklyCalendar = useAction(setWeeklyCalendarAction);
 
   const handleChange = (value: string) => {
     setParams({ view: value as "week" | "month" });
-    setWeeklyCalendar.execute(value === "week");
+    setClientCookie(Cookies.WeeklyCalendar, value === "week" ? "true" : "false", {
+      expires: addYears(new Date(), 1),
+    });
   };
 
   return (

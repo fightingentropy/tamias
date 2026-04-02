@@ -20,6 +20,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@tamias/ui/tooltip";
+import { getApiUrl } from "@tamias/utils/envs";
 import { useToast } from "@tamias/ui/use-toast";
 import { formatDate, getInitials } from "@tamias/utils/format";
 import { getTaxTypeLabel } from "@tamias/utils/tax";
@@ -45,6 +46,7 @@ import { InboxDetailsSkeleton } from "./inbox-details-skeleton";
 import { InboxSourceIcon } from "./inbox-source-icon";
 
 export function InboxDetails() {
+  const apiUrl = getApiUrl();
   const { setParams, params } = useInboxParams();
 
   const { params: filterParams } = useInboxFilterParams();
@@ -537,7 +539,7 @@ export function InboxDetails() {
                         ? "image/jpeg"
                         : data.contentType
                     }
-                    url={`${process.env.NEXT_PUBLIC_API_URL}/files/proxy?filePath=vault/${data?.filePath.join("/")}`}
+                    url={`${apiUrl}/files/proxy?filePath=vault/${data?.filePath.join("/")}`}
                     // Include contentType in key to remount after HEIC conversion (busts browser cache)
                     key={`${params.order}-${JSON.stringify(filterParams)}-${data.contentType}-primary`}
                   />
@@ -566,7 +568,7 @@ export function InboxDetails() {
                               ? "image/jpeg"
                               : relatedItem.contentType
                           }
-                          url={`${process.env.NEXT_PUBLIC_API_URL}/files/proxy?filePath=vault/${relatedItem.filePath.join("/")}`}
+                          url={`${apiUrl}/files/proxy?filePath=vault/${relatedItem.filePath.join("/")}`}
                           // Include contentType in key to remount after HEIC conversion
                           key={`${relatedItem.id}-${params.order}-${JSON.stringify(filterParams)}-${relatedItem.contentType}`}
                         />

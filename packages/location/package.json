@@ -12,10 +12,14 @@
   },
   "exports": {
     ".": "./src/index.ts",
+    "./server": "./src/server.ts",
     "./countries-intl": "./src/countries-intl.ts",
     "./currencies": "./src/currencies.ts",
     "./country-flags": "./src/country-flags.ts",
     "./timezones": "./src/timezones.ts"
+  },
+  "dependencies": {
+    "@tamias/utils": "workspace:*"
   },
   "devDependencies": {
     "typescript": "catalog:"

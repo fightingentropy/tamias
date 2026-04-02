@@ -59,10 +59,7 @@ function CategoryTooltip({ category }: { category: any }) {
   // Priority 2: System description from localization (only for system categories)
   if (category.system) {
     try {
-      return (
-        // @ts-expect-error - slug is not nullable
-        <span>{t(`transaction_categories.${category.slug}`)}</span>
-      );
+      return <span>{t(`transaction_categories.${category.slug}`)}</span>;
     } catch {
       // Fallback if translation not found
       return <span>Category description not available</span>;

@@ -1,4 +1,3 @@
-import "server-only";
 
 import type { UIChatMessage } from "@tamias/contracts/chat";
 import { getChatMessages } from "@tamias/app-services/chat-memory";

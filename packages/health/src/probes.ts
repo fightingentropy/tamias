@@ -30,7 +30,10 @@ export function convexProbe(): Dependency {
     cacheTtlMs: 30_000,
     timeoutMs: 3_000,
     probe: async () => {
-      const url = process.env.CONVEX_URL || process.env.NEXT_PUBLIC_CONVEX_URL;
+      const url =
+        process.env.CONVEX_URL ||
+        process.env.TAMIAS_CONVEX_URL ||
+        process.env.CONVEX_SITE_URL;
 
       if (!url) {
         throw new Error("CONVEX_URL not set");

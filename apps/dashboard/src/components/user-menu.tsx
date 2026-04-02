@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@tamias/ui/dropdown-menu";
-import Link from "next/link";
+import Link from "@/framework/link";
 import { useCurrentUser } from "@/components/current-user-provider";
 import { SignOut } from "./sign-out";
 import { ThemeSwitch } from "./theme-switch";

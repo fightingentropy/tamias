@@ -3,7 +3,7 @@
 import { Button } from "@tamias/ui/button";
 import { Icons } from "@tamias/ui/icons";
 import { Spinner } from "@tamias/ui/spinner";
-import dynamic from "next/dynamic";
+import dynamic from "@/framework/dynamic";
 import { useEffect, useState } from "react";
 import { useChatInterface } from "@/hooks/use-chat-interface";
 import type { Geo } from "@/utils/geo";

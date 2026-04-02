@@ -107,8 +107,8 @@ const convexJwksByIssuer = new Map<
 function getDefaultAccessTokenIssuer() {
   return (
     process.env.CONVEX_SITE_URL ||
-    process.env.NEXT_PUBLIC_CONVEX_SITE_URL ||
-    process.env.NEXT_PUBLIC_CONVEX_URL
+    process.env.CONVEX_URL ||
+    process.env.TAMIAS_CONVEX_URL
   )?.replace(/\/$/, "");
 }
 

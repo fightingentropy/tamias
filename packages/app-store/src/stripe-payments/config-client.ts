@@ -1,7 +1,8 @@
 import { baseConfig } from "./config-base";
+import stripeImage from "./assets/stripe.jpg";
 
-// Client-side config with images - only imported by Next.js dashboard
+// Client-side config with images for dashboard/browser surfaces.
 export default {
   ...baseConfig,
-  images: [require("./assets/stripe.jpg")],
+  images: [stripeImage.src],
 };

@@ -5,11 +5,11 @@ import { getLocalEnvValue } from "./local-env";
 function getConvexUrl(): string {
   const convexUrl =
     getLocalEnvValue("CONVEX_URL") ??
-    getLocalEnvValue("NEXT_PUBLIC_CONVEX_URL");
+    getLocalEnvValue("TAMIAS_CONVEX_URL");
 
   if (!convexUrl) {
     throw new Error(
-      "CONVEX_URL or NEXT_PUBLIC_CONVEX_URL is required for Playwright smoke tests.",
+      "CONVEX_URL or TAMIAS_CONVEX_URL is required for Playwright smoke tests.",
     );
   }
 

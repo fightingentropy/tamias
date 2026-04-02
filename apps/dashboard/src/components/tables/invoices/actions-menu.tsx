@@ -1,5 +1,6 @@
 "use client";
 
+import { getApiUrl } from "@tamias/utils/envs";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,6 +42,7 @@ type Props = {
 };
 
 export function ActionsMenu({ row }: Props) {
+  const apiUrl = getApiUrl();
   const trpc = useTRPC();
   const { data: user } = useUserQuery();
   const queryClient = useQueryClient();
@@ -279,9 +281,7 @@ export function ActionsMenu({ row }: Props) {
                   console.error("File key not available");
                   return;
                 }
-                const url = new URL(
-                  `${process.env.NEXT_PUBLIC_API_URL}/files/download/invoice`,
-                );
+                const url = new URL(`${apiUrl}/files/download/invoice`);
                 url.searchParams.set("id", row.id);
                 url.searchParams.set("fk", user.fileKey);
                 downloadFile(

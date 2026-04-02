@@ -4,10 +4,22 @@ const DEFAULT_API_URL = "https://api.tamias.xyz";
 const DEFAULT_CDN_URL = "https://cdn.tamias.xyz";
 const DEFAULT_SUPPORT_EMAIL = "support@tamias.xyz";
 
+function getFirstDefined(...values: Array<string | undefined>) {
+  for (const value of values) {
+    if (value !== undefined && value !== "") {
+      return value;
+    }
+  }
+
+  return undefined;
+}
+
 function getTamiasEnvironment() {
   return (
-    process.env.TAMIAS_ENVIRONMENT ||
-    process.env.CLOUDFLARE_ENV ||
+    getFirstDefined(
+      process.env.TAMIAS_ENVIRONMENT,
+      process.env.CLOUDFLARE_ENV,
+    ) ||
     (process.env.NODE_ENV === "production" ? "production" : "development")
   );
 }
@@ -25,9 +37,13 @@ function getCloudflarePreviewUrl() {
 }
 
 export function getAppUrl() {
-  // Allow explicit override via DASHBOARD_URL env var
-  if (process.env.DASHBOARD_URL || process.env.TAMIAS_DASHBOARD_URL) {
-    return process.env.DASHBOARD_URL || process.env.TAMIAS_DASHBOARD_URL!;
+  const explicitUrl = getFirstDefined(
+    process.env.DASHBOARD_URL,
+    process.env.TAMIAS_DASHBOARD_URL,
+  );
+
+  if (explicitUrl) {
+    return explicitUrl;
   }
 
   const environment = getTamiasEnvironment();
@@ -45,8 +61,13 @@ export function getAppUrl() {
 }
 
 export function getWebsiteUrl() {
-  if (process.env.WEBSITE_URL || process.env.TAMIAS_WEBSITE_URL) {
-    return process.env.WEBSITE_URL || process.env.TAMIAS_WEBSITE_URL!;
+  const explicitUrl = getFirstDefined(
+    process.env.WEBSITE_URL,
+    process.env.TAMIAS_WEBSITE_URL,
+  );
+
+  if (explicitUrl) {
+    return explicitUrl;
   }
 
   if (getTamiasEnvironment() === "development") {
@@ -70,9 +91,13 @@ export function getCdnUrl() {
 }
 
 export function getApiUrl() {
-  // Allow explicit override via API_URL env var
-  if (process.env.API_URL || process.env.TAMIAS_API_URL) {
-    return process.env.API_URL || process.env.TAMIAS_API_URL!;
+  const explicitUrl = getFirstDefined(
+    process.env.API_URL,
+    process.env.TAMIAS_API_URL,
+  );
+
+  if (explicitUrl) {
+    return explicitUrl;
   }
 
   const environment = getTamiasEnvironment();
@@ -87,6 +112,63 @@ export function getApiUrl() {
   }
 
   return "http://localhost:3003";
+}
+
+export function getConvexUrl() {
+  return (
+    getFirstDefined(
+      process.env.CONVEX_URL,
+      process.env.TAMIAS_CONVEX_URL,
+    ) || ""
+  );
+}
+
+export function getStripePublishableKey() {
+  return (
+    getFirstDefined(
+      process.env.STRIPE_PUBLISHABLE_KEY,
+    ) || ""
+  );
+}
+
+export function getTellerApplicationId() {
+  return (
+    getFirstDefined(
+      process.env.TELLER_APPLICATION_ID,
+    ) || ""
+  );
+}
+
+export function getTellerEnvironment() {
+  return (
+    getFirstDefined(
+      process.env.TELLER_ENVIRONMENT,
+    ) || ""
+  );
+}
+
+export function getPlaidEnvironment() {
+  return (
+    getFirstDefined(
+      process.env.PLAID_ENVIRONMENT,
+    ) || ""
+  );
+}
+
+export function getGoogleApiKey() {
+  return (
+    getFirstDefined(
+      process.env.GOOGLE_API_KEY,
+    ) || ""
+  );
+}
+
+export function getWhatsAppNumber() {
+  return (
+    getFirstDefined(
+      process.env.WHATSAPP_NUMBER,
+    ) || ""
+  );
 }
 
 export function getSupportEmail() {

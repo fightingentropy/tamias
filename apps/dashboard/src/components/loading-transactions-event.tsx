@@ -3,7 +3,9 @@
 import { Button } from "@tamias/ui/button";
 import { cn } from "@tamias/ui/cn";
 import { useQueryClient } from "@tanstack/react-query";
-import dynamic from "next/dynamic";
+import dynamic from "@/framework/dynamic";
+import setupAnimationDark from "@/assets/setup-animation-dark.json";
+import setupAnimationLight from "@/assets/setup-animation.json";
 import { useEffect, useState } from "react";
 import { useTheme } from "@/components/theme-provider";
 import { useConnectParams } from "@/hooks/use-connect-params";
@@ -101,8 +103,8 @@ export function LoadingTransactionsEvent({
         className="mb-6"
         animationData={
           resolvedTheme === "dark"
-            ? require("public/assets/setup-animation.json")
-            : require("public/assets/setup-animation-dark.json")
+            ? setupAnimationLight
+            : setupAnimationDark
         }
         loop={true}
         style={{ width: 50, height: 50 }}

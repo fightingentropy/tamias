@@ -1,47 +1,49 @@
 "use client";
 
-import { Component, type ReactNode } from "react";
+import type { ReactNode } from "react";
+import { Component } from "react";
 
-interface ErrorBoundaryProps {
+type ErrorBoundaryRenderProps = {
+  error: Error;
+  reset: () => void;
+};
+
+type ErrorBoundaryProps = {
   children: ReactNode;
   fallback?: ReactNode;
-  onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
-}
+  errorComponent?: (props: ErrorBoundaryRenderProps) => ReactNode;
+};
 
-interface ErrorBoundaryState {
-  hasError: boolean;
-}
+type ErrorBoundaryState = {
+  error: Error | null;
+};
 
 export class ErrorBoundary extends Component<
   ErrorBoundaryProps,
   ErrorBoundaryState
 > {
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-    this.state = { hasError: false };
+  state: ErrorBoundaryState = {
+    error: null,
+  };
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { error };
   }
 
-  static getDerivedStateFromError(): ErrorBoundaryState {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Call optional error handler
-    this.props.onError?.(error, errorInfo);
-  }
+  reset = () => {
+    this.setState({ error: null });
+  };
 
   render() {
-    if (this.state.hasError) {
-      if (this.props.fallback) {
-        return this.props.fallback;
+    if (this.state.error) {
+      if (this.props.errorComponent) {
+        return this.props.errorComponent({
+          error: this.state.error,
+          reset: this.reset,
+        });
       }
 
-      // Default minimal error fallback
-      return (
-        <div className="text-xs text-[#707070] dark:text-[#666666] p-2">
-          Error loading content
-        </div>
-      );
+      return this.props.fallback ?? null;
     }
 
     return this.props.children;

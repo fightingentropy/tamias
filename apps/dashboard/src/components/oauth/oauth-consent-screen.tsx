@@ -21,16 +21,16 @@ import {
 import { useToast } from "@tamias/ui/use-toast";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { AlertTriangle, Check, X } from "lucide-react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Image from "@/framework/image";
+import { useAppRouter } from "@/framework/navigation";
 import { useOAuthParams } from "@/hooks/use-oauth-params";
 import { useTeamQuery } from "@/hooks/use-team";
 import { useTRPC } from "@/trpc/client";
 import { getScopeDescription } from "@/utils/scopes";
 
 export function OAuthConsentScreen() {
-  const router = useRouter();
+  const router = useAppRouter();
   const { toast } = useToast();
 
   const {

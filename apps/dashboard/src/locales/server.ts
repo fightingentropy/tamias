@@ -1,6 +1,15 @@
-import { createI18nServer } from "next-international/server";
+import { createTranslator, getStaticLocaleParams } from "./shared";
 
-export const { getI18n, getScopedI18n, getStaticParams } = createI18nServer({
-  en: () => import("./en"),
-  // sv: () => import("./sv"),
-});
+export async function getI18n(locale = "en") {
+  return createTranslator(locale);
+}
+
+export async function getScopedI18n(scope: string, locale = "en") {
+  const t = createTranslator(locale);
+  return (key: string, params?: Record<string, unknown>) =>
+    t(`${scope}.${key}`, params);
+}
+
+export function getStaticParams() {
+  return getStaticLocaleParams();
+}

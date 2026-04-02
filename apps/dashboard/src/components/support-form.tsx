@@ -20,9 +20,9 @@ import {
 import { Textarea } from "@tamias/ui/textarea";
 import { useToast } from "@tamias/ui/use-toast";
 import { Loader2 } from "lucide-react";
-import { useAction } from "next-safe-action/hooks";
 import { z } from "zod/v3";
 import { sendSupportAction } from "@/actions/send-support-action";
+import { useAction } from "@/actions/use-action";
 import { useZodForm } from "@/hooks/use-zod-form";
 
 const formSchema = z.object({

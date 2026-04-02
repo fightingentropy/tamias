@@ -1,5 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImageNext } from "@tamias/ui/avatar";
-import Link from "next/link";
+import Link from "@/framework/link";
 import { getWebsiteLogo } from "@/utils/logos";
 import { InvoiceStatus } from "./invoice-status";
 

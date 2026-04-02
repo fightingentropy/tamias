@@ -1,8 +1,8 @@
 import { baseConfig } from "./config-base";
+import xeroImage from "./assets/xero.jpg";
 
-// Client-side config with images - only imported by Next.js dashboard
-// This file uses require() which works in webpack/bundler contexts but not in bun runtime
+// Client-side config with images for dashboard/browser surfaces.
 export default {
   ...baseConfig,
-  images: [require("./assets/xero.jpg")],
+  images: [xeroImage.src],
 };

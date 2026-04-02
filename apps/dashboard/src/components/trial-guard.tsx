@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/framework/navigation";
 import { shouldShowUpgradeContent } from "@/utils/trial";
 import { UpgradeContent } from "./upgrade-content";
 

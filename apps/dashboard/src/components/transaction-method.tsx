@@ -10,6 +10,5 @@ type Props = {
 export function TransactionMethod({ method }: Props) {
   const t = useI18n();
 
-  // @ts-expect-error
   return t(`transaction_methods.${method}`);
 }

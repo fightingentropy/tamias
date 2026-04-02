@@ -1,4 +1,3 @@
-import "server-only";
 
 import { getTags } from "@tamias/app-data/queries/tags";
 import { cache } from "react";

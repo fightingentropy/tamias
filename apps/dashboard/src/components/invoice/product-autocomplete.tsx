@@ -1,6 +1,6 @@
 "use client";
 
-import { extractTextFromValue } from "@tamias/invoice";
+import { extractTextFromValue } from "@tamias/invoice/extract-text";
 import type { InvoiceProduct } from "@tamias/invoice/types";
 import { cn } from "@tamias/ui/cn";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";

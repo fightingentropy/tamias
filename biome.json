@@ -7,7 +7,6 @@
       "!**/dist",
       "!**/node_modules",
       "!**/.turbo",
-      "!**/.next",
       "!**/.react-email",
       "!**/.wrangler"
     ]

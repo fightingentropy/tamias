@@ -69,3 +69,58 @@ declare module "@tanstack/table-core" {
     headerLabel?: string;
   }
 }
+
+declare module "@tanstack/react-table" {
+  interface TableMeta<TData extends RowData> {
+    dateFormat?: string | null;
+    timeFormat?: number | null;
+    hasSorting?: boolean;
+    setOpen?: (id: string) => void;
+    copyUrl?: (id: string) => void;
+    updateTransaction?: (data: {
+      id: string;
+      status?: string;
+      categorySlug?: string | null;
+      categoryName?: string;
+      assignedId?: string | null;
+    }) => void;
+    onDeleteTransaction?: (id: string) => void;
+    moveToReview?: (id: string) => void;
+    editTransaction?: (id: string) => void;
+    lastClickedIndex?: number | null;
+    setLastClickedIndex?: (index: number | null) => void;
+    handleShiftClickRange?: (startIndex: number, endIndex: number) => void;
+    exportingTransactionIds?: string[];
+    handleDelete?: (id: string) => void;
+    handleShare?: (pathTokens: string[]) => void;
+    handleReprocess?: (id: string) => void;
+    deleteCategory?: (id: string) => void;
+    onEdit?: (id: string) => void;
+    expandedCategories?: Set<string>;
+    setExpandedCategories?: Dispatch<SetStateAction<Set<string>>>;
+    searchValue?: string;
+    setSearchValue?: Dispatch<SetStateAction<string>>;
+    deleteCustomer?: (id: string) => void;
+    enrichCustomer?: (id: string) => void;
+    currentUser?: RouterOutputs["team"]["members"][number];
+    totalOwners?: number;
+  }
+
+  interface ColumnMeta<TData extends RowData, TValue> {
+    className?: string;
+    sticky?: boolean;
+    sortField?: string;
+    skeleton?: {
+      type:
+        | "checkbox"
+        | "text"
+        | "avatar-text"
+        | "icon-text"
+        | "badge"
+        | "tags"
+        | "icon";
+      width?: string;
+    };
+    headerLabel?: string;
+  }
+}

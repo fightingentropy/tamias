@@ -16,9 +16,8 @@ import { Icons } from "@tamias/ui/icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/framework/navigation";
 import { useEffect, useState } from "react";
-import { revalidateInbox } from "@/actions/revalidate-action";
 import { Portal } from "@/components/portal";
 import { useInboxFilterParams } from "@/hooks/use-inbox-filter-params";
 import { useInboxParams } from "@/hooks/use-inbox-params";
@@ -99,8 +98,7 @@ export function InboxBulkActions() {
           }),
         ]);
 
-        // Revalidate server-side cache
-        await revalidateInbox();
+        await router.refresh();
 
         // Check if inbox is empty after deletion
         // Use the optimistically updated data from onMutate

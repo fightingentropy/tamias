@@ -5,8 +5,9 @@ import type {
   ColumnSizingState,
   VisibilityState,
 } from "@tanstack/react-table";
+import { addYears } from "date-fns";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { updateTableSettingsAction } from "@/actions/update-table-settings-action";
+import { setJsonClientCookie } from "@/utils/client-cookies";
 import {
   mergeWithDefaults,
   normalizeColumnOrder,
@@ -73,7 +74,7 @@ export function useTableSettings({
       }
 
       // Debounce persistence to avoid excessive cookie writes during resize
-      debounceRef.current = setTimeout(async () => {
+      debounceRef.current = setTimeout(() => {
         try {
           // Read current cookie value to preserve other table settings
           const existingCookie = document.cookie
@@ -99,10 +100,8 @@ export function useTableSettings({
             order: order,
           };
 
-          // Persist to server action (which sets the cookie)
-          await updateTableSettingsAction({
-            key: TABLE_SETTINGS_COOKIE,
-            data: allSettings,
+          setJsonClientCookie(TABLE_SETTINGS_COOKIE, allSettings, {
+            expires: addYears(new Date(), 10),
           });
         } catch (error) {
           console.error("Failed to persist table settings:", error);

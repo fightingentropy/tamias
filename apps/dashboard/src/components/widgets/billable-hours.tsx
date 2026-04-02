@@ -1,7 +1,7 @@
 "use client";
 
 import { Icons } from "@tamias/ui/icons";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/framework/navigation";
 import { FormatAmount } from "@/components/format-amount";
 import { useBillableHours } from "@/hooks/use-billable-hours";
 import { useI18n } from "@/locales/client";

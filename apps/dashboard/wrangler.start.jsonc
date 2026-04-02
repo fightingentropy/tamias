@@ -1,0 +1,71 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "tamias-dashboard-start-preview",
+  "main": "./dist/server/index.mjs",
+  "compatibility_date": "2026-03-28",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./dist/client",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "services": [
+    {
+      "binding": "ASYNC_WORKER",
+      "service": "tamias-async-preview",
+      "entrypoint": "AsyncBridgeService"
+    }
+  ],
+  "vars": {
+    "TAMIAS_ENVIRONMENT": "development",
+    "API_URL": "http://localhost:3003",
+    "DASHBOARD_URL": "http://localhost:3001",
+    "WEBSITE_URL": "http://localhost:3000"
+  },
+  "env": {
+    "staging": {
+      "name": "tamias-dashboard-start-staging",
+      "services": [
+        {
+          "binding": "ASYNC_WORKER",
+          "service": "tamias-async-staging",
+          "entrypoint": "AsyncBridgeService"
+        }
+      ],
+      "vars": {
+        "TAMIAS_ENVIRONMENT": "staging",
+        "API_URL": "https://api-staging.tamias.xyz",
+        "DASHBOARD_URL": "https://staging.tamias.xyz",
+        "WEBSITE_URL": "https://staging.tamias.xyz"
+      }
+    },
+    "production": {
+      "name": "tamias-dashboard-start",
+      "routes": [
+        {
+          "pattern": "app.tamias.xyz",
+          "custom_domain": true
+        },
+        {
+          "pattern": "tamias.xyz",
+          "custom_domain": true
+        }
+      ],
+      "services": [
+        {
+          "binding": "ASYNC_WORKER",
+          "service": "tamias-async",
+          "entrypoint": "AsyncBridgeService"
+        }
+      ],
+      "vars": {
+        "TAMIAS_ENVIRONMENT": "production",
+        "API_URL": "https://api.tamias.xyz",
+        "DASHBOARD_URL": "https://app.tamias.xyz",
+        "WEBSITE_URL": "https://tamias.xyz"
+      }
+    }
+  }
+}

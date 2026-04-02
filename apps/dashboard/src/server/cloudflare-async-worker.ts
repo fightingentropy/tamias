@@ -1,13 +1,11 @@
-import "server-only";
-
-import { getCloudflareContext } from "@opennextjs/cloudflare";
 import {
   configureCloudflareAsyncServiceRuntime,
 } from "@tamias/job-client";
 
-export function configureDashboardAsyncWorkerRuntime() {
+export async function configureDashboardAsyncWorkerRuntime() {
   try {
-    const { env } = getCloudflareContext();
+    // @ts-expect-error Cloudflare injects this module in the Worker runtime.
+    const { env } = await import(/* @vite-ignore */ "cloudflare:workers");
     const asyncWorker = env.ASYNC_WORKER;
 
     configureCloudflareAsyncServiceRuntime(
