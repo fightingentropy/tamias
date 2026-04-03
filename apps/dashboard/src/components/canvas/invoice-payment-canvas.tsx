@@ -16,7 +16,7 @@ import {
   shouldShowMetricsSkeleton,
   shouldShowSummarySkeleton,
 } from "@/components/canvas/utils";
-import { InvoicePaymentChart } from "@/components/charts/invoice-payment-chart";
+import { InvoicePaymentChart } from "@/components/charts/lazy";
 import { useUserQuery } from "@/hooks/use-user";
 
 export function InvoicePaymentCanvas() {

@@ -25,15 +25,8 @@ import { useInvoiceEditorStore } from "@/store/invoice-editor";
 import { useTRPC } from "@/trpc/client";
 import { getUrl } from "@/utils/environment";
 import { SavingBar } from "../saving-bar";
-import { CustomerDetails } from "./customer-details";
-import { EditBlock } from "./edit-block";
 import type { InvoiceFormValues } from "./form-context";
-import { FromDetails } from "./from-details";
-import { LineItems } from "./line-items";
-import { Logo } from "./logo";
 import { Meta } from "./meta";
-import { NoteDetails } from "./note-details";
-import { PaymentDetails } from "./payment-details";
 import { Summary } from "./summary";
 import { transformFormValuesToDraft } from "./utils";
 
@@ -60,6 +53,74 @@ function InvoiceActionButtonFallback({
     </Button>
   );
 }
+
+function InvoiceSectionFallback({
+  className,
+}: {
+  className?: string;
+}) {
+  return (
+    <div
+      className={
+        className ??
+        "min-h-[120px] rounded-sm border border-dashed border-border/50 bg-transparent"
+      }
+    />
+  );
+}
+
+const CustomerDetails = dynamic(
+  () => import("./customer-details").then((mod) => mod.CustomerDetails),
+  {
+    ssr: false,
+    loading: () => <InvoiceSectionFallback className="min-h-[120px]" />,
+  },
+);
+
+const EditBlock = dynamic(
+  () => import("./edit-block").then((mod) => mod.EditBlock),
+  {
+    ssr: false,
+    loading: () => <InvoiceSectionFallback className="min-h-[48px]" />,
+  },
+);
+
+const FromDetails = dynamic(
+  () => import("./from-details").then((mod) => mod.FromDetails),
+  {
+    ssr: false,
+    loading: () => <InvoiceSectionFallback className="min-h-[120px]" />,
+  },
+);
+
+const LineItems = dynamic(
+  () => import("./line-items").then((mod) => mod.LineItems),
+  {
+    ssr: false,
+    loading: () => <InvoiceSectionFallback className="min-h-[240px]" />,
+  },
+);
+
+const Logo = dynamic(() => import("./logo").then((mod) => mod.Logo), {
+  ssr: false,
+  loading: () => <InvoiceSectionFallback className="h-[80px] w-[80px]" />,
+});
+
+const NoteDetails = dynamic(
+  () => import("./note-details").then((mod) => mod.NoteDetails),
+  {
+    ssr: false,
+    loading: () => <InvoiceSectionFallback className="min-h-[110px]" />,
+  },
+);
+
+const PaymentDetails = dynamic(
+  () => import("./payment-details").then((mod) => mod.PaymentDetails),
+  {
+    ssr: false,
+    loading: () => <InvoiceSectionFallback className="min-h-[110px]" />,
+  },
+);
 
 const SettingsMenu = dynamic(
   () => import("./settings-menu").then((mod) => mod.SettingsMenu),

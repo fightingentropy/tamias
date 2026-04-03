@@ -7,9 +7,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@tamias/ui/dialog";
+import dynamic from "@/framework/dynamic";
 import { useConnectParams } from "@/hooks/use-connect-params";
 import { useTeamQuery } from "@/hooks/use-team";
-import { BankSearchContent } from "../bank-search-content";
+
+const BankSearchContent = dynamic(
+  () => import("../bank-search-content").then((mod) => mod.BankSearchContent),
+  { ssr: false },
+);
 
 export function ConnectTransactionsModal() {
   const { step, setParams } = useConnectParams();

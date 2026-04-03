@@ -17,8 +17,8 @@ import {
   shouldShowMetricsSkeleton,
   shouldShowSummarySkeleton,
 } from "@/components/canvas/utils";
+import { RevenueForecastChart } from "@/components/charts/lazy";
 import { useUserQuery } from "@/hooks/use-user";
-import { RevenueForecastChart } from "../charts";
 
 export function ForecastCanvas() {
   const [version] = useQueryState("version", parseAsInteger.withDefault(0));

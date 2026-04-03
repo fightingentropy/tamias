@@ -7,7 +7,7 @@ import { useMemo } from "react";
 import {
   CategoryExpenseDonutChart,
   grayShades,
-} from "@/components/charts/category-expense-donut-chart";
+} from "@/components/charts/lazy";
 import { useLongPress } from "@/hooks/use-long-press";
 import { useMetricsCustomize } from "@/hooks/use-metrics-customize";
 import { useTRPC } from "@/trpc/client";

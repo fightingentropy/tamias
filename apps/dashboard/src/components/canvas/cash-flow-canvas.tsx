@@ -17,8 +17,8 @@ import {
   shouldShowMetricsSkeleton,
   shouldShowSummarySkeleton,
 } from "@/components/canvas/utils";
+import { CashFlowChart } from "@/components/charts/lazy";
 import { useUserQuery } from "@/hooks/use-user";
-import { CashFlowChart } from "../charts";
 
 export function CashFlowCanvas() {
   const [version] = useQueryState("version", parseAsInteger.withDefault(0));

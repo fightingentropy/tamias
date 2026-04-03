@@ -17,8 +17,8 @@ import {
   shouldShowMetricsSkeleton,
   shouldShowSummarySkeleton,
 } from "@/components/canvas/utils";
+import { BurnRateChart } from "@/components/charts/lazy";
 import { useUserQuery } from "@/hooks/use-user";
-import { BurnRateChart } from "../charts";
 
 export function BurnRateCanvas() {
   const [version] = useQueryState("version", parseAsInteger.withDefault(0));

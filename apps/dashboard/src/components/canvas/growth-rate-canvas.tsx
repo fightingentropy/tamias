@@ -17,8 +17,8 @@ import {
   shouldShowMetricsSkeleton,
   shouldShowSummarySkeleton,
 } from "@/components/canvas/utils";
+import { GrowthRateChart } from "@/components/charts/lazy";
 import { useUserQuery } from "@/hooks/use-user";
-import { GrowthRateChart } from "../charts/growth-rate-chart";
 
 export function GrowthRateCanvas() {
   const [version] = useQueryState("version", parseAsInteger.withDefault(0));

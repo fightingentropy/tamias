@@ -7,16 +7,16 @@ import { useQuery } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatedNumber } from "@/components/animated-number";
-import { BurnRateChart } from "@/components/charts/burn-rate-chart";
 import {
+  BurnRateChart,
   CategoryExpenseDonutChart,
-  grayShades,
-} from "@/components/charts/category-expense-donut-chart";
-import { MonthlyRevenueChart } from "@/components/charts/monthly-revenue-chart";
-import { ProfitChart } from "@/components/charts/profit-chart";
-import { RevenueForecastChart } from "@/components/charts/revenue-forecast-chart";
-import { RunwayChart } from "@/components/charts/runway-chart";
-import { StackedBarChart } from "@/components/charts/stacked-bar-chart";
+  grayShades as categoryDonutGrayShades,
+  MonthlyRevenueChart,
+  ProfitChart,
+  RevenueForecastChart,
+  RunwayChart,
+  StackedBarChart,
+} from "@/components/charts/lazy";
 import type { ReportType } from "@/components/metrics/utils/chart-types";
 import { useTRPC } from "@/trpc/client";
 import { formatAmount } from "@/utils/format";
@@ -638,7 +638,10 @@ function CategoryExpensesChartView({ linkId }: { linkId: string }) {
                 <div
                   className="w-2 h-2 rounded-full"
                   style={{
-                    backgroundColor: grayShades[idx % grayShades.length],
+                    backgroundColor:
+                      categoryDonutGrayShades[
+                        idx % categoryDonutGrayShades.length
+                      ],
                   }}
                 />
                 <span className="text-xs text-muted-foreground">

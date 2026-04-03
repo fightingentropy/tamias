@@ -1,8 +1,16 @@
 "use client";
 
 import { Dialog, DialogContent } from "@tamias/ui/dialog";
+import dynamic from "@/framework/dynamic";
 import { useConnectParams } from "@/hooks/use-connect-params";
-import { SelectBankAccountsContent } from "../select-bank-accounts-content";
+
+const SelectBankAccountsContent = dynamic(
+  () =>
+    import("../select-bank-accounts-content").then(
+      (mod) => mod.SelectBankAccountsContent,
+    ),
+  { ssr: false },
+);
 
 export function SelectBankAccountsModal() {
   const { step, setParams } = useConnectParams();

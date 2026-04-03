@@ -17,7 +17,7 @@ import {
   shouldShowMetricsSkeleton,
   shouldShowSummarySkeleton,
 } from "@/components/canvas/utils";
-import { CategoryExpenseDonutChart } from "@/components/charts/category-expense-donut-chart";
+import { CategoryExpenseDonutChart } from "@/components/charts/lazy";
 import { useUserQuery } from "@/hooks/use-user";
 
 export function CategoryExpensesCanvas() {

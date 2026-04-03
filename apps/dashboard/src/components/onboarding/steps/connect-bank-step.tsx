@@ -3,8 +3,16 @@
 import { motion } from "framer-motion";
 import { Suspense, use } from "react";
 import { BankSearchContent } from "@/components/bank-search-content";
-import { SelectBankAccountsContent } from "@/components/select-bank-accounts-content";
+import dynamic from "@/framework/dynamic";
 import { useConnectParams } from "@/hooks/use-connect-params";
+
+const SelectBankAccountsContent = dynamic(
+  () =>
+    import("@/components/select-bank-accounts-content").then(
+      (mod) => mod.SelectBankAccountsContent,
+    ),
+  { ssr: false },
+);
 
 type Props = {
   onContinue: () => void;

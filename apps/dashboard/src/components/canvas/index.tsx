@@ -1,24 +1,96 @@
 import { useArtifacts } from "@ai-sdk-tools/artifacts/client";
 import { parseAsString, useQueryState } from "nuqs";
-import { useCallback } from "react";
+import dynamic from "@/framework/dynamic";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { isMonthlyBreakdownType } from "@/lib/metrics-breakdown-constants";
-import { BalanceSheetCanvas } from "./balance-sheet-canvas";
 import { CanvasErrorFallback } from "./base/canvas-error-fallback";
-import { BurnRateCanvas } from "./burn-rate-canvas";
-import { CashFlowCanvas } from "./cash-flow-canvas";
-import { CategoryExpensesCanvas } from "./category-expenses-canvas";
-import { ForecastCanvas } from "./forecast-canvas";
-import { GrowthRateCanvas } from "./growth-rate-canvas";
-import { HealthReportCanvas } from "./health-report-canvas";
-import { InvoicePaymentCanvas } from "./invoice-payment-canvas";
-import { MetricsBreakdownSummaryCanvas } from "./metrics-breakdown-summary-canvas";
-import { ProfitCanvas } from "./profit-canvas";
-import { RevenueCanvas } from "./revenue-canvas";
-import { RunwayCanvas } from "./runway-canvas";
-import { SpendingCanvas } from "./spending-canvas";
-import { StressTestCanvas } from "./stress-test-canvas";
-import { TaxSummaryCanvas } from "./tax-summary-canvas";
+
+const BurnRateCanvas = dynamic(
+  () => import("./burn-rate-canvas").then((mod) => mod.BurnRateCanvas),
+  { ssr: false },
+);
+const RevenueCanvas = dynamic(
+  () => import("./revenue-canvas").then((mod) => mod.RevenueCanvas),
+  { ssr: false },
+);
+const ProfitCanvas = dynamic(
+  () => import("./profit-canvas").then((mod) => mod.ProfitCanvas),
+  { ssr: false },
+);
+const GrowthRateCanvas = dynamic(
+  () => import("./growth-rate-canvas").then((mod) => mod.GrowthRateCanvas),
+  { ssr: false },
+);
+const RunwayCanvas = dynamic(
+  () => import("./runway-canvas").then((mod) => mod.RunwayCanvas),
+  { ssr: false },
+);
+const CashFlowCanvas = dynamic(
+  () => import("./cash-flow-canvas").then((mod) => mod.CashFlowCanvas),
+  { ssr: false },
+);
+const BalanceSheetCanvas = dynamic(
+  () => import("./balance-sheet-canvas").then((mod) => mod.BalanceSheetCanvas),
+  { ssr: false },
+);
+const CategoryExpensesCanvas = dynamic(
+  () =>
+    import("./category-expenses-canvas").then(
+      (mod) => mod.CategoryExpensesCanvas,
+    ),
+  { ssr: false },
+);
+const HealthReportCanvas = dynamic(
+  () =>
+    import("./health-report-canvas").then((mod) => mod.HealthReportCanvas),
+  { ssr: false },
+);
+const SpendingCanvas = dynamic(
+  () => import("./spending-canvas").then((mod) => mod.SpendingCanvas),
+  { ssr: false },
+);
+const ForecastCanvas = dynamic(
+  () => import("./forecast-canvas").then((mod) => mod.ForecastCanvas),
+  { ssr: false },
+);
+const TaxSummaryCanvas = dynamic(
+  () => import("./tax-summary-canvas").then((mod) => mod.TaxSummaryCanvas),
+  { ssr: false },
+);
+const StressTestCanvas = dynamic(
+  () => import("./stress-test-canvas").then((mod) => mod.StressTestCanvas),
+  { ssr: false },
+);
+const InvoicePaymentCanvas = dynamic(
+  () =>
+    import("./invoice-payment-canvas").then((mod) => mod.InvoicePaymentCanvas),
+  { ssr: false },
+);
+const MetricsBreakdownSummaryCanvas = dynamic(
+  () =>
+    import("./metrics-breakdown-summary-canvas").then(
+      (mod) => mod.MetricsBreakdownSummaryCanvas,
+    ),
+  { ssr: false },
+);
+
+const canvasComponents = {
+  "balance-sheet-canvas": BalanceSheetCanvas,
+  "burn-rate-canvas": BurnRateCanvas,
+  "cash-flow-canvas": CashFlowCanvas,
+  "category-expenses-canvas": CategoryExpensesCanvas,
+  "forecast-canvas": ForecastCanvas,
+  "growth-rate-canvas": GrowthRateCanvas,
+  "health-report-canvas": HealthReportCanvas,
+  "invoice-payment-canvas": InvoicePaymentCanvas,
+  "profit-analysis-canvas": ProfitCanvas,
+  "profit-canvas": ProfitCanvas,
+  "revenue-canvas": RevenueCanvas,
+  "runway-canvas": RunwayCanvas,
+  "spending-canvas": SpendingCanvas,
+  "stress-test-canvas": StressTestCanvas,
+  "tax-summary-canvas": TaxSummaryCanvas,
+} as const;
 
 export function Canvas() {
   const [selectedType, setSelectedType] = useQueryState(
@@ -32,55 +104,18 @@ export function Canvas() {
     exclude: ["chat-title", "suggestions"],
   });
 
-  const renderCanvas = useCallback(() => {
-    const activeType = data.activeType;
-
-    // Handle monthly breakdown artifacts (pattern: breakdown-summary-canvas-YYYY-MM)
-    if (activeType && isMonthlyBreakdownType(activeType)) {
-      return <MetricsBreakdownSummaryCanvas />;
-    }
-
-    switch (activeType) {
-      case "burn-rate-canvas":
-        return <BurnRateCanvas />;
-      case "revenue-canvas":
-        return <RevenueCanvas />;
-      case "profit-canvas":
-        return <ProfitCanvas />;
-      case "profit-analysis-canvas":
-        return <ProfitCanvas />;
-      case "growth-rate-canvas":
-        return <GrowthRateCanvas />;
-      case "runway-canvas":
-        return <RunwayCanvas />;
-      case "cash-flow-canvas":
-        return <CashFlowCanvas />;
-      case "balance-sheet-canvas":
-        return <BalanceSheetCanvas />;
-      case "category-expenses-canvas":
-        return <CategoryExpensesCanvas />;
-      case "health-report-canvas":
-        return <HealthReportCanvas />;
-      case "spending-canvas":
-        return <SpendingCanvas />;
-      case "forecast-canvas":
-        return <ForecastCanvas />;
-      case "tax-summary-canvas":
-        return <TaxSummaryCanvas />;
-      case "stress-test-canvas":
-        return <StressTestCanvas />;
-      case "invoice-payment-canvas":
-        return <InvoicePaymentCanvas />;
-      case "breakdown-summary-canvas":
-        return <MetricsBreakdownSummaryCanvas />;
-      default:
-        return null;
-    }
-  }, [data.activeType]);
+  const activeType = data.activeType;
+  const CanvasComponent =
+    activeType === "breakdown-summary-canvas" ||
+    (activeType && isMonthlyBreakdownType(activeType))
+      ? MetricsBreakdownSummaryCanvas
+      : activeType
+        ? canvasComponents[activeType as keyof typeof canvasComponents]
+        : null;
 
   return (
     <ErrorBoundary key={selectedType} fallback={<CanvasErrorFallback />}>
-      {renderCanvas()}
+      {CanvasComponent ? <CanvasComponent /> : null}
     </ErrorBoundary>
   );
 }

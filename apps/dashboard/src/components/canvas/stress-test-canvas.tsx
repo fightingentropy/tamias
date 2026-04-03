@@ -16,7 +16,7 @@ import {
   shouldShowMetricsSkeleton,
   shouldShowSummarySkeleton,
 } from "@/components/canvas/utils";
-import { StressTestChart } from "@/components/charts/stress-test-chart";
+import { StressTestChart } from "@/components/charts/lazy";
 import { useUserQuery } from "@/hooks/use-user";
 
 export function StressTestCanvas() {

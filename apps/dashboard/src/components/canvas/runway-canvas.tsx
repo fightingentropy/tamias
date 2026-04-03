@@ -17,7 +17,7 @@ import {
   shouldShowMetricsSkeleton,
   shouldShowSummarySkeleton,
 } from "@/components/canvas/utils";
-import { RunwayChart } from "@/components/charts/runway-chart";
+import { RunwayChart } from "@/components/charts/lazy";
 import { useUserQuery } from "@/hooks/use-user";
 
 export function RunwayCanvas() {

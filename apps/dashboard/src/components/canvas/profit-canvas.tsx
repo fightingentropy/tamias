@@ -17,8 +17,8 @@ import {
   shouldShowMetricsSkeleton,
   shouldShowSummarySkeleton,
 } from "@/components/canvas/utils";
+import { ProfitChart } from "@/components/charts/lazy";
 import { useUserQuery } from "@/hooks/use-user";
-import { ProfitChart } from "../charts";
 
 export function ProfitCanvas() {
   const [version] = useQueryState("version", parseAsInteger.withDefault(0));

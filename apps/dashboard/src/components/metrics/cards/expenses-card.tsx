@@ -5,7 +5,7 @@ import { Icons } from "@tamias/ui/icons";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { AnimatedNumber } from "@/components/animated-number";
-import { StackedBarChart } from "@/components/charts/stacked-bar-chart";
+import { StackedBarChart } from "@/components/charts/lazy";
 import { useLongPress } from "@/hooks/use-long-press";
 import { useMetricsCustomize } from "@/hooks/use-metrics-customize";
 import { useChatStore } from "@/store/chat";

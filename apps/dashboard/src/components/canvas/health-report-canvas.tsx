@@ -16,7 +16,7 @@ import {
   shouldShowMetricsSkeleton,
   shouldShowSummarySkeleton,
 } from "@/components/canvas/utils";
-import { BusinessHealthScoreChart } from "@/components/charts/business-health-score-chart";
+import { BusinessHealthScoreChart } from "@/components/charts/lazy";
 
 export function HealthReportCanvas() {
   const [version] = useQueryState("version", parseAsInteger.withDefault(0));

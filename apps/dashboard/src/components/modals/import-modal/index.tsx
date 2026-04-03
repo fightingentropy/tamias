@@ -16,6 +16,7 @@ import { stripSpecialCharacters } from "@tamias/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { parseAsBoolean, parseAsString, useQueryStates } from "nuqs";
 import { useEffect, useRef, useState } from "react";
+import dynamic from "@/framework/dynamic";
 import { useInvalidateTransactionQueries } from "@/hooks/use-invalidate-transaction-queries";
 import { useJobStatus } from "@/hooks/use-job-status";
 import { useTeamQuery } from "@/hooks/use-team";
@@ -24,9 +25,27 @@ import { useUserQuery } from "@/hooks/use-user";
 import { useZodForm } from "@/hooks/use-zod-form";
 import { useTRPC } from "@/trpc/client";
 import { ImportCsvContext, importSchema } from "./context";
-import { FieldMapping } from "./field-mapping";
 import { getBalanceFromLatestDate } from "./field-mapping.utils";
-import { SelectFile } from "./select-file";
+
+function ImportPageFallback() {
+  return <div className="mt-8 h-[240px]" />;
+}
+
+const FieldMapping = dynamic(
+  () => import("./field-mapping").then((mod) => mod.FieldMapping),
+  {
+    ssr: false,
+    loading: ImportPageFallback,
+  },
+);
+
+const SelectFile = dynamic(
+  () => import("./select-file").then((mod) => mod.SelectFile),
+  {
+    ssr: false,
+    loading: ImportPageFallback,
+  },
+);
 
 const pages = ["select-file", "confirm-import"] as const;
 

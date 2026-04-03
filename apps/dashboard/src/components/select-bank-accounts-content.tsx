@@ -1,10 +1,8 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { track } from "@tamias/events/client";
 import { LogEvents } from "@tamias/events/events";
 import { Avatar, AvatarFallback } from "@tamias/ui/avatar";
-import { Button } from "@tamias/ui/button";
 import {
   Form,
   FormControl,
@@ -17,22 +15,17 @@ import { Skeleton } from "@tamias/ui/skeleton";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { Switch } from "@tamias/ui/switch";
 import { Tabs, TabsContent } from "@tamias/ui/tabs";
-import { Textarea } from "@tamias/ui/textarea";
 import { useToast } from "@tamias/ui/use-toast";
 import { getInitials } from "@tamias/utils/format";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import dynamic from "@/framework/dynamic";
 import z from "zod/v3";
-import { sendSupportAction } from "@/actions/send-support-action";
-import { useAction } from "@/actions/use-action";
 import { useConnectParams } from "@/hooks/use-connect-params";
 import { useZodForm } from "@/hooks/use-zod-form";
 import { useI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/client";
 import { FormatAmount } from "./format-amount";
-import { LoadingTransactionsEvent } from "./loading-transactions-event";
 
 function RowsSkeleton() {
   return (
@@ -59,81 +52,31 @@ function RowsSkeleton() {
   );
 }
 
-function SupportForm() {
-  const form = useForm({
-    resolver: zodResolver(z.object({ message: z.string() })),
-    defaultValues: {
-      message: "",
-    },
-  });
-
-  const sendSupport = useAction(sendSupportAction, {
-    onSuccess: () => {
-      form.reset();
-    },
-  });
-
-  const handleOnSubmit = form.handleSubmit((values) => {
-    sendSupport.execute({
-      message: values.message,
-      type: "bank-connection",
-      priority: "3",
-      subject: "Select bank accounts",
-      url: document.URL,
-    });
-  });
-
-  if (sendSupport.status === "hasSucceeded") {
-    return (
-      <div className="h-[250px] flex items-center justify-center flex-col space-y-1">
-        <p className="font-medium text-sm">Thank you!</p>
-        <p className="text-sm text-[#4C4C4C]">
-          We will be back with you as soon as possible.
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <Form {...form}>
-      <form onSubmit={handleOnSubmit}>
-        <FormField
-          control={form.control}
-          name="message"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Message</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Describe the issue you're facing, along with any relevant information. Please be as detailed and specific as possible."
-                  className="resize-none min-h-[150px]"
-                  autoFocus
-                  {...field}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-
-        <div className="flex justify-end">
-          <Button
-            type="submit"
-            disabled={
-              sendSupport.status === "executing" || !form.formState.isValid
-            }
-            className="mt-4"
-          >
-            {sendSupport.status === "executing" ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              "Submit"
-            )}
-          </Button>
-        </div>
-      </form>
-    </Form>
-  );
+function SelectBankAccountsTabFallback() {
+  return <div className="min-h-[250px]" />;
 }
+
+const LoadingTransactionsEvent = dynamic(
+  () =>
+    import("./loading-transactions-event").then(
+      (mod) => mod.LoadingTransactionsEvent,
+    ),
+  {
+    ssr: false,
+    loading: SelectBankAccountsTabFallback,
+  },
+);
+
+const SelectBankAccountsSupportForm = dynamic(
+  () =>
+    import("./select-bank-accounts-support-form").then(
+      (mod) => mod.SelectBankAccountsSupportForm,
+    ),
+  {
+    ssr: false,
+    loading: SelectBankAccountsTabFallback,
+  },
+);
 
 const formSchema = z.object({
   referenceId: z.string().nullable().optional(),
@@ -503,7 +446,7 @@ export function SelectBankAccountsContent({
           </button>
           <h2>Support</h2>
         </div>
-        <SupportForm />
+        <SelectBankAccountsSupportForm />
       </TabsContent>
     </Tabs>
   );

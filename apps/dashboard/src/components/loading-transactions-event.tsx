@@ -3,17 +3,9 @@
 import { Button } from "@tamias/ui/button";
 import { cn } from "@tamias/ui/cn";
 import { useQueryClient } from "@tanstack/react-query";
-import dynamic from "@/framework/dynamic";
-import setupAnimationDark from "@/assets/setup-animation-dark.json";
-import setupAnimationLight from "@/assets/setup-animation.json";
 import { useEffect, useState } from "react";
-import { useTheme } from "@/components/theme-provider";
 import { useConnectParams } from "@/hooks/use-connect-params";
 import { useInitialConnectionStatus } from "@/hooks/use-initial-connection-status";
-
-const Lottie = dynamic(() => import("lottie-react"), {
-  ssr: false,
-});
 
 type Props = {
   runId?: string;
@@ -21,6 +13,18 @@ type Props = {
   onClose: () => void;
   setActiveTab: (value: "support" | "loading" | "select-accounts") => void;
 };
+
+function LoadingTransactionsIndicator() {
+  return (
+    <div className="mb-6 flex h-[50px] w-[50px] items-center justify-center rounded-full border border-border/60 bg-muted/30">
+      <div className="flex items-center gap-1.5">
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-foreground/80 [animation-delay:0ms]" />
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-foreground/55 [animation-delay:150ms]" />
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-foreground/35 [animation-delay:300ms]" />
+      </div>
+    </div>
+  );
+}
 
 export function LoadingTransactionsEvent({
   runId,
@@ -30,7 +34,6 @@ export function LoadingTransactionsEvent({
 }: Props) {
   const queryClient = useQueryClient();
   const [step, setStep] = useState(1);
-  const { resolvedTheme } = useTheme();
   const { setParams } = useConnectParams();
 
   const { status } = useInitialConnectionStatus({
@@ -99,19 +102,7 @@ export function LoadingTransactionsEvent({
 
   return (
     <div className="w-full">
-      <Lottie
-        className="mb-6"
-        animationData={
-          resolvedTheme === "dark"
-            ? setupAnimationLight
-            : setupAnimationDark
-        }
-        loop={true}
-        style={{ width: 50, height: 50 }}
-        rendererSettings={{
-          preserveAspectRatio: "xMidYMid slice",
-        }}
-      />
+      <LoadingTransactionsIndicator />
       <h2 className="text-lg font-semibold leading-none tracking-tight mb-2">
         Setting up account
       </h2>

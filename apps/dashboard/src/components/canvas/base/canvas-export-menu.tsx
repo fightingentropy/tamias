@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { Button } from "@tamias/ui/button";
 import {
   DropdownMenu,
@@ -14,14 +15,24 @@ import { useTheme } from "@/components/theme-provider";
 interface CanvasExportMenuProps {
   filename: string;
   title: string;
+  defaultOpen?: boolean;
+  onDefaultOpenConsumed?: () => void;
 }
 
 export function CanvasExportMenu({
   filename,
   title,
+  defaultOpen = false,
+  onDefaultOpenConsumed,
 }: CanvasExportMenuProps) {
   const { resolvedTheme } = useTheme();
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (defaultOpen) {
+      onDefaultOpenConsumed?.();
+    }
+  }, [defaultOpen, onDefaultOpenConsumed]);
 
   const handleDownloadReport = async () => {
     try {
@@ -66,7 +77,7 @@ export function CanvasExportMenu({
   };
 
   return (
-    <DropdownMenu>
+    <DropdownMenu defaultOpen={defaultOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="p-0 h-6 w-6">
           <Icons.MoreVertical size={15} className="text-muted-foreground" />
