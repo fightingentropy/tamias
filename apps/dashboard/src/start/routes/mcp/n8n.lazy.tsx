@@ -1,5 +1,5 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
-import { McpN8nSitePage } from "@/site/pages/mcp-pages";
+import { MCPN8n } from "@/site/components/mcp-n8n";
 import { SiteLayoutShell } from "@/start/components/site-layout-shell";
 
 export const Route = createLazyFileRoute("/mcp/n8n")({
@@ -9,7 +9,7 @@ export const Route = createLazyFileRoute("/mcp/n8n")({
 function McpN8nPage() {
   return (
     <SiteLayoutShell>
-      <McpN8nSitePage />
+      <MCPN8n />
     </SiteLayoutShell>
   );
 }

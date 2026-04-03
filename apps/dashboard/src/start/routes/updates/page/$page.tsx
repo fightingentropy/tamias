@@ -1,7 +1,7 @@
 import { createSiteFileRoute } from "@/start/route-hosts";
 import { redirect, createFileRoute } from "@tanstack/react-router";
-import { getPaginatedBlogPostPreviews } from "@/site/lib/blog";
-import { baseUrl } from "@/site/sitemap";
+import { getPaginatedBlogPostPreviews } from "@/site/lib/blog-metadata";
+import { baseUrl } from "@/site/base-url";
 
 const POSTS_PER_PAGE = 3;
 const description =

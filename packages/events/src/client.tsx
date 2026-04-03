@@ -1,56 +1,87 @@
 import { useEffect } from "react";
-import { OpenPanel, type TrackProperties } from "@openpanel/web";
+import type { TrackProperties } from "@openpanel/web";
 
 const isProd = process.env.NODE_ENV === "production";
-let analyticsClient: OpenPanel | null | undefined;
+type AnalyticsClient = {
+  track: (event: string, properties: TrackProperties) => Promise<unknown>;
+};
 
-function getAnalyticsClient() {
-  if (analyticsClient !== undefined) {
-    return analyticsClient;
-  }
+let analyticsClient: AnalyticsClient | null | undefined;
+let analyticsClientPromise: Promise<AnalyticsClient | null> | undefined;
 
+async function createAnalyticsClient() {
   if (
     typeof window === "undefined" ||
     !process.env.OPENPANEL_CLIENT_ID
   ) {
-    analyticsClient = null;
-    return analyticsClient;
+    return null;
   }
 
-  analyticsClient = new OpenPanel({
+  const { OpenPanel } = await import("@openpanel/web");
+
+  const client = new OpenPanel({
     clientId: process.env.OPENPANEL_CLIENT_ID,
     trackAttributes: true,
     trackScreenViews: isProd,
     trackOutgoingLinks: isProd,
   });
-  analyticsClient.init();
+  analyticsClient = client;
 
   return analyticsClient;
 }
 
+function getAnalyticsClient() {
+  if (analyticsClient !== undefined) {
+    return Promise.resolve(analyticsClient);
+  }
+
+  analyticsClientPromise ??= createAnalyticsClient().then((client) => {
+    analyticsClient = client;
+    return client;
+  });
+
+  return analyticsClientPromise;
+}
+
 const Provider = () => {
   useEffect(() => {
-    getAnalyticsClient();
+    const loadAnalytics = () => {
+      void getAnalyticsClient();
+    };
+
+    if ("requestIdleCallback" in window) {
+      const idleId = window.requestIdleCallback(loadAnalytics);
+
+      return () => {
+        window.cancelIdleCallback(idleId);
+      };
+    }
+
+    const timeoutId = globalThis.setTimeout(loadAnalytics, 1);
+
+    return () => {
+      globalThis.clearTimeout(timeoutId);
+    };
   }, []);
 
   return null;
 };
 
 const track = (options: { event: string } & TrackProperties) => {
-  const client = getAnalyticsClient();
-
   if (!isProd) {
     console.log("Track", options);
     return;
   }
 
-  if (!client) {
-    return;
-  }
-
   const { event, ...rest } = options;
 
-  void client.track(event, rest);
+  void getAnalyticsClient().then((client) => {
+    if (!client) {
+      return;
+    }
+
+    void client.track(event, rest);
+  });
 };
 
 export { Provider, track };

@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { createSiteFileRoute } from "@/start/route-hosts";
 import {
   getDocMetadataBySlug,
-} from "@/site/lib/docs";
+} from "@/site/lib/docs-metadata";
 
 export const Route = createSiteFileRoute("/docs/$slug")({
   head: ({ params }) => {

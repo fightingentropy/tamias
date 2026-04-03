@@ -1,5 +1,5 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
-import { McpPerplexitySitePage } from "@/site/pages/mcp-pages";
+import { MCPPerplexity } from "@/site/components/mcp-perplexity";
 import { SiteLayoutShell } from "@/start/components/site-layout-shell";
 
 export const Route = createLazyFileRoute("/mcp/perplexity")({
@@ -9,7 +9,7 @@ export const Route = createLazyFileRoute("/mcp/perplexity")({
 function McpPerplexityPage() {
   return (
     <SiteLayoutShell>
-      <McpPerplexitySitePage />
+      <MCPPerplexity />
     </SiteLayoutShell>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@tamias/ui/cn";
-import { Icons } from "@tamias/ui/icons";
 import {
   AnimatePresence,
   MotionConfig,
@@ -21,6 +20,24 @@ import React, {
 } from "react";
 import { createPortal } from "react-dom";
 import useClickOutside from "./useClickOutside";
+
+function MorphingDialogCloseIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M6 6 18 18" />
+      <path d="m18 6-12 12" />
+    </svg>
+  );
+}
 
 export type MorphingDialogContextType = {
   isOpen: boolean;
@@ -477,7 +494,7 @@ function MorphingDialogClose({
   }, [setIsOpen]);
 
   const buttonContent = children || (
-    <Icons.Close className="h-6 w-6 text-primary" />
+    <MorphingDialogCloseIcon className="h-6 w-6 text-primary" />
   );
 
   // Always use a regular button - don't use motion.button to avoid layout animation issues

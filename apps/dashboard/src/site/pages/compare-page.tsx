@@ -1,27 +1,6 @@
 import { Button } from "@tamias/ui/button";
 import Link from "@/framework/link";
 import { competitors } from "@/site/data/competitors";
-import { createSiteMetadata } from "@/site/page-metadata";
-
-const year = new Date().getFullYear();
-
-export const compareSiteMetadata = createSiteMetadata({
-  title: `Compare Tamias to QuickBooks, Xero, FreshBooks & More (${year})`,
-  description:
-    "Looking for QuickBooks, Xero, or FreshBooks alternatives? Compare Tamias to popular accounting and finance tools. Built for founders, not accountants. Free 14-day trial.",
-  path: "/compare",
-  keywords: [
-    "quickbooks alternative",
-    "xero alternative",
-    "freshbooks alternative",
-    "accounting software comparison",
-    "business finance software",
-    "invoicing software for founders",
-    "small business tools",
-  ],
-  image: "https://tamias.xyz/api/og/compare",
-  imageAlt: "Compare Tamias to alternatives",
-});
 
 export function CompareSitePage() {
   return (

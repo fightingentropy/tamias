@@ -8,15 +8,14 @@ import { format, parseISO } from "date-fns";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatedNumber } from "@/components/animated-number";
 import {
-  BurnRateChart,
-  CategoryExpenseDonutChart,
-  grayShades as categoryDonutGrayShades,
-  MonthlyRevenueChart,
-  ProfitChart,
-  RevenueForecastChart,
-  RunwayChart,
-  StackedBarChart,
-} from "@/components/charts/lazy";
+  PublicBurnRateChart,
+  PublicComparisonBarChart,
+  PublicDonutChart,
+  PublicForecastChart,
+  publicChartGrayShades,
+  PublicRunwayChart,
+  PublicStackedExpensesChart,
+} from "@/components/charts/public-report-charts";
 import type { ReportType } from "@/components/metrics/utils/chart-types";
 import { useTRPC } from "@/trpc/client";
 import { formatAmount } from "@/utils/format";
@@ -154,11 +153,7 @@ function BurnRateChartView({ linkId }: { linkId: string }) {
         </div>
       </div>
       <div className="h-80">
-        <BurnRateChart
-          data={burnRateChartData}
-          height={320}
-          currency={currency}
-        />
+        <PublicBurnRateChart data={burnRateChartData} />
       </div>
     </>
   );
@@ -232,10 +227,13 @@ function MonthlyRevenueChartView({ linkId }: { linkId: string }) {
         </div>
       </div>
       <div className="h-80">
-        <MonthlyRevenueChart
-          data={monthlyRevenueChartData}
-          height={320}
-          currency={currency}
+        <PublicComparisonBarChart
+          data={monthlyRevenueChartData.map((item) => ({
+            label: item.month,
+            primary: item.amount,
+            secondary: item.lastYearAmount,
+          }))}
+          showAverage={true}
         />
       </div>
     </>
@@ -295,7 +293,14 @@ function ProfitChartView({ linkId }: { linkId: string }) {
         </p>
       </div>
       <div className="h-80">
-        <ProfitChart data={profitChartData} height={320} currency={currency} />
+        <PublicComparisonBarChart
+          data={profitChartData.map((item) => ({
+            label: item.month,
+            primary: item.profit,
+            secondary: item.lastYearProfit,
+          }))}
+          showAverage={true}
+        />
       </div>
     </>
   );
@@ -316,7 +321,12 @@ function ExpensesChartView({ linkId }: { linkId: string }) {
       ? (chartData.data as {
           summary: { averageExpense: number };
           meta: { currency?: string };
-          result: Array<{ date: string; value: number }>;
+          result: Array<{
+            date: string;
+            value: number;
+            recurring: number;
+            total: number;
+          }>;
         })
       : null;
   const currency = expenseData?.meta?.currency || "USD";
@@ -348,7 +358,13 @@ function ExpensesChartView({ linkId }: { linkId: string }) {
       </div>
       <div className="h-80">
         {expenseData?.result && expenseData.result.length > 0 ? (
-          <StackedBarChart data={expenseData} height={320} />
+          <PublicStackedExpensesChart
+            data={expenseData.result.map((item) => ({
+              label: format(parseISO(item.date), "MMM"),
+              total: item.total,
+              recurring: item.recurring,
+            }))}
+          />
         ) : (
           <div className="flex items-center justify-center h-full text-muted-foreground">
             No expense data available
@@ -438,11 +454,12 @@ function RevenueForecastChartView({ linkId }: { linkId: string }) {
         </div>
       </div>
       <div className="h-80">
-        <RevenueForecastChart
-          data={revenueForecastChartData}
-          height={320}
-          currency={currency}
-          forecastStartIndex={forecastStartIndex}
+        <PublicForecastChart
+          data={revenueForecastChartData.map((item) => ({
+            label: item.month,
+            actual: item.actual,
+            forecasted: item.forecasted,
+          }))}
         />
       </div>
     </>
@@ -572,11 +589,11 @@ function RunwayChartView({ linkId }: { linkId: string }) {
             </div>
           </div>
         ) : (
-          <RunwayChart
-            data={runwayChartData}
-            height={320}
-            currency={currency}
-            displayMode="months"
+          <PublicRunwayChart
+            data={runwayChartData.map((item) => ({
+              label: item.month,
+              value: item.runwayMonths,
+            }))}
           />
         )}
       </div>
@@ -639,8 +656,8 @@ function CategoryExpensesChartView({ linkId }: { linkId: string }) {
                   className="w-2 h-2 rounded-full"
                   style={{
                     backgroundColor:
-                      categoryDonutGrayShades[
-                        idx % categoryDonutGrayShades.length
+                      publicChartGrayShades[
+                        idx % publicChartGrayShades.length
                       ],
                   }}
                 />
@@ -654,10 +671,11 @@ function CategoryExpensesChartView({ linkId }: { linkId: string }) {
       </div>
       <div className="h-80">
         {categoryDonutChartData.length > 0 ? (
-          <CategoryExpenseDonutChart
-            data={categoryDonutChartData}
-            height={320}
-            currency={currency}
+          <PublicDonutChart
+            data={categoryDonutChartData.map((item) => ({
+              label: item.category,
+              value: item.amount,
+            }))}
           />
         ) : (
           <div className="flex items-center justify-center h-full text-muted-foreground">

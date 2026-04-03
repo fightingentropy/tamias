@@ -1,6 +1,5 @@
 "use client";
 
-import { Icons } from "@tamias/ui/icons";
 import { motion } from "framer-motion";
 import type { ReactElement } from "react";
 import { useEffect, useRef, useState } from "react";
@@ -23,6 +22,123 @@ function DynamicIcon({
 }) {
   const Icon = dynamicIconMap[name];
   return Icon ? <Icon className={className} size={size} /> : null;
+}
+
+type InlineIconProps = {
+  className?: string;
+  size?: number;
+};
+
+function AddIcon({ className, size = 14 }: InlineIconProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      width={size}
+      height={size}
+      className={className}
+    >
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
+    </svg>
+  );
+}
+
+function BoltIcon({ className, size = 14 }: InlineIconProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      width={size}
+      height={size}
+      className={className}
+    >
+      <path d="M13 2 6 13h5l-1 9 8-12h-5l1-8Z" />
+    </svg>
+  );
+}
+
+function GlobeIcon({ className, size = 14 }: InlineIconProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      width={size}
+      height={size}
+      className={className}
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18" />
+      <path d="M12 3a14 14 0 0 1 0 18" />
+      <path d="M12 3a14 14 0 0 0 0 18" />
+    </svg>
+  );
+}
+
+function TimeIcon({ className, size = 14 }: InlineIconProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      width={size}
+      height={size}
+      className={className}
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v6l4 2" />
+    </svg>
+  );
+}
+
+function RecordIcon({ className, size = 14 }: InlineIconProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      width={size}
+      height={size}
+      className={className}
+    >
+      <circle cx="12" cy="12" r="5" />
+    </svg>
+  );
+}
+
+function ArrowUpwardIcon({ className, size = 12 }: InlineIconProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      width={size}
+      height={size}
+      className={className}
+    >
+      <path d="M12 18V6" />
+      <path d="m7 11 5-5 5 5" />
+    </svg>
+  );
 }
 
 export function AIAssistantAnimation({
@@ -405,25 +521,25 @@ export function AIAssistantAnimation({
               type="button"
               className="w-4 h-4 md:w-5 md:h-5 flex items-center justify-center transition-colors text-muted-foreground"
             >
-              <Icons.Add size={12} className="md:w-[14px] md:h-[14px]" />
+              <AddIcon size={12} className="md:w-[14px] md:h-[14px]" />
             </button>
             <button
               type="button"
               className="w-4 h-4 md:w-5 md:h-5 flex items-center justify-center transition-colors text-muted-foreground"
             >
-              <Icons.Bolt size={12} className="md:w-[14px] md:h-[14px]" />
+              <BoltIcon size={12} className="md:w-[14px] md:h-[14px]" />
             </button>
             <button
               type="button"
               className="w-4 h-4 md:w-5 md:h-5 flex items-center justify-center transition-colors text-muted-foreground"
             >
-              <Icons.Globle size={12} className="md:w-[14px] md:h-[14px]" />
+              <GlobeIcon size={12} className="md:w-[14px] md:h-[14px]" />
             </button>
             <button
               type="button"
               className="w-4 h-4 md:w-5 md:h-5 flex items-center justify-center transition-colors text-muted-foreground"
             >
-              <Icons.Time size={12} className="md:w-[14px] md:h-[14px]" />
+              <TimeIcon size={12} className="md:w-[14px] md:h-[14px]" />
             </button>
           </div>
           <div className="flex items-end gap-1 md:gap-1.5">
@@ -431,13 +547,13 @@ export function AIAssistantAnimation({
               type="button"
               className="w-4 h-4 md:w-5 md:h-5 flex items-center justify-center transition-colors text-muted-foreground"
             >
-              <Icons.Record size={12} className="md:w-[14px] md:h-[14px]" />
+              <RecordIcon size={12} className="md:w-[14px] md:h-[14px]" />
             </button>
             <button
               type="button"
               className="w-4 h-4 md:w-5 md:h-5 flex items-center justify-center transition-opacity bg-foreground"
             >
-              <Icons.ArrowUpward
+              <ArrowUpwardIcon
                 size={10}
                 className="text-background md:w-[12px] md:h-[12px]"
               />

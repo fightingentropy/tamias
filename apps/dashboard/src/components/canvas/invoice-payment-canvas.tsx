@@ -16,7 +16,7 @@ import {
   shouldShowMetricsSkeleton,
   shouldShowSummarySkeleton,
 } from "@/components/canvas/utils";
-import { InvoicePaymentChart } from "@/components/charts/lazy";
+import { PublicGroupedBarLineChart } from "@/components/charts/public-report-charts";
 import { useUserQuery } from "@/hooks/use-user";
 
 export function InvoicePaymentCanvas() {
@@ -89,10 +89,22 @@ export function InvoicePaymentCanvas() {
               isLoading={stage === "loading"}
               height="20rem"
             >
-              <InvoicePaymentChart
-                data={chartData}
-                height={320}
-                locale={locale}
+              <PublicGroupedBarLineChart
+                data={chartData.map((item) => ({
+                  label: item.month,
+                  averageDaysToPay: item.averageDaysToPay,
+                  paymentRate: item.paymentRate,
+                }))}
+                bars={[
+                  {
+                    key: "averageDaysToPay",
+                    color: "hsl(var(--foreground))",
+                  },
+                ]}
+                line={{
+                  key: "paymentRate",
+                  color: "hsl(var(--muted-foreground))",
+                }}
               />
             </CanvasChart>
           )}

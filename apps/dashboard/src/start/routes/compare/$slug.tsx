@@ -3,7 +3,7 @@ import { createSiteFileRoute } from "@/start/route-hosts";
 import {
   getCompetitorBySlug,
 } from "@/site/data/competitors";
-import { baseUrl } from "@/site/sitemap";
+import { baseUrl } from "@/site/base-url";
 
 export const Route = createSiteFileRoute("/compare/$slug")({
   head: ({ params }) => {

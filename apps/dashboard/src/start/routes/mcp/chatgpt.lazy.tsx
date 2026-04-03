@@ -1,5 +1,5 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
-import { McpChatgptSitePage } from "@/site/pages/mcp-pages";
+import { MCPChatGPT } from "@/site/components/mcp-chatgpt";
 import { SiteLayoutShell } from "@/start/components/site-layout-shell";
 
 export const Route = createLazyFileRoute("/mcp/chatgpt")({
@@ -9,7 +9,7 @@ export const Route = createLazyFileRoute("/mcp/chatgpt")({
 function McpChatgptPage() {
   return (
     <SiteLayoutShell>
-      <McpChatgptSitePage />
+      <MCPChatGPT />
     </SiteLayoutShell>
   );
 }

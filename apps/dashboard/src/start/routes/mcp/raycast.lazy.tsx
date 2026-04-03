@@ -1,5 +1,5 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
-import { McpRaycastSitePage } from "@/site/pages/mcp-pages";
+import { MCPRaycast } from "@/site/components/mcp-raycast";
 import { SiteLayoutShell } from "@/start/components/site-layout-shell";
 
 export const Route = createLazyFileRoute("/mcp/raycast")({
@@ -9,7 +9,7 @@ export const Route = createLazyFileRoute("/mcp/raycast")({
 function McpRaycastPage() {
   return (
     <SiteLayoutShell>
-      <McpRaycastSitePage />
+      <MCPRaycast />
     </SiteLayoutShell>
   );
 }

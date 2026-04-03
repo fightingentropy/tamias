@@ -373,18 +373,6 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   }
 }
 
-/* Chart selection overlay - exclude labels from background effect */
-/* Ensure chart axis labels are not affected by the overlay */
-.recharts-wrapper .recharts-xAxis .recharts-cartesian-axis-tick text,
-.recharts-wrapper .recharts-yAxis .recharts-cartesian-axis-tick text {
-  position: relative;
-  z-index: 10;
-  user-select: none;
-  pointer-events: none;
-  isolation: isolate;
-}
-
-/* Ensure the overlay doesn't affect labels */
 .chart-selection-overlay {
   isolation: isolate;
 }

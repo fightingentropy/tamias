@@ -17,7 +17,7 @@ import {
   shouldShowMetricsSkeleton,
   shouldShowSummarySkeleton,
 } from "@/components/canvas/utils";
-import { CashFlowChart } from "@/components/charts/lazy";
+import { PublicCashFlowChart } from "@/components/charts/public-report-charts";
 import { useUserQuery } from "@/hooks/use-user";
 
 export function CashFlowCanvas() {
@@ -119,13 +119,14 @@ export function CashFlowCanvas() {
               isLoading={stage === "loading"}
               height="20rem"
             >
-              <CashFlowChart
-                data={cashFlowData}
-                height={320}
-                showLegend={false}
-                showCumulative={true}
-                currency={currency}
-                locale={locale}
+              <PublicCashFlowChart
+                data={cashFlowData.map((item) => ({
+                  label: item.month,
+                  inflow: item.inflow,
+                  outflow: item.outflow,
+                  netFlow: item.netFlow,
+                  cumulativeFlow: item.cumulativeFlow,
+                }))}
               />
             </CanvasChart>
           )}

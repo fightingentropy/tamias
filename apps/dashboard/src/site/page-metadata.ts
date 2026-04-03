@@ -1,5 +1,5 @@
 import type { SiteMetadata } from "@/site/metadata";
-import { baseUrl } from "@/site/sitemap";
+import { baseUrl } from "@/site/base-url";
 
 type SiteMetadataOptions = {
   title: string;

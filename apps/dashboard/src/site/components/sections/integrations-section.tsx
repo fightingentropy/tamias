@@ -2,7 +2,7 @@
 
 import Link from "@/framework/link";
 import { AppLogo } from "@/site/components/app-logo";
-import { apps } from "@/site/data/apps";
+import { appCatalog } from "@/site/data/app-catalog";
 
 interface IntegrationsSectionProps {
   title?: string;
@@ -10,9 +10,9 @@ interface IntegrationsSectionProps {
 }
 
 // Split apps into two rows for animation
-const midpoint = Math.ceil(apps.length / 2);
-const row1Apps = apps.slice(0, midpoint);
-const row2Apps = apps.slice(midpoint);
+const midpoint = Math.ceil(appCatalog.length / 2);
+const row1Apps = appCatalog.slice(0, midpoint);
+const row2Apps = appCatalog.slice(midpoint);
 
 function IntegrationPill({
   id,

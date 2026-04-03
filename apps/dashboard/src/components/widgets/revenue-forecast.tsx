@@ -3,13 +3,13 @@
 import { useChatActions, useChatId } from "@ai-sdk-tools/store";
 import { Icons } from "@tamias/ui/icons";
 import { format, parseISO } from "date-fns";
-import { Line, LineChart, ResponsiveContainer } from "recharts";
 import { FormatAmount } from "@/components/format-amount";
 import { useChatInterface } from "@/hooks/use-chat-interface";
 import { useMetricsFilter } from "@/hooks/use-metrics-filter";
 import { useTRPC } from "@/trpc/client";
 import { getPeriodLabel } from "@/utils/metrics-date-utils";
 import { BaseWidget } from "./base";
+import { MiniLineChart } from "./mini-charts";
 import { useOverviewWidgetQuery } from "./overview-widget-data";
 import { WIDGET_POLLING_CONFIG } from "./widget-config";
 import { WidgetSkeleton } from "./widget-skeleton";
@@ -114,22 +114,10 @@ export function RevenueForecastWidget() {
           {/* Simple trend line chart */}
           {chartData.length > 0 ? (
             <div className="w-full">
-              <ResponsiveContainer width="100%" height={48}>
-                <LineChart
-                  data={chartData}
-                  margin={{ top: 1, right: 0, left: 0, bottom: 1 }}
-                >
-                  <Line
-                    isAnimationActive={false}
-                    type="monotone"
-                    dataKey="value"
-                    stroke="hsl(var(--foreground))"
-                    strokeWidth={2}
-                    dot={false}
-                    activeDot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              <MiniLineChart
+                data={chartData}
+                className="h-12 w-full text-foreground"
+              />
             </div>
           ) : (
             <div className="h-12 w-full flex items-center">

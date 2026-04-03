@@ -1,10 +1,10 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
 import { IntegrationsGrid } from "@/site/components/integrations-grid";
-import { categories, getAppsByCategory } from "@/site/data/apps";
+import { categories, getAppSummariesByCategory } from "@/site/data/app-catalog";
 import { SiteNotFoundPage } from "@/start/components/site-not-found-page";
 import { SiteLayoutShell } from "@/start/components/site-layout-shell";
 
-const validCategories = categories
+const validCategories: string[] = categories
   .filter((category) => category.id !== "all")
   .map((category) => category.id);
 
@@ -22,7 +22,7 @@ function IntegrationCategoryRoute() {
   return (
     <SiteLayoutShell>
       <IntegrationsGrid
-        apps={getAppsByCategory(category)}
+        apps={getAppSummariesByCategory(category)}
         activeCategory={category}
       />
     </SiteLayoutShell>

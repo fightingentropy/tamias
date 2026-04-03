@@ -17,7 +17,10 @@ import {
   shouldShowMetricsSkeleton,
   shouldShowSummarySkeleton,
 } from "@/components/canvas/utils";
-import { CategoryExpenseDonutChart } from "@/components/charts/lazy";
+import {
+  PublicDonutChart,
+  publicChartGrayShades,
+} from "@/components/charts/public-report-charts";
 import { useUserQuery } from "@/hooks/use-user";
 
 export function CategoryExpensesCanvas() {
@@ -36,14 +39,6 @@ export function CategoryExpensesCanvas() {
   // Get the largest expense categories for the chart
   const largestCategories = categoryData.slice(0, 10); // Top 10 categories
 
-  // Gray shades for legend (matching the chart)
-  const grayShades = [
-    "#ffffff", // White for first
-    "#707070", // Gray for second
-    "#A0A0A0", // Light gray for third
-    "#606060", // Dark gray for fourth
-  ];
-
   // Prepare chart data (colors will be handled by the chart component)
   const chartDataWithColors = largestCategories;
 
@@ -51,7 +46,7 @@ export function CategoryExpensesCanvas() {
   const legendItems = chartDataWithColors.slice(0, 3).map((item, index) => ({
     label: item.category,
     type: "solid" as const,
-    color: grayShades[index % grayShades.length],
+    color: publicChartGrayShades[index % publicChartGrayShades.length],
   }));
 
   // Get top 4 categories for metrics cards
@@ -122,11 +117,11 @@ export function CategoryExpensesCanvas() {
               isLoading={stage === "loading"}
               height="20rem"
             >
-              <CategoryExpenseDonutChart
-                data={chartDataWithColors}
-                currency={currency}
-                locale={locale}
-                height={320}
+              <PublicDonutChart
+                data={chartDataWithColors.map((item) => ({
+                  label: item.category,
+                  value: item.amount,
+                }))}
               />
             </CanvasChart>
           )}

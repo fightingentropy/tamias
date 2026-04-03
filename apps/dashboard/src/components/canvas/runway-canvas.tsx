@@ -17,7 +17,7 @@ import {
   shouldShowMetricsSkeleton,
   shouldShowSummarySkeleton,
 } from "@/components/canvas/utils";
-import { RunwayChart } from "@/components/charts/lazy";
+import { PublicRunwayChart } from "@/components/charts/public-report-charts";
 import { useUserQuery } from "@/hooks/use-user";
 
 export function RunwayCanvas() {
@@ -128,13 +128,11 @@ export function RunwayCanvas() {
                 ],
               }}
             >
-              <RunwayChart
-                data={runwayChartData}
-                height={320}
-                showLegend={false}
-                displayMode="months"
-                currency={currency}
-                locale={locale}
+              <PublicRunwayChart
+                data={runwayChartData.map((item) => ({
+                  label: item.month,
+                  value: item.runwayMonths,
+                }))}
               />
             </CanvasChart>
           )}

@@ -1,14 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { createSiteFileRoute } from "@/start/route-hosts";
-import { IntegrationDetailPage } from "@/site/components/integration-detail-page";
-import { getAppBySlug } from "@/site/data/apps";
-import { SiteNotFoundPage } from "@/start/components/site-not-found-page";
-import { baseUrl } from "@/site/sitemap";
-import { SiteLayoutShell } from "@/start/components/site-layout-shell";
+import { getAppSummaryBySlug } from "@/site/data/app-catalog";
+import { baseUrl } from "@/site/base-url";
 
 export const Route = createSiteFileRoute("/integrations/$slug")({
   head: ({ params }) => {
-    const app = getAppBySlug(params.slug);
+    const app = getAppSummaryBySlug(params.slug);
 
     if (!app) {
       return {

@@ -1,12 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { createSiteFileRoute } from "@/start/route-hosts";
-import { IntegrationsGrid } from "@/site/components/integrations-grid";
-import { categories, getAppsByCategory } from "@/site/data/apps";
-import { SiteNotFoundPage } from "@/start/components/site-not-found-page";
-import { baseUrl } from "@/site/sitemap";
-import { SiteLayoutShell } from "@/start/components/site-layout-shell";
+import { categories } from "@/site/data/app-catalog";
+import { baseUrl } from "@/site/base-url";
 
-const validCategories = categories
+const validCategories: string[] = categories
   .filter((category) => category.id !== "all")
   .map((category) => category.id);
 

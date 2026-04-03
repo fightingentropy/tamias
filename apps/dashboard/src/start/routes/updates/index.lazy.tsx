@@ -4,7 +4,8 @@ import { Pagination } from "@/site/components/pagination";
 import { PostStatus } from "@/site/components/post-status";
 import Image from "@/framework/image";
 import Link from "@/framework/link";
-import { getBlogPostsBySlugs, getPaginatedBlogPostPreviews } from "@/site/lib/blog";
+import { getBlogPostsBySlugs } from "@/site/lib/blog";
+import { getPaginatedBlogPostPreviews } from "@/site/lib/blog-metadata";
 import { SiteLayoutShell } from "@/start/components/site-layout-shell";
 
 const POSTS_PER_PAGE = 3;

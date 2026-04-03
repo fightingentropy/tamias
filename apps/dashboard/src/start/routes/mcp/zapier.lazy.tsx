@@ -1,5 +1,5 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
-import { McpZapierSitePage } from "@/site/pages/mcp-pages";
+import { MCPZapier } from "@/site/components/mcp-zapier";
 import { SiteLayoutShell } from "@/start/components/site-layout-shell";
 
 export const Route = createLazyFileRoute("/mcp/zapier")({
@@ -9,7 +9,7 @@ export const Route = createLazyFileRoute("/mcp/zapier")({
 function McpZapierPage() {
   return (
     <SiteLayoutShell>
-      <McpZapierSitePage />
+      <MCPZapier />
     </SiteLayoutShell>
   );
 }

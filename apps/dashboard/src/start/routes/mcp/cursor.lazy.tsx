@@ -1,5 +1,5 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
-import { McpCursorSitePage } from "@/site/pages/mcp-pages";
+import { MCPCursor } from "@/site/components/mcp-cursor";
 import { SiteLayoutShell } from "@/start/components/site-layout-shell";
 
 export const Route = createLazyFileRoute("/mcp/cursor")({
@@ -9,7 +9,7 @@ export const Route = createLazyFileRoute("/mcp/cursor")({
 function McpCursorPage() {
   return (
     <SiteLayoutShell>
-      <McpCursorSitePage />
+      <MCPCursor />
     </SiteLayoutShell>
   );
 }

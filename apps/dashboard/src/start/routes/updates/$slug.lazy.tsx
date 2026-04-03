@@ -5,7 +5,7 @@ import Image from "@/framework/image";
 import Link from "@/framework/link";
 import { getBlogPostBySlug } from "@/site/lib/blog";
 import { SiteNotFoundPage } from "@/start/components/site-not-found-page";
-import { baseUrl } from "@/site/sitemap";
+import { baseUrl } from "@/site/base-url";
 import { SiteLayoutShell } from "@/start/components/site-layout-shell";
 
 export const Route = createLazyFileRoute("/updates/$slug")({

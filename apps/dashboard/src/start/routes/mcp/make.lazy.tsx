@@ -1,5 +1,5 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
-import { McpMakeSitePage } from "@/site/pages/mcp-pages";
+import { MCPMake } from "@/site/components/mcp-make";
 import { SiteLayoutShell } from "@/start/components/site-layout-shell";
 
 export const Route = createLazyFileRoute("/mcp/make")({
@@ -9,7 +9,7 @@ export const Route = createLazyFileRoute("/mcp/make")({
 function McpMakePage() {
   return (
     <SiteLayoutShell>
-      <McpMakeSitePage />
+      <MCPMake />
     </SiteLayoutShell>
   );
 }

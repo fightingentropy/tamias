@@ -1,11 +1,9 @@
-import { getWebsiteUrl } from "@tamias/utils/envs";
-import { categories, getAllSlugs } from "@/site/data/apps";
+import { baseUrl } from "@/site/base-url";
+import { categories, getAllAppCatalogSlugs } from "@/site/data/app-catalog";
 import { getAllCompetitorSlugs } from "@/site/data/competitors";
-import { getSortedBlogPostPreviews } from "@/site/lib/blog";
-import { getAllDocSlugs } from "@/site/lib/docs";
+import { getSortedBlogPostPreviews } from "@/site/lib/blog-metadata";
+import { getAllDocSlugs } from "@/site/lib/docs-metadata";
 import type { SiteSitemapEntry } from "@/site/metadata";
-
-export const baseUrl = getWebsiteUrl();
 
 export default async function sitemap(): Promise<SiteSitemapEntry[]> {
   const lastModified = new Date().toISOString().slice(0, 10);
@@ -53,7 +51,7 @@ export default async function sitemap(): Promise<SiteSitemapEntry[]> {
     lastModified: post.metadata.publishedAt ?? lastModified,
   }));
 
-  const integrations = getAllSlugs().map((slug) => ({
+  const integrations = getAllAppCatalogSlugs().map((slug) => ({
     url: `${baseUrl}/integrations/${slug}`,
     lastModified,
   }));

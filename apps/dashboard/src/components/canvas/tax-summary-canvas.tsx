@@ -18,7 +18,10 @@ import {
   shouldShowMetricsSkeleton,
   shouldShowSummarySkeleton,
 } from "@/components/canvas/utils";
-import { CategoryExpenseDonutChart } from "@/components/charts/lazy";
+import {
+  PublicDonutChart,
+  publicChartGrayShades,
+} from "@/components/charts/public-report-charts";
 import { useTeamQuery } from "@/hooks/use-team";
 import { useUserQuery } from "@/hooks/use-user";
 import { useI18n } from "@/locales/client";
@@ -178,12 +181,34 @@ export function TaxSummaryCanvas() {
               isLoading={stage === "loading"}
               height="20rem"
             >
-              <CategoryExpenseDonutChart
-                data={donutChartData}
-                currency={currency}
-                locale={locale}
-                height={320}
-              />
+              <div className="flex h-full flex-col">
+                <div className="mb-4 flex flex-wrap gap-4">
+                  {donutChartData.slice(0, 4).map((item, idx) => (
+                    <div key={item.category} className="flex items-center gap-2">
+                      <div
+                        className="h-2 w-2 rounded-full"
+                        style={{
+                          backgroundColor:
+                            publicChartGrayShades[
+                              idx % publicChartGrayShades.length
+                            ],
+                        }}
+                      />
+                      <span className="text-xs text-muted-foreground">
+                        {item.category}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex-1">
+                  <PublicDonutChart
+                    data={donutChartData.map((item) => ({
+                      label: item.category,
+                      value: item.amount,
+                    }))}
+                  />
+                </div>
+              </div>
             </CanvasChart>
           )}
 

@@ -8,7 +8,6 @@ import {
 import * as SelectPrimitive from "@radix-ui/react-select";
 import * as React from "react";
 import { cn } from "../utils";
-import { Icons } from "./icons";
 
 const Select = SelectPrimitive.Root;
 
@@ -34,7 +33,7 @@ const SelectTrigger = React.forwardRef<
     {!hideIcon && (
       <div className="h-4 w-4">
         <SelectPrimitive.Icon asChild>
-          <Icons.ChevronDown className="h-4 w-4" />
+          <ChevronDownIcon className="h-4 w-4" />
         </SelectPrimitive.Icon>
       </div>
     )}

@@ -3,9 +3,11 @@
 import { cn } from "@tamias/ui/cn";
 import { Icons } from "@tamias/ui/icons";
 import { useQuery } from "@tanstack/react-query";
+import { format, parseISO } from "date-fns";
 import { useState } from "react";
 import { AnimatedNumber } from "@/components/animated-number";
-import { StackedBarChart } from "@/components/charts/lazy";
+import { PublicStackedExpensesChart } from "@/components/charts/public-report-charts";
+import { SelectableChartWrapper } from "@/components/charts/selectable-chart-wrapper";
 import { useLongPress } from "@/hooks/use-long-press";
 import { useMetricsCustomize } from "@/hooks/use-metrics-customize";
 import { useChatStore } from "@/store/chat";
@@ -97,20 +99,32 @@ export function ExpensesCard({
       </div>
       <div className="h-80">
         {expenseData?.result && expenseData.result.length > 0 ? (
-          <StackedBarChart
-            data={expenseData}
-            height={320}
+          <SelectableChartWrapper
+            data={expenseData.result.map((item) => ({
+              label: item.date,
+              total: item.total,
+              recurring: item.recurring,
+            }))}
+            dateKey="label"
             enableSelection={true}
             onSelectionStateChange={setIsSelecting}
-            onSelectionComplete={(startDate, endDate, chartType) => {
+            onSelectionComplete={(startDate, endDate) => {
               const message = generateChartSelectionMessage(
                 startDate,
                 endDate,
-                chartType,
+                "stacked-bar",
               );
               setInput(message);
             }}
-          />
+          >
+            <PublicStackedExpensesChart
+              data={expenseData.result.map((item) => ({
+                label: format(parseISO(item.date), "MMM"),
+                total: item.total,
+                recurring: item.recurring,
+              }))}
+            />
+          </SelectableChartWrapper>
         ) : (
           <div className="flex items-center justify-center h-full text-xs text-muted-foreground -mt-10">
             No expense data available.

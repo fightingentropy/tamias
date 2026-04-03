@@ -2,7 +2,6 @@
 
 import { Avatar, AvatarFallback, AvatarImageNext } from "@tamias/ui/avatar";
 import { Button } from "@tamias/ui/button";
-import { Icons } from "@tamias/ui/icons";
 import { Skeleton } from "@tamias/ui/skeleton";
 import {
   Tooltip,
@@ -16,6 +15,7 @@ import Link from "@/framework/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useOnClickOutside } from "usehooks-ts";
 import { useCurrentUser } from "@/components/current-user-provider";
+import { AddIcon } from "@/start/components/global-ui-icons";
 import { useTRPC } from "@/trpc/client";
 
 type Props = {
@@ -221,7 +221,7 @@ export function TeamDropdown({ isExpanded = false }: Props) {
                       size="icon"
                       variant="outline"
                     >
-                      <Icons.Add />
+                      <AddIcon />
                     </Button>
                   </Link>
                 </motion.div>

@@ -1,9 +1,9 @@
 import {
-  docContentBySlug,
-  docEntries,
+  getDocMetadataBySlug,
   type DocMetadata,
   type DocMetadataEntry,
-} from "@/site/generated/content-manifest";
+} from "@/site/lib/docs-metadata";
+import { docContentBySlug } from "@/site/generated/doc-content";
 
 export type { DocMetadata, DocMetadataEntry };
 export type DocEntry = DocMetadataEntry & { content: string };
@@ -30,14 +30,6 @@ export function getDocBySlug(slug: string) {
     ...doc,
     content: docContentBySlug[slug] ?? "",
   };
-}
-
-export function getDocMetadataBySlug(slug: string) {
-  return docEntries.find((doc) => doc.slug === slug) ?? null;
-}
-
-export function getAllDocSlugs(): string[] {
-  return docEntries.map((doc) => doc.slug);
 }
 
 export function getAdjacentDocs(currentSlug: string) {

@@ -1,29 +1,3 @@
-import type { SiteMetadata } from "@/site/metadata";
-import { baseUrl } from "@/site/sitemap";
-
-const title = "Privacy Policy";
-const description =
-  "Privacy Policy for Tamias. Learn how we collect, use, and protect your personal data.";
-
-export const policyMetadata: SiteMetadata = {
-  title,
-  description,
-  openGraph: {
-    title,
-    description,
-    type: "website",
-    url: `${baseUrl}/policy`,
-  },
-  twitter: {
-    card: "summary_large_image",
-    title,
-    description,
-  },
-  alternates: {
-    canonical: `${baseUrl}/policy`,
-  },
-};
-
 export function PolicyPage() {
   return (
     <div className="min-h-screen">

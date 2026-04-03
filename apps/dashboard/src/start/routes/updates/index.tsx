@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { createSiteFileRoute } from "@/start/route-hosts";
-import { baseUrl } from "@/site/sitemap";
+import { baseUrl } from "@/site/base-url";
 
 const title = "Updates";
 const description =

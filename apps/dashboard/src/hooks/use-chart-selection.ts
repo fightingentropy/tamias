@@ -29,28 +29,21 @@ export interface UseChartSelectionOptions {
 function readPlotArea(chartEl: HTMLElement | null): PlotArea | null {
   if (!chartEl) return null;
 
-  const hLine = chartEl.querySelector(
-    ".recharts-cartesian-grid-horizontal line",
-  );
-  const vLine = chartEl.querySelector(".recharts-cartesian-grid-vertical line");
+  const annotatedPlotArea = chartEl.querySelector("[data-chart-plot-area]");
+  if (annotatedPlotArea instanceof HTMLElement) {
+    const x = Number.parseFloat(annotatedPlotArea.dataset.plotX || "0");
+    const width = Number.parseFloat(annotatedPlotArea.dataset.plotWidth || "0");
+    const y = Number.parseFloat(annotatedPlotArea.dataset.plotY || "0");
+    const height = Number.parseFloat(
+      annotatedPlotArea.dataset.plotHeight || "0",
+    );
 
-  if (!hLine) return null;
-
-  const x = Number.parseFloat(hLine.getAttribute("x1") || "0");
-  const x2 = Number.parseFloat(hLine.getAttribute("x2") || "0");
-  const width = x2 - x;
-
-  let y = 0;
-  let height = 0;
-  if (vLine) {
-    y = Number.parseFloat(vLine.getAttribute("y1") || "0");
-    const y2 = Number.parseFloat(vLine.getAttribute("y2") || "0");
-    height = y2 - y;
+    if (width > 0 && height > 0) {
+      return { x, width, y, height };
+    }
   }
 
-  if (width <= 0) return null;
-
-  return { x, width, y, height };
+  return null;
 }
 
 export function useChartSelection({

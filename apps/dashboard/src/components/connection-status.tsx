@@ -7,11 +7,16 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@tamias/ui/hover-card";
-import { Icons } from "@tamias/ui/icons";
 import { useQuery } from "@tanstack/react-query";
 import Link from "@/framework/link";
 import { useEffect, useMemo, useState } from "react";
 import { BankLogo } from "@/components/bank-logo";
+import {
+  ChevronRightIcon,
+  ErrorIcon,
+  GmailIcon,
+  OutlookIcon,
+} from "@/start/components/global-ui-icons";
 import { useTRPC } from "@/trpc/client";
 import {
   buildConnectionIssues,
@@ -26,10 +31,10 @@ function IssueLogo({ issue }: { issue: ConnectionIssue }) {
 
   // Inbox provider icons
   if (issue.provider === "gmail") {
-    return <Icons.Gmail className="size-5" />;
+    return <GmailIcon className="size-5" />;
   }
   if (issue.provider === "outlook") {
-    return <Icons.Outlook className="size-5" />;
+    return <OutlookIcon className="size-5" />;
   }
 
   return null;
@@ -52,7 +57,7 @@ function IssueRow({ issue }: { issue: ConnectionIssue }) {
       </div>
       <div className="flex items-center gap-0.5 text-[11px] text-muted-foreground shrink-0">
         {issue.linkText}
-        <Icons.ChevronRight className="size-3" />
+        <ChevronRightIcon className="size-3" />
       </div>
     </Link>
   );
@@ -124,7 +129,7 @@ export function ConnectionStatus() {
           size="icon"
           className="rounded-full w-8 h-8 items-center hidden md:flex"
         >
-          <Icons.Error size={16} className={iconColor} />
+          <ErrorIcon size={16} className={iconColor} />
         </Button>
       </HoverCardTrigger>
       <HoverCardContent className="w-[320px] p-0" align="end" sideOffset={10}>

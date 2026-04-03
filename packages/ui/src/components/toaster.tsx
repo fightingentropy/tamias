@@ -1,8 +1,13 @@
 "use client";
 
-import { Icons } from "./icons";
 import { Progress } from "./progress";
 import { Spinner } from "./spinner";
+import {
+  ToastAiIcon,
+  ToastCheckIcon,
+  ToastErrorIcon,
+  ToastInfoIcon,
+} from "./toast-icons";
 import {
   Toast,
   ToastClose,
@@ -37,14 +42,14 @@ export function Toaster() {
                       {props?.variant && (
                         <div className="w-[20px] h-[20px] flex items-center">
                           {props.variant === "ai" && (
-                            <Icons.AI className="text-[#0064D9]" />
+                            <ToastAiIcon className="text-[#0064D9]" />
                           )}
-                          {props?.variant === "success" && <Icons.Check />}
+                          {props?.variant === "success" && <ToastCheckIcon />}
                           {props?.variant === "error" && (
-                            <Icons.Error className="text-[#FF3638]" />
+                            <ToastErrorIcon className="text-[#FF3638]" />
                           )}
                           {props?.variant === "info" && (
-                            <Icons.AlertCircle className="text-[#878787]" />
+                            <ToastInfoIcon className="text-[#878787]" />
                           )}
                           {props?.variant === "progress" && (
                             <Spinner className="h-4 w-4 animate-spin" />

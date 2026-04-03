@@ -5,8 +5,9 @@ import { useQuery } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import { useMemo, useState } from "react";
 import { AnimatedNumber } from "@/components/animated-number";
+import { PublicForecastChart } from "@/components/charts/public-report-charts";
+import { SelectableChartWrapper } from "@/components/charts/selectable-chart-wrapper";
 import { formatChartMonth } from "@/components/charts/chart-utils";
-import { RevenueForecastChart } from "@/components/charts/lazy";
 import { useLongPress } from "@/hooks/use-long-press";
 import { useMetricsCustomize } from "@/hooks/use-metrics-customize";
 import { useChatStore } from "@/store/chat";
@@ -63,6 +64,7 @@ export function RevenueForecastCard({
     return [
       ...historical.map((item, index) => ({
         month: formatChartMonth(item.date, totalMonths),
+        label: formatChartMonth(item.date, totalMonths),
         actual: item.value,
         // Set forecasted value on the last historical point to same as actual to connect the lines
         forecasted: index === historical.length - 1 ? item.value : null,
@@ -75,6 +77,7 @@ export function RevenueForecastCard({
       })),
       ...forecast.map((item) => ({
         month: formatChartMonth(item.date, totalMonths),
+        label: formatChartMonth(item.date, totalMonths),
         actual: null,
         forecasted: item.value,
         date: item.date,
@@ -84,12 +87,6 @@ export function RevenueForecastCard({
         breakdown: item.breakdown ?? null,
       })),
     ];
-  }, [revenueForecastData]);
-
-  // Calculate forecast start index
-  const forecastStartIndex = useMemo(() => {
-    if (!revenueForecastData?.historical) return -1;
-    return revenueForecastData.historical.length - 1;
   }, [revenueForecastData]);
 
   const forecastedRevenue =
@@ -170,23 +167,28 @@ export function RevenueForecastCard({
         </div>
       </div>
       <div className="h-80">
-        <RevenueForecastChart
+        <SelectableChartWrapper
           data={revenueForecastChartData}
-          height={320}
-          currency={currency}
-          locale={locale}
-          forecastStartIndex={forecastStartIndex}
+          dateKey="label"
           enableSelection={true}
           onSelectionStateChange={setIsSelecting}
-          onSelectionComplete={(startDate, endDate, chartType) => {
+          onSelectionComplete={(startDate, endDate) => {
             const message = generateChartSelectionMessage(
               startDate,
               endDate,
-              chartType,
+              "revenue-forecast",
             );
             setInput(message);
           }}
-        />
+        >
+          <PublicForecastChart
+            data={revenueForecastChartData.map((item) => ({
+              label: item.label,
+              actual: item.actual,
+              forecasted: item.forecasted,
+            }))}
+          />
+        </SelectableChartWrapper>
       </div>
     </div>
   );

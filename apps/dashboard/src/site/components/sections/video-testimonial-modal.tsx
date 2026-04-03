@@ -1,17 +1,26 @@
 "use client";
 
-import { Icons } from "@tamias/ui/icons";
-import dynamic from "@/framework/dynamic";
 import Image from "@/framework/image";
-import type { Testimonial } from "./testimonials-section";
+import type { Testimonial } from "../testimonial-data";
+import { CloudflareStreamVideo } from "./cloudflare-stream-video";
 
-const TestimonialVideoPlayer = dynamic(
-  () =>
-    import("@/site/components/sections/testimonial-video-player").then(
-      (mod) => mod.TestimonialVideoPlayer,
-    ),
-  { ssr: false },
-);
+function CloseIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M6 6 18 18" />
+      <path d="m18 6-12 12" />
+    </svg>
+  );
+}
 
 export function VideoTestimonialModal({
   testimonial,
@@ -39,7 +48,7 @@ export function VideoTestimonialModal({
           className="absolute top-6 right-6"
           aria-label="Close dialog"
         >
-          <Icons.Close className="h-6 w-6 text-primary" />
+          <CloseIcon className="h-6 w-6 text-primary" />
         </button>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-3">
@@ -66,9 +75,10 @@ export function VideoTestimonialModal({
           </div>
           <div className="flex flex-col gap-6">
             <div className="w-full overflow-hidden bg-muted">
-              <TestimonialVideoPlayer
+              <CloudflareStreamVideo
                 src={testimonial.video}
                 poster={testimonial.videoPoster}
+                title={`${testimonial.name} video testimonial`}
               />
             </div>
           </div>

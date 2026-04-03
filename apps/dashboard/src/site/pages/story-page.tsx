@@ -1,12 +1,4 @@
 import Image from "@/framework/image";
-import { createSiteMetadata } from "@/site/page-metadata";
-
-export const storySiteMetadata = createSiteMetadata({
-  title: "Story",
-  description:
-    "Why we built Tamias. Learn about our mission to help one-person companies stay on top of their business finances without the manual work.",
-  path: "/story",
-});
 
 export function StorySitePage() {
   return (

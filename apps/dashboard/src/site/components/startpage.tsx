@@ -3,10 +3,40 @@
 import { track } from "@tamias/events/client";
 import { LogEvents } from "@tamias/events/events";
 import { Button } from "@tamias/ui/button";
-import { Icons } from "@tamias/ui/icons";
 import { useEffect, useRef, useState } from "react";
 import dynamic from "@/framework/dynamic";
 import Image from "@/framework/image";
+
+function StartPagePlayIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+    >
+      <path d="m8 6 10 6-10 6V6Z" />
+    </svg>
+  );
+}
+
+function StartPageCloseIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M6 6 18 18" />
+      <path d="m18 6-12 12" />
+    </svg>
+  );
+}
 
 // Dynamic imports for animations (5,500+ lines - loaded after hero)
 const AIAssistantAnimation = dynamic(() =>
@@ -461,7 +491,7 @@ export function StartPage() {
                 aria-label="Play video"
               >
                 <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-muted hover:bg-secondary hover:scale-105 flex items-center justify-center transition-all duration-200 pointer-events-auto">
-                  <Icons.Play className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-primary" />
+                  <StartPagePlayIcon className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-primary" />
                 </div>
               </button>
             </div>
@@ -507,7 +537,7 @@ export function StartPage() {
                 className="hidden sm:block absolute top-4 right-4 z-10 backdrop-blur-md bg-background-semi-transparent p-2 transition-colors"
                 aria-label="Close dialog"
               >
-                <Icons.Close className="h-5 w-5 text-foreground" />
+                <StartPageCloseIcon className="h-5 w-5 text-foreground" />
               </button>
               <video
                 ref={modalVideoRef}

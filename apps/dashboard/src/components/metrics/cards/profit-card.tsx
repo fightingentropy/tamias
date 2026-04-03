@@ -5,8 +5,9 @@ import { useQuery } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import { useMemo, useState } from "react";
 import { AnimatedNumber } from "@/components/animated-number";
+import { PublicComparisonBarChart } from "@/components/charts/public-report-charts";
+import { SelectableChartWrapper } from "@/components/charts/selectable-chart-wrapper";
 import { formatChartMonth } from "@/components/charts/chart-utils";
-import { ProfitChart } from "@/components/charts/lazy";
 import { useLongPress } from "@/hooks/use-long-press";
 import { useMetricsCustomize } from "@/hooks/use-metrics-customize";
 import { useChatStore } from "@/store/chat";
@@ -66,6 +67,7 @@ export function ProfitCard({
 
     return profitData.result.map((item) => ({
       month: formatChartMonth(item.current.date, totalMonths),
+      label: formatChartMonth(item.current.date, totalMonths),
       profit: item.current.value,
       lastYearProfit: item.previous.value,
       average,
@@ -117,22 +119,29 @@ export function ProfitCard({
         <p className="text-xs mt-1 text-muted-foreground">{dateRangeDisplay}</p>
       </div>
       <div className="h-80">
-        <ProfitChart
+        <SelectableChartWrapper
           data={profitChartData}
-          height={320}
-          currency={currency}
-          locale={locale}
+          dateKey="label"
           enableSelection={true}
           onSelectionStateChange={setIsSelecting}
-          onSelectionComplete={(startDate, endDate, chartType) => {
+          onSelectionComplete={(startDate, endDate) => {
             const message = generateChartSelectionMessage(
               startDate,
               endDate,
-              chartType,
+              "profit",
             );
             setInput(message);
           }}
-        />
+        >
+          <PublicComparisonBarChart
+            data={profitChartData.map((item) => ({
+              label: item.label,
+              primary: item.profit,
+              secondary: item.lastYearProfit,
+            }))}
+            showAverage={true}
+          />
+        </SelectableChartWrapper>
       </div>
     </div>
   );

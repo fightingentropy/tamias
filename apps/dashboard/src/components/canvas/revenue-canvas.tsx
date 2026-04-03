@@ -17,7 +17,7 @@ import {
   shouldShowMetricsSkeleton,
   shouldShowSummarySkeleton,
 } from "@/components/canvas/utils";
-import { RevenueTrendChart } from "@/components/charts/lazy";
+import { PublicComparisonBarChart } from "@/components/charts/public-report-charts";
 import { useUserQuery } from "@/hooks/use-user";
 
 export function RevenueCanvas() {
@@ -103,12 +103,13 @@ export function RevenueCanvas() {
               isLoading={stage === "loading"}
               height="20rem"
             >
-              <RevenueTrendChart
-                data={revenueData}
-                height={320}
-                showLegend={false}
-                currency={currency}
-                locale={locale}
+              <PublicComparisonBarChart
+                data={revenueData.map((item) => ({
+                  label: item.month,
+                  primary: item.revenue,
+                  secondary: item.lastYearRevenue,
+                }))}
+                showAverage={true}
               />
             </CanvasChart>
           )}

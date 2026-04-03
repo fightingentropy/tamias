@@ -16,7 +16,7 @@ import {
   shouldShowMetricsSkeleton,
   shouldShowSummarySkeleton,
 } from "@/components/canvas/utils";
-import { StressTestChart } from "@/components/charts/lazy";
+import { PublicMultiLineChart } from "@/components/charts/public-report-charts";
 import { useUserQuery } from "@/hooks/use-user";
 
 export function StressTestCanvas() {
@@ -130,11 +130,30 @@ export function StressTestCanvas() {
                 ],
               }}
             >
-              <StressTestChart
-                projectedCashBalance={projectedCashBalance}
-                height={320}
-                currency={currency}
-                locale={locale}
+              <PublicMultiLineChart
+                data={projectedCashBalance.map((item) => ({
+                  label: String(item.month),
+                  baseCase: item.baseCase,
+                  worstCase: item.worstCase,
+                  bestCase: item.bestCase,
+                }))}
+                series={[
+                  {
+                    key: "baseCase",
+                    color: "hsl(var(--foreground))",
+                  },
+                  {
+                    key: "worstCase",
+                    color: "hsl(var(--muted-foreground))",
+                    dashed: true,
+                  },
+                  {
+                    key: "bestCase",
+                    color: "#9a9a9a",
+                    dotted: true,
+                  },
+                ]}
+                includeZero={true}
               />
             </CanvasChart>
           )}

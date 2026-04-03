@@ -6,7 +6,8 @@ import NumberFlow from "@number-flow/react";
 import { useQuery } from "@tanstack/react-query";
 import { endOfMonth, format, startOfMonth, subMonths } from "date-fns";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { RunwayChart } from "@/components/charts/lazy";
+import { PublicRunwayChart } from "@/components/charts/public-report-charts";
+import { SelectableChartWrapper } from "@/components/charts/selectable-chart-wrapper";
 import { useLongPress } from "@/hooks/use-long-press";
 import { useMetricsCustomize } from "@/hooks/use-metrics-customize";
 import { useUserQuery } from "@/hooks/use-user";
@@ -208,23 +209,30 @@ export function RunwayCard({ currency, locale }: RunwayCardProps) {
             No balance data available.
           </div>
         ) : (
-          <RunwayChart
-            data={runwayChartData}
-            height={320}
-            currency={currency}
-            locale={locale}
-            displayMode="months"
+          <SelectableChartWrapper
+            data={runwayChartData.map((item) => ({
+              label: item.month,
+              value: item.runwayMonths,
+            }))}
+            dateKey="label"
             enableSelection={true}
             onSelectionStateChange={setIsSelecting}
-            onSelectionComplete={(startDate, endDate, chartType) => {
+            onSelectionComplete={(startDate, endDate) => {
               const message = generateChartSelectionMessage(
                 startDate,
                 endDate,
-                chartType,
+                "runway",
               );
               setInput(message);
             }}
-          />
+          >
+            <PublicRunwayChart
+              data={runwayChartData.map((item) => ({
+                label: item.month,
+                value: item.runwayMonths,
+              }))}
+            />
+          </SelectableChartWrapper>
         )}
       </div>
     </div>

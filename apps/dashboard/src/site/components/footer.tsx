@@ -1,11 +1,14 @@
 "use client";
 
 import { cn } from "@tamias/ui/cn";
-import { Icons } from "@tamias/ui/icons";
 import Image from "@/framework/image";
 import Link from "@/framework/link";
 import { useTheme } from "@/components/theme-provider";
 import { useEffect, useState } from "react";
+import {
+  SiteDarkModeIcon,
+  SiteLightModeIcon,
+} from "./site-shell-icons";
 
 export function Footer() {
   const { resolvedTheme, setTheme } = useTheme();
@@ -200,9 +203,9 @@ export function Footer() {
             >
               {mounted ? (
                 resolvedTheme === "dark" ? (
-                  <Icons.LightMode className="w-4 h-4" />
+                  <SiteLightModeIcon className="w-4 h-4" />
                 ) : (
-                  <Icons.DarkMode className="w-4 h-4" />
+                  <SiteDarkModeIcon className="w-4 h-4" />
                 )
               ) : (
                 <div className="w-4 h-4" />

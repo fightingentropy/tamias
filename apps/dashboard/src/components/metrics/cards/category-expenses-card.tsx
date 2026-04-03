@@ -5,9 +5,9 @@ import { useQuery } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import { useMemo } from "react";
 import {
-  CategoryExpenseDonutChart,
-  grayShades,
-} from "@/components/charts/lazy";
+  PublicDonutChart,
+  publicChartGrayShades,
+} from "@/components/charts/public-report-charts";
 import { useLongPress } from "@/hooks/use-long-press";
 import { useMetricsCustomize } from "@/hooks/use-metrics-customize";
 import { useTRPC } from "@/trpc/client";
@@ -117,7 +117,10 @@ export function CategoryExpensesCard({
                 <div
                   className="w-2 h-2 rounded-full"
                   style={{
-                    backgroundColor: grayShades[idx % grayShades.length],
+                    backgroundColor:
+                      publicChartGrayShades[
+                        idx % publicChartGrayShades.length
+                      ],
                   }}
                 />
                 <span className="text-xs text-muted-foreground">
@@ -130,11 +133,11 @@ export function CategoryExpensesCard({
       </div>
       <div className="h-80">
         {categoryDonutChartData.length > 0 ? (
-          <CategoryExpenseDonutChart
-            data={categoryDonutChartData}
-            height={320}
-            currency={currency}
-            locale={locale}
+          <PublicDonutChart
+            data={categoryDonutChartData.map((item) => ({
+              label: item.category,
+              value: item.amount,
+            }))}
           />
         ) : (
           <div className="flex items-center justify-center h-full text-xs text-muted-foreground -mt-10">

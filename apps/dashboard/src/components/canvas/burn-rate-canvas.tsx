@@ -17,7 +17,7 @@ import {
   shouldShowMetricsSkeleton,
   shouldShowSummarySkeleton,
 } from "@/components/canvas/utils";
-import { BurnRateChart } from "@/components/charts/lazy";
+import { PublicBurnRateChart } from "@/components/charts/public-report-charts";
 import { useUserQuery } from "@/hooks/use-user";
 
 export function BurnRateCanvas() {
@@ -109,13 +109,7 @@ export function BurnRateCanvas() {
               isLoading={stage === "loading"}
               height="20rem"
             >
-              <BurnRateChart
-                data={burnRateData}
-                height={320}
-                showLegend={false}
-                currency={currency}
-                locale={locale}
-              />
+              <PublicBurnRateChart data={burnRateData} />
             </CanvasChart>
           )}
 

@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { createAppFileRoute } from "@/start/route-hosts";
 import { createServerFn } from "@tanstack/react-start";
 import { buildHeadFromMetadata } from "@/start/site-head";
-import { inboxSiteMetadata } from "@/site/pages/inbox-page";
+import { inboxSiteMetadata } from "@/site/pages/site-metadata";
 
 export const loadInboxData = createServerFn({ method: "GET" })
   .inputValidator((data: { href: string }) => data)

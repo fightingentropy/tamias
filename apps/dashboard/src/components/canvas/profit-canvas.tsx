@@ -17,7 +17,7 @@ import {
   shouldShowMetricsSkeleton,
   shouldShowSummarySkeleton,
 } from "@/components/canvas/utils";
-import { ProfitChart } from "@/components/charts/lazy";
+import { PublicComparisonBarChart } from "@/components/charts/public-report-charts";
 import { useUserQuery } from "@/hooks/use-user";
 
 export function ProfitCanvas() {
@@ -164,12 +164,13 @@ export function ProfitCanvas() {
               isLoading={stage === "loading"}
               height="20rem"
             >
-              <ProfitChart
-                data={profitData}
-                height={320}
-                showLegend={false}
-                currency={currency}
-                locale={locale}
+              <PublicComparisonBarChart
+                data={profitData.map((item) => ({
+                  label: item.month,
+                  primary: item.profit,
+                  secondary: item.lastYearProfit,
+                }))}
+                showAverage={true}
               />
             </CanvasChart>
           )}

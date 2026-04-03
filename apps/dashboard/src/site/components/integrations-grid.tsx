@@ -1,11 +1,11 @@
 import { cn } from "@tamias/ui/cn";
 import Link from "@/framework/link";
 import { AppLogo } from "@/site/components/app-logo";
-import type { WebsiteApp } from "@/site/data/apps";
-import { categories, getCategoryName } from "@/site/data/apps";
+import type { WebsiteAppSummary } from "@/site/data/app-catalog";
+import { categories, getCategoryName } from "@/site/data/app-catalog";
 
 interface IntegrationsGridProps {
-  apps: WebsiteApp[];
+  apps: WebsiteAppSummary[];
   activeCategory: string;
 }
 

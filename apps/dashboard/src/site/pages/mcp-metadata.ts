@@ -1,14 +1,3 @@
-import { MCPChatGPT } from "@/site/components/mcp-chatgpt";
-import { MCPClaude } from "@/site/components/mcp-claude";
-import { MCPCopilot } from "@/site/components/mcp-copilot";
-import { MCPCursor } from "@/site/components/mcp-cursor";
-import { MCPMake } from "@/site/components/mcp-make";
-import { MCPN8n } from "@/site/components/mcp-n8n";
-import { MCPOpenCode } from "@/site/components/mcp-opencode";
-import { MCPPerplexity } from "@/site/components/mcp-perplexity";
-import { MCPRaycast } from "@/site/components/mcp-raycast";
-import { MCPZapier } from "@/site/components/mcp-zapier";
-import { MCP } from "@/site/components/mcp";
 import { createSiteMetadata } from "@/site/page-metadata";
 
 export const mcpSiteMetadata = createSiteMetadata({
@@ -26,10 +15,6 @@ export const mcpSiteMetadata = createSiteMetadata({
   ],
 });
 
-export function McpSitePage() {
-  return <MCP />;
-}
-
 export const mcpChatgptSiteMetadata = createSiteMetadata({
   title: "ChatGPT MCP Integration",
   description:
@@ -43,10 +28,6 @@ export const mcpChatgptSiteMetadata = createSiteMetadata({
     "GPT financial data",
   ],
 });
-
-export function McpChatgptSitePage() {
-  return <MCPChatGPT />;
-}
 
 export const mcpClaudeSiteMetadata = createSiteMetadata({
   title: "Claude MCP Integration",
@@ -62,10 +43,6 @@ export const mcpClaudeSiteMetadata = createSiteMetadata({
   ],
 });
 
-export function McpClaudeSitePage() {
-  return <MCPClaude />;
-}
-
 export const mcpCopilotSiteMetadata = createSiteMetadata({
   title: "Microsoft Copilot MCP Integration",
   description:
@@ -79,10 +56,6 @@ export const mcpCopilotSiteMetadata = createSiteMetadata({
     "enterprise AI",
   ],
 });
-
-export function McpCopilotSitePage() {
-  return <MCPCopilot />;
-}
 
 export const mcpCursorSiteMetadata = createSiteMetadata({
   title: "Cursor MCP Integration",
@@ -98,10 +71,6 @@ export const mcpCursorSiteMetadata = createSiteMetadata({
   ],
 });
 
-export function McpCursorSitePage() {
-  return <MCPCursor />;
-}
-
 export const mcpMakeSiteMetadata = createSiteMetadata({
   title: "Make MCP Integration",
   description:
@@ -115,10 +84,6 @@ export const mcpMakeSiteMetadata = createSiteMetadata({
     "no-code workflows",
   ],
 });
-
-export function McpMakeSitePage() {
-  return <MCPMake />;
-}
 
 export const mcpN8nSiteMetadata = createSiteMetadata({
   title: "n8n MCP Integration",
@@ -134,10 +99,6 @@ export const mcpN8nSiteMetadata = createSiteMetadata({
   ],
 });
 
-export function McpN8nSitePage() {
-  return <MCPN8n />;
-}
-
 export const mcpOpenCodeSiteMetadata = createSiteMetadata({
   title: "OpenCode MCP Integration",
   description:
@@ -151,10 +112,6 @@ export const mcpOpenCodeSiteMetadata = createSiteMetadata({
     "developer tools",
   ],
 });
-
-export function McpOpenCodeSitePage() {
-  return <MCPOpenCode />;
-}
 
 export const mcpPerplexitySiteMetadata = createSiteMetadata({
   title: "Perplexity MCP Integration",
@@ -170,10 +127,6 @@ export const mcpPerplexitySiteMetadata = createSiteMetadata({
   ],
 });
 
-export function McpPerplexitySitePage() {
-  return <MCPPerplexity />;
-}
-
 export const mcpRaycastSiteMetadata = createSiteMetadata({
   title: "Raycast MCP Integration",
   description:
@@ -188,10 +141,6 @@ export const mcpRaycastSiteMetadata = createSiteMetadata({
   ],
 });
 
-export function McpRaycastSitePage() {
-  return <MCPRaycast />;
-}
-
 export const mcpZapierSiteMetadata = createSiteMetadata({
   title: "Zapier MCP Integration",
   description:
@@ -205,7 +154,3 @@ export const mcpZapierSiteMetadata = createSiteMetadata({
     "no-code automation",
   ],
 });
-
-export function McpZapierSitePage() {
-  return <MCPZapier />;
-}

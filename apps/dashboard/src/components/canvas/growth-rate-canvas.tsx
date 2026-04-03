@@ -17,7 +17,7 @@ import {
   shouldShowMetricsSkeleton,
   shouldShowSummarySkeleton,
 } from "@/components/canvas/utils";
-import { GrowthRateChart } from "@/components/charts/lazy";
+import { PublicGroupedBarLineChart } from "@/components/charts/public-report-charts";
 import { useUserQuery } from "@/hooks/use-user";
 
 export function GrowthRateCanvas() {
@@ -117,11 +117,29 @@ export function GrowthRateCanvas() {
               isLoading={stage === "loading"}
               height="20rem"
             >
-              <GrowthRateChart
-                data={chartData}
-                height={320}
-                currency={currency}
-                locale={locale}
+              <PublicGroupedBarLineChart
+                data={chartData.map((item) => ({
+                  label: item.period,
+                  currentTotal: item.currentTotal,
+                  previousTotal: item.previousTotal,
+                  growthRate: item.growthRate,
+                }))}
+                bars={[
+                  {
+                    key: "previousTotal",
+                    color: "var(--chart-bar-fill-secondary)",
+                    opacity: 0.95,
+                  },
+                  {
+                    key: "currentTotal",
+                    color: "hsl(var(--foreground))",
+                    opacity: 0.92,
+                  },
+                ]}
+                line={{
+                  key: "growthRate",
+                  color: "hsl(var(--muted-foreground))",
+                }}
               />
             </CanvasChart>
           )}

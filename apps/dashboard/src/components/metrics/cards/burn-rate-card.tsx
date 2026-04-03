@@ -4,8 +4,9 @@ import { cn } from "@tamias/ui/cn";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { AnimatedNumber } from "@/components/animated-number";
+import { PublicBurnRateChart } from "@/components/charts/public-report-charts";
+import { SelectableChartWrapper } from "@/components/charts/selectable-chart-wrapper";
 import { formatChartMonth } from "@/components/charts/chart-utils";
-import { BurnRateChart } from "@/components/charts/lazy";
 import { useLongPress } from "@/hooks/use-long-press";
 import { useMetricsCustomize } from "@/hooks/use-metrics-customize";
 import { useChatStore } from "@/store/chat";
@@ -121,22 +122,22 @@ export function BurnRateCard({
         </div>
       </div>
       <div className="h-80">
-        <BurnRateChart
+        <SelectableChartWrapper
           data={burnRateChartData}
-          height={320}
-          currency={currency}
-          locale={locale}
+          dateKey="month"
           enableSelection={true}
           onSelectionStateChange={setIsSelecting}
-          onSelectionComplete={(startDate, endDate, chartType) => {
+          onSelectionComplete={(startDate, endDate) => {
             const message = generateChartSelectionMessage(
               startDate,
               endDate,
-              chartType,
+              "burn-rate",
             );
             setInput(message);
           }}
-        />
+        >
+          <PublicBurnRateChart data={burnRateChartData} />
+        </SelectableChartWrapper>
       </div>
     </div>
   );

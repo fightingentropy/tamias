@@ -16,7 +16,7 @@ import {
   shouldShowMetricsSkeleton,
   shouldShowSummarySkeleton,
 } from "@/components/canvas/utils";
-import { BusinessHealthScoreChart } from "@/components/charts/lazy";
+import { PublicScoreLineChart } from "@/components/charts/public-report-charts";
 
 export function HealthReportCanvas() {
   const [version] = useQueryState("version", parseAsInteger.withDefault(0));
@@ -88,10 +88,11 @@ export function HealthReportCanvas() {
               isLoading={stage === "loading"}
               height="20rem"
             >
-              <BusinessHealthScoreChart
-                data={healthScoreData}
-                height={320}
-                showLegend={false}
+              <PublicScoreLineChart
+                data={healthScoreData.map((item) => ({
+                  label: item.month,
+                  value: item.healthScore,
+                }))}
               />
             </CanvasChart>
           )}

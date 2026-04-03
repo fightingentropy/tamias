@@ -3,7 +3,7 @@ import { ComparisonPage } from "@/site/components/comparison-page";
 import { getCompetitorBySlug } from "@/site/data/competitors";
 import { SiteNotFoundPage } from "@/start/components/site-not-found-page";
 import { JsonLdScript } from "@/start/site-head";
-import { baseUrl } from "@/site/sitemap";
+import { baseUrl } from "@/site/base-url";
 import { SiteLayoutShell } from "@/start/components/site-layout-shell";
 
 export const Route = createLazyFileRoute("/compare/$slug")({

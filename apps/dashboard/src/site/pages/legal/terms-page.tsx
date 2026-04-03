@@ -1,29 +1,3 @@
-import type { SiteMetadata } from "@/site/metadata";
-import { baseUrl } from "@/site/sitemap";
-
-const title = "Terms and Conditions";
-const description =
-  "Terms and Conditions for using Tamias. Read about your rights and responsibilities when using our service.";
-
-export const termsMetadata: SiteMetadata = {
-  title,
-  description,
-  openGraph: {
-    title,
-    description,
-    type: "website",
-    url: `${baseUrl}/terms`,
-  },
-  twitter: {
-    card: "summary_large_image",
-    title,
-    description,
-  },
-  alternates: {
-    canonical: `${baseUrl}/terms`,
-  },
-};
-
 export function TermsPage() {
   return (
     <div className="min-h-screen">

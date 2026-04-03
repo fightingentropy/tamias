@@ -3,16 +3,11 @@
 import { cn } from "@tamias/ui/cn";
 import { Icons } from "@tamias/ui/icons";
 import { Skeleton } from "@tamias/ui/skeleton";
-import dynamic from "@/framework/dynamic";
 import Image from "@/framework/image";
 import { useState } from "react";
 import { FilePreviewIcon } from "@/components/file-preview-icon";
+import { PdfThumbnail } from "@/components/pdf-thumbnail";
 import { useFileUrl } from "@/hooks/use-file-url";
-
-const PdfThumbnail = dynamic(
-  () => import("@/components/pdf-thumbnail").then((mod) => mod.PdfThumbnail),
-  { ssr: false },
-);
 
 type Props = {
   mimeType: string;
@@ -45,13 +40,12 @@ export function FilePreview({
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
 
-  // Get authenticated URL for both images and PDFs
   const {
     url: src,
     isLoading,
     hasFileKey,
   } = useFileUrl(
-    isPdf || isImage
+    isImage
       ? {
           type: "proxy",
           filePath: `vault/${filePath}`,
@@ -59,20 +53,8 @@ export function FilePreview({
       : null,
   );
 
-  // PDF thumbnails - rendered client-side
   if (isPdf) {
-    if (isLoading || !hasFileKey || !src) {
-      return <Skeleton className="w-full h-full" />;
-    }
-
-    return (
-      <PdfThumbnail
-        url={src}
-        cacheKey={filePath}
-        width={fixedSize?.width ?? 60}
-        height={fixedSize?.height}
-      />
-    );
+    return <PdfThumbnail />;
   }
 
   // Non-image, non-PDF files

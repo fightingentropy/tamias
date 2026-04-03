@@ -17,7 +17,7 @@ import {
   shouldShowMetricsSkeleton,
   shouldShowSummarySkeleton,
 } from "@/components/canvas/utils";
-import { RevenueForecastChart } from "@/components/charts/lazy";
+import { PublicForecastChart } from "@/components/charts/public-report-charts";
 import { useUserQuery } from "@/hooks/use-user";
 
 export function ForecastCanvas() {
@@ -44,8 +44,6 @@ export function ForecastCanvas() {
       confidence: item.confidence ?? undefined,
       breakdown: item.breakdown ?? undefined,
     })) || [];
-
-  const forecastStartIndex = data?.chart?.forecastStartIndex;
 
   const metrics = data?.metrics
     ? [
@@ -132,12 +130,12 @@ export function ForecastCanvas() {
               isLoading={stage === "loading"}
               height="20rem"
             >
-              <RevenueForecastChart
-                data={forecastData}
-                height={320}
-                currency={currency}
-                locale={locale}
-                forecastStartIndex={forecastStartIndex}
+              <PublicForecastChart
+                data={forecastData.map((item) => ({
+                  label: item.month,
+                  actual: item.actual ?? null,
+                  forecasted: item.forecasted ?? null,
+                }))}
               />
             </CanvasChart>
           )}

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { createSiteFileRoute } from "@/start/route-hosts";
-import { getBlogPostPreviewBySlug } from "@/site/lib/blog";
-import { baseUrl } from "@/site/sitemap";
+import { getBlogPostPreviewBySlug } from "@/site/lib/blog-metadata";
+import { baseUrl } from "@/site/base-url";
 
 export const Route = createSiteFileRoute("/updates/$slug")({
   head: ({ params }) => {
