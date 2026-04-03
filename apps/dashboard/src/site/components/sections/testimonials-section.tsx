@@ -1,7 +1,6 @@
 "use client";
 
-import { Icons } from "@tamias/ui/icons";
-import type Hls from "hls.js";
+import dynamic from "@/framework/dynamic";
 import Image from "@/framework/image";
 import Link from "@/framework/link";
 import type { ReactNode } from "react";
@@ -38,6 +37,14 @@ interface TestimonialsSectionProps {
   showStars?: boolean;
   customHeader?: ReactNode;
 }
+
+const VideoTestimonialModal = dynamic(
+  () =>
+    import("./video-testimonial-modal").then(
+      (mod) => mod.VideoTestimonialModal,
+    ),
+  { ssr: false },
+);
 
 function renderStructuredContent(content: string) {
   const sections = content.split("\n\n");
@@ -93,63 +100,6 @@ function renderStructuredContent(content: string) {
         </div>
       ))}
     </div>
-  );
-}
-
-function HLSVideo({
-  src,
-  poster,
-}: {
-  src: string | undefined;
-  poster?: string;
-}) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const hlsRef = useRef<Hls | null>(null);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !src) return;
-
-    // Check for native HLS support first (Safari)
-    if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = src;
-      return;
-    }
-
-    // Dynamically import hls.js only when needed
-    let mounted = true;
-    import("hls.js").then(({ default: HlsModule }) => {
-      if (!mounted || !video) return;
-
-      if (HlsModule.isSupported()) {
-        const hls = new HlsModule();
-        hlsRef.current = hls;
-        hls.loadSource(src);
-        hls.attachMedia(video);
-      }
-    });
-
-    return () => {
-      mounted = false;
-      if (hlsRef.current) {
-        hlsRef.current.destroy();
-      }
-    };
-  }, [src]);
-
-  return (
-    <video
-      ref={videoRef}
-      className="w-full h-auto"
-      controls
-      playsInline
-      preload="metadata"
-      poster={poster}
-      style={{ filter: "grayscale(100%)" }}
-    >
-      <track kind="captions" />
-      Your browser does not support the video tag.
-    </video>
   );
 }
 
@@ -216,54 +166,10 @@ function VideoTestimonialCard({
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="fixed inset-0 bg-white/40 backdrop-blur-sm dark:bg-black/40 transition-all duration-300 animate-in fade-in"
-            onClick={() => setIsOpen(false)}
-          />
-          <div className="relative bg-background border border-border p-8 max-w-2xl w-[90vw] max-h-[90vh] overflow-y-auto z-50">
-            <button
-              type="button"
-              onClick={() => setIsOpen(false)}
-              className="absolute top-6 right-6"
-              aria-label="Close dialog"
-            >
-              <Icons.Close className="h-6 w-6 text-primary" />
-            </button>
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-col gap-3">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider text-left">
-                  {testimonial.country}
-                </p>
-                <div className="flex gap-3 items-center">
-                  {testimonial.image ? (
-                    <Image
-                      src={testimonial.image}
-                      alt={testimonial.name}
-                      width={24}
-                      height={24}
-                      className="w-6 h-6 rounded-full object-cover"
-                      style={{ filter: "grayscale(100%)" }}
-                    />
-                  ) : (
-                    <div className="w-6 h-6 bg-muted rounded-full" />
-                  )}
-                  <span className="font-sans text-sm text-foreground">
-                    {testimonial.name}
-                  </span>
-                </div>
-              </div>
-              <div className="flex flex-col gap-6">
-                <div className="w-full overflow-hidden bg-muted">
-                  <HLSVideo
-                    src={testimonial.video}
-                    poster={testimonial.videoPoster}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <VideoTestimonialModal
+          testimonial={testimonial}
+          onClose={() => setIsOpen(false)}
+        />
       )}
     </>
   );
@@ -286,70 +192,12 @@ function VideoTestimonialCardMobile({
   }, []);
 
   const modalContent = isOpen ? (
-    <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center"
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-      }}
-    >
-      <div
-        className="fixed inset-0 bg-white/40 backdrop-blur-sm dark:bg-black/40 transition-all duration-300 animate-in fade-in"
-        onClick={() => setIsOpen(false)}
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-        }}
-      />
-      <div className="relative bg-background border border-border p-8 max-w-2xl w-[90vw] max-h-[90vh] overflow-y-auto z-[10000]">
-        <button
-          type="button"
-          onClick={() => setIsOpen(false)}
-          className="absolute top-6 right-6"
-          aria-label="Close dialog"
-        >
-          <Icons.Close className="h-6 w-6 text-primary" />
-        </button>
-        <div className="flex flex-col gap-6">
-          <div className="flex flex-col gap-3">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider text-left">
-              {testimonial.country}
-            </p>
-            <div className="flex gap-3 items-center">
-              {testimonial.image ? (
-                <Image
-                  src={testimonial.image}
-                  alt={testimonial.name}
-                  width={24}
-                  height={24}
-                  className="w-6 h-6 rounded-full object-cover"
-                  style={{ filter: "grayscale(100%)" }}
-                />
-              ) : (
-                <div className="w-6 h-6 bg-muted rounded-full" />
-              )}
-              <span className="font-sans text-sm text-foreground">
-                {testimonial.name}
-              </span>
-            </div>
-          </div>
-          <div className="flex flex-col gap-6">
-            <div className="w-full overflow-hidden bg-muted">
-              <HLSVideo
-                src={testimonial.video}
-                poster={testimonial.videoPoster}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <VideoTestimonialModal
+      testimonial={testimonial}
+      onClose={() => setIsOpen(false)}
+      zIndexClass="z-[9999]"
+      contentZIndexClass="z-[10000]"
+    />
   ) : null;
 
   return (

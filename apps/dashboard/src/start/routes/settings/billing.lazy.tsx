@@ -1,7 +1,6 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
 import dynamic from "@/framework/dynamic";
 import { AppLayoutShell } from "@/start/components/app-layout-shell";
-import { loadSettingsBillingData } from "./billing";
 
 function SectionFallback() {
   return <div className="min-h-24 rounded-lg border border-border/60" />;
@@ -13,6 +12,7 @@ const ManageSubscription = dynamic(
       (mod) => mod.ManageSubscription,
     ),
   {
+    ssr: false,
     loading: SectionFallback,
   },
 );
@@ -20,11 +20,13 @@ const ManageSubscription = dynamic(
 const Orders = dynamic(
   () => import("@/components/orders").then((mod) => mod.Orders),
   {
+    ssr: false,
     loading: SectionFallback,
   },
 );
 
 const Plans = dynamic(() => import("@/components/plans").then((mod) => mod.Plans), {
+  ssr: false,
   loading: SectionFallback,
 });
 
@@ -33,9 +35,7 @@ export const Route = createLazyFileRoute("/settings/billing")({
 });
 
 function SettingsBillingPage() {
-  const loaderData = Route.useLoaderData() as Awaited<
-    ReturnType<typeof loadSettingsBillingData>
-  >;
+  const loaderData = Route.useLoaderData();
   const team = loaderData.user.team;
   const shouldShowSubscription = Boolean(team && team.plan !== "trial");
   const shouldShowOrders = Boolean(

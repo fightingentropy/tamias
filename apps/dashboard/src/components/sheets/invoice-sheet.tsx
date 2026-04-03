@@ -2,11 +2,26 @@
 
 import { Sheet, SheetContent } from "@tamias/ui/sheet";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { FormContext } from "@/components/invoice/form-context";
-import { InvoiceContent } from "@/components/invoice-content";
+import dynamic from "@/framework/dynamic";
 import { useInvoiceParams } from "@/hooks/use-invoice-params";
 import { useInvoiceEditorStore } from "@/store/invoice-editor";
 import { useTRPC } from "@/trpc/client";
+
+const InvoiceEditorSheetContent = dynamic(
+  () =>
+    import("@/components/sheets/invoice-editor-sheet-content").then(
+      (mod) => mod.InvoiceEditorSheetContent,
+    ),
+  { ssr: false },
+);
+
+const InvoiceSuccessSheetContent = dynamic(
+  () =>
+    import("@/components/sheets/invoice-success-sheet-content").then(
+      (mod) => mod.InvoiceSuccessSheetContent,
+    ),
+  { ssr: false },
+);
 
 export function InvoiceSheet() {
   const trpc = useTRPC();
@@ -54,7 +69,7 @@ export function InvoiceSheet() {
   if (type === "success") {
     return (
       <Sheet open={isOpen} onOpenChange={handleOnOpenChange}>
-        <InvoiceContent />
+        <InvoiceSuccessSheetContent />
       </Sheet>
     );
   }
@@ -73,9 +88,7 @@ export function InvoiceSheet() {
 
   return (
     <Sheet open={isOpen} onOpenChange={handleOnOpenChange}>
-      <FormContext defaultSettings={defaultSettings} data={data}>
-        <InvoiceContent />
-      </FormContext>
+      <InvoiceEditorSheetContent defaultSettings={defaultSettings} data={data} />
     </Sheet>
   );
 }

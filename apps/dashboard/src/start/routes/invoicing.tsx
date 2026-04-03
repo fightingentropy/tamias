@@ -1,9 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { createSiteFileRoute } from "@/start/route-hosts";
-import {
-  InvoicingSitePage,
-  invoicingSiteMetadata,
-} from "@/site/pages/static-pages";
+import { invoicingSiteMetadata } from "@/site/pages/invoicing-page";
 import { buildHeadFromMetadata } from "@/start/site-head";
 
 export const Route = createSiteFileRoute("/invoicing")({

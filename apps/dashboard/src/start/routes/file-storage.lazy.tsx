@@ -1,5 +1,5 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
-import { FileStorageSitePage } from "@/site/pages/static-pages";
+import { FileStorageSitePage } from "@/site/pages/file-storage-page";
 import { SiteLayoutShell } from "@/start/components/site-layout-shell";
 
 export const Route = createLazyFileRoute("/file-storage")({

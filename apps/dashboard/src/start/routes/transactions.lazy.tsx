@@ -10,10 +10,15 @@ import { TransactionTabs } from "@/components/transaction-tabs";
 import { TransactionsColumnVisibility } from "@/components/transactions-column-visibility";
 import { TransactionsSearchFilter } from "@/components/transactions-search-filter";
 import { TransactionsUploadZone } from "@/components/transactions-upload-zone";
+import dynamic from "@/framework/dynamic";
 import { AppLayoutShell } from "@/start/components/app-layout-shell";
 import { SiteLayoutShell } from "@/start/components/site-layout-shell";
-import { Transactions as SiteTransactions } from "@/site/components/transactions";
 import type { TransactionsLoaderData } from "./transactions";
+
+const SiteTransactions = dynamic(
+  () =>
+    import("@/site/components/transactions").then((mod) => mod.Transactions),
+);
 
 export const Route = createLazyFileRoute("/transactions")({
   component: TransactionsPage,

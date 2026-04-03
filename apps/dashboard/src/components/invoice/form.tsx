@@ -18,6 +18,7 @@ import { differenceInDays } from "date-fns";
 import { useEffect } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { useDebounceValue } from "usehooks-ts";
+import dynamic from "@/framework/dynamic";
 import { useInvoiceParams } from "@/hooks/use-invoice-params";
 import { useUserQuery } from "@/hooks/use-user";
 import { useInvoiceEditorStore } from "@/store/invoice-editor";
@@ -26,7 +27,6 @@ import { getUrl } from "@/utils/environment";
 import { SavingBar } from "../saving-bar";
 import { CustomerDetails } from "./customer-details";
 import { EditBlock } from "./edit-block";
-import { EmailPreview } from "./email-preview";
 import type { InvoiceFormValues } from "./form-context";
 import { FromDetails } from "./from-details";
 import { LineItems } from "./line-items";
@@ -34,11 +34,60 @@ import { Logo } from "./logo";
 import { Meta } from "./meta";
 import { NoteDetails } from "./note-details";
 import { PaymentDetails } from "./payment-details";
-import { SettingsMenu } from "./settings-menu";
-import { SubmitButton } from "./submit-button";
 import { Summary } from "./summary";
-import { TemplateSelector } from "./template-selector";
 import { transformFormValuesToDraft } from "./utils";
+
+const EmailPreview = dynamic(
+  () => import("./email-preview").then((mod) => mod.EmailPreview),
+  { ssr: false },
+);
+
+function InvoiceActionButtonFallback({
+  label,
+  className,
+}: {
+  label: string;
+  className?: string;
+}) {
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      disabled
+      className={className ?? "h-9 px-3 text-xs"}
+    >
+      {label}
+    </Button>
+  );
+}
+
+const SettingsMenu = dynamic(
+  () => import("./settings-menu").then((mod) => mod.SettingsMenu),
+  {
+    ssr: false,
+    loading: () => <InvoiceActionButtonFallback label="Settings" />,
+  },
+);
+
+const TemplateSelector = dynamic(
+  () => import("./template-selector").then((mod) => mod.TemplateSelector),
+  {
+    ssr: false,
+    loading: () => (
+      <InvoiceActionButtonFallback label="Template" className="h-9 px-3 text-xs min-w-[110px]" />
+    ),
+  },
+);
+
+const InvoiceSubmitButton = dynamic(
+  () => import("./submit-button").then((mod) => mod.SubmitButton),
+  {
+    ssr: false,
+    loading: () => (
+      <InvoiceActionButtonFallback label="Send" className="h-9 px-4" />
+    ),
+  },
+);
 
 export function Form() {
   const { invoiceId, setParams } = useInvoiceParams();
@@ -519,7 +568,7 @@ export function Form() {
                 )}
               </TooltipProvider>
 
-              <SubmitButton
+              <InvoiceSubmitButton
                 isSubmitting={
                   createInvoiceMutation.isPending ||
                   createRecurringInvoiceMutation.isPending

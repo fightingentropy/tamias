@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { createAppFileRoute } from "@/start/route-hosts";
 import { createServerFn } from "@tanstack/react-start";
 import { buildHeadFromMetadata } from "@/start/site-head";
-import { transactionsSiteMetadata } from "@/site/pages/static-pages";
+import { transactionsSiteMetadata } from "@/site/pages/transactions-page";
 
 export const loadTransactionsData = createServerFn({ method: "GET" })
   .inputValidator((data: { href: string }) => data)

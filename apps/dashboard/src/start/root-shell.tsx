@@ -2,7 +2,6 @@ import "@tamias/ui/globals.css";
 import { Provider as Analytics } from "@tamias/events/client";
 import { cn } from "@tamias/ui/cn";
 import { getConvexUrl } from "@tamias/utils/envs";
-import { getStartContext } from "@tanstack/start-storage-context";
 import {
   HeadContent,
   Scripts,
@@ -12,43 +11,13 @@ import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 import { DeferredToaster } from "@/components/deferred-toaster";
 import { AuthProvider } from "@/framework/convex-auth-client";
 import { AppProviders, SiteProviders } from "@/providers";
+import {
+  DEFAULT_ROOT_BOOTSTRAP,
+  type RootBootstrapData,
+} from "@/start/root-bootstrap";
 import type { StartRouteStaticData } from "@/start/route-hosts";
 import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
-
-export type RootBootstrapData = {
-  auth: {
-    token: string | null;
-    refreshToken: string | null;
-  };
-  host: {
-    appHost: string;
-    websiteHost: string;
-    currentHost: string;
-    isAppHost: boolean;
-    isWebsiteHost: boolean;
-  };
-};
-
-declare global {
-  interface Window {
-    __TAMIAS_START_BOOTSTRAP__?: RootBootstrapData;
-  }
-}
-
-const DEFAULT_BOOTSTRAP: RootBootstrapData = {
-  auth: {
-    token: null,
-    refreshToken: null,
-  },
-  host: {
-    appHost: "",
-    websiteHost: "",
-    currentHost: "",
-    isAppHost: true,
-    isWebsiteHost: false,
-  },
-};
 
 const themeBootstrapScript = `
 globalThis.__name=globalThis.__name||function(target){return target;};
@@ -70,73 +39,6 @@ globalThis.__name=globalThis.__name||function(target){return target;};
   } catch {}
 })();
 `;
-
-function escapeInlineScriptJson(value: string) {
-  return value
-    .replace(/</g, "\\u003c")
-    .replace(/\u2028/g, "\\u2028")
-    .replace(/\u2029/g, "\\u2029");
-}
-
-function getServerRootBootstrapData(): RootBootstrapData | null {
-  if (typeof window !== "undefined") {
-    return null;
-  }
-
-  const startContext = getStartContext({ throwIfNotFound: false });
-
-  if (!startContext) {
-    return null;
-  }
-
-  const auth = startContext.contextAfterGlobalMiddlewares?.auth as
-    | {
-        token?: string | null;
-        refreshToken?: string | null;
-      }
-    | undefined;
-  const canonicalHost = startContext.contextAfterGlobalMiddlewares?.canonicalHost as
-    | RootBootstrapData["host"]
-    | undefined;
-  const requestUrl = new URL(startContext.request.url);
-  const currentHost = startContext.request.headers.get("host") ?? requestUrl.host;
-
-  return {
-    auth: {
-      token: auth?.token ?? null,
-      refreshToken: auth?.refreshToken ?? null,
-    },
-    host: canonicalHost ?? {
-      appHost: currentHost,
-      websiteHost: currentHost,
-      currentHost,
-      isAppHost: true,
-      isWebsiteHost: false,
-    },
-  };
-}
-
-function getClientRootBootstrapData() {
-  if (typeof window === "undefined") {
-    return DEFAULT_BOOTSTRAP;
-  }
-
-  return window.__TAMIAS_START_BOOTSTRAP__ ?? DEFAULT_BOOTSTRAP;
-}
-
-function getCurrentRootBootstrapData() {
-  return getServerRootBootstrapData() ?? getClientRootBootstrapData();
-}
-
-function getInlineBootstrapScript() {
-  const bootstrap = getServerRootBootstrapData();
-
-  if (!bootstrap) {
-    return null;
-  }
-
-  return `window.__TAMIAS_START_BOOTSTRAP__=${escapeInlineScriptJson(JSON.stringify(bootstrap))};`;
-}
 
 function isStartRouteStaticData(
   value: unknown,
@@ -166,6 +68,7 @@ function requireEnv(value: string | undefined, name: string) {
 
 function ConvexAuthStartProvider(props: {
   children: ReactNode;
+  bootstrap: RootBootstrapData;
 }) {
   const call = useCallback(
     async (action: string, args: unknown) => {
@@ -197,10 +100,10 @@ function ConvexAuthStartProvider(props: {
 
   const serverState = useMemo(
     () => ({
-      _state: getCurrentRootBootstrapData().auth,
-      _timeFetched: Date.now(),
+      _state: props.bootstrap.auth,
+      _timeFetched: props.bootstrap.fetchedAt,
     }),
-    [],
+    [props.bootstrap.auth, props.bootstrap.fetchedAt],
   );
 
   return (
@@ -230,9 +133,10 @@ function SiteRuntimeProviders(props: { children: ReactNode }) {
 
 function AppRuntimeProviders(props: {
   children: ReactNode;
+  bootstrap: RootBootstrapData;
 }) {
   return (
-    <ConvexAuthStartProvider>
+    <ConvexAuthStartProvider bootstrap={props.bootstrap}>
       <AppProviders locale="en">
         {props.children}
         <DeferredToaster />
@@ -243,9 +147,9 @@ function AppRuntimeProviders(props: {
 
 export function StartRootShell(props: {
   children: ReactNode;
+  bootstrap?: RootBootstrapData;
 }) {
-  const bootstrap = getCurrentRootBootstrapData();
-  const inlineBootstrapScript = getInlineBootstrapScript();
+  const bootstrap = props.bootstrap ?? DEFAULT_ROOT_BOOTSTRAP;
   const activeRouteStaticData = useRouterState({
     select: (state) => {
       for (let index = state.matches.length - 1; index >= 0; index -= 1) {
@@ -268,13 +172,6 @@ export function StartRootShell(props: {
     <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
-        {inlineBootstrapScript ? (
-          <script
-            dangerouslySetInnerHTML={{
-              __html: inlineBootstrapScript,
-            }}
-          />
-        ) : null}
         <script
           dangerouslySetInnerHTML={{
             __html: themeBootstrapScript,
@@ -286,7 +183,7 @@ export function StartRootShell(props: {
           {isWebsiteRuntime ? (
             <SiteRuntimeProviders>{props.children}</SiteRuntimeProviders>
           ) : (
-            <AppRuntimeProviders>
+            <AppRuntimeProviders bootstrap={bootstrap}>
               {props.children}
             </AppRuntimeProviders>
           )}

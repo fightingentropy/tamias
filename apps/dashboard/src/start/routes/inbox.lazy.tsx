@@ -7,10 +7,14 @@ import { InboxConnectedEmpty } from "@/components/inbox/inbox-empty";
 import { InboxGetStarted } from "@/components/inbox/inbox-get-started";
 import { InboxViewSkeleton } from "@/components/inbox/inbox-skeleton";
 import { InboxView } from "@/components/inbox/inbox-view";
+import dynamic from "@/framework/dynamic";
 import { AppLayoutShell } from "@/start/components/app-layout-shell";
 import { SiteLayoutShell } from "@/start/components/site-layout-shell";
-import { Inbox as SiteInbox } from "@/site/components/inbox";
 import type { InboxLoaderData } from "./inbox";
+
+const SiteInbox = dynamic(
+  () => import("@/site/components/inbox").then((mod) => mod.Inbox),
+);
 
 export const Route = createLazyFileRoute("/inbox")({
   component: InboxPage,

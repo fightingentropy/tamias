@@ -5,10 +5,18 @@ import { Card } from "@tamias/ui/card";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import dynamic from "@/framework/dynamic";
 import { useTeamQuery } from "@/hooks/use-team";
 import { useUserQuery } from "@/hooks/use-user";
 import { useTRPC } from "@/trpc/client";
-import { CancellationDialog } from "./cancellation-dialog";
+
+const CancellationDialog = dynamic(
+  () =>
+    import("@/components/cancellation-dialog").then(
+      (mod) => mod.CancellationDialog,
+    ),
+  { ssr: false },
+);
 
 export function ManageSubscription() {
   const trpc = useTRPC();
@@ -91,7 +99,9 @@ export function ManageSubscription() {
         )}
       </Card>
 
-      <CancellationDialog open={cancelOpen} onOpenChange={setCancelOpen} />
+      {cancelOpen ? (
+        <CancellationDialog open={cancelOpen} onOpenChange={setCancelOpen} />
+      ) : null}
     </div>
   );
 }

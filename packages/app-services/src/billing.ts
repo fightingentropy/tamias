@@ -1,10 +1,21 @@
 import { getPlanIntervalByProductId } from "@tamias/plans";
-import { Polar } from "@polar-sh/sdk";
 
-const billingApi = new Polar({
-  accessToken: process.env.POLAR_ACCESS_TOKEN!,
-  server: process.env.POLAR_ENVIRONMENT as "production" | "sandbox",
-});
+type BillingApi = InstanceType<(typeof import("@polar-sh/sdk"))["Polar"]>;
+
+let billingApiPromise: Promise<BillingApi> | null = null;
+
+async function getBillingApi(): Promise<BillingApi> {
+  if (!billingApiPromise) {
+    billingApiPromise = import("@polar-sh/sdk").then(({ Polar }) => {
+      return new Polar({
+        accessToken: process.env.POLAR_ACCESS_TOKEN!,
+        server: process.env.POLAR_ENVIRONMENT as "production" | "sandbox",
+      });
+    });
+  }
+
+  return billingApiPromise;
+}
 
 export type BillingOrdersPage = {
   data: Array<{
@@ -40,6 +51,7 @@ export async function getBillingOrdersPageForTeam(args: {
   pageSize?: number;
 }): Promise<BillingOrdersPage> {
   try {
+    const billingApi = await getBillingApi();
     const customer = await billingApi.customers.getExternal({
       externalId: args.teamId,
     });
@@ -88,6 +100,7 @@ export async function getActiveSubscriptionForTeam(
   teamId: string,
 ): Promise<ActiveBillingSubscription | null> {
   try {
+    const billingApi = await getBillingApi();
     const subscriptions = await billingApi.subscriptions.list({
       externalCustomerId: teamId,
     });

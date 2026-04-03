@@ -12,10 +12,14 @@ import { ScrollableContent } from "@/components/scrollable-content";
 import { DataTable } from "@/components/tables/customers/data-table";
 import { CustomersSkeleton } from "@/components/tables/customers/skeleton";
 import { TopRevenueClient } from "@/components/top-revenue-client";
+import dynamic from "@/framework/dynamic";
 import { AppLayoutShell } from "@/start/components/app-layout-shell";
 import { SiteLayoutShell } from "@/start/components/site-layout-shell";
-import { Customers as SiteCustomers } from "@/site/components/customers";
 import type { CustomersLoaderData } from "./customers";
+
+const SiteCustomers = dynamic(
+  () => import("@/site/components/customers").then((mod) => mod.Customers),
+);
 
 export const Route = createLazyFileRoute("/customers")({
   component: CustomersPage,

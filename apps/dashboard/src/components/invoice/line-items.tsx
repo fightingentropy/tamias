@@ -3,7 +3,6 @@
 import { calculateLineItemTotal } from "@tamias/invoice/calculate";
 import { Button } from "@tamias/ui/button";
 import { Icons } from "@tamias/ui/icons";
-import { Reorder, useDragControls } from "framer-motion";
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { useTemplateUpdate } from "@/hooks/use-template-update";
 import { formatAmount } from "@/utils/format";
@@ -53,31 +52,23 @@ export function LineItems() {
 
   const gridCols = getGridCols();
 
-  const { fields, append, remove, swap } = useFieldArray({
+  const { fields, append, remove, move } = useFieldArray({
     control,
     name: "lineItems",
   });
-
-  const reorderList = (newFields: typeof fields) => {
-    const firstDiffIndex = fields.findIndex(
-      (field, index) => field.id !== newFields[index]?.id,
-    );
-
-    if (firstDiffIndex !== -1) {
-      const newIndex = newFields.findIndex(
-        (field) => field.id === fields[firstDiffIndex]?.id,
-      );
-
-      if (newIndex !== -1) {
-        swap(firstDiffIndex, newIndex);
-      }
-    }
-  };
 
   const handleRemove = (index: number) => {
     if (fields.length > 1) {
       remove(index);
     }
+  };
+
+  const handleMove = (index: number, direction: -1 | 1) => {
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= fields.length) {
+      return;
+    }
+    move(index, targetIndex);
   };
 
   return (
@@ -127,21 +118,17 @@ export function LineItems() {
         />
       </div>
 
-      <Reorder.Group
-        axis="y"
-        values={fields}
-        onReorder={reorderList}
-        className="!m-0"
-        transition={{ duration: 0 }}
-      >
+      <div className="space-y-2">
         {fields.map((field, index) => (
           <LineItemRow
             key={field.id}
-            // @ts-expect-error
-            item={field}
             index={index}
             handleRemove={handleRemove}
             isReorderable={fields.length > 1}
+            onMoveUp={() => handleMove(index, -1)}
+            onMoveDown={() => handleMove(index, 1)}
+            canMoveUp={index > 0}
+            canMoveDown={index < fields.length - 1}
             currency={currency}
             maximumFractionDigits={maximumFractionDigits}
             includeUnits={includeUnits}
@@ -149,7 +136,7 @@ export function LineItems() {
             gridCols={gridCols}
           />
         ))}
-      </Reorder.Group>
+      </div>
 
       <button
         type="button"
@@ -173,7 +160,10 @@ function LineItemRow({
   index,
   handleRemove,
   isReorderable,
-  item,
+  onMoveUp,
+  onMoveDown,
+  canMoveUp,
+  canMoveDown,
   currency,
   maximumFractionDigits,
   includeUnits,
@@ -183,14 +173,16 @@ function LineItemRow({
   index: number;
   handleRemove: (index: number) => void;
   isReorderable: boolean;
-  item: InvoiceFormValues["lineItems"][number];
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
   currency: string;
   maximumFractionDigits: number;
   includeUnits?: boolean;
   includeLineItemTax?: boolean;
   gridCols: string;
 }) {
-  const controls = useDragControls();
   const { control, watch, setValue } = useFormContext();
 
   const locale = useWatch({ control, name: "template.locale" });
@@ -208,33 +200,28 @@ function LineItemRow({
   const lineItemName = watch(`lineItems.${index}.name`);
 
   return (
-    <Reorder.Item
-      className={`grid ${gridCols} gap-4 items-start relative group mb-2 w-full`}
-      value={item}
-      dragListener={false}
-      dragControls={controls}
-      transition={{ duration: 0 }}
-      onKeyDown={(e: React.KeyboardEvent<HTMLLIElement>) => {
-        // Don't interfere with arrow keys when they're used for autocomplete navigation
-        if (
-          e.key === "ArrowDown" ||
-          e.key === "ArrowUp" ||
-          e.key === "Enter" ||
-          e.key === "Escape"
-        ) {
-          e.stopPropagation();
-        }
-      }}
-    >
+    <div className={`grid ${gridCols} gap-4 items-start relative group mb-2 w-full`}>
       {isReorderable && (
-        <Button
-          type="button"
-          className="absolute -left-9 -top-[4px] opacity-0 group-hover:opacity-100 transition-opacity hover:bg-transparent cursor-grab"
-          onPointerDown={(e) => controls.start(e)}
-          variant="ghost"
-        >
-          <Icons.DragIndicator className="size-4 text-[#878787]" />
-        </Button>
+        <div className="absolute -left-10 -top-[4px] flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
+          <Button
+            type="button"
+            variant="ghost"
+            className="h-5 w-5 p-0 hover:bg-transparent disabled:opacity-30"
+            onClick={onMoveUp}
+            disabled={!canMoveUp}
+          >
+            <Icons.ArrowUpward className="size-3 text-[#878787]" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            className="h-5 w-5 p-0 hover:bg-transparent disabled:opacity-30"
+            onClick={onMoveDown}
+            disabled={!canMoveDown}
+          >
+            <Icons.ArrowDownward className="size-3 text-[#878787]" />
+          </Button>
+        </div>
       )}
 
       <ProductAutocomplete
@@ -292,6 +279,6 @@ function LineItemRow({
           <Icons.Close />
         </Button>
       )}
-    </Reorder.Item>
+    </div>
   );
 }

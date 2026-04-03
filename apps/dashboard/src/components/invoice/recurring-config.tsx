@@ -25,7 +25,6 @@ import {
   SelectValue,
 } from "@tamias/ui/select";
 import { format } from "date-fns";
-import { AnimatePresence, motion } from "framer-motion";
 import * as React from "react";
 import { FormatAmount } from "@/components/format-amount";
 import { useUserQuery } from "@/hooks/use-user";
@@ -150,9 +149,6 @@ export function RecurringConfigPanel({
     () => getSmartOptions(issueDate),
     [issueDate],
   );
-
-  // Track if preview was already visible on mount (to skip animation on dropdown reopen)
-  const wasVisibleOnMountRef = React.useRef(config.endType !== null);
 
   // Find current selected option value
   const currentOptionValue = React.useMemo(() => {
@@ -360,56 +356,43 @@ export function RecurringConfigPanel({
         </RadioGroup>
       </div>
 
-      {/* Preview Section - only shown when endType is selected */}
-      <AnimatePresence initial={!wasVisibleOnMountRef.current}>
-        {config.endType && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="overflow-hidden"
-          >
-            <div className="border-t border-border pt-3 space-y-2">
-              {previewInvoices.map((invoice, index) => (
-                <div
-                  key={index.toString()}
-                  className="flex items-center justify-between text-sm"
-                >
-                  <div className="flex gap-3">
-                    <span>{formatShortDate(invoice.date)}</span>
-                    <span className="text-muted-foreground">
-                      {formatDayOfWeek(invoice.date)}
-                    </span>
-                  </div>
-                  <FormatAmount amount={invoice.amount} currency={currency} />
+      {config.endType ? (
+        <div className="border-t border-border pt-3 space-y-3">
+          <div className="space-y-2">
+            {previewInvoices.map((invoice, index) => (
+              <div
+                key={index.toString()}
+                className="flex items-center justify-between text-sm"
+              >
+                <div className="flex gap-3">
+                  <span>{formatShortDate(invoice.date)}</span>
+                  <span className="text-muted-foreground">
+                    {formatDayOfWeek(invoice.date)}
+                  </span>
                 </div>
-              ))}
-              {hasMoreInvoices && (
-                <div className="text-center text-muted-foreground">...</div>
-              )}
-            </div>
+                <FormatAmount amount={invoice.amount} currency={currency} />
+              </div>
+            ))}
+            {hasMoreInvoices && (
+              <div className="text-center text-muted-foreground">...</div>
+            )}
+          </div>
 
-            {/* Summary Footer */}
-            <div className="border-t border-border pt-3 flex items-center justify-between text-sm">
-              {summary.totalCount !== null && summary.totalAmount !== null ? (
-                <>
-                  <span>{summary.totalCount} invoices total</span>
-                  <FormatAmount
-                    amount={summary.totalAmount}
-                    currency={currency}
-                  />
-                </>
-              ) : (
-                <>
-                  <span>No end date</span>
-                  <span className="text-lg">∞</span>
-                </>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          <div className="border-t border-border pt-3 flex items-center justify-between text-sm">
+            {summary.totalCount !== null && summary.totalAmount !== null ? (
+              <>
+                <span>{summary.totalCount} invoices total</span>
+                <FormatAmount amount={summary.totalAmount} currency={currency} />
+              </>
+            ) : (
+              <>
+                <span>No end date</span>
+                <span className="text-lg">∞</span>
+              </>
+            )}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

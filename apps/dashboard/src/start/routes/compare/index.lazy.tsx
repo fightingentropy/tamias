@@ -1,5 +1,5 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
-import { CompareSitePage } from "@/site/pages/static-pages";
+import { CompareSitePage } from "@/site/pages/compare-page";
 import { SiteLayoutShell } from "@/start/components/site-layout-shell";
 
 export const Route = createLazyFileRoute("/compare/")({

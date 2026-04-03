@@ -1,5 +1,5 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
-import { AboutSitePage } from "@/site/pages/static-pages";
+import { AboutSitePage } from "@/site/pages/about-page";
 import { SiteLayoutShell } from "@/start/components/site-layout-shell";
 
 export const Route = createLazyFileRoute("/about")({

@@ -1,10 +1,8 @@
 "use client";
 
-import { PolarEmbedCheckout } from "@polar-sh/checkout/embed";
 import { track } from "@tamias/events/client";
 import { LogEvents } from "@tamias/events/events";
 import { getPlanPricing } from "@tamias/plans";
-import { AnimatedSizeContainer } from "@tamias/ui/animated-size-container";
 import { Button } from "@tamias/ui/button";
 import { cn } from "@tamias/ui/cn";
 import {
@@ -17,10 +15,13 @@ import {
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { Textarea } from "@tamias/ui/textarea";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTheme } from "@/components/theme-provider";
 import { useUserQuery } from "@/hooks/use-user";
+import {
+  getPolarEmbedCheckout,
+  type PolarCheckout,
+} from "@/lib/polar-checkout";
 import { useTRPC } from "@/trpc/client";
 
 type CancellationReason =
@@ -40,13 +41,6 @@ const REASONS: { value: CancellationReason; label: string }[] = [
   { value: "other", label: "Other" },
 ];
 
-const stepTransition = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: { opacity: 0 },
-  transition: { duration: 0.15 },
-};
-
 type CancellationDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -65,12 +59,9 @@ export function CancellationDialog({
   const { data: user } = useUserQuery();
   const plan = user?.team?.plan;
   const theme = useTheme().resolvedTheme === "dark" ? "dark" : "light";
-  const checkoutRef = useRef<Awaited<
-    ReturnType<typeof PolarEmbedCheckout.create>
-  > | null>(null);
+  const checkoutRef = useRef<PolarCheckout | null>(null);
 
   useEffect(() => {
-    PolarEmbedCheckout.init();
     return () => {
       checkoutRef.current?.close();
     };
@@ -151,6 +142,7 @@ export function CancellationDialog({
         currency: checkoutCurrency,
       });
 
+      const PolarEmbedCheckout = await getPolarEmbedCheckout();
       const checkout = await PolarEmbedCheckout.create(url, {
         theme,
       });
@@ -190,58 +182,40 @@ export function CancellationDialog({
   const pricing = getPlanPricing(checkoutCurrency === "EUR" ? "EU" : undefined);
 
   const annualSavings = (pricing.starter.monthly - pricing.starter.yearly) * 12;
+  const content =
+    step === 1 ? (
+      <StepOne reason={reason} onSelect={handleReasonSelect} />
+    ) : step === 2 && reason ? (
+      <StepTwo
+        reason={reason}
+        comment={comment}
+        onCommentChange={setComment}
+        annualSavings={annualSavings}
+        currency={pricing.symbol}
+        isYearly={isYearly}
+        onSwitchToAnnual={handleSwitchToAnnual}
+        onStillCancel={() => setStep(3)}
+        onBack={() => {
+          setReason(null);
+          setComment("");
+          setStep(1);
+        }}
+      />
+    ) : step === 3 ? (
+      <StepThree
+        isSubmitting={cancelMutation.isPending}
+        onConfirm={handleCancel}
+        onKeepPlan={() => handleClose(false)}
+        onBack={() => setStep(2)}
+      />
+    ) : (
+      <StepDone onClose={() => handleClose(false)} />
+    );
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md overflow-hidden" hideClose>
-        <AnimatedSizeContainer height>
-          <div className="p-6">
-            <AnimatePresence mode="wait" initial={false}>
-              {step === 1 && (
-                <motion.div key="step-1" {...stepTransition}>
-                  <StepOne reason={reason} onSelect={handleReasonSelect} />
-                </motion.div>
-              )}
-
-              {step === 2 && reason && (
-                <motion.div key="step-2" {...stepTransition}>
-                  <StepTwo
-                    reason={reason}
-                    comment={comment}
-                    onCommentChange={setComment}
-                    annualSavings={annualSavings}
-                    currency={pricing.symbol}
-                    isYearly={isYearly}
-                    onSwitchToAnnual={handleSwitchToAnnual}
-                    onStillCancel={() => setStep(3)}
-                    onBack={() => {
-                      setReason(null);
-                      setComment("");
-                      setStep(1);
-                    }}
-                  />
-                </motion.div>
-              )}
-
-              {step === 3 && (
-                <motion.div key="step-3" {...stepTransition}>
-                  <StepThree
-                    isSubmitting={cancelMutation.isPending}
-                    onConfirm={handleCancel}
-                    onKeepPlan={() => handleClose(false)}
-                    onBack={() => setStep(2)}
-                  />
-                </motion.div>
-              )}
-
-              {step === "done" && (
-                <motion.div key="step-done" {...stepTransition}>
-                  <StepDone onClose={() => handleClose(false)} />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </AnimatedSizeContainer>
+      <DialogContent className="max-w-md" hideClose>
+        <div className="p-6">{content}</div>
       </DialogContent>
     </Dialog>
   );

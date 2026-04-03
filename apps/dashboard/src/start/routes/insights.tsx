@@ -1,9 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { createSiteFileRoute } from "@/start/route-hosts";
-import {
-  InsightsSitePage,
-  insightsSiteMetadata,
-} from "@/site/pages/static-pages";
+import { insightsSiteMetadata } from "@/site/pages/insights-page";
 import { buildHeadFromMetadata } from "@/start/site-head";
 
 export const Route = createSiteFileRoute("/insights")({
