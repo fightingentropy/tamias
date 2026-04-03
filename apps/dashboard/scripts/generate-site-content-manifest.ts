@@ -22,11 +22,15 @@ type DocEntry = {
   content: string;
 };
 
+type DocMetadataEntry = Omit<DocEntry, "content">;
+
 type BlogPost = {
   slug: string;
   metadata: BlogMetadata;
   content: string;
 };
+
+type BlogMetadataEntry = Omit<BlogPost, "content">;
 
 function parseFrontmatter<T extends Record<string, unknown>>(fileContent: string) {
   const frontmatterRegex = /---\s*([\s\S]*?)\s*---/;
@@ -73,6 +77,14 @@ const outputPath = join(rootDir, "src", "site", "generated", "content-manifest.t
 
 const docs = readMdxEntries<DocMetadata>(docsDir) satisfies DocEntry[];
 const blogPosts = readMdxEntries<BlogMetadata>(postsDir) satisfies BlogPost[];
+const docEntries = docs.map(({ slug, metadata }) => ({ slug, metadata })) satisfies DocMetadataEntry[];
+const blogEntries = blogPosts.map(({ slug, metadata }) => ({ slug, metadata })) satisfies BlogMetadataEntry[];
+const docContentBySlug = Object.fromEntries(
+  docs.map(({ slug, content }) => [slug, content]),
+) satisfies Record<string, string>;
+const blogContentBySlug = Object.fromEntries(
+  blogPosts.map(({ slug, content }) => [slug, content]),
+) satisfies Record<string, string>;
 
 mkdirSync(dirname(outputPath), { recursive: true });
 
@@ -97,15 +109,35 @@ export type DocEntry = {
   metadata: DocMetadata;
   content: string;
 };
+export type DocMetadataEntry = {
+  slug: string;
+  metadata: DocMetadata;
+};
 export type BlogPost = {
   slug: string;
   metadata: BlogMetadata;
   content: string;
 };
+export type BlogMetadataEntry = {
+  slug: string;
+  metadata: BlogMetadata;
+};
 
-export const docs: DocEntry[] = ${JSON.stringify(docs, null, 2)};
+export const docEntries: DocMetadataEntry[] = ${JSON.stringify(docEntries, null, 2)};
 
-export const blogPosts: BlogPost[] = ${JSON.stringify(blogPosts, null, 2)};
+export const docContentBySlug: Record<string, string> = ${JSON.stringify(
+    docContentBySlug,
+    null,
+    2,
+  )};
+
+export const blogEntries: BlogMetadataEntry[] = ${JSON.stringify(blogEntries, null, 2)};
+
+export const blogContentBySlug: Record<string, string> = ${JSON.stringify(
+    blogContentBySlug,
+    null,
+    2,
+  )};
 `,
 );
 

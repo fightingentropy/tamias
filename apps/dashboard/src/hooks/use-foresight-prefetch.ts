@@ -18,6 +18,82 @@ const METRICS_HIT_SLOP = { top: 100, right: 100, bottom: 100, left: 100 };
 const CHAT_HIT_SLOP = { top: 150, right: 150, bottom: 150, left: 150 };
 const SEARCH_HIT_SLOP = { top: 100, right: 100, bottom: 100, left: 100 };
 
+type NetworkInformationLike = {
+  saveData?: boolean;
+  effectiveType?: string;
+};
+
+type WindowWithIdleCallback = Window & {
+  requestIdleCallback?: (
+    callback: (deadline: { didTimeout: boolean; timeRemaining(): number }) => void,
+    options?: { timeout?: number },
+  ) => number;
+};
+
+function getConnectionInfo() {
+  if (typeof navigator === "undefined") {
+    return null;
+  }
+
+  const connection =
+    (navigator as Navigator & {
+      connection?: NetworkInformationLike;
+      mozConnection?: NetworkInformationLike;
+      webkitConnection?: NetworkInformationLike;
+    }).connection ??
+    (navigator as Navigator & {
+      connection?: NetworkInformationLike;
+      mozConnection?: NetworkInformationLike;
+      webkitConnection?: NetworkInformationLike;
+    }).mozConnection ??
+    (navigator as Navigator & {
+      connection?: NetworkInformationLike;
+      mozConnection?: NetworkInformationLike;
+      webkitConnection?: NetworkInformationLike;
+    }).webkitConnection ??
+    null;
+
+  return connection;
+}
+
+function isPredictivePrefetchAllowed() {
+  const connection = getConnectionInfo();
+
+  if (!connection) {
+    return true;
+  }
+
+  if (connection.saveData) {
+    return false;
+  }
+
+  return connection.effectiveType !== "slow-2g" && connection.effectiveType !== "2g";
+}
+
+function schedulePredictivePrefetch(task: () => void) {
+  if (!isPredictivePrefetchAllowed()) {
+    return;
+  }
+
+  if (typeof window !== "undefined") {
+    const windowWithIdleCallback = window as WindowWithIdleCallback;
+
+    if (windowWithIdleCallback.requestIdleCallback) {
+      windowWithIdleCallback.requestIdleCallback(
+        () => {
+          task();
+        },
+        { timeout: 1500 },
+      );
+      return;
+    }
+  }
+
+  setTimeout(() => {
+    task();
+  }, 50);
+}
+
 /**
  * Prefetch metrics data when cursor heads toward Metrics tab
  */
@@ -31,37 +107,44 @@ export function useForesightMetricsPrefetch() {
     if (hasPrefetched.current) return;
     hasPrefetched.current = true;
 
-    // Prefetch all metrics queries
-    Promise.all([
-      queryClient.prefetchQuery(
-        trpc.reports.revenue.queryOptions({ from, to, currency, revenueType }),
-      ),
-      queryClient.prefetchQuery(
-        trpc.reports.expense.queryOptions({ from, to, currency }),
-      ),
-      queryClient.prefetchQuery(
-        trpc.reports.profit.queryOptions({ from, to, currency, revenueType }),
-      ),
-      queryClient.prefetchQuery(
-        trpc.reports.burnRate.queryOptions({ from, to, currency }),
-      ),
-      queryClient.prefetchQuery(trpc.reports.runway.queryOptions({ currency })),
-      queryClient.prefetchQuery(
-        trpc.reports.spending.queryOptions({ from, to, currency }),
-      ),
-      queryClient.prefetchQuery(
-        trpc.reports.revenueForecast.queryOptions({
-          from,
-          to,
-          forecastMonths: 6,
-          currency,
-          revenueType,
-        }),
-      ),
-      queryClient.prefetchQuery(
-        trpc.widgets.getAccountBalances.queryOptions({ currency }),
-      ),
-    ]);
+    schedulePredictivePrefetch(async () => {
+      const prefetchers = [
+        () =>
+          queryClient.prefetchQuery(
+            trpc.reports.revenue.queryOptions({
+              from,
+              to,
+              currency,
+              revenueType,
+            }),
+          ),
+        () =>
+          queryClient.prefetchQuery(
+            trpc.reports.expense.queryOptions({ from, to, currency }),
+          ),
+        () =>
+          queryClient.prefetchQuery(
+            trpc.reports.profit.queryOptions({
+              from,
+              to,
+              currency,
+              revenueType,
+            }),
+          ),
+        () =>
+          queryClient.prefetchQuery(
+            trpc.reports.runway.queryOptions({ currency }),
+          ),
+        () =>
+          queryClient.prefetchQuery(
+            trpc.widgets.getAccountBalances.queryOptions({ currency }),
+          ),
+      ];
+
+      for (const prefetch of prefetchers) {
+        await prefetch();
+      }
+    });
   }, [queryClient, trpc, from, to, currency, revenueType]);
 
   const { elementRef } = useForesight<HTMLButtonElement>({
@@ -85,13 +168,15 @@ export function useForesightChatPrefetch() {
     if (hasPrefetched.current) return;
     hasPrefetched.current = true;
 
-    // Prefetch chat history - must match ChatHistoryDropdown query params exactly
-    queryClient.prefetchQuery(
-      trpc.chats.list.queryOptions({
-        limit: 20,
-        search: undefined,
-      }),
-    );
+    schedulePredictivePrefetch(() => {
+      // Prefetch chat history - must match ChatHistoryDropdown query params exactly
+      void queryClient.prefetchQuery(
+        trpc.chats.list.queryOptions({
+          limit: 20,
+          search: undefined,
+        }),
+      );
+    });
   }, [queryClient, trpc]);
 
   const { elementRef } = useForesight<HTMLButtonElement>({
@@ -109,24 +194,48 @@ export function useForesightChatPrefetch() {
 export function useForesightSearchPrefetch() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const hasPrefetched = useRef(false);
+  const predictivePrefetchAttempted = useRef(false);
+  const searchPrefetchCompleted = useRef(false);
 
   const prefetchSearchData = useCallback(() => {
-    if (hasPrefetched.current) return;
-    hasPrefetched.current = true;
+    if (searchPrefetchCompleted.current) return;
+    searchPrefetchCompleted.current = true;
 
     prefetchSearchModule();
 
     // Prefetch global search with empty query to warm up the cache
-    queryClient.prefetchQuery(
+    void queryClient.prefetchQuery(
       trpc.search.global.queryOptions({
         searchTerm: "",
       }),
     );
   }, [queryClient, trpc]);
 
+  const prefetchSearchDataPredictive = useCallback(() => {
+    if (predictivePrefetchAttempted.current || searchPrefetchCompleted.current) {
+      return;
+    }
+
+    predictivePrefetchAttempted.current = true;
+
+    schedulePredictivePrefetch(() => {
+      if (searchPrefetchCompleted.current) {
+        return;
+      }
+
+      searchPrefetchCompleted.current = true;
+      prefetchSearchModule();
+
+      void queryClient.prefetchQuery(
+        trpc.search.global.queryOptions({
+          searchTerm: "",
+        }),
+      );
+    });
+  }, [queryClient, trpc]);
+
   const { elementRef } = useForesight<HTMLButtonElement>({
-    callback: prefetchSearchData,
+    callback: prefetchSearchDataPredictive,
     name: "search-button",
     hitSlop: SEARCH_HIT_SLOP,
   });

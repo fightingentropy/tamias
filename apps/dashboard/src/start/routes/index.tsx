@@ -1,22 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router"
+import { createSharedPublicFileRoute } from "@/start/route-hosts";
 import { createServerFn } from "@tanstack/react-start";
-import { StartPage } from "@/site/components/startpage";
-import { SiteLayoutShell } from "@/start/root-shell";
 
-const loadIndexRoute = createServerFn({ method: "GET" }).handler(async () => {
-  const { resolveIndexRoute } = await import("@/start/server/route-data");
+export const loadIndexRoute = createServerFn({ method: "GET" }).handler(async () => {
+  const { resolveIndexRoute } = await import("@/start/server/route-data/root");
   return resolveIndexRoute();
 });
 
-export const Route = createFileRoute("/")({
+export const Route = createSharedPublicFileRoute("/")({
   loader: () => loadIndexRoute(),
-  component: IndexPage,
 });
-
-function IndexPage() {
-  return (
-    <SiteLayoutShell>
-      <StartPage />
-    </SiteLayoutShell>
-  );
-}

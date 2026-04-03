@@ -1,5 +1,4 @@
 import { Button } from "@tamias/ui/button";
-import { getAppUrl } from "@tamias/utils/envs";
 import Image from "@/framework/image";
 import Link from "@/framework/link";
 import { Assistant } from "@/site/components/assistant";
@@ -20,8 +19,6 @@ import { competitors } from "@/site/data/competitors";
 import { createSiteMetadata } from "@/site/page-metadata";
 
 const year = new Date().getFullYear();
-const appUrl = getAppUrl();
-
 export const aboutSiteMetadata = createSiteMetadata({
   title: "About",
   description:
@@ -126,7 +123,7 @@ export function CompareSitePage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild className="btn-inverse h-11 px-6">
-                <a href={appUrl}>Start your free trial</a>
+                <Link href="/login">Start your free trial</Link>
               </Button>
               <Button asChild variant="outline" className="h-11 px-6">
                 <Link href="/pricing">View pricing</Link>

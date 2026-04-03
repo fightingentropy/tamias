@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router"
+import { createSiteFileRoute } from "@/start/route-hosts";
 import { PlainClient } from "@team-plain/typescript-sdk";
 import { sendSupportSchema } from "@/site/actions/schema";
 
@@ -21,7 +22,7 @@ function mapToPriorityNumber(priority: string) {
   }
 }
 
-export const Route = createFileRoute("/support/submit")({
+export const Route = createSiteFileRoute("/support/submit")({
   server: {
     handlers: {
       POST: async ({ request }) => {

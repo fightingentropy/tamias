@@ -11,20 +11,26 @@ type ProviderProps = {
   children: ReactNode;
 };
 
-export function Providers({ locale, children }: ProviderProps) {
+export function SiteProviders({ locale, children }: ProviderProps) {
+  return (
+    <I18nProviderClient locale={locale}>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        {children}
+      </ThemeProvider>
+    </I18nProviderClient>
+  );
+}
+
+export function AppProviders({ locale, children }: ProviderProps) {
   return (
     <ConvexClientProvider>
       <TRPCReactProvider>
-        <I18nProviderClient locale={locale}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-          </ThemeProvider>
-        </I18nProviderClient>
+        <SiteProviders locale={locale}>{children}</SiteProviders>
       </TRPCReactProvider>
     </ConvexClientProvider>
   );

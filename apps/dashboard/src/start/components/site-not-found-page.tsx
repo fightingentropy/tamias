@@ -1,5 +1,5 @@
 import { NotFoundPage } from "@/start/components/not-found-page";
-import { SiteLayoutShell } from "@/start/root-shell";
+import { SiteLayoutShell } from "@/start/components/site-layout-shell";
 
 export function SiteNotFoundPage() {
   return (

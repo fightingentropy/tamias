@@ -1,6 +1,7 @@
+import { createFileRoute } from "@tanstack/react-router"
+import { createAppPublicFileRoute } from "@/start/route-hosts";
 import { openai } from "@ai-sdk/openai";
 import { streamText } from "ai";
-import { createFileRoute } from "@tanstack/react-router";
 
 const DOCS_SYSTEM_PROMPT = `You are Tamias's documentation assistant. Help users understand how to use Tamias - a financial operating system for SMB owners, freelancers, and small agencies.
 
@@ -30,7 +31,7 @@ When referencing documentation, mention the page name naturally (e.g., "check th
 If you don't know something specific about Tamias, say so rather than guessing.
 Don't make up features that don't exist.`;
 
-export const Route = createFileRoute("/api/docs/chat")({
+export const Route = createAppPublicFileRoute("/api/docs/chat")({
   server: {
     handlers: {
       POST: async ({ request }) => {

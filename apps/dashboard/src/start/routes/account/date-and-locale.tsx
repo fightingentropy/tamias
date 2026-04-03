@@ -1,46 +1,19 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router"
+import { createAppFileRoute } from "@/start/route-hosts";
 import { createServerFn } from "@tanstack/react-start";
-import { AppLayoutShell } from "@/start/components/app-layout-shell";
-import { ChangeTimezone } from "@/components/change-timezone";
-import { DateFormatSettings } from "@/components/date-format-settings";
-import { LocaleSettings } from "@/components/locale-settings";
-import { TimeFormatSettings } from "@/components/time-format-settings";
-import { WeekSettings } from "@/components/week-settings";
 
-const loadAccountDateAndLocaleData = createServerFn({ method: "GET" }).handler(
+export const loadAccountDateAndLocaleData = createServerFn({ method: "GET" }).handler(
   async () => {
     const { buildAccountDateAndLocalePageData } = await import(
-      "@/start/server/route-data"
+      "@/start/server/route-data/account"
     );
     return (await buildAccountDateAndLocalePageData()) as any;
   },
 );
 
-export const Route = createFileRoute("/account/date-and-locale")({
+export const Route = createAppFileRoute("/account/date-and-locale")({
   loader: () => loadAccountDateAndLocaleData(),
   head: () => ({
     meta: [{ title: "Date & Locale | Tamias" }],
   }),
-  component: AccountDateAndLocalePage,
 });
-
-function AccountDateAndLocalePage() {
-  const loaderData = Route.useLoaderData() as Awaited<
-    ReturnType<typeof loadAccountDateAndLocaleData>
-  >;
-
-  return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
-      <div className="space-y-12">
-        <LocaleSettings />
-        <ChangeTimezone />
-        <TimeFormatSettings />
-        <DateFormatSettings />
-        <WeekSettings />
-      </div>
-    </AppLayoutShell>
-  );
-}

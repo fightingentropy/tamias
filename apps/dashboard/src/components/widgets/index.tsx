@@ -9,12 +9,19 @@ import { Suspense } from "react";
 import { useChatInterface } from "@/hooks/use-chat-interface";
 import { useInsightFromUrl } from "@/hooks/use-insight-from-url";
 import { useOverviewTab } from "@/hooks/use-overview-tab";
-import { MetricsView } from "../metrics/metrics-view";
 import { SuggestedActions } from "../suggested-actions";
+import dynamic from "@/framework/dynamic";
 import { WidgetsHeader } from "./header";
 import { OverviewWidgetDataProvider } from "./overview-widget-data";
 import { useIsCustomizing, WidgetProvider } from "./widget-provider";
 import { WidgetsGrid } from "./widgets-grid";
+
+const MetricsView = dynamic(
+  () => import("../metrics/metrics-view").then((m) => m.MetricsView),
+  {
+    loading: () => <div className="min-h-[480px]" />,
+  },
+);
 
 type RouterOutputs = inferRouterOutputs<AppRouter>;
 type WidgetPreferences = RouterOutputs["widgets"]["getWidgetPreferences"];

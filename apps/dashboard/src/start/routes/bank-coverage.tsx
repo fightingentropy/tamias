@@ -1,16 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router"
+import { createSiteFileRoute } from "@/start/route-hosts";
 import {
   BankCoverageSitePage,
   bankCoverageSiteMetadata,
 } from "@/site/pages/static-pages";
-import { SiteLayoutShell } from "@/start/root-shell";
 import { buildHeadFromMetadata } from "@/start/site-head";
 
-export const Route = createFileRoute("/bank-coverage")({
+export const Route = createSiteFileRoute("/bank-coverage")({
   head: () => buildHeadFromMetadata(bankCoverageSiteMetadata),
-  component: () => (
-    <SiteLayoutShell>
-      <BankCoverageSitePage />
-    </SiteLayoutShell>
-  ),
 });

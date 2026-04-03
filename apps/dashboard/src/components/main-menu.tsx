@@ -1,23 +1,35 @@
 "use client";
 
 import { cn } from "@tamias/ui/cn";
-import { Icons } from "@tamias/ui/icons";
 import Link from "@/framework/link";
 import { usePathname } from "@/framework/navigation";
 import { useEffect, useState } from "react";
 import { useChatInterface } from "@/hooks/use-chat-interface";
+import {
+  AppsNavIcon,
+  ChevronDownIcon,
+  CustomersNavIcon,
+  InboxNavIcon,
+  InvoiceNavIcon,
+  OverviewIcon,
+  SettingsNavIcon,
+  TaxIcon,
+  TrackerNavIcon,
+  TransactionsNavIcon,
+  VaultNavIcon,
+} from "@/start/components/app-shell-icons";
 
 const icons = {
-  "/dashboard": () => <Icons.Overview size={20} />,
-  "/compliance": () => <Icons.Tax size={20} />,
-  "/transactions": () => <Icons.Transactions size={20} />,
-  "/invoices": () => <Icons.Invoice size={20} />,
-  "/tracker": () => <Icons.Tracker size={20} />,
-  "/customers": () => <Icons.Customers size={20} />,
-  "/vault": () => <Icons.Vault size={20} />,
-  "/settings": () => <Icons.Settings size={20} />,
-  "/apps": () => <Icons.Apps size={20} />,
-  "/inbox": () => <Icons.Inbox2 size={20} />,
+  "/dashboard": () => <OverviewIcon size={20} />,
+  "/compliance": () => <TaxIcon size={20} />,
+  "/transactions": () => <TransactionsNavIcon size={20} />,
+  "/invoices": () => <InvoiceNavIcon size={20} />,
+  "/tracker": () => <TrackerNavIcon size={20} />,
+  "/customers": () => <CustomersNavIcon size={20} />,
+  "/vault": () => <VaultNavIcon size={20} />,
+  "/settings": () => <SettingsNavIcon size={20} />,
+  "/apps": () => <AppsNavIcon size={20} />,
+  "/inbox": () => <InboxNavIcon size={20} />,
 } as const;
 
 const baseItems = [
@@ -233,7 +245,7 @@ const Item = ({
                     shouldShowChildren && "rotate-180",
                   )}
                 >
-                  <Icons.ChevronDown size={16} />
+                  <ChevronDownIcon size={16} />
                 </button>
               )}
             </div>

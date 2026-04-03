@@ -1,16 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router"
+import { createSiteFileRoute } from "@/start/route-hosts";
 import {
   PreAccountingSitePage,
   preAccountingSiteMetadata,
 } from "@/site/pages/static-pages";
-import { SiteLayoutShell } from "@/start/root-shell";
 import { buildHeadFromMetadata } from "@/start/site-head";
 
-export const Route = createFileRoute("/pre-accounting")({
+export const Route = createSiteFileRoute("/pre-accounting")({
   head: () => buildHeadFromMetadata(preAccountingSiteMetadata),
-  component: () => (
-    <SiteLayoutShell>
-      <PreAccountingSitePage />
-    </SiteLayoutShell>
-  ),
 });

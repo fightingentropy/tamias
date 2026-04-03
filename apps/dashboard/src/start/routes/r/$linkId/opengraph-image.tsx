@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router"
+import { createAppPublicFileRoute } from "@/start/route-hosts";
 import { format, parseISO } from "date-fns";
 import { getChartDisplayName } from "@/components/metrics/utils/chart-types";
 import {
@@ -10,7 +11,7 @@ import {
   renderPngResponse,
 } from "@/start/og";
 
-export const Route = createFileRoute("/r/$linkId/opengraph-image")({
+export const Route = createAppPublicFileRoute("/r/$linkId/opengraph-image")({
   server: {
     handlers: {
       GET: async ({ params }) => {

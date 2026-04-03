@@ -1,16 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router"
+import { createSiteFileRoute } from "@/start/route-hosts";
 import {
   SupportSitePage,
   supportSiteMetadata,
 } from "@/site/pages/static-pages";
-import { SiteLayoutShell } from "@/start/root-shell";
 import { buildHeadFromMetadata } from "@/start/site-head";
 
-export const Route = createFileRoute("/support")({
+export const Route = createSiteFileRoute("/support")({
   head: () => buildHeadFromMetadata(supportSiteMetadata),
-  component: () => (
-    <SiteLayoutShell>
-      <SupportSitePage />
-    </SiteLayoutShell>
-  ),
 });

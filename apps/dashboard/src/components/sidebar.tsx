@@ -1,10 +1,10 @@
 "use client";
 
 import { cn } from "@tamias/ui/cn";
-import { Icons } from "@tamias/ui/icons";
 import { Skeleton } from "@tamias/ui/skeleton";
 import Link from "@/framework/link";
 import { Suspense, useState } from "react";
+import { LogoSmallIcon } from "@/start/components/app-shell-icons";
 import { MainMenu } from "./main-menu";
 import { TeamDropdown } from "./team-dropdown";
 
@@ -43,7 +43,7 @@ export function Sidebar() {
         )}
       >
         <Link href="/dashboard" className="absolute left-[22px] transition-none">
-          <Icons.LogoSmall />
+          <LogoSmallIcon />
         </Link>
       </div>
 

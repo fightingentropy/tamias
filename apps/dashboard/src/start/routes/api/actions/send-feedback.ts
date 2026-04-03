@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router"
+import { createAppPublicFileRoute } from "@/start/route-hosts";
 import { PlainClient } from "@team-plain/typescript-sdk";
 import { LogEvents } from "@tamias/events/events";
 import { sendFeedbackActionSchema } from "@/actions/send-feedback-action";
@@ -11,7 +12,7 @@ const client = new PlainClient({
   apiKey: process.env.PLAIN_API_KEY!,
 });
 
-export const Route = createFileRoute("/api/actions/send-feedback")({
+export const Route = createAppPublicFileRoute("/api/actions/send-feedback")({
   server: {
     handlers: {
       POST: async ({ request }) => {

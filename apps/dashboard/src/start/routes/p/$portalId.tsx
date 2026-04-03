@@ -1,12 +1,8 @@
-import {
-  HydrationBoundary,
-  type DehydratedState,
-} from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router"
+import { createAppPublicFileRoute } from "@/start/route-hosts";
+import { HydrationBoundary, type DehydratedState, } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { getAppUrl } from "@tamias/utils/envs";
-import { PortalContent } from "@/components/public/customer-portal-content";
-import { NotFoundPage } from "@/start/components/not-found-page";
 
 const appUrl = getAppUrl();
 
@@ -14,13 +10,17 @@ const loadCustomerPortalData = createServerFn({ method: "GET" })
   .inputValidator((data: { portalId: string }) => data)
   .handler(async ({ data }) => {
     const { buildCustomerPortalPageData } = await import(
-      "@/start/server/route-data"
+      "@/start/server/route-data/public"
     );
 
     return (await buildCustomerPortalPageData(data.portalId)) as any;
   });
 
-export const Route = createFileRoute("/p/$portalId")({
+export type CustomerPortalLoaderData = Awaited<
+  ReturnType<typeof loadCustomerPortalData>
+>;
+
+export const Route = createAppPublicFileRoute("/p/$portalId")({
   loader: ({ params }) =>
     loadCustomerPortalData({
       data: {
@@ -66,28 +66,4 @@ export const Route = createFileRoute("/p/$portalId")({
       ],
     };
   },
-  component: CustomerPortalPage,
 });
-
-function CustomerPortalPage() {
-  const loaderData = Route.useLoaderData() as Awaited<
-    ReturnType<typeof loadCustomerPortalData>
-  >;
-
-  if (loaderData.status !== "ok") {
-    return <NotFoundPage />;
-  }
-
-  return (
-    <HydrationBoundary
-      state={
-        loaderData.dehydratedState as unknown as
-          | DehydratedState
-          | null
-          | undefined
-      }
-    >
-      <PortalContent portalId={loaderData.portalId} />
-    </HydrationBoundary>
-  );
-}

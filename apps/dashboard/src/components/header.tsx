@@ -1,11 +1,28 @@
 import { Skeleton } from "@tamias/ui/skeleton";
 import { Suspense } from "react";
-import { ConnectionStatus } from "@/components/connection-status";
-import { NotificationCenter } from "@/components/notification-center";
-import { OpenSearchButton } from "@/components/search/open-search-button";
 import { Trial } from "@/components/trial";
 import { UserMenu } from "@/components/user-menu";
-import { MobileMenu } from "./mobile-menu";
+import dynamic from "@/framework/dynamic";
+
+const ConnectionStatus = dynamic(
+  () => import("@/components/connection-status").then((m) => m.ConnectionStatus),
+);
+const NotificationCenter = dynamic(
+  () =>
+    import("@/components/notification-center").then((m) => m.NotificationCenter),
+);
+const OpenSearchButton = dynamic(
+  () =>
+    import("@/components/search/open-search-button").then(
+      (m) => m.OpenSearchButton,
+    ),
+  {
+    loading: () => (
+      <div className="hidden md:flex w-40 lg:w-64 h-8 rounded-md border border-transparent" />
+    ),
+  },
+);
+const MobileMenu = dynamic(() => import("./mobile-menu").then((m) => m.MobileMenu));
 
 function UserMenuSkeleton() {
   return <Skeleton className="w-8 h-8 rounded-full" />;

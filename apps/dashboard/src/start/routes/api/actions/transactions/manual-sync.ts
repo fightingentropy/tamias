@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router"
+import { createAppPublicFileRoute } from "@/start/route-hosts";
 import { LogEvents } from "@tamias/events/events";
 import { enqueue } from "@tamias/job-client";
 import { manualSyncTransactionsActionSchema } from "@/actions/transactions/manual-sync-transactions-action";
@@ -8,7 +9,7 @@ import {
 } from "@/start/server/action-auth";
 import { getTRPCClient } from "@/trpc/server";
 
-export const Route = createFileRoute("/api/actions/transactions/manual-sync")({
+export const Route = createAppPublicFileRoute("/api/actions/transactions/manual-sync")({
   server: {
     handlers: {
       POST: async ({ request }) => {

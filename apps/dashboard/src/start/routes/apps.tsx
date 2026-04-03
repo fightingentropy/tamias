@@ -1,43 +1,17 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router"
+import { createAppFileRoute } from "@/start/route-hosts";
 import { createServerFn } from "@tanstack/react-start";
-import { Suspense } from "react";
-import { AppLayoutShell } from "@/start/components/app-layout-shell";
-import { Apps } from "@/components/apps";
-import { AppsSkeleton } from "@/components/apps.skeleton";
-import { AppsHeader } from "@/components/apps-header";
-import { ErrorBoundary } from "@/components/error-boundary";
-import { ErrorFallback } from "@/components/error-fallback";
 
-const loadAppsData = createServerFn({ method: "GET" }).handler(async () => {
-  const { buildAppsPageData } = await import("@/start/server/route-data");
+export const loadAppsData = createServerFn({ method: "GET" }).handler(async () => {
+  const { buildAppsPageData } = await import("@/start/server/route-data/app");
   return (await buildAppsPageData()) as any;
 });
 
-export const Route = createFileRoute("/apps")({
+export type AppsLoaderData = Awaited<ReturnType<typeof loadAppsData>>;
+
+export const Route = createAppFileRoute("/apps")({
   loader: () => loadAppsData(),
   head: () => ({
     meta: [{ title: "Apps | Tamias" }],
   }),
-  component: AppsPage,
 });
-
-function AppsPage() {
-  const loaderData = Route.useLoaderData() as Awaited<ReturnType<typeof loadAppsData>>;
-
-  return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
-      <div className="mt-4">
-        <AppsHeader />
-
-        <ErrorBoundary errorComponent={ErrorFallback}>
-          <Suspense fallback={<AppsSkeleton />}>
-            <Apps />
-          </Suspense>
-        </ErrorBoundary>
-      </div>
-    </AppLayoutShell>
-  );
-}

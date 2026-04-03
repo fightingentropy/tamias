@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@tamias/ui/button";
-import { Icons } from "@tamias/ui/icons";
 import { Popover, PopoverContent, PopoverTrigger } from "@tamias/ui/popover";
 import { ScrollArea } from "@tamias/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@tamias/ui/tabs";
@@ -10,6 +9,10 @@ import { useEffect, useState } from "react";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { ErrorFallback } from "@/components/error-fallback";
 import { useNotifications } from "@/hooks/use-notifications";
+import {
+  NotificationIcon,
+  SettingsNavIcon,
+} from "@/start/components/app-shell-icons";
 import { EmptyState } from "./empty-state";
 import { NotificationItem } from "./notification-item";
 
@@ -46,7 +49,7 @@ export function NotificationCenter() {
           {hasUnseenNotifications && (
             <div className="w-1.5 h-1.5 bg-[#FFD02B] rounded-full absolute top-0 right-0" />
           )}
-          <Icons.Notifications size={16} />
+          <NotificationIcon size={16} />
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -74,7 +77,7 @@ export function NotificationCenter() {
                   size="icon"
                   className="items-center justify-center transition-colors h-9 w-9 rounded-full bg-ransparent hover:bg-accent mr-2"
                 >
-                  <Icons.Settings size={16} />
+                  <SettingsNavIcon size={16} />
                 </Button>
               </Link>
             </TabsList>

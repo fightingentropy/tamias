@@ -1,5 +1,6 @@
+import { createFileRoute } from "@tanstack/react-router"
+import { createAppPublicFileRoute } from "@/start/route-hosts";
 import { formatAmount } from "@tamias/utils/format";
-import { createFileRoute } from "@tanstack/react-router";
 import { getCustomerPortalDataLocally } from "@/server/loaders/public";
 import {
   buildOgSvgDocument,
@@ -9,7 +10,7 @@ import {
   renderPngResponse,
 } from "@/start/og";
 
-export const Route = createFileRoute("/p/$portalId/opengraph-image")({
+export const Route = createAppPublicFileRoute("/p/$portalId/opengraph-image")({
   server: {
     handlers: {
       GET: async ({ params }) => {

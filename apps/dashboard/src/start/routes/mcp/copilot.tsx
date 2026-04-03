@@ -1,16 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router"
+import { createSiteFileRoute } from "@/start/route-hosts";
 import {
   McpCopilotSitePage,
   mcpCopilotSiteMetadata,
 } from "@/site/pages/mcp-pages";
-import { SiteLayoutShell } from "@/start/root-shell";
 import { buildHeadFromMetadata } from "@/start/site-head";
 
-export const Route = createFileRoute("/mcp/copilot")({
+export const Route = createSiteFileRoute("/mcp/copilot")({
   head: () => buildHeadFromMetadata(mcpCopilotSiteMetadata),
-  component: () => (
-    <SiteLayoutShell>
-      <McpCopilotSitePage />
-    </SiteLayoutShell>
-  ),
 });

@@ -15,16 +15,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useDebounceValue } from "usehooks-ts";
-import { useInboxParams } from "@/hooks/use-inbox-params";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useUserQuery } from "@/hooks/use-user";
 import { useTRPC } from "@/trpc/client";
 import { TransactionMatchItem } from "./transaction-match-item";
 import { TransactionUnmatchItem } from "./transaction-unmatch-item";
+import { useSelectedInboxItem } from "./selected-inbox-item-context";
 
 export function MatchTransaction() {
   const trpc = useTRPC();
-  const { params } = useInboxParams();
   const { data: user } = useUserQuery();
   const queryClient = useQueryClient();
   const token = useAuthToken();
@@ -36,18 +35,10 @@ export function MatchTransaction() {
     true,
   );
   const previousStatusRef = useRef<string | null>(null);
+  const selectedInboxItem = useSelectedInboxItem();
 
-  const id = params.inboxId;
-  const hasInboxContext = Boolean(id && token);
-
-  const { data } = useQuery(
-    trpc.inbox.getById.queryOptions(
-      { id: id! },
-      {
-        enabled: !!id,
-      },
-    ),
-  );
+  const id = selectedInboxItem.id;
+  const hasInboxContext = Boolean(token);
 
   const { data: transactionMatch, isLoading } = useQuery(
     trpc.transactions.searchTransactionMatch.queryOptions(
@@ -84,8 +75,11 @@ export function MatchTransaction() {
     ),
   }));
 
-  const selectedOptionBase = data?.transaction
-    ? { id: data.transaction.id, name: data.transaction.name }
+  const selectedOptionBase = selectedInboxItem.transaction
+    ? {
+        id: selectedInboxItem.transaction.id,
+        name: selectedInboxItem.transaction.name,
+      }
     : options?.find((option) => option.id === debouncedValue);
 
   const selectedValue = selectedOptionBase
@@ -163,7 +157,7 @@ export function MatchTransaction() {
   const handleSelect = (option?: { id: string; name: string }) => {
     if (option) {
       matchTransactionMutation.mutate({
-        id: id!,
+        id,
         transactionId: option.id,
       });
     }
@@ -177,17 +171,17 @@ export function MatchTransaction() {
 
   // Track status changes to detect transitions from suggested_match
   useEffect(() => {
-    if (data?.status) {
-      previousStatusRef.current = data.status;
+    if (selectedInboxItem.status) {
+      previousStatusRef.current = selectedInboxItem.status;
     }
-  }, [data?.status]);
+  }, [selectedInboxItem.status]);
 
   // Check if we're transitioning from suggested_match to show manual search
   const isTransitioningFromSuggestion =
     previousStatusRef.current === "suggested_match" &&
-    data?.status !== "suggested_match";
+    selectedInboxItem.status !== "suggested_match";
 
-  if (data?.transactionId) {
+  if (selectedInboxItem.transactionId) {
     return (
       <motion.div
         key="transaction-unmatch"
@@ -214,7 +208,7 @@ export function MatchTransaction() {
       className="bg-background h-12 relative"
     >
       <Combobox
-        key={data?.transaction?.id}
+        key={selectedInboxItem.transaction?.id}
         placeholder="Select a transaction"
         className="w-full bg-transparent px-12 h-12 border border-border dark:border-none"
         classNameList="bottom-[50px] border border-border dark:border-none max-h-[270px]"

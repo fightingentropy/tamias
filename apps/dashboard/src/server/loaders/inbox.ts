@@ -2,6 +2,7 @@
 import {
   getInboxAccountsForTeam,
   getInboxBlocklistForTeam,
+  getInboxItemForTeam,
   getInboxPage,
 } from "@tamias/app-services/inbox";
 import type { GetInboxParams } from "@tamias/app-data/queries/inbox";
@@ -57,5 +58,22 @@ export const getInboxBlocklistLocally = cache(async () => {
   return getInboxBlocklistForTeam({
     db: requestDb,
     teamId: session.teamId,
+  });
+});
+
+export const getInboxItemLocally = cache(async (inboxId: string) => {
+  const [session, requestDb] = await Promise.all([
+    getCurrentSession(),
+    getRequestDb(),
+  ]);
+
+  if (!session?.teamId) {
+    return null;
+  }
+
+  return getInboxItemForTeam({
+    db: requestDb,
+    teamId: session.teamId,
+    inboxId,
   });
 });

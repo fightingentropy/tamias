@@ -1,5 +1,6 @@
+import { createFileRoute } from "@tanstack/react-router"
+import { createAppPublicFileRoute } from "@/start/route-hosts";
 import { TZDate } from "@date-fns/tz";
-import { createFileRoute } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { getWebsiteLogo } from "@/utils/logos";
 import {
@@ -12,7 +13,7 @@ import {
   renderPngResponse,
 } from "@/start/og";
 
-export const Route = createFileRoute("/i/$token/opengraph-image")({
+export const Route = createAppPublicFileRoute("/i/$token/opengraph-image")({
   server: {
     handlers: {
       GET: async ({ params }) => {

@@ -1,16 +1,9 @@
 import "@/start/html-element-shim";
 import { Outlet, createRootRoute } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
 import { NotFoundPage } from "@/start/components/not-found-page";
 import { StartRootShell } from "@/start/root-shell";
 
-const loadRootBootstrap = createServerFn({ method: "GET" }).handler(async () => {
-  const { getRootBootstrapData } = await import("@/start/server/route-data");
-  return getRootBootstrapData();
-});
-
 export const Route = createRootRoute({
-  loader: () => loadRootBootstrap(),
   head: () => ({
     meta: [
       {
@@ -36,10 +29,8 @@ export const Route = createRootRoute({
 });
 
 function RootComponent() {
-  const bootstrap = Route.useLoaderData();
-
   return (
-    <StartRootShell bootstrap={bootstrap}>
+    <StartRootShell>
       <Outlet />
     </StartRootShell>
   );

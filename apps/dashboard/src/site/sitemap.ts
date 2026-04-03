@@ -1,7 +1,7 @@
 import { getWebsiteUrl } from "@tamias/utils/envs";
 import { categories, getAllSlugs } from "@/site/data/apps";
 import { getAllCompetitorSlugs } from "@/site/data/competitors";
-import { getBlogPosts } from "@/site/lib/blog";
+import { getSortedBlogPostPreviews } from "@/site/lib/blog";
 import { getAllDocSlugs } from "@/site/lib/docs";
 import type { SiteSitemapEntry } from "@/site/metadata";
 
@@ -48,7 +48,7 @@ export default async function sitemap(): Promise<SiteSitemapEntry[]> {
     lastModified,
   }));
 
-  const blogPosts = getBlogPosts().map((post) => ({
+  const blogPosts = getSortedBlogPostPreviews().map((post) => ({
     url: `${baseUrl}/updates/${post.slug}`,
     lastModified: post.metadata.publishedAt ?? lastModified,
   }));

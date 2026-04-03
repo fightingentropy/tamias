@@ -1,6 +1,12 @@
-import { docs, type DocEntry, type DocMetadata } from "@/site/generated/content-manifest";
+import {
+  docContentBySlug,
+  docEntries,
+  type DocMetadata,
+  type DocMetadataEntry,
+} from "@/site/generated/content-manifest";
 
-export type { DocEntry, DocMetadata };
+export type { DocMetadata, DocMetadataEntry };
+export type DocEntry = DocMetadataEntry & { content: string };
 
 type DocSection = {
   title: string;
@@ -13,16 +19,42 @@ type DocSection = {
   }>;
 };
 
-export function getDocsData() {
-  return docs;
+export function getDocBySlug(slug: string) {
+  const doc = getDocMetadataBySlug(slug);
+
+  if (!doc) {
+    return null;
+  }
+
+  return {
+    ...doc,
+    content: docContentBySlug[slug] ?? "",
+  };
 }
 
-export function getDocBySlug(slug: string) {
-  return docs.find((doc) => doc.slug === slug) ?? null;
+export function getDocMetadataBySlug(slug: string) {
+  return docEntries.find((doc) => doc.slug === slug) ?? null;
 }
 
 export function getAllDocSlugs(): string[] {
-  return docs.map((doc) => doc.slug);
+  return docEntries.map((doc) => doc.slug);
+}
+
+export function getAdjacentDocs(currentSlug: string) {
+  const allDocs: Array<{ slug: string; title: string }> = [];
+
+  for (const section of docsNavigation) {
+    for (const doc of section.docs) {
+      allDocs.push({ slug: doc.slug, title: doc.title });
+    }
+  }
+
+  const currentIndex = allDocs.findIndex((entry) => entry.slug === currentSlug);
+
+  return {
+    prev: currentIndex > 0 ? allDocs[currentIndex - 1] : null,
+    next: currentIndex < allDocs.length - 1 ? allDocs[currentIndex + 1] : null,
+  };
 }
 
 // Navigation structure for the sidebar

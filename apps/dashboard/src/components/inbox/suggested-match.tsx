@@ -3,18 +3,17 @@
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { useToast } from "@tamias/ui/use-toast";
 import { formatDate } from "@tamias/utils/format";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { useInboxParams } from "@/hooks/use-inbox-params";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useUserQuery } from "@/hooks/use-user";
 import { useTRPC } from "@/trpc/client";
 import { LocalStorageKeys } from "@/utils/constants";
 import { FormatAmount } from "../format-amount";
+import { useSelectedInboxItem } from "./selected-inbox-item-context";
 
 export function SuggestedMatch() {
   const trpc = useTRPC();
-  const { params } = useInboxParams();
   const { data: user } = useUserQuery();
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -23,20 +22,11 @@ export function SuggestedMatch() {
     false,
   );
 
-  const id = params.inboxId;
+  const selectedInboxItem = useSelectedInboxItem();
+  const id = selectedInboxItem.id;
 
-  // Get the inbox data to check if it has status "suggested_match"
-  const { data: inboxData } = useQuery(
-    trpc.inbox.getById.queryOptions(
-      { id: id! },
-      {
-        enabled: !!id,
-      },
-    ),
-  );
-
-  // Extract suggestion from inbox data
-  const suggestion = inboxData?.suggestion;
+  // Extract suggestion from selected inbox data
+  const suggestion = selectedInboxItem.suggestion;
 
   // Type guard to check if suggestion has suggestedTransaction
   const hasSuggestedTransaction = (
@@ -56,7 +46,7 @@ export function SuggestedMatch() {
     trpc.inbox.confirmMatch.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: trpc.inbox.getById.queryKey({ id: id! }),
+          queryKey: trpc.inbox.getById.queryKey({ id }),
         });
         queryClient.invalidateQueries({
           queryKey: trpc.inbox.get.infiniteQueryKey(),
@@ -74,7 +64,7 @@ export function SuggestedMatch() {
     trpc.inbox.declineMatch.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: trpc.inbox.getById.queryKey({ id: id! }),
+          queryKey: trpc.inbox.getById.queryKey({ id }),
         });
         queryClient.invalidateQueries({
           queryKey: trpc.inbox.get.infiniteQueryKey(),

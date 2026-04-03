@@ -1,13 +1,14 @@
+import { createFileRoute } from "@tanstack/react-router"
+import { createAppPublicFileRoute } from "@/start/route-hosts";
 import * as crypto from "node:crypto";
 import { LogEvents } from "@tamias/events/events";
 import { setupAnalytics } from "@tamias/events/server";
 import { startCloudflareWorkflow } from "@tamias/job-client";
-import { createFileRoute } from "@tanstack/react-router";
 import { configureDashboardAsyncWorkerRuntime } from "@/server/cloudflare-async-worker";
 
 const SIGNATURE_HEADER = "x-webhook-signature";
 
-export const Route = createFileRoute("/api/webhook/registered")({
+export const Route = createAppPublicFileRoute("/api/webhook/registered")({
   server: {
     handlers: {
       POST: async ({ request }) => {

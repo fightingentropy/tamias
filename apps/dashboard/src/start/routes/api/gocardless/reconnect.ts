@@ -1,9 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router"
+import { createAppPublicFileRoute } from "@/start/route-hosts";
 import { getConvexAuthToken } from "@/start/auth/server";
 import { getTRPCClient } from "@/trpc/server";
 import { getUrl } from "@/utils/environment";
 
-export const Route = createFileRoute("/api/gocardless/reconnect")({
+export const Route = createAppPublicFileRoute("/api/gocardless/reconnect")({
   server: {
     handlers: {
       GET: async ({ request }) => {

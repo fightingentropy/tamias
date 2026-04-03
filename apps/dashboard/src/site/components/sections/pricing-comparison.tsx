@@ -3,14 +3,11 @@
 import { track } from "@tamias/events/client";
 import { LogEvents } from "@tamias/events/events";
 import { Button } from "@tamias/ui/button";
-import { getAppUrl } from "@tamias/utils/envs";
 import type { Competitor } from "@/site/data/competitors";
 
 interface Props {
   competitor: Competitor;
 }
-
-const appUrl = getAppUrl();
 
 export function PricingComparison({ competitor }: Props) {
   return (
@@ -65,7 +62,7 @@ export function PricingComparison({ competitor }: Props) {
           <div className="mt-6 text-center">
             <Button asChild className="btn-inverse h-10 px-6">
               <a
-                href={appUrl}
+                href="/login"
                 onClick={() =>
                   track({
                     event: LogEvents.CTA.name,

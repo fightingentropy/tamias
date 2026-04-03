@@ -1,8 +1,9 @@
+import { createFileRoute } from "@tanstack/react-router"
+import { createAppPublicFileRoute } from "@/start/route-hosts";
 import { sanitizeRedirectPath } from "@tamias/utils/sanitize-redirect";
-import { createFileRoute } from "@tanstack/react-router";
 import { getUrl } from "@/utils/environment";
 
-export const Route = createFileRoute("/api/auth/callback")({
+export const Route = createAppPublicFileRoute("/api/auth/callback")({
   server: {
     handlers: {
       GET: ({ request }) => {

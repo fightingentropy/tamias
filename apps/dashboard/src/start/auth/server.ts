@@ -42,6 +42,15 @@ type ConvexSignInResult =
 const REQUIRED_TOKEN_LIFETIME_MS = 60_000;
 const MINIMUM_REQUIRED_TOKEN_LIFETIME_MS = 10_000;
 
+export function createAnonymousRequestAuthContext(): RequestAuthContext {
+  return {
+    token: null,
+    refreshToken: null,
+    verifier: null,
+    cookieHeaders: [],
+  };
+}
+
 function createConvexHttpClient(token?: string) {
   const client = new ConvexHttpClient(getConvexUrl(), { logger: false });
 
@@ -216,8 +225,8 @@ async function refreshTokensIfNeeded(
 ): Promise<RequestAuthContext> {
   if (!authState.token && !authState.refreshToken) {
     return {
-      ...authState,
-      cookieHeaders: [],
+      ...createAnonymousRequestAuthContext(),
+      verifier: authState.verifier,
     };
   }
 

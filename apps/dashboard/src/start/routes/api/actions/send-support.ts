@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router"
+import { createAppPublicFileRoute } from "@/start/route-hosts";
 import { PlainClient, ThreadFieldSchemaType } from "@team-plain/typescript-sdk";
 import { LogEvents } from "@tamias/events/events";
 import { sendSupportActionSchema } from "@/actions/send-support-action";
@@ -26,7 +27,7 @@ function mapToPriorityNumber(priority: string) {
   }
 }
 
-export const Route = createFileRoute("/api/actions/send-support")({
+export const Route = createAppPublicFileRoute("/api/actions/send-support")({
   server: {
     handlers: {
       POST: async ({ request }) => {

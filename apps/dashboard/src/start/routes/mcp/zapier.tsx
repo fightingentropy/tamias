@@ -1,16 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router"
+import { createSiteFileRoute } from "@/start/route-hosts";
 import {
   McpZapierSitePage,
   mcpZapierSiteMetadata,
 } from "@/site/pages/mcp-pages";
-import { SiteLayoutShell } from "@/start/root-shell";
 import { buildHeadFromMetadata } from "@/start/site-head";
 
-export const Route = createFileRoute("/mcp/zapier")({
+export const Route = createSiteFileRoute("/mcp/zapier")({
   head: () => buildHeadFromMetadata(mcpZapierSiteMetadata),
-  component: () => (
-    <SiteLayoutShell>
-      <McpZapierSitePage />
-    </SiteLayoutShell>
-  ),
 });

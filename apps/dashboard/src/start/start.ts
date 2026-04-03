@@ -1,65 +1,16 @@
 import "@/start/html-element-shim";
 import { createStart, createMiddleware } from "@tanstack/react-start";
-import { getAppUrl, getWebsiteUrl } from "@tamias/utils/envs";
-import { middlewareRedirect, resolveRequestAuthContext } from "@/start/auth/server";
+import { getRouteHostPolicy } from "@/start/route-host-policy";
+import {
+  createAnonymousRequestAuthContext,
+  middlewareRedirect,
+  resolveRequestAuthContext,
+} from "@/start/auth/server";
 
-const DASHBOARD_URL = getAppUrl();
-const WEBSITE_URL = getWebsiteUrl();
 const LOCAL_WEBSITE_HOSTNAME = "tamias.test";
 const LOCAL_APP_HOSTNAME = "app.tamias.test";
-
-const APP_ONLY_EXACT_PATHS = new Set([
-  "/account",
-  "/apps",
-  "/chat",
-  "/compliance",
-  "/dashboard",
-  "/invoices",
-  "/mfa",
-  "/oauth",
-  "/onboarding",
-  "/settings",
-  "/teams",
-  "/tracker",
-  "/upgrade",
-  "/vault",
-]);
-
-const APP_ONLY_NESTED_PREFIXES = [
-  "/account/",
-  "/apps/",
-  "/chat/",
-  "/compliance/",
-  "/dashboard/",
-  "/inbox/",
-  "/invoices/",
-  "/mfa/",
-  "/oauth/",
-  "/onboarding/",
-  "/settings/",
-  "/teams/",
-  "/tracker/",
-  "/transactions/",
-  "/upgrade/",
-  "/vault/",
-];
-
-const SHARED_HOST_PATHS = new Set([
-  "/customers",
-  "/inbox",
-  "/transactions",
-]);
-
-function isAppOnlyPath(pathname: string) {
-  return (
-    APP_ONLY_EXACT_PATHS.has(pathname) ||
-    APP_ONLY_NESTED_PREFIXES.some((prefix) => pathname.startsWith(prefix))
-  );
-}
-
-function isSharedHostPath(pathname: string) {
-  return SHARED_HOST_PATHS.has(pathname);
-}
+const PRODUCTION_WEBSITE_HOSTNAMES = new Set(["tamias.xyz", "www.tamias.xyz"]);
+const PRODUCTION_APP_HOSTNAME = "app.tamias.xyz";
 
 function isStaticAssetPath(pathname: string) {
   return (
@@ -68,30 +19,8 @@ function isStaticAssetPath(pathname: string) {
     pathname.startsWith("/images/") ||
     pathname.startsWith("/stories/") ||
     pathname.startsWith("/email/") ||
-    pathname.startsWith("/.well-known/") ||
-    /\.[a-z0-9]+$/i.test(pathname)
-  );
-}
-
-function isAppPublicPath(pathname: string) {
-  return (
-    pathname === "/" ||
-    pathname === "/login" ||
-    pathname === "/verify" ||
-    pathname === "/oauth-callback" ||
-    pathname.startsWith("/i/") ||
-    pathname.startsWith("/p/") ||
-    pathname.startsWith("/s/") ||
-    pathname.startsWith("/r/") ||
-    pathname.startsWith("/api/")
-  );
-}
-
-function isWebsitePath(pathname: string) {
-  return (
-    !isAppPublicPath(pathname) &&
-    !isAppOnlyPath(pathname) &&
-    !isSharedHostPath(pathname)
+      pathname.startsWith("/.well-known/") ||
+      /\.[a-z0-9]+$/i.test(pathname)
   );
 }
 
@@ -114,9 +43,19 @@ function getCanonicalOrigins(requestUrl: URL, currentHost: string) {
     };
   }
 
+  if (
+    currentHostname === PRODUCTION_APP_HOSTNAME ||
+    PRODUCTION_WEBSITE_HOSTNAMES.has(currentHostname)
+  ) {
+    return {
+      appUrl: "https://app.tamias.xyz",
+      websiteUrl: "https://tamias.xyz",
+    };
+  }
+
   return {
-    appUrl: DASHBOARD_URL,
-    websiteUrl: WEBSITE_URL,
+    appUrl: requestUrl.origin,
+    websiteUrl: requestUrl.origin,
   };
 }
 
@@ -133,34 +72,57 @@ const requestMiddleware = createMiddleware({ type: "request" }).server(
     const distinctHosts = appHost !== websiteHost;
     const isWebsiteHost = distinctHosts && currentHostname === websiteHostname;
     const isAppHost = !distinctHosts || currentHostname === appHostname;
-    const auth = await resolveRequestAuthContext(request);
     const pathname = requestUrl.pathname || "/";
+    let auth = createAnonymousRequestAuthContext();
 
     if (!isStaticAssetPath(pathname)) {
+      const routeHostPolicy = getRouteHostPolicy(requestUrl);
+
       if (pathname === "/site" || pathname.startsWith("/site/")) {
         const cleanPath = pathname === "/site" ? "/" : pathname.slice("/site".length);
-        const redirectBase = isWebsitePath(cleanPath) ? websiteUrl : appUrl;
+        const cleanUrl = new URL(`${cleanPath}${requestUrl.search}`, requestUrl.origin);
+        const cleanPolicy = getRouteHostPolicy(cleanUrl);
+        const redirectBase =
+          cleanPolicy?.hostSurface === "app" ? appUrl : websiteUrl;
         return middlewareRedirect(
           request,
           new URL(`${cleanPath}${requestUrl.search}`, redirectBase).toString(),
         );
       }
 
-      if (isWebsiteHost && (isAppPublicPath(pathname) || isAppOnlyPath(pathname))) {
+      if (isWebsiteHost && routeHostPolicy?.hostSurface === "app") {
         return middlewareRedirect(
           request,
           new URL(`${pathname}${requestUrl.search}`, appUrl).toString(),
         );
       }
 
-      if (isAppHost && isWebsitePath(pathname)) {
+      if (isAppHost && routeHostPolicy?.hostSurface === "website") {
         return middlewareRedirect(
           request,
           new URL(`${pathname}${requestUrl.search}`, websiteUrl).toString(),
         );
       }
 
-      if (!auth.token && !isAppPublicPath(pathname) && !isWebsiteHost) {
+      if (!routeHostPolicy && isAppHost) {
+        return middlewareRedirect(
+          request,
+          new URL(`${pathname}${requestUrl.search}`, websiteUrl).toString(),
+        );
+      }
+
+      const shouldResolveAuth =
+        !isWebsiteHost || routeHostPolicy?.hostSurface === "app";
+
+      if (shouldResolveAuth) {
+        auth = await resolveRequestAuthContext(request);
+      }
+
+      if (
+        !auth.token &&
+        !isWebsiteHost &&
+        routeHostPolicy?.appHostAccess === "protected"
+      ) {
         const encodedPath = `${pathname.replace(/^\/+/, "")}${requestUrl.search}`;
         const loginPath = encodedPath
           ? `/login?return_to=${encodeURIComponent(encodedPath)}`

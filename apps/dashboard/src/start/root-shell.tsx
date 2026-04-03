@@ -1,18 +1,18 @@
-import "@/styles/globals.css";
-import "@/site/styles/globals.css";
 import "@tamias/ui/globals.css";
 import { Provider as Analytics } from "@tamias/events/client";
 import { cn } from "@tamias/ui/cn";
 import { getConvexUrl } from "@tamias/utils/envs";
-import { HeadContent, Scripts } from "@tanstack/react-router";
+import { getStartContext } from "@tanstack/start-storage-context";
+import {
+  HeadContent,
+  Scripts,
+  useRouterState,
+} from "@tanstack/react-router";
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 import { DeferredToaster } from "@/components/deferred-toaster";
 import { AuthProvider } from "@/framework/convex-auth-client";
-import { Providers } from "@/providers";
-import { Footer } from "@/site/components/footer";
-import { Header as SiteHeader } from "@/site/components/header";
-import { JsonLdScript } from "@/start/site-head";
-import { useRouter } from "@tanstack/react-router";
+import { AppProviders, SiteProviders } from "@/providers";
+import type { StartRouteStaticData } from "@/start/route-hosts";
 import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 
@@ -28,6 +28,26 @@ export type RootBootstrapData = {
     isAppHost: boolean;
     isWebsiteHost: boolean;
   };
+};
+
+declare global {
+  interface Window {
+    __TAMIAS_START_BOOTSTRAP__?: RootBootstrapData;
+  }
+}
+
+const DEFAULT_BOOTSTRAP: RootBootstrapData = {
+  auth: {
+    token: null,
+    refreshToken: null,
+  },
+  host: {
+    appHost: "",
+    websiteHost: "",
+    currentHost: "",
+    isAppHost: true,
+    isWebsiteHost: false,
+  },
 };
 
 const themeBootstrapScript = `
@@ -51,20 +71,90 @@ globalThis.__name=globalThis.__name||function(target){return target;};
 })();
 `;
 
-const siteOrganizationJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "Tamias",
-  url: "https://tamias.xyz",
-  logo: "https://cdn.tamias.xyz/logo.png",
-  sameAs: [
-    "https://x.com/tamias",
-    "https://github.com/fightingentropy/tamias",
-    "https://linkedin.com/company/tamias",
-  ],
-  description:
-    "Tamias gives you one place for transactions, receipts, invoices and everything around your business finances without manual work.",
-};
+function escapeInlineScriptJson(value: string) {
+  return value
+    .replace(/</g, "\\u003c")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
+}
+
+function getServerRootBootstrapData(): RootBootstrapData | null {
+  if (typeof window !== "undefined") {
+    return null;
+  }
+
+  const startContext = getStartContext({ throwIfNotFound: false });
+
+  if (!startContext) {
+    return null;
+  }
+
+  const auth = startContext.contextAfterGlobalMiddlewares?.auth as
+    | {
+        token?: string | null;
+        refreshToken?: string | null;
+      }
+    | undefined;
+  const canonicalHost = startContext.contextAfterGlobalMiddlewares?.canonicalHost as
+    | RootBootstrapData["host"]
+    | undefined;
+  const requestUrl = new URL(startContext.request.url);
+  const currentHost = startContext.request.headers.get("host") ?? requestUrl.host;
+
+  return {
+    auth: {
+      token: auth?.token ?? null,
+      refreshToken: auth?.refreshToken ?? null,
+    },
+    host: canonicalHost ?? {
+      appHost: currentHost,
+      websiteHost: currentHost,
+      currentHost,
+      isAppHost: true,
+      isWebsiteHost: false,
+    },
+  };
+}
+
+function getClientRootBootstrapData() {
+  if (typeof window === "undefined") {
+    return DEFAULT_BOOTSTRAP;
+  }
+
+  return window.__TAMIAS_START_BOOTSTRAP__ ?? DEFAULT_BOOTSTRAP;
+}
+
+function getCurrentRootBootstrapData() {
+  return getServerRootBootstrapData() ?? getClientRootBootstrapData();
+}
+
+function getInlineBootstrapScript() {
+  const bootstrap = getServerRootBootstrapData();
+
+  if (!bootstrap) {
+    return null;
+  }
+
+  return `window.__TAMIAS_START_BOOTSTRAP__=${escapeInlineScriptJson(JSON.stringify(bootstrap))};`;
+}
+
+function isStartRouteStaticData(
+  value: unknown,
+): value is StartRouteStaticData {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Partial<StartRouteStaticData>;
+
+  return (
+    (candidate.hostSurface === "app" ||
+      candidate.hostSurface === "website" ||
+      candidate.hostSurface === "shared") &&
+    (candidate.appHostAccess === "public" ||
+      candidate.appHostAccess === "protected")
+  );
+}
 
 function requireEnv(value: string | undefined, name: string) {
   if (value === undefined) {
@@ -75,11 +165,8 @@ function requireEnv(value: string | undefined, name: string) {
 }
 
 function ConvexAuthStartProvider(props: {
-  bootstrap: RootBootstrapData;
   children: ReactNode;
 }) {
-  const router = useRouter();
-
   const call = useCallback(
     async (action: string, args: unknown) => {
       const response = await fetch("/api/auth", {
@@ -110,19 +197,16 @@ function ConvexAuthStartProvider(props: {
 
   const serverState = useMemo(
     () => ({
-      _state: props.bootstrap.auth,
+      _state: getCurrentRootBootstrapData().auth,
       _timeFetched: Date.now(),
     }),
-    [props.bootstrap.auth],
+    [],
   );
 
   return (
     <AuthProvider
       client={authClient as any}
       serverState={serverState}
-      onChange={async () => {
-        await router.invalidate();
-      }}
       shouldHandleCode={false}
       storage={typeof window === "undefined" ? null : window.localStorage}
       storageNamespace={requireEnv(getConvexUrl() || undefined, "CONVEX_URL")}
@@ -135,14 +219,62 @@ function ConvexAuthStartProvider(props: {
   );
 }
 
-export function StartRootShell(props: {
-  bootstrap: RootBootstrapData;
+function SiteRuntimeProviders(props: { children: ReactNode }) {
+  return (
+    <SiteProviders locale="en">
+      {props.children}
+      <DeferredToaster />
+    </SiteProviders>
+  );
+}
+
+function AppRuntimeProviders(props: {
   children: ReactNode;
 }) {
+  return (
+    <ConvexAuthStartProvider>
+      <AppProviders locale="en">
+        {props.children}
+        <DeferredToaster />
+      </AppProviders>
+    </ConvexAuthStartProvider>
+  );
+}
+
+export function StartRootShell(props: {
+  children: ReactNode;
+}) {
+  const bootstrap = getCurrentRootBootstrapData();
+  const inlineBootstrapScript = getInlineBootstrapScript();
+  const activeRouteStaticData = useRouterState({
+    select: (state) => {
+      for (let index = state.matches.length - 1; index >= 0; index -= 1) {
+        const staticData = state.matches[index]?.staticData;
+
+        if (isStartRouteStaticData(staticData)) {
+          return staticData;
+        }
+      }
+
+      return null;
+    },
+  });
+  const isWebsiteRuntime =
+    activeRouteStaticData?.hostSurface === "website" ||
+    (bootstrap.host.isWebsiteHost &&
+      activeRouteStaticData?.hostSurface !== "app");
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
+        {inlineBootstrapScript ? (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: inlineBootstrapScript,
+            }}
+          />
+        ) : null}
         <script
           dangerouslySetInnerHTML={{
             __html: themeBootstrapScript,
@@ -151,29 +283,17 @@ export function StartRootShell(props: {
       </head>
       <body className={cn("font-sans whitespace-pre-line overscroll-none antialiased")}>
         <NuqsAdapter>
-          <ConvexAuthStartProvider bootstrap={props.bootstrap}>
-            <Providers locale="en">
+          {isWebsiteRuntime ? (
+            <SiteRuntimeProviders>{props.children}</SiteRuntimeProviders>
+          ) : (
+            <AppRuntimeProviders>
               {props.children}
-              <DeferredToaster />
-            </Providers>
-          </ConvexAuthStartProvider>
+            </AppRuntimeProviders>
+          )}
           <Analytics />
         </NuqsAdapter>
         <Scripts />
       </body>
     </html>
-  );
-}
-
-export function SiteLayoutShell(props: { children: ReactNode }) {
-  return (
-    <div className="bg-background overflow-x-hidden whitespace-normal">
-      <JsonLdScript value={siteOrganizationJsonLd} />
-      <SiteHeader />
-      <main className="container mx-auto overflow-hidden px-4 md:overflow-visible">
-        {props.children}
-      </main>
-      <Footer />
-    </div>
   );
 }

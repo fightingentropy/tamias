@@ -1,12 +1,15 @@
 "use client";
 
-import type { RouterOutputs } from "@tamias/trpc";
 import { AnimatePresence } from "framer-motion";
 import { MatchTransaction } from "./match-transaction";
+import {
+  SelectedInboxItemProvider,
+  type SelectedInboxItem,
+} from "./selected-inbox-item-context";
 import { SuggestedMatch } from "./suggested-match";
 
 type Props = {
-  data: RouterOutputs["inbox"]["getById"];
+  data: SelectedInboxItem;
 };
 
 export function InboxActions({ data }: Props) {
@@ -22,10 +25,12 @@ export function InboxActions({ data }: Props) {
     !!data?.suggestion;
 
   return (
-    <AnimatePresence>
-      {hasSuggestion && <SuggestedMatch key="suggested-match" />}
+    <SelectedInboxItemProvider value={data}>
+      <AnimatePresence>
+        {hasSuggestion && <SuggestedMatch key="suggested-match" />}
 
-      {!hasSuggestion && <MatchTransaction key="match-transaction" />}
-    </AnimatePresence>
+        {!hasSuggestion && <MatchTransaction key="match-transaction" />}
+      </AnimatePresence>
+    </SelectedInboxItemProvider>
   );
 }

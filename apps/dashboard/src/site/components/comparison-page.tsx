@@ -3,7 +3,6 @@
 import { track } from "@tamias/events/client";
 import { LogEvents } from "@tamias/events/events";
 import { Button } from "@tamias/ui/button";
-import { getAppUrl } from "@tamias/utils/envs";
 import Link from "@/framework/link";
 import type { Competitor } from "@/site/data/competitors";
 import { tamiasDifferentiators } from "@/site/data/competitors";
@@ -15,8 +14,6 @@ import { PricingComparison } from "./sections/pricing-comparison";
 interface Props {
   competitor: Competitor;
 }
-
-const appUrl = getAppUrl();
 
 export function ComparisonPage({ competitor }: Props) {
   const sections = [
@@ -203,8 +200,8 @@ export function ComparisonPage({ competitor }: Props) {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button asChild className="btn-inverse h-11 px-6">
-                  <a
-                    href={appUrl}
+                  <Link
+                    href="/login"
                     onClick={() =>
                       track({
                         event: LogEvents.CTA.name,
@@ -216,7 +213,7 @@ export function ComparisonPage({ competitor }: Props) {
                     }
                   >
                     Start your free trial
-                  </a>
+                  </Link>
                 </Button>
                 <Button
                   asChild

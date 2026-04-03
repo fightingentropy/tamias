@@ -1,7 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router"
+import { createSiteFileRoute } from "@/start/route-hosts";
 import { baseUrl } from "@/site/sitemap";
 
-export const Route = createFileRoute("/robots.txt")({
+export const Route = createSiteFileRoute("/robots.txt")({
   server: {
     handlers: {
       GET: () =>

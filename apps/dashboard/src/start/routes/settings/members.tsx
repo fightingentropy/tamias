@@ -1,36 +1,21 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router"
+import { createAppFileRoute } from "@/start/route-hosts";
 import { createServerFn } from "@tanstack/react-start";
 import { AppLayoutShell } from "@/start/components/app-layout-shell";
 import { TeamMembers } from "@/components/team-members";
 
-const loadSettingsMembersData = createServerFn({ method: "GET" }).handler(
+export const loadSettingsMembersData = createServerFn({ method: "GET" }).handler(
   async () => {
     const { buildSettingsMembersPageData } = await import(
-      "@/start/server/route-data"
+      "@/start/server/route-data/settings-members"
     );
     return (await buildSettingsMembersPageData()) as any;
   },
 );
 
-export const Route = createFileRoute("/settings/members")({
+export const Route = createAppFileRoute("/settings/members")({
   loader: () => loadSettingsMembersData(),
   head: () => ({
     meta: [{ title: "Members | Tamias" }],
   }),
-  component: SettingsMembersPage,
 });
-
-function SettingsMembersPage() {
-  const loaderData = Route.useLoaderData() as Awaited<
-    ReturnType<typeof loadSettingsMembersData>
-  >;
-
-  return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
-      <TeamMembers />
-    </AppLayoutShell>
-  );
-}

@@ -1,7 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router"
+import { createSiteFileRoute } from "@/start/route-hosts";
 import buildSitemap from "@/site/sitemap";
 
-export const Route = createFileRoute("/sitemap.xml")({
+export const Route = createSiteFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {

@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router"
+import { createAppPublicFileRoute } from "@/start/route-hosts";
 import { LogEvents } from "@tamias/events/events";
 import { enqueue } from "@tamias/job-client";
 import { reconnectConnectionActionSchema } from "@/actions/transactions/reconnect-connection-action";
@@ -7,7 +8,7 @@ import {
   trackAction,
 } from "@/start/server/action-auth";
 
-export const Route = createFileRoute("/api/actions/transactions/reconnect")({
+export const Route = createAppPublicFileRoute("/api/actions/transactions/reconnect")({
   server: {
     handlers: {
       POST: async ({ request }) => {

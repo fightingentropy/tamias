@@ -1,15 +1,16 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router"
+import { createSiteFileRoute } from "@/start/route-hosts";
 import { IntegrationsGrid } from "@/site/components/integrations-grid";
 import { categories, getAppsByCategory } from "@/site/data/apps";
 import { SiteNotFoundPage } from "@/start/components/site-not-found-page";
 import { baseUrl } from "@/site/sitemap";
-import { SiteLayoutShell } from "@/start/root-shell";
+import { SiteLayoutShell } from "@/start/components/site-layout-shell";
 
 const validCategories = categories
   .filter((category) => category.id !== "all")
   .map((category) => category.id);
 
-export const Route = createFileRoute("/integrations/category/$category")({
+export const Route = createSiteFileRoute("/integrations/category/$category")({
   head: ({ params }) => {
     const categoryData = categories.find(
       (category) => category.id === params.category,
@@ -43,22 +44,4 @@ export const Route = createFileRoute("/integrations/category/$category")({
       links: [{ rel: "canonical", href: url }],
     };
   },
-  component: IntegrationCategoryRoute,
 });
-
-function IntegrationCategoryRoute() {
-  const { category } = Route.useParams();
-
-  if (!validCategories.includes(category)) {
-    return <SiteNotFoundPage />;
-  }
-
-  return (
-    <SiteLayoutShell>
-      <IntegrationsGrid
-        apps={getAppsByCategory(category)}
-        activeCategory={category}
-      />
-    </SiteLayoutShell>
-  );
-}

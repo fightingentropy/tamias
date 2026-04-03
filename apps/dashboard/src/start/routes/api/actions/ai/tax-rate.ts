@@ -1,12 +1,13 @@
+import { createFileRoute } from "@tanstack/react-router"
+import { createAppPublicFileRoute } from "@/start/route-hosts";
 import { openai } from "@ai-sdk/openai";
 import { generateObject } from "ai";
-import { createFileRoute } from "@tanstack/react-router";
 import { getLocationHeaders } from "@tamias/location";
 import { z } from "zod";
 import { getTaxRateActionSchema } from "@/actions/ai/get-tax-rate";
 import { requireAuthenticatedActionUser } from "@/start/server/action-auth";
 
-export const Route = createFileRoute("/api/actions/ai/tax-rate")({
+export const Route = createAppPublicFileRoute("/api/actions/ai/tax-rate")({
   server: {
     handlers: {
       POST: async ({ request }) => {

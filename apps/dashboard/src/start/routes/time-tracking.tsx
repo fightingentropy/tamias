@@ -1,16 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router"
+import { createSiteFileRoute } from "@/start/route-hosts";
 import {
   TimeTrackingSitePage,
   timeTrackingSiteMetadata,
 } from "@/site/pages/static-pages";
-import { SiteLayoutShell } from "@/start/root-shell";
 import { buildHeadFromMetadata } from "@/start/site-head";
 
-export const Route = createFileRoute("/time-tracking")({
+export const Route = createSiteFileRoute("/time-tracking")({
   head: () => buildHeadFromMetadata(timeTrackingSiteMetadata),
-  component: () => (
-    <SiteLayoutShell>
-      <TimeTrackingSitePage />
-    </SiteLayoutShell>
-  ),
 });

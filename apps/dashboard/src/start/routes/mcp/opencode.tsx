@@ -1,16 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router"
+import { createSiteFileRoute } from "@/start/route-hosts";
 import {
   McpOpenCodeSitePage,
   mcpOpenCodeSiteMetadata,
 } from "@/site/pages/mcp-pages";
-import { SiteLayoutShell } from "@/start/root-shell";
 import { buildHeadFromMetadata } from "@/start/site-head";
 
-export const Route = createFileRoute("/mcp/opencode")({
+export const Route = createSiteFileRoute("/mcp/opencode")({
   head: () => buildHeadFromMetadata(mcpOpenCodeSiteMetadata),
-  component: () => (
-    <SiteLayoutShell>
-      <McpOpenCodeSitePage />
-    </SiteLayoutShell>
-  ),
 });

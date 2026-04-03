@@ -1,28 +1,19 @@
 "use client";
 
 import { Icons } from "@tamias/ui/icons";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useInboxParams } from "@/hooks/use-inbox-params";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useUserQuery } from "@/hooks/use-user";
 import { useTRPC } from "@/trpc/client";
 import { TransactionMatchItem } from "./transaction-match-item";
+import { useSelectedInboxItem } from "./selected-inbox-item-context";
 
 export function TransactionUnmatchItem() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const { params } = useInboxParams();
   const { data: user } = useUserQuery();
+  const selectedInboxItem = useSelectedInboxItem();
 
-  const id = params.inboxId;
-
-  const { data } = useQuery(
-    trpc.inbox.getById.queryOptions(
-      { id: id! },
-      {
-        enabled: !!id,
-      },
-    ),
-  );
+  const id = selectedInboxItem.id;
 
   const unmatchTransactionMutation = useMutation(
     trpc.inbox.unmatchTransaction.mutationOptions({
@@ -69,7 +60,7 @@ export function TransactionUnmatchItem() {
     }),
   );
 
-  if (!data?.transaction) {
+  if (!selectedInboxItem.transaction) {
     return null;
   }
 
@@ -78,15 +69,15 @@ export function TransactionUnmatchItem() {
       <Icons.Check className="w-4 h-4" />
 
       <TransactionMatchItem
-        date={data?.transaction?.date}
-        name={data?.transaction?.name}
+        date={selectedInboxItem.transaction.date}
+        name={selectedInboxItem.transaction.name}
         dateFormat={user?.dateFormat}
-        amount={data?.transaction?.amount}
-        currency={data?.transaction?.currency}
+        amount={selectedInboxItem.transaction.amount}
+        currency={selectedInboxItem.transaction.currency}
       />
 
       <button
-        onClick={() => unmatchTransactionMutation.mutate({ id: id! })}
+        onClick={() => unmatchTransactionMutation.mutate({ id })}
         type="button"
       >
         <Icons.Delete className="w-4 h-4 text-[#878787]" />
