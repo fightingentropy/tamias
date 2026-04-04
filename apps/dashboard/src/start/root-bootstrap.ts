@@ -4,6 +4,8 @@ export type RootBootstrapData = {
     refreshToken: string | null;
   };
   host: {
+    appUrl: string;
+    websiteUrl: string;
     appHost: string;
     websiteHost: string;
     currentHost: string;
@@ -19,6 +21,8 @@ export const DEFAULT_ROOT_BOOTSTRAP: RootBootstrapData = {
     refreshToken: null,
   },
   host: {
+    appUrl: "",
+    websiteUrl: "",
     appHost: "",
     websiteHost: "",
     currentHost: "",

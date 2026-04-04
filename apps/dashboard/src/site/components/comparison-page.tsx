@@ -6,6 +6,7 @@ import { Button } from "@tamias/ui/button";
 import Link from "@/framework/link";
 import type { Competitor } from "@/site/data/competitors";
 import { tamiasDifferentiators } from "@/site/data/competitors";
+import { useSiteLoginUrl } from "@/site/login-url";
 import { ComparisonHero } from "./sections/comparison-hero";
 import { CompetitorFAQ } from "./sections/competitor-faq";
 import { FeatureComparison } from "./sections/feature-comparison";
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export function ComparisonPage({ competitor }: Props) {
+  const loginUrl = useSiteLoginUrl();
   const sections = [
     { id: "differences", label: "Key differences at a glance" },
     { id: "features", label: "Feature comparison" },
@@ -201,7 +203,7 @@ export function ComparisonPage({ competitor }: Props) {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button asChild className="btn-inverse h-11 px-6">
                   <Link
-                    href="/login"
+                    href={loginUrl}
                     onClick={() =>
                       track({
                         event: LogEvents.CTA.name,

@@ -5,6 +5,7 @@ import { LogEvents } from "@tamias/events/events";
 import { Button } from "@tamias/ui/button";
 import Link from "@/framework/link";
 import type { Competitor } from "@/site/data/competitors";
+import { useSiteLoginUrl } from "@/site/login-url";
 
 interface Differentiator {
   title: string;
@@ -27,6 +28,8 @@ export function ComparisonHero({
   differentiators,
   sections,
 }: Props) {
+  const loginUrl = useSiteLoginUrl();
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
       {/* Main Content */}
@@ -43,7 +46,7 @@ export function ComparisonHero({
         <div className="flex flex-col sm:flex-row gap-3 mb-12">
           <Button asChild className="btn-inverse h-11 px-6">
             <Link
-              href="/login"
+              href={loginUrl}
               onClick={() =>
                 track({
                   event: LogEvents.CTA.name,

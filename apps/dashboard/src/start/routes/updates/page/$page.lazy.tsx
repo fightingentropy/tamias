@@ -7,15 +7,13 @@ import Link from "@/framework/link";
 import { getBlogPostsBySlugs } from "@/site/lib/blog";
 import { SiteNotFoundPage } from "@/start/components/site-not-found-page";
 import { SiteLayoutShell } from "@/start/components/site-layout-shell";
-import { getPaginatedUpdatesPage } from "./$page";
 
 export const Route = createLazyFileRoute("/updates/page/$page")({
   component: PaginatedUpdatesPage,
 });
 
 function PaginatedUpdatesPage() {
-  const { page } = Route.useParams();
-  const data = getPaginatedUpdatesPage(page);
+  const data = Route.useLoaderData();
 
   if (data.status !== "ok") {
     return <SiteNotFoundPage />;

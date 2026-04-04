@@ -17,11 +17,11 @@ export function resolveRootBootstrapData(): RootBootstrapData {
         refreshToken?: string | null;
       }
     | undefined;
-  const canonicalHost = startContext.contextAfterGlobalMiddlewares?.canonicalHost as
-    | RootBootstrapData["host"]
-    | undefined;
+  const canonicalHost = startContext.contextAfterGlobalMiddlewares
+    ?.canonicalHost as RootBootstrapData["host"] | undefined;
   const requestUrl = new URL(startContext.request.url);
-  const currentHost = startContext.request.headers.get("host") ?? requestUrl.host;
+  const currentHost =
+    startContext.request.headers.get("host") ?? requestUrl.host;
 
   return {
     auth: {
@@ -29,6 +29,8 @@ export function resolveRootBootstrapData(): RootBootstrapData {
       refreshToken: auth?.refreshToken ?? null,
     },
     host: canonicalHost ?? {
+      appUrl: requestUrl.origin,
+      websiteUrl: requestUrl.origin,
       appHost: currentHost,
       websiteHost: currentHost,
       currentHost,

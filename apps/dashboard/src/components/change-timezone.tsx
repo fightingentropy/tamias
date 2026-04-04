@@ -1,6 +1,5 @@
 "use client";
 
-import { getTimezones } from "@tamias/location/timezones";
 import {
   Card,
   CardContent,
@@ -15,14 +14,19 @@ import { useEffect, useState } from "react";
 import { useUserMutation, useUserQuery } from "@/hooks/use-user";
 import { useI18n } from "@/locales/client";
 
+type TimezoneItem = {
+  id: string;
+  label: string;
+  value: string;
+};
+
 export function ChangeTimezone() {
   const t = useI18n();
   const { data: user } = useUserQuery();
   const updateUserMutation = useUserMutation();
-
-  const timezones = getTimezones();
   const [currentBrowserTimezone, setCurrentBrowserTimezone] =
     useState<string>("");
+  const [timezoneItems, setTimezoneItems] = useState<TimezoneItem[]>([]);
 
   // Get browser timezone on mount
   useEffect(() => {
@@ -34,17 +38,34 @@ export function ChangeTimezone() {
     }
   }, []);
 
-  const timezoneItems = timezones.map((tz, id) => ({
-    id: id.toString(),
-    label: tz.name,
-    value: tz.tzCode,
-  }));
-
   const isAutoSyncEnabled = user?.timezoneAutoSync !== false;
   const currentTimezone = user?.timezone || currentBrowserTimezone;
-  const _currentTimezoneName =
-    timezoneItems.find((item) => item.value === currentTimezone)?.label ||
-    currentTimezone;
+
+  useEffect(() => {
+    if (isAutoSyncEnabled || timezoneItems.length) {
+      return;
+    }
+
+    let cancelled = false;
+
+    void import("@tamias/location/timezones").then(({ getTimezones }) => {
+      if (cancelled) {
+        return;
+      }
+
+      setTimezoneItems(
+        getTimezones().map((timezone, index) => ({
+          id: index.toString(),
+          label: timezone.name,
+          value: timezone.tzCode,
+        })),
+      );
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isAutoSyncEnabled, timezoneItems.length]);
 
   const handleAutoSyncToggle = (enabled: boolean) => {
     updateUserMutation.mutate({
@@ -95,13 +116,18 @@ export function ChangeTimezone() {
             <Label>Timezone</Label>
             <div className="w-full">
               <ComboboxDropdown
-                placeholder={t("timezone.placeholder")}
+                placeholder={
+                  timezoneItems.length
+                    ? t("timezone.placeholder")
+                    : "Loading timezones..."
+                }
                 selectedItem={timezoneItems.find(
                   (item) => item.value === currentTimezone,
                 )}
                 searchPlaceholder={t("timezone.searchPlaceholder")}
                 items={timezoneItems}
                 className="text-xs py-1"
+                disabled={!timezoneItems.length}
                 onSelect={handleManualTimezoneChange}
               />
             </div>

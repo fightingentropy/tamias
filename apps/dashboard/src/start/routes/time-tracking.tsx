@@ -1,8 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { createSiteFileRoute } from "@/start/route-hosts";
-import { timeTrackingSiteMetadata } from "@/site/pages/site-metadata";
 import { buildHeadFromMetadata } from "@/start/site-head";
 
 export const Route = createSiteFileRoute("/time-tracking")({
-  head: () => buildHeadFromMetadata(timeTrackingSiteMetadata),
+  loader: async () => {
+    const { timeTrackingSiteMetadata } = await import("@/site/pages/site-metadata");
+    return timeTrackingSiteMetadata;
+  },
+  head: ({ loaderData }) => buildHeadFromMetadata(loaderData),
 });

@@ -1,17 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { createSiteFileRoute } from "@/start/route-hosts";
-import { categories } from "@/site/data/app-catalog";
 import { baseUrl } from "@/site/base-url";
 
-const validCategories: string[] = categories
-  .filter((category) => category.id !== "all")
-  .map((category) => category.id);
-
 export const Route = createSiteFileRoute("/integrations/category/$category")({
-  head: ({ params }) => {
-    const categoryData = categories.find(
+  loader: async ({ params }) => {
+    const { categories } = await import("@/site/data/app-catalog");
+
+    return categories.find(
       (category) => category.id === params.category,
-    );
+    ) ?? null;
+  },
+  head: ({ params, loaderData }) => {
+    const categoryData = loaderData;
 
     if (!categoryData) {
       return {

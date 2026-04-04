@@ -6,6 +6,7 @@ import { Button } from "@tamias/ui/button";
 import { useEffect, useRef, useState } from "react";
 import dynamic from "@/framework/dynamic";
 import Image from "@/framework/image";
+import { useSiteLoginUrl } from "@/site/login-url";
 
 function StartPagePlayIcon({ className }: { className?: string }) {
   return (
@@ -45,9 +46,7 @@ const AIAssistantAnimation = dynamic(() =>
   ),
 );
 const DashboardAnimation = dynamic(() =>
-  import("@tamias/ui/animations/dashboard").then(
-    (m) => m.DashboardAnimation,
-  ),
+  import("@tamias/ui/animations/dashboard").then((m) => m.DashboardAnimation),
 );
 const InboxMatchAnimation = dynamic(() =>
   import("@tamias/ui/animations/inbox-match").then(
@@ -142,8 +141,7 @@ const videos = [
   {
     id: "overview",
     title: "Overview",
-    subtitle:
-      "See how Tamias helps you run your business without the admin.",
+    subtitle: "See how Tamias helps you run your business without the admin.",
     url: heroVideoSrc,
   },
   {
@@ -205,6 +203,7 @@ const videos = [
 ];
 
 export function StartPage() {
+  const loginUrl = useSiteLoginUrl();
   const [activeFeature, setActiveFeature] = useState(0);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [isPosterLoaded, setIsPosterLoaded] = useState(false);
@@ -363,7 +362,7 @@ export function StartPage() {
                   className="btn-inverse h-11 px-6 transition-colors"
                 >
                   <a
-                    href="/login"
+                    href={loginUrl}
                     onClick={() =>
                       track({
                         event: LogEvents.CTA.name,

@@ -1,11 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { createSiteFileRoute } from "@/start/route-hosts";
-import { getBlogPostPreviewBySlug } from "@/site/lib/blog-metadata";
 import { baseUrl } from "@/site/base-url";
 
 export const Route = createSiteFileRoute("/updates/$slug")({
-  head: ({ params }) => {
-    const post = getBlogPostPreviewBySlug(params.slug);
+  loader: async ({ params }) => {
+    const { getBlogPostPreviewBySlug } = await import("@/site/lib/blog-metadata");
+
+    return getBlogPostPreviewBySlug(params.slug);
+  },
+  head: ({ params, loaderData }) => {
+    const post = loaderData;
 
     if (!post) {
       return {

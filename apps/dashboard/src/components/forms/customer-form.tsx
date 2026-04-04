@@ -27,14 +27,22 @@ import { isValidEmailList } from "@tamias/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import dynamic from "@/framework/dynamic";
 import { z } from "zod/v3";
+import { useState } from "react";
 import { useCustomerParams } from "@/hooks/use-customer-params";
 import { useInvoiceParams } from "@/hooks/use-invoice-params";
 import { useZodForm } from "@/hooks/use-zod-form";
 import { useTRPC } from "@/trpc/client";
-import { CountrySelector } from "../country-selector";
 import type { AddressDetails } from "../search-address-input";
 import { SelectTags } from "../select-tags";
 import { VatNumberInput } from "../vat-number-input";
+
+const CountrySelector = dynamic(
+  () => import("../country-selector").then((mod) => mod.CountrySelector),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-9 w-full" />,
+  },
+);
 
 // Dynamically import Google Maps component (saves ~200KB from initial bundle)
 const SearchAddressInput = dynamic(
@@ -107,6 +115,8 @@ export function CustomerForm({ data }: Props) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const isEdit = !!data;
+  const [openSections, setOpenSections] = useState<string[]>(["general"]);
+  const [hasOpenedDetails, setHasOpenedDetails] = useState(false);
 
   const { setParams: setCustomerParams, name } = useCustomerParams();
   const { setParams: setInvoiceParams, type } = useInvoiceParams();
@@ -226,6 +236,14 @@ export function CustomerForm({ data }: Props) {
     upsertCustomerMutation.mutate(formattedData);
   };
 
+  const handleAccordionChange = (value: string[]) => {
+    setOpenSections(value);
+
+    if (value.includes("details")) {
+      setHasOpenedDetails(true);
+    }
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)}>
@@ -233,7 +251,8 @@ export function CustomerForm({ data }: Props) {
           <div>
             <Accordion
               type="multiple"
-              defaultValue={["general"]}
+              value={openSections}
+              onValueChange={handleAccordionChange}
               className="space-y-6"
             >
               <AccordionItem value="general">
@@ -381,10 +400,12 @@ export function CustomerForm({ data }: Props) {
 
                 <AccordionContent>
                   <div className="space-y-4">
-                    <SearchAddressInput
-                      onSelect={onSelectAddress}
-                      placeholder="Search for an address"
-                    />
+                    {hasOpenedDetails ? (
+                      <SearchAddressInput
+                        onSelect={onSelectAddress}
+                        placeholder="Search for an address"
+                      />
+                    ) : null}
 
                     <FormField
                       control={form.control}
@@ -438,13 +459,15 @@ export function CustomerForm({ data }: Props) {
                               Country
                             </FormLabel>
                             <FormControl>
-                              <CountrySelector
-                                defaultValue={field.value ?? ""}
-                                onSelect={(code, name) => {
-                                  field.onChange(name);
-                                  form.setValue("countryCode", code);
-                                }}
-                              />
+                              {hasOpenedDetails ? (
+                                <CountrySelector
+                                  defaultValue={field.value ?? ""}
+                                  onSelect={(code, name) => {
+                                    field.onChange(name);
+                                    form.setValue("countryCode", code);
+                                  }}
+                                />
+                              ) : null}
                             </FormControl>
                             <FormMessage />
                           </FormItem>

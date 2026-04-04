@@ -1,12 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { createSiteFileRoute } from "@/start/route-hosts";
-import {
-  getDocMetadataBySlug,
-} from "@/site/lib/docs-metadata";
 
 export const Route = createSiteFileRoute("/docs/$slug")({
-  head: ({ params }) => {
-    const doc = getDocMetadataBySlug(params.slug);
+  loader: async ({ params }) => {
+    const { getDocMetadataBySlug } = await import("@/site/lib/docs-metadata");
+
+    return getDocMetadataBySlug(params.slug);
+  },
+  head: ({ loaderData }) => {
+    const doc = loaderData;
 
     if (!doc) {
       return {

@@ -1,9 +1,9 @@
 "use client";
 
-import { cn } from "@tamias/ui/cn";
-import { Editor as BaseEditor } from "@tamias/ui/editor";
-import type { Editor as EditorInstance, JSONContent } from "@tiptap/react";
-import { useCallback, useState } from "react";
+import type { JSONContent } from "@tiptap/react";
+import { useState } from "react";
+import dynamic from "@/framework/dynamic";
+import { InvoiceEditorPreview } from "./invoice-editor-preview";
 
 type Props = {
   initialContent?: JSONContent;
@@ -15,6 +15,11 @@ type Props = {
   tabIndex?: number;
 };
 
+const EditorCore = dynamic(
+  () => import("./editor-core").then((mod) => mod.EditorCore),
+  { ssr: false },
+);
+
 export function Editor({
   initialContent,
   className,
@@ -24,48 +29,31 @@ export function Editor({
   disablePlaceholder = false,
   tabIndex,
 }: Props) {
-  const [isFocused, setIsFocused] = useState(false);
-  const [content, setContent] = useState<JSONContent | null | undefined>(
-    initialContent,
-  );
+  const [isActive, setIsActive] = useState(false);
 
-  const handleUpdate = useCallback(
-    (editor: EditorInstance) => {
-      const json = editor.getJSON();
-      const newIsEmpty = editor.state.doc.textContent.length === 0;
-
-      setContent(newIsEmpty ? null : json);
-      onChange?.(newIsEmpty ? null : json);
-    },
-    [onChange],
-  );
-
-  const handleBlur = useCallback(() => {
-    setIsFocused(false);
-
-    // Only call onBlur if the content has changed
-    if (content !== initialContent) {
-      onBlur?.(content ?? null);
-    }
-    onBlur?.(content ?? null);
-  }, [content, onBlur]);
-
-  const showPlaceholder = !disablePlaceholder && !content && !isFocused;
+  if (!isActive) {
+    return (
+      <InvoiceEditorPreview
+        content={initialContent ?? null}
+        className={className}
+        placeholder={placeholder}
+        disablePlaceholder={disablePlaceholder}
+        tabIndex={tabIndex}
+        onActivate={() => setIsActive(true)}
+      />
+    );
+  }
 
   return (
-    <BaseEditor
-      className={cn(
-        "text-[11px] text-primary leading-[18px] invoice-editor",
-        showPlaceholder &&
-          "w-full bg-[repeating-linear-gradient(-60deg,#DBDBDB,#DBDBDB_1px,transparent_1px,transparent_5px)] dark:bg-[repeating-linear-gradient(-60deg,#2C2C2C,#2C2C2C_1px,transparent_1px,transparent_5px)]",
-        className,
-      )}
+    <EditorCore
+      initialContent={initialContent}
+      className={className}
+      onChange={onChange}
+      onBlur={onBlur}
       placeholder={placeholder}
-      initialContent={content ?? undefined}
-      onUpdate={handleUpdate}
-      onFocus={() => setIsFocused(true)}
-      onBlur={handleBlur}
+      disablePlaceholder={disablePlaceholder}
       tabIndex={tabIndex}
+      autoFocus
     />
   );
 }

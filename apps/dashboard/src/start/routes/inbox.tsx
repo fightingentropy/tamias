@@ -1,8 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { createAppFileRoute } from "@/start/route-hosts";
 import { createServerFn } from "@tanstack/react-start";
+import { createSiteMetadata } from "@/site/page-metadata";
 import { buildHeadFromMetadata } from "@/start/site-head";
-import { inboxSiteMetadata } from "@/site/pages/site-metadata";
+
+const inboxSiteMetadata = createSiteMetadata({
+  title: "Receipt Inbox",
+  description:
+    "Capture receipts and invoices automatically. Match documents to transactions, search your records, and stay organized. Built for small business owners.",
+  path: "/inbox",
+  keywords: [
+    "receipt management",
+    "receipt scanner",
+    "invoice management",
+    "document management",
+    "expense receipts",
+  ],
+});
 
 export const loadInboxData = createServerFn({ method: "GET" })
   .inputValidator((data: { href: string }) => data)

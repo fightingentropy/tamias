@@ -1,8 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { createSiteFileRoute } from "@/start/route-hosts";
-import { supportSiteMetadata } from "@/site/pages/site-metadata";
 import { buildHeadFromMetadata } from "@/start/site-head";
 
 export const Route = createSiteFileRoute("/support")({
-  head: () => buildHeadFromMetadata(supportSiteMetadata),
+  loader: async () => {
+    const { supportSiteMetadata } = await import("@/site/pages/site-metadata");
+    return supportSiteMetadata;
+  },
+  head: ({ loaderData }) => buildHeadFromMetadata(loaderData),
 });

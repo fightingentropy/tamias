@@ -8,9 +8,10 @@ import { InboxMatchAnimation } from "@tamias/ui/animations/inbox-match";
 import { TransactionFlowAnimation } from "@tamias/ui/animations/transaction-flow";
 import { Button } from "@tamias/ui/button";
 import { motion } from "motion/react";
+import { useState } from "react";
 import Image from "@/framework/image";
 import Link from "@/framework/link";
-import { useState } from "react";
+import { useSiteLoginUrl } from "@/site/login-url";
 import { MaterialIcon } from "./homepage/icon-mapping";
 import { FeaturesGridSection } from "./sections/features-grid-section";
 import { PricingSection } from "./sections/pricing-section";
@@ -38,6 +39,7 @@ const howItWorksSteps = [
 ];
 
 export function PreAccounting() {
+  const loginUrl = useSiteLoginUrl();
   const [activeStep, setActiveStep] = useState(0);
   const [isLightLoaded, setIsLightLoaded] = useState(false);
   const [isDarkLoaded, setIsDarkLoaded] = useState(false);
@@ -87,8 +89,8 @@ export function PreAccounting() {
                 Pre-accounting, handled.
               </h1>
               <p className="text-muted-foreground text-base leading-normal font-sans text-center mx-auto">
-                Tamias collects, matches, and prepares your data so your
-                books are always ready before they reach an accountant.
+                Tamias collects, matches, and prepares your data so your books
+                are always ready before they reach an accountant.
               </p>
             </div>
 
@@ -100,7 +102,7 @@ export function PreAccounting() {
                   className="w-full sm:w-auto h-11 px-6 text-sm font-sans"
                 >
                   <Link
-                    href="/login"
+                    href={loginUrl}
                     onClick={() =>
                       track({
                         event: LogEvents.CTA.name,
@@ -172,8 +174,8 @@ export function PreAccounting() {
                 Pre-accounting, handled.
               </h1>
               <p className="text-muted-foreground text-sm xl:text-base leading-normal max-w-xl mx-auto font-sans text-center">
-                Tamias collects, matches, and prepares your data so your
-                books are always ready before they reach an accountant.
+                Tamias collects, matches, and prepares your data so your books
+                are always ready before they reach an accountant.
               </p>
             </div>
 
@@ -181,7 +183,7 @@ export function PreAccounting() {
             <div className="flex gap-6 justify-center">
               <Button asChild className="h-11 px-6 text-sm font-sans">
                 <Link
-                  href="/login"
+                  href={loginUrl}
                   onClick={() =>
                     track({
                       event: LogEvents.CTA.name,
@@ -389,8 +391,8 @@ export function PreAccounting() {
               Accountant-ready, without the back and forth
             </h2>
             <p className="font-sans text-base text-muted-foreground leading-normal max-w-2xl mx-auto">
-              Tamias prepares clean, structured records so exporting or
-              syncing to your accounting system takes minutes, not days.
+              Tamias prepares clean, structured records so exporting or syncing
+              to your accounting system takes minutes, not days.
             </p>
           </div>
 

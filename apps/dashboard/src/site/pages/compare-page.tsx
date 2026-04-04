@@ -1,8 +1,13 @@
+"use client";
+
 import { Button } from "@tamias/ui/button";
 import Link from "@/framework/link";
 import { competitors } from "@/site/data/competitors";
+import { useSiteLoginUrl } from "@/site/login-url";
 
 export function CompareSitePage() {
+  const loginUrl = useSiteLoginUrl();
+
   return (
     <div className="min-h-screen pt-24 sm:pt-28 lg:pt-32 pb-24">
       <div className="max-w-[1400px] mx-auto">
@@ -11,8 +16,8 @@ export function CompareSitePage() {
             Compare Tamias to alternatives
           </h1>
           <p className="font-sans text-base text-muted-foreground max-w-2xl mx-auto">
-            Tamias is built for founders and small teams who want clarity
-            over their finances without the complexity of traditional accounting
+            Tamias is built for founders and small teams who want clarity over
+            their finances without the complexity of traditional accounting
             software.
           </p>
         </div>
@@ -55,7 +60,7 @@ export function CompareSitePage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild className="btn-inverse h-11 px-6">
-                <Link href="/login">Start your free trial</Link>
+                <Link href={loginUrl}>Start your free trial</Link>
               </Button>
               <Button asChild variant="outline" className="h-11 px-6">
                 <Link href="/pricing">View pricing</Link>

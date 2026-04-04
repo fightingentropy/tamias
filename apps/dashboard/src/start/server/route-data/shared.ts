@@ -22,6 +22,8 @@ export function getCanonicalHostContext() {
   const canonicalHost = startContext.contextAfterGlobalMiddlewares
     ?.canonicalHost as
     | {
+        appUrl: string;
+        websiteUrl: string;
         appHost: string;
         websiteHost: string;
         currentHost: string;
@@ -29,11 +31,18 @@ export function getCanonicalHostContext() {
         isWebsiteHost: boolean;
       }
     | undefined;
-  const currentHost = startContext.request.headers.get("host") ?? requestUrl.host;
+  const currentHost =
+    startContext.request.headers.get("host") ?? requestUrl.host;
+  const appUrl =
+    canonicalHost?.appUrl ?? `${requestUrl.protocol}//${currentHost}`;
+  const websiteUrl =
+    canonicalHost?.websiteUrl ?? `${requestUrl.protocol}//${currentHost}`;
   const appHost = canonicalHost?.appHost ?? currentHost;
   const websiteHost = canonicalHost?.websiteHost ?? currentHost;
 
   return {
+    appUrl,
+    websiteUrl,
     appHost,
     websiteHost,
     currentHost,
@@ -51,7 +60,8 @@ export function dehydrateQueryClient(
 export function isLocalPublicReadUnavailable(error: unknown) {
   const convexUrl = getConvexUrl();
   const isLocalConvexUrl =
-    convexUrl.includes("127.0.0.1:3210") || convexUrl.includes("localhost:3210");
+    convexUrl.includes("127.0.0.1:3210") ||
+    convexUrl.includes("localhost:3210");
 
   if (!isLocalConvexUrl || !error || typeof error !== "object") {
     return false;

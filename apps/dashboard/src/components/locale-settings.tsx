@@ -1,6 +1,5 @@
 "use client";
 
-import { countries } from "@tamias/location/countries-intl";
 import {
   Card,
   CardContent,
@@ -8,7 +7,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@tamias/ui/card";
-import { ComboboxDropdown } from "@tamias/ui/combobox-dropdown";
+import {
+  ComboboxDropdown,
+  type ComboboxItem,
+} from "@tamias/ui/combobox-dropdown";
+import { useEffect, useState } from "react";
 import { useUserMutation, useUserQuery } from "@/hooks/use-user";
 import { useI18n } from "@/locales/client";
 
@@ -16,12 +19,31 @@ export function LocaleSettings() {
   const t = useI18n();
   const { data: user } = useUserQuery();
   const updateUserMutation = useUserMutation();
+  const [localeItems, setLocaleItems] = useState<
+    Array<ComboboxItem & { value: string }>
+  >([]);
 
-  const localeItems = Object.values(countries).map((c, index) => ({
-    id: index.toString(),
-    label: `${c.name} (${c.default_locale})`,
-    value: c.default_locale,
-  }));
+  useEffect(() => {
+    let cancelled = false;
+
+    void import("@tamias/location/countries-intl").then(({ countries }) => {
+      if (cancelled) {
+        return;
+      }
+
+      setLocaleItems(
+        Object.values(countries).map((country, index) => ({
+          id: index.toString(),
+          label: `${country.name} (${country.default_locale})`,
+          value: country.default_locale,
+        })),
+      );
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <Card className="flex justify-between items-center">
@@ -33,13 +55,16 @@ export function LocaleSettings() {
       <CardContent>
         <div className="w-[250px]">
           <ComboboxDropdown
-            placeholder={t("locale.placeholder")}
+            placeholder={
+              localeItems.length ? t("locale.placeholder") : "Loading locales..."
+            }
             selectedItem={localeItems.find(
               (item) => item.value === user?.locale,
             )}
             searchPlaceholder={t("locale.searchPlaceholder")}
             items={localeItems}
             className="text-xs py-1"
+            disabled={!localeItems.length}
             onSelect={(item) => {
               updateUserMutation.mutate({ locale: item.value });
             }}

@@ -1,13 +1,12 @@
 import { createSiteFileRoute } from "@/start/route-hosts";
 import { redirect, createFileRoute } from "@tanstack/react-router";
-import { getPaginatedBlogPostPreviews } from "@/site/lib/blog-metadata";
 import { baseUrl } from "@/site/base-url";
 
 const POSTS_PER_PAGE = 3;
 const description =
   "The latest updates and improvements to Tamias. See what we've been building to help you manage your business finances better.";
 
-export function getPaginatedUpdatesPage(pageParam: string) {
+export async function getPaginatedUpdatesPage(pageParam: string) {
   const currentPage = Number.parseInt(pageParam, 10);
 
   if (!Number.isFinite(currentPage) || currentPage < 1) {
@@ -22,6 +21,9 @@ export function getPaginatedUpdatesPage(pageParam: string) {
     };
   }
 
+  const { getPaginatedBlogPostPreviews } = await import(
+    "@/site/lib/blog-metadata"
+  );
   const { posts, totalPages } = getPaginatedBlogPostPreviews(
     currentPage,
     POSTS_PER_PAGE,
@@ -42,8 +44,8 @@ export function getPaginatedUpdatesPage(pageParam: string) {
 }
 
 export const Route = createSiteFileRoute("/updates/page/$page")({
-  loader: ({ params }) => {
-    const data = getPaginatedUpdatesPage(params.page);
+  loader: async ({ params }) => {
+    const data = await getPaginatedUpdatesPage(params.page);
 
     if (data.status === "redirect") {
       throw redirect({
@@ -51,11 +53,13 @@ export const Route = createSiteFileRoute("/updates/page/$page")({
         throw: true,
       });
     }
-  },
-  head: ({ params }) => {
-    const data = getPaginatedUpdatesPage(params.page);
 
-    if (data.status !== "ok") {
+    return data;
+  },
+  head: ({ loaderData }) => {
+    const data = loaderData;
+
+    if (!data || data.status !== "ok") {
       return {
         meta: [
           { title: "Page not found" },

@@ -1,13 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { createSiteFileRoute } from "@/start/route-hosts";
-import {
-  getCompetitorBySlug,
-} from "@/site/data/competitors";
 import { baseUrl } from "@/site/base-url";
 
 export const Route = createSiteFileRoute("/compare/$slug")({
-  head: ({ params }) => {
-    const competitor = getCompetitorBySlug(params.slug);
+  loader: async ({ params }) => {
+    const { getCompetitorBySlug } = await import("@/site/data/competitors");
+
+    return getCompetitorBySlug(params.slug);
+  },
+  head: ({ params, loaderData }) => {
+    const competitor = loaderData;
 
     if (!competitor) {
       return {

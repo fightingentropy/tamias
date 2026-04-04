@@ -8,12 +8,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "@/framework/image";
 import Link from "@/framework/link";
 import { useAppRouter } from "@/framework/navigation";
-import { headerTestimonials } from "./header-testimonials";
-import {
-  SiteArrowDropDownIcon,
-  SiteLogoSmallIcon,
-} from "./site-shell-icons";
+import { useSiteLoginUrl } from "@/site/login-url";
 import { HeaderIntegrationsPreview } from "./header-integrations-preview";
+import { headerTestimonials } from "./header-testimonials";
+import { SiteArrowDropDownIcon, SiteLogoSmallIcon } from "./site-shell-icons";
 
 interface HeaderProps {
   transparent?: boolean;
@@ -41,6 +39,7 @@ export function Header({
   hideMenuItems = false,
 }: HeaderProps) {
   const router = useAppRouter();
+  const loginUrl = useSiteLoginUrl();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isFeaturesOpen, setIsFeaturesOpen] = useState(false);
   const [isAppsOpen, setIsAppsOpen] = useState(false);
@@ -710,7 +709,7 @@ export function Header({
               {/* Sign in */}
               <div className="border-l border-border pl-4">
                 <Link
-                  href="/login"
+                  href={loginUrl}
                   className="text-sm transition-colors text-primary hover:text-primary/80"
                   onClick={() =>
                     track({
@@ -1014,7 +1013,7 @@ export function Header({
               {/* Sign in */}
               <div className="border-t border-border pt-8 mt-8">
                 <Link
-                  href="/login"
+                  href={loginUrl}
                   onTouchEnd={(e) => {
                     const target = e.currentTarget;
                     if (target) {

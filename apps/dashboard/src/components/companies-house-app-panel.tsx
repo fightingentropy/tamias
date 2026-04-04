@@ -1,17 +1,17 @@
 "use client";
 
 import type {
-  CompaniesHouseRegisteredEmailAddress,
-  CompaniesHouseRegisteredEmailEligibility,
-  CompaniesHouseRegisteredOfficeAddress,
-  CompaniesHouseTransaction,
-  CompaniesHouseValidationStatus,
   CompaniesHousePscDiscrepancy,
   CompaniesHousePscDiscrepancyMaterialType,
   CompaniesHousePscDiscrepancyObligedEntityType,
   CompaniesHousePscDiscrepancyReport,
   CompaniesHousePscDiscrepancyType,
   CompaniesHousePscType,
+  CompaniesHouseRegisteredEmailAddress,
+  CompaniesHouseRegisteredEmailEligibility,
+  CompaniesHouseRegisteredOfficeAddress,
+  CompaniesHouseTransaction,
+  CompaniesHouseValidationStatus,
 } from "@tamias/compliance";
 import { COMPANIES_HOUSE_PSC_DISCREPANCY_SCOPE } from "@tamias/compliance";
 import { Badge } from "@tamias/ui/badge";
@@ -31,7 +31,7 @@ import { SubmitButton } from "@tamias/ui/submit-button";
 import { Textarea } from "@tamias/ui/textarea";
 import { useToast } from "@tamias/ui/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useAppOAuth } from "@/hooks/use-app-oauth";
 import { useTRPC } from "@/trpc/client";
 
@@ -203,7 +203,9 @@ function getValidationSummary(status?: CompaniesHouseValidationStatus | null) {
   return humanizeToken(status.validationStatus ?? status.status);
 }
 
-function getValidationMessages(status?: CompaniesHouseValidationStatus | null) {
+function getValidationMessages(
+  status?: CompaniesHouseValidationStatus | null,
+): string[] {
   return (status?.errors ?? [])
     .map((error) => {
       const message = error.message;
@@ -218,7 +220,7 @@ function getValidationMessages(status?: CompaniesHouseValidationStatus | null) {
 
       return JSON.stringify(error);
     })
-    .filter(Boolean);
+    .filter((message): message is string => Boolean(message));
 }
 
 function getRegisteredOfficeScopeGranted(
@@ -257,16 +259,23 @@ function getRegisteredEmailScopeGranted(
   );
 }
 
-export function CompaniesHouseAppPanel({
-  installed,
-}: {
-  installed: boolean;
-}) {
+function getCheckboxId(baseId: string, prefix: string, value?: string) {
+  if (!value) {
+    return `${baseId}-${prefix}`;
+  }
+
+  return `${baseId}-${prefix}-${value.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+}
+
+export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
+  const baseId = useId();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const connectionQuery = useQuery(trpc.companiesHouse.getConnection.queryOptions());
+  const connectionQuery = useQuery(
+    trpc.companiesHouse.getConnection.queryOptions(),
+  );
   const accountsStatusQuery = useQuery(
     trpc.companiesHouse.getAccountsStatus.queryOptions(),
   );
@@ -287,6 +296,8 @@ export function CompaniesHouseAppPanel({
   const pscDiscrepancyScopeGranted =
     connection?.scopes?.includes(COMPANIES_HOUSE_PSC_DISCREPANCY_SCOPE) ??
     false;
+  const officeAddressCheckboxId = getCheckboxId(baseId, "office-address");
+  const registeredEmailCheckboxId = getCheckboxId(baseId, "registered-email");
 
   const invalidateCompaniesHouseQueries = () => {
     queryClient.invalidateQueries({
@@ -524,7 +535,9 @@ export function CompaniesHouseAppPanel({
             {companyNumber ? (
               <Badge variant="outline">Company {companyNumber}</Badge>
             ) : (
-              <Badge variant="secondary">No filing-profile company number</Badge>
+              <Badge variant="secondary">
+                No filing-profile company number
+              </Badge>
             )}
             {accountsStatus?.environment ? (
               <Badge variant="outline">
@@ -533,9 +546,9 @@ export function CompaniesHouseAppPanel({
             ) : null}
           </div>
           <p>
-            Request the exact Companies House scopes you need, then create
-            draft filings for registered office and registered email changes or
-            submit a PSC discrepancy report.
+            Request the exact Companies House scopes you need, then create draft
+            filings for registered office and registered email changes or submit
+            a PSC discrepancy report.
           </p>
         </CardContent>
       </Card>
@@ -550,7 +563,9 @@ export function CompaniesHouseAppPanel({
               <div className="flex items-center justify-between gap-2">
                 <span className="font-medium">Registered office</span>
                 <Badge
-                  variant={registeredOfficeScopeGranted ? "default" : "secondary"}
+                  variant={
+                    registeredOfficeScopeGranted ? "default" : "secondary"
+                  }
                 >
                   {registeredOfficeScopeGranted ? "Granted" : "Missing"}
                 </Badge>
@@ -570,7 +585,9 @@ export function CompaniesHouseAppPanel({
               <div className="flex items-center justify-between gap-2">
                 <span className="font-medium">Registered email</span>
                 <Badge
-                  variant={registeredEmailScopeGranted ? "default" : "secondary"}
+                  variant={
+                    registeredEmailScopeGranted ? "default" : "secondary"
+                  }
                 >
                   {registeredEmailScopeGranted ? "Granted" : "Missing"}
                 </Badge>
@@ -672,21 +689,30 @@ export function CompaniesHouseAppPanel({
             </div>
           </div>
 
-          <label className="flex items-start gap-3 rounded-md border p-3">
+          <div className="flex items-start gap-3 rounded-md border p-3">
             <Checkbox
+              id={officeAddressCheckboxId}
               checked={acceptOfficeAddress}
-              onCheckedChange={(checked) => setAcceptOfficeAddress(Boolean(checked))}
+              onCheckedChange={(checked) =>
+                setAcceptOfficeAddress(Boolean(checked))
+              }
+              className="mt-0.5"
             />
-            <span className="text-sm text-[#878787]">
+            <Label
+              htmlFor={officeAddressCheckboxId}
+              className="text-sm font-normal leading-relaxed text-[#878787]"
+            >
               Confirm this is an appropriate office address under the Companies
               Act.
-            </span>
-          </label>
+            </Label>
+          </div>
 
           <SubmitButton
             className="w-full"
             isSubmitting={createRegisteredOfficeDraftMutation.isPending}
-            disabled={!installed || !registeredOfficeScopeGranted || !companyNumber}
+            disabled={
+              !installed || !registeredOfficeScopeGranted || !companyNumber
+            }
             onClick={() =>
               createRegisteredOfficeDraftMutation.mutate({
                 acceptAppropriateOfficeAddressStatement: acceptOfficeAddress,
@@ -730,13 +756,14 @@ export function CompaniesHouseAppPanel({
                   .filter(Boolean)
                   .join(", ")}
               </p>
-              {getValidationMessages(registeredOfficeDraft.validationStatus).length ? (
+              {getValidationMessages(registeredOfficeDraft.validationStatus)
+                .length ? (
                 <div className="space-y-1 text-[#878787]">
-                  {getValidationMessages(registeredOfficeDraft.validationStatus).map(
-                    (message) => (
-                      <p key={message}>• {message}</p>
-                    ),
-                  )}
+                  {getValidationMessages(
+                    registeredOfficeDraft.validationStatus,
+                  ).map((message) => (
+                    <p key={message}>• {message}</p>
+                  ))}
                 </div>
               ) : null}
               <div className="flex flex-wrap gap-2">
@@ -803,28 +830,37 @@ export function CompaniesHouseAppPanel({
             <Label>Registered email address</Label>
             <Input
               value={registeredEmailAddress}
-              onChange={(event) => setRegisteredEmailAddress(event.target.value)}
+              onChange={(event) =>
+                setRegisteredEmailAddress(event.target.value)
+              }
               placeholder="company@example.com"
             />
           </div>
 
-          <label className="flex items-start gap-3 rounded-md border p-3">
+          <div className="flex items-start gap-3 rounded-md border p-3">
             <Checkbox
+              id={registeredEmailCheckboxId}
               checked={acceptRegisteredEmail}
               onCheckedChange={(checked) =>
                 setAcceptRegisteredEmail(Boolean(checked))
               }
+              className="mt-0.5"
             />
-            <span className="text-sm text-[#878787]">
+            <Label
+              htmlFor={registeredEmailCheckboxId}
+              className="text-sm font-normal leading-relaxed text-[#878787]"
+            >
               Confirm this is an appropriate registered email address under the
               Companies Act.
-            </span>
-          </label>
+            </Label>
+          </div>
 
           <SubmitButton
             className="w-full"
             isSubmitting={createRegisteredEmailDraftMutation.isPending}
-            disabled={!installed || !registeredEmailScopeGranted || !companyNumber}
+            disabled={
+              !installed || !registeredEmailScopeGranted || !companyNumber
+            }
             onClick={() =>
               createRegisteredEmailDraftMutation.mutate({
                 registeredEmailAddress,
@@ -850,7 +886,8 @@ export function CompaniesHouseAppPanel({
               </div>
               <p className="text-[#878787]">
                 Draft email:{" "}
-                {registeredEmailDraft.filing.registeredEmailAddress ?? "Unknown"}
+                {registeredEmailDraft.filing.registeredEmailAddress ??
+                  "Unknown"}
               </p>
               {registeredEmailDraft.eligibility?.eligible === false ? (
                 <p className="text-[#878787]">
@@ -859,13 +896,14 @@ export function CompaniesHouseAppPanel({
                     "Not eligible"}
                 </p>
               ) : null}
-              {getValidationMessages(registeredEmailDraft.validationStatus).length ? (
+              {getValidationMessages(registeredEmailDraft.validationStatus)
+                .length ? (
                 <div className="space-y-1 text-[#878787]">
-                  {getValidationMessages(registeredEmailDraft.validationStatus).map(
-                    (message) => (
-                      <p key={message}>• {message}</p>
-                    ),
-                  )}
+                  {getValidationMessages(
+                    registeredEmailDraft.validationStatus,
+                  ).map((message) => (
+                    <p key={message}>• {message}</p>
+                  ))}
                 </div>
               ) : null}
               <div className="flex flex-wrap gap-2">
@@ -966,7 +1004,9 @@ export function CompaniesHouseAppPanel({
               <Label>Contact name</Label>
               <Input
                 value={obligedEntityContactName}
-                onChange={(event) => setObligedEntityContactName(event.target.value)}
+                onChange={(event) =>
+                  setObligedEntityContactName(event.target.value)
+                }
               />
             </div>
 
@@ -983,17 +1023,34 @@ export function CompaniesHouseAppPanel({
           <div className="space-y-2 rounded-md border p-3">
             <Label>Material discrepancies</Label>
             <div className="grid gap-2 md:grid-cols-3">
-              {materialDiscrepancyOptions.map((option) => (
-                <label key={option.value} className="flex items-center gap-2">
-                  <Checkbox
-                    checked={materialDiscrepancies.includes(option.value)}
-                    onCheckedChange={(checked) =>
-                      toggleMaterialDiscrepancy(option.value, Boolean(checked))
-                    }
-                  />
-                  <span className="text-sm text-[#878787]">{option.label}</span>
-                </label>
-              ))}
+              {materialDiscrepancyOptions.map((option) => {
+                const checkboxId = getCheckboxId(
+                  baseId,
+                  "material-discrepancy",
+                  option.value,
+                );
+
+                return (
+                  <div key={option.value} className="flex items-center gap-2">
+                    <Checkbox
+                      id={checkboxId}
+                      checked={materialDiscrepancies.includes(option.value)}
+                      onCheckedChange={(checked) =>
+                        toggleMaterialDiscrepancy(
+                          option.value,
+                          Boolean(checked),
+                        )
+                      }
+                    />
+                    <Label
+                      htmlFor={checkboxId}
+                      className="text-sm font-normal leading-relaxed text-[#878787]"
+                    >
+                      {option.label}
+                    </Label>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -1041,17 +1098,31 @@ export function CompaniesHouseAppPanel({
           <div className="space-y-2 rounded-md border p-3">
             <Label>Discrepancy types</Label>
             <div className="grid gap-2 md:grid-cols-2">
-              {pscDiscrepancyTypeOptions.map((option) => (
-                <label key={option.value} className="flex items-center gap-2">
-                  <Checkbox
-                    checked={pscDiscrepancyTypes.includes(option.value)}
-                    onCheckedChange={(checked) =>
-                      togglePscDiscrepancyType(option.value, Boolean(checked))
-                    }
-                  />
-                  <span className="text-sm text-[#878787]">{option.label}</span>
-                </label>
-              ))}
+              {pscDiscrepancyTypeOptions.map((option) => {
+                const checkboxId = getCheckboxId(
+                  baseId,
+                  "psc-discrepancy-type",
+                  option.value,
+                );
+
+                return (
+                  <div key={option.value} className="flex items-center gap-2">
+                    <Checkbox
+                      id={checkboxId}
+                      checked={pscDiscrepancyTypes.includes(option.value)}
+                      onCheckedChange={(checked) =>
+                        togglePscDiscrepancyType(option.value, Boolean(checked))
+                      }
+                    />
+                    <Label
+                      htmlFor={checkboxId}
+                      className="text-sm font-normal leading-relaxed text-[#878787]"
+                    >
+                      {option.label}
+                    </Label>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -1068,7 +1139,9 @@ export function CompaniesHouseAppPanel({
           <SubmitButton
             className="w-full"
             isSubmitting={submitPscReportMutation.isPending}
-            disabled={!installed || !pscDiscrepancyScopeGranted || !companyNumber}
+            disabled={
+              !installed || !pscDiscrepancyScopeGranted || !companyNumber
+            }
             onClick={() =>
               submitPscReportMutation.mutate({
                 materialDiscrepancies,
@@ -1098,7 +1171,9 @@ export function CompaniesHouseAppPanel({
                   {humanizeToken(pscResult.finalReport.status)}
                 </Badge>
                 {pscResult.finalReport.links?.self ? (
-                  <Badge variant="outline">{pscResult.finalReport.links.self}</Badge>
+                  <Badge variant="outline">
+                    {pscResult.finalReport.links.self}
+                  </Badge>
                 ) : null}
               </div>
               <p className="text-[#878787]">

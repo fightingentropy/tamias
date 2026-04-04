@@ -1,8 +1,70 @@
-import { generateText } from "@tiptap/core";
-import Link from "@tiptap/extension-link";
-import Underline from "@tiptap/extension-underline";
-import StarterKit from "@tiptap/starter-kit";
 import { isValidJSON } from "./content";
+
+const BLOCK_NODE_TYPES = new Set([
+  "blockquote",
+  "bulletList",
+  "codeBlock",
+  "doc",
+  "hardBreak",
+  "heading",
+  "horizontalRule",
+  "listItem",
+  "orderedList",
+  "paragraph",
+  "table",
+  "tableCell",
+  "tableHeader",
+  "tableRow",
+]);
+
+function extractTextFromNode(value: unknown): string {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  if (!value || typeof value !== "object") {
+    return "";
+  }
+
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => extractTextFromNode(item))
+      .filter(Boolean)
+      .join(" ");
+  }
+
+  const node = value as {
+    content?: unknown;
+    text?: unknown;
+    type?: unknown;
+  };
+
+  if (typeof node.text === "string") {
+    return node.text;
+  }
+
+  const childText = extractTextFromNode(node.content);
+
+  if (!childText) {
+    return "";
+  }
+
+  if (
+    typeof node.type === "string" &&
+    BLOCK_NODE_TYPES.has(node.type)
+  ) {
+    return `${childText}\n`;
+  }
+
+  return childText;
+}
+
+function normalizeExtractedText(value: string): string {
+  return value
+    .replace(/\s*\n\s*/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
 /**
  * Extracts text content from various JSON formats, including TipTap rich text
@@ -19,20 +81,17 @@ export function extractTextFromValue(value: string): string {
         return parsed;
       }
 
-      // Use TipTap's generateText utility for JSON content
       if (typeof parsed === "object" && parsed !== null) {
         try {
-          const textContent = generateText(parsed, [
-            StarterKit,
-            Link,
-            Underline,
-          ]);
+          const textContent = normalizeExtractedText(
+            extractTextFromNode(parsed),
+          );
 
           if (textContent.trim()) {
             return textContent.trim();
           }
         } catch {
-          // If generateText fails, return original value
+          // If extraction fails, return original value
           return value;
         }
       }

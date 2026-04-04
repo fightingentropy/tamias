@@ -10,7 +10,6 @@ import {
 } from "@tamias/ui/dropdown-menu";
 import { Icons } from "@tamias/ui/icons";
 import { useToast } from "@tamias/ui/use-toast";
-import { useTheme } from "@/components/theme-provider";
 
 interface CanvasExportMenuProps {
   filename: string;
@@ -25,7 +24,6 @@ export function CanvasExportMenu({
   defaultOpen = false,
   onDefaultOpenConsumed,
 }: CanvasExportMenuProps) {
-  const { resolvedTheme } = useTheme();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -36,35 +34,25 @@ export function CanvasExportMenu({
 
   const handleDownloadReport = async () => {
     try {
-      const { generateCanvasPdf } = await import("@/utils/canvas-to-pdf");
-      await generateCanvasPdf({
+      const { printCanvasReport } = await import("@/utils/canvas-export");
+      await printCanvasReport({
         filename,
-        theme: resolvedTheme,
+        title,
       });
     } catch {}
   };
 
   const handleShareReport = async () => {
     try {
-      if (!navigator.share) {
-        await handleDownloadReport();
-        return;
-      }
-
-      const { generateCanvasPdfBlob } = await import("@/utils/canvas-to-pdf");
-      const blob = await generateCanvasPdfBlob({
+      const { shareCanvasReport } = await import("@/utils/canvas-export");
+      const didShare = await shareCanvasReport({
         filename,
-        theme: resolvedTheme,
-      });
-
-      const file = new File([blob], filename, {
-        type: "application/pdf",
-      });
-
-      await navigator.share({
         title,
-        files: [file],
       });
+
+      if (!didShare) {
+        await handleDownloadReport();
+      }
     } catch (error) {
       if (error instanceof Error && error.name !== "AbortError") {
         toast({
@@ -88,7 +76,7 @@ export function CanvasExportMenu({
           Share
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleDownloadReport} className="text-xs">
-          Download
+          Save as PDF
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

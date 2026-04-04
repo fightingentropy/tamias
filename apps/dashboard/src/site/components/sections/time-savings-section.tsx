@@ -3,8 +3,11 @@
 import { track } from "@tamias/events/client";
 import { LogEvents } from "@tamias/events/events";
 import Link from "@/framework/link";
+import { useSiteLoginUrl } from "@/site/login-url";
 
 export function TimeSavingsSection() {
+  const loginUrl = useSiteLoginUrl();
+
   return (
     <section className="bg-background py-12 sm:py-16 lg:py-24">
       <div className="max-w-[1400px] mx-auto">
@@ -109,7 +112,7 @@ export function TimeSavingsSection() {
             </article>
 
             <Link
-              href="/login"
+              href={loginUrl}
               onClick={() =>
                 track({
                   event: LogEvents.CTA.name,
@@ -160,7 +163,7 @@ export function TimeSavingsSection() {
 
           <div className="grid grid-cols-1 gap-3 sm:gap-4 xl:hidden">
             <Link
-              href="/login"
+              href={loginUrl}
               onClick={() =>
                 track({
                   event: LogEvents.CTA.name,
