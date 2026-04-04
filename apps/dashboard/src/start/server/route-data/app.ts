@@ -69,6 +69,7 @@ export async function buildDashboardPageData(href?: string) {
     Object.fromEntries(requestUrl.searchParams.entries()),
     team?.fiscalYearStartMonth,
   );
+  const overviewCurrency = metricsFilter.currency ?? team?.baseCurrency ?? undefined;
   const overviewWidgets =
     widgetPreferences.primaryWidgets.filter(isOverviewWidgetType);
   const shouldHydrateOverview =
@@ -78,7 +79,7 @@ export async function buildDashboardPageData(href?: string) {
         overviewWidgets.join(","),
         metricsFilter.from,
         metricsFilter.to,
-        metricsFilter.currency,
+        overviewCurrency,
         metricsFilter.revenueType,
       )
     : null;
@@ -93,7 +94,7 @@ export async function buildDashboardPageData(href?: string) {
       widgets: overviewWidgets,
       from: metricsFilter.from,
       to: metricsFilter.to,
-      currency: metricsFilter.currency,
+      currency: overviewCurrency,
       revenueType: metricsFilter.revenueType,
     });
 
