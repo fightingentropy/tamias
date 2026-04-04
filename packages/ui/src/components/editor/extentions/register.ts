@@ -10,8 +10,11 @@ import Placeholder from "@tiptap/extension-placeholder";
 import Strike from "@tiptap/extension-strike";
 import Text from "@tiptap/extension-text";
 import Underline from "@tiptap/extension-underline";
+import type { AnyExtension } from "@tiptap/react";
 
-const baseExtensions = [
+const plainExtensions = [Document, Paragraph, Text, History];
+
+const formattingExtensions = [
   Document,
   Paragraph,
   Text,
@@ -27,16 +30,35 @@ const baseExtensions = [
   }),
 ];
 
-export function createMinimalEditorExtensions(options?: { placeholder?: string }) {
+function withPlaceholder(
+  extensions: readonly AnyExtension[],
+  options?: { placeholder?: string },
+): AnyExtension[] {
   const { placeholder } = options ?? {};
 
   if (!placeholder) {
-    return baseExtensions;
+    return [...extensions];
   }
 
-  return [...baseExtensions, Placeholder.configure({ placeholder })];
+  return [...extensions, Placeholder.configure({ placeholder })];
+}
+
+export function createPlainEditorExtensions(options?: {
+  placeholder?: string;
+}) {
+  return withPlaceholder(plainExtensions, options);
+}
+
+export function createMinimalEditorExtensions(options?: {
+  placeholder?: string;
+}) {
+  return withPlaceholder(formattingExtensions, options);
 }
 
 export function registerExtensions(options?: { placeholder?: string }) {
   return createMinimalEditorExtensions(options);
+}
+
+export function registerPlainExtensions(options?: { placeholder?: string }) {
+  return createPlainEditorExtensions(options);
 }

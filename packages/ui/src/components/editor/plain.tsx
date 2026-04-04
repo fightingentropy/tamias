@@ -1,0 +1,55 @@
+"use client";
+
+import "./styles.css";
+
+import {
+  EditorContent,
+  type Editor as EditorInstance,
+  type JSONContent,
+  useEditor,
+} from "@tiptap/react";
+import { registerPlainExtensions } from "./extentions/register";
+
+type PlainEditorProps = {
+  initialContent?: JSONContent | string;
+  placeholder?: string;
+  onUpdate?: (editor: EditorInstance) => void;
+  onBlur?: () => void;
+  onFocus?: () => void;
+  className?: string;
+  tabIndex?: number;
+  autoFocus?: boolean;
+};
+
+export function PlainEditor({
+  initialContent,
+  placeholder,
+  onUpdate,
+  onBlur,
+  onFocus,
+  className,
+  tabIndex,
+  autoFocus = false,
+}: PlainEditorProps) {
+  const editor = useEditor({
+    extensions: registerPlainExtensions({ placeholder }),
+    content: initialContent,
+    immediatelyRender: false,
+    autofocus: autoFocus ? "end" : false,
+    onBlur,
+    onFocus,
+    onUpdate: ({ editor }) => {
+      onUpdate?.(editor);
+    },
+  });
+
+  if (!editor) return null;
+
+  return (
+    <EditorContent
+      editor={editor}
+      className={className}
+      tabIndex={tabIndex}
+    />
+  );
+}

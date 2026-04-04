@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@tamias/ui/cn";
-import { Editor as BaseEditor } from "@tamias/ui/editor";
+import { PlainEditor } from "@tamias/ui/editor/plain";
 import type { Editor as EditorInstance, JSONContent } from "@tiptap/react";
 import { useCallback, useState } from "react";
 
@@ -50,7 +50,7 @@ export function EditorCore({
   const showPlaceholder = !disablePlaceholder && !content && !isFocused;
 
   return (
-    <BaseEditor
+    <PlainEditor
       className={cn(
         "text-[11px] text-primary leading-[18px] invoice-editor",
         showPlaceholder &&

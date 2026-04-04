@@ -39,6 +39,7 @@
     "./dropdown-menu": "./src/components/dropdown-menu.tsx",
     "./form": "./src/components/form.tsx",
     "./editor": "./src/components/editor/index.tsx",
+    "./editor/plain": "./src/components/editor/plain.tsx",
     "./editor/extentions/register": "./src/components/editor/extentions/register.ts",
     "./editor/extentions/slash-command": "./src/components/editor/extentions/slash-command/index.ts",
     "./globals.css": "./src/globals.css",
