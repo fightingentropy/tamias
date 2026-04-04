@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
-  "name": "tamias-async-preview",
+  "name": "tamias-async-local",
   "main": "dist/cloudflare/index.js",
   "build": {
     "command": "rm -rf dist && bunx tsc -p tsconfig.cloudflare.json"
@@ -37,7 +37,7 @@
   "workflows": [
     {
       "binding": "ASYNC_WORKFLOW",
-      "name": "tamias-async-workflow-preview",
+      "name": "tamias-async-workflow-local",
       "class_name": "AsyncWorkflow"
     }
   ],
@@ -45,11 +45,11 @@
     "producers": [
       {
         "binding": "CAPTURE_QUEUE",
-        "queue": "tamias-capture-preview"
+        "queue": "tamias-capture-local"
       },
       {
         "binding": "LEDGER_QUEUE",
-        "queue": "tamias-ledger-preview"
+        "queue": "tamias-ledger-local"
       }
     ]
   },

@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
-  "name": "tamias-api-preview",
+  "name": "tamias-api-local",
   "main": "src/index.ts",
   "compatibility_date": "2026-03-28",
   "compatibility_flags": ["nodejs_compat"],
@@ -15,7 +15,7 @@
   "services": [
     {
       "binding": "ASYNC_WORKER",
-      "service": "tamias-async-preview",
+      "service": "tamias-async-local",
       "entrypoint": "AsyncBridgeService"
     }
   ],

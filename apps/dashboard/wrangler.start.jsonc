@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
-  "name": "tamias-dashboard-start-preview",
+  "name": "tamias-dashboard-start-local",
   "main": "./dist/server/index.mjs",
   "compatibility_date": "2026-03-28",
   "compatibility_flags": ["nodejs_compat"],
@@ -14,7 +14,7 @@
   "services": [
     {
       "binding": "ASYNC_WORKER",
-      "service": "tamias-async-preview",
+      "service": "tamias-async-local",
       "entrypoint": "AsyncBridgeService"
     }
   ],

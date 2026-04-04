@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
-  "name": "tamias-async-ledger-preview",
+  "name": "tamias-async-ledger-local",
   "main": "dist/cloudflare/ledger.js",
   "build": {
     "command": "rm -rf dist && bunx tsc -p tsconfig.cloudflare.json"
@@ -21,20 +21,20 @@
     "producers": [
       {
         "binding": "CAPTURE_QUEUE",
-        "queue": "tamias-capture-preview"
+        "queue": "tamias-capture-local"
       },
       {
         "binding": "LEDGER_QUEUE",
-        "queue": "tamias-ledger-preview"
+        "queue": "tamias-ledger-local"
       }
     ],
     "consumers": [
       {
-        "queue": "tamias-ledger-preview",
+        "queue": "tamias-ledger-local",
         "max_batch_size": 10,
         "max_batch_timeout": 5,
         "max_retries": 3,
-        "dead_letter_queue": "tamias-ledger-dlq-preview"
+        "dead_letter_queue": "tamias-ledger-dlq-local"
       }
     ]
   },
