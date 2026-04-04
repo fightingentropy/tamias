@@ -17,7 +17,9 @@
     "remote": true
   },
   "vars": {
-    "TAMIAS_ENVIRONMENT": "development"
+    "TAMIAS_ENVIRONMENT": "development",
+    "CONVEX_URL": "http://127.0.0.1:3210",
+    "CONVEX_SITE_URL": "http://127.0.0.1:3211"
   },
   "queues": {
     "producers": [
@@ -48,7 +50,9 @@
         "remote": true
       },
       "vars": {
-        "TAMIAS_ENVIRONMENT": "staging"
+        "TAMIAS_ENVIRONMENT": "staging",
+        "CONVEX_URL": "https://fleet-chameleon-251.eu-west-1.convex.cloud",
+        "CONVEX_SITE_URL": "https://fleet-chameleon-251.eu-west-1.convex.site"
       },
       "queues": {
         "producers": [
@@ -79,7 +83,9 @@
         "remote": true
       },
       "vars": {
-        "TAMIAS_ENVIRONMENT": "production"
+        "TAMIAS_ENVIRONMENT": "production",
+        "CONVEX_URL": "https://fleet-chameleon-251.eu-west-1.convex.cloud",
+        "CONVEX_SITE_URL": "https://fleet-chameleon-251.eu-west-1.convex.site"
       },
       "queues": {
         "producers": [
