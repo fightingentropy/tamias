@@ -23,6 +23,10 @@ function isStaticAssetPath(pathname: string) {
   );
 }
 
+function isInternalFrameworkPath(pathname: string) {
+  return pathname.startsWith("/_serverFn") || pathname.startsWith("/_server");
+}
+
 function getHostname(host: string) {
   return host.split(":")[0]?.toLowerCase() ?? "";
 }
@@ -80,63 +84,69 @@ const requestMiddleware = createMiddleware({ type: "request" }).server((async ({
   let auth = createAnonymousRequestAuthContext();
 
   if (!isStaticAssetPath(pathname)) {
+    if (isInternalFrameworkPath(pathname)) {
+      if (isAppHost) {
+        auth = await resolveRequestAuthContext(request);
+      }
+    } else {
     const routeHostPolicy = getRouteHostPolicy(requestUrl);
 
-    if (pathname === "/site" || pathname.startsWith("/site/")) {
-      const cleanPath =
-        pathname === "/site" ? "/" : pathname.slice("/site".length);
-      const cleanUrl = new URL(
-        `${cleanPath}${requestUrl.search}`,
-        requestUrl.origin,
-      );
-      const cleanPolicy = getRouteHostPolicy(cleanUrl);
-      const redirectBase =
-        cleanPolicy?.hostSurface === "app" ? appUrl : websiteUrl;
-      return middlewareRedirect(
-        request,
-        new URL(`${cleanPath}${requestUrl.search}`, redirectBase).toString(),
-      );
-    }
+      if (pathname === "/site" || pathname.startsWith("/site/")) {
+        const cleanPath =
+          pathname === "/site" ? "/" : pathname.slice("/site".length);
+        const cleanUrl = new URL(
+          `${cleanPath}${requestUrl.search}`,
+          requestUrl.origin,
+        );
+        const cleanPolicy = getRouteHostPolicy(cleanUrl);
+        const redirectBase =
+          cleanPolicy?.hostSurface === "app" ? appUrl : websiteUrl;
+        return middlewareRedirect(
+          request,
+          new URL(`${cleanPath}${requestUrl.search}`, redirectBase).toString(),
+        );
+      }
 
-    if (isWebsiteHost && routeHostPolicy?.hostSurface === "app") {
-      return middlewareRedirect(
-        request,
-        new URL(`${pathname}${requestUrl.search}`, appUrl).toString(),
-      );
-    }
+      if (isWebsiteHost && routeHostPolicy?.hostSurface === "app") {
+        return middlewareRedirect(
+          request,
+          new URL(`${pathname}${requestUrl.search}`, appUrl).toString(),
+        );
+      }
 
-    if (isAppHost && routeHostPolicy?.hostSurface === "website") {
-      return middlewareRedirect(
-        request,
-        new URL(`${pathname}${requestUrl.search}`, websiteUrl).toString(),
-      );
-    }
+      if (isAppHost && routeHostPolicy?.hostSurface === "website") {
+        return middlewareRedirect(
+          request,
+          new URL(`${pathname}${requestUrl.search}`, websiteUrl).toString(),
+        );
+      }
 
-    if (!routeHostPolicy && isAppHost) {
-      return middlewareRedirect(
-        request,
-        new URL(`${pathname}${requestUrl.search}`, websiteUrl).toString(),
-      );
-    }
+      if (!routeHostPolicy && isAppHost) {
+        return middlewareRedirect(
+          request,
+          new URL(`${pathname}${requestUrl.search}`, websiteUrl).toString(),
+        );
+      }
 
-    const shouldResolveAuth =
-      !isWebsiteHost || routeHostPolicy?.hostSurface === "app";
+      const shouldResolveAuth =
+        !isWebsiteHost || routeHostPolicy?.hostSurface === "app";
 
-    if (shouldResolveAuth) {
-      auth = await resolveRequestAuthContext(request);
-    }
+      if (shouldResolveAuth) {
+        auth = await resolveRequestAuthContext(request);
+      }
 
-    if (
-      !auth.token &&
-      !isWebsiteHost &&
-      routeHostPolicy?.appHostAccess === "protected"
-    ) {
-      const encodedPath = `${pathname.replace(/^\/+/, "")}${requestUrl.search}`;
-      const loginPath = encodedPath
-        ? `/login?return_to=${encodeURIComponent(encodedPath)}`
-        : "/login";
+      if (
+        !auth.token &&
+        !isWebsiteHost &&
+        routeHostPolicy?.appHostAccess === "protected"
+      ) {
+        const encodedPath = `${pathname.replace(/^\/+/, "")}${requestUrl.search}`;
+        const loginPath = encodedPath
+          ? `/login?return_to=${encodeURIComponent(encodedPath)}`
+          : "/login";
 
-      return middlewareRedirect(request, loginPath);
+        return middlewareRedirect(request, loginPath);
+      }
     }
   }
 
