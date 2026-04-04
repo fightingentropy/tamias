@@ -23,7 +23,9 @@
     "TAMIAS_ENVIRONMENT": "development",
     "DASHBOARD_URL": "http://localhost:3001",
     "WEBSITE_URL": "http://localhost:3000",
-    "API_URL": "http://localhost:3003"
+    "API_URL": "http://localhost:3003",
+    "CONVEX_URL": "http://127.0.0.1:3210",
+    "CONVEX_SITE_URL": "http://127.0.0.1:3211"
   },
   "env": {
     "staging": {
@@ -39,7 +41,9 @@
         "TAMIAS_ENVIRONMENT": "staging",
         "DASHBOARD_URL": "https://staging.tamias.xyz",
         "WEBSITE_URL": "https://staging.tamias.xyz",
-        "API_URL": "https://api-staging.tamias.xyz"
+        "API_URL": "https://api-staging.tamias.xyz",
+        "CONVEX_URL": "https://fleet-chameleon-251.eu-west-1.convex.cloud",
+        "CONVEX_SITE_URL": "https://fleet-chameleon-251.eu-west-1.convex.site"
       }
     },
     "production": {
@@ -61,7 +65,9 @@
         "TAMIAS_ENVIRONMENT": "production",
         "DASHBOARD_URL": "https://app.tamias.xyz",
         "WEBSITE_URL": "https://tamias.xyz",
-        "API_URL": "https://api.tamias.xyz"
+        "API_URL": "https://api.tamias.xyz",
+        "CONVEX_URL": "https://fleet-chameleon-251.eu-west-1.convex.cloud",
+        "CONVEX_SITE_URL": "https://fleet-chameleon-251.eu-west-1.convex.site"
       }
     }
   }
