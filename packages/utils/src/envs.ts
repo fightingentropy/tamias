@@ -3,6 +3,9 @@ const DEFAULT_WEBSITE_URL = "https://tamias.xyz";
 const DEFAULT_API_URL = "https://api.tamias.xyz";
 const DEFAULT_CDN_URL = "https://cdn.tamias.xyz";
 const DEFAULT_SUPPORT_EMAIL = "support@tamias.xyz";
+const DEFAULT_CONVEX_URL = "https://fleet-chameleon-251.eu-west-1.convex.cloud";
+const DEFAULT_CONVEX_SITE_URL =
+  "https://fleet-chameleon-251.eu-west-1.convex.site";
 
 function getFirstDefined(...values: Array<string | undefined>) {
   for (const value of values) {
@@ -115,12 +118,37 @@ export function getApiUrl() {
 }
 
 export function getConvexUrl() {
-  return (
-    getFirstDefined(
-      process.env.CONVEX_URL,
-      process.env.TAMIAS_CONVEX_URL,
-    ) || ""
+  const explicitUrl = getFirstDefined(
+    process.env.CONVEX_URL,
+    process.env.TAMIAS_CONVEX_URL,
   );
+
+  if (explicitUrl) {
+    return explicitUrl;
+  }
+
+  if (getTamiasEnvironment() === "production") {
+    return DEFAULT_CONVEX_URL;
+  }
+
+  return "";
+}
+
+export function getConvexSiteUrl() {
+  const explicitUrl = getFirstDefined(
+    process.env.CONVEX_SITE_URL,
+    process.env.TAMIAS_CONVEX_SITE_URL,
+  );
+
+  if (explicitUrl) {
+    return explicitUrl;
+  }
+
+  if (getTamiasEnvironment() === "production") {
+    return DEFAULT_CONVEX_SITE_URL;
+  }
+
+  return "";
 }
 
 export function getStripePublishableKey() {

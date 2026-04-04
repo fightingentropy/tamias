@@ -12,15 +12,57 @@ function resolveDashboardPath(...segments: string[]) {
   return path.resolve(__dirname, ...segments);
 }
 
+function isLocalUrl(value: string | undefined) {
+  return Boolean(
+    value &&
+      /^(https?:\/\/)?(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?/i.test(value),
+  );
+}
+
+function getBuildEnvValue(
+  mode: string,
+  explicitValue: string | undefined,
+  fallbackValue: string,
+) {
+  if (mode === "production" && isLocalUrl(explicitValue)) {
+    return fallbackValue;
+  }
+
+  return explicitValue ?? fallbackValue;
+}
+
 function getPublicEnv(mode: string) {
   const env = loadEnv(mode, __dirname, "");
 
-  const dashboardUrl =
-    env.DASHBOARD_URL ?? env.TAMIAS_DASHBOARD_URL ?? "http://localhost:3001";
-  const apiUrl = env.API_URL ?? env.TAMIAS_API_URL ?? "http://localhost:3003";
-  const websiteUrl =
-    env.WEBSITE_URL ?? env.TAMIAS_WEBSITE_URL ?? "http://localhost:3000";
-  const convexUrl = env.CONVEX_URL ?? env.TAMIAS_CONVEX_URL ?? "";
+  const dashboardUrl = getBuildEnvValue(
+    mode,
+    env.DASHBOARD_URL ?? env.TAMIAS_DASHBOARD_URL,
+    mode === "production" ? "https://app.tamias.xyz" : "http://localhost:3001",
+  );
+  const apiUrl = getBuildEnvValue(
+    mode,
+    env.API_URL ?? env.TAMIAS_API_URL,
+    mode === "production" ? "https://api.tamias.xyz" : "http://localhost:3003",
+  );
+  const websiteUrl = getBuildEnvValue(
+    mode,
+    env.WEBSITE_URL ?? env.TAMIAS_WEBSITE_URL,
+    mode === "production" ? "https://tamias.xyz" : "http://localhost:3000",
+  );
+  const convexUrl = getBuildEnvValue(
+    mode,
+    env.CONVEX_URL ?? env.TAMIAS_CONVEX_URL,
+    mode === "production"
+      ? "https://fleet-chameleon-251.eu-west-1.convex.cloud"
+      : "",
+  );
+  const convexSiteUrl = getBuildEnvValue(
+    mode,
+    env.CONVEX_SITE_URL ?? env.TAMIAS_CONVEX_SITE_URL,
+    mode === "production"
+      ? "https://fleet-chameleon-251.eu-west-1.convex.site"
+      : "",
+  );
   const stripePublishableKey = env.STRIPE_PUBLISHABLE_KEY ?? "";
   const tellerApplicationId = env.TELLER_APPLICATION_ID ?? "";
   const tellerEnvironment = env.TELLER_ENVIRONMENT ?? "";
@@ -37,6 +79,7 @@ function getPublicEnv(mode: string) {
     API_URL: apiUrl,
     WEBSITE_URL: websiteUrl,
     CONVEX_URL: convexUrl,
+    CONVEX_SITE_URL: convexSiteUrl,
     STRIPE_PUBLISHABLE_KEY: stripePublishableKey,
     TELLER_APPLICATION_ID: tellerApplicationId,
     TELLER_ENVIRONMENT: tellerEnvironment,
@@ -65,6 +108,7 @@ export default defineConfig(({ mode, command }) => {
     DASHBOARD_URL: publicEnv.DASHBOARD_URL,
     WEBSITE_URL: publicEnv.WEBSITE_URL,
     CONVEX_URL: publicEnv.CONVEX_URL,
+    CONVEX_SITE_URL: publicEnv.CONVEX_SITE_URL,
     STRIPE_PUBLISHABLE_KEY: publicEnv.STRIPE_PUBLISHABLE_KEY,
     TELLER_APPLICATION_ID: publicEnv.TELLER_APPLICATION_ID,
     TELLER_ENVIRONMENT: publicEnv.TELLER_ENVIRONMENT,
