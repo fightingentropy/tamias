@@ -1,6 +1,5 @@
 "use client";
 
-import { api } from "@tamias/convex-model/api";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@tamias/ui/cn";
@@ -15,8 +14,8 @@ import {
 import { Input } from "@tamias/ui/input";
 import { Spinner } from "@tamias/ui/spinner";
 import { SubmitButton } from "@tamias/ui/submit-button";
-import { useConvexAuth, useMutation } from "convex/react";
-import { useRouter, useSearchParams } from "@/framework/navigation";
+import { useConvexAuth } from "convex/react";
+import { useSearchParams } from "@/framework/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod/v3";
@@ -32,16 +31,12 @@ type PasswordAuthFormProps = {
 };
 
 export function PasswordAuthForm({ className }: PasswordAuthFormProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const { signIn } = useAuthActions();
-  const ensureCurrentAppUser = useMutation(api.identity.ensureCurrentAppUser);
   const { isAuthenticated, isLoading } = useConvexAuth();
   const [mode, setMode] = useState<"signIn" | "signUp">("signIn");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isProvisioning, setIsProvisioning] = useState(false);
-  const [hasProvisionedSession, setHasProvisionedSession] = useState(false);
 
   const redirectTo = useMemo(() => {
     const returnTo = searchParams.get("return_to");
@@ -58,65 +53,26 @@ export function PasswordAuthForm({ className }: PasswordAuthFormProps) {
   });
 
   useEffect(() => {
-    let cancelled = false;
-
-    if (isLoading || !isAuthenticated || hasProvisionedSession) {
-      return () => {
-        cancelled = true;
-      };
+    if (isLoading || !isAuthenticated) {
+      return;
     }
 
-    setIsProvisioning(true);
-
-    void ensureCurrentAppUser({})
-      .then((user) => {
-        if (cancelled) {
-          return;
-        }
-
-        setHasProvisionedSession(true);
-        const nextPath =
-          user.fullName && user.teamId ? redirectTo : "/onboarding";
-        router.replace(nextPath);
-      })
-      .catch((authError) => {
-        if (cancelled) {
-          return;
-        }
-
-        setError(
-          authError instanceof Error
-            ? authError.message
-            : "Unable to finish signing in.",
-        );
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setIsProvisioning(false);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    ensureCurrentAppUser,
-    hasProvisionedSession,
-    isAuthenticated,
-    isLoading,
-    redirectTo,
-    router,
-  ]);
+    window.location.replace(redirectTo);
+  }, [isAuthenticated, isLoading, redirectTo]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setError(null);
     setIsSubmitting(true);
 
     try {
-      await signIn("password", {
+      const result = await signIn("password", {
         ...values,
         flow: mode,
       });
+
+      if (result?.signingIn) {
+        window.location.replace(redirectTo);
+      }
     } catch (authError) {
       setError(getPasswordAuthErrorMessage(authError, mode));
     } finally {
@@ -175,16 +131,14 @@ export function PasswordAuthForm({ className }: PasswordAuthFormProps) {
           <SubmitButton
             type="submit"
             className="bg-primary px-6 py-4 text-secondary font-medium flex space-x-2 h-[40px] w-full"
-            isSubmitting={isSubmitting || isProvisioning}
+            isSubmitting={isSubmitting}
           >
-            {isSubmitting || isProvisioning ? (
+            {isSubmitting ? (
               <span className="inline-flex items-center gap-2">
                 <Spinner size={16} className="text-current" />
                 <span>
                   {mode === "signIn"
-                    ? isProvisioning
-                      ? "Finishing sign in"
-                      : "Signing in"
+                    ? "Signing in"
                     : "Creating account"}
                 </span>
               </span>
