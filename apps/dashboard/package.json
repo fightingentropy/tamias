@@ -17,7 +17,7 @@
     "predev": "bun run content:generate",
     "prepreview": "bun run content:generate",
     "pretypecheck": "bun run content:generate",
-    "deploy:cf": "bun run build:start && wrangler deploy --config wrangler.start.jsonc --env=production",
+    "deploy:cf": "bun run build:start && wrangler deploy --config wrangler.start.jsonc",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
