@@ -14,7 +14,6 @@ const PRODUCTION_APP_HOSTNAME = "app.tamias.xyz";
 
 function isStaticAssetPath(pathname: string) {
   return (
-    pathname.startsWith("/_server") ||
     pathname.startsWith("/assets/") ||
     pathname.startsWith("/images/") ||
     pathname.startsWith("/stories/") ||
