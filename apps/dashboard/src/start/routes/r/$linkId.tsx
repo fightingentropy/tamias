@@ -12,7 +12,7 @@ const loadPublicReportData = createServerFn({ method: "GET" })
       "@/start/server/route-data/public"
     );
 
-    return (await buildPublicReportPageData(data.linkId)) as any;
+    return (await buildPublicReportPageData(data.linkId));
   });
 
 export type PublicReportLoaderData = Awaited<

@@ -7,7 +7,7 @@ export const loadAccountTeamsData = createServerFn({ method: "GET" }).handler(
     const { buildAccountTeamsPageData } = await import(
       "@/start/server/route-data/account"
     );
-    return (await buildAccountTeamsPageData()) as any;
+    return (await buildAccountTeamsPageData());
   },
 );
 

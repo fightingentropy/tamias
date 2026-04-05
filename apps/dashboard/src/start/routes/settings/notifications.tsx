@@ -7,7 +7,7 @@ export const loadSettingsNotificationsData = createServerFn({ method: "GET" }).h
     const { buildSettingsNotificationsPageData } = await import(
       "@/start/server/route-data/settings"
     );
-    return (await buildSettingsNotificationsPageData()) as any;
+    return (await buildSettingsNotificationsPageData());
   },
 );
 

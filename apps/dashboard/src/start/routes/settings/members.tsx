@@ -9,7 +9,7 @@ export const loadSettingsMembersData = createServerFn({ method: "GET" }).handler
     const { buildSettingsMembersPageData } = await import(
       "@/start/server/route-data/settings-members"
     );
-    return (await buildSettingsMembersPageData()) as any;
+    return (await buildSettingsMembersPageData());
   },
 );
 

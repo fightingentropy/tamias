@@ -6,7 +6,7 @@ export const loadTeamsData = createServerFn({ method: "GET" }).handler(async () 
   const { buildTeamsSelectionPageData } = await import(
     "@/start/server/route-data/misc"
   );
-  return (await buildTeamsSelectionPageData()) as any;
+  return (await buildTeamsSelectionPageData());
 });
 
 export const Route = createAppFileRoute("/teams")({

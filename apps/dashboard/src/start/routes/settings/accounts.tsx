@@ -9,7 +9,7 @@ export const loadSettingsAccountsData = createServerFn({ method: "GET" }).handle
     const { buildSettingsAccountsPageData } = await import(
       "@/start/server/route-data/settings-accounts"
     );
-    return (await buildSettingsAccountsPageData()) as any;
+    return (await buildSettingsAccountsPageData());
   },
 );
 

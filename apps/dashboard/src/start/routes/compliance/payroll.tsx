@@ -7,7 +7,7 @@ export const loadCompliancePayrollData = createServerFn({ method: "GET" }).handl
     const { buildCompliancePayrollPageData } = await import(
       "@/start/server/route-data/compliance"
     );
-    return (await buildCompliancePayrollPageData()) as any;
+    return (await buildCompliancePayrollPageData());
   },
 );
 

@@ -15,7 +15,9 @@ export function getRequestUrl(input?: string) {
 export function dehydrateQueryClient(
   queryClient: ReturnType<typeof getQueryClient>,
 ) {
-  return dehydrate(queryClient) as unknown as Record<string, {}>;
+  // TanStack serializable shape for dehydrated query client state (see ValidateSerializable).
+  // biome-ignore lint/complexity/noBannedTypes: matches router-core index signature for nested `{}` nodes
+  return dehydrate(queryClient) as unknown as { [key: string]: {} };
 }
 
 export function isUnauthorizedQueryError(error: unknown) {

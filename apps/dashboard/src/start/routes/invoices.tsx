@@ -8,7 +8,7 @@ export const loadInvoicesData = createServerFn({ method: "GET" })
     const { buildInvoicesPageData } = await import(
       "@/start/server/route-data/invoices"
     );
-    return (await buildInvoicesPageData(data.href)) as any;
+    return (await buildInvoicesPageData(data.href));
   });
 
 export type InvoicesLoaderData = Awaited<ReturnType<typeof loadInvoicesData>>;

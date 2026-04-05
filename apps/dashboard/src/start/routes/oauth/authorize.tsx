@@ -9,7 +9,7 @@ export const loadOAuthAuthorizeData = createServerFn({ method: "GET" })
       "@/start/server/route-data/public"
     );
 
-    return (await buildOAuthAuthorizePageData(data.href)) as any;
+    return (await buildOAuthAuthorizePageData(data.href));
   });
 
 export const Route = createAppFileRoute("/oauth/authorize")({

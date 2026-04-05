@@ -6,7 +6,7 @@ export const loadInboxData = createServerFn({ method: "GET" })
   .inputValidator((data: { href: string }) => data)
   .handler(async ({ data }) => {
     const { buildInboxPageData } = await import("@/start/server/route-data/inbox");
-    return (await buildInboxPageData(data.href)) as any;
+    return (await buildInboxPageData(data.href));
   });
 
 export type InboxLoaderData = Awaited<ReturnType<typeof loadInboxData>>;

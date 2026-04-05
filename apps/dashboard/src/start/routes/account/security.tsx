@@ -7,7 +7,7 @@ export const loadAccountSecurityData = createServerFn({ method: "GET" }).handler
     const { buildAccountSecurityPageData } = await import(
       "@/start/server/route-data/account"
     );
-    return (await buildAccountSecurityPageData()) as any;
+    return (await buildAccountSecurityPageData());
   },
 );
 

@@ -13,7 +13,7 @@ const loadCustomerPortalData = createServerFn({ method: "GET" })
       "@/start/server/route-data/public"
     );
 
-    return (await buildCustomerPortalPageData(data.portalId)) as any;
+    return (await buildCustomerPortalPageData(data.portalId));
   });
 
 export type CustomerPortalLoaderData = Awaited<

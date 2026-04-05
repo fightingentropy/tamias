@@ -7,7 +7,7 @@ export const loadInvoiceProductsData = createServerFn({ method: "GET" }).handler
     const { buildInvoiceProductsPageData } = await import(
       "@/start/server/route-data/invoices"
     );
-    return (await buildInvoiceProductsPageData()) as any;
+    return (await buildInvoiceProductsPageData());
   },
 );
 

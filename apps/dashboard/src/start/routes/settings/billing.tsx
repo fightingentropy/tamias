@@ -7,7 +7,7 @@ export const loadSettingsBillingData = createServerFn({ method: "GET" }).handler
     const { buildSettingsBillingPageData } = await import(
       "@/start/server/route-data/settings-billing"
     );
-    return (await buildSettingsBillingPageData()) as any;
+    return (await buildSettingsBillingPageData());
   },
 );
 

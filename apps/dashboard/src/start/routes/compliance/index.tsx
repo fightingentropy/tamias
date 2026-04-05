@@ -7,7 +7,7 @@ export const loadComplianceData = createServerFn({ method: "GET" }).handler(
     const { buildCompliancePageData } = await import(
       "@/start/server/route-data/compliance"
     );
-    return (await buildCompliancePageData()) as any;
+    return (await buildCompliancePageData());
   },
 );
 

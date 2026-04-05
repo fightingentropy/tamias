@@ -8,7 +8,7 @@ export const loadTrackerData = createServerFn({ method: "GET" })
     const { buildTrackerPageData } = await import(
       "@/start/server/route-data/tracker"
     );
-    return (await buildTrackerPageData(data.href)) as any;
+    return (await buildTrackerPageData(data.href));
   });
 
 export type TrackerLoaderData = Awaited<ReturnType<typeof loadTrackerData>>;

@@ -9,7 +9,7 @@ export const loadShortLinkData = createServerFn({ method: "GET" })
       "@/start/server/route-data/public"
     );
 
-    return (await buildShortLinkPageData(data.shortId)) as any;
+    return (await buildShortLinkPageData(data.shortId));
   });
 
 export const Route = createAppPublicFileRoute("/s/$shortId")({

@@ -14,7 +14,7 @@ const loadPublicInvoice = createServerFn({ method: "GET" })
     return (await buildPublicInvoicePageData({
       token: data.token,
       viewer: data.viewer ?? undefined,
-    })) as any;
+    }));
   });
 
 export type PublicInvoiceLoaderData = Awaited<

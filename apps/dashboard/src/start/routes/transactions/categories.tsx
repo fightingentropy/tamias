@@ -7,7 +7,7 @@ export const loadTransactionCategoriesData = createServerFn({ method: "GET" }).h
     const { buildTransactionCategoriesPageData } = await import(
       "@/start/server/route-data/transactions"
     );
-    return (await buildTransactionCategoriesPageData()) as any;
+    return (await buildTransactionCategoriesPageData());
   },
 );
 

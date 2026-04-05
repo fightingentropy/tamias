@@ -59,11 +59,11 @@ flowchart LR
 
 ### Request and data flow
 
-1. Requests into the dashboard deployment hit `apps/dashboard/src/middleware.ts`.
+1. Requests into the dashboard deployment run request middleware from `apps/dashboard/src/start/start.ts` (`createStart` + `createMiddleware`).
    Host-aware routing and authenticated route gating happen there.
 2. The dashboard root layout mounts Convex auth, tRPC, i18n, theming, analytics, and shared client providers.
 3. The authenticated sidebar shell preloads the current user/team and mounts global chrome like the sidebar, header, timers, sheets, and export status.
-4. Hot server-rendered reads use `apps/dashboard/src/server/local-queries.ts`, which calls the shared query layer directly instead of round-tripping through HTTP for every SSR request.
+4. Hot server-rendered reads use route loaders backed by `apps/dashboard/src/start/server/route-data/*` (for example `dashboard.ts`, `transactions.ts`), which call tRPC server helpers and the shared query layer instead of round-tripping through HTTP for every SSR request.
 5. Client mutations and most interactive reads go through tRPC to `apps/api`.
 6. The API exposes:
    - tRPC for first-party app calls

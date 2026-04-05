@@ -8,7 +8,7 @@ export const loadCustomersData = createServerFn({ method: "GET" })
     const { buildCustomersPageData } = await import(
       "@/start/server/route-data/customers"
     );
-    return (await buildCustomersPageData(data.href)) as any;
+    return (await buildCustomersPageData(data.href));
   });
 
 export type CustomersLoaderData = Awaited<ReturnType<typeof loadCustomersData>>;

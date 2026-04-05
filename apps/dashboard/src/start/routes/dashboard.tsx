@@ -8,7 +8,7 @@ export const loadDashboardData = createServerFn({ method: "GET" })
     const { buildDashboardPageData } = await import(
       "@/start/server/route-data/dashboard"
     );
-    return (await buildDashboardPageData(data.href)) as any;
+    return (await buildDashboardPageData(data.href));
   });
 
 export type DashboardLoaderData = Awaited<ReturnType<typeof loadDashboardData>>;

@@ -7,7 +7,7 @@ export const loadSettingsDeveloperData = createServerFn({ method: "GET" }).handl
     const { buildSettingsDeveloperPageData } = await import(
       "@/start/server/route-data/settings-developer"
     );
-    return (await buildSettingsDeveloperPageData()) as any;
+    return (await buildSettingsDeveloperPageData());
   },
 );
 

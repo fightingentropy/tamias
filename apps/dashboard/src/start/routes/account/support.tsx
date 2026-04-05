@@ -7,7 +7,7 @@ export const loadAccountSupportData = createServerFn({ method: "GET" }).handler(
     const { buildAccountSupportPageData } = await import(
       "@/start/server/route-data/account"
     );
-    return (await buildAccountSupportPageData()) as any;
+    return (await buildAccountSupportPageData());
   },
 );
 

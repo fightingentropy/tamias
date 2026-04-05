@@ -7,7 +7,7 @@ export const loadAccountDateAndLocaleData = createServerFn({ method: "GET" }).ha
     const { buildAccountDateAndLocalePageData } = await import(
       "@/start/server/route-data/account"
     );
-    return (await buildAccountDateAndLocalePageData()) as any;
+    return (await buildAccountDateAndLocalePageData());
   },
 );
 

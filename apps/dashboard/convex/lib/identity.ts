@@ -1,19 +1,35 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { ConvexError } from "convex/values";
 import {
+  type AIProvider,
   buildAppUserDefaults,
   buildTeamDefaults,
   DEFAULT_USER_PREFERENCES,
   normalizeEmail,
   normalizeOptionalString,
   nowIso,
-  type AIProvider,
   type TeamRole,
 } from "../../../../packages/domain/src/identity";
-import { ConvexError } from "convex/values";
 import type { Doc, Id } from "../_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "../_generated/server";
 
 type IdentityCtx = QueryCtx | MutationCtx;
+
+/**
+ * Plain JSON shape for fields embedded in TanStack Start server-fn responses.
+ * Convex stores `exportSettings` as `v.any()`; this type satisfies seroval serialization checks.
+ */
+export type SerializedJson =
+  | string
+  | number
+  | boolean
+  | null
+  | SerializedJson[]
+  | SerializedJsonObject;
+
+export type SerializedJsonObject = {
+  readonly [key: string]: SerializedJson;
+};
 
 export type SerializedTeam = {
   id: string;
@@ -23,7 +39,7 @@ export type SerializedTeam = {
   email: string | null;
   inboxId: string | null;
   plan: string | null;
-  exportSettings?: unknown;
+  exportSettings?: SerializedJsonObject;
   stripeAccountId?: string | null;
   stripeConnectStatus?: string | null;
   createdAt: string;
@@ -372,6 +388,20 @@ export async function resolveCurrentTeam(
   return ctx.db.get(appUser.currentTeamId);
 }
 
+function serializeExportSettings(
+  value: Doc<"teams">["exportSettings"],
+): SerializedJsonObject | undefined {
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+
+  if (typeof value === "object" && !Array.isArray(value)) {
+    return value as SerializedJsonObject;
+  }
+
+  return undefined;
+}
+
 export function serializeTeam(team: Doc<"teams"> | null): SerializedTeam | null {
   if (!team) {
     return null;
@@ -385,7 +415,7 @@ export function serializeTeam(team: Doc<"teams"> | null): SerializedTeam | null 
     email: team.email ?? null,
     inboxId: team.inboxId ?? null,
     plan: team.plan ?? null,
-    exportSettings: team.exportSettings ?? null,
+    exportSettings: serializeExportSettings(team.exportSettings),
     stripeAccountId: team.stripeAccountId ?? null,
     stripeConnectStatus: team.stripeConnectStatus ?? null,
     createdAt: team.createdAt,

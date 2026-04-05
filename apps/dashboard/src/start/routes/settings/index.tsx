@@ -5,7 +5,7 @@ import { createServerFn } from "@tanstack/react-start";
 export const loadSettingsData = createServerFn({ method: "GET" }).handler(
   async () => {
     const { buildSettingsPageData } = await import("@/start/server/route-data/settings");
-    return (await buildSettingsPageData()) as any;
+    return (await buildSettingsPageData());
   },
 );
 

@@ -7,7 +7,7 @@ export const loadComplianceYearEndData = createServerFn({ method: "GET" }).handl
     const { buildComplianceYearEndPageData } = await import(
       "@/start/server/route-data/compliance"
     );
-    return (await buildComplianceYearEndPageData()) as any;
+    return (await buildComplianceYearEndPageData());
   },
 );
 

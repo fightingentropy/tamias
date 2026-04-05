@@ -8,7 +8,7 @@ export const loadTransactionsData = createServerFn({ method: "GET" })
     const { buildTransactionsPageData } = await import(
       "@/start/server/route-data/transactions"
     );
-    return (await buildTransactionsPageData(data.href)) as any;
+    return (await buildTransactionsPageData(data.href));
   });
 
 export type TransactionsLoaderData = Awaited<

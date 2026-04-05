@@ -7,7 +7,7 @@ export const loadInboxSettingsData = createServerFn({ method: "GET" }).handler(
     const { buildInboxSettingsPageData } = await import(
       "@/start/server/route-data/inbox"
     );
-    return (await buildInboxSettingsPageData()) as any;
+    return (await buildInboxSettingsPageData());
   },
 );
 
