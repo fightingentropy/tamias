@@ -104,7 +104,6 @@
     "react-intersection-observer": "^10.0.0",
     "react-markdown": "^10.1.0",
     "react-plaid-link": "^4.1.1",
-    "react-zoom-pan-pinch": "^3.7.0",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.1",
     "resend": "catalog:",

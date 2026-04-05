@@ -114,6 +114,10 @@ async function createApp() {
   const app = new OpenAPIHono<Context>();
 
   app.use(httpLogger());
+  app.use("/files/*", async (c, next) => {
+    await next();
+    c.res.headers.delete("X-Frame-Options");
+  });
   app.use(
     secureHeaders({
       crossOriginResourcePolicy: "cross-origin",

@@ -8,6 +8,7 @@ import {
   startOfWeek,
   subDays,
 } from "date-fns";
+import sharp from "sharp";
 import {
   bulkUpsertNotificationSettingsInConvex,
   createActivityInConvex,
@@ -156,11 +157,17 @@ function stableLegacyId(value: string) {
   return output.slice(0, 32);
 }
 
-const SEED_JPEG_BASE64 =
-  "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxAQEBUQEBIVFhUVFRUVFRUVFRUVFRUVFRUWFhUVFRUYHSggGBolHRUVITEhJSkrLi4uFx8zODMsNygtLisBCgoKDg0OGhAQGi0fHyUtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIAAEAAQMBIgACEQEDEQH/xAAXAAADAQAAAAAAAAAAAAAAAAAAAQID/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEAMQAAAB6AAAAP/EABQQAQAAAAAAAAAAAAAAAAAAABD/2gAIAQEAAQUCcf/EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQMBAT8Bp//EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQIBAT8Bp//Z";
-
 function escapePdfText(value: string) {
   return value.replaceAll("\\", "\\\\").replaceAll("(", "\\(").replaceAll(")", "\\)");
+}
+
+function escapeSvgText(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&apos;");
 }
 
 function buildSeedPdf(lines: string[]) {
@@ -220,7 +227,7 @@ function buildSeedEmail(args: {
   );
 }
 
-function buildSeedInboxSampleFile(spec: {
+async function buildSeedInboxSampleFile(spec: {
   fileName: string;
   contentType?: string | null;
   displayName?: string | null;
@@ -251,7 +258,44 @@ function buildSeedInboxSampleFile(spec: {
       });
     default:
       if (spec.contentType?.startsWith("image/")) {
-        return Buffer.from(SEED_JPEG_BASE64, "base64");
+        const title = escapeSvgText(spec.displayName ?? spec.fileName);
+        const description = escapeSvgText(
+          spec.description ?? "Travel receipt generated from seed data.",
+        );
+        const svg = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1600" viewBox="0 0 1200 1600">
+            <rect width="1200" height="1600" fill="#f4f1ea"/>
+            <rect x="96" y="96" width="1008" height="1408" rx="32" fill="#fffdf9" stroke="#d7d1c7" stroke-width="8"/>
+            <text x="144" y="196" font-size="44" font-family="Helvetica, Arial, sans-serif" fill="#1b1b1b">LNER</text>
+            <text x="144" y="252" font-size="30" font-family="Helvetica, Arial, sans-serif" fill="#4b5563">${title}</text>
+            <text x="144" y="334" font-size="28" font-family="Helvetica, Arial, sans-serif" fill="#6b7280">${description}</text>
+            <line x1="144" y1="392" x2="1056" y2="392" stroke="#d7d1c7" stroke-width="4"/>
+            <text x="144" y="482" font-size="28" font-family="Helvetica, Arial, sans-serif" fill="#111827">Route</text>
+            <text x="760" y="482" font-size="28" text-anchor="end" font-family="Helvetica, Arial, sans-serif" fill="#111827">London Kings Cross → Edinburgh</text>
+            <text x="144" y="548" font-size="28" font-family="Helvetica, Arial, sans-serif" fill="#111827">Journey date</text>
+            <text x="1056" y="548" font-size="28" text-anchor="end" font-family="Helvetica, Arial, sans-serif" fill="#111827">5 Mar 2026</text>
+            <text x="144" y="614" font-size="28" font-family="Helvetica, Arial, sans-serif" fill="#111827">Seat</text>
+            <text x="1056" y="614" font-size="28" text-anchor="end" font-family="Helvetica, Arial, sans-serif" fill="#111827">Coach B • Seat 14A</text>
+            <text x="144" y="680" font-size="28" font-family="Helvetica, Arial, sans-serif" fill="#111827">Booking ref</text>
+            <text x="1056" y="680" font-size="28" text-anchor="end" font-family="Helvetica, Arial, sans-serif" fill="#111827">LNER-83K2-ACM</text>
+            <line x1="144" y1="748" x2="1056" y2="748" stroke="#d7d1c7" stroke-width="4"/>
+            <text x="144" y="836" font-size="30" font-family="Helvetica, Arial, sans-serif" fill="#111827">Advance single fare</text>
+            <text x="1056" y="836" font-size="30" text-anchor="end" font-family="Helvetica, Arial, sans-serif" fill="#111827">GBP 96.00</text>
+            <text x="144" y="902" font-size="30" font-family="Helvetica, Arial, sans-serif" fill="#111827">Flexible change cover</text>
+            <text x="1056" y="902" font-size="30" text-anchor="end" font-family="Helvetica, Arial, sans-serif" fill="#111827">GBP 12.00</text>
+            <text x="144" y="968" font-size="30" font-family="Helvetica, Arial, sans-serif" fill="#111827">Booking fee</text>
+            <text x="1056" y="968" font-size="30" text-anchor="end" font-family="Helvetica, Arial, sans-serif" fill="#111827">GBP 12.00</text>
+            <line x1="144" y1="1038" x2="1056" y2="1038" stroke="#1b1b1b" stroke-width="5"/>
+            <text x="144" y="1120" font-size="40" font-weight="700" font-family="Helvetica, Arial, sans-serif" fill="#111827">Total paid</text>
+            <text x="1056" y="1120" font-size="40" font-weight="700" text-anchor="end" font-family="Helvetica, Arial, sans-serif" fill="#111827">GBP 120.00</text>
+            <text x="144" y="1240" font-size="26" font-family="Helvetica, Arial, sans-serif" fill="#6b7280">Payment card ending 1872 • Issued to Acme Inc</text>
+            <text x="144" y="1300" font-size="26" font-family="Helvetica, Arial, sans-serif" fill="#6b7280">Generated sample for seeded inbox previews</text>
+          </svg>
+        `;
+
+        return sharp(Buffer.from(svg))
+          .jpeg({ quality: 90, chromaSubsampling: "4:4:4" })
+          .toBuffer();
       }
 
       return new TextEncoder().encode(spec.textBody ?? spec.description ?? spec.fileName);
@@ -273,7 +317,7 @@ async function ensureSeedInboxSampleFiles(
   }>,
 ) {
   for (const spec of specs) {
-    const blob = buildSeedInboxSampleFile(spec);
+    const blob = await buildSeedInboxSampleFile(spec);
     const { error } = await uploadVaultFile({
       path: [context.teamId, ...spec.filePath],
       blob,

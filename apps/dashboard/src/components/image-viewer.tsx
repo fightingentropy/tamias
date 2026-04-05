@@ -3,7 +3,6 @@
 import { cn } from "@tamias/ui/cn";
 import { Icons } from "@tamias/ui/icons";
 import { Skeleton } from "@tamias/ui/skeleton";
-import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import { useImageLoadState } from "@/hooks/use-image-load-state";
 
 function ErrorImage() {
@@ -32,44 +31,17 @@ export function ImageViewer({ url }: { url: string }) {
       {isError && <ErrorImage />}
 
       {!isError && (
-        <TransformWrapper
-          initialScale={1}
-          minScale={1}
-          maxScale={2}
-          doubleClick={{ mode: "toggle", step: 1 }}
-          panning={{ disabled: false }}
-          wheel={{ wheelDisabled: true, touchPadDisabled: false, step: 0.5 }}
-          pinch={{ step: 5 }}
-          alignmentAnimation={{ sizeX: 0, sizeY: 0 }}
-        >
-          <TransformComponent
-            wrapperStyle={{
-              width: "100%",
-              height: "100%",
-            }}
-            contentStyle={{
-              cursor: "grab",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: "100%",
-              height: "100%",
-            }}
-            wrapperClass="[&:active]:cursor-grabbing"
-          >
-            <img
-              ref={imgRef}
-              src={url}
-              alt="Viewer content"
-              className={cn(
-                "max-h-full max-w-full object-contain",
-                isLoading ? "opacity-0" : "opacity-100",
-              )}
-              onLoad={handleLoad}
-              onError={handleError}
-            />
-          </TransformComponent>
-        </TransformWrapper>
+        <img
+          ref={imgRef}
+          src={url}
+          alt="Viewer content"
+          className={cn(
+            "max-h-full max-w-full object-contain",
+            isLoading ? "opacity-0" : "opacity-100",
+          )}
+          onLoad={handleLoad}
+          onError={handleError}
+        />
       )}
     </div>
   );

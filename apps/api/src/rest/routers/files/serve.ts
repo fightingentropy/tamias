@@ -6,7 +6,7 @@ import { HTTPException } from "hono/http-exception";
 import { withDatabase } from "../../middleware/db";
 import { withFileAuth } from "../../middleware/file-auth";
 import { withClientIp } from "../../middleware/ip";
-import { normalizeAndValidatePath } from "./utils";
+import { getContentTypeFromFilename, normalizeAndValidatePath } from "./utils";
 
 const app = new OpenAPIHono<Context>();
 
@@ -68,7 +68,7 @@ app.openapi(
   }),
   async (c) => {
     const { filePath } = c.req.valid("query");
-    const { normalizedPath } = normalizeAndValidatePath(
+    const { normalizedPath, pathArray } = normalizeAndValidatePath(
       filePath,
       c.get("teamId"),
     );
@@ -86,13 +86,28 @@ app.openapi(
 
     // Get the blob and determine content type
     const blob = await data.arrayBuffer();
-    const contentType = data.type || "application/octet-stream";
+    const filename = pathArray.at(-1);
+    const contentType =
+      data.type ||
+      (filename
+        ? getContentTypeFromFilename(filename)
+        : "application/octet-stream");
 
     // Set cache headers for images (long cache for immutable content)
     const headers: Record<string, string> = {
       "Content-Type": contentType,
       "Cross-Origin-Resource-Policy": "cross-origin",
     };
+
+    if (
+      contentType === "application/pdf" ||
+      contentType.startsWith("image/") ||
+      contentType === "message/rfc822"
+    ) {
+      headers["Content-Disposition"] = filename
+        ? `inline; filename="${filename}"`
+        : "inline";
+    }
 
     // Add cache headers for images
     if (contentType.startsWith("image/")) {
