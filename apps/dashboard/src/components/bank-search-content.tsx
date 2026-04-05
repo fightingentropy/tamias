@@ -1,7 +1,7 @@
 "use client";
 
-import { track } from "@/lib/analytics/client";
-import { LogEvents } from "@/lib/analytics/events";
+import { track } from "@/lib/telemetry/client";
+import { LogEvents } from "@/lib/telemetry/events";
 import { getPlaidEnvironment } from "@tamias/utils/envs";
 import { Button } from "@tamias/ui/button";
 import { Input } from "@tamias/ui/input";

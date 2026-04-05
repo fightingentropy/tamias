@@ -1,7 +1,7 @@
 "use client";
 
-import { track } from "@/lib/analytics/client";
-import { LogEvents } from "@/lib/analytics/events";
+import { track } from "@/lib/telemetry/client";
+import { LogEvents } from "@/lib/telemetry/events";
 import { useToast } from "@tamias/ui/use-toast";
 import { usePathname, useRouter, useSearchParams } from "@/framework/navigation";
 import { useEffect, useRef } from "react";

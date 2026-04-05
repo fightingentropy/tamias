@@ -42,21 +42,17 @@ function getPublicEnv(mode: string) {
   const apiUrl = getBuildEnvValue(
     mode,
     env.API_URL ?? env.TAMIAS_API_URL,
-    mode === "production" ? "https://api.tamias.xyz" : "http://localhost:3003",
+    "https://api.tamias.xyz",
   );
   const convexUrl = getBuildEnvValue(
     mode,
     env.CONVEX_URL ?? env.TAMIAS_CONVEX_URL,
-    mode === "production"
-      ? "https://fleet-chameleon-251.eu-west-1.convex.cloud"
-      : "",
+    "https://fleet-chameleon-251.eu-west-1.convex.cloud",
   );
   const convexSiteUrl = getBuildEnvValue(
     mode,
     env.CONVEX_SITE_URL ?? env.TAMIAS_CONVEX_SITE_URL,
-    mode === "production"
-      ? "https://fleet-chameleon-251.eu-west-1.convex.site"
-      : "",
+    "https://fleet-chameleon-251.eu-west-1.convex.site",
   );
   const stripePublishableKey = env.STRIPE_PUBLISHABLE_KEY ?? "";
   const tellerApplicationId = env.TELLER_APPLICATION_ID ?? "";

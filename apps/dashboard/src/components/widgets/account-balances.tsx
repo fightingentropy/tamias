@@ -1,5 +1,6 @@
 import { useChatActions, useChatId } from "@ai-sdk-tools/store";
 import { Icons } from "@tamias/ui/icons";
+import { scheduleChatNavigation } from "@/components/chat/schedule-chat-navigation";
 import { FormatAmount } from "@/components/format-amount";
 import { useChatInterface } from "@/hooks/use-chat-interface";
 import { useMetricsFilter } from "@/hooks/use-metrics-filter";
@@ -44,8 +45,6 @@ export function AccountBalancesWidget() {
   }) => {
     if (!chatId) return;
 
-    setChatId(chatId);
-
     sendMessage({
       role: "user",
       parts: [{ type: "text", text: params.text }],
@@ -56,6 +55,8 @@ export function AccountBalancesWidget() {
         },
       },
     });
+
+    scheduleChatNavigation(setChatId, chatId);
   };
 
   const handleOpenAccounts = () => {

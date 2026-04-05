@@ -166,7 +166,7 @@ These are the packages you will touch most often:
 App-owned modules that are no longer shared packages:
 
 - `apps/api/src/health`: dependency probes and readiness helpers
-- `apps/dashboard/src/lib/analytics`: analytics client/server wrappers
+- `apps/dashboard/src/lib/telemetry`: telemetry client/server wrappers
 - `apps/worker/src/customers`: customer enrichment pipeline
 
 ## Local development
@@ -174,7 +174,6 @@ App-owned modules that are no longer shared packages:
 ### Prerequisites
 
 - Bun `1.3.x`
-- Convex CLI plus a logged-in Convex account/deployment
 
 ### Install
 
@@ -199,15 +198,14 @@ Copy the templates first, then make sure these values exist and line up across s
 ```dotenv
 DASHBOARD_URL=http://localhost:3001
 WEBSITE_URL=http://localhost:3000
-API_URL=http://localhost:3003
+API_URL=https://api.tamias.xyz
 
-CONVEX_URL=...
-CONVEX_SITE_URL=...
+CONVEX_URL=https://fleet-chameleon-251.eu-west-1.convex.cloud
+CONVEX_SITE_URL=https://fleet-chameleon-251.eu-west-1.convex.site
 
 INTERNAL_API_KEY=...
 INVOICE_JWT_SECRET=...
 FILE_KEY_SECRET=...
-CONVEX_SERVICE_KEY=...
 ```
 
 #### API
@@ -217,8 +215,9 @@ ALLOWED_API_ORIGINS=http://localhost:3001
 TAMIAS_DASHBOARD_URL=http://localhost:3001
 TAMIAS_API_URL=http://localhost:3003
 
-CONVEX_URL=...
-CONVEX_SITE_URL=...
+CONVEX_URL=https://fleet-chameleon-251.eu-west-1.convex.cloud
+CONVEX_SITE_URL=https://fleet-chameleon-251.eu-west-1.convex.site
+CONVEX_SERVICE_KEY=...
 
 CLOUDFLARE_ASYNC_BRIDGE_URL=http://127.0.0.1:8787
 CLOUDFLARE_ASYNC_BRIDGE_TOKEN=...
@@ -251,8 +250,9 @@ HMRC_CT_PRODUCT_VERSION=0.1.0
 #### Worker
 
 ```dotenv
-CONVEX_URL=...
-CONVEX_SITE_URL=...
+CONVEX_URL=https://fleet-chameleon-251.eu-west-1.convex.cloud
+CONVEX_SITE_URL=https://fleet-chameleon-251.eu-west-1.convex.site
+CONVEX_SERVICE_KEY=...
 
 API_URL=http://localhost:3003
 CLOUDFLARE_ASYNC_BRIDGE_TOKEN=...
@@ -290,20 +290,14 @@ Recommended main app startup:
 bun run dev:local
 ```
 
-That starts:
+That starts the local dashboard on `http://localhost:3001` against the shared deployed backend:
 
-- Convex local dev
-- dashboard
-- API
-- worker
+- deployed API at `https://api.tamias.xyz`
+- shared Convex deployment at `fleet-chameleon-251`
 
-Public site routes are served by the dashboard app. In local development, the merged site can be previewed through the internal `/site` path when needed.
+There is no separate local Convex instance anymore.
 
 ### Separate terminal startup
-
-```bash
-cd apps/dashboard && bun run convex:dev
-```
 
 ```bash
 bun run dev:dashboard
@@ -317,13 +311,13 @@ bun run dev:api
 cd apps/worker && bun run dev
 ```
 
+If you run the API or worker locally against the shared Convex deployment, you must set a real `CONVEX_SERVICE_KEY` in `apps/api/.env` and `apps/worker/.env`.
+
 ### First login
 
-There is no seeded demo account.
-
 1. Open `http://localhost:3001/login`
-2. Switch from sign in to create account
-3. Register against your active Convex dev deployment
+2. Sign in with an existing Tamias account, or create one
+3. You will be using the shared deployed Convex data, not a local seeded instance
 
 ## Local URLs and surfaces
 
@@ -338,7 +332,6 @@ There is no seeded demo account.
 | Scalar API docs | `http://localhost:3003/` |
 | MCP endpoint | `http://localhost:3003/mcp` |
 | Worker | `http://127.0.0.1:8787` |
-| Website preview | `http://localhost:3001/site` |
 | Public invoice link | `http://localhost:3001/i/<token>` |
 | Customer portal | `http://localhost:3001/p/<portalId>` |
 | Public report | `http://localhost:3001/r/<linkId>` |

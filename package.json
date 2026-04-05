@@ -12,7 +12,7 @@
     "clean": "git clean -xdf node_modules",
     "clean:workspaces": "turbo clean",
     "dev": "turbo dev --parallel",
-    "dev:local": "bunx concurrently -k -n convex,apps -c blue,green \"bun run --cwd apps/dashboard convex:dev\" \"turbo dev --parallel --filter=@tamias/api --filter=@tamias/dashboard --filter=@tamias/worker\"",
+    "dev:local": "bun run dev:dashboard",
     "deploy:cloudflare:api:production": "cd apps/api && bun run deploy:cf -- --env production",
     "deploy:cloudflare:api:staging": "cd apps/api && bun run deploy:cf -- --env staging",
     "deploy:cloudflare:dashboard:production": "cd apps/dashboard && bun run build:start && wrangler deploy --config wrangler.start.jsonc --env=production",

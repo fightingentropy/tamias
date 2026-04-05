@@ -14,8 +14,8 @@ import { useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import z from "zod/v3";
-import { LogEvents } from "@/lib/analytics/events";
-import { track } from "@/lib/analytics/client";
+import { LogEvents } from "@/lib/telemetry/events";
+import { track } from "@/lib/telemetry/client";
 import { useTRPC } from "@/trpc/client";
 
 export function SelectBankAccountsSupportForm() {

@@ -8,6 +8,7 @@ import { getLocationHeaders } from "@tamias/location";
 import { headers } from "@tamias/utils/request-runtime";
 import { cache } from "react";
 import { measureAuthResolution } from "@/server/perf";
+import { canResolveConvexSessionLocally } from "@/start/auth/runtime";
 import { getConvexAuthToken } from "@/start/auth/server";
 import { getRequestTraceHeaders } from "@/utils/request-trace";
 
@@ -16,9 +17,12 @@ export const getServerRequestContext = cache(async () => {
     getConvexAuthToken(),
     headers(),
   ]);
-  const session = await measureAuthResolution("resolve-session", () =>
-    resolveConvexUserSession(token ?? undefined),
-  );
+  const session =
+    token && canResolveConvexSessionLocally()
+      ? await measureAuthResolution("resolve-session", () =>
+          resolveConvexUserSession(token),
+        )
+      : null;
 
   return {
     token,

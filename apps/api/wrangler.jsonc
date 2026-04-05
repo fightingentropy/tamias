@@ -38,8 +38,8 @@
     "DASHBOARD_URL": "http://localhost:3001",
     "WEBSITE_URL": "http://localhost:3000",
     "API_URL": "http://localhost:3003",
-    "CONVEX_URL": "http://127.0.0.1:3210",
-    "CONVEX_SITE_URL": "http://127.0.0.1:3211"
+    "CONVEX_URL": "https://fleet-chameleon-251.eu-west-1.convex.cloud",
+    "CONVEX_SITE_URL": "https://fleet-chameleon-251.eu-west-1.convex.site"
   },
   "env": {
     "staging": {

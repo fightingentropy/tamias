@@ -1,4 +1,5 @@
-import { setupAnalytics } from "@/lib/analytics/server";
+import { setupAnalytics } from "@/lib/telemetry/server";
+import { canResolveConvexSessionLocally } from "@/start/auth/runtime";
 import { getConvexAuthToken } from "@/start/auth/server";
 import {
   getCurrentUserFromConvex,
@@ -12,7 +13,16 @@ type ActionTrackMetadata = {
 
 export async function requireAuthenticatedActionUser() {
   const token = await getConvexAuthToken();
-  const session = await resolveConvexUserSession(token ?? undefined);
+
+  if (!token) {
+    throw unauthorizedResponse();
+  }
+
+  if (!canResolveConvexSessionLocally()) {
+    return { token };
+  }
+
+  const session = await resolveConvexUserSession(token);
 
   if (!session) {
     throw unauthorizedResponse();

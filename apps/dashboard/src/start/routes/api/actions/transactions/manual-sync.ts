@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { createAppPublicFileRoute } from "@/start/route-hosts";
-import { LogEvents } from "@/lib/analytics/events";
+import { LogEvents } from "@/lib/telemetry/events";
 import { manualSyncTransactionsActionSchema } from "@/actions/transactions/manual-sync-transactions-action";
 import {
   requireAuthenticatedActionUser,

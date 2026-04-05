@@ -40,7 +40,7 @@ export function PasswordAuthForm({ className }: PasswordAuthFormProps) {
   const redirectTo = useMemo(() => {
     const returnTo = searchParams.get("return_to");
 
-    return returnTo ? `/${returnTo.replace(/^\/+/, "")}` : "/dashboard";
+    return returnTo ? `/${returnTo.replace(/^\/+/, "")}` : "/";
   }, [searchParams]);
 
   const form = useForm<z.infer<typeof formSchema>>({

@@ -144,7 +144,9 @@ export async function getTransactions(
       cursor,
       pageSize,
       sort,
+      accounts: filterAccounts,
       start,
+      end,
       statusesNotIn: convexStatusesNotIn,
     });
   }

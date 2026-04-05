@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  useChatMessages as useStoredChatMessages,
+  useChatStatus as useStoredChatStatus,
+} from "@ai-sdk-tools/store";
 import { cn } from "@tamias/ui/cn";
 import { Conversation, ConversationContent } from "@tamias/ui/conversation";
 import dynamic from "@/framework/dynamic";
@@ -8,10 +12,8 @@ import { Portal } from "@/components/portal";
 import { useChatInterface } from "@/hooks/use-chat-interface";
 import { useChatStatus } from "@/hooks/use-chat-status";
 import { useOverviewTab } from "@/hooks/use-overview-tab";
-import type { Geo } from "@/utils/geo";
 import { ChatHeader, ChatInput, ChatMessages, ChatStatusIndicators } from "./";
 import { SuggestedPrompts } from "./suggested-prompts";
-import { useDashboardChatSession } from "./use-dashboard-chat-session";
 
 // Dynamically load Canvas (15 chart components) - only loads when user opens an artifact
 const Canvas = dynamic(
@@ -19,13 +21,10 @@ const Canvas = dynamic(
   { ssr: false },
 );
 
-type Props = {
-  geo?: Geo;
-};
-
-export function ChatInterface({ geo }: Props) {
+export function ChatInterface() {
   const { isHome } = useChatInterface();
-  const { messages, status } = useDashboardChatSession({ geo });
+  const messages = useStoredChatMessages();
+  const status = useStoredChatStatus();
 
   const {
     agentStatus,

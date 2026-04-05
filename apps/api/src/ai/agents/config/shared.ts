@@ -34,6 +34,21 @@ export const COMMON_AGENT_RULES = `<behavior_rules>
 - Tables make data scannable and easier to compare - use them for any data with 2+ rows
 </behavior_rules>`;
 
+export const INSIGHT_SUMMARY_MATCHERS = [
+  /\bweekly summary\b/i,
+  /\bmonthly summary\b/i,
+  /\bquarterly summary\b/i,
+  /\byearly summary\b/i,
+  /\bsummary for (?:week|month|quarter|year)\b/i,
+  /\b(?:weekly|monthly|quarterly|yearly) insights?\b/i,
+  /\bbusiness overview\b/i,
+  /\binsights?\b/i,
+];
+
+export function isInsightSummaryRequest(message: string) {
+  return INSIGHT_SUMMARY_MATCHERS.some((matcher) => matcher.test(message));
+}
+
 type PromptSection = string | ((context: AppContext) => string);
 
 function resolvePromptSection(section: PromptSection, context: AppContext) {
@@ -168,38 +183,76 @@ export function buildAppContext(
 
 export const memoryProvider = chatMemoryProvider;
 
+function wrapAsyncIterable<T>(sourcePromise: Promise<AsyncIterable<T>>) {
+  return {
+    async *[Symbol.asyncIterator]() {
+      const source = await sourcePromise;
+
+      for await (const chunk of source) {
+        yield chunk;
+      }
+    },
+  };
+}
+
+function patchAgentStreamCompatibility(agent: Agent<AppContext>) {
+  const originalStream = agent.stream.bind(agent);
+
+  agent.stream = ((options: Parameters<typeof originalStream>[0]) => {
+    const resultPromise = Promise.resolve(originalStream(options as any));
+
+    return {
+      then: resultPromise.then.bind(resultPromise),
+      catch: resultPromise.catch.bind(resultPromise),
+      finally: resultPromise.finally.bind(resultPromise),
+      toUIMessageStream: (...args: any[]) =>
+        wrapAsyncIterable(
+          resultPromise.then((result: any) => result.toUIMessageStream(...args)),
+        ),
+      toUIMessageStreamResponse: (...args: any[]) =>
+        resultPromise.then((result: any) => result.toUIMessageStreamResponse(...args)),
+      toDataStreamResponse: (...args: any[]) =>
+        resultPromise.then((result: any) => result.toDataStreamResponse(...args)),
+    } as unknown as ReturnType<typeof originalStream>;
+  }) as typeof agent.stream;
+
+  return agent;
+}
+
 export const createAgent = (
   config: AgentConfig<AppContext>,
   aiProvider: AIProvider = DEFAULT_AI_PROVIDER,
 ) => {
-  return new Agent({
-    ...config,
-    memory: {
-      provider: memoryProvider,
-      history: {
-        enabled: true,
-        limit: 10,
-      },
-      workingMemory: {
-        enabled: true,
-        template: memoryTemplate,
-        scope: "user",
-      },
-      chats: {
-        enabled: true,
-        generateTitle: {
-          model: getAssistantModel(aiProvider, "micro"),
-          instructions: titleInstructions,
-        },
-        generateSuggestions: {
+  return patchAgentStreamCompatibility(
+    new Agent({
+      ...config,
+      memory: {
+        provider: memoryProvider,
+        history: {
           enabled: true,
-          model: getAssistantModel(aiProvider, "micro"),
-          limit: 5,
-          instructions: suggestionsInstructions,
+          limit: 10,
+        },
+        workingMemory: {
+          enabled: true,
+          template: memoryTemplate,
+          scope: "user",
+        },
+        chats: {
+          enabled: true,
+          generateTitle: {
+            model: getAssistantModel(aiProvider, "micro"),
+            instructions: titleInstructions,
+          },
+          generateSuggestions: {
+            enabled: true,
+            model: getAssistantModel(aiProvider, "micro"),
+            limit: 5,
+            instructions: suggestionsInstructions,
+          },
         },
       },
-    },
-  });
+    }),
+  );
 };
 
 type AppAgent = ReturnType<typeof createAgent>;

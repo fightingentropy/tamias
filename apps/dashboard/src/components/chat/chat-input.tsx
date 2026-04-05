@@ -31,6 +31,7 @@ import {
 } from "@/components/chat/chat-history";
 import { CommandMenu } from "@/components/chat/command-menu";
 import { RecordButton } from "@/components/chat/record-button";
+import { scheduleChatNavigation } from "@/components/chat/schedule-chat-navigation";
 import { SuggestedActionsButton } from "@/components/suggested-actions-button";
 import { WebSearchButton } from "@/components/web-search-button";
 import { useChatInterface } from "@/hooks/use-chat-interface";
@@ -267,11 +268,6 @@ function ChatInputContent() {
     // Clear old suggestions before sending new message
     clearSuggestions();
 
-    // Set chat ID to ensure proper URL routing
-    if (chatId) {
-      setChatId(chatId);
-    }
-
     sendMessage({
       text: message.text || "Sent with attachments",
       files: message.files,
@@ -280,6 +276,11 @@ function ChatInputContent() {
         toolChoice: message.metadata?.toolChoice,
       },
     });
+
+    if (chatId) {
+      scheduleChatNavigation(setChatId, chatId);
+    }
+
     setInput("");
     resetCommandState();
   };
@@ -377,8 +378,6 @@ function ChatInputContent() {
                         // Clear old suggestions before sending new message
                         clearSuggestions();
 
-                        setChatId(chatId);
-
                         sendMessage({
                           role: "user",
                           parts: [
@@ -391,6 +390,8 @@ function ChatInputContent() {
                             },
                           },
                         });
+
+                        scheduleChatNavigation(setChatId, chatId);
 
                         setInput("");
                         resetCommandState();

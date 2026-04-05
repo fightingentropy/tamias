@@ -6,6 +6,7 @@ import { cn } from "@tamias/ui/cn";
 import { Icons } from "@tamias/ui/icons";
 import { type RefObject, useEffect, useRef } from "react";
 import { useOnClickOutside } from "usehooks-ts";
+import { scheduleChatNavigation } from "@/components/chat/schedule-chat-navigation";
 import { useChatInterface } from "@/hooks/use-chat-interface";
 import { useChatStore } from "@/store/chat";
 
@@ -48,8 +49,6 @@ export function CommandMenu() {
   const handleCommandExecution = (command: any) => {
     if (!chatId) return;
 
-    setChatId(chatId);
-
     sendMessage({
       role: "user",
       parts: [{ type: "text", text: command.title }],
@@ -60,6 +59,8 @@ export function CommandMenu() {
         },
       },
     });
+
+    scheduleChatNavigation(setChatId, chatId);
 
     setInput("");
     resetCommandState();

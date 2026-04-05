@@ -90,6 +90,22 @@ export function getIndexedInvoiceBatchSize(pageSize: number) {
   return Math.min(Math.max(pageSize * 3, 100), 250);
 }
 
+function requiresIndexedInvoiceCandidateFiltering(args: {
+  validStatuses: InvoiceStatus[];
+  customers: GetInvoicesParams["customers"];
+  start: GetInvoicesParams["start"];
+  end: GetInvoicesParams["end"];
+  recurring: GetInvoicesParams["recurring"];
+}) {
+  return (
+    args.validStatuses.length > 1 ||
+    Boolean(args.customers?.length) ||
+    Boolean(args.start && args.end) ||
+    args.recurring !== null &&
+      args.recurring !== undefined
+  );
+}
+
 export function canUseIndexedInvoicePage(args: {
   sort: GetInvoicesParams["sort"];
   q: GetInvoicesParams["q"];
@@ -165,6 +181,13 @@ export async function getIndexedInvoicesPage(params: GetInvoicesParams) {
   const validStatuses = getValidInvoiceStatuses(statuses);
   const singleStatus =
     validStatuses.length === 1 ? validStatuses[0] : undefined;
+  const requiresCandidateFiltering = requiresIndexedInvoiceCandidateFiltering({
+    validStatuses,
+    customers,
+    start,
+    end,
+    recurring,
+  });
   const order = getIndexedInvoiceOrder(sort) ?? "desc";
   const cursorState = decodeIndexedInvoiceCursor(cursor);
   let sourceCursor = cursorState.sourceCursor;
@@ -194,10 +217,13 @@ export async function getIndexedInvoicesPage(params: GetInvoicesParams) {
   }
 
   while (eligibleInvoices.length <= pageSize && !sourceExhausted) {
+    const remainingCount = pageSize + 1 - eligibleInvoices.length;
     const result = await getPublicInvoicesPageFromConvex({
       teamId,
       cursor: sourceCursor,
-      pageSize: getIndexedInvoiceBatchSize(pageSize),
+      pageSize: requiresCandidateFiltering
+        ? getIndexedInvoiceBatchSize(pageSize)
+        : remainingCount,
       status: singleStatus,
       order,
     });

@@ -36,10 +36,12 @@ In deployed Cloudflare environments, the API uses a Worker-to-Worker service bin
 
 #### Convex Configuration
 ```bash
-CONVEX_URL=http://127.0.0.1:3210
-CONVEX_SITE_URL=http://127.0.0.1:3211
+CONVEX_URL=https://fleet-chameleon-251.eu-west-1.convex.cloud
+CONVEX_SITE_URL=https://fleet-chameleon-251.eu-west-1.convex.site
 CONVEX_SERVICE_KEY=...
 ```
+
+The local API uses the shared deployed Convex instance. There is no separate local Convex deployment.
 
 #### UK Filing Runtime
 ```bash

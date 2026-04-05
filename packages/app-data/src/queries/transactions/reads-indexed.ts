@@ -1,4 +1,5 @@
 import {
+  getTransactionsByBankAccountPageFromConvex,
   getTransactionsByIdsFromConvex,
   getTransactionsPageFromConvex,
   getTaggedTransactionsPageFromConvex,
@@ -246,17 +247,33 @@ export async function getIndexedTransactionPage(args: {
   cursor: string | null | undefined;
   pageSize: number;
   sort: GetTransactionsParams["sort"];
+  accounts: GetTransactionsParams["accounts"];
   start: GetTransactionsParams["start"];
+  end: GetTransactionsParams["end"];
   statusesNotIn: TransactionStatus[];
 }) {
-  const indexedPage = await getTransactionsPageFromConvex({
-    teamId: args.teamId,
-    cursor: args.cursor,
-    pageSize: args.pageSize,
-    order: getIndexedPageOrder(args.sort) ?? undefined,
-    dateGte: args.start ?? undefined,
-    statusesNotIn: args.statusesNotIn,
-  });
+  const bankAccountId =
+    args.accounts && args.accounts.length === 1 ? args.accounts[0] : undefined;
+  const indexedPage = bankAccountId
+    ? await getTransactionsByBankAccountPageFromConvex({
+        teamId: args.teamId,
+        bankAccountId,
+        cursor: args.cursor,
+        pageSize: args.pageSize,
+        order: getIndexedPageOrder(args.sort) ?? undefined,
+        dateGte: args.start ?? undefined,
+        dateLte: args.end ?? undefined,
+        statusesNotIn: args.statusesNotIn,
+      })
+    : await getTransactionsPageFromConvex({
+        teamId: args.teamId,
+        cursor: args.cursor,
+        pageSize: args.pageSize,
+        order: getIndexedPageOrder(args.sort) ?? undefined,
+        dateGte: args.start ?? undefined,
+        dateLte: args.end ?? undefined,
+        statusesNotIn: args.statusesNotIn,
+      });
 
   return buildProcessedTransactionPage({
     db: args.db,

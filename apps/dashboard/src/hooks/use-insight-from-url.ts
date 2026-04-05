@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useSearchParams } from "@/framework/navigation";
 import { useEffect, useRef } from "react";
+import { scheduleChatNavigation } from "@/components/chat/schedule-chat-navigation";
 import { useChatInterface } from "@/hooks/use-chat-interface";
 import { useTRPC } from "@/trpc/client";
 
@@ -61,7 +62,6 @@ export function useInsightFromUrl() {
     hasTriggeredRef.current = insightId;
 
     // Open the insight in the chat interface
-    setChatId(chatId);
     sendMessage({
       role: "user",
       parts: [
@@ -81,6 +81,7 @@ export function useInsightFromUrl() {
         },
       },
     });
+    scheduleChatNavigation(setChatId, chatId);
 
     // Clean up the URL without reloading
     const url = new URL(window.location.href);

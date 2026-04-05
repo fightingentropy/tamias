@@ -20,6 +20,12 @@ import type { Context } from "./rest/types";
 export { RateLimitCoordinator } from "./rate-limit/coordinator";
 const dashboardUrl = getAppUrl();
 const apiUrl = getApiUrl();
+const sharedLocalDashboardOrigins = [
+  "http://localhost:3001",
+  "http://127.0.0.1:3001",
+  "http://app.tamias.test:3001",
+  "http://tamias.test:3001",
+];
 
 type ApiRuntimeEnv = {
   ASYNC_WORKER?: CloudflareAsyncServiceBinding;
@@ -50,6 +56,10 @@ function getAllowedApiOrigins() {
   };
 
   for (const origin of process.env.ALLOWED_API_ORIGINS?.split(",") ?? []) {
+    addOrigin(origin);
+  }
+
+  for (const origin of sharedLocalDashboardOrigins) {
     addOrigin(origin);
   }
 

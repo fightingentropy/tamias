@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { GlobalChatRuntime } from "@/components/chat/global-chat-runtime";
 import { SiteProviders } from "@/site-providers";
 import { TRPCReactProvider } from "@/trpc/client";
 
@@ -12,7 +13,9 @@ type ProviderProps = {
 export function AppProviders({ locale, children }: ProviderProps) {
   return (
     <TRPCReactProvider>
-      <SiteProviders locale={locale}>{children}</SiteProviders>
+      <SiteProviders locale={locale}>
+        <GlobalChatRuntime>{children}</GlobalChatRuntime>
+      </SiteProviders>
     </TRPCReactProvider>
   );
 }

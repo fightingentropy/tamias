@@ -1,6 +1,7 @@
 import { getStartContext } from "@tanstack/start-storage-context";
 import { redirect } from "@tanstack/react-router";
 import { getQueryClient, trpc } from "@/trpc/server";
+import { hasCompletedOnboarding } from "@/utils/auth-routing";
 import { geolocation } from "@/utils/geo";
 import {
   dehydrateQueryClient,
@@ -11,35 +12,18 @@ export async function buildDashboardPageData(href?: string) {
   void href;
   const queryClient = getQueryClient();
   const currentUserQuery = trpc.user.me.queryOptions();
-  const widgetPreferencesQuery = trpc.widgets.getWidgetPreferences.queryOptions();
-  const [userResult, widgetPreferencesResult] = await Promise.allSettled([
-    queryClient.fetchQuery(currentUserQuery),
-    queryClient.fetchQuery(widgetPreferencesQuery),
-  ]);
-
-  if (userResult.status === "rejected") {
-    if (isUnauthorizedQueryError(userResult.reason)) {
+  const userResult = await queryClient.fetchQuery(currentUserQuery).catch((error) => {
+    if (isUnauthorizedQueryError(error)) {
       throw redirect({
         to: "/login",
         throw: true,
       });
     }
 
-    throw userResult.reason;
-  }
+    throw error;
+  });
 
-  if (widgetPreferencesResult.status === "rejected") {
-    if (isUnauthorizedQueryError(widgetPreferencesResult.reason)) {
-      throw redirect({
-        to: "/login",
-        throw: true,
-      });
-    }
-
-    throw widgetPreferencesResult.reason;
-  }
-
-  const user = userResult.value;
+  const user = userResult;
 
   if (!user) {
     throw redirect({
@@ -48,17 +32,31 @@ export async function buildDashboardPageData(href?: string) {
     });
   }
 
-  if (!user.fullName || !user.teamId) {
+  if (!hasCompletedOnboarding(user)) {
     throw redirect({
       to: "/onboarding",
       throw: true,
     });
   }
 
+  const widgetPreferencesQuery = trpc.widgets.getWidgetPreferences.queryOptions();
+  const widgetPreferences = await queryClient
+    .fetchQuery(widgetPreferencesQuery)
+    .catch((error) => {
+      if (isUnauthorizedQueryError(error)) {
+        throw redirect({
+          to: "/login",
+          throw: true,
+        });
+      }
+
+      throw error;
+    });
+
   return {
     dehydratedState: dehydrateQueryClient(queryClient),
     user,
-    initialPreferences: widgetPreferencesResult.value,
+    initialPreferences: widgetPreferences,
     geo: geolocation(getStartContext().request.headers as Headers),
   };
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import { track } from "@/lib/analytics/client";
-import { LogEvents } from "@/lib/analytics/events";
+import { track } from "@/lib/telemetry/client";
+import { LogEvents } from "@/lib/telemetry/events";
 import { Avatar, AvatarFallback } from "@tamias/ui/avatar";
 import {
   Form,

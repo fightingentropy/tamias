@@ -1,21 +1,14 @@
 import "@tamias/ui/globals.css";
-import { Provider as Analytics } from "@/lib/analytics/client";
+import { Provider as Analytics } from "@/lib/telemetry/client";
 import { cn } from "@tamias/ui/cn";
 import { HeadContent, Scripts } from "@tanstack/react-router";
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
-import dynamic from "@/framework/dynamic";
+import { AppRuntimeProviders } from "@/start/app-runtime-providers";
 import {
   DEFAULT_ROOT_BOOTSTRAP,
   type RootBootstrapData,
 } from "@/start/root-bootstrap";
 import type { ReactNode } from "react";
-
-const AppRuntimeProviders = dynamic(
-  () =>
-    import("@/start/app-runtime-providers").then(
-      (mod) => mod.AppRuntimeProviders,
-    ),
-);
 
 function getThemeFallbackColors(theme: "light" | "dark") {
   if (theme === "dark") {
@@ -78,6 +71,7 @@ export function StartRootShell(props: {
         />
         <style
           id="tamias-theme-fallback"
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `html{background:${initialThemeFallback.background};color-scheme:${initialThemeFallback.colorScheme}}body{background:${initialThemeFallback.background};color:${initialThemeFallback.foreground}}`,
           }}

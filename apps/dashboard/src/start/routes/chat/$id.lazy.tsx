@@ -1,5 +1,5 @@
-import { Provider as ChatProvider } from "@ai-sdk-tools/store";
 import { createLazyFileRoute } from "@tanstack/react-router";
+import { ChatStoreRouteSync } from "@/components/chat/chat-store-route-sync";
 import { ChatInterface } from "@/components/chat/chat-interface";
 import { AppLayoutShell } from "@/start/components/app-layout-shell";
 import { loadChatData } from "./$id";
@@ -18,9 +18,11 @@ function ChatPage() {
       dehydratedState={loaderData.dehydratedState}
       user={loaderData.user}
     >
-      <ChatProvider initialMessages={loaderData.chat} key={Route.useParams().id}>
-        <ChatInterface geo={loaderData.geo} />
-      </ChatProvider>
+      <ChatStoreRouteSync
+        chatId={Route.useParams().id}
+        initialMessages={loaderData.chat}
+      />
+      <ChatInterface />
     </AppLayoutShell>
   );
 }

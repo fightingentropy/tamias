@@ -6,8 +6,8 @@ import { Textarea } from "@tamias/ui/textarea";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
-import { LogEvents } from "@/lib/analytics/events";
-import { track } from "@/lib/analytics/client";
+import { LogEvents } from "@/lib/telemetry/events";
+import { track } from "@/lib/telemetry/client";
 import { useTRPC } from "@/trpc/client";
 
 export function FeedbackForm() {

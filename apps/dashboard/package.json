@@ -8,7 +8,6 @@
     "build": "bun run build:start",
     "clean": "git clean -xdf .tanstack .turbo dist node_modules",
     "convex:codegen": "convex codegen",
-    "convex:dev": "convex dev",
     "dev": "bun run dev:start",
     "dev:start": "bun run routes:generate:start && TZ=UTC vite dev --host 0.0.0.0 --port 3001",
     "deploy:cf": "bun run build:start && wrangler deploy --config wrangler.start.jsonc --env=production",

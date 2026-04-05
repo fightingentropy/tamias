@@ -13,7 +13,7 @@ const apiWithTransactions = api as typeof api & {
   };
 };
 
-async function getTransactionsByBankAccountPageFromConvex(args: {
+export async function getTransactionsByBankAccountPageFromConvex(args: {
   teamId: string;
   bankAccountId: string;
   cursor?: string | null;

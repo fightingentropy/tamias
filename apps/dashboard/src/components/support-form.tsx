@@ -22,8 +22,8 @@ import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@tamias/ui/use-toast";
 import { Loader2 } from "lucide-react";
 import { z } from "zod/v3";
-import { LogEvents } from "@/lib/analytics/events";
-import { track } from "@/lib/analytics/client";
+import { LogEvents } from "@/lib/telemetry/events";
+import { track } from "@/lib/telemetry/client";
 import { useZodForm } from "@/hooks/use-zod-form";
 import { useTRPC } from "@/trpc/client";
 

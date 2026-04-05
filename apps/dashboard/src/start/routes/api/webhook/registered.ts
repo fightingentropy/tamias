@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { createAppPublicFileRoute } from "@/start/route-hosts";
 import * as crypto from "node:crypto";
-import { LogEvents } from "@/lib/analytics/events";
-import { setupAnalytics } from "@/lib/analytics/server";
+import { LogEvents } from "@/lib/telemetry/events";
+import { setupAnalytics } from "@/lib/telemetry/server";
 import { getTRPCClient } from "@/trpc/server";
 
 const SIGNATURE_HEADER = "x-webhook-signature";

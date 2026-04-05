@@ -2,6 +2,7 @@ import { dehydrate } from "@tanstack/react-query";
 import { redirect } from "@tanstack/react-router";
 import { getStartContext } from "@tanstack/start-storage-context";
 import { getQueryClient, trpc } from "@/trpc/server";
+import { hasCompletedOnboarding } from "@/utils/auth-routing";
 
 export function getRequestUrl(input?: string) {
   if (input) {
@@ -95,7 +96,7 @@ export async function buildBaseAppShellState(opts?: {
 
   const team = teamResult.value;
 
-  if (!opts?.allowIncomplete && (!user.fullName || !user.teamId)) {
+  if (!opts?.allowIncomplete && !hasCompletedOnboarding(user)) {
     throw redirect({
       to: "/onboarding",
       throw: true,

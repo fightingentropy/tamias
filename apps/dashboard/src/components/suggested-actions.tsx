@@ -6,6 +6,7 @@ import { cn } from "@tamias/ui/cn";
 import { Icons } from "@tamias/ui/icons";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
+import { scheduleChatNavigation } from "@/components/chat/schedule-chat-navigation";
 import { useChatInterface } from "@/hooks/use-chat-interface";
 import { useTRPC } from "@/trpc/client";
 
@@ -38,8 +39,6 @@ export function SuggestedActions() {
 
     trackUsageMutation.mutate({ actionId: params.actionId });
 
-    setChatId(chatId);
-
     sendMessage({
       role: "user",
       parts: [{ type: "text", text: params.text }],
@@ -50,6 +49,8 @@ export function SuggestedActions() {
         },
       },
     });
+
+    scheduleChatNavigation(setChatId, chatId);
   };
 
   // UI configuration based on action ID

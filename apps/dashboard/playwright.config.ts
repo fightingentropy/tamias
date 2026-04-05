@@ -12,7 +12,8 @@ const webServerURL =
   new URL("/login", localBaseURL).toString();
 const repoRoot = path.resolve(process.cwd(), "../..");
 const authStatePath = path.join(process.cwd(), "playwright/.auth/user.json");
-const webServerCommand = `DASHBOARD_URL=${appBaseURL} API_URL=http://localhost:3003 bun run --cwd apps/dashboard build:start && DASHBOARD_URL=${appBaseURL} API_URL=http://localhost:3003 bun run --cwd apps/dashboard preview:start`;
+const sharedApiUrl = "https://api.tamias.xyz";
+const webServerCommand = `DASHBOARD_URL=${appBaseURL} API_URL=${sharedApiUrl} bun run --cwd apps/dashboard build:start && DASHBOARD_URL=${appBaseURL} API_URL=${sharedApiUrl} bun run --cwd apps/dashboard preview:start`;
 const hostResolverRules =
   "MAP tamias.test 127.0.0.1, MAP *.tamias.test 127.0.0.1";
 

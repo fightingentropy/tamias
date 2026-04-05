@@ -6,8 +6,6 @@ import { Spinner } from "@tamias/ui/spinner";
 import dynamic from "@/framework/dynamic";
 import { useEffect, useState } from "react";
 import { useChatInterface } from "@/hooks/use-chat-interface";
-import type { Geo } from "@/utils/geo";
-import { useDashboardChatSession } from "./use-dashboard-chat-session";
 
 const loadChatInterface = () =>
   import("./chat-interface").then((mod) => ({
@@ -23,12 +21,7 @@ const DeferredChatInterface = dynamic(loadChatInterface, {
   ),
 });
 
-function HomeChatRuntime({ geo }: { geo?: Geo }) {
-  useDashboardChatSession({ geo });
-  return null;
-}
-
-export function DeferredHomeChat({ geo }: { geo?: Geo }) {
+export function DeferredHomeChat() {
   const { isChatPage } = useChatInterface();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -39,7 +32,7 @@ export function DeferredHomeChat({ geo }: { geo?: Geo }) {
   }, [isChatPage]);
 
   if (isOpen || isChatPage) {
-    return <DeferredChatInterface geo={geo} />;
+    return <DeferredChatInterface />;
   }
 
   const prefetchChatInterface = () => {
@@ -48,7 +41,6 @@ export function DeferredHomeChat({ geo }: { geo?: Geo }) {
 
   return (
     <>
-      <HomeChatRuntime geo={geo} />
       <div className="mt-8 mb-10 flex justify-center">
         <Button
           variant="outline"

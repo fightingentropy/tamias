@@ -126,10 +126,9 @@ export function canUseIndexedTransactionPage(args: {
     !args.attachments &&
     !args.categories?.length &&
     !args.tags?.length &&
-    !args.accounts?.length &&
+    (!args.accounts?.length || args.accounts.length === 1) &&
     !args.assignees?.length &&
     !args.type &&
-    !args.end &&
     !args.recurring?.length &&
     !args.amountRange?.length &&
     !args.amount?.length &&

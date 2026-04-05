@@ -5,10 +5,15 @@ import {
   hasEarlierInsight,
   type Insight,
 } from "@tamias/app-data/queries";
-import { getPeriodLabel } from "@tamias/insights";
+import {
+  createInsightsService,
+  getPeriodInfo,
+  getPeriodLabel,
+  getPreviousCompletePeriod,
+} from "@tamias/insights";
+import type { InsightGenerationResult, PeriodType } from "@tamias/insights/types";
 import { formatAmount } from "@tamias/utils/format";
 import { tool } from "ai";
-import { getISOWeek, getMonth, getQuarter, getYear } from "date-fns";
 import { z } from "zod";
 import { getToolAppContext, getToolTeamId } from "../utils/tool-runtime";
 
@@ -44,6 +49,25 @@ export const getInsightsTool = tool({
 
     try {
       let insight: Insight | null = null;
+      let generatedInsight:
+        | {
+            id: string;
+            periodLabel: string;
+            periodType: PeriodType;
+            periodYear: number;
+            periodNumber: number;
+            currency: string;
+            title: string;
+            content: InsightGenerationResult["content"];
+            selectedMetrics: InsightGenerationResult["selectedMetrics"];
+            anomalies: InsightGenerationResult["anomalies"];
+            expenseAnomalies: InsightGenerationResult["expenseAnomalies"];
+            milestones: InsightGenerationResult["milestones"];
+            activity: InsightGenerationResult["activity"];
+            predictions: InsightGenerationResult["predictions"];
+            generatedAt: string;
+          }
+        | null = null;
 
       // If specific period requested, fetch it
       // Use explicit undefined checks to distinguish "not provided" from "provided as zero"
@@ -63,42 +87,96 @@ export const getInsightsTool = tool({
       }
 
       if (!insight || insight.status !== "completed") {
+        const periodInfo =
+          periodNumber !== undefined && year !== undefined
+            ? getPeriodInfo(periodType, year, periodNumber)
+            : getPreviousCompletePeriod(periodType);
+
+        const locale = appContext.locale || "en-US";
+        const currency = appContext.baseCurrency || "USD";
+        const generatedAt = new Date().toISOString();
+        const generated = await createInsightsService(db).generateInsight({
+          teamId,
+          periodType,
+          periodStart: periodInfo.periodStart,
+          periodEnd: periodInfo.periodEnd,
+          periodLabel: periodInfo.periodLabel,
+          periodYear: periodInfo.periodYear,
+          periodNumber: periodInfo.periodNumber,
+          currency,
+          locale,
+        });
+
+        generatedInsight = {
+          id: `generated:${periodType}:${periodInfo.periodYear}:${periodInfo.periodNumber}`,
+          periodLabel: getPeriodLabel(
+            periodType,
+            periodInfo.periodYear,
+            periodInfo.periodNumber,
+            locale,
+          ),
+          periodType,
+          periodYear: periodInfo.periodYear,
+          periodNumber: periodInfo.periodNumber,
+          currency,
+          title: generated.content.title,
+          content: generated.content,
+          selectedMetrics: generated.selectedMetrics,
+          anomalies: generated.anomalies,
+          expenseAnomalies: generated.expenseAnomalies,
+          milestones: generated.milestones,
+          activity: generated.activity,
+          predictions: generated.predictions,
+          generatedAt,
+        };
+      }
+
+      const locale = appContext.locale || "en-US";
+      const currency =
+        generatedInsight?.currency ||
+        insight?.currency ||
+        appContext.baseCurrency ||
+        "USD";
+
+      const activeInsight = generatedInsight ?? insight;
+
+      if (!activeInsight) {
         yield {
           text: `No ${periodType} insights available yet. Insights are generated automatically and will appear here once ready.`,
         };
         return { success: false, reason: "not_found" };
       }
 
-      const locale = appContext.locale || "en-US";
-      const currency = insight.currency || appContext.baseCurrency || "USD";
-
       // Build conversational "What Matters Now" response using AI-generated content
       let responseText = "";
 
       // Period label as context
       const periodLabel = getPeriodLabel(
-        insight.periodType,
-        insight.periodYear,
-        insight.periodNumber,
+        activeInsight.periodType,
+        activeInsight.periodYear,
+        activeInsight.periodNumber,
       );
 
       // Lead with the AI-generated title (the main insight)
-      if (insight.title) {
+      if (activeInsight.title) {
         responseText += `**${periodLabel}**\n\n`;
-        responseText += `${insight.title}\n\n`;
+        responseText += `${activeInsight.title}\n\n`;
       } else {
         responseText += `## ${periodLabel}\n\n`;
       }
 
       // The story - this is the heart of the insight
-      if (insight.content?.story) {
-        responseText += `${insight.content.story}\n\n`;
+      if (activeInsight.content?.story) {
+        responseText += `${activeInsight.content.story}\n\n`;
       }
 
       // Action items (specific and actionable)
-      if (insight.content?.actions && insight.content.actions.length > 0) {
+      if (
+        activeInsight.content?.actions &&
+        activeInsight.content.actions.length > 0
+      ) {
         responseText += "**What to do:**\n";
-        for (const action of insight.content.actions) {
+        for (const action of activeInsight.content.actions) {
           responseText += `- ${action.text}\n`;
         }
         responseText += "\n";
@@ -106,21 +184,21 @@ export const getInsightsTool = tool({
 
       // Overdue invoices (if any)
       if (
-        insight.activity?.invoicesOverdue &&
-        insight.activity.invoicesOverdue > 0
+        activeInsight.activity?.invoicesOverdue &&
+        activeInsight.activity.invoicesOverdue > 0
       ) {
         responseText += "**Needs attention:**\n";
-        responseText += `- ${insight.activity.invoicesOverdue} overdue invoice${insight.activity.invoicesOverdue > 1 ? "s" : ""}`;
-        if (insight.activity.overdueAmount) {
-          responseText += ` (${formatMetricValue(insight.activity.overdueAmount, "currency", currency, locale)})`;
+        responseText += `- ${activeInsight.activity.invoicesOverdue} overdue invoice${activeInsight.activity.invoicesOverdue > 1 ? "s" : ""}`;
+        if (activeInsight.activity.overdueAmount) {
+          responseText += ` (${formatMetricValue(activeInsight.activity.overdueAmount, "currency", currency, locale)})`;
         }
         responseText += "\n\n";
       }
 
       // Key numbers (compact, not a table)
-      if (insight.selectedMetrics && insight.selectedMetrics.length > 0) {
+      if (activeInsight.selectedMetrics && activeInsight.selectedMetrics.length > 0) {
         responseText += "**The numbers:**\n";
-        for (const metric of insight.selectedMetrics.slice(0, 4)) {
+        for (const metric of activeInsight.selectedMetrics.slice(0, 4)) {
           const formattedValue = formatMetricValue(
             metric.value,
             metric.type,
@@ -137,8 +215,8 @@ export const getInsightsTool = tool({
       }
 
       // Expense changes (only spikes, not decreases - decreases are good!)
-      if (insight.expenseAnomalies && insight.expenseAnomalies.length > 0) {
-        const spikes = insight.expenseAnomalies.filter(
+      if (activeInsight.expenseAnomalies && activeInsight.expenseAnomalies.length > 0) {
+        const spikes = activeInsight.expenseAnomalies.filter(
           (ea) => ea.type === "category_spike" || ea.type === "new_category",
         );
         if (spikes.length > 0) {
@@ -164,28 +242,28 @@ export const getInsightsTool = tool({
       // (no earlier completed insights exist)
       const isFirstInsight = !(await hasEarlierInsight(db, {
         teamId,
-        periodType: insight.periodType,
-        periodYear: insight.periodYear,
-        periodNumber: insight.periodNumber,
+        periodType: activeInsight.periodType,
+        periodYear: activeInsight.periodYear,
+        periodNumber: activeInsight.periodNumber,
       }));
 
       // Yield insight data for direct rendering in chat UI
       const insightData = {
-        id: insight.id,
+        id: activeInsight.id,
         periodLabel,
-        periodType: insight.periodType,
-        periodYear: insight.periodYear,
-        periodNumber: insight.periodNumber,
+        periodType: activeInsight.periodType,
+        periodYear: activeInsight.periodYear,
+        periodNumber: activeInsight.periodNumber,
         currency,
-        title: insight.title,
-        selectedMetrics: insight.selectedMetrics,
-        content: insight.content,
-        anomalies: insight.anomalies,
-        expenseAnomalies: insight.expenseAnomalies,
-        milestones: insight.milestones,
-        activity: insight.activity,
-        predictions: insight.predictions,
-        generatedAt: insight.generatedAt,
+        title: activeInsight.title,
+        selectedMetrics: activeInsight.selectedMetrics,
+        content: activeInsight.content,
+        anomalies: activeInsight.anomalies,
+        expenseAnomalies: activeInsight.expenseAnomalies,
+        milestones: activeInsight.milestones,
+        activity: activeInsight.activity,
+        predictions: activeInsight.predictions,
+        generatedAt: activeInsight.generatedAt,
         isFirstInsight,
       };
 
@@ -271,27 +349,4 @@ function formatChangeCompact(
 
   const sign = direction === "up" ? "+" : "-";
   return `(${sign}${Math.abs(Math.round(change))}%)`;
-}
-
-// Helper to get current period info
-export function getCurrentPeriodInfo(periodType: string): {
-  year: number;
-  number: number;
-} {
-  const now = new Date();
-  const year = getYear(now);
-
-  switch (periodType) {
-    case "weekly":
-      return { year, number: getISOWeek(now) };
-    case "monthly":
-      return { year, number: getMonth(now) + 1 };
-    case "quarterly":
-      return { year, number: getQuarter(now) };
-    case "yearly":
-      // For yearly periods, periodNumber is the year itself
-      return { year, number: year };
-    default:
-      return { year, number: getISOWeek(now) };
-  }
 }

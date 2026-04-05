@@ -1,4 +1,3 @@
-import { Provider as ChatProvider } from "@ai-sdk-tools/store";
 import { createLazyFileRoute } from "@tanstack/react-router";
 import { DeferredHomeChat } from "@/components/chat/deferred-home-chat";
 import { Widgets } from "@/components/widgets";
@@ -17,10 +16,8 @@ function DashboardPage() {
       dehydratedState={loaderData.dehydratedState}
       user={loaderData.user}
     >
-      <ChatProvider initialMessages={[]} key="home">
-        <Widgets initialPreferences={loaderData.initialPreferences} />
-        <DeferredHomeChat geo={loaderData.geo ?? undefined} />
-      </ChatProvider>
+      <Widgets initialPreferences={loaderData.initialPreferences} />
+      <DeferredHomeChat />
     </AppLayoutShell>
   );
 }

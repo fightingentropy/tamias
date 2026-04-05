@@ -1,6 +1,6 @@
-import { usePathname } from "@/framework/navigation";
+import { usePathname, useRouter } from "@/framework/navigation";
 import { parseAsString, useQueryState } from "nuqs";
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 
 // Helper to extract chat ID from pathname with /chat/ prefix
 function extractChatId(pathname: string): string | null {
@@ -20,12 +20,10 @@ function extractChatId(pathname: string): string | null {
 
 export function useChatInterface() {
   const pathname = usePathname();
+  const router = useRouter();
   const [, setSelectedType] = useQueryState("artifact-type", parseAsString);
-
-  // Initialize state immediately from pathname to avoid blink on refresh
-  const [chatId, setChatIdState] = useState<string | null>(() =>
-    extractChatId(pathname),
-  );
+  const chatId = extractChatId(pathname);
+  const navigationTimeoutRef = useRef<number | null>(null);
 
   // Clear artifact-type and reset title when navigating away from chat pages
   const handleNavigateAway = () => {
@@ -33,35 +31,28 @@ export function useChatInterface() {
     document.title = "Dashboard | Tamias";
   };
 
-  // Extract chatId from pathname when it changes
   useEffect(() => {
-    const id = extractChatId(pathname);
-    setChatIdState(id);
-
-    if (!id) {
+    if (!chatId) {
       handleNavigateAway();
     }
-  }, [pathname, setSelectedType]);
+  }, [chatId, setSelectedType]);
 
-  // Listen to popstate events for browser back/forward
   useEffect(() => {
-    const handlePopState = () => {
-      const id = extractChatId(window.location.pathname);
-      setChatIdState(id);
-
-      if (!id) {
-        handleNavigateAway();
+    return () => {
+      if (navigationTimeoutRef.current !== null) {
+        window.clearTimeout(navigationTimeoutRef.current);
       }
     };
-
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
-  }, [setSelectedType]);
+  }, []);
 
   const isHome = !chatId;
   const isChatPage = Boolean(chatId);
 
   const setChatId = (id: string) => {
+    if (chatId === id) {
+      return;
+    }
+
     // Preserve query parameters when updating the URL
     const currentSearch = window.location.search;
     const segments = pathname.split("/").filter(Boolean);
@@ -74,8 +65,13 @@ export function useChatInterface() {
       ? `/${locale}/chat/${id}${currentSearch}`
       : `/chat/${id}${currentSearch}`;
 
-    window.history.pushState({}, "", newPath);
-    setChatIdState(id);
+    if (navigationTimeoutRef.current !== null) {
+      window.clearTimeout(navigationTimeoutRef.current);
+    }
+
+    navigationTimeoutRef.current = window.setTimeout(() => {
+      void router.push(newPath);
+    }, 75);
   };
 
   return {
