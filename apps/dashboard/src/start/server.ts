@@ -3,15 +3,37 @@ import {
   createStartHandler,
   defaultStreamHandler,
 } from "@tanstack/react-start/server";
+import type {
+  DashboardCloudflareEnv,
+  DashboardRequestContext,
+} from "@/start/server/cloudflare-context";
 
-const fetch = createStartHandler(defaultStreamHandler);
+const startHandler = createStartHandler(defaultStreamHandler);
 
-export function createServerEntry(entry: { fetch: typeof fetch }) {
+function createRequestContext(
+  env: DashboardCloudflareEnv,
+  executionCtx: unknown,
+): DashboardRequestContext {
   return {
-    async fetch(...args: Parameters<typeof fetch>) {
-      return entry.fetch(...args);
+    cloudflare: {
+      env,
+      executionCtx,
     },
   };
 }
 
-export default createServerEntry({ fetch });
+export function createServerEntry(entry: { fetch: typeof startHandler }) {
+  return {
+    async fetch(
+      request: Request,
+      env: DashboardCloudflareEnv,
+      executionCtx: unknown,
+    ) {
+      return (entry.fetch as any)(request, {
+        context: createRequestContext(env, executionCtx),
+      });
+    },
+  };
+}
+
+export default createServerEntry({ fetch: startHandler });

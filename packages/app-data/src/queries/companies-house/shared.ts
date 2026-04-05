@@ -4,7 +4,7 @@ import {
   CompaniesHouseProviderConfigSchema,
   type CompaniesHouseEnvironment,
 } from "@tamias/compliance";
-import { createSubmissionEventInConvex } from "@tamias/app-data-convex";
+import { createSubmissionEventInConvex } from "../../convex";
 import type { Database } from "../../client";
 import { getAppByAppId, setAppConfig } from "../apps";
 import { getFilingProfile } from "../compliance/shared";

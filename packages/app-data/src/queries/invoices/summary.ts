@@ -1,4 +1,4 @@
-import { getInvoiceAggregateRowsFromConvex } from "@tamias/app-data-convex";
+import { getInvoiceAggregateRowsFromConvex } from "../../convex";
 import type { Database } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
 import { getExchangeRatesBatch } from "../exhange-rates";

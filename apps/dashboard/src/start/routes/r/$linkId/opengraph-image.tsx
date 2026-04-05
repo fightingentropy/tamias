@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { createAppPublicFileRoute } from "@/start/route-hosts";
 import { format, parseISO } from "date-fns";
 import { getChartDisplayName } from "@/components/metrics/utils/chart-types";
+import { getTRPCClient } from "@/trpc/server";
 import {
   buildOgSvgDocument,
   escapeXml,
@@ -15,10 +16,12 @@ export const Route = createAppPublicFileRoute("/r/$linkId/opengraph-image")({
   server: {
     handlers: {
       GET: async ({ params }) => {
-        const { getReportByLinkIdLocally } = await import(
-          "@/server/loaders/public"
-        );
-        const report = await getReportByLinkIdLocally(params.linkId);
+        const client = await getTRPCClient();
+        const report = await client.reports.getByLinkId
+          .query({
+            linkId: params.linkId,
+          })
+          .catch(() => null);
 
         if (!report) {
           return new Response("Not found", { status: 404 });

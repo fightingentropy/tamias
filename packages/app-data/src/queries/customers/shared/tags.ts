@@ -2,7 +2,7 @@ import {
   getCustomerTagAssignmentsForCustomerIdsFromConvex,
   getTagsByIdsFromConvex,
   type CustomerTagAssignmentRecord,
-} from "@tamias/app-data-convex";
+} from "../../../convex";
 import type { CustomerTag } from "../types";
 
 function groupCustomerTagAssignmentsByCustomerId(

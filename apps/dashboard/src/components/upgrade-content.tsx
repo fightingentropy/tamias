@@ -1,6 +1,5 @@
 "use client";
 
-import { useAuthActions } from "@convex-dev/auth/react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,6 +19,7 @@ import { useRouter } from "@/framework/navigation";
 import { useState } from "react";
 import { Plans } from "@/components/plans";
 import { UpgradeFAQ } from "@/components/upgrade-faq";
+import { useAuthActions } from "@/framework/auth-client";
 import { useTRPC } from "@/trpc/client";
 
 export function UpgradeContent() {

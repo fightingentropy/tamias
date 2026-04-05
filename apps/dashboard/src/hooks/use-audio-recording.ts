@@ -1,8 +1,8 @@
 "use client";
 
-import { useAuthToken } from "@convex-dev/auth/react";
 import { getApiUrl } from "@tamias/utils/envs";
 import { useCallback, useRef, useState } from "react";
+import { useAuthToken } from "@/framework/auth-client";
 
 interface UseAudioRecordingReturn {
   isRecording: boolean;

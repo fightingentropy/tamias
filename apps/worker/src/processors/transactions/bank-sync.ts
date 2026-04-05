@@ -3,7 +3,7 @@ import {
   upsertTransactions as upsertTransactionsQuery,
   type UpsertTransactionData,
 } from "@tamias/app-data/queries";
-import { patchBankAccountInConvex } from "@tamias/app-data-convex";
+import { patchBankAccountInConvex } from "@tamias/app-data/convex";
 import { enqueue } from "@tamias/job-client";
 import { trpc } from "@tamias/trpc";
 import type { SyncBankAccountPayload } from "../../schemas/transactions";

@@ -3,7 +3,7 @@ import type {
   CorporationTaxRateScheduleRecord,
   FilingProfileRecord,
   YearEndPackRecord,
-} from "@tamias/app-data-convex";
+} from "../../convex";
 import {
   renderAccountsAttachmentIxbrl,
   renderComputationsAttachmentIxbrl,

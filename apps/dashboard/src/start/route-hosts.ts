@@ -1,11 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type { FileRoutesByPath } from "@tanstack/react-router";
 
-export type RouteHostSurface = "app" | "website" | "shared";
 export type RouteAppHostAccess = "public" | "protected";
 
 export type StartRouteStaticData = {
-  hostSurface: RouteHostSurface;
   appHostAccess: RouteAppHostAccess;
 };
 
@@ -19,7 +17,7 @@ type FileRouteOptions<TFilePath extends RoutePath> = Parameters<
 
 function withRouteStaticData<TFilePath extends RoutePath>(
   path: TFilePath,
-  staticData: StartRouteStaticData,
+  appHostAccess: RouteAppHostAccess,
 ): FileRouteFactory<TFilePath> {
   const fileRoute = createFileRoute(path);
 
@@ -27,49 +25,18 @@ function withRouteStaticData<TFilePath extends RoutePath>(
     fileRoute({
       ...(options as object),
       staticData: {
-        ...staticData,
+        appHostAccess,
         ...(((options as { staticData?: Record<string, unknown> } | undefined)?.staticData ?? {}) as Record<string, unknown>),
       },
     } as FileRouteOptions<TFilePath>)) as FileRouteFactory<TFilePath>;
 }
 
 export function createAppFileRoute<TFilePath extends RoutePath>(path: TFilePath) {
-  return withRouteStaticData(path, {
-    hostSurface: "app",
-    appHostAccess: "protected",
-  });
+  return withRouteStaticData(path, "protected");
 }
 
 export function createAppPublicFileRoute<TFilePath extends RoutePath>(
   path: TFilePath,
 ) {
-  return withRouteStaticData(path, {
-    hostSurface: "app",
-    appHostAccess: "public",
-  });
-}
-
-export function createSiteFileRoute<TFilePath extends RoutePath>(path: TFilePath) {
-  return withRouteStaticData(path, {
-    hostSurface: "website",
-    appHostAccess: "public",
-  });
-}
-
-export function createSharedFileRoute<TFilePath extends RoutePath>(
-  path: TFilePath,
-) {
-  return withRouteStaticData(path, {
-    hostSurface: "shared",
-    appHostAccess: "protected",
-  });
-}
-
-export function createSharedPublicFileRoute<TFilePath extends RoutePath>(
-  path: TFilePath,
-) {
-  return withRouteStaticData(path, {
-    hostSurface: "shared",
-    appHostAccess: "public",
-  });
+  return withRouteStaticData(path, "public");
 }

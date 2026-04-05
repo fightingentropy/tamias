@@ -5,7 +5,7 @@ import {
 import {
   patchBankAccountInConvex,
   patchBankConnectionInConvex,
-} from "@tamias/app-data-convex";
+} from "@tamias/app-data/convex";
 import { enqueue } from "@tamias/job-client";
 import { trpc } from "@tamias/trpc";
 import {

@@ -4,7 +4,7 @@ import type {
   CorporationTaxRateScheduleRecord,
   FilingProfileRecord,
   YearEndPackRecord,
-} from "@tamias/app-data-convex";
+} from "../../convex";
 import { SUPPORTED_SMALL_COMPANY_FILING_PATH } from "./constants";
 import { buildYearEndDraftEvaluation } from "./drafts-support";
 import {

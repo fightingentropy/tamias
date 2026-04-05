@@ -1,4 +1,4 @@
-import type { TrackerProjectRecord } from "@tamias/app-data-convex";
+import type { TrackerProjectRecord } from "../../../convex";
 import type { GetTrackerProjectsParams } from "../types";
 
 export function serializeTrackerProjectListParams(

@@ -1,7 +1,7 @@
 import type {
   CurrentUserIdentityRecord,
   NotificationChannel as FoundationNotificationChannel,
-} from "@tamias/app-data-convex";
+} from "../../convex";
 
 export type NotificationChannel = FoundationNotificationChannel;
 export type ConvexUserId = CurrentUserIdentityRecord["convexId"];

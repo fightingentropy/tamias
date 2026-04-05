@@ -2,7 +2,7 @@ import {
   getCustomerByIdFromConvex,
   getInvoiceRecurringSeriesByLegacyIdFromConvex,
   upsertPublicInvoiceInConvex,
-} from "@tamias/app-data-convex";
+} from "../../../convex";
 import type { Database, DatabaseOrTransaction } from "../../../client";
 import { getInvoiceTemplateById } from "../../invoice-templates";
 import { getTeamById } from "../../teams";

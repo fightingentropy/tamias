@@ -86,3 +86,12 @@ export const updateBankConnectionReconnectByIdSchema = z.object({
   referenceId: z.string().optional(),
   accessValidForDays: z.number().int().positive(),
 });
+
+export const manualSyncBankConnectionSchema = z.object({
+  connectionId: z.string(),
+});
+
+export const queueReconnectBankConnectionSchema = z.object({
+  connectionId: z.string(),
+  provider: z.enum(["gocardless", "teller", "plaid"]),
+});

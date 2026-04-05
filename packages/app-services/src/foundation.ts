@@ -1,6 +1,6 @@
 import { hash } from "@tamias/encryption";
-import { api } from "@tamias/convex-model/api";
-import type { Id } from "@tamias/convex-model/data-model";
+import { api } from "@tamias/app-data/convex/api";
+import type { Id } from "@tamias/app-data/convex/data-model";
 import { createConvexClient, getConvexServiceKey } from "./convex-client";
 
 type ConvexUserId = Id<"appUsers">;

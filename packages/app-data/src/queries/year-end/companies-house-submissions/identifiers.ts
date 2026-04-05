@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import {
   allocateFilingSequenceInConvex,
-} from "@tamias/app-data-convex";
+} from "../../../convex";
 import {
   COMPANIES_HOUSE_SUBMISSION_NUMBER_MAX,
   COMPANIES_HOUSE_SUBMISSION_NUMBER_WIDTH,

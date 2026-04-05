@@ -1,7 +1,7 @@
 import {
   getUnnotifiedTransactionsFromConvex,
   upsertTransactionsInConvex,
-} from "@tamias/app-data-convex";
+} from "@tamias/app-data/convex";
 import { Notifications } from "@tamias/notifications";
 import { parseISO } from "date-fns";
 import type { WorkerJob as Job } from "../../types/job";

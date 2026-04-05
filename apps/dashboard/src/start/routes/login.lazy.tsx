@@ -51,20 +51,8 @@ function LoginPage() {
 
           <div className="text-center mt-auto">
             <p className="font-sans text-xs text-[#878787]">
-              By signing in you agree to our{" "}
-              <Link
-                href="/terms"
-                className="text-[#878787] hover:text-foreground transition-colors underline"
-              >
-                Terms of service
-              </Link>{" "}
-              &{" "}
-              <Link
-                href="/policy"
-                className="text-[#878787] hover:text-foreground transition-colors underline"
-              >
-                Privacy policy
-              </Link>
+              By signing in you agree to Tamias&apos; terms of service and
+              privacy policy.
             </p>
           </div>
         </div>

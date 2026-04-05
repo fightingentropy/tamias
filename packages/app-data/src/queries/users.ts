@@ -5,7 +5,7 @@ import {
   type CurrentUserIdentityRecord,
   type UpdateUserInConvexIdentityInput,
   updateUserInConvexIdentity,
-} from "@tamias/app-data-convex";
+} from "../convex";
 import type { QueryClient } from "../client";
 
 type ConvexUserId = CurrentUserIdentityRecord["convexId"];

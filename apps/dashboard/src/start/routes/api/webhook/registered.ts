@@ -1,10 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { createAppPublicFileRoute } from "@/start/route-hosts";
 import * as crypto from "node:crypto";
-import { LogEvents } from "@tamias/events/events";
-import { setupAnalytics } from "@tamias/events/server";
-import { startCloudflareWorkflow } from "@tamias/job-client";
-import { configureDashboardAsyncWorkerRuntime } from "@/server/cloudflare-async-worker";
+import { LogEvents } from "@/lib/analytics/events";
+import { setupAnalytics } from "@/lib/analytics/server";
+import { getTRPCClient } from "@/trpc/server";
 
 const SIGNATURE_HEADER = "x-webhook-signature";
 
@@ -12,8 +11,6 @@ export const Route = createAppPublicFileRoute("/api/webhook/registered")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        await configureDashboardAsyncWorkerRuntime();
-
         const text = await request.clone().text();
         const signature = request.headers.get(SIGNATURE_HEADER);
 
@@ -44,21 +41,8 @@ export const Route = createAppPublicFileRoute("/api/webhook/registered")({
           channel: LogEvents.Registered.channel,
         });
 
-        const workflowInstanceId = `onboard-team-${crypto
-          .createHash("sha256")
-          .update(email)
-          .digest("hex")
-          .slice(0, 24)}`;
-
-        await startCloudflareWorkflow(
-          "onboard-team",
-          {
-            email,
-          } satisfies { email: string },
-          {
-            instanceId: workflowInstanceId,
-          },
-        );
+        const trpc = await getTRPCClient();
+        await trpc.team.startOnboardingWorkflow.mutate({ email });
 
         return Response.json({ success: true });
       },

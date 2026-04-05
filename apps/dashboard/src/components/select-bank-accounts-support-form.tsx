@@ -10,13 +10,16 @@ import {
   FormLabel,
 } from "@tamias/ui/form";
 import { Textarea } from "@tamias/ui/textarea";
+import { useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import z from "zod/v3";
-import { sendSupportAction } from "@/actions/send-support-action";
-import { useAction } from "@/actions/use-action";
+import { LogEvents } from "@/lib/analytics/events";
+import { track } from "@/lib/analytics/client";
+import { useTRPC } from "@/trpc/client";
 
 export function SelectBankAccountsSupportForm() {
+  const trpc = useTRPC();
   const form = useForm({
     resolver: zodResolver(z.object({ message: z.string() })),
     defaultValues: {
@@ -24,23 +27,31 @@ export function SelectBankAccountsSupportForm() {
     },
   });
 
-  const sendSupport = useAction(sendSupportAction, {
-    onSuccess: () => {
-      form.reset();
-    },
-  });
+  const sendSupport = useMutation(
+    trpc.support.sendTicket.mutationOptions({
+      onMutate: () => {
+        track({
+          event: LogEvents.SupportTicket.name,
+          channel: LogEvents.SupportTicket.channel,
+        });
+      },
+      onSuccess: () => {
+        form.reset();
+      },
+    }),
+  );
 
   const handleOnSubmit = form.handleSubmit((values) => {
-    sendSupport.execute({
+    sendSupport.mutate({
       message: values.message,
       type: "bank-connection",
-      priority: "3",
+      priority: "normal",
       subject: "Select bank accounts",
       url: document.URL,
     });
   });
 
-  if (sendSupport.status === "hasSucceeded") {
+  if (sendSupport.isSuccess) {
     return (
       <div className="h-[250px] flex items-center justify-center flex-col space-y-1">
         <p className="font-medium text-sm">Thank you!</p>
@@ -76,11 +87,11 @@ export function SelectBankAccountsSupportForm() {
           <Button
             type="submit"
             disabled={
-              sendSupport.status === "executing" || !form.formState.isValid
+              sendSupport.isPending || !form.formState.isValid
             }
             className="mt-4"
           >
-            {sendSupport.status === "executing" ? (
+            {sendSupport.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               "Submit"

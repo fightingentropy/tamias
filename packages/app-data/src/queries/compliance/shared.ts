@@ -10,7 +10,7 @@ import {
   setInstalledAppConfigInConvex,
   type FilingProfileRecord,
   upsertFilingProfileInConvex,
-} from "@tamias/app-data-convex";
+} from "../../convex";
 import { getTeamById } from "../teams";
 import { reuseQueryResult } from "../../utils/request-cache";
 

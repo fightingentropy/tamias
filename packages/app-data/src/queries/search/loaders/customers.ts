@@ -1,7 +1,7 @@
 import {
   getCustomersPageFromConvex,
   searchCustomersFromConvex,
-} from "@tamias/app-data-convex";
+} from "../../../convex";
 import { toCustomerCandidate } from "../candidates";
 import {
   loadCandidatesForSource,

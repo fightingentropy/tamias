@@ -2,7 +2,7 @@ import type { Database } from "@tamias/app-data/client";
 import { getTeamById, getUserByConvexId } from "@tamias/app-data/queries";
 import { getBankAccounts } from "@tamias/app-data/queries/bank-accounts";
 import { type ChatUserContext, chatCache } from "@tamias/cache/chat-cache";
-import type { Id } from "@tamias/convex-model/data-model";
+import type { Id } from "@tamias/app-data/convex/data-model";
 import { logger } from "@tamias/logger";
 import { HTTPException } from "hono/http-exception";
 

@@ -35,7 +35,7 @@ describe("getPasswordAuthErrorMessage", () => {
     expect(
       getPasswordAuthErrorMessage(new Error("fetch failed"), "signIn"),
     ).toBe(
-      "Unable to reach the authentication service. Make sure Convex dev is running.",
+      "Unable to reach the authentication service. Make sure the dashboard and API are running.",
     );
   });
 

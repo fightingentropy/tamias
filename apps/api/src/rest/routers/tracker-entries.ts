@@ -26,7 +26,7 @@ import {
   stopTimer,
   upsertTrackerEntries,
 } from "@tamias/app-data/queries";
-import type { CurrentUserIdentityRecord } from "@tamias/app-data-convex";
+import type { CurrentUserIdentityRecord } from "@tamias/app-data/convex";
 import { withRequiredScope } from "../middleware";
 
 const app = new OpenAPIHono<Context>();

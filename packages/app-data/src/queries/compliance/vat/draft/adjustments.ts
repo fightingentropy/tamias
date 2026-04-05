@@ -1,4 +1,4 @@
-import { createComplianceAdjustmentInConvex } from "@tamias/app-data-convex";
+import { createComplianceAdjustmentInConvex } from "../../../../convex";
 import type { Database } from "../../../../client";
 import type { AddVatAdjustmentParams } from "../types";
 import { getDraftContext } from "./context";

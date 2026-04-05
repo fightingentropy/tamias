@@ -12,6 +12,9 @@
   },
   "exports": {
     "./client": "./src/client.ts",
+    "./convex": "./src/convex/index.ts",
+    "./convex/api": "./src/convex/api.ts",
+    "./convex/data-model": "./src/convex/data-model.ts",
     "./errors": "./src/errors.ts",
     "./queries": "./src/queries/index.ts",
     "./queries/bank-accounts": "./src/queries/bank-accounts.ts",
@@ -39,7 +42,6 @@
   },
   "dependencies": {
     "@fast-csv/format": "catalog:",
-    "@tamias/app-data-convex": "workspace:*",
     "@tamias/banking": "workspace:*",
     "@tamias/cache": "workspace:*",
     "@tamias/categories": "workspace:*",
@@ -49,6 +51,7 @@
     "@tamias/storage": "workspace:*",
     "@tamias/utils": "workspace:*",
     "archiver": "^7.0.1",
+    "convex": "^1.34.1",
     "date-fns": "catalog:"
   },
   "devDependencies": {

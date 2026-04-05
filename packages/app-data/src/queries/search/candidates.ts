@@ -3,7 +3,7 @@ import type {
   DocumentRecord,
   TrackerProjectRecord,
   TransactionRecord,
-} from "@tamias/app-data-convex";
+} from "../../convex";
 import {
   getProjectedInvoicePayload,
   type ProjectedInvoiceRecord,

@@ -3,7 +3,7 @@ import type {
   CorporationTaxAdjustmentRecord,
   CorporationTaxRateScheduleRecord,
   ExportBundleRecord,
-} from "@tamias/app-data-convex";
+} from "../../../convex";
 import { roundCurrency } from "@tamias/compliance";
 import type {
   AnnualPeriod,

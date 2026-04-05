@@ -2,7 +2,7 @@ import { CompaniesHouseXmlGatewayProvider } from "@tamias/compliance";
 import type {
   FilingProfileRecord,
   YearEndPackRecord,
-} from "@tamias/app-data-convex";
+} from "../../convex";
 import { buildCompaniesHousePreviewSubmissionIdentifiers } from "./companies-house-submissions";
 import type { CtSubmissionArtifacts } from "./types";
 

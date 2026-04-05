@@ -5,7 +5,7 @@ import {
   defaultEmailBody,
   defaultEmailHeading,
   defaultEmailSubject,
-} from "@tamias/email/defaults";
+} from "@tamias/invoice/defaults";
 import { getApiUrl } from "@tamias/utils/envs";
 import { Button } from "@tamias/ui/button";
 import { Icons } from "@tamias/ui/icons";
@@ -175,7 +175,7 @@ export function EmailPreview() {
   }
 
   // Display values — plain text, no template variable resolution.
-  // Defaults are imported from @tamias/email/defaults so they stay in sync
+  // Defaults are imported from @tamias/invoice/defaults so they stay in sync
   // with the actual email template the customer receives.
   const displaySubject = emailSubject || defaultEmailSubject(teamName);
   const displayHeading = emailHeading || defaultEmailHeading(teamName);

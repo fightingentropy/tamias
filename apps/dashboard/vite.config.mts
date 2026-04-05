@@ -44,11 +44,6 @@ function getPublicEnv(mode: string) {
     env.API_URL ?? env.TAMIAS_API_URL,
     mode === "production" ? "https://api.tamias.xyz" : "http://localhost:3003",
   );
-  const websiteUrl = getBuildEnvValue(
-    mode,
-    env.WEBSITE_URL ?? env.TAMIAS_WEBSITE_URL,
-    mode === "production" ? "https://tamias.xyz" : "http://localhost:3000",
-  );
   const convexUrl = getBuildEnvValue(
     mode,
     env.CONVEX_URL ?? env.TAMIAS_CONVEX_URL,
@@ -77,7 +72,6 @@ function getPublicEnv(mode: string) {
     NODE_ENV: mode === "production" ? "production" : "development",
     DASHBOARD_URL: dashboardUrl,
     API_URL: apiUrl,
-    WEBSITE_URL: websiteUrl,
     CONVEX_URL: convexUrl,
     CONVEX_SITE_URL: convexSiteUrl,
     STRIPE_PUBLISHABLE_KEY: stripePublishableKey,
@@ -106,7 +100,6 @@ export default defineConfig(({ mode, command }) => {
       (mode === "production" ? "production" : "development"),
     API_URL: publicEnv.API_URL,
     DASHBOARD_URL: publicEnv.DASHBOARD_URL,
-    WEBSITE_URL: publicEnv.WEBSITE_URL,
     CONVEX_URL: publicEnv.CONVEX_URL,
     CONVEX_SITE_URL: publicEnv.CONVEX_SITE_URL,
     STRIPE_PUBLISHABLE_KEY: publicEnv.STRIPE_PUBLISHABLE_KEY,
@@ -163,10 +156,6 @@ export default defineConfig(({ mode, command }) => {
         {
           find: "@app-data",
           replacement: resolveDashboardPath("../../packages/app-data/src"),
-        },
-        {
-          find: "@convex-dev/auth/react",
-          replacement: resolveDashboardPath("./src/framework/convex-auth-client.tsx"),
         },
         {
           find: "nuqs/adapters/tanstack-router",

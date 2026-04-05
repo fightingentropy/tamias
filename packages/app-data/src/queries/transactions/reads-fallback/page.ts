@@ -1,4 +1,4 @@
-import { type TransactionStatus } from "@tamias/app-data-convex";
+import { type TransactionStatus } from "../../../convex";
 import type { Database } from "../../../client";
 import { getAccountingSyncStatus } from "../../accounting-sync";
 import {

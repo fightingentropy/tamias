@@ -2,7 +2,7 @@ import {
   getInboxItemsByDatePageFromConvex,
   getInboxItemsPageFromConvex,
   type InboxItemStatus,
-} from "@tamias/app-data-convex";
+} from "../../convex";
 import { collectCursorPages, DEFAULT_PAGE_SIZE } from "./shared";
 
 export async function getInboxItemsPaged(args: {

@@ -1,9 +1,9 @@
 "use client";
 
-import { useMutation as useConvexMutation } from "convex/react";
+import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import { api } from "@tamias/convex-model/api";
 import { type UploadResult, uploadFileToStorage } from "@/utils/upload";
+import { useTRPC } from "@/trpc/client";
 
 interface UploadParams {
   file: File;
@@ -13,9 +13,14 @@ interface UploadParams {
 }
 
 export function useUpload() {
+  const trpc = useTRPC();
   const [activeUploads, setActiveUploads] = useState(0);
-  const generateUploadUrl = useConvexMutation(api.files.generateUploadUrl);
-  const registerUpload = useConvexMutation(api.files.registerUpload);
+  const generateUploadUrl = useMutation(
+    trpc.uploads.generateUrl.mutationOptions(),
+  );
+  const registerUpload = useMutation(
+    trpc.uploads.register.mutationOptions(),
+  );
 
   const uploadFile = async ({
     file,
@@ -28,8 +33,8 @@ export function useUpload() {
     try {
       const result = await uploadFileToStorage(
         {
-          generateUploadUrl,
-          registerUpload,
+          generateUploadUrl: () => generateUploadUrl.mutateAsync(),
+          registerUpload: (args) => registerUpload.mutateAsync(args),
         },
         {
           bucket,

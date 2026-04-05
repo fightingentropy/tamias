@@ -3,17 +3,12 @@ import { format, parseISO } from "date-fns";
 import { getConvexAuthToken } from "@/start/auth/server";
 import { getChartDisplayName } from "@/components/metrics/utils/chart-types";
 import { loadOAuthParams } from "@/hooks/use-oauth-params";
-import {
-  getInvoiceByTokenLocally,
-  getReportByLinkIdLocally,
-  getShortLinkLocally,
-} from "@/server/loaders/public";
 import { getTRPCClient, getQueryClient, trpc } from "@/trpc/server";
 import { categorizeOAuthError, validateOAuthParams } from "@/utils/oauth-utils";
 import {
   dehydrateQueryClient,
   getRequestUrl,
-  isLocalPublicReadUnavailable,
+  isNotFoundQueryError,
   isUnauthorizedQueryError,
 } from "./shared";
 
@@ -31,55 +26,41 @@ export async function buildCustomerPortalPageData(portalId: string) {
     },
   );
 
-  try {
-    const portalData = await queryClient.fetchQuery(portalDataQuery);
+  const portalData = await queryClient.fetchQuery(portalDataQuery);
 
-    if (!portalData) {
-      return {
-        status: "not-found" as const,
-      };
-    }
-
-    await queryClient.fetchInfiniteQuery(portalInvoicesQuery as any);
-
-    const customerName = portalData.customer.name;
-    const teamName = portalData.customer.team.name || "Tamias";
-
+  if (!portalData) {
     return {
-      status: "ok" as const,
-      portalId,
-      dehydratedState: dehydrateQueryClient(queryClient),
-      metadata: {
-        title: `${customerName} | ${teamName}`,
-        description: `Customer portal for ${customerName}`,
-      },
+      status: "not-found" as const,
     };
-  } catch (error) {
-    if (isLocalPublicReadUnavailable(error)) {
-      return {
-        status: "not-found" as const,
-      };
-    }
-
-    throw error;
   }
+
+  await queryClient.fetchInfiniteQuery(portalInvoicesQuery as any);
+
+  const customerName = portalData.customer.name;
+  const teamName = portalData.customer.team.name || "Tamias";
+
+  return {
+    status: "ok" as const,
+    portalId,
+    dehydratedState: dehydrateQueryClient(queryClient),
+    metadata: {
+      title: `${customerName} | ${teamName}`,
+      description: `Customer portal for ${customerName}`,
+    },
+  };
 }
 
 export async function buildPublicReportPageData(linkId: string) {
   const queryClient = getQueryClient();
-  let report;
+  const report = await queryClient
+    .fetchQuery(trpc.reports.getByLinkId.queryOptions({ linkId }))
+    .catch((error) => {
+      if (isNotFoundQueryError(error)) {
+        return null;
+      }
 
-  try {
-    report = await getReportByLinkIdLocally(linkId);
-  } catch (error) {
-    if (isLocalPublicReadUnavailable(error)) {
-      return {
-        status: "not-found" as const,
-      };
-    }
-
-    throw error;
-  }
+      throw error;
+    });
 
   if (!report) {
     return {
@@ -125,19 +106,16 @@ export async function buildPublicReportPageData(linkId: string) {
 }
 
 export async function buildShortLinkPageData(shortId: string) {
-  let shortLink;
+  const queryClient = getQueryClient();
+  const shortLink = await queryClient
+    .fetchQuery(trpc.shortLinks.get.queryOptions({ shortId }))
+    .catch((error) => {
+      if (isNotFoundQueryError(error)) {
+        return null;
+      }
 
-  try {
-    shortLink = await getShortLinkLocally(shortId);
-  } catch (error) {
-    if (isLocalPublicReadUnavailable(error)) {
-      return {
-        status: "not-found" as const,
-      };
-    }
-
-    throw error;
-  }
+      throw error;
+    });
 
   if (!shortLink?.url) {
     return {
@@ -241,19 +219,18 @@ export async function buildPublicInvoicePageData(params: {
   viewer?: string;
 }) {
   const authToken = await getConvexAuthToken();
-  let invoice;
+  const client = await getTRPCClient();
+  const invoice = await client.invoice.getInvoiceByToken
+    .query({
+      token: params.token,
+    })
+    .catch((error) => {
+      if (isNotFoundQueryError(error)) {
+        return null;
+      }
 
-  try {
-    invoice = await getInvoiceByTokenLocally(params.token);
-  } catch (error) {
-    if (isLocalPublicReadUnavailable(error)) {
-      return {
-        status: "not-found" as const,
-      };
-    }
-
-    throw error;
-  }
+      throw error;
+    });
 
   if (!invoice) {
     return {
@@ -266,7 +243,6 @@ export async function buildPublicInvoicePageData(params: {
       const decryptedEmail = decrypt(params.viewer);
 
       if (decryptedEmail === invoice.customer?.email) {
-        const client = await getTRPCClient();
         await client.invoice.markViewedByToken.mutate({
           token: params.token,
         });

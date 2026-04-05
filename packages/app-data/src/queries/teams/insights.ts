@@ -1,4 +1,4 @@
-import { listInsightEligibleTeamsFromConvexIdentity } from "@tamias/app-data-convex";
+import { listInsightEligibleTeamsFromConvexIdentity } from "../../convex";
 import type { Database } from "../../client";
 import type {
   GetTeamsForInsightsParams,

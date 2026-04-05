@@ -3,6 +3,7 @@ import { createAppPublicFileRoute } from "@/start/route-hosts";
 import { TZDate } from "@date-fns/tz";
 import { format } from "date-fns";
 import { getWebsiteLogo } from "@/utils/logos";
+import { getTRPCClient } from "@/trpc/server";
 import {
   buildOgSvgDocument,
   editorDocToLines,
@@ -17,10 +18,12 @@ export const Route = createAppPublicFileRoute("/i/$token/opengraph-image")({
   server: {
     handlers: {
       GET: async ({ params }) => {
-        const { getInvoiceByTokenLocally } = await import(
-          "@/server/loaders/public"
-        );
-        const invoice = await getInvoiceByTokenLocally(params.token);
+        const client = await getTRPCClient();
+        const invoice = await client.invoice.getInvoiceByToken
+          .query({
+            token: params.token,
+          })
+          .catch(() => null);
 
         if (!invoice) {
           return new Response("Not found", { status: 404 });

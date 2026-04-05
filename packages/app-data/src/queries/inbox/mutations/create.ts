@@ -2,7 +2,7 @@ import {
   getInboxItemInfoFromConvex,
   getInboxItemsFromConvex,
   upsertInboxItemsInConvex,
-} from "@tamias/app-data-convex";
+} from "../../../convex";
 import type { Database } from "../../../client";
 import { markInboxItems } from "../shared";
 import {

@@ -5,7 +5,7 @@ import {
   getTeamMembersFromConvexIdentity,
   getTransactionsFromConvex,
   type TransactionStatus,
-} from "@tamias/app-data-convex";
+} from "../../../convex";
 import {
   CONTRA_REVENUE_CATEGORIES,
   REVENUE_CATEGORIES,

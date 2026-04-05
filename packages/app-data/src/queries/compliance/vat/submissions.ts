@@ -9,7 +9,7 @@ import {
   listVatSubmissionsFromConvex,
   markVatReturnAcceptedInConvex,
   upsertEvidencePackInConvex,
-} from "@tamias/app-data-convex";
+} from "../../../convex";
 import type { Database } from "../../../client";
 import { reuseQueryResult } from "../../../utils/request-cache";
 import { getHmrcProvider } from "../shared";

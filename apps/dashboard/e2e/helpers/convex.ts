@@ -1,6 +1,76 @@
 import { ConvexHttpClient } from "convex/browser";
-import { api } from "@tamias/convex-model/api";
+import { makeFunctionReference } from "convex/server";
 import { getLocalEnvValue } from "./local-env";
+
+const publicInvoiceByNumberRef = makeFunctionReference<
+  "query",
+  {
+    serviceKey: string;
+    invoiceNumber: string;
+  },
+  { token?: string | null } | null
+>("publicInvoices:serviceGetPublicInvoiceByInvoiceNumber");
+
+const listTeamsByUserIdRef = makeFunctionReference<
+  "query",
+  {
+    serviceKey: string;
+    email: string;
+  },
+  Array<{ id: string }>
+>("identity:serviceListTeamsByUserId");
+
+const switchCurrentTeamRef = makeFunctionReference<
+  "mutation",
+  {
+    serviceKey: string;
+    email: string;
+    publicTeamId: string;
+  },
+  unknown
+>("identity:serviceSwitchCurrentTeam");
+
+const createTeamForUserIdRef = makeFunctionReference<
+  "mutation",
+  {
+    serviceKey: string;
+    email: string;
+    publicTeamId: string | null;
+    name: string;
+    baseCurrency: string;
+    countryCode: string;
+    fiscalYearStartMonth: number;
+    companyType: string;
+    heardAbout: string;
+    switchTeam: boolean;
+  },
+  string | null
+>("identity:serviceCreateTeamForUserId");
+
+const getUserByIdRef = makeFunctionReference<
+  "query",
+  {
+    serviceKey: string;
+    email: string;
+  },
+  {
+    id?: string;
+    convexId?: string;
+    teamId?: string | null;
+  } | null
+>("identity:serviceGetUserById");
+
+const updateUserByIdRef = makeFunctionReference<
+  "mutation",
+  {
+    serviceKey: string;
+    userId?: string;
+    email: string;
+    currentEmail: string;
+    fullName: string;
+  },
+  unknown
+>("identity:serviceUpdateUserById");
 
 function getConvexUrl(): string {
   const convexUrl =
@@ -43,7 +113,7 @@ export async function getInvoiceTokenByNumber(
 ): Promise<string> {
   const client = createConvexClient();
   const record = await client.query(
-    api.publicInvoices.serviceGetPublicInvoiceByInvoiceNumber,
+    publicInvoiceByNumberRef,
     {
       serviceKey: getConvexServiceKey(),
       invoiceNumber,
@@ -62,13 +132,13 @@ export async function getInvoiceTokenByNumber(
 async function ensureSmokeUserTeamInConvex(email: string, teamId: string) {
   const client = createConvexClient();
   const serviceKey = getConvexServiceKey();
-  const teams = await client.query(api.identity.serviceListTeamsByUserId, {
+  const teams = await client.query(listTeamsByUserIdRef, {
     serviceKey,
     email,
   });
 
   if (teams.some((team) => team.id === teamId)) {
-    await client.mutation(api.identity.serviceSwitchCurrentTeam, {
+    await client.mutation(switchCurrentTeamRef, {
       serviceKey,
       email,
       publicTeamId: teamId,
@@ -77,7 +147,7 @@ async function ensureSmokeUserTeamInConvex(email: string, teamId: string) {
     return;
   }
 
-  await client.mutation(api.identity.serviceCreateTeamForUserId, {
+  await client.mutation(createTeamForUserIdRef, {
     serviceKey,
     email,
     publicTeamId: teamId,
@@ -94,7 +164,7 @@ async function ensureSmokeUserTeamInConvex(email: string, teamId: string) {
 export async function ensureSmokeUserProfile(email: string): Promise<string> {
   const client = createConvexClient();
   const serviceKey = getConvexServiceKey();
-  const user = await client.query(api.identity.serviceGetUserById, {
+  const user = await client.query(getUserByIdRef, {
     serviceKey,
     email,
   });
@@ -106,7 +176,7 @@ export async function ensureSmokeUserProfile(email: string): Promise<string> {
   let teamId = user.teamId ?? null;
 
   if (!teamId) {
-    teamId = await client.mutation(api.identity.serviceCreateTeamForUserId, {
+    teamId = await client.mutation(createTeamForUserIdRef, {
       serviceKey,
       email,
       publicTeamId: null,
@@ -124,7 +194,7 @@ export async function ensureSmokeUserProfile(email: string): Promise<string> {
     throw new Error(`Failed to create or resolve a smoke-test team for ${email}.`);
   }
 
-  await client.mutation(api.identity.serviceUpdateUserById, {
+  await client.mutation(updateUserByIdRef, {
     serviceKey,
     userId: user.convexId,
     email,

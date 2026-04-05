@@ -1,5 +1,5 @@
 import { roundCurrency } from "@tamias/compliance";
-import type { CorporationTaxRateScheduleRecord } from "@tamias/app-data-convex";
+import type { CorporationTaxRateScheduleRecord } from "../../../../convex";
 import { differenceInCalendarDays, parseISO } from "date-fns";
 import type { CorporationTaxRateSummary } from "../types";
 

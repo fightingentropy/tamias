@@ -21,7 +21,7 @@ import {
   DEFAULT_EMAIL_BUTTON_TEXT,
   defaultEmailBody,
   defaultEmailHeading,
-} from "../defaults";
+} from "@tamias/invoice/defaults";
 
 interface Props {
   customerName: string;

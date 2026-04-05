@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@tamias/app-data-convex": "workspace:*",
+    "@tamias/app-data": "workspace:*",
     "@tamias/logger": "workspace:*"
   },
   "devDependencies": {

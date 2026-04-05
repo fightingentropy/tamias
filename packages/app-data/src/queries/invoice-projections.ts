@@ -5,7 +5,7 @@ import {
   getPublicInvoicesByRecurringIdFromConvex,
   getPublicInvoicesByTeamFromConvex,
   type PublicInvoiceFilterDateField,
-} from "@tamias/app-data-convex";
+} from "../convex";
 import type { EditorDoc, LineItem } from "@tamias/invoice/types";
 
 export type InvoiceStatus =

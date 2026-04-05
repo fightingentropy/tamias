@@ -1,4 +1,4 @@
-import { getInboxItemByIdFromConvex, getInboxItemsFromConvex } from "@tamias/app-data-convex";
+import { getInboxItemByIdFromConvex, getInboxItemsFromConvex } from "../../../convex";
 import { createLoggerWithContext } from "@tamias/logger";
 import type { Database } from "../../../client";
 import { markInboxItems } from "../shared";

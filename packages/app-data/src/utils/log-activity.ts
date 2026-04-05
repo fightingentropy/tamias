@@ -1,7 +1,7 @@
 import {
   createActivityInConvex,
   type CurrentUserIdentityRecord,
-} from "@tamias/app-data-convex";
+} from "../convex";
 import type { DatabaseOrTransaction } from "../client";
 
 export type InvoiceActivityType =

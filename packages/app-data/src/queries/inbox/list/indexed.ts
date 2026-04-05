@@ -4,7 +4,7 @@ import {
   getInboxItemsPageFromConvex,
   type InboxItemRecord,
   searchInboxItemsFromConvex,
-} from "@tamias/app-data-convex";
+} from "../../../convex";
 import type { Database } from "../../../client";
 import { getInboxBlocklist } from "../../inbox-blocklist";
 import type { GetInboxParams } from "../types";

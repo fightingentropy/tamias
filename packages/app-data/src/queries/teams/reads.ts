@@ -6,7 +6,7 @@ import {
   getTeamByInboxIdFromConvexIdentity,
   getTeamByStripeAccountIdFromConvexIdentity,
   getTeamMembersFromConvexIdentity,
-} from "@tamias/app-data-convex";
+} from "../../convex";
 import type { Database, QueryClient } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
 import type { TeamOwnerInfo } from "./shared";

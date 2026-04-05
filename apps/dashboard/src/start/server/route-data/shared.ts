@@ -1,4 +1,3 @@
-import { getConvexUrl } from "@tamias/utils/envs";
 import { dehydrate } from "@tanstack/react-query";
 import { redirect } from "@tanstack/react-router";
 import { getStartContext } from "@tanstack/start-storage-context";
@@ -12,78 +11,10 @@ export function getRequestUrl(input?: string) {
   return new URL(getStartContext().request.url);
 }
 
-export function getCanonicalHostContext() {
-  const startContext = getStartContext();
-  const requestUrl = new URL(startContext.request.url);
-  const canonicalHost = startContext.contextAfterGlobalMiddlewares
-    ?.canonicalHost as
-    | {
-        appUrl: string;
-        websiteUrl: string;
-        appHost: string;
-        websiteHost: string;
-        currentHost: string;
-        isAppHost: boolean;
-        isWebsiteHost: boolean;
-      }
-    | undefined;
-  const currentHost =
-    startContext.request.headers.get("host") ?? requestUrl.host;
-  const appUrl =
-    canonicalHost?.appUrl ?? `${requestUrl.protocol}//${currentHost}`;
-  const websiteUrl =
-    canonicalHost?.websiteUrl ?? `${requestUrl.protocol}//${currentHost}`;
-  const appHost = canonicalHost?.appHost ?? currentHost;
-  const websiteHost = canonicalHost?.websiteHost ?? currentHost;
-
-  return {
-    appUrl,
-    websiteUrl,
-    appHost,
-    websiteHost,
-    currentHost,
-    isAppHost: canonicalHost?.isAppHost ?? true,
-    isWebsiteHost: canonicalHost?.isWebsiteHost ?? false,
-  };
-}
-
 export function dehydrateQueryClient(
   queryClient: ReturnType<typeof getQueryClient>,
 ) {
   return dehydrate(queryClient) as unknown as Record<string, {}>;
-}
-
-export function isLocalPublicReadUnavailable(error: unknown) {
-  const convexUrl = getConvexUrl();
-  const isLocalConvexUrl =
-    convexUrl.includes("127.0.0.1:3210") ||
-    convexUrl.includes("localhost:3210");
-
-  if (!isLocalConvexUrl || !error || typeof error !== "object") {
-    return false;
-  }
-
-  if (error instanceof Error && error.message === "Network connection lost.") {
-    return true;
-  }
-
-  const cause = "cause" in error ? (error as { cause?: unknown }).cause : null;
-
-  if (!cause || typeof cause !== "object") {
-    return false;
-  }
-
-  const networkError = cause as {
-    code?: unknown;
-    address?: unknown;
-    port?: unknown;
-  };
-
-  return (
-    networkError.code === "ECONNREFUSED" &&
-    networkError.address === "127.0.0.1" &&
-    networkError.port === 3210
-  );
 }
 
 export function isUnauthorizedQueryError(error: unknown) {
@@ -100,6 +31,23 @@ export function isUnauthorizedQueryError(error: unknown) {
     maybeTrpcError.data?.code === "UNAUTHORIZED" ||
     (typeof maybeTrpcError.message === "string" &&
       maybeTrpcError.message.toUpperCase().includes("UNAUTHORIZED"))
+  );
+}
+
+export function isNotFoundQueryError(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const maybeTrpcError = error as {
+    data?: { code?: unknown };
+    message?: unknown;
+  };
+
+  return (
+    maybeTrpcError.data?.code === "NOT_FOUND" ||
+    (typeof maybeTrpcError.message === "string" &&
+      maybeTrpcError.message.toUpperCase().includes("NOT_FOUND"))
   );
 }
 

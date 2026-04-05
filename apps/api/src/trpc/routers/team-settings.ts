@@ -11,7 +11,7 @@ import {
 import {
   createAsyncRunInConvex,
   updateAsyncRunInConvex,
-} from "@tamias/app-data-convex";
+} from "@tamias/app-data/convex";
 import { protectedProcedure } from "../init";
 
 export const teamSettingProcedures = {

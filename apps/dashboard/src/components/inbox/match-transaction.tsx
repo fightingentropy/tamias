@@ -1,6 +1,5 @@
 "use client";
 
-import { useAuthToken } from "@convex-dev/auth/react";
 import { Button } from "@tamias/ui/button";
 import { cn } from "@tamias/ui/cn";
 import { Combobox } from "@tamias/ui/combobox";
@@ -15,6 +14,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useDebounceValue } from "usehooks-ts";
+import { useAuthToken } from "@/framework/auth-client";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useUserQuery } from "@/hooks/use-user";
 import { useTRPC } from "@/trpc/client";

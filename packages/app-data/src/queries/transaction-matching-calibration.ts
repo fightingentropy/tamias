@@ -1,7 +1,7 @@
 import {
   getTransactionMatchSuggestionsPageFromConvex,
   type MatchSuggestionStatus,
-} from "@tamias/app-data-convex";
+} from "../convex";
 import type { Database } from "../client";
 import { reuseQueryResult } from "../utils/request-cache";
 import { CALIBRATION_LIMITS } from "../utils/transaction-matching";

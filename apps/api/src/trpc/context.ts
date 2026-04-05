@@ -20,6 +20,7 @@ export type TRPCContext = {
   session: Session | null;
   db: Database;
   geo: GeoContext;
+  accessToken?: string;
   teamId?: string;
   isInternalRequest?: boolean;
   requestId: string;
@@ -81,11 +82,16 @@ export async function createTRPCContextFromHeaders(
 ): Promise<TRPCContext> {
   const { requestId, cfRay } = getRequestTrace(headers);
   const auth = await resolveRequestAuth(headers, getRequestAuthDependencies());
+  const authorizationHeader = getHeader(headers, "authorization");
+  const accessToken = authorizationHeader?.startsWith("Bearer ")
+    ? authorizationHeader.slice("Bearer ".length).trim()
+    : undefined;
 
   return {
     session: auth.session,
     db: createDatabase(),
     geo: getGeoContext(headers),
+    accessToken,
     teamId: auth.teamId,
     isInternalRequest: auth.isInternalRequest,
     requestId,

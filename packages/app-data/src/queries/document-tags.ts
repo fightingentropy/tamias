@@ -4,7 +4,7 @@ import {
   getDocumentTagsFromConvex,
   upsertDocumentTagsInConvex,
   type DocumentTagRecord,
-} from "@tamias/app-data-convex";
+} from "../convex";
 import type { Database } from "../client";
 
 type DocumentTag = {

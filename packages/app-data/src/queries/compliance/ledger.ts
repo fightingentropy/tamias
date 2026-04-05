@@ -1,7 +1,7 @@
 import {
   listComplianceJournalEntriesFromConvex,
   type ComplianceJournalEntryRecord,
-} from "@tamias/app-data-convex";
+} from "../../convex";
 import type { Database } from "../../client";
 
 type DerivedJournalEntry = ComplianceJournalEntryRecord;

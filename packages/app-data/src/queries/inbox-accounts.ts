@@ -5,7 +5,7 @@ import {
   getInboxAccountsFromConvex,
   upsertInboxAccountInConvex,
   updateInboxAccountInConvex,
-} from "@tamias/app-data-convex";
+} from "../convex";
 
 async function getInboxAccountsImpl(teamId: string) {
   return getInboxAccountsFromConvex({ teamId });

@@ -11,6 +11,7 @@
   },
   "exports": {
     ".": "./src/index.tsx",
+    "./defaults": "./src/defaults.ts",
     "./token": "./src/token/index.ts",
     "./templates/html": "./src/templates/html/index.tsx",
     "./templates/og": "./src/templates/og/index.tsx",

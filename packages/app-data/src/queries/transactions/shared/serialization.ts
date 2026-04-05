@@ -3,7 +3,7 @@ import {
   type TransactionStatus as ConvexTransactionStatus,
   type TransactionRecord,
   type UpsertTransactionInConvexInput,
-} from "@tamias/app-data-convex";
+} from "../../../convex";
 import type { AccountingSyncRecord } from "../../accounting-sync";
 import type { TransactionFrequency } from "./types";
 

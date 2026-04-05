@@ -1,7 +1,7 @@
 "use client";
 
-import { api } from "@tamias/convex-model/api";
-import { useQuery as useConvexQuery } from "convex/react";
+import { useQuery } from "@tanstack/react-query";
+import { useTRPC } from "@/trpc/client";
 
 type UseJobStatusProps = {
   /** Opaque async run ID */
@@ -10,23 +10,45 @@ type UseJobStatusProps = {
 };
 
 /**
- * Hook for subscribing to async run status via Convex.
+ * Hook for polling async run status through the API.
  */
 export function useJobStatus({
   runId,
   enabled = true,
 }: UseJobStatusProps = {}) {
+  const trpc = useTRPC();
   const shouldQuery = enabled && !!runId;
-  const currentRun = useConvexQuery(
-    api.asyncRuns.currentUserRun,
-    shouldQuery ? { runId: runId! } : "skip",
-  );
+  const query = useQuery({
+    ...trpc.asyncRuns.currentUserRun.queryOptions({
+      runId: runId ?? "",
+    }),
+    enabled: shouldQuery,
+    refetchInterval: (currentQuery) => {
+      const status = currentQuery.state.data?.status;
+
+      if (!shouldQuery || !status) {
+        return false;
+      }
+
+      if (
+        status === "completed" ||
+        status === "failed" ||
+        status === "canceled"
+      ) {
+        return false;
+      }
+
+      return 1_500;
+    },
+    refetchOnWindowFocus: false,
+  });
+  const currentRun = query.data;
 
   const isLoading = shouldQuery && currentRun === undefined;
   const queryError =
     shouldQuery && currentRun === null
       ? new Error("Run not found or access denied")
-      : undefined;
+      : (query.error ?? undefined);
 
   return {
     status: currentRun?.status,

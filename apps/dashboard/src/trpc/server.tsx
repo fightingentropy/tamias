@@ -10,6 +10,7 @@ import {
 import { cache } from "react";
 import superjson from "superjson";
 import { noteSsrTrpcCall } from "@/server/perf";
+import { getApiServiceBinding } from "@/start/server/cloudflare-context";
 import { makeQueryClient } from "./query-client";
 import { buildTRPCRequestHeaders, getServerRequestContext } from "./request-context";
 
@@ -22,6 +23,26 @@ export const getQueryClient = cache(makeQueryClient);
 const API_BASE_URL = process.env.API_INTERNAL_URL || getApiUrl();
 
 const SSR_FETCH_TIMEOUT_MS = 8_000;
+
+function shouldUseApiServiceBinding(input: RequestInfo | URL) {
+  const apiService = getApiServiceBinding();
+
+  if (!apiService) {
+    return false;
+  }
+
+  const requestUrl = new URL(
+    typeof input === "string"
+      ? input
+      : input instanceof Request
+        ? input.url
+        : input.toString(),
+    API_BASE_URL,
+  );
+  const apiBaseUrl = new URL(API_BASE_URL);
+
+  return requestUrl.origin === apiBaseUrl.origin;
+}
 
 function fetchWithTimeout(
   input: RequestInfo | URL,
@@ -41,6 +62,16 @@ function fetchWithTimeout(
   }
 
   noteSsrTrpcCall(typeof input === "string" ? input : input.toString());
+
+  if (shouldUseApiServiceBinding(input)) {
+    const apiService = getApiServiceBinding();
+
+    if (!apiService) {
+      throw new Error("Missing API service binding");
+    }
+
+    return apiService.fetch(new Request(input, { ...init, signal, headers }));
+  }
 
   return fetch(input, { ...init, signal, headers });
 }

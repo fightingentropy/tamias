@@ -1,12 +1,12 @@
 "use client";
 
-import type { Id } from "@tamias/convex-model/data-model";
 import { stripSpecialCharacters } from "@tamias/utils";
 
 type UploadProgress = (bytesUploaded: number, bytesTotal: number) => void;
+type StorageId = string;
 
 type RegisterUploadResult = {
-  storageId: Id<"_storage">;
+  storageId: StorageId;
   url: string | null;
 };
 
@@ -16,7 +16,7 @@ type UploadMutationArgs = {
 
 type RegisterUploadArgs = {
   pathTokens: string[];
-  storageId: Id<"_storage">;
+  storageId: StorageId;
   teamId?: string;
   bucket?: string;
   contentType?: string;
@@ -40,7 +40,7 @@ export type UploadResult = {
   filename: string;
   file: File;
   path: string[];
-  storageId: Id<"_storage">;
+  storageId: StorageId;
   url: string;
 };
 
@@ -56,7 +56,7 @@ function uploadFileWithProgress(
   uploadUrl: string,
   file: File,
   onProgress?: UploadProgress,
-): Promise<Id<"_storage">> {
+): Promise<StorageId> {
   return new Promise((resolve, reject) => {
     const request = new XMLHttpRequest();
 
@@ -90,7 +90,7 @@ function uploadFileWithProgress(
           return;
         }
 
-        resolve(response.storageId as Id<"_storage">);
+        resolve(response.storageId);
       } catch (error) {
         reject(
           error instanceof Error

@@ -2,7 +2,7 @@ import type {
   InboxItemRecord,
   TransactionMatchSuggestionRecord,
   TransactionRecord,
-} from "@tamias/app-data-convex";
+} from "../../../convex";
 
 export function toUpsertInboxItem(
   item: InboxItemRecord,

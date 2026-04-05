@@ -1,7 +1,7 @@
 import {
   getPublicInvoicesPageFromConvex,
   searchPublicInvoicesFromConvex,
-} from "@tamias/app-data-convex";
+} from "../../../convex";
 import { toProjectedInvoiceCandidate } from "../candidates";
 import {
   loadCandidatesForSource,

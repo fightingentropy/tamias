@@ -3,7 +3,7 @@ import {
   getTransactionsPageFromConvex,
   type TransactionRecord,
   type TransactionStatus,
-} from "@tamias/app-data-convex";
+} from "../../convex";
 
 export type AccountingSyncAttachment = {
   id: string;

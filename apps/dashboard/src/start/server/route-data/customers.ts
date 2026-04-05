@@ -6,17 +6,10 @@ import { buildCustomersQueryFilter } from "@/utils/customers-query";
 import {
   buildBaseAppShellState,
   dehydrateQueryClient,
-  getCanonicalHostContext,
   getRequestUrl,
 } from "@/start/server/route-data/shared";
 
 export async function buildCustomersPageData(href?: string) {
-  if (getCanonicalHostContext().isWebsiteHost) {
-    return {
-      mode: "site" as const,
-    };
-  }
-
   const { queryClient, user } = await buildBaseAppShellState();
   const requestUrl = getRequestUrl(href);
   const filter = loadCustomerFilterParams(requestUrl.searchParams);
@@ -47,7 +40,6 @@ export async function buildCustomersPageData(href?: string) {
   ]);
 
   return {
-    mode: "app" as const,
     dehydratedState: dehydrateQueryClient(queryClient),
     user,
     initialSettings,

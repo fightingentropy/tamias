@@ -18,12 +18,14 @@ import {
   SelectValue,
 } from "@tamias/ui/select";
 import { Textarea } from "@tamias/ui/textarea";
+import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@tamias/ui/use-toast";
 import { Loader2 } from "lucide-react";
 import { z } from "zod/v3";
-import { sendSupportAction } from "@/actions/send-support-action";
-import { useAction } from "@/actions/use-action";
+import { LogEvents } from "@/lib/analytics/events";
+import { track } from "@/lib/analytics/client";
 import { useZodForm } from "@/hooks/use-zod-form";
+import { useTRPC } from "@/trpc/client";
 
 const formSchema = z.object({
   subject: z.string(),
@@ -34,6 +36,7 @@ const formSchema = z.object({
 });
 
 export function SupportForm() {
+  const trpc = useTRPC();
   const { toast } = useToast();
 
   const form = useZodForm(formSchema, {
@@ -45,29 +48,37 @@ export function SupportForm() {
     },
   });
 
-  const sendSupport = useAction(sendSupportAction, {
-    onSuccess: () => {
-      toast({
-        duration: 2500,
-        title: "Support ticket sent.",
-        variant: "success",
-      });
+  const sendSupport = useMutation(
+    trpc.support.sendTicket.mutationOptions({
+      onMutate: () => {
+        track({
+          event: LogEvents.SupportTicket.name,
+          channel: LogEvents.SupportTicket.channel,
+        });
+      },
+      onSuccess: () => {
+        toast({
+          duration: 2500,
+          title: "Support ticket sent.",
+          variant: "success",
+        });
 
-      form.reset();
-    },
-    onError: () => {
-      toast({
-        duration: 3500,
-        variant: "error",
-        title: "Something went wrong please try again.",
-      });
-    },
-  });
+        form.reset();
+      },
+      onError: () => {
+        toast({
+          duration: 3500,
+          variant: "error",
+          title: "Something went wrong please try again.",
+        });
+      },
+    }),
+  );
 
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(sendSupport.execute)}
+        onSubmit={form.handleSubmit((values) => sendSupport.mutate(values))}
         className="space-y-8"
       >
         <FormField
@@ -167,10 +178,10 @@ export function SupportForm() {
         <Button
           type="submit"
           disabled={
-            sendSupport.status === "executing" || !form.formState.isValid
+            sendSupport.isPending || !form.formState.isValid
           }
         >
-          {sendSupport.status === "executing" ? (
+          {sendSupport.isPending ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             "Submit"

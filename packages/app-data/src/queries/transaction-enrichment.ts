@@ -2,7 +2,7 @@ import {
   getTransactionsByIdsFromConvex,
   type TransactionRecord,
   upsertTransactionsInConvex,
-} from "@tamias/app-data-convex";
+} from "../convex";
 import type { Database } from "../client";
 
 function compareTransactionsByDateDesc(

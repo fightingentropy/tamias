@@ -1,4 +1,4 @@
-import { listComplianceObligationsFromConvex } from "@tamias/app-data-convex";
+import { listComplianceObligationsFromConvex } from "../../../convex";
 import type { Database } from "../../../client";
 import { getYearEndMutationContext } from "./common";
 

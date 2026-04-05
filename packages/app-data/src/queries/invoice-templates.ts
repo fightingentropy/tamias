@@ -9,7 +9,7 @@ import {
   type InvoiceTemplateDeleteResult,
   type InvoiceTemplateRecord,
   upsertInvoiceTemplateInConvex,
-} from "@tamias/app-data-convex";
+} from "../convex";
 
 export type InvoiceTemplateParams = Omit<
   InvoiceTemplateRecord,

@@ -1,7 +1,7 @@
 "use client";
 
-import { track } from "@tamias/events/client";
-import { LogEvents } from "@tamias/events/events";
+import { track } from "@/lib/analytics/client";
+import { LogEvents } from "@/lib/analytics/events";
 import { getPlanPricing, planFeatures } from "@tamias/plans";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { useMutation, useQuery } from "@tanstack/react-query";

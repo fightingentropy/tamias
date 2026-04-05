@@ -1,4 +1,4 @@
-import { upsertTransactionsInConvex } from "@tamias/app-data-convex";
+import { upsertTransactionsInConvex } from "../../../convex";
 import type { Database } from "../../../client";
 import { nanoid } from "nanoid";
 import { createAttachments, type Attachment } from "../../transaction-attachments";

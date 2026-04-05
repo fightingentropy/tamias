@@ -1,4 +1,4 @@
-import { getCustomersByIdsFromConvex } from "@tamias/app-data-convex";
+import { getCustomersByIdsFromConvex } from "../../convex";
 
 export const CUSTOMER_REVENUE_STATUSES = ["paid", "unpaid", "overdue"] as const;
 

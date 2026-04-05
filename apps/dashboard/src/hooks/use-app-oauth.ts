@@ -1,9 +1,9 @@
 "use client";
 
 import type { OAuthErrorCode } from "@tamias/app-store/oauth-errors";
-import { useAuthToken } from "@convex-dev/auth/react";
 import { getApiUrl } from "@tamias/utils/envs";
 import { useEffect, useRef, useState } from "react";
+import { useAuthToken } from "@/framework/auth-client";
 import { isOAuthMessage, OAUTH_CHANNEL_NAME } from "@/utils/oauth-message";
 
 interface UseAppOAuthOptions {

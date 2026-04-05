@@ -1,5 +1,5 @@
-import { track } from "@tamias/events/client";
-import { LogEvents } from "@tamias/events/events";
+import { track } from "@/lib/analytics/client";
+import { LogEvents } from "@/lib/analytics/events";
 import {
   getTellerApplicationId,
   getTellerEnvironment,

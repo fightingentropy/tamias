@@ -1,7 +1,7 @@
 import {
   getTrackerEntriesByRangeFromConvex,
   getTrackerProjectsByIdsFromConvex,
-} from "@tamias/app-data-convex";
+} from "../../../convex";
 import type { Database } from "../../../client";
 import type { GetInsightActivityDataParams } from "./types";
 

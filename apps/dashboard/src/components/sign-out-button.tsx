@@ -1,7 +1,7 @@
 "use client";
 
-import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@tamias/ui/button";
+import { useAuthActions } from "@/framework/auth-client";
 import { useRouter } from "@/framework/navigation";
 
 export function SignOutButton() {

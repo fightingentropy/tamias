@@ -1,4 +1,4 @@
-import { getNotificationSettingsFromConvex } from "@tamias/app-data-convex";
+import { getNotificationSettingsFromConvex } from "../../convex";
 import type { Database } from "../../client";
 import { USER_SETTINGS_NOTIFICATION_TYPES } from "./defaults";
 import { toNotificationSetting } from "./shared";

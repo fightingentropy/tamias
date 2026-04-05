@@ -3,7 +3,7 @@ import {
   serializeTrustedSessionHeaderValue,
   TRUSTED_SESSION_HEADER,
 } from "@tamias/auth-session";
-import { resolveTamiasUserSession } from "@tamias/app-services/auth";
+import { resolveConvexUserSession } from "@tamias/auth-session/convex";
 import { getLocationHeaders } from "@tamias/location";
 import { headers } from "@tamias/utils/request-runtime";
 import { cache } from "react";
@@ -17,7 +17,7 @@ export const getServerRequestContext = cache(async () => {
     headers(),
   ]);
   const session = await measureAuthResolution("resolve-session", () =>
-    resolveTamiasUserSession(token ?? undefined),
+    resolveConvexUserSession(token ?? undefined),
   );
 
   return {

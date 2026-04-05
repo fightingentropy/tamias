@@ -1,6 +1,6 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { createMiddleware } from "hono/factory";
-import type { Id } from "@tamias/convex-model/data-model";
+import type { Id } from "@tamias/app-data/convex/data-model";
 import type { Context } from "../../rest/types";
 
 export interface TestAppOptions {

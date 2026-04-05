@@ -1,4 +1,4 @@
-import { getTransactionMatchSuggestionsFromConvex } from "@tamias/app-data-convex";
+import { getTransactionMatchSuggestionsFromConvex } from "../../convex";
 import { createLoggerWithContext } from "@tamias/logger";
 import type { Database } from "../../client";
 import type { MatchType } from "../../utils/transaction-matching";

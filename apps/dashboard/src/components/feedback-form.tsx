@@ -3,25 +3,36 @@
 import { Button } from "@tamias/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@tamias/ui/popover";
 import { Textarea } from "@tamias/ui/textarea";
+import { useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
-import { sendFeebackAction } from "@/actions/send-feedback-action";
-import { useAction } from "@/actions/use-action";
+import { LogEvents } from "@/lib/analytics/events";
+import { track } from "@/lib/analytics/client";
+import { useTRPC } from "@/trpc/client";
 
 export function FeedbackForm() {
+  const trpc = useTRPC();
   const [value, setValue] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const action = useAction(sendFeebackAction, {
-    onSuccess: () => {
-      setValue("");
-      setSubmitted(true);
+  const sendFeedback = useMutation(
+    trpc.support.sendFeedback.mutationOptions({
+      onMutate: () => {
+        track({
+          event: LogEvents.SendFeedback.name,
+          channel: LogEvents.SendFeedback.channel,
+        });
+      },
+      onSuccess: () => {
+        setValue("");
+        setSubmitted(true);
 
-      setTimeout(() => {
-        setSubmitted(false);
-      }, 3000);
-    },
-  });
+        setTimeout(() => {
+          setSubmitted(false);
+        }, 3000);
+      },
+    }),
+  );
 
   return (
     <Popover>
@@ -60,10 +71,10 @@ export function FeedbackForm() {
             <div className="mt-1 flex items-center justify-end">
               <Button
                 type="button"
-                onClick={() => action.execute({ feedback: value })}
-                disabled={value.length === 0 || action.status === "executing"}
+                onClick={() => sendFeedback.mutate({ feedback: value })}
+                disabled={value.length === 0 || sendFeedback.isPending}
               >
-                {action.status === "executing" ? (
+                {sendFeedback.isPending ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   "Send"

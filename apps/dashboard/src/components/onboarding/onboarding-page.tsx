@@ -1,6 +1,6 @@
 "use client";
 
-import { LogEvents } from "@tamias/events/events";
+import { LogEvents } from "@/lib/analytics/events";
 import { BulkReconciliationAnimation } from "@tamias/ui/animations/bulk-reconciliation";
 import { ReceiptAttachmentAnimation } from "@tamias/ui/animations/receipt-attachment";
 import { WidgetsAnimation } from "@tamias/ui/animations/widgets";

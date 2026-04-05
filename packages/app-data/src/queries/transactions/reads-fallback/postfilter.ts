@@ -1,4 +1,4 @@
-import type { TransactionRecord } from "@tamias/app-data-convex";
+import type { TransactionRecord } from "../../../convex";
 import {
   compareTransactionsForSort,
   isActiveWorkflowStatus,

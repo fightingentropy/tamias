@@ -7,17 +7,10 @@ import { buildTransactionsQueryFilter } from "@/utils/transactions-query";
 import {
   buildBaseAppShellState,
   dehydrateQueryClient,
-  getCanonicalHostContext,
   getRequestUrl,
 } from "@/start/server/route-data/shared";
 
 export async function buildTransactionsPageData(href?: string) {
-  if (getCanonicalHostContext().isWebsiteHost) {
-    return {
-      mode: "site" as const,
-    };
-  }
-
   const { queryClient, user } = await buildBaseAppShellState();
   const requestUrl = getRequestUrl(href);
   const filter = loadTransactionFilterParams(requestUrl.searchParams);
@@ -36,21 +29,10 @@ export async function buildTransactionsPageData(href?: string) {
       getNextPageParam: ({ meta }) => meta?.cursor,
     },
   );
-  const reviewCountQuery = trpc.transactions.getReviewCount.queryOptions();
-  const teamMembersQuery = trpc.team.members.queryOptions();
-  const tagsQuery = trpc.tags.get.queryOptions();
-  const appsQuery = trpc.apps.get.queryOptions();
 
-  await batchPrefetch([
-    activeTransactionsQuery,
-    reviewCountQuery,
-    teamMembersQuery,
-    tagsQuery,
-    appsQuery,
-  ]);
+  await batchPrefetch([activeTransactionsQuery]);
 
   return {
-    mode: "app" as const,
     dehydratedState: dehydrateQueryClient(queryClient),
     user,
     initialSettings,

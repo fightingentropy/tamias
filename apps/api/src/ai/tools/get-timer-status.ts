@@ -1,6 +1,6 @@
 import { db } from "@tamias/app-data/client";
 import { getTimerStatus } from "@tamias/app-data/queries";
-import type { CurrentUserIdentityRecord } from "@tamias/app-data-convex";
+import type { CurrentUserIdentityRecord } from "@tamias/app-data/convex";
 import { getAppUrl } from "@tamias/utils/envs";
 import { formatDate } from "@tamias/utils/format";
 import { tool } from "ai";

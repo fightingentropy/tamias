@@ -1,5 +1,5 @@
 import { endOfQuarter, format, startOfQuarter } from "date-fns";
-import type { ComplianceObligationRecord } from "@tamias/app-data-convex";
+import type { ComplianceObligationRecord } from "../../../../convex";
 
 export function buildManualObligation(
   teamId: string,

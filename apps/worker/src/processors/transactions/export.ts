@@ -1,6 +1,6 @@
 import { PassThrough } from "node:stream";
 import { writeToString } from "@fast-csv/format";
-import type { CurrentUserIdentityRecord } from "@tamias/app-data-convex";
+import type { CurrentUserIdentityRecord } from "@tamias/app-data/convex";
 import {
   createShortLink,
   markTransactionsAsExported,

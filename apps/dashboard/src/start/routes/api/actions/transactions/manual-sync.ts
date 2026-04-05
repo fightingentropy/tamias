@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { createAppPublicFileRoute } from "@/start/route-hosts";
-import { LogEvents } from "@tamias/events/events";
-import { enqueue } from "@tamias/job-client";
+import { LogEvents } from "@/lib/analytics/events";
 import { manualSyncTransactionsActionSchema } from "@/actions/transactions/manual-sync-transactions-action";
 import {
   requireAuthenticatedActionUser,
   trackAction,
 } from "@/start/server/action-auth";
+import { isNotFoundQueryError } from "@/start/server/route-data/shared";
 import { getTRPCClient } from "@/trpc/server";
 
 export const Route = createAppPublicFileRoute("/api/actions/transactions/manual-sync")({
@@ -16,43 +16,34 @@ export const Route = createAppPublicFileRoute("/api/actions/transactions/manual-
         const { connectionId } = manualSyncTransactionsActionSchema.parse(
           await request.json(),
         );
-        const { teamId } = await requireAuthenticatedActionUser();
+        await requireAuthenticatedActionUser();
 
         await trackAction({
           event: LogEvents.TransactionsManualSync.name,
           channel: LogEvents.TransactionsManualSync.channel,
         });
 
-        const trpc = await getTRPCClient();
-        const connections = await trpc.bankConnections.get.query();
-        const ownsConnection = connections?.some(
-          (connection) => connection.id === connectionId,
-        );
-
-        if (!ownsConnection) {
-          return Response.json(
-            {
-              error: "Connection not found",
-            },
-            {
-              status: 404,
-            },
-          );
-        }
-
-        const event = await enqueue(
-          "sync-connection",
-          {
+        try {
+          const trpc = await getTRPCClient();
+          const event = await trpc.bankConnections.manualSync.mutate({
             connectionId,
-            manualSync: true,
-          },
-          "transactions",
-          {
-            publicTeamId: teamId!,
-          },
-        );
+          });
 
-        return Response.json(event);
+          return Response.json(event);
+        } catch (error) {
+          if (isNotFoundQueryError(error)) {
+            return Response.json(
+              {
+                error: "Connection not found",
+              },
+              {
+                status: 404,
+              },
+            );
+          }
+
+          throw error;
+        }
       },
     },
   },

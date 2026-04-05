@@ -6,7 +6,7 @@ import {
   getTransactionByIdFromConvex,
   getTransactionMatchSuggestionsFromConvex,
   getTransactionTagAssignmentsForTransactionIdsFromConvex,
-} from "@tamias/app-data-convex";
+} from "../../../convex";
 import { resolveTaxValues } from "@tamias/utils/tax";
 import type { Database } from "../../../client";
 import { getTransactionCategoryContext } from "../../transaction-categories";

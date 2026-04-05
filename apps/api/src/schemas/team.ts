@@ -248,6 +248,13 @@ export const deleteTeamSchema = z.object({
   }),
 });
 
+export const startOnboardingWorkflowSchema = z.object({
+  email: z.string().trim().email().openapi({
+    description: "Email address to onboard into the initial team workflow",
+    example: "founder@acme.com",
+  }),
+});
+
 export const deleteTeamMemberSchema = z.object({
   teamId: z.string().openapi({
     description: "Unique identifier of the team",

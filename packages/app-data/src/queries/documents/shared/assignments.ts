@@ -2,7 +2,7 @@ import {
   deleteDocumentTagAssignmentInConvex,
   getDocumentTagAssignmentsForDocumentIdsFromConvex,
   type DocumentTagAssignmentRecord,
-} from "@tamias/app-data-convex";
+} from "../../../convex";
 
 function groupAssignmentsByDocumentId(
   assignments: DocumentTagAssignmentRecord[],

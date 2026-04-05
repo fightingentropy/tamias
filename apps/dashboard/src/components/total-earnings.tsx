@@ -1,6 +1,7 @@
 "use client";
 
-import type { BillableHoursResult } from "@tamias/app-data/queries";
+import type { AppRouter } from "@tamias/trpc";
+import type { inferRouterOutputs } from "@trpc/server";
 import {
   HoverCard,
   HoverCardContent,
@@ -8,6 +9,9 @@ import {
 } from "@tamias/ui/hover-card";
 import { secondsToHoursAndMinutes } from "@/utils/format";
 import { FormatAmount } from "./format-amount";
+
+type RouterOutputs = inferRouterOutputs<AppRouter>;
+type BillableHoursResult = RouterOutputs["widgets"]["getBillableHours"];
 
 type Props = {
   selectedView: "week" | "month";

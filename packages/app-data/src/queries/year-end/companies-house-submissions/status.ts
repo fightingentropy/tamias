@@ -1,5 +1,5 @@
 import type { CompaniesHouseGatewayMessage } from "@tamias/compliance";
-import type { FilingProfileRecord } from "@tamias/app-data-convex";
+import type { FilingProfileRecord } from "../../../convex";
 import type { StatutoryAccountsDraft } from "../types";
 
 export function findCompaniesHouseSubmissionStatus(

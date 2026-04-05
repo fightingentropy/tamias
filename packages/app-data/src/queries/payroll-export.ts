@@ -6,7 +6,7 @@ import {
   type ComplianceJournalEntryRecord,
   type PayrollRunRecord,
   upsertPayrollRunInConvex,
-} from "@tamias/app-data-convex";
+} from "../convex";
 import { uploadVaultFile } from "@tamias/storage";
 import type { Database } from "../client";
 import {

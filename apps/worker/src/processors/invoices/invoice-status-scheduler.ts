@@ -7,7 +7,7 @@ import {
 import {
   getPublicInvoicesByStatusesFromConvex,
   getTransactionsByAmountRangeFromConvex,
-} from "@tamias/app-data-convex";
+} from "@tamias/app-data/convex";
 import { enqueue } from "@tamias/job-client";
 import { format, subDays } from "date-fns";
 import type { InvoiceStatusSchedulerPayload } from "../../schemas/invoices";

@@ -2,7 +2,7 @@ import {
   getBankConnectionsFromConvex,
   getInvoiceDateAggregateRowsFromConvex,
   countTransactionsFromConvex,
-} from "@tamias/app-data-convex";
+} from "../../convex";
 import type { Database } from "../../client";
 import { isDefined } from "./shared";
 

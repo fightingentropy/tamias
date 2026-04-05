@@ -1,6 +1,7 @@
+import { createHash } from "node:crypto";
 import { createTeam, deleteTeam, getTeamById } from "@tamias/app-data/queries";
 import { getBankConnections } from "@tamias/app-data/queries/bank-connections";
-import { upsertTransactionCategoriesInConvex } from "@tamias/app-data-convex";
+import { upsertTransactionCategoriesInConvex } from "@tamias/app-data/convex";
 import {
   getTeamMembersFromConvex,
   hasTeamAccessInConvex,
@@ -8,14 +9,15 @@ import {
 } from "@tamias/app-services/identity";
 import { chatCache } from "@tamias/cache/chat-cache";
 import { CATEGORIES, getTaxRateForCategory } from "@tamias/categories";
-import { enqueue } from "@tamias/job-client";
+import { enqueue, startCloudflareWorkflow } from "@tamias/job-client";
 import { TRPCError } from "@trpc/server";
 import {
   createTeamSchema,
   deleteTeamSchema,
   leaveTeamSchema,
+  startOnboardingWorkflowSchema,
 } from "../../schemas/team";
-import { protectedProcedure } from "../init";
+import { protectedProcedure, publicProcedure } from "../init";
 import {
   buildTeamSystemCategoryInputs,
   getTeamMemberRoleByConvexId,
@@ -24,6 +26,20 @@ import {
 } from "./team-shared";
 
 export const teamLifecycleProcedures = {
+  startOnboardingWorkflow: publicProcedure
+    .input(startOnboardingWorkflowSchema)
+    .mutation(async ({ input }) => {
+      return startCloudflareWorkflow(
+        "onboard-team",
+        {
+          email: input.email,
+        },
+        {
+          instanceId: buildOnboardingWorkflowInstanceId(input.email),
+        },
+      );
+    }),
+
   create: protectedProcedure
     .input(createTeamSchema)
     .mutation(async ({ ctx: { db, session }, input }) => {
@@ -203,4 +219,8 @@ function buildChildTeamSystemCategories(args: {
       };
     });
   });
+}
+
+function buildOnboardingWorkflowInstanceId(email: string) {
+  return `onboard-team-${createHash("sha256").update(email).digest("hex").slice(0, 24)}`;
 }

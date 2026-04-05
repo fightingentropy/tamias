@@ -7,7 +7,7 @@ import {
   updateActivityMetadataInConvex,
   updateActivityStatusInConvex,
   updateAllActivitiesStatusInConvex,
-} from "@tamias/app-data-convex";
+} from "../convex";
 import type { Database, DatabaseOrTransaction } from "../client";
 import type { activityStatusEnum, activityTypeEnum } from "../schema";
 

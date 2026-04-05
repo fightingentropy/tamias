@@ -4,7 +4,7 @@ import {
   getLatestVatReturnFromConvex,
   getVatReturnByIdFromConvex,
   getVatReturnByObligationIdFromConvex,
-} from "@tamias/app-data-convex";
+} from "../../../../convex";
 import { type VatReturnDraft } from "@tamias/compliance";
 import type { Database } from "../../../../client";
 import type { GetVatDraftParams } from "../types";

@@ -165,9 +165,9 @@ function useFilterData(isOpen: boolean, isFocused: boolean) {
     }),
   });
 
-  // We want to fetch the categories data on mount
   const { data: categoriesData } = useQuery({
     ...trpc.transactionCategories.get.queryOptions(),
+    enabled: shouldFetch || Boolean(filter.categories?.length),
   });
 
   return {

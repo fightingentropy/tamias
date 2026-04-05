@@ -9,48 +9,24 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as VerifyRouteImport } from './routes/verify'
 import { Route as VaultRouteImport } from './routes/vault'
 import { Route as UpgradeRouteImport } from './routes/upgrade'
 import { Route as TransactionsRouteImport } from './routes/transactions'
 import { Route as TrackerRouteImport } from './routes/tracker'
-import { Route as TimeTrackingRouteImport } from './routes/time-tracking'
-import { Route as TestimonialsRouteImport } from './routes/testimonials'
-import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TeamsRouteImport } from './routes/teams'
-import { Route as SupportRouteImport } from './routes/support'
-import { Route as StoryRouteImport } from './routes/story'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
-import { Route as PricingRouteImport } from './routes/pricing'
-import { Route as PreAccountingRouteImport } from './routes/pre-accounting'
-import { Route as PolicyRouteImport } from './routes/policy'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as OauthCallbackRouteImport } from './routes/oauth-callback'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as InvoicingRouteImport } from './routes/invoicing'
 import { Route as InvoicesRouteImport } from './routes/invoices'
-import { Route as InsightsRouteImport } from './routes/insights'
 import { Route as InboxRouteImport } from './routes/inbox'
-import { Route as FileStorageRouteImport } from './routes/file-storage'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CustomersRouteImport } from './routes/customers'
-import { Route as BankCoverageRouteImport } from './routes/bank-coverage'
-import { Route as AssistantRouteImport } from './routes/assistant'
 import { Route as AppsRouteImport } from './routes/apps'
-import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as UpdatesIndexRouteImport } from './routes/updates/index'
 import { Route as SettingsIndexRouteImport } from './routes/settings/index'
-import { Route as McpIndexRouteImport } from './routes/mcp/index'
-import { Route as IntegrationsIndexRouteImport } from './routes/integrations/index'
-import { Route as DocsIndexRouteImport } from './routes/docs/index'
 import { Route as ComplianceIndexRouteImport } from './routes/compliance/index'
-import { Route as CompareIndexRouteImport } from './routes/compare/index'
 import { Route as AccountIndexRouteImport } from './routes/account/index'
-import { Route as UpdatesSlugRouteImport } from './routes/updates/$slug'
 import { Route as TransactionsCategoriesRouteImport } from './routes/transactions/categories'
-import { Route as SupportSubmitRouteImport } from './routes/support/submit'
 import { Route as SettingsNotificationsRouteImport } from './routes/settings/notifications'
 import { Route as SettingsMembersRouteImport } from './routes/settings/members'
 import { Route as SettingsDeveloperRouteImport } from './routes/settings/developer'
@@ -62,26 +38,13 @@ import { Route as PPortalIdRouteImport } from './routes/p/$portalId'
 import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
 import { Route as MfaVerifyRouteImport } from './routes/mfa/verify'
 import { Route as MfaSetupRouteImport } from './routes/mfa/setup'
-import { Route as McpZapierRouteImport } from './routes/mcp/zapier'
-import { Route as McpRaycastRouteImport } from './routes/mcp/raycast'
-import { Route as McpPerplexityRouteImport } from './routes/mcp/perplexity'
-import { Route as McpOpencodeRouteImport } from './routes/mcp/opencode'
-import { Route as McpN8nRouteImport } from './routes/mcp/n8n'
-import { Route as McpMakeRouteImport } from './routes/mcp/make'
-import { Route as McpCursorRouteImport } from './routes/mcp/cursor'
-import { Route as McpCopilotRouteImport } from './routes/mcp/copilot'
-import { Route as McpClaudeRouteImport } from './routes/mcp/claude'
-import { Route as McpChatgptRouteImport } from './routes/mcp/chatgpt'
 import { Route as InvoicesProductsRouteImport } from './routes/invoices/products'
-import { Route as IntegrationsSlugRouteImport } from './routes/integrations/$slug'
 import { Route as InboxSettingsRouteImport } from './routes/inbox/settings'
 import { Route as ITokenRouteImport } from './routes/i/$token'
-import { Route as DocsSlugRouteImport } from './routes/docs/$slug'
 import { Route as ComplianceYearEndRouteImport } from './routes/compliance/year-end'
 import { Route as ComplianceVatRouteImport } from './routes/compliance/vat'
 import { Route as ComplianceSettingsRouteImport } from './routes/compliance/settings'
 import { Route as CompliancePayrollRouteImport } from './routes/compliance/payroll'
-import { Route as CompareSlugRouteImport } from './routes/compare/$slug'
 import { Route as ChatIdRouteImport } from './routes/chat/$id'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiAuthRouteImport } from './routes/api/auth'
@@ -89,27 +52,16 @@ import { Route as AccountTeamsRouteImport } from './routes/account/teams'
 import { Route as AccountSupportRouteImport } from './routes/account/support'
 import { Route as AccountSecurityRouteImport } from './routes/account/security'
 import { Route as AccountDateAndLocaleRouteImport } from './routes/account/date-and-locale'
-import { Route as UpdatesPagePageRouteImport } from './routes/updates/page/$page'
 import { Route as RLinkIdOpengraphImageRouteImport } from './routes/r/$linkId/opengraph-image'
 import { Route as PPortalIdOpengraphImageRouteImport } from './routes/p/$portalId/opengraph-image'
-import { Route as IntegrationsCategoryCategoryRouteImport } from './routes/integrations/category/$category'
 import { Route as ITokenOpengraphImageRouteImport } from './routes/i/$token/opengraph-image'
 import { Route as ApiWebhookRegisteredRouteImport } from './routes/api/webhook/registered'
-import { Route as ApiOgCompareRouteImport } from './routes/api/og/compare'
 import { Route as ApiGocardlessReconnectRouteImport } from './routes/api/gocardless/reconnect'
-import { Route as ApiDocsChatRouteImport } from './routes/api/docs/chat'
 import { Route as ApiAuthCallbackRouteImport } from './routes/api/auth/callback'
-import { Route as ApiActionsSendSupportRouteImport } from './routes/api/actions/send-support'
-import { Route as ApiActionsSendFeedbackRouteImport } from './routes/api/actions/send-feedback'
 import { Route as ApiActionsTransactionsReconnectRouteImport } from './routes/api/actions/transactions/reconnect'
 import { Route as ApiActionsTransactionsManualSyncRouteImport } from './routes/api/actions/transactions/manual-sync'
 import { Route as ApiActionsAiTaxRateRouteImport } from './routes/api/actions/ai/tax-rate'
 
-const VerifyRoute = VerifyRouteImport.update({
-  id: '/verify',
-  path: '/verify',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const VaultRoute = VaultRouteImport.update({
   id: '/vault',
   path: '/vault',
@@ -130,63 +82,11 @@ const TrackerRoute = TrackerRouteImport.update({
   path: '/tracker',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/tracker.lazy').then((d) => d.Route))
-const TimeTrackingRoute = TimeTrackingRouteImport.update({
-  id: '/time-tracking',
-  path: '/time-tracking',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/time-tracking.lazy').then((d) => d.Route))
-const TestimonialsRoute = TestimonialsRouteImport.update({
-  id: '/testimonials',
-  path: '/testimonials',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/testimonials.lazy').then((d) => d.Route))
-const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/terms.lazy').then((d) => d.Route))
 const TeamsRoute = TeamsRouteImport.update({
   id: '/teams',
   path: '/teams',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/teams.lazy').then((d) => d.Route))
-const SupportRoute = SupportRouteImport.update({
-  id: '/support',
-  path: '/support',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/support.lazy').then((d) => d.Route))
-const StoryRoute = StoryRouteImport.update({
-  id: '/story',
-  path: '/story',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/story.lazy').then((d) => d.Route))
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
-  id: '/robots.txt',
-  path: '/robots.txt',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PricingRoute = PricingRouteImport.update({
-  id: '/pricing',
-  path: '/pricing',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/pricing.lazy').then((d) => d.Route))
-const PreAccountingRoute = PreAccountingRouteImport.update({
-  id: '/pre-accounting',
-  path: '/pre-accounting',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() =>
-  import('./routes/pre-accounting.lazy').then((d) => d.Route),
-)
-const PolicyRoute = PolicyRouteImport.update({
-  id: '/policy',
-  path: '/policy',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/policy.lazy').then((d) => d.Route))
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -204,31 +104,16 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/login.lazy').then((d) => d.Route))
-const InvoicingRoute = InvoicingRouteImport.update({
-  id: '/invoicing',
-  path: '/invoicing',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/invoicing.lazy').then((d) => d.Route))
 const InvoicesRoute = InvoicesRouteImport.update({
   id: '/invoices',
   path: '/invoices',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/invoices.lazy').then((d) => d.Route))
-const InsightsRoute = InsightsRouteImport.update({
-  id: '/insights',
-  path: '/insights',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/insights.lazy').then((d) => d.Route))
 const InboxRoute = InboxRouteImport.update({
   id: '/inbox',
   path: '/inbox',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/inbox.lazy').then((d) => d.Route))
-const FileStorageRoute = FileStorageRouteImport.update({
-  id: '/file-storage',
-  path: '/file-storage',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/file-storage.lazy').then((d) => d.Route))
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -239,36 +124,16 @@ const CustomersRoute = CustomersRouteImport.update({
   path: '/customers',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/customers.lazy').then((d) => d.Route))
-const BankCoverageRoute = BankCoverageRouteImport.update({
-  id: '/bank-coverage',
-  path: '/bank-coverage',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/bank-coverage.lazy').then((d) => d.Route))
-const AssistantRoute = AssistantRouteImport.update({
-  id: '/assistant',
-  path: '/assistant',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/assistant.lazy').then((d) => d.Route))
 const AppsRoute = AppsRouteImport.update({
   id: '/apps',
   path: '/apps',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/apps.lazy').then((d) => d.Route))
-const AboutRoute = AboutRouteImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/about.lazy').then((d) => d.Route))
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
-const UpdatesIndexRoute = UpdatesIndexRouteImport.update({
-  id: '/updates/',
-  path: '/updates/',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/updates/index.lazy').then((d) => d.Route))
+} as any)
 const SettingsIndexRoute = SettingsIndexRouteImport.update({
   id: '/settings/',
   path: '/settings/',
@@ -276,23 +141,6 @@ const SettingsIndexRoute = SettingsIndexRouteImport.update({
 } as any).lazy(() =>
   import('./routes/settings/index.lazy').then((d) => d.Route),
 )
-const McpIndexRoute = McpIndexRouteImport.update({
-  id: '/mcp/',
-  path: '/mcp/',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/mcp/index.lazy').then((d) => d.Route))
-const IntegrationsIndexRoute = IntegrationsIndexRouteImport.update({
-  id: '/integrations/',
-  path: '/integrations/',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() =>
-  import('./routes/integrations/index.lazy').then((d) => d.Route),
-)
-const DocsIndexRoute = DocsIndexRouteImport.update({
-  id: '/docs/',
-  path: '/docs/',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/docs/index.lazy').then((d) => d.Route))
 const ComplianceIndexRoute = ComplianceIndexRouteImport.update({
   id: '/compliance/',
   path: '/compliance/',
@@ -300,21 +148,11 @@ const ComplianceIndexRoute = ComplianceIndexRouteImport.update({
 } as any).lazy(() =>
   import('./routes/compliance/index.lazy').then((d) => d.Route),
 )
-const CompareIndexRoute = CompareIndexRouteImport.update({
-  id: '/compare/',
-  path: '/compare/',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/compare/index.lazy').then((d) => d.Route))
 const AccountIndexRoute = AccountIndexRouteImport.update({
   id: '/account/',
   path: '/account/',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/account/index.lazy').then((d) => d.Route))
-const UpdatesSlugRoute = UpdatesSlugRouteImport.update({
-  id: '/updates/$slug',
-  path: '/updates/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/updates/$slug.lazy').then((d) => d.Route))
 const TransactionsCategoriesRoute = TransactionsCategoriesRouteImport.update({
   id: '/categories',
   path: '/categories',
@@ -322,11 +160,6 @@ const TransactionsCategoriesRoute = TransactionsCategoriesRouteImport.update({
 } as any).lazy(() =>
   import('./routes/transactions/categories.lazy').then((d) => d.Route),
 )
-const SupportSubmitRoute = SupportSubmitRouteImport.update({
-  id: '/submit',
-  path: '/submit',
-  getParentRoute: () => SupportRoute,
-} as any)
 const SettingsNotificationsRoute = SettingsNotificationsRouteImport.update({
   id: '/settings/notifications',
   path: '/settings/notifications',
@@ -394,71 +227,12 @@ const MfaSetupRoute = MfaSetupRouteImport.update({
   path: '/mfa/setup',
   getParentRoute: () => rootRouteImport,
 } as any)
-const McpZapierRoute = McpZapierRouteImport.update({
-  id: '/mcp/zapier',
-  path: '/mcp/zapier',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/mcp/zapier.lazy').then((d) => d.Route))
-const McpRaycastRoute = McpRaycastRouteImport.update({
-  id: '/mcp/raycast',
-  path: '/mcp/raycast',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/mcp/raycast.lazy').then((d) => d.Route))
-const McpPerplexityRoute = McpPerplexityRouteImport.update({
-  id: '/mcp/perplexity',
-  path: '/mcp/perplexity',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() =>
-  import('./routes/mcp/perplexity.lazy').then((d) => d.Route),
-)
-const McpOpencodeRoute = McpOpencodeRouteImport.update({
-  id: '/mcp/opencode',
-  path: '/mcp/opencode',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/mcp/opencode.lazy').then((d) => d.Route))
-const McpN8nRoute = McpN8nRouteImport.update({
-  id: '/mcp/n8n',
-  path: '/mcp/n8n',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/mcp/n8n.lazy').then((d) => d.Route))
-const McpMakeRoute = McpMakeRouteImport.update({
-  id: '/mcp/make',
-  path: '/mcp/make',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/mcp/make.lazy').then((d) => d.Route))
-const McpCursorRoute = McpCursorRouteImport.update({
-  id: '/mcp/cursor',
-  path: '/mcp/cursor',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/mcp/cursor.lazy').then((d) => d.Route))
-const McpCopilotRoute = McpCopilotRouteImport.update({
-  id: '/mcp/copilot',
-  path: '/mcp/copilot',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/mcp/copilot.lazy').then((d) => d.Route))
-const McpClaudeRoute = McpClaudeRouteImport.update({
-  id: '/mcp/claude',
-  path: '/mcp/claude',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/mcp/claude.lazy').then((d) => d.Route))
-const McpChatgptRoute = McpChatgptRouteImport.update({
-  id: '/mcp/chatgpt',
-  path: '/mcp/chatgpt',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/mcp/chatgpt.lazy').then((d) => d.Route))
 const InvoicesProductsRoute = InvoicesProductsRouteImport.update({
   id: '/products',
   path: '/products',
   getParentRoute: () => InvoicesRoute,
 } as any).lazy(() =>
   import('./routes/invoices/products.lazy').then((d) => d.Route),
-)
-const IntegrationsSlugRoute = IntegrationsSlugRouteImport.update({
-  id: '/integrations/$slug',
-  path: '/integrations/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() =>
-  import('./routes/integrations/$slug.lazy').then((d) => d.Route),
 )
 const InboxSettingsRoute = InboxSettingsRouteImport.update({
   id: '/settings',
@@ -472,11 +246,6 @@ const ITokenRoute = ITokenRouteImport.update({
   path: '/i/$token',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/i/$token.lazy').then((d) => d.Route))
-const DocsSlugRoute = DocsSlugRouteImport.update({
-  id: '/docs/$slug',
-  path: '/docs/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/docs/$slug.lazy').then((d) => d.Route))
 const ComplianceYearEndRoute = ComplianceYearEndRouteImport.update({
   id: '/compliance/year-end',
   path: '/compliance/year-end',
@@ -505,11 +274,6 @@ const CompliancePayrollRoute = CompliancePayrollRouteImport.update({
 } as any).lazy(() =>
   import('./routes/compliance/payroll.lazy').then((d) => d.Route),
 )
-const CompareSlugRoute = CompareSlugRouteImport.update({
-  id: '/compare/$slug',
-  path: '/compare/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/compare/$slug.lazy').then((d) => d.Route))
 const ChatIdRoute = ChatIdRouteImport.update({
   id: '/chat/$id',
   path: '/chat/$id',
@@ -551,13 +315,6 @@ const AccountDateAndLocaleRoute = AccountDateAndLocaleRouteImport.update({
 } as any).lazy(() =>
   import('./routes/account/date-and-locale.lazy').then((d) => d.Route),
 )
-const UpdatesPagePageRoute = UpdatesPagePageRouteImport.update({
-  id: '/updates/page/$page',
-  path: '/updates/page/$page',
-  getParentRoute: () => rootRouteImport,
-} as any).lazy(() =>
-  import('./routes/updates/page/$page.lazy').then((d) => d.Route),
-)
 const RLinkIdOpengraphImageRoute = RLinkIdOpengraphImageRouteImport.update({
   id: '/opengraph-image',
   path: '/opengraph-image',
@@ -568,16 +325,6 @@ const PPortalIdOpengraphImageRoute = PPortalIdOpengraphImageRouteImport.update({
   path: '/opengraph-image',
   getParentRoute: () => PPortalIdRoute,
 } as any)
-const IntegrationsCategoryCategoryRoute =
-  IntegrationsCategoryCategoryRouteImport.update({
-    id: '/integrations/category/$category',
-    path: '/integrations/category/$category',
-    getParentRoute: () => rootRouteImport,
-  } as any).lazy(() =>
-    import('./routes/integrations/category/$category.lazy').then(
-      (d) => d.Route,
-    ),
-  )
 const ITokenOpengraphImageRoute = ITokenOpengraphImageRouteImport.update({
   id: '/opengraph-image',
   path: '/opengraph-image',
@@ -588,35 +335,15 @@ const ApiWebhookRegisteredRoute = ApiWebhookRegisteredRouteImport.update({
   path: '/api/webhook/registered',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiOgCompareRoute = ApiOgCompareRouteImport.update({
-  id: '/api/og/compare',
-  path: '/api/og/compare',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiGocardlessReconnectRoute = ApiGocardlessReconnectRouteImport.update({
   id: '/api/gocardless/reconnect',
   path: '/api/gocardless/reconnect',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDocsChatRoute = ApiDocsChatRouteImport.update({
-  id: '/api/docs/chat',
-  path: '/api/docs/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthCallbackRoute = ApiAuthCallbackRouteImport.update({
   id: '/callback',
   path: '/callback',
   getParentRoute: () => ApiAuthRoute,
-} as any)
-const ApiActionsSendSupportRoute = ApiActionsSendSupportRouteImport.update({
-  id: '/api/actions/send-support',
-  path: '/api/actions/send-support',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiActionsSendFeedbackRoute = ApiActionsSendFeedbackRouteImport.update({
-  id: '/api/actions/send-feedback',
-  path: '/api/actions/send-feedback',
-  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiActionsTransactionsReconnectRoute =
   ApiActionsTransactionsReconnectRouteImport.update({
@@ -638,36 +365,19 @@ const ApiActionsAiTaxRateRoute = ApiActionsAiTaxRateRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/apps': typeof AppsRoute
-  '/assistant': typeof AssistantRoute
-  '/bank-coverage': typeof BankCoverageRoute
   '/customers': typeof CustomersRoute
   '/dashboard': typeof DashboardRoute
-  '/file-storage': typeof FileStorageRoute
   '/inbox': typeof InboxRouteWithChildren
-  '/insights': typeof InsightsRoute
   '/invoices': typeof InvoicesRouteWithChildren
-  '/invoicing': typeof InvoicingRoute
   '/login': typeof LoginRoute
   '/oauth-callback': typeof OauthCallbackRoute
   '/onboarding': typeof OnboardingRoute
-  '/policy': typeof PolicyRoute
-  '/pre-accounting': typeof PreAccountingRoute
-  '/pricing': typeof PricingRoute
-  '/robots.txt': typeof RobotsDottxtRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/story': typeof StoryRoute
-  '/support': typeof SupportRouteWithChildren
   '/teams': typeof TeamsRoute
-  '/terms': typeof TermsRoute
-  '/testimonials': typeof TestimonialsRoute
-  '/time-tracking': typeof TimeTrackingRoute
   '/tracker': typeof TrackerRoute
   '/transactions': typeof TransactionsRouteWithChildren
   '/upgrade': typeof UpgradeRoute
   '/vault': typeof VaultRoute
-  '/verify': typeof VerifyRoute
   '/account/date-and-locale': typeof AccountDateAndLocaleRoute
   '/account/security': typeof AccountSecurityRoute
   '/account/support': typeof AccountSupportRoute
@@ -675,26 +385,13 @@ export interface FileRoutesByFullPath {
   '/api/auth': typeof ApiAuthRouteWithChildren
   '/api/health': typeof ApiHealthRoute
   '/chat/$id': typeof ChatIdRoute
-  '/compare/$slug': typeof CompareSlugRoute
   '/compliance/payroll': typeof CompliancePayrollRoute
   '/compliance/settings': typeof ComplianceSettingsRoute
   '/compliance/vat': typeof ComplianceVatRoute
   '/compliance/year-end': typeof ComplianceYearEndRoute
-  '/docs/$slug': typeof DocsSlugRoute
   '/i/$token': typeof ITokenRouteWithChildren
   '/inbox/settings': typeof InboxSettingsRoute
-  '/integrations/$slug': typeof IntegrationsSlugRoute
   '/invoices/products': typeof InvoicesProductsRoute
-  '/mcp/chatgpt': typeof McpChatgptRoute
-  '/mcp/claude': typeof McpClaudeRoute
-  '/mcp/copilot': typeof McpCopilotRoute
-  '/mcp/cursor': typeof McpCursorRoute
-  '/mcp/make': typeof McpMakeRoute
-  '/mcp/n8n': typeof McpN8nRoute
-  '/mcp/opencode': typeof McpOpencodeRoute
-  '/mcp/perplexity': typeof McpPerplexityRoute
-  '/mcp/raycast': typeof McpRaycastRoute
-  '/mcp/zapier': typeof McpZapierRoute
   '/mfa/setup': typeof MfaSetupRoute
   '/mfa/verify': typeof MfaVerifyRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
@@ -706,65 +403,35 @@ export interface FileRoutesByFullPath {
   '/settings/developer': typeof SettingsDeveloperRoute
   '/settings/members': typeof SettingsMembersRoute
   '/settings/notifications': typeof SettingsNotificationsRoute
-  '/support/submit': typeof SupportSubmitRoute
   '/transactions/categories': typeof TransactionsCategoriesRoute
-  '/updates/$slug': typeof UpdatesSlugRoute
   '/account/': typeof AccountIndexRoute
-  '/compare/': typeof CompareIndexRoute
   '/compliance/': typeof ComplianceIndexRoute
-  '/docs/': typeof DocsIndexRoute
-  '/integrations/': typeof IntegrationsIndexRoute
-  '/mcp/': typeof McpIndexRoute
   '/settings/': typeof SettingsIndexRoute
-  '/updates/': typeof UpdatesIndexRoute
-  '/api/actions/send-feedback': typeof ApiActionsSendFeedbackRoute
-  '/api/actions/send-support': typeof ApiActionsSendSupportRoute
   '/api/auth/callback': typeof ApiAuthCallbackRoute
-  '/api/docs/chat': typeof ApiDocsChatRoute
   '/api/gocardless/reconnect': typeof ApiGocardlessReconnectRoute
-  '/api/og/compare': typeof ApiOgCompareRoute
   '/api/webhook/registered': typeof ApiWebhookRegisteredRoute
   '/i/$token/opengraph-image': typeof ITokenOpengraphImageRoute
-  '/integrations/category/$category': typeof IntegrationsCategoryCategoryRoute
   '/p/$portalId/opengraph-image': typeof PPortalIdOpengraphImageRoute
   '/r/$linkId/opengraph-image': typeof RLinkIdOpengraphImageRoute
-  '/updates/page/$page': typeof UpdatesPagePageRoute
   '/api/actions/ai/tax-rate': typeof ApiActionsAiTaxRateRoute
   '/api/actions/transactions/manual-sync': typeof ApiActionsTransactionsManualSyncRoute
   '/api/actions/transactions/reconnect': typeof ApiActionsTransactionsReconnectRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/apps': typeof AppsRoute
-  '/assistant': typeof AssistantRoute
-  '/bank-coverage': typeof BankCoverageRoute
   '/customers': typeof CustomersRoute
   '/dashboard': typeof DashboardRoute
-  '/file-storage': typeof FileStorageRoute
   '/inbox': typeof InboxRouteWithChildren
-  '/insights': typeof InsightsRoute
   '/invoices': typeof InvoicesRouteWithChildren
-  '/invoicing': typeof InvoicingRoute
   '/login': typeof LoginRoute
   '/oauth-callback': typeof OauthCallbackRoute
   '/onboarding': typeof OnboardingRoute
-  '/policy': typeof PolicyRoute
-  '/pre-accounting': typeof PreAccountingRoute
-  '/pricing': typeof PricingRoute
-  '/robots.txt': typeof RobotsDottxtRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/story': typeof StoryRoute
-  '/support': typeof SupportRouteWithChildren
   '/teams': typeof TeamsRoute
-  '/terms': typeof TermsRoute
-  '/testimonials': typeof TestimonialsRoute
-  '/time-tracking': typeof TimeTrackingRoute
   '/tracker': typeof TrackerRoute
   '/transactions': typeof TransactionsRouteWithChildren
   '/upgrade': typeof UpgradeRoute
   '/vault': typeof VaultRoute
-  '/verify': typeof VerifyRoute
   '/account/date-and-locale': typeof AccountDateAndLocaleRoute
   '/account/security': typeof AccountSecurityRoute
   '/account/support': typeof AccountSupportRoute
@@ -772,26 +439,13 @@ export interface FileRoutesByTo {
   '/api/auth': typeof ApiAuthRouteWithChildren
   '/api/health': typeof ApiHealthRoute
   '/chat/$id': typeof ChatIdRoute
-  '/compare/$slug': typeof CompareSlugRoute
   '/compliance/payroll': typeof CompliancePayrollRoute
   '/compliance/settings': typeof ComplianceSettingsRoute
   '/compliance/vat': typeof ComplianceVatRoute
   '/compliance/year-end': typeof ComplianceYearEndRoute
-  '/docs/$slug': typeof DocsSlugRoute
   '/i/$token': typeof ITokenRouteWithChildren
   '/inbox/settings': typeof InboxSettingsRoute
-  '/integrations/$slug': typeof IntegrationsSlugRoute
   '/invoices/products': typeof InvoicesProductsRoute
-  '/mcp/chatgpt': typeof McpChatgptRoute
-  '/mcp/claude': typeof McpClaudeRoute
-  '/mcp/copilot': typeof McpCopilotRoute
-  '/mcp/cursor': typeof McpCursorRoute
-  '/mcp/make': typeof McpMakeRoute
-  '/mcp/n8n': typeof McpN8nRoute
-  '/mcp/opencode': typeof McpOpencodeRoute
-  '/mcp/perplexity': typeof McpPerplexityRoute
-  '/mcp/raycast': typeof McpRaycastRoute
-  '/mcp/zapier': typeof McpZapierRoute
   '/mfa/setup': typeof MfaSetupRoute
   '/mfa/verify': typeof MfaVerifyRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
@@ -803,29 +457,16 @@ export interface FileRoutesByTo {
   '/settings/developer': typeof SettingsDeveloperRoute
   '/settings/members': typeof SettingsMembersRoute
   '/settings/notifications': typeof SettingsNotificationsRoute
-  '/support/submit': typeof SupportSubmitRoute
   '/transactions/categories': typeof TransactionsCategoriesRoute
-  '/updates/$slug': typeof UpdatesSlugRoute
   '/account': typeof AccountIndexRoute
-  '/compare': typeof CompareIndexRoute
   '/compliance': typeof ComplianceIndexRoute
-  '/docs': typeof DocsIndexRoute
-  '/integrations': typeof IntegrationsIndexRoute
-  '/mcp': typeof McpIndexRoute
   '/settings': typeof SettingsIndexRoute
-  '/updates': typeof UpdatesIndexRoute
-  '/api/actions/send-feedback': typeof ApiActionsSendFeedbackRoute
-  '/api/actions/send-support': typeof ApiActionsSendSupportRoute
   '/api/auth/callback': typeof ApiAuthCallbackRoute
-  '/api/docs/chat': typeof ApiDocsChatRoute
   '/api/gocardless/reconnect': typeof ApiGocardlessReconnectRoute
-  '/api/og/compare': typeof ApiOgCompareRoute
   '/api/webhook/registered': typeof ApiWebhookRegisteredRoute
   '/i/$token/opengraph-image': typeof ITokenOpengraphImageRoute
-  '/integrations/category/$category': typeof IntegrationsCategoryCategoryRoute
   '/p/$portalId/opengraph-image': typeof PPortalIdOpengraphImageRoute
   '/r/$linkId/opengraph-image': typeof RLinkIdOpengraphImageRoute
-  '/updates/page/$page': typeof UpdatesPagePageRoute
   '/api/actions/ai/tax-rate': typeof ApiActionsAiTaxRateRoute
   '/api/actions/transactions/manual-sync': typeof ApiActionsTransactionsManualSyncRoute
   '/api/actions/transactions/reconnect': typeof ApiActionsTransactionsReconnectRoute
@@ -833,36 +474,19 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/apps': typeof AppsRoute
-  '/assistant': typeof AssistantRoute
-  '/bank-coverage': typeof BankCoverageRoute
   '/customers': typeof CustomersRoute
   '/dashboard': typeof DashboardRoute
-  '/file-storage': typeof FileStorageRoute
   '/inbox': typeof InboxRouteWithChildren
-  '/insights': typeof InsightsRoute
   '/invoices': typeof InvoicesRouteWithChildren
-  '/invoicing': typeof InvoicingRoute
   '/login': typeof LoginRoute
   '/oauth-callback': typeof OauthCallbackRoute
   '/onboarding': typeof OnboardingRoute
-  '/policy': typeof PolicyRoute
-  '/pre-accounting': typeof PreAccountingRoute
-  '/pricing': typeof PricingRoute
-  '/robots.txt': typeof RobotsDottxtRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/story': typeof StoryRoute
-  '/support': typeof SupportRouteWithChildren
   '/teams': typeof TeamsRoute
-  '/terms': typeof TermsRoute
-  '/testimonials': typeof TestimonialsRoute
-  '/time-tracking': typeof TimeTrackingRoute
   '/tracker': typeof TrackerRoute
   '/transactions': typeof TransactionsRouteWithChildren
   '/upgrade': typeof UpgradeRoute
   '/vault': typeof VaultRoute
-  '/verify': typeof VerifyRoute
   '/account/date-and-locale': typeof AccountDateAndLocaleRoute
   '/account/security': typeof AccountSecurityRoute
   '/account/support': typeof AccountSupportRoute
@@ -870,26 +494,13 @@ export interface FileRoutesById {
   '/api/auth': typeof ApiAuthRouteWithChildren
   '/api/health': typeof ApiHealthRoute
   '/chat/$id': typeof ChatIdRoute
-  '/compare/$slug': typeof CompareSlugRoute
   '/compliance/payroll': typeof CompliancePayrollRoute
   '/compliance/settings': typeof ComplianceSettingsRoute
   '/compliance/vat': typeof ComplianceVatRoute
   '/compliance/year-end': typeof ComplianceYearEndRoute
-  '/docs/$slug': typeof DocsSlugRoute
   '/i/$token': typeof ITokenRouteWithChildren
   '/inbox/settings': typeof InboxSettingsRoute
-  '/integrations/$slug': typeof IntegrationsSlugRoute
   '/invoices/products': typeof InvoicesProductsRoute
-  '/mcp/chatgpt': typeof McpChatgptRoute
-  '/mcp/claude': typeof McpClaudeRoute
-  '/mcp/copilot': typeof McpCopilotRoute
-  '/mcp/cursor': typeof McpCursorRoute
-  '/mcp/make': typeof McpMakeRoute
-  '/mcp/n8n': typeof McpN8nRoute
-  '/mcp/opencode': typeof McpOpencodeRoute
-  '/mcp/perplexity': typeof McpPerplexityRoute
-  '/mcp/raycast': typeof McpRaycastRoute
-  '/mcp/zapier': typeof McpZapierRoute
   '/mfa/setup': typeof MfaSetupRoute
   '/mfa/verify': typeof MfaVerifyRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
@@ -901,29 +512,16 @@ export interface FileRoutesById {
   '/settings/developer': typeof SettingsDeveloperRoute
   '/settings/members': typeof SettingsMembersRoute
   '/settings/notifications': typeof SettingsNotificationsRoute
-  '/support/submit': typeof SupportSubmitRoute
   '/transactions/categories': typeof TransactionsCategoriesRoute
-  '/updates/$slug': typeof UpdatesSlugRoute
   '/account/': typeof AccountIndexRoute
-  '/compare/': typeof CompareIndexRoute
   '/compliance/': typeof ComplianceIndexRoute
-  '/docs/': typeof DocsIndexRoute
-  '/integrations/': typeof IntegrationsIndexRoute
-  '/mcp/': typeof McpIndexRoute
   '/settings/': typeof SettingsIndexRoute
-  '/updates/': typeof UpdatesIndexRoute
-  '/api/actions/send-feedback': typeof ApiActionsSendFeedbackRoute
-  '/api/actions/send-support': typeof ApiActionsSendSupportRoute
   '/api/auth/callback': typeof ApiAuthCallbackRoute
-  '/api/docs/chat': typeof ApiDocsChatRoute
   '/api/gocardless/reconnect': typeof ApiGocardlessReconnectRoute
-  '/api/og/compare': typeof ApiOgCompareRoute
   '/api/webhook/registered': typeof ApiWebhookRegisteredRoute
   '/i/$token/opengraph-image': typeof ITokenOpengraphImageRoute
-  '/integrations/category/$category': typeof IntegrationsCategoryCategoryRoute
   '/p/$portalId/opengraph-image': typeof PPortalIdOpengraphImageRoute
   '/r/$linkId/opengraph-image': typeof RLinkIdOpengraphImageRoute
-  '/updates/page/$page': typeof UpdatesPagePageRoute
   '/api/actions/ai/tax-rate': typeof ApiActionsAiTaxRateRoute
   '/api/actions/transactions/manual-sync': typeof ApiActionsTransactionsManualSyncRoute
   '/api/actions/transactions/reconnect': typeof ApiActionsTransactionsReconnectRoute
@@ -932,36 +530,19 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/about'
     | '/apps'
-    | '/assistant'
-    | '/bank-coverage'
     | '/customers'
     | '/dashboard'
-    | '/file-storage'
     | '/inbox'
-    | '/insights'
     | '/invoices'
-    | '/invoicing'
     | '/login'
     | '/oauth-callback'
     | '/onboarding'
-    | '/policy'
-    | '/pre-accounting'
-    | '/pricing'
-    | '/robots.txt'
-    | '/sitemap.xml'
-    | '/story'
-    | '/support'
     | '/teams'
-    | '/terms'
-    | '/testimonials'
-    | '/time-tracking'
     | '/tracker'
     | '/transactions'
     | '/upgrade'
     | '/vault'
-    | '/verify'
     | '/account/date-and-locale'
     | '/account/security'
     | '/account/support'
@@ -969,26 +550,13 @@ export interface FileRouteTypes {
     | '/api/auth'
     | '/api/health'
     | '/chat/$id'
-    | '/compare/$slug'
     | '/compliance/payroll'
     | '/compliance/settings'
     | '/compliance/vat'
     | '/compliance/year-end'
-    | '/docs/$slug'
     | '/i/$token'
     | '/inbox/settings'
-    | '/integrations/$slug'
     | '/invoices/products'
-    | '/mcp/chatgpt'
-    | '/mcp/claude'
-    | '/mcp/copilot'
-    | '/mcp/cursor'
-    | '/mcp/make'
-    | '/mcp/n8n'
-    | '/mcp/opencode'
-    | '/mcp/perplexity'
-    | '/mcp/raycast'
-    | '/mcp/zapier'
     | '/mfa/setup'
     | '/mfa/verify'
     | '/oauth/authorize'
@@ -1000,65 +568,35 @@ export interface FileRouteTypes {
     | '/settings/developer'
     | '/settings/members'
     | '/settings/notifications'
-    | '/support/submit'
     | '/transactions/categories'
-    | '/updates/$slug'
     | '/account/'
-    | '/compare/'
     | '/compliance/'
-    | '/docs/'
-    | '/integrations/'
-    | '/mcp/'
     | '/settings/'
-    | '/updates/'
-    | '/api/actions/send-feedback'
-    | '/api/actions/send-support'
     | '/api/auth/callback'
-    | '/api/docs/chat'
     | '/api/gocardless/reconnect'
-    | '/api/og/compare'
     | '/api/webhook/registered'
     | '/i/$token/opengraph-image'
-    | '/integrations/category/$category'
     | '/p/$portalId/opengraph-image'
     | '/r/$linkId/opengraph-image'
-    | '/updates/page/$page'
     | '/api/actions/ai/tax-rate'
     | '/api/actions/transactions/manual-sync'
     | '/api/actions/transactions/reconnect'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/about'
     | '/apps'
-    | '/assistant'
-    | '/bank-coverage'
     | '/customers'
     | '/dashboard'
-    | '/file-storage'
     | '/inbox'
-    | '/insights'
     | '/invoices'
-    | '/invoicing'
     | '/login'
     | '/oauth-callback'
     | '/onboarding'
-    | '/policy'
-    | '/pre-accounting'
-    | '/pricing'
-    | '/robots.txt'
-    | '/sitemap.xml'
-    | '/story'
-    | '/support'
     | '/teams'
-    | '/terms'
-    | '/testimonials'
-    | '/time-tracking'
     | '/tracker'
     | '/transactions'
     | '/upgrade'
     | '/vault'
-    | '/verify'
     | '/account/date-and-locale'
     | '/account/security'
     | '/account/support'
@@ -1066,26 +604,13 @@ export interface FileRouteTypes {
     | '/api/auth'
     | '/api/health'
     | '/chat/$id'
-    | '/compare/$slug'
     | '/compliance/payroll'
     | '/compliance/settings'
     | '/compliance/vat'
     | '/compliance/year-end'
-    | '/docs/$slug'
     | '/i/$token'
     | '/inbox/settings'
-    | '/integrations/$slug'
     | '/invoices/products'
-    | '/mcp/chatgpt'
-    | '/mcp/claude'
-    | '/mcp/copilot'
-    | '/mcp/cursor'
-    | '/mcp/make'
-    | '/mcp/n8n'
-    | '/mcp/opencode'
-    | '/mcp/perplexity'
-    | '/mcp/raycast'
-    | '/mcp/zapier'
     | '/mfa/setup'
     | '/mfa/verify'
     | '/oauth/authorize'
@@ -1097,65 +622,35 @@ export interface FileRouteTypes {
     | '/settings/developer'
     | '/settings/members'
     | '/settings/notifications'
-    | '/support/submit'
     | '/transactions/categories'
-    | '/updates/$slug'
     | '/account'
-    | '/compare'
     | '/compliance'
-    | '/docs'
-    | '/integrations'
-    | '/mcp'
     | '/settings'
-    | '/updates'
-    | '/api/actions/send-feedback'
-    | '/api/actions/send-support'
     | '/api/auth/callback'
-    | '/api/docs/chat'
     | '/api/gocardless/reconnect'
-    | '/api/og/compare'
     | '/api/webhook/registered'
     | '/i/$token/opengraph-image'
-    | '/integrations/category/$category'
     | '/p/$portalId/opengraph-image'
     | '/r/$linkId/opengraph-image'
-    | '/updates/page/$page'
     | '/api/actions/ai/tax-rate'
     | '/api/actions/transactions/manual-sync'
     | '/api/actions/transactions/reconnect'
   id:
     | '__root__'
     | '/'
-    | '/about'
     | '/apps'
-    | '/assistant'
-    | '/bank-coverage'
     | '/customers'
     | '/dashboard'
-    | '/file-storage'
     | '/inbox'
-    | '/insights'
     | '/invoices'
-    | '/invoicing'
     | '/login'
     | '/oauth-callback'
     | '/onboarding'
-    | '/policy'
-    | '/pre-accounting'
-    | '/pricing'
-    | '/robots.txt'
-    | '/sitemap.xml'
-    | '/story'
-    | '/support'
     | '/teams'
-    | '/terms'
-    | '/testimonials'
-    | '/time-tracking'
     | '/tracker'
     | '/transactions'
     | '/upgrade'
     | '/vault'
-    | '/verify'
     | '/account/date-and-locale'
     | '/account/security'
     | '/account/support'
@@ -1163,26 +658,13 @@ export interface FileRouteTypes {
     | '/api/auth'
     | '/api/health'
     | '/chat/$id'
-    | '/compare/$slug'
     | '/compliance/payroll'
     | '/compliance/settings'
     | '/compliance/vat'
     | '/compliance/year-end'
-    | '/docs/$slug'
     | '/i/$token'
     | '/inbox/settings'
-    | '/integrations/$slug'
     | '/invoices/products'
-    | '/mcp/chatgpt'
-    | '/mcp/claude'
-    | '/mcp/copilot'
-    | '/mcp/cursor'
-    | '/mcp/make'
-    | '/mcp/n8n'
-    | '/mcp/opencode'
-    | '/mcp/perplexity'
-    | '/mcp/raycast'
-    | '/mcp/zapier'
     | '/mfa/setup'
     | '/mfa/verify'
     | '/oauth/authorize'
@@ -1194,29 +676,16 @@ export interface FileRouteTypes {
     | '/settings/developer'
     | '/settings/members'
     | '/settings/notifications'
-    | '/support/submit'
     | '/transactions/categories'
-    | '/updates/$slug'
     | '/account/'
-    | '/compare/'
     | '/compliance/'
-    | '/docs/'
-    | '/integrations/'
-    | '/mcp/'
     | '/settings/'
-    | '/updates/'
-    | '/api/actions/send-feedback'
-    | '/api/actions/send-support'
     | '/api/auth/callback'
-    | '/api/docs/chat'
     | '/api/gocardless/reconnect'
-    | '/api/og/compare'
     | '/api/webhook/registered'
     | '/i/$token/opengraph-image'
-    | '/integrations/category/$category'
     | '/p/$portalId/opengraph-image'
     | '/r/$linkId/opengraph-image'
-    | '/updates/page/$page'
     | '/api/actions/ai/tax-rate'
     | '/api/actions/transactions/manual-sync'
     | '/api/actions/transactions/reconnect'
@@ -1224,36 +693,19 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AboutRoute: typeof AboutRoute
   AppsRoute: typeof AppsRoute
-  AssistantRoute: typeof AssistantRoute
-  BankCoverageRoute: typeof BankCoverageRoute
   CustomersRoute: typeof CustomersRoute
   DashboardRoute: typeof DashboardRoute
-  FileStorageRoute: typeof FileStorageRoute
   InboxRoute: typeof InboxRouteWithChildren
-  InsightsRoute: typeof InsightsRoute
   InvoicesRoute: typeof InvoicesRouteWithChildren
-  InvoicingRoute: typeof InvoicingRoute
   LoginRoute: typeof LoginRoute
   OauthCallbackRoute: typeof OauthCallbackRoute
   OnboardingRoute: typeof OnboardingRoute
-  PolicyRoute: typeof PolicyRoute
-  PreAccountingRoute: typeof PreAccountingRoute
-  PricingRoute: typeof PricingRoute
-  RobotsDottxtRoute: typeof RobotsDottxtRoute
-  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  StoryRoute: typeof StoryRoute
-  SupportRoute: typeof SupportRouteWithChildren
   TeamsRoute: typeof TeamsRoute
-  TermsRoute: typeof TermsRoute
-  TestimonialsRoute: typeof TestimonialsRoute
-  TimeTrackingRoute: typeof TimeTrackingRoute
   TrackerRoute: typeof TrackerRoute
   TransactionsRoute: typeof TransactionsRouteWithChildren
   UpgradeRoute: typeof UpgradeRoute
   VaultRoute: typeof VaultRoute
-  VerifyRoute: typeof VerifyRoute
   AccountDateAndLocaleRoute: typeof AccountDateAndLocaleRoute
   AccountSecurityRoute: typeof AccountSecurityRoute
   AccountSupportRoute: typeof AccountSupportRoute
@@ -1261,24 +713,11 @@ export interface RootRouteChildren {
   ApiAuthRoute: typeof ApiAuthRouteWithChildren
   ApiHealthRoute: typeof ApiHealthRoute
   ChatIdRoute: typeof ChatIdRoute
-  CompareSlugRoute: typeof CompareSlugRoute
   CompliancePayrollRoute: typeof CompliancePayrollRoute
   ComplianceSettingsRoute: typeof ComplianceSettingsRoute
   ComplianceVatRoute: typeof ComplianceVatRoute
   ComplianceYearEndRoute: typeof ComplianceYearEndRoute
-  DocsSlugRoute: typeof DocsSlugRoute
   ITokenRoute: typeof ITokenRouteWithChildren
-  IntegrationsSlugRoute: typeof IntegrationsSlugRoute
-  McpChatgptRoute: typeof McpChatgptRoute
-  McpClaudeRoute: typeof McpClaudeRoute
-  McpCopilotRoute: typeof McpCopilotRoute
-  McpCursorRoute: typeof McpCursorRoute
-  McpMakeRoute: typeof McpMakeRoute
-  McpN8nRoute: typeof McpN8nRoute
-  McpOpencodeRoute: typeof McpOpencodeRoute
-  McpPerplexityRoute: typeof McpPerplexityRoute
-  McpRaycastRoute: typeof McpRaycastRoute
-  McpZapierRoute: typeof McpZapierRoute
   MfaSetupRoute: typeof MfaSetupRoute
   MfaVerifyRoute: typeof MfaVerifyRoute
   OauthAuthorizeRoute: typeof OauthAuthorizeRoute
@@ -1290,23 +729,11 @@ export interface RootRouteChildren {
   SettingsDeveloperRoute: typeof SettingsDeveloperRoute
   SettingsMembersRoute: typeof SettingsMembersRoute
   SettingsNotificationsRoute: typeof SettingsNotificationsRoute
-  UpdatesSlugRoute: typeof UpdatesSlugRoute
   AccountIndexRoute: typeof AccountIndexRoute
-  CompareIndexRoute: typeof CompareIndexRoute
   ComplianceIndexRoute: typeof ComplianceIndexRoute
-  DocsIndexRoute: typeof DocsIndexRoute
-  IntegrationsIndexRoute: typeof IntegrationsIndexRoute
-  McpIndexRoute: typeof McpIndexRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
-  UpdatesIndexRoute: typeof UpdatesIndexRoute
-  ApiActionsSendFeedbackRoute: typeof ApiActionsSendFeedbackRoute
-  ApiActionsSendSupportRoute: typeof ApiActionsSendSupportRoute
-  ApiDocsChatRoute: typeof ApiDocsChatRoute
   ApiGocardlessReconnectRoute: typeof ApiGocardlessReconnectRoute
-  ApiOgCompareRoute: typeof ApiOgCompareRoute
   ApiWebhookRegisteredRoute: typeof ApiWebhookRegisteredRoute
-  IntegrationsCategoryCategoryRoute: typeof IntegrationsCategoryCategoryRoute
-  UpdatesPagePageRoute: typeof UpdatesPagePageRoute
   ApiActionsAiTaxRateRoute: typeof ApiActionsAiTaxRateRoute
   ApiActionsTransactionsManualSyncRoute: typeof ApiActionsTransactionsManualSyncRoute
   ApiActionsTransactionsReconnectRoute: typeof ApiActionsTransactionsReconnectRoute
@@ -1314,13 +741,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/verify': {
-      id: '/verify'
-      path: '/verify'
-      fullPath: '/verify'
-      preLoaderRoute: typeof VerifyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/vault': {
       id: '/vault'
       path: '/vault'
@@ -1349,81 +769,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TrackerRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/time-tracking': {
-      id: '/time-tracking'
-      path: '/time-tracking'
-      fullPath: '/time-tracking'
-      preLoaderRoute: typeof TimeTrackingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/testimonials': {
-      id: '/testimonials'
-      path: '/testimonials'
-      fullPath: '/testimonials'
-      preLoaderRoute: typeof TestimonialsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/teams': {
       id: '/teams'
       path: '/teams'
       fullPath: '/teams'
       preLoaderRoute: typeof TeamsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/support': {
-      id: '/support'
-      path: '/support'
-      fullPath: '/support'
-      preLoaderRoute: typeof SupportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/story': {
-      id: '/story'
-      path: '/story'
-      fullPath: '/story'
-      preLoaderRoute: typeof StoryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/robots.txt': {
-      id: '/robots.txt'
-      path: '/robots.txt'
-      fullPath: '/robots.txt'
-      preLoaderRoute: typeof RobotsDottxtRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pricing': {
-      id: '/pricing'
-      path: '/pricing'
-      fullPath: '/pricing'
-      preLoaderRoute: typeof PricingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pre-accounting': {
-      id: '/pre-accounting'
-      path: '/pre-accounting'
-      fullPath: '/pre-accounting'
-      preLoaderRoute: typeof PreAccountingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/policy': {
-      id: '/policy'
-      path: '/policy'
-      fullPath: '/policy'
-      preLoaderRoute: typeof PolicyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding': {
@@ -1447,13 +797,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/invoicing': {
-      id: '/invoicing'
-      path: '/invoicing'
-      fullPath: '/invoicing'
-      preLoaderRoute: typeof InvoicingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/invoices': {
       id: '/invoices'
       path: '/invoices'
@@ -1461,25 +804,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InvoicesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/insights': {
-      id: '/insights'
-      path: '/insights'
-      fullPath: '/insights'
-      preLoaderRoute: typeof InsightsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/inbox': {
       id: '/inbox'
       path: '/inbox'
       fullPath: '/inbox'
       preLoaderRoute: typeof InboxRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/file-storage': {
-      id: '/file-storage'
-      path: '/file-storage'
-      fullPath: '/file-storage'
-      preLoaderRoute: typeof FileStorageRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -1496,32 +825,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CustomersRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/bank-coverage': {
-      id: '/bank-coverage'
-      path: '/bank-coverage'
-      fullPath: '/bank-coverage'
-      preLoaderRoute: typeof BankCoverageRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/assistant': {
-      id: '/assistant'
-      path: '/assistant'
-      fullPath: '/assistant'
-      preLoaderRoute: typeof AssistantRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/apps': {
       id: '/apps'
       path: '/apps'
       fullPath: '/apps'
       preLoaderRoute: typeof AppsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -1531,39 +839,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/updates/': {
-      id: '/updates/'
-      path: '/updates'
-      fullPath: '/updates/'
-      preLoaderRoute: typeof UpdatesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/settings/': {
       id: '/settings/'
       path: '/settings'
       fullPath: '/settings/'
       preLoaderRoute: typeof SettingsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mcp/': {
-      id: '/mcp/'
-      path: '/mcp'
-      fullPath: '/mcp/'
-      preLoaderRoute: typeof McpIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/integrations/': {
-      id: '/integrations/'
-      path: '/integrations'
-      fullPath: '/integrations/'
-      preLoaderRoute: typeof IntegrationsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/docs/': {
-      id: '/docs/'
-      path: '/docs'
-      fullPath: '/docs/'
-      preLoaderRoute: typeof DocsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/compliance/': {
@@ -1573,25 +853,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ComplianceIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/compare/': {
-      id: '/compare/'
-      path: '/compare'
-      fullPath: '/compare/'
-      preLoaderRoute: typeof CompareIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/account/': {
       id: '/account/'
       path: '/account'
       fullPath: '/account/'
       preLoaderRoute: typeof AccountIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/updates/$slug': {
-      id: '/updates/$slug'
-      path: '/updates/$slug'
-      fullPath: '/updates/$slug'
-      preLoaderRoute: typeof UpdatesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/transactions/categories': {
@@ -1600,13 +866,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/transactions/categories'
       preLoaderRoute: typeof TransactionsCategoriesRouteImport
       parentRoute: typeof TransactionsRoute
-    }
-    '/support/submit': {
-      id: '/support/submit'
-      path: '/submit'
-      fullPath: '/support/submit'
-      preLoaderRoute: typeof SupportSubmitRouteImport
-      parentRoute: typeof SupportRoute
     }
     '/settings/notifications': {
       id: '/settings/notifications'
@@ -1685,89 +944,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MfaSetupRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/mcp/zapier': {
-      id: '/mcp/zapier'
-      path: '/mcp/zapier'
-      fullPath: '/mcp/zapier'
-      preLoaderRoute: typeof McpZapierRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mcp/raycast': {
-      id: '/mcp/raycast'
-      path: '/mcp/raycast'
-      fullPath: '/mcp/raycast'
-      preLoaderRoute: typeof McpRaycastRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mcp/perplexity': {
-      id: '/mcp/perplexity'
-      path: '/mcp/perplexity'
-      fullPath: '/mcp/perplexity'
-      preLoaderRoute: typeof McpPerplexityRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mcp/opencode': {
-      id: '/mcp/opencode'
-      path: '/mcp/opencode'
-      fullPath: '/mcp/opencode'
-      preLoaderRoute: typeof McpOpencodeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mcp/n8n': {
-      id: '/mcp/n8n'
-      path: '/mcp/n8n'
-      fullPath: '/mcp/n8n'
-      preLoaderRoute: typeof McpN8nRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mcp/make': {
-      id: '/mcp/make'
-      path: '/mcp/make'
-      fullPath: '/mcp/make'
-      preLoaderRoute: typeof McpMakeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mcp/cursor': {
-      id: '/mcp/cursor'
-      path: '/mcp/cursor'
-      fullPath: '/mcp/cursor'
-      preLoaderRoute: typeof McpCursorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mcp/copilot': {
-      id: '/mcp/copilot'
-      path: '/mcp/copilot'
-      fullPath: '/mcp/copilot'
-      preLoaderRoute: typeof McpCopilotRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mcp/claude': {
-      id: '/mcp/claude'
-      path: '/mcp/claude'
-      fullPath: '/mcp/claude'
-      preLoaderRoute: typeof McpClaudeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mcp/chatgpt': {
-      id: '/mcp/chatgpt'
-      path: '/mcp/chatgpt'
-      fullPath: '/mcp/chatgpt'
-      preLoaderRoute: typeof McpChatgptRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/invoices/products': {
       id: '/invoices/products'
       path: '/products'
       fullPath: '/invoices/products'
       preLoaderRoute: typeof InvoicesProductsRouteImport
       parentRoute: typeof InvoicesRoute
-    }
-    '/integrations/$slug': {
-      id: '/integrations/$slug'
-      path: '/integrations/$slug'
-      fullPath: '/integrations/$slug'
-      preLoaderRoute: typeof IntegrationsSlugRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/inbox/settings': {
       id: '/inbox/settings'
@@ -1781,13 +963,6 @@ declare module '@tanstack/react-router' {
       path: '/i/$token'
       fullPath: '/i/$token'
       preLoaderRoute: typeof ITokenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/docs/$slug': {
-      id: '/docs/$slug'
-      path: '/docs/$slug'
-      fullPath: '/docs/$slug'
-      preLoaderRoute: typeof DocsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/compliance/year-end': {
@@ -1816,13 +991,6 @@ declare module '@tanstack/react-router' {
       path: '/compliance/payroll'
       fullPath: '/compliance/payroll'
       preLoaderRoute: typeof CompliancePayrollRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/compare/$slug': {
-      id: '/compare/$slug'
-      path: '/compare/$slug'
-      fullPath: '/compare/$slug'
-      preLoaderRoute: typeof CompareSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat/$id': {
@@ -1874,13 +1042,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountDateAndLocaleRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/updates/page/$page': {
-      id: '/updates/page/$page'
-      path: '/updates/page/$page'
-      fullPath: '/updates/page/$page'
-      preLoaderRoute: typeof UpdatesPagePageRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/r/$linkId/opengraph-image': {
       id: '/r/$linkId/opengraph-image'
       path: '/opengraph-image'
@@ -1894,13 +1055,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/p/$portalId/opengraph-image'
       preLoaderRoute: typeof PPortalIdOpengraphImageRouteImport
       parentRoute: typeof PPortalIdRoute
-    }
-    '/integrations/category/$category': {
-      id: '/integrations/category/$category'
-      path: '/integrations/category/$category'
-      fullPath: '/integrations/category/$category'
-      preLoaderRoute: typeof IntegrationsCategoryCategoryRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/i/$token/opengraph-image': {
       id: '/i/$token/opengraph-image'
@@ -1916,25 +1070,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWebhookRegisteredRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/og/compare': {
-      id: '/api/og/compare'
-      path: '/api/og/compare'
-      fullPath: '/api/og/compare'
-      preLoaderRoute: typeof ApiOgCompareRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/gocardless/reconnect': {
       id: '/api/gocardless/reconnect'
       path: '/api/gocardless/reconnect'
       fullPath: '/api/gocardless/reconnect'
       preLoaderRoute: typeof ApiGocardlessReconnectRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/docs/chat': {
-      id: '/api/docs/chat'
-      path: '/api/docs/chat'
-      fullPath: '/api/docs/chat'
-      preLoaderRoute: typeof ApiDocsChatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/callback': {
@@ -1943,20 +1083,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/auth/callback'
       preLoaderRoute: typeof ApiAuthCallbackRouteImport
       parentRoute: typeof ApiAuthRoute
-    }
-    '/api/actions/send-support': {
-      id: '/api/actions/send-support'
-      path: '/api/actions/send-support'
-      fullPath: '/api/actions/send-support'
-      preLoaderRoute: typeof ApiActionsSendSupportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/actions/send-feedback': {
-      id: '/api/actions/send-feedback'
-      path: '/api/actions/send-feedback'
-      fullPath: '/api/actions/send-feedback'
-      preLoaderRoute: typeof ApiActionsSendFeedbackRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/api/actions/transactions/reconnect': {
       id: '/api/actions/transactions/reconnect'
@@ -2003,17 +1129,6 @@ const InvoicesRouteChildren: InvoicesRouteChildren = {
 const InvoicesRouteWithChildren = InvoicesRoute._addFileChildren(
   InvoicesRouteChildren,
 )
-
-interface SupportRouteChildren {
-  SupportSubmitRoute: typeof SupportSubmitRoute
-}
-
-const SupportRouteChildren: SupportRouteChildren = {
-  SupportSubmitRoute: SupportSubmitRoute,
-}
-
-const SupportRouteWithChildren =
-  SupportRoute._addFileChildren(SupportRouteChildren)
 
 interface TransactionsRouteChildren {
   TransactionsCategoriesRoute: typeof TransactionsCategoriesRoute
@@ -2074,36 +1189,19 @@ const RLinkIdRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AboutRoute: AboutRoute,
   AppsRoute: AppsRoute,
-  AssistantRoute: AssistantRoute,
-  BankCoverageRoute: BankCoverageRoute,
   CustomersRoute: CustomersRoute,
   DashboardRoute: DashboardRoute,
-  FileStorageRoute: FileStorageRoute,
   InboxRoute: InboxRouteWithChildren,
-  InsightsRoute: InsightsRoute,
   InvoicesRoute: InvoicesRouteWithChildren,
-  InvoicingRoute: InvoicingRoute,
   LoginRoute: LoginRoute,
   OauthCallbackRoute: OauthCallbackRoute,
   OnboardingRoute: OnboardingRoute,
-  PolicyRoute: PolicyRoute,
-  PreAccountingRoute: PreAccountingRoute,
-  PricingRoute: PricingRoute,
-  RobotsDottxtRoute: RobotsDottxtRoute,
-  SitemapDotxmlRoute: SitemapDotxmlRoute,
-  StoryRoute: StoryRoute,
-  SupportRoute: SupportRouteWithChildren,
   TeamsRoute: TeamsRoute,
-  TermsRoute: TermsRoute,
-  TestimonialsRoute: TestimonialsRoute,
-  TimeTrackingRoute: TimeTrackingRoute,
   TrackerRoute: TrackerRoute,
   TransactionsRoute: TransactionsRouteWithChildren,
   UpgradeRoute: UpgradeRoute,
   VaultRoute: VaultRoute,
-  VerifyRoute: VerifyRoute,
   AccountDateAndLocaleRoute: AccountDateAndLocaleRoute,
   AccountSecurityRoute: AccountSecurityRoute,
   AccountSupportRoute: AccountSupportRoute,
@@ -2111,24 +1209,11 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthRoute: ApiAuthRouteWithChildren,
   ApiHealthRoute: ApiHealthRoute,
   ChatIdRoute: ChatIdRoute,
-  CompareSlugRoute: CompareSlugRoute,
   CompliancePayrollRoute: CompliancePayrollRoute,
   ComplianceSettingsRoute: ComplianceSettingsRoute,
   ComplianceVatRoute: ComplianceVatRoute,
   ComplianceYearEndRoute: ComplianceYearEndRoute,
-  DocsSlugRoute: DocsSlugRoute,
   ITokenRoute: ITokenRouteWithChildren,
-  IntegrationsSlugRoute: IntegrationsSlugRoute,
-  McpChatgptRoute: McpChatgptRoute,
-  McpClaudeRoute: McpClaudeRoute,
-  McpCopilotRoute: McpCopilotRoute,
-  McpCursorRoute: McpCursorRoute,
-  McpMakeRoute: McpMakeRoute,
-  McpN8nRoute: McpN8nRoute,
-  McpOpencodeRoute: McpOpencodeRoute,
-  McpPerplexityRoute: McpPerplexityRoute,
-  McpRaycastRoute: McpRaycastRoute,
-  McpZapierRoute: McpZapierRoute,
   MfaSetupRoute: MfaSetupRoute,
   MfaVerifyRoute: MfaVerifyRoute,
   OauthAuthorizeRoute: OauthAuthorizeRoute,
@@ -2140,23 +1225,11 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsDeveloperRoute: SettingsDeveloperRoute,
   SettingsMembersRoute: SettingsMembersRoute,
   SettingsNotificationsRoute: SettingsNotificationsRoute,
-  UpdatesSlugRoute: UpdatesSlugRoute,
   AccountIndexRoute: AccountIndexRoute,
-  CompareIndexRoute: CompareIndexRoute,
   ComplianceIndexRoute: ComplianceIndexRoute,
-  DocsIndexRoute: DocsIndexRoute,
-  IntegrationsIndexRoute: IntegrationsIndexRoute,
-  McpIndexRoute: McpIndexRoute,
   SettingsIndexRoute: SettingsIndexRoute,
-  UpdatesIndexRoute: UpdatesIndexRoute,
-  ApiActionsSendFeedbackRoute: ApiActionsSendFeedbackRoute,
-  ApiActionsSendSupportRoute: ApiActionsSendSupportRoute,
-  ApiDocsChatRoute: ApiDocsChatRoute,
   ApiGocardlessReconnectRoute: ApiGocardlessReconnectRoute,
-  ApiOgCompareRoute: ApiOgCompareRoute,
   ApiWebhookRegisteredRoute: ApiWebhookRegisteredRoute,
-  IntegrationsCategoryCategoryRoute: IntegrationsCategoryCategoryRoute,
-  UpdatesPagePageRoute: UpdatesPagePageRoute,
   ApiActionsAiTaxRateRoute: ApiActionsAiTaxRateRoute,
   ApiActionsTransactionsManualSyncRoute: ApiActionsTransactionsManualSyncRoute,
   ApiActionsTransactionsReconnectRoute: ApiActionsTransactionsReconnectRoute,

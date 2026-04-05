@@ -1,4 +1,4 @@
-import { getInvoiceAggregateRowsFromConvex } from "@tamias/app-data-convex";
+import { getInvoiceAggregateRowsFromConvex } from "../../convex";
 import type { Database } from "../../client";
 import { getExchangeRatesBatch, getTeamById } from "../index";
 import type { GetCustomerInvoiceSummaryParams } from "./types";

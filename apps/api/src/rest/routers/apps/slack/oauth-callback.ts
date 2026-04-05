@@ -11,7 +11,7 @@ import { createApp } from "@tamias/app-data/queries";
 import { logger } from "@tamias/logger";
 import { getAppUrl } from "@tamias/utils/envs";
 import { HTTPException } from "hono/http-exception";
-import type { Id } from "@tamias/convex-model/data-model";
+import type { Id } from "@tamias/app-data/convex/data-model";
 import { sendWelcomeMessage } from "./messages";
 
 type ConvexUserId = Id<"appUsers">;

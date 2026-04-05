@@ -1,4 +1,4 @@
-import type { CurrentUserIdentityRecord } from "@tamias/app-data-convex";
+import type { CurrentUserIdentityRecord } from "@tamias/app-data/convex";
 import type { Session } from "@tamias/auth-session";
 
 type ConvexUserId = CurrentUserIdentityRecord["convexId"];

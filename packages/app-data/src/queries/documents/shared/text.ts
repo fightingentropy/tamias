@@ -1,4 +1,4 @@
-import type { DocumentRecord } from "@tamias/app-data-convex";
+import type { DocumentRecord } from "../../../convex";
 
 export function isFolderPlaceholder(document: Pick<DocumentRecord, "name">) {
   return document.name.endsWith(".folderPlaceholder");

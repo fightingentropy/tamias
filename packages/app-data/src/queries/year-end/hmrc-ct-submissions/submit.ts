@@ -5,7 +5,7 @@ import {
   getCorporationTaxRateScheduleByPeriodFromConvex,
   getYearEndPackByPeriodFromConvex,
   type FilingProfileRecord,
-} from "@tamias/app-data-convex";
+} from "../../../convex";
 import type { Database } from "../../../client";
 import { buildCtSubmissionArtifacts } from "../drafts";
 import { getYearEndContext } from "../pack";

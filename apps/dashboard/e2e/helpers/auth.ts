@@ -58,6 +58,65 @@ export async function signUpWithPassword(
     .not.toBe("/login");
 }
 
+async function selectOptionByTestId(
+  page: Page,
+  testId: string,
+  optionLabel: string,
+) {
+  await page.getByTestId(testId).click();
+  await page.getByRole("option", { name: optionLabel }).click();
+}
+
+export async function completeOnboarding(page: Page): Promise<void> {
+  await expect(page.getByRole("heading", { name: "Complete your profile" })).toBeVisible({
+    timeout: 30_000,
+  });
+  await page.getByTestId("onboarding-full-name").fill("Playwright Smoke");
+  await page.getByRole("button", { name: "Continue" }).click();
+
+  await expect(page.getByRole("heading", { name: "Business details" })).toBeVisible({
+    timeout: 30_000,
+  });
+  await page.getByTestId("onboarding-company-name").fill("Playwright Ltd");
+  await selectOptionByTestId(
+    page,
+    "onboarding-company-type",
+    "Just exploring",
+  );
+  await selectOptionByTestId(page, "onboarding-heard-about", "GitHub");
+  await page.getByRole("button", { name: "Continue" }).click();
+
+  await expect(page.getByRole("heading", { name: "Connect your bank" })).toBeVisible({
+    timeout: 30_000,
+  });
+  await page.getByRole("button", { name: "Skip for now" }).click();
+
+  await expect(
+    page.getByRole("heading", {
+      name: "Auto-match receipts to transactions",
+    }),
+  ).toBeVisible({
+    timeout: 30_000,
+  });
+  await page.getByRole("button", { name: "Skip for now" }).click();
+
+  await expect(
+    page.getByRole("heading", {
+      name: "Prepare your books without friction",
+    }),
+  ).toBeVisible({
+    timeout: 30_000,
+  });
+  await page.getByRole("button", { name: "Next" }).click();
+
+  await expect(page.getByRole("heading", { name: "You're ready to go" })).toBeVisible({
+    timeout: 30_000,
+  });
+  await page.getByRole("button", { name: "Get started" }).click();
+
+  await expect(page).toHaveURL("/dashboard", { timeout: 30_000 });
+}
+
 export async function signInWithPassword(
   page: Page,
   credentials: SmokeUserCredentials,

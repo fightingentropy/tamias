@@ -3,7 +3,7 @@ import {
   getDocumentsPageFromConvex,
   searchDocumentsFromConvex,
   type DocumentRecord,
-} from "@tamias/app-data-convex";
+} from "../../../convex";
 import { isFolderPlaceholder, normalizeText } from "./text";
 
 function tokenizeDocumentText(document: Partial<DocumentRecord>) {

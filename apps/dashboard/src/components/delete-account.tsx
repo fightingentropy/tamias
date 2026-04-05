@@ -1,6 +1,5 @@
 "use client";
 
-import { useAuthActions } from "@convex-dev/auth/react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +24,7 @@ import { Label } from "@tamias/ui/label";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import { useAuthActions } from "@/framework/auth-client";
 import { useTRPC } from "@/trpc/client";
 
 export function DeleteAccount() {

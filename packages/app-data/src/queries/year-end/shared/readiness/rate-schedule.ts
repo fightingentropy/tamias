@@ -1,4 +1,4 @@
-import type { CorporationTaxRateScheduleRecord } from "@tamias/app-data-convex";
+import type { CorporationTaxRateScheduleRecord } from "../../../../convex";
 import { parseISO } from "date-fns";
 import { SMALL_PROFITS_RATE_START } from "../constants";
 import { resolveCorporationTaxFinancialYearSegments } from "../tax";

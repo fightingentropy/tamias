@@ -4,7 +4,7 @@ import {
   getInvoiceRecurringSeriesByLegacyIdFromConvex,
   getInvoiceRecurringSeriesByTeamFromConvex,
   upsertInvoiceRecurringSeriesInConvex,
-} from "@tamias/app-data-convex";
+} from "../../convex";
 import type {
   InvoiceRecurringEndType,
   InvoiceRecurringFrequency,

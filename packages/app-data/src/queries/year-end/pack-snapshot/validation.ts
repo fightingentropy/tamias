@@ -1,5 +1,5 @@
 import { roundCurrency } from "@tamias/compliance";
-import type { ComplianceJournalLineRecord } from "@tamias/app-data-convex";
+import type { ComplianceJournalLineRecord } from "../../../convex";
 
 export function validateBalancedLines(
   lines: Array<

@@ -3,7 +3,7 @@ import {
   type TransactionRecord,
   type TransactionTagAssignmentRecord,
   getTeamMembersFromConvexIdentity,
-} from "@tamias/app-data-convex";
+} from "../../../convex";
 import type {
   AssignedTransactionUser,
   TransactionAttachmentSummary,

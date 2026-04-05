@@ -1,4 +1,4 @@
-import type { CurrentUserIdentityRecord } from "@tamias/app-data-convex";
+import type { CurrentUserIdentityRecord } from "../../../convex";
 import type { EditorDoc, LineItem } from "@tamias/invoice/types";
 import { type InvoiceStatus, type Template } from "../../invoice-projections";
 

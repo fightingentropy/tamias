@@ -1,50 +1,64 @@
-import { isOverviewWidgetType } from "@tamias/app-services/widgets";
 import { getStartContext } from "@tanstack/start-storage-context";
-import { getInitialMetricsFilter } from "@/server/loaders/metrics";
-import { batchPrefetch, trpc } from "@/trpc/server";
+import { redirect } from "@tanstack/react-router";
+import { getQueryClient, trpc } from "@/trpc/server";
 import { geolocation } from "@/utils/geo";
 import {
-  buildBaseAppShellState,
   dehydrateQueryClient,
-  getRequestUrl,
+  isUnauthorizedQueryError,
 } from "@/start/server/route-data/shared";
 
 export async function buildDashboardPageData(href?: string) {
-  const { queryClient, user, team } = await buildBaseAppShellState();
-  const requestUrl = getRequestUrl(href);
-  const metricsFilter = getInitialMetricsFilter(
-    Object.fromEntries(requestUrl.searchParams.entries()),
-    team?.fiscalYearStartMonth,
-  );
-  const overviewCurrency = metricsFilter.currency ?? team?.baseCurrency ?? undefined;
+  void href;
+  const queryClient = getQueryClient();
+  const currentUserQuery = trpc.user.me.queryOptions();
   const widgetPreferencesQuery = trpc.widgets.getWidgetPreferences.queryOptions();
-  const suggestedActionsQuery = trpc.suggestedActions.list.queryOptions({
-    limit: 6,
-  });
-  const widgetPreferences = await queryClient.fetchQuery(widgetPreferencesQuery);
-  const overviewWidgets =
-    widgetPreferences.primaryWidgets.filter(isOverviewWidgetType);
-  const shouldHydrateOverview =
-    metricsFilter.tab !== "metrics" && overviewWidgets.length > 0;
+  const [userResult, widgetPreferencesResult] = await Promise.allSettled([
+    queryClient.fetchQuery(currentUserQuery),
+    queryClient.fetchQuery(widgetPreferencesQuery),
+  ]);
 
-  if (shouldHydrateOverview) {
-    const overviewQuery = trpc.widgets.getOverview.queryOptions({
-      widgets: overviewWidgets,
-      from: metricsFilter.from,
-      to: metricsFilter.to,
-      currency: overviewCurrency,
-      revenueType: metricsFilter.revenueType,
+  if (userResult.status === "rejected") {
+    if (isUnauthorizedQueryError(userResult.reason)) {
+      throw redirect({
+        to: "/login",
+        throw: true,
+      });
+    }
+
+    throw userResult.reason;
+  }
+
+  if (widgetPreferencesResult.status === "rejected") {
+    if (isUnauthorizedQueryError(widgetPreferencesResult.reason)) {
+      throw redirect({
+        to: "/login",
+        throw: true,
+      });
+    }
+
+    throw widgetPreferencesResult.reason;
+  }
+
+  const user = userResult.value;
+
+  if (!user) {
+    throw redirect({
+      to: "/login",
+      throw: true,
     });
+  }
 
-    await batchPrefetch([overviewQuery, suggestedActionsQuery]);
-  } else {
-    await batchPrefetch([suggestedActionsQuery]);
+  if (!user.fullName || !user.teamId) {
+    throw redirect({
+      to: "/onboarding",
+      throw: true,
+    });
   }
 
   return {
     dehydratedState: dehydrateQueryClient(queryClient),
     user,
-    initialPreferences: widgetPreferences,
+    initialPreferences: widgetPreferencesResult.value,
     geo: geolocation(getStartContext().request.headers as Headers),
   };
 }

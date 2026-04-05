@@ -1,7 +1,7 @@
 import {
   getTransactionMatchSuggestionsFromConvex,
   upsertTransactionMatchSuggestionsInConvex,
-} from "@tamias/app-data-convex";
+} from "../convex";
 import type { DatabaseOrTransaction } from "../client";
 import type { CreateMatchSuggestionParams } from "./transaction-matching-types";
 

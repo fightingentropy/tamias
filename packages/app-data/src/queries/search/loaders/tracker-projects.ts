@@ -1,7 +1,7 @@
 import {
   getTrackerProjectsPageFromConvex,
   searchTrackerProjectsFromConvex,
-} from "@tamias/app-data-convex";
+} from "../../../convex";
 import { toTrackerProjectCandidate } from "../candidates";
 import {
   loadCandidatesForSource,

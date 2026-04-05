@@ -2,7 +2,7 @@ import {
   getTransactionAttachmentsByIdsFromConvex,
   getTransactionsByIdsFromConvex,
   type AccountingSyncProvider,
-} from "@tamias/app-data-convex";
+} from "../../convex";
 import type { Database } from "../../client";
 import { getTransactionCategoryContext } from "../transaction-categories";
 import { getSyncedTransactionIds } from "./records";

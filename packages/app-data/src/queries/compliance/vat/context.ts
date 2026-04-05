@@ -1,4 +1,4 @@
-import type { FilingProfileRecord } from "@tamias/app-data-convex";
+import type { FilingProfileRecord } from "../../../convex";
 import type { Database } from "../../../client";
 import {
   assertUkComplianceEnabled,

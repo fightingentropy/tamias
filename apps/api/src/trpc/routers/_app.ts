@@ -1,6 +1,7 @@
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { createTRPCRouter } from "../init";
 import { accountingRouter } from "./accounting";
+import { asyncRunsRouter } from "./async-runs";
 import { apiKeysRouter } from "./api-keys";
 import { appsRouter } from "./apps";
 import { bankAccountsRouter } from "./bank-accounts";
@@ -32,6 +33,7 @@ import { reportsRouter } from "./reports";
 import { searchRouter } from "./search";
 import { shortLinksRouter } from "./short-links";
 import { suggestedActionsRouter } from "./suggested-actions";
+import { supportRouter } from "./support";
 import { tagsRouter } from "./tags";
 import { teamRouter } from "./team";
 import { trackerEntriesRouter } from "./tracker-entries";
@@ -40,6 +42,7 @@ import { transactionAttachmentsRouter } from "./transaction-attachments";
 import { transactionCategoriesRouter } from "./transaction-categories";
 import { transactionTagsRouter } from "./transaction-tags";
 import { transactionsRouter } from "./transactions";
+import { uploadsRouter } from "./uploads";
 import { userRouter } from "./user";
 import { vatRouter } from "./vat";
 import { widgetsRouter } from "./widgets";
@@ -47,6 +50,7 @@ import { yearEndRouter } from "./year-end";
 
 export const appRouter = createTRPCRouter({
   accounting: accountingRouter,
+  asyncRuns: asyncRunsRouter,
   banking: bankingRouter,
   notifications: notificationsRouter,
   notificationSettings: notificationSettingsRouter,
@@ -75,6 +79,7 @@ export const appRouter = createTRPCRouter({
   payroll: payrollRouter,
   billing: billingRouter,
   suggestedActions: suggestedActionsRouter,
+  support: supportRouter,
   tags: tagsRouter,
   team: teamRouter,
   trackerEntries: trackerEntriesRouter,
@@ -83,6 +88,7 @@ export const appRouter = createTRPCRouter({
   transactionCategories: transactionCategoriesRouter,
   transactions: transactionsRouter,
   transactionTags: transactionTagsRouter,
+  uploads: uploadsRouter,
   user: userRouter,
   vat: vatRouter,
   search: searchRouter,

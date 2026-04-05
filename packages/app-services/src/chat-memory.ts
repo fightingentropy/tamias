@@ -1,4 +1,4 @@
-import { ConvexChatMemoryProvider } from "@tamias/app-data-convex";
+import { ConvexChatMemoryProvider } from "@tamias/app-data/convex";
 
 export const chatMemoryProvider = new ConvexChatMemoryProvider();
 

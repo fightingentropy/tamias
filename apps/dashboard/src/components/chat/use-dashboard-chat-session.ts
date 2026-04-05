@@ -6,12 +6,12 @@ import {
   useChatId,
   useDataPart,
 } from "@ai-sdk-tools/store";
-import { useAuthToken } from "@convex-dev/auth/react";
 import type { UIChatMessage } from "@tamias/contracts/chat";
 import { getApiUrl } from "@tamias/utils/envs";
 import { DefaultChatTransport, generateId } from "ai";
 import { useEffect, useMemo, useRef } from "react";
 import { useCurrentUser } from "@/components/current-user-provider";
+import { useAuthToken } from "@/framework/auth-client";
 import { useChatInterface } from "@/hooks/use-chat-interface";
 import { useMetricsFilter } from "@/hooks/use-metrics-filter";
 import type { Geo } from "@/utils/geo";

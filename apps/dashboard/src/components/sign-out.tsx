@@ -1,7 +1,7 @@
 "use client";
 
-import { useAuthActions } from "@convex-dev/auth/react";
 import { DropdownMenuItem } from "@tamias/ui/dropdown-menu";
+import { useAuthActions } from "@/framework/auth-client";
 import { useRouter } from "@/framework/navigation";
 import { useState } from "react";
 

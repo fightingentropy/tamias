@@ -1,7 +1,7 @@
 import { HmrcCtProvider, type HmrcCtEnvironment } from "@tamias/compliance";
 import { createSubmissionArtifactBundle } from "../artifacts";
 import { getHmrcCtRuntimeStatus } from "../runtime";
-import type { FilingProfileRecord } from "@tamias/app-data-convex";
+import type { FilingProfileRecord } from "../../../convex";
 import type { Ct600Draft } from "../types";
 import type { SubmissionArtifactBundleRecord } from "../types";
 

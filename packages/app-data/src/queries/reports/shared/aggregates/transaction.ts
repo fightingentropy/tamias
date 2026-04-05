@@ -2,7 +2,7 @@ import {
   getTransactionMetricAggregateRowsFromConvex,
   getTransactionRecurringAggregateRowsFromConvex,
   getTransactionTaxAggregateRowsFromConvex,
-} from "@tamias/app-data-convex";
+} from "../../../../convex";
 import type { Database } from "../../../../client";
 import { createQueryCacheKey, getOrSetQueryCacheValue } from "../../../../client";
 import type {

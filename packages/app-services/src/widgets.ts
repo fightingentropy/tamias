@@ -22,8 +22,8 @@ import {
   getTrackedTime,
 } from "@tamias/app-data/queries";
 import { getPaymentStatus } from "@tamias/app-data/queries/invoices";
-import { api } from "@tamias/convex-model/api";
-import type { Id } from "@tamias/convex-model/data-model";
+import { api } from "@tamias/app-data/convex/api";
+import type { Id } from "@tamias/app-data/convex/data-model";
 import type { WidgetType } from "@tamias/domain";
 import { getConvexServiceKey, getSharedConvexClient } from "./convex-client";
 

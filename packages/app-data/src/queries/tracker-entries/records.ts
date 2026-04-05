@@ -2,7 +2,7 @@ import {
   type CurrentUserIdentityRecord,
   getTrackerEntriesByDateFromConvex,
   getTrackerEntriesByRangeFromConvex,
-} from "@tamias/app-data-convex";
+} from "../../convex";
 import type { Database } from "../../client";
 import { enrichTrackerEntries } from "./shared";
 

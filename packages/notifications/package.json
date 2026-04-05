@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "@tamias/app-data": "workspace:*",
-    "@tamias/app-data-convex": "workspace:*",
     "@tamias/email": "workspace:*",
     "@tamias/encryption": "workspace:*",
     "@tamias/inbox": "workspace:*",

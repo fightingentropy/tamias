@@ -4,7 +4,7 @@ import {
   deleteTransactionCategoryInConvex,
   getTransactionCategoryByIdFromConvex,
   updateTransactionCategoryInConvex,
-} from "@tamias/app-data-convex";
+} from "../../convex";
 import type { Database } from "../../client";
 import { invalidateTransactionCategoryContext } from "./context";
 import { generateCategoryEmbedding } from "./embeddings";

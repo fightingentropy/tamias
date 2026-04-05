@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { createAppPublicFileRoute } from "@/start/route-hosts";
 import { formatAmount } from "@tamias/utils/format";
-import { getCustomerPortalDataLocally } from "@/server/loaders/public";
+import { getTRPCClient } from "@/trpc/server";
 import {
   buildOgSvgDocument,
   escapeXml,
@@ -14,7 +14,12 @@ export const Route = createAppPublicFileRoute("/p/$portalId/opengraph-image")({
   server: {
     handlers: {
       GET: async ({ params }) => {
-        const data = await getCustomerPortalDataLocally(params.portalId);
+        const client = await getTRPCClient();
+        const data = await client.customers.getByPortalId
+          .query({
+            portalId: params.portalId,
+          })
+          .catch(() => null);
 
         if (!data) {
           return new Response("Not found", { status: 404 });

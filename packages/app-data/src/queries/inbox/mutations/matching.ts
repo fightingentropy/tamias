@@ -4,7 +4,7 @@ import {
   getTransactionByIdFromConvex,
   getTransactionMatchSuggestionsFromConvex,
   type TransactionRecord,
-} from "@tamias/app-data-convex";
+} from "../../../convex";
 import type { Database, DatabaseOrTransaction } from "../../../client";
 import { createAttachments, deleteTransactionAttachmentsByIds } from "../../transaction-attachments";
 import {

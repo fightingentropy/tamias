@@ -14,6 +14,8 @@ import {
   createBankConnectionSchema,
   deleteBankConnectionSchema,
   getBankConnectionsSchema,
+  manualSyncBankConnectionSchema,
+  queueReconnectBankConnectionSchema,
   reconnectBankConnectionSchema,
   updateBankConnectionReconnectByIdSchema,
 } from "../../schemas/bank-connections";
@@ -148,6 +150,57 @@ export const bankConnectionsRouter = createTRPCRouter({
       return result;
     }),
 
+  manualSync: protectedProcedure
+    .input(manualSyncBankConnectionSchema)
+    .mutation(async ({ input, ctx: { db, teamId } }) => {
+      const connection = await getTeamBankConnectionById(db, teamId!, input.connectionId);
+
+      return enqueue(
+        "sync-connection",
+        {
+          connectionId: connection.id,
+          manualSync: true,
+        },
+        "transactions",
+        {
+          publicTeamId: teamId!,
+        },
+      );
+    }),
+
+  queueReconnect: protectedProcedure
+    .input(queueReconnectBankConnectionSchema)
+    .mutation(async ({ input, ctx: { db, teamId } }) => {
+      const connection = await getTeamBankConnectionById(db, teamId!, input.connectionId);
+
+      if (!connection.provider) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Bank connection provider missing",
+        });
+      }
+
+      if (connection.provider !== input.provider) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Bank connection provider mismatch",
+        });
+      }
+
+      return enqueue(
+        "reconnect-connection",
+        {
+          teamId: teamId!,
+          connectionId: connection.id,
+          provider: connection.provider,
+        },
+        "transactions",
+        {
+          publicTeamId: teamId!,
+        },
+      );
+    }),
+
   updateReconnectById: protectedProcedure
     .input(updateBankConnectionReconnectByIdSchema)
     .mutation(async ({ input, ctx: { db, teamId } }) => {
@@ -166,3 +219,21 @@ export const bankConnectionsRouter = createTRPCRouter({
       return result;
     }),
 });
+
+async function getTeamBankConnectionById(
+  db: Parameters<typeof getBankConnections>[0],
+  teamId: string,
+  connectionId: string,
+) {
+  const connections = await getBankConnections(db, { teamId });
+  const connection = connections.find((item) => item.id === connectionId);
+
+  if (!connection) {
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "Bank connection not found",
+    });
+  }
+
+  return connection;
+}

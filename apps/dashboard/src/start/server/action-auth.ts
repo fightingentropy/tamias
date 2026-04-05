@@ -1,8 +1,9 @@
-import { resolveTamiasUserSession } from "@tamias/app-services/auth";
-import { getCurrentUserFromConvex } from "@tamias/app-services/identity";
-import { setupAnalytics } from "@tamias/events/server";
-import { configureDashboardAsyncWorkerRuntime } from "@/server/cloudflare-async-worker";
+import { setupAnalytics } from "@/lib/analytics/server";
 import { getConvexAuthToken } from "@/start/auth/server";
+import {
+  getCurrentUserFromConvex,
+  resolveConvexUserSession,
+} from "@tamias/auth-session/convex";
 
 type ActionTrackMetadata = {
   event: string;
@@ -10,10 +11,8 @@ type ActionTrackMetadata = {
 };
 
 export async function requireAuthenticatedActionUser() {
-  await configureDashboardAsyncWorkerRuntime();
-
   const token = await getConvexAuthToken();
-  const session = await resolveTamiasUserSession(token ?? undefined);
+  const session = await resolveConvexUserSession(token ?? undefined);
 
   if (!session) {
     throw unauthorizedResponse();

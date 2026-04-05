@@ -2,7 +2,7 @@ import type {
   DocumentProcessingStatus,
   DocumentRecord,
   DocumentTagAssignmentRecord,
-} from "@tamias/app-data-convex";
+} from "../../convex";
 
 export type GetDocumentQueryParams = {
   teamId: string;

@@ -1,4 +1,9 @@
-import type { BankAccountWithPaymentInfo } from "@tamias/app-data/queries";
+import type { AppRouter } from "@tamias/trpc";
+import type { inferRouterOutputs } from "@trpc/server";
+
+type RouterOutputs = inferRouterOutputs<AppRouter>;
+type BankAccountWithPaymentInfo =
+  RouterOutputs["bankAccounts"]["getWithPaymentInfo"][number];
 
 /**
  * Format IBAN with spaces every 4 characters for readability

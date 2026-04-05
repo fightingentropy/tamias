@@ -8,7 +8,7 @@ import {
   createSubmissionEventInConvex,
   getComplianceAdjustmentsForPeriodFromConvex,
   upsertVatReturnInConvex,
-} from "@tamias/app-data-convex";
+} from "../../../../convex";
 import type { Database } from "../../../../client";
 import { listDerivedLedgerEntries, listJournalRowsForPeriod } from "../../ledger";
 import type { RecalculateVatDraftParams } from "../types";

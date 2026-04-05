@@ -3,7 +3,7 @@ import { postAction } from "@/actions/post-action";
 
 export const reconnectConnectionActionSchema = z.object({
   connectionId: z.string(),
-  provider: z.string(),
+  provider: z.enum(["gocardless", "plaid", "teller"]),
 });
 
 export function reconnectConnectionAction(

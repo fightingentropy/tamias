@@ -1,4 +1,4 @@
-import { updateAsyncRunInConvex } from "@tamias/app-data-convex";
+import { updateAsyncRunInConvex } from "@tamias/app-data/convex";
 import { createLoggerWithContext } from "@tamias/logger";
 import type { TellerMtlsFetcher } from "@tamias/banking";
 import type { WorkerJob, WorkerJobProgress } from "../types/job";

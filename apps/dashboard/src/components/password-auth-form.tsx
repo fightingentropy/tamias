@@ -1,6 +1,5 @@
 "use client";
 
-import { useAuthActions } from "@convex-dev/auth/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@tamias/ui/cn";
 import {
@@ -14,11 +13,11 @@ import {
 import { Input } from "@tamias/ui/input";
 import { Spinner } from "@tamias/ui/spinner";
 import { SubmitButton } from "@tamias/ui/submit-button";
-import { useConvexAuth } from "convex/react";
 import { useSearchParams } from "@/framework/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod/v3";
+import { useAuth, useAuthActions } from "@/framework/auth-client";
 import { getPasswordAuthErrorMessage } from "@/utils/password-auth-errors";
 
 const formSchema = z.object({
@@ -33,7 +32,7 @@ type PasswordAuthFormProps = {
 export function PasswordAuthForm({ className }: PasswordAuthFormProps) {
   const searchParams = useSearchParams();
   const { signIn } = useAuthActions();
-  const { isAuthenticated, isLoading } = useConvexAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const [mode, setMode] = useState<"signIn" | "signUp">("signIn");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);

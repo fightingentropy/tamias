@@ -10,8 +10,8 @@ import {
   buildDependenciesResponse,
   buildReadinessResponse,
   checkDependencies,
-} from "@tamias/health/checker";
-import { apiDependencies } from "@tamias/health/probes";
+} from "./health/checker";
+import { apiDependencies } from "./health/probes";
 import { createLoggerWithContext, logger } from "@tamias/logger";
 import { getApiUrl, getAppUrl } from "@tamias/utils/envs";
 import { cors } from "hono/cors";

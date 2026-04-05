@@ -14,7 +14,7 @@ Tamias is a Turborepo monorepo for the product workspace, API, Cloudflare async 
 | Dashboard | `apps/dashboard` | `http://localhost:3001` | Main authenticated app, public invoice/customer/report links, auth, SSR, client providers, lightweight public homepage |
 | API | `apps/api` | `http://localhost:3003` | Hono API on Cloudflare Workers with tRPC, REST, OpenAPI, MCP, webhooks, health/readiness endpoints |
 | Worker | `apps/worker` | `http://127.0.0.1:8787` | Cloudflare async worker with queues, workflows, recurring schedules, notifications, and document processing |
-| Website | `apps/dashboard` | `https://tamias.xyz` | Marketing site, docs, integrations catalog, comparison pages, and MCP install guides served from the dashboard deployment |
+| Website | `apps/dashboard` | `https://tamias.xyz` | Marketing site, integrations catalog, comparison pages, and MCP install guides served from the dashboard deployment |
 | Convex | `apps/dashboard/convex` | external local deployment | Durable app data, auth/identity sync, chat memory, widgets, links, files, operational state |
 
 ## Product areas
@@ -38,7 +38,7 @@ The current codebase covers these main product surfaces:
 
 ```mermaid
 flowchart LR
-  Browser["Browser"] --> Dashboard["Dashboard deployment<br/>Next.js app + marketing/docs"]
+  Browser["Browser"] --> Dashboard["Dashboard deployment<br/>Dashboard app + public site"]
   AIClient["AI / MCP Client"] --> MCP["API MCP endpoint"]
 
   Dashboard -->|SSR local queries| QueryLayer["packages/app-data query layer"]
@@ -60,7 +60,7 @@ flowchart LR
 ### Request and data flow
 
 1. Requests into the dashboard deployment hit `apps/dashboard/src/middleware.ts`.
-   Locale rewriting, website-host rewrites into `/site`, and authenticated route gating all happen there.
+   Host-aware routing and authenticated route gating happen there.
 2. The dashboard root layout mounts Convex auth, tRPC, i18n, theming, analytics, and shared client providers.
 3. The authenticated sidebar shell preloads the current user/team and mounts global chrome like the sidebar, header, timers, sheets, and export status.
 4. Hot server-rendered reads use `apps/dashboard/src/server/local-queries.ts`, which calls the shared query layer directly instead of round-tripping through HTTP for every SSR request.
@@ -89,7 +89,7 @@ flowchart LR
 | Inbox and document capture | `/inbox`, `/inbox/settings` | `packages/inbox`, `packages/documents`, inbox/document workers, Gmail/Outlook/Slack/WhatsApp integrations |
 | Invoicing and payments | `/invoices`, `/invoices/products`, public `/i/<token>` | `packages/invoice`, invoice/payment routers, Stripe and Stripe Payments integrations |
 | Time tracking | `/tracker` | tracker project/entry routers, export flows, Raycast and MCP integrations |
-| Customers and portal | `/customers`, public `/p/<portalId>` | `packages/customers`, customer analytics, enrichment jobs |
+| Customers and portal | `/customers`, public `/p/<portalId>` | customer analytics, `apps/worker/src/customers`, enrichment jobs |
 | Vault and files | `/vault`, file download/proxy routes | `packages/storage`, file routes, document processing |
 | Reports and public links | `/dashboard`, public `/r/<linkId>` and `/s/<shortId>` | reports routers, short links, report links in Convex |
 | AI assistant and insights | `/chat/[id]`, insight notifications/audio | `apps/api/src/ai`, `packages/insights`, MCP server/tools, suggested actions |
@@ -107,12 +107,12 @@ flowchart LR
 
 ### Frontend
 
-- Next.js 16 App Router in `apps/dashboard`
+- TanStack Start in `apps/dashboard`
 - React 19
+- Vite build/dev pipeline
 - Shared UI primitives in `packages/ui`
-- TanStack Query + tRPC client
+- TanStack Router, TanStack Query, and tRPC client
 - Convex auth/client integration
-- `nuqs` for URL state
 - Playwright for dashboard end-to-end tests
 
 ### Backend and async
@@ -127,7 +127,7 @@ flowchart LR
 
 - Convex for durable app data, auth-linked state, files, and async run tracking
 - `packages/app-data` as the shared app-data layer
-- `packages/accounting`, `packages/banking`, `packages/compliance`, `packages/customers`, `packages/documents`, `packages/inbox`, `packages/invoice`, `packages/insights`, `packages/storage`
+- `packages/accounting`, `packages/banking`, `packages/compliance`, `packages/documents`, `packages/inbox`, `packages/invoice`, `packages/insights`, `packages/storage`
 
 ### AI and external services
 
@@ -149,12 +149,9 @@ These are the packages you will touch most often:
 - `packages/banking`: bank-provider adapters and normalization
 - `packages/categories`: transaction categories and tax-rate helpers
 - `packages/compliance`: UK compliance domain logic and HMRC VAT helpers
-- `packages/customers`: customer enrichment and customer-domain helpers
 - `packages/app-data`: shared app-data and domain query surface
 - `packages/documents`: document loading, classification, embedding, extraction helpers
 - `packages/encryption`: OAuth state encryption, file keys, shared crypto helpers
-- `packages/events`: analytics client/server wrappers
-- `packages/health`: dependency probes and readiness helpers
 - `packages/inbox`: inbox connectors and provider integrations
 - `packages/insights`: metrics, summaries, audio, and insight content generation
 - `packages/invoice`: invoice rendering, templates, recurring logic, public invoice support
@@ -165,6 +162,12 @@ These are the packages you will touch most often:
 - `packages/trpc`: shared tRPC helpers and internal client
 - `packages/ui`: shared UI components, icons, globals, animations
 - `packages/utils`: environment helpers and cross-cutting utilities
+
+App-owned modules that are no longer shared packages:
+
+- `apps/api/src/health`: dependency probes and readiness helpers
+- `apps/dashboard/src/lib/analytics`: analytics client/server wrappers
+- `apps/worker/src/customers`: customer enrichment pipeline
 
 ## Local development
 
@@ -260,7 +263,7 @@ INVOICE_JWT_SECRET=...
 #### Important env notes
 
 - `INTERNAL_API_KEY`, `INVOICE_JWT_SECRET`, and `FILE_KEY_SECRET` must match everywhere they are used.
-- Marketing/docs features now run inside `apps/dashboard`, so site env values should be configured there.
+- Public site features run inside `apps/dashboard`, so site env values should be configured there.
 - `HMRC_CT_ENVIRONMENT` defaults to `test`. Keep it there in deployed environments until you intentionally want live HMRC CT filing.
 - In `test`, CT submissions use `HMRC_CT_TEST_UTR` when present. In `production`, the filing profile UTR is required.
 - Companies House annual accounts filing uses the XML gateway presenter runtime on the API service; it does not use the OAuth app credentials.
@@ -294,7 +297,7 @@ That starts:
 - API
 - worker
 
-Marketing/docs routes are now served by the dashboard app. In local development, the merged site can be previewed through the internal `/site` path when needed.
+Public site routes are served by the dashboard app. In local development, the merged site can be previewed through the internal `/site` path when needed.
 
 ### Separate terminal startup
 
@@ -390,7 +393,7 @@ bun run preflight:cloudflare:production
 - `apps/api`, `apps/dashboard`, and `apps/worker` deploy through Cloudflare.
 - `apps/api/wrangler.jsonc`, `apps/dashboard/wrangler.jsonc`, and `apps/worker/wrangler.jsonc` are the deploy/runtime entrypoints.
 - `apps/api` and `apps/dashboard` bind directly to `apps/worker` through a Cloudflare service binding named `ASYNC_WORKER`.
-- `apps/dashboard` now serves both `app.tamias.xyz` and `tamias.xyz`; marketing/docs routes are host-rewritten into the internal `/site` tree.
+- `apps/dashboard` now serves both `app.tamias.xyz` and `tamias.xyz`; public-site routes are host-rewritten into the internal `/site` tree.
 - Dashboard preflight includes both the OpenNext build and a Wrangler `deploy --dry-run` against the matching `wrangler.jsonc`.
 - API, dashboard, and worker each expose environment-specific staging/production preflight commands in addition to the default local/development preflight.
 - GitHub Actions deploys expect these repository secrets:
@@ -407,9 +410,8 @@ bun run preflight:cloudflare:production
 
 ## Deeper docs
 
-There are two documentation layers in this repo:
+There is one documentation layer in this repo:
 
-- Public/docs site content in `apps/dashboard/src/app/[locale]/site/docs`
 - Deeper engineering notes in `docs`
 
 Current internal docs include:

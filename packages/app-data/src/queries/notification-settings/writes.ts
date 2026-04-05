@@ -1,7 +1,7 @@
 import {
   bulkUpsertNotificationSettingsInConvex,
   upsertNotificationSettingInConvex,
-} from "@tamias/app-data-convex";
+} from "../../convex";
 import type { Database } from "../../client";
 import { toNotificationSetting } from "./shared";
 import type {

@@ -2,7 +2,7 @@ import {
   getBankAccounts,
   getBankConnectionById,
 } from "@tamias/app-data/queries";
-import { patchBankConnectionInConvex } from "@tamias/app-data-convex";
+import { patchBankConnectionInConvex } from "@tamias/app-data/convex";
 import { enqueue } from "@tamias/job-client";
 import { trpc } from "@tamias/trpc";
 import type { WorkerJob as Job } from "../../types/job";

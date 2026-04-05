@@ -1,4 +1,4 @@
-import { getInboxStatusCountSummaryFromConvex } from "@tamias/app-data-convex";
+import { getInboxStatusCountSummaryFromConvex } from "../../../convex";
 import type { Database } from "../../../client";
 import { normalizeTimestampBoundary } from "../../date-boundaries";
 import type { GetInsightActivityDataParams } from "./types";

@@ -1,6 +1,5 @@
 "use client";
 
-import { useAuthToken } from "@convex-dev/auth/react";
 import type { AppRouter } from "@tamias/trpc";
 import { getApiUrl } from "@tamias/utils/envs";
 import type { QueryClient } from "@tanstack/react-query";
@@ -12,6 +11,7 @@ import {
 } from "@trpc/tanstack-react-query";
 import { createContext, useContext, useMemo } from "react";
 import superjson from "superjson";
+import { useAuthToken } from "@/framework/auth-client";
 import { makeQueryClient } from "./query-client";
 
 const TRPCContext = createContext<TRPCOptionsProxy<AppRouter> | null>(null);

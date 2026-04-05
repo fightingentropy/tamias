@@ -18,7 +18,7 @@ import {
   stopTimer,
   upsertTrackerEntries,
 } from "@tamias/app-data/queries";
-import type { CurrentUserIdentityRecord } from "@tamias/app-data-convex";
+import type { CurrentUserIdentityRecord } from "@tamias/app-data/convex";
 
 type ConvexUserId = CurrentUserIdentityRecord["convexId"];
 

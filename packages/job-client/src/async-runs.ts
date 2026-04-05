@@ -5,7 +5,7 @@ import {
   updateAsyncRunInConvex,
   type AsyncRunRecord,
   type AsyncRunStatus,
-} from "@tamias/app-data-convex";
+} from "@tamias/app-data/convex";
 import type { RunStatus, RunStatusResponse } from "./types";
 
 export {

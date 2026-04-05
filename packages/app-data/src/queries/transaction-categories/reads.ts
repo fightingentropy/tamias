@@ -1,7 +1,7 @@
 import {
   getTransactionCategoryByIdFromConvex,
   type TransactionCategoryRecord,
-} from "@tamias/app-data-convex";
+} from "../../convex";
 import type { Database } from "../../client";
 import { getTransactionCategoryContext } from "./context";
 import type { GetCategoriesParams, GetCategoryByIdParams } from "./types";

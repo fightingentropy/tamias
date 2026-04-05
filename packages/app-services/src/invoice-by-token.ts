@@ -1,4 +1,4 @@
-import { getPublicInvoiceByTokenFromConvex } from "@tamias/app-data-convex";
+import { getPublicInvoiceByTokenFromConvex } from "@tamias/app-data/convex";
 
 type InvoiceByTokenRecord = Awaited<
   ReturnType<typeof import("@tamias/app-data/queries").getInvoiceById>

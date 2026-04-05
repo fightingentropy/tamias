@@ -11,18 +11,10 @@
   "observability": {
     "enabled": true
   },
-  "services": [
-    {
-      "binding": "ASYNC_WORKER",
-      "service": "tamias-async-local",
-      "entrypoint": "AsyncBridgeService"
-    }
-  ],
   "vars": {
     "TAMIAS_ENVIRONMENT": "development",
     "API_URL": "http://localhost:3003",
     "DASHBOARD_URL": "http://localhost:3001",
-    "WEBSITE_URL": "http://localhost:3000",
     "CONVEX_URL": "http://127.0.0.1:3210",
     "CONVEX_SITE_URL": "http://127.0.0.1:3211"
   },
@@ -31,16 +23,14 @@
       "name": "tamias-dashboard-start-staging",
       "services": [
         {
-          "binding": "ASYNC_WORKER",
-          "service": "tamias-async-staging",
-          "entrypoint": "AsyncBridgeService"
+          "binding": "API_SERVICE",
+          "service": "tamias-api-staging"
         }
       ],
       "vars": {
         "TAMIAS_ENVIRONMENT": "staging",
         "API_URL": "https://api-staging.tamias.xyz",
-        "DASHBOARD_URL": "https://staging.tamias.xyz",
-        "WEBSITE_URL": "https://staging.tamias.xyz"
+        "DASHBOARD_URL": "https://staging.tamias.xyz"
       }
     },
     "production": {
@@ -57,16 +47,14 @@
       ],
       "services": [
         {
-          "binding": "ASYNC_WORKER",
-          "service": "tamias-async",
-          "entrypoint": "AsyncBridgeService"
+          "binding": "API_SERVICE",
+          "service": "tamias-api"
         }
       ],
       "vars": {
         "TAMIAS_ENVIRONMENT": "production",
         "API_URL": "https://api.tamias.xyz",
         "DASHBOARD_URL": "https://app.tamias.xyz",
-        "WEBSITE_URL": "https://tamias.xyz",
         "CONVEX_URL": "https://fleet-chameleon-251.eu-west-1.convex.cloud",
         "CONVEX_SITE_URL": "https://fleet-chameleon-251.eu-west-1.convex.site"
       }

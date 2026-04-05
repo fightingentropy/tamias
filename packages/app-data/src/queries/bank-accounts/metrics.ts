@@ -2,7 +2,7 @@ import {
   CASH_ACCOUNT_TYPES,
   CREDIT_ACCOUNT_TYPE,
 } from "@tamias/banking/account";
-import { getBankAccountsFromConvex } from "@tamias/app-data-convex";
+import { getBankAccountsFromConvex } from "../../convex";
 import type { Database } from "../../client";
 import { createQueryCacheKey, getOrSetQueryCacheValue } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";

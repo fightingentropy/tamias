@@ -5,7 +5,7 @@ import {
   markCustomerEnrichmentFailedInConvex,
   updateCustomerEnrichmentInConvex,
   updateCustomerEnrichmentStatusInConvex,
-} from "@tamias/app-data-convex";
+} from "../convex";
 import type { Database } from "../client";
 
 export type CustomerForEnrichment = {

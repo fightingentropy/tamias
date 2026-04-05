@@ -37,7 +37,7 @@ export function getPasswordAuthErrorMessage(
   }
 
   if (NETWORK_ERROR_PATTERN.test(message)) {
-    return "Unable to reach the authentication service. Make sure Convex dev is running.";
+    return "Unable to reach the authentication service. Make sure the dashboard and API are running.";
   }
 
   return fallbackMessage;

@@ -1,4 +1,4 @@
-import { listSubmissionEventsFromConvex } from "@tamias/app-data-convex";
+import { listSubmissionEventsFromConvex } from "../../../convex";
 import type { Database } from "../../../client";
 import {
   getSubmissionEventRequestPeriodKey,

@@ -1,9 +1,13 @@
-import type { BillableHoursResult } from "@tamias/app-data/queries";
+import type { AppRouter } from "@tamias/trpc";
+import type { inferRouterOutputs } from "@trpc/server";
 import NumberFlow from "@number-flow/react";
 import { TotalEarnings } from "../total-earnings";
 import { TrackerCalendarType } from "../tracker-calendar-type";
 import { TrackerPeriodSelect } from "../tracker-period-select";
 import { TrackerSettings } from "../tracker-settings";
+
+type RouterOutputs = inferRouterOutputs<AppRouter>;
+type BillableHoursResult = RouterOutputs["widgets"]["getBillableHours"];
 
 type CalendarHeaderProps = {
   totalDuration?: number;

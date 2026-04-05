@@ -5,7 +5,6 @@
   "main": "index.ts",
   "exports": {
     "./emails/*": "./emails/*.tsx",
-    "./defaults": "./defaults.ts",
     "./locales": "./locales/index.ts",
     "./render": "./render.ts"
   },
@@ -19,6 +18,7 @@
     "start": "email start"
   },
   "dependencies": {
+    "@tamias/invoice": "workspace:*",
     "@tamias/ui": "workspace:*",
     "@tamias/utils": "workspace:*",
     "@react-email/components": "1.0.6",

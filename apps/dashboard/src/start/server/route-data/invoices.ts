@@ -26,24 +26,8 @@ export async function buildInvoicesPageData(href?: string) {
       getNextPageParam: ({ meta }) => meta?.cursor,
     },
   );
-  const invoicesOpenSummaryQuery = trpc.invoice.invoiceSummary.queryOptions({
-    statuses: ["draft", "scheduled", "unpaid"],
-  });
-  const invoicesPaidSummaryQuery = trpc.invoice.invoiceSummary.queryOptions({
-    statuses: ["paid"],
-  });
-  const invoicesOverdueSummaryQuery = trpc.invoice.invoiceSummary.queryOptions({
-    statuses: ["overdue"],
-  });
-  const invoicePaymentStatusQuery = trpc.invoice.paymentStatus.queryOptions();
 
-  await batchPrefetch([
-    invoiceListQuery,
-    invoicesOpenSummaryQuery,
-    invoicesPaidSummaryQuery,
-    invoicesOverdueSummaryQuery,
-    invoicePaymentStatusQuery,
-  ]);
+  await batchPrefetch([invoiceListQuery]);
 
   return {
     dehydratedState: dehydrateQueryClient(queryClient),

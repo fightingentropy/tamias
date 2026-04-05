@@ -4,17 +4,10 @@ import { trpc } from "@/trpc/server";
 import {
   buildBaseAppShellState,
   dehydrateQueryClient,
-  getCanonicalHostContext,
   getRequestUrl,
 } from "./shared";
 
 export async function buildInboxPageData(href?: string) {
-  if (getCanonicalHostContext().isWebsiteHost) {
-    return {
-      mode: "site" as const,
-    };
-  }
-
   const { queryClient, user } = await buildBaseAppShellState();
   const requestUrl = getRequestUrl(href);
   const filter = loadInboxFilterParams(requestUrl.searchParams);
@@ -72,7 +65,6 @@ export async function buildInboxPageData(href?: string) {
         : "list";
 
   return {
-    mode: "app" as const,
     dehydratedState: dehydrateQueryClient(queryClient),
     user,
     view,

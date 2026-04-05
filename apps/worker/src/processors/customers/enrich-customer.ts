@@ -1,10 +1,10 @@
-import { enrichCustomer } from "@tamias/customers";
 import {
   getCustomerForEnrichment,
   markCustomerEnrichmentFailed,
   updateCustomerEnrichment,
   updateCustomerEnrichmentStatus,
 } from "@tamias/app-data/queries";
+import { enrichCustomer } from "../../customers";
 import type { WorkerJob as Job } from "../../types/job";
 import type { EnrichCustomerPayload } from "../../schemas/customers";
 import { getDb } from "../../utils/db";

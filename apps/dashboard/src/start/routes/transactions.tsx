@@ -1,22 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { createAppFileRoute } from "@/start/route-hosts";
 import { createServerFn } from "@tanstack/react-start";
-import { createSiteMetadata } from "@/site/page-metadata";
-import { buildHeadFromMetadata } from "@/start/site-head";
-
-const transactionsSiteMetadata = createSiteMetadata({
-  title: "Transactions",
-  description:
-    "Track all your business expenses in one place. Automatically sync and categorize transactions from your bank accounts. Built for small business owners.",
-  path: "/transactions",
-  keywords: [
-    "expense tracking",
-    "business expenses",
-    "transaction management",
-    "expense categorization",
-    "small business accounting",
-  ],
-});
 
 export const loadTransactionsData = createServerFn({ method: "GET" })
   .inputValidator((data: { href: string }) => data)
@@ -34,10 +18,7 @@ export type TransactionsLoaderData = Awaited<
 export const Route = createAppFileRoute("/transactions")({
   loader: ({ location }) =>
     loadTransactionsData({ data: { href: location.href } }),
-  head: ({ loaderData }) =>
-    loaderData?.mode === "site"
-      ? buildHeadFromMetadata(transactionsSiteMetadata)
-      : {
-          meta: [{ title: "Transactions | Tamias" }],
-        },
+  head: () => ({
+    meta: [{ title: "Transactions | Tamias" }],
+  }),
 });

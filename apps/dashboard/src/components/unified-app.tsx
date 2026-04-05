@@ -1,4 +1,3 @@
-import { useAuthToken } from "@convex-dev/auth/react";
 import type { UnifiedApp } from "@tamias/app-store/types";
 import {
   Accordion,
@@ -23,6 +22,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Image from "@/framework/image";
 import { parseAsBoolean, parseAsString, useQueryStates } from "nuqs";
 import { useEffect, useState } from "react";
+import { useAuthToken } from "@/framework/auth-client";
 import { useAppOAuth } from "@/hooks/use-app-oauth";
 import { useTRPC } from "@/trpc/client";
 import { getScopeDescription } from "@/utils/scopes";

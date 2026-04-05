@@ -1,7 +1,7 @@
 import {
   getDocumentTagEmbeddingsFromConvex,
   upsertDocumentTagEmbeddingsInConvex,
-} from "@tamias/app-data-convex";
+} from "../convex";
 import type { Database } from "../client";
 
 function parseEmbedding(embedding: string | number[]) {
