@@ -1,5 +1,5 @@
 import { db } from "@tamias/app-data/client";
-import { getTransactions } from "@tamias/app-data/queries";
+import { getTransactionsPage } from "@tamias/app-services/transactions";
 import { getAppUrl } from "@tamias/utils/envs";
 import { formatAmount, formatDate } from "@tamias/utils/format";
 import { tool } from "ai";
@@ -150,7 +150,11 @@ export const getTransactionsTool = tool({
         manual: manual ?? null,
       };
 
-      const result = await getTransactions(db, params);
+      const result = await getTransactionsPage({
+        db,
+        teamId,
+        input: params,
+      });
 
       if (result.data.length === 0) {
         yield { text: "No transactions found matching your criteria." };

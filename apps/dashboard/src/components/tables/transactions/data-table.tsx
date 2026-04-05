@@ -43,6 +43,7 @@ import {
 import { useTRPC } from "@/trpc/client";
 import { STICKY_COLUMNS } from "@/utils/table-configs";
 import { getColumnIds, type TableSettings } from "@/utils/table-settings";
+import { buildTransactionsQueryFilter } from "@/utils/transactions-query";
 import { BulkEditBar } from "./bulk-edit-bar";
 import { columns } from "./columns";
 import { DataTableHeader } from "./data-table-header";
@@ -118,26 +119,18 @@ export function DataTable({ initialSettings, initialTab }: Props) {
     [activeTab, setRowSelectionForTab],
   );
 
-  // Build query filters based on active tab
-  // Review tab: strict export queue (ignore user filters)
-  const queryFilter = useMemo(() => {
-    if (isReviewTab) {
-      return {
-        // Keep sort only; all filter state is ignored in Review.
+  const queryFilter = useMemo(
+    () =>
+      buildTransactionsQueryFilter({
+        filter: {
+          ...filter,
+          q: deferredSearch,
+        },
         sort: params.sort,
-        // Fulfilled = has attachments OR status=completed
-        fulfilled: true,
-        // Only show transactions not yet exported
-        exported: false,
-      };
-    }
-    return {
-      ...filter,
-      amountRange: filter.amount_range ?? null,
-      q: deferredSearch,
-      sort: params.sort,
-    };
-  }, [filter, deferredSearch, params.sort, isReviewTab]);
+        tab: activeTab,
+      }),
+    [activeTab, deferredSearch, filter, params.sort],
+  );
 
   const infiniteQueryOptions = trpc.transactions.get.infiniteQueryOptions(
     queryFilter,

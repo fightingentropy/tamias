@@ -23,6 +23,7 @@ export const protectedMiddleware: MiddlewareHandler[] = [
   withDatabase,
   withAuth,
   createRateLimitMiddleware({
+    name: "protected-rest-api",
     windowMs: 10 * 60 * 1000, // 10 minutes
     limit: 100,
     keyGenerator: (c) => {

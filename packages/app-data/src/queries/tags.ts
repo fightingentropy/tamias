@@ -9,7 +9,7 @@ import {
   updateTagInConvex,
 } from "@tamias/app-data-convex";
 import type { Database } from "../client";
-import { cacheAcrossRequests } from "../utils/short-lived-cache";
+import { reuseQueryResult } from "../utils/request-cache";
 
 type CreateTagParams = {
   teamId: string;
@@ -98,7 +98,7 @@ async function getTagsImpl(_db: Database, params: GetTagsParams) {
   return getTagsFromConvex({ teamId });
 }
 
-export const getTags = cacheAcrossRequests({
+export const getTags = reuseQueryResult({
   keyPrefix: "tags",
   keyFn: (params: GetTagsParams) => params.teamId,
   load: getTagsImpl,
@@ -117,7 +117,7 @@ async function getTagByIdImpl(_db: Database, params: GetTagByIdParams) {
   });
 }
 
-export const getTagById = cacheAcrossRequests({
+export const getTagById = reuseQueryResult({
   keyPrefix: "tag-by-id",
   keyFn: (params: GetTagByIdParams) => [params.teamId, params.id].join(":"),
   load: getTagByIdImpl,

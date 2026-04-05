@@ -4,7 +4,9 @@ import { createServerFn } from "@tanstack/react-start";
 
 export const loadOnboardingData = createServerFn({ method: "GET" }).handler(
   async () => {
-    const { buildOnboardingPageData } = await import("@/start/server/route-data/app");
+    const { buildOnboardingPageData } = await import(
+      "@/start/server/route-data/misc"
+    );
     return (await buildOnboardingPageData()) as any;
   },
 );

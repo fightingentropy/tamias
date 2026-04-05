@@ -41,10 +41,10 @@ app.use("*", ...publicMiddleware);
 app.use(
   "*",
   createRateLimitMiddleware({
+    name: "oauth-public-api",
     windowMs: 15 * 60 * 1000, // 15 minutes
     limit: 20, // per IP
-    keyGenerator: (c) =>
-      c.req.header("x-forwarded-for") || c.req.header("x-real-ip") || "unknown",
+    keyGenerator: (c) => c.get("clientIp") || "unknown",
     statusCode: 429,
     message: "Rate limit exceeded",
   }),

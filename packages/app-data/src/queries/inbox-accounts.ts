@@ -6,21 +6,13 @@ import {
   upsertInboxAccountInConvex,
   updateInboxAccountInConvex,
 } from "@tamias/app-data-convex";
-import type { Database } from "../client";
-import { cacheAcrossRequests } from "../utils/short-lived-cache";
 
 async function getInboxAccountsImpl(teamId: string) {
   return getInboxAccountsFromConvex({ teamId });
 }
 
-const getInboxAccountsCached = cacheAcrossRequests({
-  keyPrefix: "inbox-accounts",
-  keyFn: (teamId: string) => teamId,
-  load: async (_db, teamId: string) => getInboxAccountsImpl(teamId),
-});
-
 export async function getInboxAccounts(teamId: string) {
-  return getInboxAccountsCached({} as Database, teamId);
+  return getInboxAccountsImpl(teamId);
 }
 
 type GetInboxAccountByIdParams = {
@@ -37,18 +29,10 @@ async function getInboxAccountByIdImpl(
   });
 }
 
-const getInboxAccountByIdCached = cacheAcrossRequests({
-  keyPrefix: "inbox-account-by-id",
-  keyFn: (params: GetInboxAccountByIdParams) =>
-    [params.teamId, params.id].join(":"),
-  load: async (_db, params: GetInboxAccountByIdParams) =>
-    getInboxAccountByIdImpl(params),
-});
-
 export async function getInboxAccountById(
   params: GetInboxAccountByIdParams,
 ) {
-  return getInboxAccountByIdCached({} as Database, params);
+  return getInboxAccountByIdImpl(params);
 }
 
 type DeleteInboxAccountParams = {

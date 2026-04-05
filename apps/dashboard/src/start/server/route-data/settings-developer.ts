@@ -1,8 +1,4 @@
-import {
-  getApiKeysLocally,
-  getOAuthApplicationsLocally,
-} from "@/server/loaders/apps";
-import { trpc } from "@/trpc/server";
+import { batchPrefetch, trpc } from "@/trpc/server";
 import {
   buildBaseAppShellState,
   dehydrateQueryClient,
@@ -12,21 +8,8 @@ export async function buildSettingsDeveloperPageData() {
   const { queryClient, user } = await buildBaseAppShellState();
   const apiKeysQuery = trpc.apiKeys.get.queryOptions();
   const oauthApplicationsQuery = trpc.oauthApplications.list.queryOptions();
-  const [apiKeysResult, oauthApplicationsResult] = await Promise.allSettled([
-    getApiKeysLocally(),
-    getOAuthApplicationsLocally(),
-  ]);
 
-  if (apiKeysResult.status === "fulfilled") {
-    queryClient.setQueryData(apiKeysQuery.queryKey, apiKeysResult.value);
-  }
-
-  if (oauthApplicationsResult.status === "fulfilled") {
-    queryClient.setQueryData(
-      oauthApplicationsQuery.queryKey,
-      oauthApplicationsResult.value,
-    );
-  }
+  await batchPrefetch([apiKeysQuery, oauthApplicationsQuery]);
 
   return {
     dehydratedState: dehydrateQueryClient(queryClient),

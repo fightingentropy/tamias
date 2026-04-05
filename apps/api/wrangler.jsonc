@@ -19,6 +19,20 @@
       "entrypoint": "AsyncBridgeService"
     }
   ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "RATE_LIMIT_COORDINATOR",
+        "class_name": "RateLimitCoordinator"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["RateLimitCoordinator"]
+    }
+  ],
   "vars": {
     "TAMIAS_ENVIRONMENT": "development",
     "DASHBOARD_URL": "http://localhost:3001",
@@ -37,6 +51,14 @@
           "entrypoint": "AsyncBridgeService"
         }
       ],
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "RATE_LIMIT_COORDINATOR",
+            "class_name": "RateLimitCoordinator"
+          }
+        ]
+      },
       "vars": {
         "TAMIAS_ENVIRONMENT": "staging",
         "DASHBOARD_URL": "https://staging.tamias.xyz",
@@ -61,6 +83,14 @@
           "entrypoint": "AsyncBridgeService"
         }
       ],
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "RATE_LIMIT_COORDINATOR",
+            "class_name": "RateLimitCoordinator"
+          }
+        ]
+      },
       "vars": {
         "TAMIAS_ENVIRONMENT": "production",
         "DASHBOARD_URL": "https://app.tamias.xyz",

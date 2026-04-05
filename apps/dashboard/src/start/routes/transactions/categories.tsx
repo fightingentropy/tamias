@@ -5,7 +5,7 @@ import { createServerFn } from "@tanstack/react-start";
 export const loadTransactionCategoriesData = createServerFn({ method: "GET" }).handler(
   async () => {
     const { buildTransactionCategoriesPageData } = await import(
-      "@/start/server/route-data/app"
+      "@/start/server/route-data/transactions"
     );
     return (await buildTransactionCategoriesPageData()) as any;
   },

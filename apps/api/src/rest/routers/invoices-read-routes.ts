@@ -1,10 +1,10 @@
 import { createRoute, type OpenAPIHono } from "@hono/zod-openapi";
-import { getInvoiceById } from "@tamias/app-data/queries";
 import {
-  getInvoiceSummary,
-  getInvoices,
-  getPaymentStatus,
-} from "@tamias/app-data/queries/invoices";
+  getInvoiceByIdForTeam,
+  getInvoicePaymentStatusForTeam,
+  getInvoicesPage,
+  getInvoiceSummaryForTeam,
+} from "@tamias/app-services/invoices";
 import { HTTPException } from "hono/http-exception";
 import {
   getInvoiceByIdSchema,
@@ -53,12 +53,15 @@ export function registerInvoiceReadRoutes(app: OpenAPIHono<Context>) {
       const teamId = c.get("teamId");
       const { pageSize, cursor, sort, ...filter } = c.req.valid("query");
 
-      const result = await getInvoices(db, {
+      const result = await getInvoicesPage({
+        db,
         teamId,
-        pageSize,
-        cursor,
-        sort,
-        ...filter,
+        input: {
+          pageSize,
+          cursor,
+          sort,
+          ...filter,
+        },
       });
 
       return c.json(
@@ -93,7 +96,7 @@ export function registerInvoiceReadRoutes(app: OpenAPIHono<Context>) {
       const db = c.get("db");
       const teamId = c.get("teamId");
 
-      const result = await getPaymentStatus(db, teamId);
+      const result = await getInvoicePaymentStatusForTeam({ db, teamId });
 
       return c.json(validateResponse(result, getPaymentStatusResponseSchema));
     },
@@ -128,9 +131,10 @@ export function registerInvoiceReadRoutes(app: OpenAPIHono<Context>) {
       const teamId = c.get("teamId");
       const { statuses } = c.req.valid("query");
 
-      const result = await getInvoiceSummary(db, {
+      const result = await getInvoiceSummaryForTeam({
+        db,
         teamId,
-        statuses,
+        input: { statuses },
       });
 
       return c.json(validateResponse(result, invoiceSummaryResponseSchema));
@@ -168,9 +172,10 @@ export function registerInvoiceReadRoutes(app: OpenAPIHono<Context>) {
       const teamId = c.get("teamId");
       const { id } = c.req.valid("param");
 
-      const result = await getInvoiceById(db, {
-        id,
+      const result = await getInvoiceByIdForTeam({
+        db,
         teamId,
+        input: { id },
       });
 
       if (!result) {

@@ -27,7 +27,6 @@ export function convexProbe(): Dependency {
   return {
     name: "convex",
     tier: 1,
-    cacheTtlMs: 30_000,
     timeoutMs: 3_000,
     probe: async () => {
       const url =
@@ -56,7 +55,6 @@ export function plaidProbe(): Dependency {
   return {
     name: "plaid",
     tier: 2,
-    cacheTtlMs: 60_000,
     timeoutMs: 5_000,
     probe: async () => {
       try {
@@ -74,7 +72,6 @@ export function gocardlessProbe(): Dependency {
   return {
     name: "gocardless",
     tier: 2,
-    cacheTtlMs: 60_000,
     timeoutMs: 5_000,
     probe: async () => {
       try {
@@ -94,7 +91,6 @@ export function tellerProbe(): Dependency {
   return {
     name: "teller",
     tier: 2,
-    cacheTtlMs: 60_000,
     timeoutMs: 5_000,
     probe: async () => {
       try {
@@ -112,7 +108,6 @@ export function stripeProbe(): Dependency {
   return {
     name: "stripe",
     tier: 2,
-    cacheTtlMs: 60_000,
     timeoutMs: 5_000,
     probe: async () => {
       const key = process.env.STRIPE_SECRET_KEY;
@@ -131,7 +126,6 @@ export function resendProbe(): Dependency {
   return {
     name: "resend",
     tier: 2,
-    cacheTtlMs: 60_000,
     timeoutMs: 5_000,
     probe: async () => {
       const key = process.env.RESEND_API_KEY;
@@ -150,7 +144,6 @@ export function polarProbe(): Dependency {
   return {
     name: "polar",
     tier: 2,
-    cacheTtlMs: 60_000,
     timeoutMs: 5_000,
     probe: async () => {
       const token = process.env.POLAR_ACCESS_TOKEN;
@@ -173,7 +166,6 @@ export function openaiProbe(): Dependency {
   return {
     name: "openai",
     tier: 2,
-    cacheTtlMs: 60_000,
     timeoutMs: 5_000,
     probe: async () => {
       const key = process.env.OPENAI_API_KEY;
@@ -195,7 +187,6 @@ function oauthTokenProbe(name: string, tokenUrl: string): Dependency {
   return {
     name,
     tier: 3,
-    cacheTtlMs: 300_000, // 5 minutes
     timeoutMs: 5_000,
     probe: async () => {
       // Use POST — some OAuth token endpoints reject HEAD/GET with 501.
@@ -238,7 +229,6 @@ export function googleAiProbe(): Dependency {
   return {
     name: "google_ai",
     tier: 4,
-    cacheTtlMs: 300_000,
     timeoutMs: 5_000,
     probe: async () => {
       const key = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
@@ -257,7 +247,6 @@ export function elevenLabsProbe(): Dependency {
   return {
     name: "elevenlabs",
     tier: 4,
-    cacheTtlMs: 300_000,
     timeoutMs: 5_000,
     probe: async () => {
       const key = process.env.ELEVENLABS_API_KEY;
@@ -276,7 +265,6 @@ export function exaProbe(): Dependency {
   return {
     name: "exa",
     tier: 4,
-    cacheTtlMs: 300_000,
     timeoutMs: 5_000,
     probe: async () => {
       const key = process.env.EXA_API_KEY;
@@ -301,7 +289,6 @@ export function plainProbe(): Dependency {
   return {
     name: "plain",
     tier: 4,
-    cacheTtlMs: 300_000,
     timeoutMs: 5_000,
     probe: async () => {
       const key = process.env.PLAIN_API_KEY;
@@ -325,7 +312,6 @@ export function mistralProbe(): Dependency {
   return {
     name: "mistral",
     tier: 4,
-    cacheTtlMs: 300_000,
     timeoutMs: 5_000,
     probe: async () => {
       const key = process.env.MISTRAL_API_KEY;

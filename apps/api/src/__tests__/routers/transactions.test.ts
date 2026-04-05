@@ -460,13 +460,13 @@ describe("REST: DELETE /transactions/bulk", () => {
     expect(res.status).toBe(400);
   });
 
-  test("returns 400 for invalid UUID", async () => {
+  test("accepts non-UUID transaction ids", async () => {
     const res = await app.request("/transactions/bulk", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(["not-a-uuid"]),
     });
 
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(200);
   });
 });

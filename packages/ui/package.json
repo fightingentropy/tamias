@@ -5,6 +5,7 @@
   "sideEffects": false,
   "files": [
     "tailwind.config.mjs",
+    "tailwind.config.d.ts",
     "postcss.config.js",
     "globals.css"
   ],
@@ -62,7 +63,10 @@
     "./multiple-selector": "./src/components/multiple-selector.tsx",
     "./table": "./src/components/table.tsx",
     "./tabs": "./src/components/tabs.tsx",
-    "./tailwind.config": "./tailwind.config.mjs",
+    "./tailwind.config": {
+      "types": "./tailwind.config.d.ts",
+      "default": "./tailwind.config.mjs"
+    },
     "./textarea": "./src/components/textarea.tsx",
     "./toast": "./src/components/toast.tsx",
     "./toaster": "./src/components/toaster.tsx",

@@ -1,8 +1,4 @@
-import {
-  getBankAccountsLocally,
-  getBankConnectionsLocally,
-} from "@/server/loaders/bank";
-import { trpc } from "@/trpc/server";
+import { batchPrefetch, trpc } from "@/trpc/server";
 import {
   buildBaseAppShellState,
   dehydrateQueryClient,
@@ -14,13 +10,8 @@ export async function buildSettingsAccountsPageData() {
   const manualBankAccountsQuery = trpc.bankAccounts.get.queryOptions({
     manual: true,
   });
-  const [connections, manualAccounts] = await Promise.all([
-    getBankConnectionsLocally(),
-    getBankAccountsLocally({ manual: true }),
-  ]);
 
-  queryClient.setQueryData(bankConnectionsQuery.queryKey, connections);
-  queryClient.setQueryData(manualBankAccountsQuery.queryKey, manualAccounts);
+  await batchPrefetch([bankConnectionsQuery, manualBankAccountsQuery]);
 
   return {
     dehydratedState: dehydrateQueryClient(queryClient),

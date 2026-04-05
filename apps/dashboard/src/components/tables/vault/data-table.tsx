@@ -26,6 +26,7 @@ import { useTableScroll } from "@/hooks/use-table-scroll";
 import { useTableSettings } from "@/hooks/use-table-settings";
 import { useDocumentsStore } from "@/store/vault";
 import { useTRPC } from "@/trpc/client";
+import { buildDocumentsQueryFilter } from "@/utils/documents-query";
 import { STICKY_COLUMNS } from "@/utils/table-configs";
 import { getColumnIds, type TableSettings } from "@/utils/table-settings";
 import { BottomBar } from "./bottom-bar";
@@ -81,10 +82,10 @@ export function DataTable({ initialSettings }: Props) {
     isFetchingNextPage,
   } = useSuspenseInfiniteQuery({
     ...trpc.documents.get.infiniteQueryOptions(
-      {
+      buildDocumentsQueryFilter({
+        filter,
         pageSize: 24,
-        ...filter,
-      },
+      }),
       {
         getNextPageParam: ({ meta }) => meta?.cursor,
       },

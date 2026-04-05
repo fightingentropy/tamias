@@ -4,7 +4,7 @@ import { createServerFn } from "@tanstack/react-start";
 
 export const loadTeamsData = createServerFn({ method: "GET" }).handler(async () => {
   const { buildTeamsSelectionPageData } = await import(
-    "@/start/server/route-data/app"
+    "@/start/server/route-data/misc"
   );
   return (await buildTeamsSelectionPageData()) as any;
 });

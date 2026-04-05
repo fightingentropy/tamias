@@ -1,5 +1,5 @@
 import type { Database } from "../client";
-import { cacheAcrossRequests } from "../utils/short-lived-cache";
+import { reuseQueryResult } from "../utils/request-cache";
 import {
   getRecentCustomerActivity,
   getRecentCustomerCounts,
@@ -79,7 +79,7 @@ async function getCustomerPageSummaryImpl(
   };
 }
 
-export const getCustomerPageSummary = cacheAcrossRequests({
+export const getCustomerPageSummary = reuseQueryResult({
   keyPrefix: "customer-page-summary",
   keyFn: (params: { teamId: string }) => params.teamId,
   load: getCustomerPageSummaryImpl,

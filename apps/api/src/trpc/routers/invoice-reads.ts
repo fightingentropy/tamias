@@ -1,15 +1,17 @@
 import {
-  getInvoiceById,
-  getInvoiceSummary,
-  getInvoices,
-  getPaymentStatus,
   markInvoiceViewed,
-  searchInvoiceNumber,
 } from "@tamias/app-data/queries";
 import {
   getInvoiceByToken,
   getInvoiceIdFromToken,
 } from "@tamias/app-services/invoice-by-token";
+import {
+  getInvoiceByIdForTeam,
+  getInvoicePaymentStatusForTeam,
+  getInvoicesPage,
+  getInvoiceSummaryForTeam,
+  searchInvoiceNumberForTeam,
+} from "@tamias/app-services/invoices";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import {
@@ -25,18 +27,16 @@ export const invoiceReadProcedures = {
   get: protectedProcedure
     .input(getInvoicesSchema.optional())
     .query(async ({ input, ctx: { db, teamId } }) => {
-      return getInvoices(db, {
-        teamId: teamId!,
-        ...input,
-      });
+      return getInvoicesPage({ db, teamId: teamId!, input });
     }),
 
   getById: protectedProcedure
     .input(getInvoiceByIdSchema)
     .query(async ({ input, ctx: { db, teamId } }) => {
-      return getInvoiceById(db, {
-        id: input.id,
+      return getInvoiceByIdForTeam({
+        db,
         teamId: teamId!,
+        input: { id: input.id },
       });
     }),
 
@@ -65,24 +65,26 @@ export const invoiceReadProcedures = {
     }),
 
   paymentStatus: protectedProcedure.query(async ({ ctx: { db, teamId } }) =>
-    getPaymentStatus(db, teamId!),
+    getInvoicePaymentStatusForTeam({ db, teamId: teamId! }),
   ),
 
   searchInvoiceNumber: protectedProcedure
     .input(searchInvoiceNumberSchema)
     .query(async ({ input, ctx: { db, teamId } }) => {
-      return searchInvoiceNumber(db, {
+      return searchInvoiceNumberForTeam({
+        db,
         teamId: teamId!,
-        query: input.query,
+        input: { query: input.query },
       });
     }),
 
   invoiceSummary: protectedProcedure
     .input(invoiceSummarySchema.optional())
     .query(async ({ ctx: { db, teamId }, input }) => {
-      return getInvoiceSummary(db, {
+      return getInvoiceSummaryForTeam({
+        db,
         teamId: teamId!,
-        statuses: input?.statuses,
+        input: { statuses: input?.statuses },
       });
     }),
 };

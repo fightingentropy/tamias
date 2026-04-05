@@ -5,7 +5,7 @@ import {
   upsertTransactionsInConvex,
 } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
-import { cacheAcrossRequests } from "../../utils/short-lived-cache";
+import { reuseQueryResult } from "../../utils/request-cache";
 import {
   deleteAccountingSyncRecordsForTransactions,
   getAccountingSyncStatus,
@@ -60,7 +60,7 @@ async function getTransactionsReadyForExportCountImpl(
   return count;
 }
 
-export const getTransactionsReadyForExportCount = cacheAcrossRequests({
+export const getTransactionsReadyForExportCount = reuseQueryResult({
   keyPrefix: "transactions-review-count",
   keyFn: (teamId: string) => teamId,
   load: getTransactionsReadyForExportCountImpl,

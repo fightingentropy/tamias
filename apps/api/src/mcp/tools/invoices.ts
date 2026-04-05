@@ -2,13 +2,13 @@ import {
   allocateNextInvoiceNumber,
   deleteInvoice,
   duplicateInvoice,
-  getInvoiceById,
   updateInvoice,
 } from "@tamias/app-data/queries";
 import {
-  getInvoiceSummary,
-  getInvoices,
-} from "@tamias/app-data/queries/invoices";
+  getInvoiceByIdForTeam,
+  getInvoiceSummaryForTeam,
+  getInvoicesPage,
+} from "@tamias/app-services/invoices";
 import { z } from "zod";
 import {
   deleteInvoiceSchema,
@@ -63,16 +63,19 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
         annotations: READ_ONLY_ANNOTATIONS,
       },
       async (params) => {
-        const result = await getInvoices(db, {
+        const result = await getInvoicesPage({
+          db,
           teamId,
-          cursor: params.cursor ?? null,
-          pageSize: params.pageSize ?? 25,
-          q: params.q ?? null,
-          start: params.start ?? null,
-          end: params.end ?? null,
-          statuses: params.statuses ?? null,
-          customers: params.customers ?? null,
-          sort: params.sort ?? null,
+          input: {
+            cursor: params.cursor ?? null,
+            pageSize: params.pageSize ?? 25,
+            q: params.q ?? null,
+            start: params.start ?? null,
+            end: params.end ?? null,
+            statuses: params.statuses ?? null,
+            customers: params.customers ?? null,
+            sort: params.sort ?? null,
+          },
         });
 
         return {
@@ -92,7 +95,11 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
         annotations: READ_ONLY_ANNOTATIONS,
       },
       async ({ id }) => {
-        const result = await getInvoiceById(db, { id, teamId });
+        const result = await getInvoiceByIdForTeam({
+          db,
+          teamId,
+          input: { id },
+        });
 
         if (!result) {
           return {
@@ -117,9 +124,10 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
         annotations: READ_ONLY_ANNOTATIONS,
       },
       async (params) => {
-        const result = await getInvoiceSummary(db, {
+        const result = await getInvoiceSummaryForTeam({
+          db,
           teamId,
-          statuses: params.statuses,
+          input: { statuses: params.statuses },
         });
 
         return {
@@ -164,7 +172,11 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
       },
       async (params) => {
         // Check if invoice exists
-        const existing = await getInvoiceById(db, { id: params.id, teamId });
+        const existing = await getInvoiceByIdForTeam({
+          db,
+          teamId,
+          input: { id: params.id },
+        });
 
         if (!existing) {
           return {
@@ -214,7 +226,11 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
         annotations: WRITE_ANNOTATIONS,
       },
       async (params) => {
-        const existing = await getInvoiceById(db, { id: params.id, teamId });
+        const existing = await getInvoiceByIdForTeam({
+          db,
+          teamId,
+          input: { id: params.id },
+        });
 
         if (!existing) {
           return {
@@ -264,7 +280,11 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
       },
       async ({ id }) => {
         // Check invoice exists and status
-        const existing = await getInvoiceById(db, { id, teamId });
+        const existing = await getInvoiceByIdForTeam({
+          db,
+          teamId,
+          input: { id },
+        });
 
         if (!existing) {
           return {
@@ -322,7 +342,11 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
       },
       async ({ id }) => {
         // Check invoice exists
-        const existing = await getInvoiceById(db, { id, teamId });
+        const existing = await getInvoiceByIdForTeam({
+          db,
+          teamId,
+          input: { id },
+        });
 
         if (!existing) {
           return {
@@ -380,7 +404,11 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
         annotations: WRITE_ANNOTATIONS,
       },
       async ({ id }) => {
-        const existing = await getInvoiceById(db, { id, teamId });
+        const existing = await getInvoiceByIdForTeam({
+          db,
+          teamId,
+          input: { id },
+        });
 
         if (!existing) {
           return {

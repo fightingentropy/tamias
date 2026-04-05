@@ -17,6 +17,21 @@ export function createTestApp(options: TestAppOptions = {}) {
   const convexUserId = userId as Id<"appUsers">;
 
   const app = new OpenAPIHono<Context>();
+  const testEnv = {
+    RATE_LIMIT_COORDINATOR: {
+      getByName() {
+        return {
+          consume: async () => ({
+            allowed: true,
+            limit: 100,
+            remaining: 99,
+            resetAt: Date.now() + 60_000,
+            retryAfterMs: 0,
+          }),
+        };
+      },
+    },
+  } as unknown as Context["Bindings"];
 
   // Mock auth middleware - inject test team/user IDs
   app.use(
@@ -45,6 +60,10 @@ export function createTestApp(options: TestAppOptions = {}) {
       await next();
     }),
   );
+
+  const originalRequest = app.request.bind(app);
+  app.request = ((input, requestInit, env, executionCtx) =>
+    originalRequest(input, requestInit, env ?? testEnv, executionCtx)) as typeof app.request;
 
   return app;
 }

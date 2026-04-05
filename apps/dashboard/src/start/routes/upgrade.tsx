@@ -3,7 +3,7 @@ import { createAppFileRoute } from "@/start/route-hosts";
 import { createServerFn } from "@tanstack/react-start";
 
 export const loadUpgradeData = createServerFn({ method: "GET" }).handler(async () => {
-  const { buildUpgradePageData } = await import("@/start/server/route-data/app");
+  const { buildUpgradePageData } = await import("@/start/server/route-data/misc");
   return (await buildUpgradePageData()) as any;
 });
 

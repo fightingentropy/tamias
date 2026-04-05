@@ -3,6 +3,7 @@ import type { Scope } from "@tamias/auth-session/scopes";
 import type { Database } from "@tamias/app-data/client";
 
 export type Context = {
+  Bindings: Env;
   Variables: {
     db: Database;
     session: Session;

@@ -5,24 +5,21 @@ import {
   createValidInboxResponse,
 } from "../factories/inbox";
 import { createTestContext } from "../helpers/test-context";
+import { mocks } from "../setup";
 
 // Create local mocks for inbox tests
-const mockGetInbox = mock(() => createInboxListResponse());
 const mockGetInboxById = mock(
   () => null as ReturnType<typeof createValidInboxResponse> | null,
 );
 const mockUpdateInbox = mock(() => ({}));
 const mockDeleteInbox = mock(() => ({}));
-const mockDeleteInboxMany = mock(() => [] as Array<{ id: string }>);
 
 // Mock the module
 mock.module("@tamias/app-data/queries", () => ({
-  getInbox: mockGetInbox,
   getInboxById: mockGetInboxById,
   createInbox: mock(() => ({})),
   updateInbox: mockUpdateInbox,
   deleteInbox: mockDeleteInbox,
-  deleteInboxMany: mockDeleteInboxMany,
   getInboxSearch: mock(() => []),
   getInboxBlocklist: mock(() => []),
   createInboxBlocklist: mock(() => ({})),
@@ -43,12 +40,12 @@ const createCaller = createCallerFactory(inboxRouter);
 
 describe("tRPC: inbox.get", () => {
   beforeEach(() => {
-    mockGetInbox.mockReset();
-    mockGetInbox.mockImplementation(() => createInboxListResponse());
+    mocks.getInboxPage.mockReset();
+    mocks.getInboxPage.mockImplementation(() => createInboxListResponse());
   });
 
   test("returns inbox list", async () => {
-    mockGetInbox.mockImplementation(() =>
+    mocks.getInboxPage.mockImplementation(() =>
       createInboxListResponse([createValidInboxResponse()]),
     );
 
@@ -60,7 +57,7 @@ describe("tRPC: inbox.get", () => {
   });
 
   test("handles minimal inbox data", async () => {
-    mockGetInbox.mockImplementation(() =>
+    mocks.getInboxPage.mockImplementation(() =>
       createInboxListResponse([createMinimalInboxResponse()]),
     );
 
@@ -71,7 +68,7 @@ describe("tRPC: inbox.get", () => {
   });
 
   test("handles empty list", async () => {
-    mockGetInbox.mockImplementation(() => createInboxListResponse([]));
+    mocks.getInboxPage.mockImplementation(() => createInboxListResponse([]));
 
     const caller = createCaller(createTestContext());
     const result = await caller.get({});

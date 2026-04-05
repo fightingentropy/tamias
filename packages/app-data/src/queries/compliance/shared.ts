@@ -12,7 +12,7 @@ import {
   upsertFilingProfileInConvex,
 } from "@tamias/app-data-convex";
 import { getTeamById } from "../teams";
-import { cacheAcrossRequests } from "../../utils/short-lived-cache";
+import { reuseQueryResult } from "../../utils/request-cache";
 
 export type TeamContext = {
   id: string;
@@ -136,7 +136,7 @@ async function getFilingProfileImpl(db: Database, teamId: string) {
   });
 }
 
-export const getFilingProfile = cacheAcrossRequests({
+export const getFilingProfile = reuseQueryResult({
   keyPrefix: "filing-profile",
   keyFn: (teamId: string) => teamId,
   load: getFilingProfileImpl,

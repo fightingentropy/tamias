@@ -4,11 +4,9 @@ import {
 } from "../../schemas/search";
 import { createTRPCRouter, protectedProcedure } from "../init";
 import { generateLLMFilters } from "../../utils/search-filters";
+import { getInvoicesPage } from "@tamias/app-services/invoices";
 import {
   getInboxSearch,
-} from "@tamias/app-data/queries";
-import {
-  getInvoices,
   globalSearchQuery,
   globalSemanticSearchQuery,
 } from "@tamias/app-data/queries";
@@ -71,12 +69,15 @@ export const searchRouter = createTRPCRouter({
           transactionId: transactionId ?? undefined,
           limit: limit,
         }),
-        getInvoices(db, {
+        getInvoicesPage({
+          db,
           teamId: teamId!,
-          q: q ?? undefined,
-          statuses: ["unpaid", "overdue", "paid"],
-          pageSize: limit,
-          sort: null,
+          input: {
+            q: q ?? undefined,
+            statuses: ["unpaid", "overdue", "paid"],
+            pageSize: limit,
+            sort: null,
+          },
         }),
       ]);
 

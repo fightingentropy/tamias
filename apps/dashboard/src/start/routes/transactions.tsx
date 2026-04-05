@@ -21,7 +21,9 @@ const transactionsSiteMetadata = createSiteMetadata({
 export const loadTransactionsData = createServerFn({ method: "GET" })
   .inputValidator((data: { href: string }) => data)
   .handler(async ({ data }) => {
-    const { buildTransactionsPageData } = await import("@/start/server/route-data/app");
+    const { buildTransactionsPageData } = await import(
+      "@/start/server/route-data/transactions"
+    );
     return (await buildTransactionsPageData(data.href)) as any;
   });
 

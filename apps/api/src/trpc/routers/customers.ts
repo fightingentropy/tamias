@@ -1,13 +1,15 @@
 import {
   clearCustomerEnrichment,
   deleteCustomer,
-  getCustomerById,
-  getCustomerInvoiceSummary,
-  getCustomers,
   toggleCustomerPortal,
   updateCustomerEnrichmentStatus,
   upsertCustomer,
 } from "@tamias/app-data/queries";
+import {
+  getCustomerByIdForTeam,
+  getCustomerInvoiceSummaryForTeam,
+  getCustomersPage,
+} from "@tamias/app-services/customers";
 import {
   getCustomerPortalData,
   getCustomerPortalInvoicesPage,
@@ -34,7 +36,8 @@ export const customersRouter = createTRPCRouter({
   get: protectedProcedure
     .input(getCustomersSchema.optional())
     .query(async ({ ctx: { teamId, db }, input }) => {
-      return getCustomers(db, {
+      return getCustomersPage({
+        db,
         teamId: teamId!,
         ...input,
       });
@@ -43,9 +46,10 @@ export const customersRouter = createTRPCRouter({
   getById: protectedProcedure
     .input(getCustomerByIdSchema)
     .query(async ({ ctx: { db, teamId }, input }) => {
-      return getCustomerById(db, {
-        id: input.id,
+      return getCustomerByIdForTeam({
+        db,
         teamId: teamId!,
+        id: input.id,
       });
     }),
 
@@ -109,18 +113,20 @@ export const customersRouter = createTRPCRouter({
   getInvoiceSummary: protectedProcedure
     .input(getCustomerInvoiceSummarySchema)
     .query(async ({ ctx: { db, teamId }, input }) => {
-      return getCustomerInvoiceSummary(db, {
-        customerId: input.id,
+      return getCustomerInvoiceSummaryForTeam({
+        db,
         teamId: teamId!,
+        customerId: input.id,
       });
     }),
 
   enrich: protectedProcedure
     .input(enrichCustomerSchema)
     .mutation(async ({ ctx: { db, teamId }, input }) => {
-      const customer = await getCustomerById(db, {
-        id: input.id,
+      const customer = await getCustomerByIdForTeam({
+        db,
         teamId: teamId!,
+        id: input.id,
       });
 
       if (!customer) {
@@ -161,9 +167,10 @@ export const customersRouter = createTRPCRouter({
   cancelEnrichment: protectedProcedure
     .input(enrichCustomerSchema)
     .mutation(async ({ ctx: { db, teamId }, input }) => {
-      const customer = await getCustomerById(db, {
-        id: input.id,
+      const customer = await getCustomerByIdForTeam({
+        db,
         teamId: teamId!,
+        id: input.id,
       });
 
       if (!customer) {
@@ -186,9 +193,10 @@ export const customersRouter = createTRPCRouter({
   clearEnrichment: protectedProcedure
     .input(enrichCustomerSchema)
     .mutation(async ({ ctx: { db, teamId }, input }) => {
-      const customer = await getCustomerById(db, {
-        id: input.id,
+      const customer = await getCustomerByIdForTeam({
+        db,
         teamId: teamId!,
+        id: input.id,
       });
 
       if (!customer) {

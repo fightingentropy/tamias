@@ -1,18 +1,11 @@
 /**
- * Health check runner with caching and timeouts.
+ * Health check runner with per-probe timeouts.
  *
  * - Runs probes with per-probe timeouts so one slow dependency can't block the rest.
- * - Caches results in memory to avoid hitting external services on every request.
  * - Returns structured results with per-dependency status, latency, and errors.
  */
 
 import type { Dependency, DependencyResult } from "./registry";
-
-/** In-memory cache for probe results */
-const resultCache = new Map<
-  string,
-  { result: DependencyResult; expiresAt: number }
->();
 
 /**
  * Run a single probe with a timeout.
@@ -52,23 +45,10 @@ async function runProbe(dep: Dependency): Promise<DependencyResult> {
 }
 
 /**
- * Check a single dependency, using cached result if still valid.
+ * Check a single dependency.
  */
 async function checkDependency(dep: Dependency): Promise<DependencyResult> {
-  const cached = resultCache.get(dep.name);
-
-  if (cached && Date.now() < cached.expiresAt) {
-    return cached.result;
-  }
-
-  const result = await runProbe(dep);
-
-  resultCache.set(dep.name, {
-    result,
-    expiresAt: Date.now() + dep.cacheTtlMs,
-  });
-
-  return result;
+  return runProbe(dep);
 }
 
 /**
@@ -139,9 +119,4 @@ export function buildDependenciesResponse(results: DependencyResult[]) {
       ...(r.error && { error: r.error }),
     })),
   };
-}
-
-/** Clear the in-memory cache (useful for testing). */
-export function clearCache() {
-  resultCache.clear();
 }

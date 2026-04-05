@@ -11,6 +11,7 @@ import { useTableScroll } from "@/hooks/use-table-scroll";
 import { useTrackerFilterParams } from "@/hooks/use-tracker-filter-params";
 import { useUserQuery } from "@/hooks/use-user";
 import { useTRPC } from "@/trpc/client";
+import { buildTrackerProjectsQueryFilter } from "@/utils/tracker-projects-query";
 import { DataTableHeader } from "./data-table-header";
 import { DataTableRow } from "./data-table-row";
 import { EmptyState, NoResults } from "./empty-states";
@@ -25,6 +26,11 @@ export function DataTable() {
   const { params } = useSortParams();
   const { hasFilters, filter } = useTrackerFilterParams();
   const deferredSearch = useDeferredValue(filter.q);
+  const trackerProjectsQueryFilter = buildTrackerProjectsQueryFilter({
+    filter,
+    sort: params.sort,
+    search: deferredSearch,
+  });
 
   const tableScroll = useTableScroll({
     useColumnWidths: true,
@@ -32,11 +38,7 @@ export function DataTable() {
   });
 
   const infiniteQueryOptions = trpc.trackerProjects.get.infiniteQueryOptions(
-    {
-      ...filter,
-      q: deferredSearch ?? null,
-      sort: params.sort,
-    },
+    trackerProjectsQueryFilter,
     {
       getNextPageParam: ({ meta }) => meta?.cursor,
     },

@@ -5,7 +5,7 @@ import { createServerFn } from "@tanstack/react-start";
 export const loadChatData = createServerFn({ method: "GET" })
   .inputValidator((data: { id: string }) => data)
   .handler(async ({ data }) => {
-    const { buildChatPageData } = await import("@/start/server/route-data/app");
+    const { buildChatPageData } = await import("@/start/server/route-data/misc");
     return (await buildChatPageData(data.id)) as any;
   });
 

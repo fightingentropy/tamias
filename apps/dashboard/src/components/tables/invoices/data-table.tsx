@@ -20,6 +20,7 @@ import { useTableSettings } from "@/hooks/use-table-settings";
 import { useUserQuery } from "@/hooks/use-user";
 import { useInvoiceStore } from "@/store/invoice";
 import { useTRPC } from "@/trpc/client";
+import { buildInvoicesQueryFilter } from "@/utils/invoices-query";
 import { STICKY_COLUMNS, SUMMARY_GRID_HEIGHTS } from "@/utils/table-configs";
 import { getColumnIds, type TableSettings } from "@/utils/table-settings";
 import { BottomBar } from "./bottom-bar";
@@ -62,12 +63,13 @@ export function DataTable({ initialSettings }: Props) {
     initialSettings,
     columnIds: COLUMN_IDS,
   });
+  const invoiceQueryFilter = buildInvoicesQueryFilter({
+    filter,
+    sort: params.sort,
+  });
 
   const infiniteQueryOptions = trpc.invoice.get.infiniteQueryOptions(
-    {
-      sort: params.sort,
-      ...filter,
-    },
+    invoiceQueryFilter,
     {
       getNextPageParam: ({ meta }) => meta?.cursor,
     },

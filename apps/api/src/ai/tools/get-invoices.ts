@@ -1,5 +1,5 @@
 import { db } from "@tamias/app-data/client";
-import { getInvoices } from "@tamias/app-data/queries/invoices";
+import { getInvoicesPage } from "@tamias/app-services/invoices";
 import { getAppUrl } from "@tamias/utils/envs";
 import { formatAmount, formatDate } from "@tamias/utils/format";
 import { tool } from "ai";
@@ -47,16 +47,19 @@ export const getInvoicesTool = tool({
     }
 
     try {
-      const result = await getInvoices(db, {
+      const result = await getInvoicesPage({
+        db,
         teamId,
-        cursor: cursor ?? null,
-        sort: sort ?? null,
-        pageSize,
-        q: q ?? null,
-        start: start ?? null,
-        end: end ?? null,
-        statuses: statuses ?? null,
-        customers: customers ?? null,
+        input: {
+          cursor: cursor ?? null,
+          sort: sort ?? null,
+          pageSize,
+          q: q ?? null,
+          start: start ?? null,
+          end: end ?? null,
+          statuses: statuses ?? null,
+          customers: customers ?? null,
+        },
       });
 
       if (result.data.length === 0) {

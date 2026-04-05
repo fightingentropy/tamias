@@ -24,6 +24,7 @@ import { useTableScroll } from "@/hooks/use-table-scroll";
 import { useTableSettings } from "@/hooks/use-table-settings";
 import { useCustomersStore } from "@/store/customers";
 import { useTRPC } from "@/trpc/client";
+import { buildCustomersQueryFilter } from "@/utils/customers-query";
 import { STICKY_COLUMNS, SUMMARY_GRID_HEIGHTS } from "@/utils/table-configs";
 import { getColumnIds, type TableSettings } from "@/utils/table-settings";
 import { columns } from "./columns";
@@ -66,12 +67,14 @@ export function DataTable({ initialSettings }: Props) {
     columnIds: COLUMN_IDS,
   });
 
+  const customerQueryFilter = buildCustomersQueryFilter({
+    filter,
+    sort: params.sort,
+    search: deferredSearch,
+  });
+
   const infiniteQueryOptions = trpc.customers.get.infiniteQueryOptions(
-    {
-      ...filter,
-      sort: params.sort,
-      q: deferredSearch,
-    },
+    customerQueryFilter,
     {
       getNextPageParam: ({ meta }) => meta?.cursor,
     },

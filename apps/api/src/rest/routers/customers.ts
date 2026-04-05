@@ -1,10 +1,12 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import {
   deleteCustomer,
-  getCustomerById,
-  getCustomers,
   upsertCustomer,
 } from "@tamias/app-data/queries";
+import {
+  getCustomerByIdForTeam,
+  getCustomersPage,
+} from "@tamias/app-services/customers";
 import {
   customerResponseSchema,
   customersResponseSchema,
@@ -47,7 +49,8 @@ app.openapi(
     const teamId = c.get("teamId");
     const { q, ...query } = c.req.valid("query");
 
-    const result = await getCustomers(db, {
+    const result = await getCustomersPage({
+      db,
       teamId,
       ...query,
       q,
@@ -132,7 +135,7 @@ app.openapi(
     const teamId = c.get("teamId");
     const id = c.req.valid("param").id;
 
-    const result = await getCustomerById(db, { id, teamId });
+    const result = await getCustomerByIdForTeam({ db, teamId, id });
 
     return c.json(validateResponse(result, customerResponseSchema));
   },

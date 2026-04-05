@@ -12,9 +12,11 @@ import { validateResponse } from "../../utils/validate-response";
 import { createRoute, type OpenAPIHono, z } from "@hono/zod-openapi";
 import {
   getTransactionAttachment,
-  getTransactionById,
-  getTransactions,
 } from "@tamias/app-data/queries";
+import {
+  getTransactionByIdForTeam,
+  getTransactionsPage,
+} from "@tamias/app-services/transactions";
 import { withRequiredScope } from "../middleware";
 
 export function registerTransactionReadRoutes(app: OpenAPIHono<Context>) {
@@ -49,9 +51,10 @@ export function registerTransactionReadRoutes(app: OpenAPIHono<Context>) {
       const teamId = c.get("teamId");
       const query = c.req.valid("query");
 
-      const data = await getTransactions(db, {
+      const data = await getTransactionsPage({
+        db,
         teamId,
-        ...query,
+        input: query,
       });
 
       return c.json(validateResponse(data, transactionsResponseSchema));
@@ -88,7 +91,11 @@ export function registerTransactionReadRoutes(app: OpenAPIHono<Context>) {
       const teamId = c.get("teamId");
       const { id } = c.req.valid("param");
 
-      const result = await getTransactionById(db, { id, teamId });
+      const result = await getTransactionByIdForTeam({
+        db,
+        teamId,
+        input: { id },
+      });
 
       return c.json(validateResponse(result, transactionResponseSchema));
     },

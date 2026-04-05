@@ -5,7 +5,9 @@ import { createServerFn } from "@tanstack/react-start";
 export const loadVaultData = createServerFn({ method: "GET" })
   .inputValidator((data: { href: string }) => data)
   .handler(async ({ data }) => {
-    const { buildVaultPageData } = await import("@/start/server/route-data/app");
+    const { buildVaultPageData } = await import(
+      "@/start/server/route-data/vault"
+    );
     return (await buildVaultPageData(data.href)) as any;
   });
 

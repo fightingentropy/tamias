@@ -3,18 +3,9 @@ import { format, parseISO } from "date-fns";
 import { getConvexAuthToken } from "@/start/auth/server";
 import { getChartDisplayName } from "@/components/metrics/utils/chart-types";
 import { loadOAuthParams } from "@/hooks/use-oauth-params";
-import { getOAuthApplicationInfoLocally } from "@/server/loaders/apps";
 import {
-  getCurrentTeamLocally,
-  getCurrentUserLocally,
-  getCurrentUserTeamsLocally,
-} from "@/server/loaders/identity";
-import {
-  getCustomerPortalDataLocally,
-  getCustomerPortalInvoicesLocally,
   getInvoiceByTokenLocally,
   getReportByLinkIdLocally,
-  getReportChartDataByLinkIdLocally,
   getShortLinkLocally,
 } from "@/server/loaders/public";
 import { getTRPCClient, getQueryClient, trpc } from "@/trpc/server";
@@ -23,6 +14,7 @@ import {
   dehydrateQueryClient,
   getRequestUrl,
   isLocalPublicReadUnavailable,
+  isUnauthorizedQueryError,
 } from "./shared";
 
 export async function buildCustomerPortalPageData(portalId: string) {
@@ -39,14 +31,29 @@ export async function buildCustomerPortalPageData(portalId: string) {
     },
   );
 
-  let portalData;
-  let portalInvoices;
-
   try {
-    [portalData, portalInvoices] = await Promise.all([
-      getCustomerPortalDataLocally(portalId),
-      getCustomerPortalInvoicesLocally(portalId),
-    ]);
+    const portalData = await queryClient.fetchQuery(portalDataQuery);
+
+    if (!portalData) {
+      return {
+        status: "not-found" as const,
+      };
+    }
+
+    await queryClient.fetchInfiniteQuery(portalInvoicesQuery as any);
+
+    const customerName = portalData.customer.name;
+    const teamName = portalData.customer.team.name || "Tamias";
+
+    return {
+      status: "ok" as const,
+      portalId,
+      dehydratedState: dehydrateQueryClient(queryClient),
+      metadata: {
+        title: `${customerName} | ${teamName}`,
+        description: `Customer portal for ${customerName}`,
+      },
+    };
   } catch (error) {
     if (isLocalPublicReadUnavailable(error)) {
       return {
@@ -56,31 +63,6 @@ export async function buildCustomerPortalPageData(portalId: string) {
 
     throw error;
   }
-
-  if (!portalData) {
-    return {
-      status: "not-found" as const,
-    };
-  }
-
-  queryClient.setQueryData(portalDataQuery.queryKey, portalData);
-  queryClient.setQueryData(portalInvoicesQuery.queryKey, {
-    pages: [portalInvoices],
-    pageParams: [null],
-  });
-
-  const customerName = portalData.customer.name;
-  const teamName = portalData.customer.team.name || "Tamias";
-
-  return {
-    status: "ok" as const,
-    portalId,
-    dehydratedState: dehydrateQueryClient(queryClient),
-    metadata: {
-      title: `${customerName} | ${teamName}`,
-      description: `Customer portal for ${customerName}`,
-    },
-  };
 }
 
 export async function buildPublicReportPageData(linkId: string) {
@@ -125,16 +107,8 @@ export async function buildPublicReportPageData(linkId: string) {
   const chartDataQuery = trpc.reports.getChartDataByLinkId.queryOptions({
     linkId,
   });
-  const chartDataResult = await getReportChartDataByLinkIdLocally(linkId)
-    .then((chartData) => ({ status: "fulfilled" as const, chartData }))
-    .catch(() => ({ status: "rejected" as const }));
 
-  if (chartDataResult.status === "fulfilled") {
-    queryClient.setQueryData(
-      chartDataQuery.queryKey,
-      chartDataResult.chartData,
-    );
-  }
+  await queryClient.fetchQuery(chartDataQuery).catch(() => undefined);
 
   return {
     status: "ok" as const,
@@ -214,7 +188,16 @@ export async function buildOAuthAuthorizePageData(href?: string) {
     };
   }
 
-  const currentUser = await getCurrentUserLocally();
+  const currentUserQuery = trpc.user.me.queryOptions();
+  const currentUser = await queryClient.fetchQuery(currentUserQuery).catch(
+    (error) => {
+      if (isUnauthorizedQueryError(error)) {
+        return null;
+      }
+
+      throw error;
+    },
+  );
 
   if (!currentUser) {
     return {
@@ -231,21 +214,11 @@ export async function buildOAuthAuthorizePageData(href?: string) {
         scope: scope!,
         state: state || undefined,
       });
-    const [applicationInfo, teams, currentTeam] = await Promise.all([
-      getOAuthApplicationInfoLocally({
-        clientId: client_id!,
-        redirectUri: redirect_uri!,
-        scope: scope!,
-        state: state || undefined,
-      }),
-      getCurrentUserTeamsLocally(),
-      getCurrentTeamLocally(),
+    await Promise.all([
+      queryClient.fetchQuery(applicationInfoQuery),
+      queryClient.fetchQuery(trpc.team.list.queryOptions()),
+      queryClient.fetchQuery(trpc.team.current.queryOptions()),
     ]);
-
-    queryClient.setQueryData(applicationInfoQuery.queryKey, applicationInfo);
-    queryClient.setQueryData(trpc.team.list.queryKey(), teams);
-    queryClient.setQueryData(trpc.team.current.queryKey(), currentTeam);
-    queryClient.setQueryData(trpc.user.me.queryKey(), currentUser);
 
     return {
       status: "ready" as const,

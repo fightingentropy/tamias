@@ -1,9 +1,11 @@
 import {
   deleteCustomer,
-  getCustomerById,
-  getCustomers,
   upsertCustomer,
 } from "@tamias/app-data/queries";
+import {
+  getCustomerByIdForTeam,
+  getCustomersPage,
+} from "@tamias/app-services/customers";
 import { z } from "zod";
 import {
   deleteCustomerSchema,
@@ -56,7 +58,8 @@ export const registerCustomerTools: RegisterTools = (server, ctx) => {
         annotations: READ_ONLY_ANNOTATIONS,
       },
       async (params) => {
-        const result = await getCustomers(db, {
+        const result = await getCustomersPage({
+          db,
           teamId,
           cursor: params.cursor ?? null,
           pageSize: params.pageSize ?? 25,
@@ -81,7 +84,7 @@ export const registerCustomerTools: RegisterTools = (server, ctx) => {
         annotations: READ_ONLY_ANNOTATIONS,
       },
       async ({ id }) => {
-        const result = await getCustomerById(db, { id, teamId });
+        const result = await getCustomerByIdForTeam({ db, teamId, id });
 
         if (!result) {
           return {
@@ -185,7 +188,8 @@ export const registerCustomerTools: RegisterTools = (server, ctx) => {
       },
       async (params) => {
         // First check if customer exists
-        const existing = await getCustomerById(db, {
+        const existing = await getCustomerByIdForTeam({
+          db,
           id: params.id,
           teamId,
         });

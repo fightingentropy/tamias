@@ -1,4 +1,17 @@
-export * from "./insights/shared";
+export type {
+  Insight,
+  InsightPeriodType,
+  InsightStatus,
+} from "./insights/shared";
+export {
+  compareInsightGeneratedAtDesc,
+  compareInsightPeriodDesc,
+  getInsightById,
+  hydrateInsight,
+  isDefined,
+  listCompletedWeeklyInsights,
+  listTeamInsights,
+} from "./insights/shared";
 export * from "./insights/records";
 export * from "./insights/user-status";
 export * from "./insights/activity";

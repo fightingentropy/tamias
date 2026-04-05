@@ -31,6 +31,16 @@ export function getLocationHeaders(headersList: {
   };
 }
 
+export function getCurrencyForCountry(
+  countryCode: string | null | undefined,
+): string | undefined {
+  if (!countryCode) {
+    return undefined;
+  }
+
+  return currencies[countryCode as keyof typeof currencies];
+}
+
 export function getTimezones() {
   return timezones;
 }

@@ -20,7 +20,6 @@ import {
   deleteTransactions,
   getBankAccountById,
   getSimilarTransactions,
-  getTransactionById,
   moveTransactionToReview,
   searchTransactionMatch,
   updateBankAccount,
@@ -28,6 +27,7 @@ import {
   updateTransactions,
 } from "@tamias/app-data/queries";
 import {
+  getTransactionByIdForTeam,
   getTransactionsPage,
   getTransactionsReviewCount,
 } from "@tamias/app-services/transactions";
@@ -67,9 +67,10 @@ export const transactionsRouter = createTRPCRouter({
   getById: protectedProcedure
     .input(getTransactionByIdSchema)
     .query(async ({ input, ctx: { db, teamId } }) => {
-      return getTransactionById(db, {
-        id: input.id,
+      return getTransactionByIdForTeam({
+        db,
         teamId: teamId!,
+        input: { id: input.id },
       });
     }),
 

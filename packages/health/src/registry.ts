@@ -15,8 +15,6 @@ export interface Dependency {
   tier: 1 | 2 | 3 | 4;
   /** Probe function — returns true if healthy */
   probe: () => Promise<boolean>;
-  /** How long to cache the probe result (ms) */
-  cacheTtlMs: number;
   /** Max time for the probe before it's considered failed (ms) */
   timeoutMs: number;
 }

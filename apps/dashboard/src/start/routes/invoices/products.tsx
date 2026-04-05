@@ -5,7 +5,7 @@ import { createServerFn } from "@tanstack/react-start";
 export const loadInvoiceProductsData = createServerFn({ method: "GET" }).handler(
   async () => {
     const { buildInvoiceProductsPageData } = await import(
-      "@/start/server/route-data/app"
+      "@/start/server/route-data/invoices"
     );
     return (await buildInvoiceProductsPageData()) as any;
   },

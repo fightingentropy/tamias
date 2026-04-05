@@ -129,9 +129,26 @@ export const mocks = {
     data: [],
     meta: { hasNextPage: false, hasPreviousPage: false },
   })) as MockFn,
+  getInboxPage: mock(() => ({
+    data: [],
+    meta: { hasNextPage: false, hasPreviousPage: false },
+  })) as MockFn,
   getInboxItemById: mock(() => null) as MockFn,
+  getInboxById: mock(() => null) as MockFn,
   updateInboxItem: mock(() => ({})) as MockFn,
+  updateInbox: mock(() => ({})) as MockFn,
   deleteInboxItem: mock(() => ({})) as MockFn,
+  deleteInbox: mock(() => ({})) as MockFn,
+  getInboxBlocklistForTeam: mock(() => []) as MockFn,
+
+  // Public reads / service helpers
+  getCustomerPortalData: mock(() => null) as MockFn,
+  getCustomerPortalInvoicesPage: mock(() => ({
+    data: [],
+    meta: { hasNextPage: false, hasPreviousPage: false },
+  })) as MockFn,
+  getInvoiceByToken: mock(() => null) as MockFn,
+  getInvoiceIdFromToken: mock(() => null) as MockFn,
 
   // API Keys
   getApiKeyByToken: mock(() => null) as MockFn,
@@ -164,9 +181,47 @@ export const mocks = {
 // Create a default mock function that returns empty data
 const createDefaultMock = () => mock(() => null);
 
-// Mock @tamias/app-data/queries with a Proxy to handle any export
-const dbQueriesMock = new Proxy(
-  {
+function createModuleMock<T extends Record<string, any>>(initialExports: T): T {
+  return new Proxy(initialExports, {
+    get(target, prop) {
+      const exportsMap = target as Record<string, any>;
+
+      if (typeof prop !== "string") {
+        return Reflect.get(target, prop);
+      }
+
+      if (!(prop in exportsMap)) {
+        exportsMap[prop] = createDefaultMock();
+      }
+
+      return exportsMap[prop];
+    },
+    has(_target, prop) {
+      return typeof prop === "string";
+    },
+    getOwnPropertyDescriptor(target, prop) {
+      const exportsMap = target as Record<string, any>;
+
+      if (typeof prop !== "string") {
+        return Reflect.getOwnPropertyDescriptor(target, prop);
+      }
+
+      if (!(prop in exportsMap)) {
+        exportsMap[prop] = createDefaultMock();
+      }
+
+      return {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value: exportsMap[prop],
+      };
+    },
+  }) as T;
+}
+
+// Mock @tamias/app-data/queries with a module-like proxy to satisfy named imports
+const dbQueriesMock = createModuleMock({
     // Transaction functions
     getTransactions: mocks.getTransactions,
     getTransactionById: mocks.getTransactionById,
@@ -195,6 +250,7 @@ const dbQueriesMock = new Proxy(
     getInvoiceSummary: mocks.getInvoiceSummary,
     getInvoiceTemplate: mocks.getInvoiceTemplate,
     getPaymentStatus: mocks.getPaymentStatus,
+    markInvoiceViewed: mock(() => ({})),
     isInvoiceNumberUsed: mocks.isInvoiceNumberUsed,
     searchInvoiceNumber: mocks.searchInvoiceNumber,
     getAverageDaysToPayment: mocks.getAverageDaysToPayment,
@@ -203,6 +259,12 @@ const dbQueriesMock = new Proxy(
     getNewCustomersCount: mocks.getNewCustomersCount,
     getMostActiveClient: mocks.getMostActiveClient,
     getTopRevenueClient: mocks.getTopRevenueClient,
+    allocateNextInvoiceNumber: mock(() => "INV-003"),
+    getInvoiceNumberConflictMessage: mock(
+      (invoiceNumber: string) =>
+        `Invoice number ${invoiceNumber} already exists`,
+    ),
+    isInvoiceNumberConflictError: mock(() => false),
 
     // Customer functions
     getCustomers: mocks.getCustomers,
@@ -233,6 +295,7 @@ const dbQueriesMock = new Proxy(
     getBankAccountsBalances: mock(() => []),
     getBankAccountsCurrencies: mock(() => []),
     getBankAccountsWithPaymentInfo: mock(() => []),
+    getTransactionCountByBankAccountId: mock(() => 0),
 
     // Tags
     getTags: mocks.getTags,
@@ -246,10 +309,10 @@ const dbQueriesMock = new Proxy(
       data: [],
       meta: { hasNextPage: false, hasPreviousPage: false },
     })),
-    getInboxById: mock(() => null),
+    getInboxById: mocks.getInboxById,
     createInbox: mock(() => ({})),
-    updateInbox: mock(() => ({})),
-    deleteInbox: mock(() => ({})),
+    updateInbox: mocks.updateInbox,
+    deleteInbox: mocks.deleteInbox,
     deleteInboxMany: mock(() => []),
     getInboxSearch: mock(() => []),
     getInboxBlocklist: mock(() => []),
@@ -272,6 +335,7 @@ const dbQueriesMock = new Proxy(
     getUserById: mocks.getUserById,
     getUser: mocks.getUser,
     updateUser: mocks.updateUser,
+    getUserByConvexId: mock(() => null),
     getUserTeamId: mock(() => "test-team-id"),
 
     // Teams
@@ -297,21 +361,12 @@ const dbQueriesMock = new Proxy(
     // Validation
     validateAccessToken: mocks.validateAccessToken,
   } as Record<string, any>,
-  {
-    get(target, prop) {
-      if (prop in target) {
-        return target[prop as string];
-      }
-      // Return a default mock for any unspecified export
-      target[prop as string] = createDefaultMock();
-      return target[prop as string];
-    },
-  },
 );
 
 mock.module("@tamias/app-data/queries", () => dbQueriesMock);
 mock.module("@tamias/app-data/queries/inbox", () => ({
   getInbox: dbQueriesMock.getInbox,
+  getInboxById: dbQueriesMock.getInboxById,
 }));
 mock.module("@tamias/app-data/queries/inbox-accounts", () => ({
   getInboxAccounts: dbQueriesMock.getInboxAccounts,
@@ -325,7 +380,9 @@ mock.module("@tamias/app-data/queries/invoices", () => ({
   getPaymentStatus: dbQueriesMock.getPaymentStatus,
 }));
 mock.module("@tamias/app-data/queries/customers", () => ({
+  getCustomerById: dbQueriesMock.getCustomerById,
   getCustomers: dbQueriesMock.getCustomers,
+  getCustomerInvoiceSummary: dbQueriesMock.getCustomerInvoiceSummary,
 }));
 mock.module("@tamias/app-data/queries/customer-summary", () => ({
   getCustomerPageSummary: dbQueriesMock.getCustomerPageSummary,
@@ -359,8 +416,21 @@ mock.module("@tamias/app-data/queries/year-end", () => ({
 mock.module("@tamias/app-data/queries/payroll", () => ({
   getPayrollDashboard: dbQueriesMock.getPayrollDashboard,
 }));
+mock.module("@tamias/app-services/inbox", () => ({
+  getInboxBlocklistForTeam: mocks.getInboxBlocklistForTeam,
+  getInboxPage: mocks.getInboxPage,
+}));
+mock.module("@tamias/app-services/public-reads", () => ({
+  getCustomerPortalData: mocks.getCustomerPortalData,
+  getCustomerPortalInvoicesPage: mocks.getCustomerPortalInvoicesPage,
+}));
+mock.module("@tamias/app-services/invoice-by-token", () => ({
+  getInvoiceByToken: mocks.getInvoiceByToken,
+  getInvoiceIdFromToken: mocks.getInvoiceIdFromToken,
+}));
 mock.module("@tamias/app-data/queries/transactions", () => ({
   getTransactions: dbQueriesMock.getTransactions,
+  getTransactionById: dbQueriesMock.getTransactionById,
   getTransactionsReadyForExportCount:
     dbQueriesMock.getTransactionsReadyForExportCount,
 }));
@@ -379,7 +449,12 @@ mock.module("@tamias/job-client", () => ({
 
 // Mock @tamias/import
 mock.module("@tamias/import", () => ({
+  buildCsvMappingPrompt: mock(() => "mock csv mapping prompt"),
+  compactSampleRows: mock((rows: Record<string, string>[]) =>
+    rows.slice(0, 2),
+  ),
   formatAmountValue: mocks.formatAmountValue,
+  selectPromptColumns: mock((columns: string[]) => columns),
 }));
 
 // Mock @tamias/invoice
@@ -466,7 +541,15 @@ mock.module("@tamias/auth-session", () => ({
 
 // Mock @tamias/app-data/client
 mock.module("@tamias/app-data/client", () => ({
+  createDatabase: mock(() => mockDb),
+  createQueryCacheKey: mock(
+    (namespace: string, input: unknown) =>
+      `${namespace}:${JSON.stringify(input)}`,
+  ),
   db: mockDb,
+  getOrSetQueryCacheValue: mock(
+    async (_db: unknown, _key: string, load: () => Promise<unknown>) => load(),
+  ),
 }));
 
 // Set required environment variables for tests

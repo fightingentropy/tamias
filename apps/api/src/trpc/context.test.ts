@@ -22,6 +22,7 @@ mock.module("@tamias/app-services/auth", () => ({
 }));
 
 mock.module("@tamias/app-data/client", () => ({
+  createDatabase: () => ({ mocked: true }),
   db: { mocked: true },
 }));
 

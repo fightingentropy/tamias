@@ -6,6 +6,8 @@ export * from "./compliance";
 export * from "./foundation";
 export * from "./identity";
 export * from "./inbox";
+export * from "./customers";
+export * from "./invoices";
 export * from "./invoice-by-token";
 export * from "./oauth-application-info";
 export * from "./public-reads";

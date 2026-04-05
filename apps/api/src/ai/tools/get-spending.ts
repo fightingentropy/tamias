@@ -4,8 +4,8 @@ import { db } from "@tamias/app-data/client";
 import {
   getSpending,
   getSpendingForPeriod,
-  getTransactions,
 } from "@tamias/app-data/queries";
+import { getTransactionsPage } from "@tamias/app-services/transactions";
 import { formatAmount, formatDate } from "@tamias/utils/format";
 import { generateText, tool } from "ai";
 import { endOfMonth, parseISO, startOfMonth } from "date-fns";
@@ -98,13 +98,16 @@ export const getSpendingTool = tool({
           to: finalTo,
           currency: finalCurrency ?? undefined,
         }),
-        getTransactions(db, {
+        getTransactionsPage({
+          db,
           teamId,
-          type: "expense",
-          start: finalFrom,
-          end: finalTo,
-          sort: ["amount", "asc"], // Ascending because expenses are negative, so smallest (most negative) = largest expense
-          pageSize: 10,
+          input: {
+            type: "expense",
+            start: finalFrom,
+            end: finalTo,
+            sort: ["amount", "asc"], // Ascending because expenses are negative, so smallest (most negative) = largest expense
+            pageSize: 10,
+          },
         }),
         getSpendingForPeriod(db, {
           teamId,

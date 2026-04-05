@@ -14,7 +14,9 @@ const customersSiteMetadata = createSiteMetadata({
 export const loadCustomersData = createServerFn({ method: "GET" })
   .inputValidator((data: { href: string }) => data)
   .handler(async ({ data }) => {
-    const { buildCustomersPageData } = await import("@/start/server/route-data/app");
+    const { buildCustomersPageData } = await import(
+      "@/start/server/route-data/customers"
+    );
     return (await buildCustomersPageData(data.href)) as any;
   });
 

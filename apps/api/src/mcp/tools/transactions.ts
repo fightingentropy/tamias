@@ -2,7 +2,10 @@ import {
   getTransactionByIdSchema,
   getTransactionsSchema,
 } from "../../schemas/transactions";
-import { getTransactionById, getTransactions } from "@tamias/app-data/queries";
+import {
+  getTransactionByIdForTeam,
+  getTransactionsPage,
+} from "@tamias/app-services/transactions";
 import { hasScope, READ_ONLY_ANNOTATIONS, type RegisterTools } from "../types";
 
 export const registerTransactionTools: RegisterTools = (server, ctx) => {
@@ -22,25 +25,28 @@ export const registerTransactionTools: RegisterTools = (server, ctx) => {
       annotations: READ_ONLY_ANNOTATIONS,
     },
     async (params) => {
-      const result = await getTransactions(db, {
+      const result = await getTransactionsPage({
+        db,
         teamId,
-        cursor: params.cursor ?? null,
-        pageSize: params.pageSize ?? 25,
-        q: params.q ?? null,
-        start: params.start ?? null,
-        end: params.end ?? null,
-        categories: params.categories ?? null,
-        statuses: params.statuses ?? null,
-        type: params.type ?? null,
-        accounts: params.accounts ?? null,
-        sort: params.sort ?? null,
-        tags: params.tags ?? null,
-        assignees: params.assignees ?? null,
-        recurring: params.recurring ?? null,
-        attachments: params.attachments ?? null,
-        amountRange: params.amountRange ?? null,
-        amount: params.amount ?? null,
-        manual: params.manual ?? null,
+        input: {
+          cursor: params.cursor ?? null,
+          pageSize: params.pageSize ?? 25,
+          q: params.q ?? null,
+          start: params.start ?? null,
+          end: params.end ?? null,
+          categories: params.categories ?? null,
+          statuses: params.statuses ?? null,
+          type: params.type ?? null,
+          accounts: params.accounts ?? null,
+          sort: params.sort ?? null,
+          tags: params.tags ?? null,
+          assignees: params.assignees ?? null,
+          recurring: params.recurring ?? null,
+          attachments: params.attachments ?? null,
+          amountRange: params.amountRange ?? null,
+          amount: params.amount ?? null,
+          manual: params.manual ?? null,
+        },
       });
 
       return {
@@ -60,7 +66,11 @@ export const registerTransactionTools: RegisterTools = (server, ctx) => {
       annotations: READ_ONLY_ANNOTATIONS,
     },
     async ({ id }) => {
-      const result = await getTransactionById(db, { id, teamId });
+      const result = await getTransactionByIdForTeam({
+        db,
+        teamId,
+        input: { id },
+      });
 
       if (!result) {
         return {

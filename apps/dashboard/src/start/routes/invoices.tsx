@@ -5,7 +5,9 @@ import { createServerFn } from "@tanstack/react-start";
 export const loadInvoicesData = createServerFn({ method: "GET" })
   .inputValidator((data: { href: string }) => data)
   .handler(async ({ data }) => {
-    const { buildInvoicesPageData } = await import("@/start/server/route-data/app");
+    const { buildInvoicesPageData } = await import(
+      "@/start/server/route-data/invoices"
+    );
     return (await buildInvoicesPageData(data.href)) as any;
   });
 

@@ -7,8 +7,8 @@ import {
   getReports,
   getSpending,
   getSpendingForPeriod,
-  getTransactions,
 } from "@tamias/app-data/queries";
+import { getTransactionsPage } from "@tamias/app-services/transactions";
 import { formatAmount } from "@tamias/utils/format";
 import { format, parseISO } from "date-fns";
 import type {
@@ -20,7 +20,8 @@ import type {
   MonthlyBreakdownData,
 } from "./types";
 
-type TransactionRecord = Awaited<ReturnType<typeof getTransactions>>["data"][number];
+type TransactionRecord =
+  Awaited<ReturnType<typeof getTransactionsPage>>["data"][number];
 
 type PeriodDataOptions = {
   teamId: string;
@@ -79,13 +80,16 @@ async function getAllTransactionsForRange(options: {
   let hasMore = true;
 
   while (hasMore) {
-    const transactionsResult = await getTransactions(db, {
+    const transactionsResult = await getTransactionsPage({
+      db,
       teamId: options.teamId,
-      start: options.from,
-      end: options.to,
-      sort: ["date", "desc"],
-      pageSize: 10000,
-      cursor,
+      input: {
+        start: options.from,
+        end: options.to,
+        sort: ["date", "desc"],
+        pageSize: 10000,
+        cursor,
+      },
     });
 
     allTransactions.push(...transactionsResult.data);

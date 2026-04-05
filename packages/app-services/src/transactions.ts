@@ -4,6 +4,7 @@ import {
   getCategories,
 } from "@tamias/app-data/queries/transaction-categories";
 import {
+  getTransactionById,
   getTransactionsReadyForExportCount,
   getTransactions,
   type GetTransactionsParams,
@@ -38,4 +39,17 @@ export async function getTransactionsReviewCount(args: {
   teamId: string;
 }) {
   return getTransactionsReadyForExportCount(args.db, args.teamId);
+}
+
+export async function getTransactionByIdForTeam(args: {
+  db: Database;
+  teamId: string;
+  input: {
+    id: string;
+  };
+}) {
+  return getTransactionById(args.db, {
+    teamId: args.teamId,
+    ...args.input,
+  });
 }

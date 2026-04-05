@@ -17,11 +17,13 @@ import { getApiUrl, getAppUrl } from "@tamias/utils/envs";
 import { cors } from "hono/cors";
 import { secureHeaders } from "hono/secure-headers";
 import type { Context } from "./rest/types";
+export { RateLimitCoordinator } from "./rate-limit/coordinator";
 const dashboardUrl = getAppUrl();
 const apiUrl = getApiUrl();
 
 type ApiRuntimeEnv = {
   ASYNC_WORKER?: CloudflareAsyncServiceBinding;
+  RATE_LIMIT_COORDINATOR?: DurableObjectNamespace;
   TELLER_MTLS_CERTIFICATE?: TellerMtlsFetcher;
 };
 
@@ -82,13 +84,7 @@ function getAllowedApiOrigins() {
 }
 
 const allowedApiOrigins = getAllowedApiOrigins();
-let appPromise: Promise<{
-  fetch: (
-    request: Request,
-    env?: unknown,
-    executionCtx?: ExecutionContext,
-  ) => Response | Promise<Response>;
-}> | null = null;
+let appPromise: Promise<Awaited<ReturnType<typeof createApp>>> | null = null;
 
 async function createApp() {
   const [
@@ -285,6 +281,6 @@ export default {
   ) {
     configureApiRuntime(env);
     const app = await getApp();
-    return app.fetch(request, env as never, executionCtx);
+    return app.fetch(request, env as unknown as Env, executionCtx);
   },
 };

@@ -2,10 +2,6 @@ import { getConvexUrl } from "@tamias/utils/envs";
 import { dehydrate } from "@tanstack/react-query";
 import { redirect } from "@tanstack/react-router";
 import { getStartContext } from "@tanstack/start-storage-context";
-import {
-  getCurrentTeamLocally,
-  getCurrentUserLocally,
-} from "@/server/loaders/identity";
 import { getQueryClient, trpc } from "@/trpc/server";
 
 export function getRequestUrl(input?: string) {
@@ -90,14 +86,46 @@ export function isLocalPublicReadUnavailable(error: unknown) {
   );
 }
 
+export function isUnauthorizedQueryError(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const maybeTrpcError = error as {
+    data?: { code?: unknown };
+    message?: unknown;
+  };
+
+  return (
+    maybeTrpcError.data?.code === "UNAUTHORIZED" ||
+    (typeof maybeTrpcError.message === "string" &&
+      maybeTrpcError.message.toUpperCase().includes("UNAUTHORIZED"))
+  );
+}
+
 export async function buildBaseAppShellState(opts?: {
   allowIncomplete?: boolean;
 }) {
   const queryClient = getQueryClient();
-  const [team, user] = await Promise.all([
-    getCurrentTeamLocally(),
-    getCurrentUserLocally(),
+  const currentTeamQuery = trpc.team.current.queryOptions();
+  const currentUserQuery = trpc.user.me.queryOptions();
+  const [teamResult, userResult] = await Promise.allSettled([
+    queryClient.fetchQuery(currentTeamQuery),
+    queryClient.fetchQuery(currentUserQuery),
   ]);
+
+  if (userResult.status === "rejected") {
+    if (isUnauthorizedQueryError(userResult.reason)) {
+      throw redirect({
+        to: "/login",
+        throw: true,
+      });
+    }
+
+    throw userResult.reason;
+  }
+
+  const user = userResult.value;
 
   if (!user) {
     throw redirect({
@@ -106,8 +134,18 @@ export async function buildBaseAppShellState(opts?: {
     });
   }
 
-  queryClient.setQueryData(trpc.team.current.queryKey(), team);
-  queryClient.setQueryData(trpc.user.me.queryKey(), user);
+  if (teamResult.status === "rejected") {
+    if (isUnauthorizedQueryError(teamResult.reason)) {
+      throw redirect({
+        to: "/login",
+        throw: true,
+      });
+    }
+
+    throw teamResult.reason;
+  }
+
+  const team = teamResult.value;
 
   if (!opts?.allowIncomplete && (!user.fullName || !user.teamId)) {
     throw redirect({

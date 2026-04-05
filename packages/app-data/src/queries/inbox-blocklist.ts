@@ -5,7 +5,7 @@ import {
   type InboxBlocklistRecord,
 } from "@tamias/app-data-convex";
 import type { Database } from "../client";
-import { cacheAcrossRequests } from "../utils/short-lived-cache";
+import { reuseQueryResult } from "../utils/request-cache";
 
 export type GetInboxBlocklistParams = {
   teamId: string;
@@ -42,7 +42,7 @@ async function getInboxBlocklistImpl(
   return results.map(toInboxBlocklistEntry);
 }
 
-export const getInboxBlocklist = cacheAcrossRequests({
+export const getInboxBlocklist = reuseQueryResult({
   keyPrefix: "inbox-blocklist",
   keyFn: (params: GetInboxBlocklistParams) => params.teamId,
   load: getInboxBlocklistImpl,

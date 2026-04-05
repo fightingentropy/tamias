@@ -1,11 +1,4 @@
-import {
-  getComplianceProfileLocally,
-  getPayrollDashboardLocally,
-  getVatDashboardLocally,
-  getVatSubmissionsLocally,
-  getYearEndDashboardLocally,
-} from "@/server/loaders/compliance";
-import { trpc } from "@/trpc/server";
+import { batchPrefetch, trpc } from "@/trpc/server";
 import {
   buildBaseAppShellState,
   dehydrateQueryClient,
@@ -14,11 +7,14 @@ import {
 export async function buildCompliancePageData() {
   const { queryClient, user } = await buildBaseAppShellState();
   const vatDashboardQuery = trpc.vat.getDashboard.queryOptions();
-  const vatDashboardResult = await getVatDashboardLocally().catch(() => null);
+  const yearEndDashboardQuery = trpc.yearEnd.getDashboard.queryOptions();
+  const payrollDashboardQuery = trpc.payroll.getDashboard.queryOptions();
 
-  if (vatDashboardResult) {
-    queryClient.setQueryData(vatDashboardQuery.queryKey, vatDashboardResult);
-  }
+  await batchPrefetch([
+    vatDashboardQuery,
+    yearEndDashboardQuery,
+    payrollDashboardQuery,
+  ]);
 
   return {
     dehydratedState: dehydrateQueryClient(queryClient),
@@ -28,11 +24,10 @@ export async function buildCompliancePageData() {
 
 export async function buildCompliancePayrollPageData() {
   const { queryClient, user } = await buildBaseAppShellState();
-  const dashboard = await getPayrollDashboardLocally().catch(() => null);
+  const dashboardQuery = trpc.payroll.getDashboard.queryOptions();
+  const runsQuery = trpc.payroll.listRuns.queryOptions();
 
-  if (dashboard) {
-    queryClient.setQueryData(trpc.payroll.getDashboard.queryKey(), dashboard);
-  }
+  await batchPrefetch([dashboardQuery, runsQuery]);
 
   return {
     dehydratedState: dehydrateQueryClient(queryClient),
@@ -42,9 +37,7 @@ export async function buildCompliancePayrollPageData() {
 
 export async function buildComplianceSettingsPageData() {
   const { queryClient, user } = await buildBaseAppShellState();
-  const profile = await getComplianceProfileLocally();
-
-  queryClient.setQueryData(trpc.compliance.getProfile.queryKey(), profile);
+  await queryClient.fetchQuery(trpc.compliance.getProfile.queryOptions());
 
   return {
     dehydratedState: dehydrateQueryClient(queryClient),
@@ -56,24 +49,8 @@ export async function buildComplianceVatPageData() {
   const { queryClient, user } = await buildBaseAppShellState();
   const vatDashboardQuery = trpc.vat.getDashboard.queryOptions();
   const vatSubmissionsQuery = trpc.vat.listSubmissions.queryOptions();
-  const [vatDashboardResult, vatSubmissionsResult] = await Promise.allSettled([
-    getVatDashboardLocally(),
-    getVatSubmissionsLocally(),
-  ]);
 
-  if (vatDashboardResult.status === "fulfilled") {
-    queryClient.setQueryData(
-      vatDashboardQuery.queryKey,
-      vatDashboardResult.value,
-    );
-  }
-
-  if (vatSubmissionsResult.status === "fulfilled") {
-    queryClient.setQueryData(
-      vatSubmissionsQuery.queryKey,
-      vatSubmissionsResult.value,
-    );
-  }
+  await batchPrefetch([vatDashboardQuery, vatSubmissionsQuery]);
 
   return {
     dehydratedState: dehydrateQueryClient(queryClient),
@@ -83,11 +60,7 @@ export async function buildComplianceVatPageData() {
 
 export async function buildComplianceYearEndPageData() {
   const { queryClient, user } = await buildBaseAppShellState();
-  const dashboard = await getYearEndDashboardLocally().catch(() => null);
-
-  if (dashboard) {
-    queryClient.setQueryData(trpc.yearEnd.getDashboard.queryKey(), dashboard);
-  }
+  await queryClient.fetchQuery(trpc.yearEnd.getDashboard.queryOptions());
 
   return {
     dehydratedState: dehydrateQueryClient(queryClient),

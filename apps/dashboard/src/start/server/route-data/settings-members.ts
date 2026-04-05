@@ -1,8 +1,4 @@
-import {
-  getCurrentTeamInvitesLocally,
-  getCurrentTeamMembersLocally,
-} from "@/server/loaders/identity";
-import { trpc } from "@/trpc/server";
+import { batchPrefetch, trpc } from "@/trpc/server";
 import {
   buildBaseAppShellState,
   dehydrateQueryClient,
@@ -10,13 +6,10 @@ import {
 
 export async function buildSettingsMembersPageData() {
   const { queryClient, user } = await buildBaseAppShellState();
-  const [members, invites] = await Promise.all([
-    getCurrentTeamMembersLocally(),
-    getCurrentTeamInvitesLocally(),
+  await batchPrefetch([
+    trpc.team.members.queryOptions(),
+    trpc.team.teamInvites.queryOptions(),
   ]);
-
-  queryClient.setQueryData(trpc.team.members.queryKey(), members);
-  queryClient.setQueryData(trpc.team.teamInvites.queryKey(), invites);
 
   return {
     dehydratedState: dehydrateQueryClient(queryClient),

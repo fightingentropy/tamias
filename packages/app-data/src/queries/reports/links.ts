@@ -1,7 +1,7 @@
 import { UTCDate } from "@date-fns/utc";
 import { format, endOfMonth, startOfMonth, subMonths } from "date-fns";
 import type { Database } from "../../client";
-import { cacheAcrossRequests } from "../../utils/short-lived-cache";
+import { reuseQueryResult } from "../../utils/request-cache";
 import {
   InvalidReportTypeError,
   ReportExpiredError,
@@ -54,7 +54,7 @@ async function getReportByLinkIdImpl(_db: Database, linkId: string) {
   return getReportLinkByLinkIdFromConvex({ linkId });
 }
 
-export const getReportByLinkId = cacheAcrossRequests({
+export const getReportByLinkId = reuseQueryResult({
   keyPrefix: "report-link",
   keyFn: (linkId: string) => linkId,
   load: getReportByLinkIdImpl,
@@ -161,7 +161,7 @@ async function getChartDataByLinkIdImpl(db: Database, linkId: string) {
   }
 }
 
-export const getChartDataByLinkId = cacheAcrossRequests({
+export const getChartDataByLinkId = reuseQueryResult({
   keyPrefix: "report-link-chart-data",
   keyFn: (linkId: string) => linkId,
   load: getChartDataByLinkIdImpl,

@@ -8,6 +8,7 @@ import { useDocumentFilterParams } from "@/hooks/use-document-filter-params";
 import { useDocumentParams } from "@/hooks/use-document-params";
 import { useScrollHeader } from "@/hooks/use-scroll-header";
 import { useTRPC } from "@/trpc/client";
+import { buildDocumentsQueryFilter } from "@/utils/documents-query";
 import { NoResults } from "./empty-states";
 import { VaultGetStarted } from "./vault-get-started";
 
@@ -53,10 +54,10 @@ export function VaultGrid() {
   }, []);
 
   const infiniteQueryOptions = trpc.documents.get.infiniteQueryOptions(
-    {
+    buildDocumentsQueryFilter({
+      filter,
       pageSize: 24,
-      ...filter,
-    },
+    }),
     {
       getNextPageParam: ({ meta }) => meta?.cursor,
     },

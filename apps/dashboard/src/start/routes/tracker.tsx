@@ -5,7 +5,9 @@ import { createServerFn } from "@tanstack/react-start";
 export const loadTrackerData = createServerFn({ method: "GET" })
   .inputValidator((data: { href: string }) => data)
   .handler(async ({ data }) => {
-    const { buildTrackerPageData } = await import("@/start/server/route-data/app");
+    const { buildTrackerPageData } = await import(
+      "@/start/server/route-data/tracker"
+    );
     return (await buildTrackerPageData(data.href)) as any;
   });
 

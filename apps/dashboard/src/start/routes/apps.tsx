@@ -3,7 +3,7 @@ import { createAppFileRoute } from "@/start/route-hosts";
 import { createServerFn } from "@tanstack/react-start";
 
 export const loadAppsData = createServerFn({ method: "GET" }).handler(async () => {
-  const { buildAppsPageData } = await import("@/start/server/route-data/app");
+  const { buildAppsPageData } = await import("@/start/server/route-data/apps");
   return (await buildAppsPageData()) as any;
 });
 
