@@ -72,8 +72,9 @@ export function GlobalSheetsProvider() {
   const transactionParams = useTransactionParams();
   const invoiceParams = useInvoiceParams();
   const trackerParams = useTrackerParams();
-  const documentParams = useDocumentParams();
-  const { params: inboxParams } = useInboxParams();
+  const { params: documentParams, setParams: setDocumentParams } =
+    useDocumentParams();
+  const { params: inboxParams, setParams: setInboxParams } = useInboxParams();
   const connectParams = useConnectParams();
 
   const hasOpenSearchSheets = isSearchOpen;
@@ -90,9 +91,7 @@ export function GlobalSheetsProvider() {
     Boolean(transactionParams.transactionId) ||
     Boolean(transactionParams.createTransaction) ||
     Boolean(transactionParams.editTransaction) ||
-    Boolean(
-      documentParams.params.filePath || documentParams.params.documentId,
-    ) ||
+    Boolean(documentParams.filePath || documentParams.documentId) ||
     Boolean(inboxParams.inboxId && inboxParams.type === "details");
 
   const hasOpenInvoiceSheets =
@@ -127,6 +126,33 @@ export function GlobalSheetsProvider() {
   const shouldLoadInvoiceSheets = useStickyOverlayMount(hasOpenInvoiceSheets);
   const shouldLoadConnectSheets = useStickyOverlayMount(hasOpenConnectSheets);
   const shouldLoadTrackerSheets = useStickyOverlayMount(hasOpenTrackerSheets);
+
+  useEffect(() => {
+    if (!hasOpenInvoiceSheets) {
+      return;
+    }
+
+    if (inboxParams.type === "details") {
+      setInboxParams({
+        inboxId: null,
+        type: null,
+      });
+    }
+
+    if (documentParams.filePath || documentParams.documentId) {
+      setDocumentParams({
+        documentId: null,
+        filePath: null,
+      });
+    }
+  }, [
+    hasOpenInvoiceSheets,
+    inboxParams.type,
+    setInboxParams,
+    documentParams.filePath,
+    documentParams.documentId,
+    setDocumentParams,
+  ]);
 
   useHotkeys(
     "meta+k",
