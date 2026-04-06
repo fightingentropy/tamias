@@ -287,6 +287,16 @@ export async function apiEntryFetch(
   env: ApiRuntimeEnv,
   executionCtx: ExecutionContext,
 ) {
+  // Fast-path: respond to /health immediately without loading the full app.
+  // The full app loads 65+ routers and their transitive deps, which takes 4+ seconds
+  // on cold start. Health checks should not pay this cost.
+  const url = new URL(request.url);
+  if (url.pathname === "/health") {
+    return Response.json({ status: "ok" }, {
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   configureApiRuntime(env);
 
   if (isUnifiedCloudflareWorkerEnv(env)) {
