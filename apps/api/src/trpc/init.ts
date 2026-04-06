@@ -42,6 +42,8 @@ export const createTRPCContext = async (
 
 const t = initTRPC.context<TRPCContext>().create({
   transformer: superjson,
+  isServer: true,
+  allowOutsideOfServer: true,
 });
 
 export const createTRPCRouter = t.router;
