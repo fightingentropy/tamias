@@ -5,7 +5,7 @@ import {
   getTrackerProjectsByIdsFromConvex,
   type TrackerEntryRecord,
   type TrackerProjectRecord,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 
 type ConvexUserId = CurrentUserIdentityRecord["convexId"];

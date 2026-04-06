@@ -5,7 +5,7 @@ import {
   type CurrentUserIdentityRecord,
   type MatchSuggestionStatus,
   type TransactionMatchSuggestionRecord,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 import {
   buildInboxTransactionSummary,
   type InboxTransactionSummary,

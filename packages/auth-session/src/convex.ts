@@ -1,6 +1,6 @@
 import { ConvexHttpClient } from "convex/browser";
-import { api } from "@tamias/app-data/convex/api";
-import type { Id } from "@tamias/app-data/convex/data-model";
+import { api } from "@tamias/app-data-convex/api";
+import type { Id } from "@tamias/app-data-convex/data-model";
 import {
   createUserSessionResolver,
   type SessionResolverDependencies,

@@ -4,7 +4,7 @@ import {
   replaceCustomerTagsInConvex,
   toggleCustomerPortalInConvex,
   upsertCustomerInConvex,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import { generateToken } from "@tamias/invoice/token";
 import type { Database } from "../../client";
 import { createActivity } from "../activities";

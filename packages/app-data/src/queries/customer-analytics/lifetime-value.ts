@@ -1,5 +1,5 @@
 import { parseISO } from "date-fns";
-import { getInvoiceCustomerDateAggregateRowsFromConvex } from "../../convex";
+import { getInvoiceCustomerDateAggregateRowsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
 import { CUSTOMER_REVENUE_STATUSES, getCustomerNameMap, roundMoney, type GetCustomerLifetimeValueParams } from "./shared";

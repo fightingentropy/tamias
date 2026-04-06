@@ -2,7 +2,7 @@ import {
   deleteTrackerProjectInConvex,
   replaceTrackerProjectTagsInConvex,
   upsertTrackerProjectInConvex,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { createActivity } from "../activities";
 import { getTrackerProjectById } from "./by-id";

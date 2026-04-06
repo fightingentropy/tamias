@@ -11,11 +11,11 @@ Tamias is a Bun workspaces monorepo for the product workspace, API, Cloudflare a
 
 | Surface | Directory | Local URL | What it does |
 | --- | --- | --- | --- |
-| Dashboard | `apps/dashboard` | `http://localhost:3001` | Main authenticated app, public invoice/customer/report links, auth, SSR, client providers, lightweight public homepage |
-| API | `apps/api` | `http://localhost:3003` | Hono API on Cloudflare Workers with tRPC, REST, OpenAPI, MCP, webhooks, health/readiness endpoints |
-| Worker | `apps/worker` | `http://127.0.0.1:8787` | Cloudflare async worker with queues, workflows, recurring schedules, notifications, and document processing |
-| Website | `apps/dashboard` | `https://tamias.xyz` | Marketing site, integrations catalog, comparison pages, and MCP install guides served from the dashboard deployment |
-| Convex | `apps/dashboard/convex` | external local deployment | Durable app data, auth/identity sync, chat memory, widgets, links, files, operational state |
+| Dashboard | `dashboard` | `http://localhost:3001` | Main authenticated app, public invoice/customer/report links, auth, SSR, client providers, lightweight public homepage |
+| API | `api` | `http://localhost:3003` | Hono API on Cloudflare Workers with tRPC, REST, OpenAPI, MCP, webhooks, health/readiness endpoints |
+| Worker | `worker` | `http://127.0.0.1:8787` | Cloudflare async worker with queues, workflows, recurring schedules, notifications, and document processing |
+| Website | `dashboard` | `https://tamias.xyz` | Marketing site, integrations catalog, comparison pages, and MCP install guides served from the dashboard deployment |
+| Convex | `dashboard/convex` | external local deployment | Durable app data, auth/identity sync, chat memory, widgets, links, files, operational state |
 
 ## Product areas
 
@@ -59,23 +59,23 @@ flowchart LR
 
 ### Request and data flow
 
-1. Requests into the dashboard deployment run request middleware from `apps/dashboard/src/start/start.ts` (`createStart` + `createMiddleware`).
+1. Requests into the dashboard deployment run request middleware from `dashboard/src/start/start.ts` (`createStart` + `createMiddleware`).
    Host-aware routing and authenticated route gating happen there.
 2. The dashboard root layout mounts Convex auth, tRPC, i18n, theming, analytics, and shared client providers.
 3. The authenticated sidebar shell preloads the current user/team and mounts global chrome like the sidebar, header, timers, sheets, and export status.
-4. Hot server-rendered reads use route loaders backed by `apps/dashboard/src/start/server/route-data/*` (for example `dashboard.ts`, `transactions.ts`), which call tRPC server helpers and the shared query layer instead of round-tripping through HTTP for every SSR request.
-5. Client mutations and most interactive reads go through tRPC to `apps/api`.
+4. Hot server-rendered reads use route loaders backed by `dashboard/src/start/server/route-data/*` (for example `dashboard.ts`, `transactions.ts`), which call tRPC server helpers and the shared query layer instead of round-tripping through HTTP for every SSR request.
+5. Client mutations and most interactive reads go through tRPC to `api`.
 6. The API exposes:
    - tRPC for first-party app calls
    - REST routes for files, invoices, customers, chat, insights, webhooks, transcription, and integrations
    - OpenAPI + Scalar docs
    - MCP tools/resources/prompts for agent clients
-7. Long-running work is enqueued through Cloudflare queues/workflows and processed by `apps/worker`.
+7. Long-running work is enqueued through Cloudflare queues/workflows and processed by `worker`.
 8. Convex remains the durable store for auth-linked app state, public links, files metadata, widgets, suggestions, chat memory, and async run status records.
 
 ### Data model and boundaries
 
-- `apps/dashboard/convex` contains the durable model for users, teams, customers, documents, inbox, invoices, tracker data, links, widgets, insights state, tags, transaction metadata, and more.
+- `dashboard/convex` contains the durable model for users, teams, customers, documents, inbox, invoices, tracker data, links, widgets, insights state, tags, transaction metadata, and more.
 - `packages/app-data` is the shared application data layer used by the dashboard, API, and worker.
 - Cloudflare queues/workflows provide the async execution plane. Durable product state does not live in the worker runtime.
 - Convex `asyncRuns` records are the durable source of truth for async status across dashboard, API, and worker flows.
@@ -84,15 +84,15 @@ flowchart LR
 
 | Area | Main routes / entry points | Backing packages and services |
 | --- | --- | --- |
-| Overview and widgets | `/dashboard` | `apps/api/src/trpc/routers/widgets.ts`, `apps/dashboard/convex/widgets.ts`, `packages/insights` |
+| Overview and widgets | `/dashboard` | `api/src/trpc/routers/widgets.ts`, `dashboard/convex/widgets.ts`, `packages/insights` |
 | Transactions and banking | `/transactions`, `/settings/accounts` | `packages/banking`, `packages/import`, `packages/categories`, transaction/banking routers, worker transaction processors |
 | Inbox and document capture | `/inbox`, `/inbox/settings` | `packages/inbox`, `packages/documents`, inbox/document workers, Gmail/Outlook/Slack/WhatsApp integrations |
 | Invoicing and payments | `/invoices`, `/invoices/products`, public `/i/<token>` | `packages/invoice`, invoice/payment routers, Stripe and Stripe Payments integrations |
 | Time tracking | `/tracker` | tracker project/entry routers, export flows, Raycast and MCP integrations |
-| Customers and portal | `/customers`, public `/p/<portalId>` | customer analytics, `apps/worker/src/customers`, enrichment jobs |
+| Customers and portal | `/customers`, public `/p/<portalId>` | customer analytics, `worker/src/customers`, enrichment jobs |
 | Vault and files | `/vault`, file download/proxy routes | `packages/storage`, file routes, document processing |
 | Reports and public links | `/dashboard`, public `/r/<linkId>` and `/s/<shortId>` | reports routers, short links, report links in Convex |
-| AI assistant and insights | `/chat/[id]`, insight notifications/audio | `apps/api/src/ai`, `packages/insights`, MCP server/tools, suggested actions |
+| AI assistant and insights | `/chat/[id]`, insight notifications/audio | `api/src/ai`, `packages/insights`, MCP server/tools, suggested actions |
 | Compliance | `/compliance`, `/compliance/vat`, `/compliance/settings`, `/compliance/year-end`, `/compliance/payroll` | `packages/compliance`, HMRC VAT integration, year-end packs, payroll runs, evidence/export bundles |
 | Apps and developer tooling | `/apps`, `/settings/developer` | `packages/app-store`, OAuth applications, API keys, MCP, public integrations catalog |
 
@@ -101,13 +101,13 @@ flowchart LR
 ### Core platform
 
 - Bun runtime and package manager
-- Bun workspaces (`bun run` with `--workspaces` / `--filter` for cross-package scripts)
+- Bun workspaces (`dashboard`, `api`, `worker`, `packages/*`)
 - TypeScript across apps and packages
 - Biome for linting/formatting
 
 ### Frontend
 
-- TanStack Start in `apps/dashboard`
+- TanStack Start in `dashboard`
 - React 19
 - Vite build/dev pipeline
 - Shared UI primitives in `packages/ui`
@@ -120,8 +120,8 @@ flowchart LR
 - Hono on Cloudflare Workers for the API surface
 - tRPC for first-party app APIs
 - OpenAPI via `@hono/zod-openapi` and Scalar docs
-- Model Context Protocol server in `apps/api/src/mcp`
-- Cloudflare Queues, Workflows, Cron Triggers, Durable Objects, and Containers in `apps/worker`
+- Model Context Protocol server in `api/src/mcp`
+- Cloudflare Queues, Workflows, Cron Triggers, Durable Objects, and Containers in `worker`
 
 ### Data and domain packages
 
@@ -165,9 +165,9 @@ These are the packages you will touch most often:
 
 App-owned modules that are no longer shared packages:
 
-- `apps/api/src/health`: dependency probes and readiness helpers
-- `apps/dashboard/src/lib/telemetry`: telemetry client/server wrappers
-- `apps/worker/src/customers`: customer enrichment pipeline
+- `api/src/health`: dependency probes and readiness helpers
+- `dashboard/src/lib/telemetry`: telemetry client/server wrappers
+- `worker/src/customers`: customer enrichment pipeline
 
 ## Local development
 
@@ -181,17 +181,13 @@ App-owned modules that are no longer shared packages:
 bun install
 ```
 
-### Create env files
+### Env files
 
-```bash
-cp apps/dashboard/.env-example apps/dashboard/.env.local
-cp apps/api/.env-template apps/api/.env
-cp apps/worker/.env-template apps/worker/.env
-```
+Create **`dashboard/.env.local`**, **`api/.env`**, and **`worker/.env`** (and for `wrangler dev` on the API, **`api/.dev.vars`** with secrets Wrangler injects). Use the checklist below for variables and alignment across services.
 
 ### Minimum env checklist
 
-Copy the templates first, then make sure these values exist and line up across services.
+Make sure these values exist and line up across services.
 
 #### Dashboard
 
@@ -263,7 +259,7 @@ INVOICE_JWT_SECRET=...
 #### Important env notes
 
 - `INTERNAL_API_KEY`, `INVOICE_JWT_SECRET`, and `FILE_KEY_SECRET` must match everywhere they are used.
-- Public site features run inside `apps/dashboard`, so site env values should be configured there.
+- Public site features run inside `dashboard`, so site env values should be configured there.
 - `HMRC_CT_ENVIRONMENT` defaults to `test`. Keep it there in deployed environments until you intentionally want live HMRC CT filing.
 - In `test`, CT submissions use `HMRC_CT_TEST_UTR` when present. In `production`, the filing profile UTR is required.
 - Companies House annual accounts filing uses the XML gateway presenter runtime on the API service; it does not use the OAuth app credentials.
@@ -302,7 +298,7 @@ There is no separate local Convex instance anymore.
 ```bash
 bun run dev:dashboard
 ```
-The current local setup uses the unified worker path in `apps/dashboard`, so separate `apps/api` and `apps/worker` Cloudflare processes are no longer required.
+The current local setup uses the unified worker path in `dashboard`, so separate `api` and `worker` Cloudflare processes are no longer required.
 
 ### First login
 
@@ -362,14 +358,14 @@ bun run preflight:cloudflare:production
 
 ## Deployment notes
 
-- `apps/dashboard` is the single Cloudflare deployment target for app, API, and async runtime behavior.
-- `apps/dashboard/wrangler.start.jsonc` is the deploy/runtime entrypoint for Cloudflare.
-- `apps/dashboard` now serves both `app.tamias.xyz` and `tamias.xyz`; public-site routes are host-rewritten into the internal `/site` tree.
+- `dashboard` is the single Cloudflare deployment target for app, API, and async runtime behavior.
+- `dashboard/wrangler.start.jsonc` is the deploy/runtime entrypoint for Cloudflare.
+- `dashboard` now serves both `app.tamias.xyz` and `tamias.xyz`; public-site routes are host-rewritten into the internal `/site` tree.
 - Dashboard preflight includes the Vite production build and a Wrangler `deploy --dry-run` against the matching `wrangler.start.jsonc`.
 - GitHub Actions deploys expect these repository secrets:
   - `CLOUDFLARE_API_TOKEN`
   - `CLOUDFLARE_ACCOUNT_ID`
-- `apps/worker` uses a Cloudflare Images binding for image resize and HEIC-to-JPEG conversion inside the Worker runtime.
+- `worker` uses a Cloudflare Images binding for image resize and HEIC-to-JPEG conversion inside the Worker runtime.
 - Current runtime defaults in code assume:
   - dashboard URLs under `app.tamias.xyz`
   - API URLs under `api.tamias.xyz`
@@ -408,7 +404,3 @@ Current internal docs include:
   `TAMIAS_ENCRYPTION_KEY` is missing or invalid.
 - Compliance pages show disabled states or missing data:
   the team is not GB-scoped, the filing profile is not enabled, or HMRC/app connections and annual pack data have not been configured yet.
-
-## License
-
-This repository is licensed under **[MIT](https://opensource.org/licenses/MIT)**. See [`LICENSE`](./LICENSE).

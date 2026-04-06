@@ -1,6 +1,6 @@
 import { UTCDate } from "@date-fns/utc";
 import { format, parseISO } from "date-fns";
-import { getBankAccountsFromConvex } from "../../../convex";
+import { getBankAccountsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import { getCashBalance } from "../../bank-accounts";
 import {

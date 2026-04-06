@@ -1,7 +1,7 @@
 import {
   getInboxAccountsByIdsFromConvex,
   type InboxAccountListRecord,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 
 export function buildInboxAccountMap(accounts: InboxAccountListRecord[]) {
   return new Map(

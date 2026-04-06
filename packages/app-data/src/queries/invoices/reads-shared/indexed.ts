@@ -1,4 +1,4 @@
-import { getPublicInvoicesPageFromConvex } from "../../../convex";
+import { getPublicInvoicesPageFromConvex } from "@tamias/app-data-convex";
 import type { InvoiceStatus } from "../../invoice-projections";
 import {
   type ProjectedInvoiceRecord,

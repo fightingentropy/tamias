@@ -1,7 +1,7 @@
 import {
   mergeInstalledAppConfigInConvex,
   setInstalledAppConfigInConvex,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { toAppRecord } from "./shared";
 

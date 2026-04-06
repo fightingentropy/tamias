@@ -76,7 +76,7 @@ import {
   type TeamMemberIdentityRecord,
   type TrackerProjectRecord,
   type TransactionRecord,
-} from "../packages/app-data/src/convex/index";
+} from "../packages/app-data-convex/src/index";
 import { db } from "../packages/app-data/src/client";
 import {
   draftInvoice,

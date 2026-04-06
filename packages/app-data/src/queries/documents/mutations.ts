@@ -5,7 +5,7 @@ import {
   updateDocumentByNameInConvex,
   updateDocumentProcessingStatusInConvex,
   updateDocumentsStatusByNamesInConvex,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import {
   deleteTransactionAttachmentsByPathKeys,

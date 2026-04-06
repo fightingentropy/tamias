@@ -1,4 +1,4 @@
-import { getCustomerByPortalIdFromConvex } from "../../convex";
+import { getCustomerByPortalIdFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
 import { getTeamById } from "../index";

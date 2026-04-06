@@ -1,7 +1,7 @@
 import {
   getInboxItemsFromConvex,
   type InboxItemRecord,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 import {
   compareNullableDates,
   compareNullableStrings,

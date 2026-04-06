@@ -1,4 +1,4 @@
-import type { TransactionStatus } from "../../convex";
+import type { TransactionStatus } from "@tamias/app-data-convex";
 
 export type GetTransactionsParams = {
   teamId: string;

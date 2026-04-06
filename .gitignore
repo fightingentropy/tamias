@@ -9,7 +9,7 @@ node_modules
 coverage
 playwright-report
 test-results
-apps/dashboard/playwright/.auth
+dashboard/playwright/.auth
 
 # expo
 .expo/
@@ -32,7 +32,7 @@ yarn-error.log*
 .env
 .env*.local
 .dev.vars
-apps/dashboard/.convex-secrets/
+dashboard/.convex-secrets/
 
 # vercel
 .vercel
@@ -40,10 +40,9 @@ apps/dashboard/.convex-secrets/
 # typescript
 *.tsbuildinfo
 
-# turbo
-.turbo
 .wrangler
 .tanstack
+.turbo
 
 # react-email
 .react-email

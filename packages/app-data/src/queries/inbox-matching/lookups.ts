@@ -1,7 +1,7 @@
 import {
   getInboxItemsPageFromConvex,
   getTransactionMatchSuggestionsFromConvex,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 
 export type PendingInboxItem = {

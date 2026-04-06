@@ -4,7 +4,7 @@ import {
   getBankAccountsBalancesFromConvex,
   getBankAccountsCurrenciesFromConvex,
   getBankAccountsFromConvex,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import type {
   GetBankAccountsParams,

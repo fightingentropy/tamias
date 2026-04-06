@@ -4,7 +4,7 @@ import {
   getTransactionAttachmentsForTransactionIdsFromConvex,
   getTransactionTagAssignmentsForTransactionIdsFromConvex,
   type TransactionRecord,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import { resolveTaxValues } from "@tamias/utils/tax";
 import type { Database } from "../../client";
 import { getAccountingSyncStatus } from "../accounting-sync";

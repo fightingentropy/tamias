@@ -1,4 +1,4 @@
-import { getInvoiceCustomerDateAggregateRowsFromConvex } from "../../convex";
+import { getInvoiceCustomerDateAggregateRowsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
 import { normalizeTimestampBoundary } from "../date-boundaries";

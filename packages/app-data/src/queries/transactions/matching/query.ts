@@ -2,7 +2,7 @@ import {
   getTransactionAttachmentsForTransactionIdsFromConvex,
   getTransactionsByAmountRangeFromConvex,
   searchTransactionsFromConvex,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 import { calculateNameScore } from "../../../utils/transaction-matching";
 import {
   buildTransactionAttachmentLookups,

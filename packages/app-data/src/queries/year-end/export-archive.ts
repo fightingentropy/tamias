@@ -5,7 +5,7 @@ import type {
   CorporationTaxRateScheduleRecord,
   FilingProfileRecord,
   YearEndPackRecord,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import { buildCsvChecksum, buildZipBundle } from "./artifacts";
 import { buildCtSubmissionArtifacts } from "./drafts";
 import { parsePackArray } from "./formatting";

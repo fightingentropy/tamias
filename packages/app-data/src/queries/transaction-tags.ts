@@ -1,7 +1,7 @@
 import {
   createTransactionTagInConvex,
   deleteTransactionTagInConvex,
-} from "../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../client";
 
 type CreateTransactionTagParams = {

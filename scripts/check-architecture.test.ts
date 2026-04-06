@@ -8,7 +8,7 @@ import {
 } from "./check-architecture";
 
 describe("architecture boundaries", () => {
-  test("does not reference @api/* outside apps/api", () => {
+  test("does not reference @api/* outside api", () => {
     expect(findForbiddenApiAliasReferences(process.cwd())).toEqual([]);
   });
 

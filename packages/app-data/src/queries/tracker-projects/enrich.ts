@@ -6,7 +6,7 @@ import {
   getTrackerProjectAssignmentsForProjectIdsFromConvex,
   type TrackerEntryRecord,
   type TrackerProjectRecord,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { getTeamById } from "../index";
 import type {

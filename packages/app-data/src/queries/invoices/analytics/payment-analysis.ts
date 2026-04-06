@@ -1,5 +1,5 @@
 import { UTCDate } from "@date-fns/utc";
-import { getInvoiceAnalyticsAggregateRowsFromConvex } from "../../../convex";
+import { getInvoiceAnalyticsAggregateRowsFromConvex } from "@tamias/app-data-convex";
 import {
   eachMonthOfInterval,
   endOfMonth,

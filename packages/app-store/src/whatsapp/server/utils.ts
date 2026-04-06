@@ -101,7 +101,7 @@ export function verifyWebhookSignature(
 
 /**
  * Extract inbox ID from WhatsApp message text
- * Looks for patterns like "inbox ID is: xxx", "Connect to Tamias: xxx", or just the inbox ID
+ * Looks for patterns like "inbox ID is: xxx", "Connect to Tamias: xxx" (and legacy "Midday"), or just the inbox ID
  */
 export function extractInboxIdFromMessage(text: string): string | null {
   if (!text || typeof text !== "string") {
@@ -111,11 +111,10 @@ export function extractInboxIdFromMessage(text: string): string | null {
   // Normalize text: trim whitespace and handle potential encoding issues
   const normalizedText = text.trim();
 
-  // Pattern 1: "Connect to Tamias: xxx" (case-insensitive, fixed spacing to avoid ReDoS)
-  // Matches: "Connect to Tamias: abc123", "connect to tamias:abc123", etc.
+  // Pattern 1: "Connect to Tamias: xxx" or legacy "Connect to Midday: xxx" (case-insensitive).
   // Using [ \t]+ instead of \s+ and avoiding ambiguous quantifiers to prevent backtracking
   const patternConnect =
-    /connect[ \t]+to[ \t]+tamias[ \t]*:?[ \t]*([a-zA-Z0-9]+)/i;
+    /connect[ \t]+to[ \t]+(?:tamias|midday)[ \t]*:?[ \t]*([a-zA-Z0-9]+)/i;
   const matchConnect = normalizedText.match(patternConnect);
   if (matchConnect?.[1]) {
     return matchConnect[1].trim();

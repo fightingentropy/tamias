@@ -1,4 +1,4 @@
-import { getInboxLiabilityAggregateRowsFromConvex } from "../../../../convex";
+import { getInboxLiabilityAggregateRowsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../../../client";
 import { createQueryCacheKey, getOrSetQueryCacheValue } from "../../../../client";
 

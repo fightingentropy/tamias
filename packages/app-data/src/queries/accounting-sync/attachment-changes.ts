@@ -2,7 +2,7 @@ import {
   getAccountingSyncStatusFromConvex,
   getTransactionsByIdsFromConvex,
   type AccountingSyncProvider,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import {
   ACCOUNTING_SYNC_EXCLUDED_STATUS_SET,

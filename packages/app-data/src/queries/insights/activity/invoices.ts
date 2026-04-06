@@ -1,4 +1,4 @@
-import { getInvoiceAnalyticsAggregateRowsFromConvex } from "../../../convex";
+import { getInvoiceAnalyticsAggregateRowsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import { normalizeTimestampBoundary } from "../../date-boundaries";
 import { getProjectedInvoicesByFilters } from "../../invoice-projections";

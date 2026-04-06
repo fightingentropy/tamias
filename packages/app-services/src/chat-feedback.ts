@@ -1,5 +1,5 @@
-import { api } from "@tamias/app-data/convex/api";
-import type { Id } from "@tamias/app-data/convex/data-model";
+import { api } from "@tamias/app-data-convex/api";
+import type { Id } from "@tamias/app-data-convex/data-model";
 import { getConvexServiceKey, getSharedConvexClient } from "./convex-client";
 
 function serviceArgs<T extends Record<string, unknown>>(args: T) {

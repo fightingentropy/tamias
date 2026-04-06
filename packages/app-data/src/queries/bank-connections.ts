@@ -12,7 +12,7 @@ import {
   reconnectBankConnectionInConvex,
   updateBankConnectionReconnectByIdInConvex,
   updateBankConnectionStatusInConvex,
-} from "../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../client";
 
 type ConvexUserId = CurrentUserIdentityRecord["convexId"];

@@ -2,7 +2,7 @@ import {
   getTransactionsPageFromConvex,
   type TransactionRecord,
   type TransactionStatus,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { createQueryCacheKey, getOrSetQueryCacheValue } from "../../client";
 import { normalizeTimestampBoundary } from "../date-boundaries";

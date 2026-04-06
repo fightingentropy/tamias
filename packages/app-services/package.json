@@ -4,7 +4,7 @@
   "private": true,
   "sideEffects": false,
   "scripts": {
-    "clean": "rm -rf .turbo node_modules",
+    "clean": "rm -rf node_modules",
     "lint": "biome check .",
     "format": "biome format --write .",
     "typecheck": "tsc --noEmit"
@@ -31,6 +31,7 @@
   "dependencies": {
     "@date-fns/utc": "^2.1.1",
     "@tamias/app-data": "workspace:*",
+    "@tamias/app-data-convex": "workspace:*",
     "@tamias/auth-session": "workspace:*",
     "@tamias/domain": "workspace:*",
     "@tamias/encryption": "workspace:*",

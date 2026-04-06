@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { extractInboxIdFromMessage } from "./utils";
 
 describe("extractInboxIdFromMessage", () => {
-  describe("Pattern 1: 'Connect to Tamias: xxx'", () => {
+  describe("Pattern 1: 'Connect to Tamias' / legacy 'Midday'", () => {
     test("should extract inbox ID from standard format", () => {
       expect(extractInboxIdFromMessage("Connect to Tamias: abc123")).toBe(
         "abc123",

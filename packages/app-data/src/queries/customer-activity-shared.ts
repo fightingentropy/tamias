@@ -4,7 +4,7 @@ import {
   getInvoiceCustomerDateAggregateRowsFromConvex,
   getTrackerEntriesByRangeFromConvex,
   getTrackerProjectsByIdsFromConvex,
-} from "../convex";
+} from "@tamias/app-data-convex";
 import { normalizeTimestampBoundary } from "./date-boundaries";
 
 const ALL_INVOICE_STATUSES = [

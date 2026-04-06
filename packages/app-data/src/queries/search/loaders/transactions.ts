@@ -1,4 +1,4 @@
-import { getTransactionsPageFromConvex } from "../../../convex";
+import { getTransactionsPageFromConvex } from "@tamias/app-data-convex";
 import { toTransactionCandidate } from "../candidates";
 import {
   loadCandidatesForSource,

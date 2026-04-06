@@ -1,4 +1,4 @@
-import type { CloseCompanyLoansScheduleRecord } from "../../../../convex";
+import type { CloseCompanyLoansScheduleRecord } from "@tamias/app-data-convex";
 import { addDays, addMonths, endOfMonth, isValid, parseISO } from "date-fns";
 import { coerceDate } from "../formatting";
 import { buildCt600aSupplement } from "../tax";

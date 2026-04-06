@@ -1,4 +1,4 @@
-import { getPublicInvoicesPageFromConvex } from "../../convex";
+import { getPublicInvoicesPageFromConvex } from "@tamias/app-data-convex";
 import { normalizeTimestampBoundary } from "../date-boundaries";
 import {
   getProjectedInvoicePayload,

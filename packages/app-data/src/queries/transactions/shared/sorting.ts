@@ -1,7 +1,7 @@
 import type {
   BankAccountRecord,
   TransactionRecord,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 import { getTransactionCategoryContext } from "../../transaction-categories";
 import type { TransactionDerivedState } from "./types";
 

@@ -3,7 +3,7 @@ import {
   getInboxItemsPageFromConvex,
   searchInboxItemsFromConvex,
   type InboxItemRecord,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 
 const INBOX_SEARCH_PAGE_SIZE = 100;
 

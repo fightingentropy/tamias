@@ -5,7 +5,7 @@ import {
   getTaggedTransactionsPageFromConvex,
   type TransactionRecord,
   type TransactionStatus,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { getAccountingSyncStatus } from "../accounting-sync";
 import { buildProcessedTransactionPage } from "./reads-process";

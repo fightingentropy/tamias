@@ -1,7 +1,7 @@
 import {
   getDocumentsPageFromConvex,
   searchDocumentsFromConvex,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 import { isSearchableDocument, toDocumentCandidate } from "../candidates";
 import {
   loadCandidatesForSource,

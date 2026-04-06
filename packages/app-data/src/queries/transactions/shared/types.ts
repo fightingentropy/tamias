@@ -1,7 +1,7 @@
 import type {
   CurrentUserIdentityRecord,
   TransactionCategoryRecord,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 import type { transactionFrequencyEnum } from "../../../schema";
 
 export type TransactionConvexUserId = CurrentUserIdentityRecord["convexId"];

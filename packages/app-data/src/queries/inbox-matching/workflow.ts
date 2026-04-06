@@ -1,7 +1,7 @@
 import { createLoggerWithContext } from "@tamias/logger";
 import {
   getInboxItemByIdFromConvex,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { updateInbox } from "../inbox";
 import {

@@ -7,13 +7,14 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "clean": "rm -rf .turbo node_modules",
+    "clean": "rm -rf node_modules",
     "lint": "biome check .",
     "lint:fix": "biome check --fix .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@tamias/app-data": "workspace:*",
+    "@tamias/app-data-convex": "workspace:*",
     "@tamias/email": "workspace:*",
     "@tamias/encryption": "workspace:*",
     "@tamias/inbox": "workspace:*",

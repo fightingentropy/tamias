@@ -1,5 +1,5 @@
 import { createRemoteJWKSet, type JWTPayload, jwtVerify } from "jose";
-import type { Id } from "@tamias/app-data/convex/data-model";
+import type { Id } from "@tamias/app-data-convex/data-model";
 import { expandScopes } from "./scopes";
 import { safeCompare } from "./safe-compare";
 

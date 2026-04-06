@@ -1,7 +1,7 @@
 import type {
   ComplianceAdjustmentLineCode,
   CurrentUserIdentityRecord,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 
 export type ConvexUserId = CurrentUserIdentityRecord["convexId"];
 

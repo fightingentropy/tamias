@@ -1,7 +1,7 @@
 import {
   getExchangeRatesForTargetFromConvex,
   upsertExchangeRatesInConvex,
-} from "../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../client";
 
 const RATE_TTL_MS = 4 * 60 * 60 * 1000; // 4 hours

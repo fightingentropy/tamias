@@ -1,7 +1,7 @@
 import {
   getTransactionsByIdsFromConvex,
   upsertTransactionsInConvex,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import { toConvexTransactionInput } from "../shared";
 

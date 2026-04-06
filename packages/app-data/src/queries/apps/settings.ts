@@ -1,4 +1,4 @@
-import { setInstalledAppSettingsInConvex } from "../../convex";
+import { setInstalledAppSettingsInConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { getAppByAppId } from "./core";
 import { toAppRecord, type AppSetting } from "./shared";

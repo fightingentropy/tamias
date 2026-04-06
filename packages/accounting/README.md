@@ -123,7 +123,7 @@ packages/accounting/
 ├── package.json
 └── tsconfig.json
 
-apps/worker/src/
+worker/src/
 ├── processors/accounting/
 │   ├── index.ts              # Processor exports
 │   ├── base.ts               # Shared processor logic

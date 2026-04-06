@@ -5,7 +5,7 @@ import {
   listInstalledAppsFromConvex,
   type CurrentUserIdentityRecord,
   upsertInstalledAppInConvex,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { toAppRecord } from "./shared";
 

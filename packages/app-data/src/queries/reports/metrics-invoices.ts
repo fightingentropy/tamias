@@ -1,4 +1,4 @@
-import { getInvoiceAggregateRowsFromConvex } from "../../convex";
+import { getInvoiceAggregateRowsFromConvex } from "@tamias/app-data-convex";
 import { parseISO } from "date-fns";
 import type { Database } from "../../client";
 import { getTargetCurrency, roundMoney } from "./shared";

@@ -4,7 +4,7 @@ import {
   getTrackerProjectsPageFromConvex,
   searchTrackerProjectsFromConvex,
   type TrackerProjectRecord,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import { enrichProjects } from "../enrich";
 import type {

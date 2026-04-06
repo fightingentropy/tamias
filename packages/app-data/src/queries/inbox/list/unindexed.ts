@@ -1,6 +1,6 @@
 import {
   type InboxItemRecord,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import { separateBlocklistEntries } from "../../../utils/blocklist";
 import { getInboxBlocklist } from "../../inbox-blocklist";

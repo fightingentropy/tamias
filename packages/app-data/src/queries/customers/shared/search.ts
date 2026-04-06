@@ -1,4 +1,4 @@
-import type { CustomerRecord } from "../../../convex";
+import type { CustomerRecord } from "@tamias/app-data-convex";
 import type { CustomerListRow } from "../types";
 import { compareCustomersByTags } from "./tags";
 

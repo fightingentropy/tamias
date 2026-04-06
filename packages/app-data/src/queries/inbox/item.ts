@@ -1,7 +1,7 @@
 import {
   getInboxItemByIdFromConvex,
   getInboxItemsFromConvex,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import { createLoggerWithContext } from "@tamias/logger";
 import type { Database } from "../../client";
 import { getInboxItemsPaged } from "../paged-records";

@@ -1,5 +1,5 @@
 import type { Database } from "@tamias/app-data/client";
-import type { CurrentUserIdentityRecord } from "@tamias/app-data/convex";
+import type { CurrentUserIdentityRecord } from "@tamias/app-data-convex";
 import {
   createActivity,
   shouldSendNotification,

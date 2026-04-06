@@ -4,7 +4,7 @@ import type {
   CorporationTaxRateScheduleRecord,
   FilingProfileRecord,
   YearEndPackRecord,
-} from "../../../../convex";
+} from "@tamias/app-data-convex";
 import { isAfter, isValid, parseISO } from "date-fns";
 import type { CorporationTaxSummary } from "../types";
 import { validateCloseCompanyLoansSchedule } from "./close-company-loans";

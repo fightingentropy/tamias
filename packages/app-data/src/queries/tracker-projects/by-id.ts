@@ -1,4 +1,4 @@
-import { getTrackerProjectByIdFromConvex } from "../../convex";
+import { getTrackerProjectByIdFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
 import { enrichProjects } from "./enrich";

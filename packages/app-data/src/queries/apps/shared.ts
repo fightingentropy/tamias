@@ -1,7 +1,7 @@
 import type {
   CurrentUserIdentityRecord,
   InstalledAppRecord,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 
 export type AppRecord = {
   id: string;

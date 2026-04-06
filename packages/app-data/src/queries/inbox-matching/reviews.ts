@@ -1,13 +1,13 @@
 import {
   getTransactionMatchSuggestionsFromConvex,
   upsertTransactionMatchSuggestionsInConvex,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { createActivity } from "../activities";
 import { matchTransaction } from "../inbox";
 import { updateInbox } from "../inbox";
 
-type ConvexUserId = import("../../convex").CurrentUserIdentityRecord["convexId"];
+type ConvexUserId = import("@tamias/app-data-convex").CurrentUserIdentityRecord["convexId"];
 
 export async function confirmSuggestedMatch(
   db: Database,

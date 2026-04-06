@@ -3,7 +3,7 @@ import {
   deleteComplianceJournalEntryBySourceInConvex,
   upsertComplianceJournalEntryInConvex,
   type CurrentUserIdentityRecord,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 import { parseISO } from "date-fns";
 import type { Database } from "../../../client";
 import { getFilingProfile } from "../../compliance";

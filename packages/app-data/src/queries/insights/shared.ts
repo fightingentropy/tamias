@@ -3,7 +3,7 @@ import {
   listInsightsFromConvex,
   type CurrentUserIdentityRecord,
   type InsightRecord as StoredInsightRecord,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import type { Database, DatabaseOrTransaction } from "../../client";
 import type {
   ExpenseAnomaly,

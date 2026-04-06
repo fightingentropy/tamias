@@ -3,7 +3,7 @@ import type {
   HmrcCtEnvironment,
   LedgerAccountType,
 } from "@tamias/compliance";
-import type { ComplianceObligationRecord } from "../../../convex";
+import type { ComplianceObligationRecord } from "@tamias/app-data-convex";
 
 export type TeamContext = {
   id: string;

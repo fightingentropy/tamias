@@ -2,7 +2,7 @@ import {
   getCustomersByIdsFromConvex,
   getTrackerEntriesByProjectIdsFromConvex,
   getTrackerProjectsFromConvex,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import { isDefined } from "../shared";
 

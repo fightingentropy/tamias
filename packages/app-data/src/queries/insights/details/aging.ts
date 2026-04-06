@@ -1,4 +1,4 @@
-import { getInvoiceAgingAggregateRowsFromConvex } from "../../../convex";
+import { getInvoiceAgingAggregateRowsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 
 export type UpcomingInvoicesResult = {

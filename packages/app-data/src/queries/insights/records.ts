@@ -1,4 +1,4 @@
-import { createInsightInConvex, updateInsightInConvex } from "../../convex";
+import { createInsightInConvex, updateInsightInConvex } from "@tamias/app-data-convex";
 import type { Database, DatabaseOrTransaction } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
 import type {

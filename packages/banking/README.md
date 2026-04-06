@@ -8,7 +8,7 @@ Technical documentation for Tamias's multi-provider banking integration.
 Dashboard (React)
     │
     ▼
-tRPC Router (apps/api/src/trpc/routers/banking.ts)
+tRPC Router (api/src/trpc/routers/banking.ts)
     │
     ▼
 Provider Facade (packages/banking/src/index.ts)
@@ -21,7 +21,7 @@ Provider Facade (packages/banking/src/index.ts)
 Local TTL Cache (packages/cache/src/banking-cache.ts)
     │
     ▼
-Async Worker (apps/worker/src/processors/transactions/)
+Async Worker (worker/src/processors/transactions/)
 ```
 
 ### Provider Facade (Strategy Pattern)
@@ -339,10 +339,10 @@ The system handles this at three levels:
    `account.currency` is `"XXX"`, falls back to the balance currency, then to currencies
    from the balances array. If all sources are `"XXX"`, the raw value is preserved (no
    hardcoded fallback — these could be GBP, SEK, DKK, etc.).
-2. **Sync self-heal** (`apps/worker/src/processors/transactions/bank-sync.ts`): During daily sync, if the stored currency is
+2. **Sync self-heal** (`worker/src/processors/transactions/bank-sync.ts`): During daily sync, if the stored currency is
    `"XXX"`, the job updates it from the balance response currency. If the balance is also
    `"XXX"`, it derives the currency from the first transaction with a valid currency code.
-3. **Dashboard display** (`apps/dashboard/src/utils/format.ts`): `formatAmount` detects
+3. **Dashboard display** (`dashboard/src/utils/format.ts`): `formatAmount` detects
    `"XXX"` and formats the value as a plain decimal number (e.g., `5,000.00`) without a
    currency symbol, avoiding misleading display.
 
@@ -367,7 +367,7 @@ to 0. A fallback to the paid `/balances` endpoint could be added if needed.
 
 When a user reconnects a GoCardless or Teller connection, the provider
 issues new account identifiers. The `reconnect-connection` job
-(`apps/worker/src/processors/transactions/reconnect-connection.ts`) handles this by:
+(`worker/src/processors/transactions/reconnect-connection.ts`) handles this by:
 
 1. Fetching fresh accounts from the provider API
 2. Matching them to existing DB accounts via `findMatchingAccount`
@@ -458,7 +458,7 @@ cache for HTTP clients.
 | `banking-cache.ts` | `bankingCache` object, `getOrSet` helper, `CacheTTL` constants |
 | `local-cache.ts` | Generic in-memory TTL cache used by `banking-cache.ts` |
 
-### Async Processing (`apps/worker/src/processors/transactions/`)
+### Async Processing (`worker/src/processors/transactions/`)
 
 | File | Purpose |
 |------|---------|

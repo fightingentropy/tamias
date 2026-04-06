@@ -1,4 +1,4 @@
-import { getTransactionByIdFromConvex } from "../../convex";
+import { getTransactionByIdFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import {
   calculateAmountScore,

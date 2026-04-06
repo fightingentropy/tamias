@@ -1,4 +1,4 @@
-import { listPayrollRunsFromConvex } from "../convex";
+import { listPayrollRunsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../client";
 import { reuseQueryResult } from "../utils/request-cache";
 import { getFilingProfile } from "./compliance";

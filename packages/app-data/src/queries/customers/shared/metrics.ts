@@ -2,7 +2,7 @@ import {
   getPublicInvoicesByCustomerIdsFromConvex,
   getTrackerProjectsByCustomerIdsFromConvex,
   type CustomerRecord,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 import type {
   CustomerListMetrics,
   CustomerListRow,

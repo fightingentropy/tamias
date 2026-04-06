@@ -1,7 +1,7 @@
 import {
   getTransactionCategoryEmbeddingsByNamesFromConvex,
   upsertTransactionCategoryEmbeddingsInConvex,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import { CategoryEmbeddings } from "@tamias/categories";
 import type { Database } from "../../client";
 import { logger } from "@tamias/logger";

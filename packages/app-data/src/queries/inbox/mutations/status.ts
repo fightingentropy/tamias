@@ -3,7 +3,7 @@ import {
   getInboxItemInfoFromConvex,
   getPendingInboxItemsToNoMatchFromConvex,
   type InboxItemRecord,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 import type { Database, DatabaseOrTransaction } from "../../../client";
 import { markInboxItems } from "../shared";
 import {

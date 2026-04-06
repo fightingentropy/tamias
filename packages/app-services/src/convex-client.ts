@@ -50,7 +50,7 @@ export function getConvexServiceKey() {
   }
 
   throw new Error(
-    "Missing CONVEX_SERVICE_KEY. For `wrangler dev` (apps/api), add the deploy key to apps/api/.dev.vars — not only apps/api/.env. See apps/api/.dev.vars.example.",
+    "Missing CONVEX_SERVICE_KEY. For `wrangler dev` (api), add the deploy key to api/.dev.vars (Wrangler secrets), not only api/.env.",
   );
 }
 

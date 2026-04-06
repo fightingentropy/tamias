@@ -3,7 +3,7 @@ import {
   getInboxItemsFromConvex,
   upsertInboxItemsInConvex,
   type InboxItemRecord,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 import { getInboxAccountMap } from "./accounts";
 import { toUpsertInboxItem } from "./serialization";
 import { getInboxTransactionMap } from "./transactions";

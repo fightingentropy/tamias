@@ -4,7 +4,7 @@ import type {
   CorporationTaxRateScheduleRecord,
   FilingProfileRecord,
   YearEndPackRecord,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import { getSummaryAmount, parsePackArray } from "./formatting";
 import { evaluateYearEndFilingReadiness } from "./readiness";
 import type {

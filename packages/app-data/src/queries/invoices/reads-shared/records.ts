@@ -1,7 +1,7 @@
 import {
   getPublicInvoiceByPublicInvoiceIdFromConvex,
   getPublicInvoicesByIdsFromConvex,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 import {
   type InvoiceByIdResult,
   type ProjectedInvoiceRecord,

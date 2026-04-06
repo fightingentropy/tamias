@@ -5,7 +5,7 @@ import {
   type AccountingSyncStatus,
   upsertAccountingSyncRecordInConvex,
   updateSyncedAttachmentMappingInConvex,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import type { Database, DatabaseOrTransaction } from "../../client";
 
 export type CreateAccountingSyncRecordParams = {

@@ -2,7 +2,7 @@ import {
   allocateNextInvoiceNumberInConvex,
   getNextInvoiceNumberPreviewFromConvex,
   getPublicInvoiceByTeamAndInvoiceNumberFromConvex,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import type { Database, DatabaseOrTransaction } from "../../client";
 
 const INVOICE_NUMBER_CONFLICT_PREFIX = "INVOICE_NUMBER_ALREADY_USED:";

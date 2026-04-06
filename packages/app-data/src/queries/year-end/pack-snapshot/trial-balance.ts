@@ -1,5 +1,5 @@
 import { roundCurrency } from "@tamias/compliance";
-import type { ComplianceJournalEntryRecord } from "../../../convex";
+import type { ComplianceJournalEntryRecord } from "@tamias/app-data-convex";
 import type {
   RetainedEarningsRollforward,
   SummaryLine,

@@ -3,7 +3,7 @@ import {
   type TransactionStatus as ConvexTransactionStatus,
   getTransactionsByAmountRangeFromConvex,
   searchTransactionsFromConvex,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 import { compareTransactionsByDateDesc } from "./sorting";
 
 const MATCHING_SEARCH_STOP_WORDS = new Set([

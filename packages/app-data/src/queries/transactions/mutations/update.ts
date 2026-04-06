@@ -3,7 +3,7 @@ import {
   getTransactionsByIdsFromConvex,
   type TransactionRecord,
   upsertTransactionsInConvex,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import {
   getFullTransactionData,

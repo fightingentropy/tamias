@@ -1,5 +1,5 @@
-import type { FilingProfileRecord } from "../../convex";
-import { upsertComplianceObligationInConvex } from "../../convex";
+import type { FilingProfileRecord } from "@tamias/app-data-convex";
+import { upsertComplianceObligationInConvex } from "@tamias/app-data-convex";
 import { addDays, addMonths, isAfter, isValid } from "date-fns";
 import type { Database } from "../../client";
 import { getFilingProfile } from "../compliance";

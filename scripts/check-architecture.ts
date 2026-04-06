@@ -3,7 +3,6 @@ import { dirname, join, relative, resolve } from "node:path";
 
 const SKIPPED_DIRECTORIES = new Set([
   ".git",
-  ".turbo",
   ".wrangler",
   "build",
   "coverage",
@@ -262,7 +261,7 @@ export function findForbiddenApiAliasReferences(rootDir: string): string[] {
   return walkFiles(rootDir)
     .map((pathname) => {
       const relativePath = normalizePath(rootDir, pathname);
-      if (isInside(relativePath, "apps/api")) {
+      if (isInside(relativePath, "api")) {
         return null;
       }
 
@@ -280,7 +279,8 @@ export function findForbiddenApiPackageImports(rootDir: string): string[] {
     .map((pathname) => {
       const relativePath = normalizePath(rootDir, pathname);
       if (
-        isInside(relativePath, "apps/api") ||
+        isInside(relativePath, "api") ||
+        isInside(relativePath, "dashboard") ||
         isInside(relativePath, "packages/trpc")
       ) {
         return null;
@@ -301,6 +301,7 @@ export function findForbiddenConvexGeneratedImports(rootDir: string): string[] {
       const relativePath = normalizePath(rootDir, pathname);
       if (
         isInside(relativePath, "packages/convex-model") ||
+        isInside(relativePath, "packages/app-data-convex") ||
         !fileContainsAny(
           readFileSync(pathname, "utf8"),
           FORBIDDEN_CONVEX_GENERATED_PATTERNS,
@@ -571,11 +572,11 @@ function main() {
   const aiSdkCatalogViolations = findAiSdkNonCatalogReferences(rootDir);
   const sections = [
     formatViolations(
-      "Forbidden @api/* references found outside apps/api:",
+      "Forbidden @api/* references found outside api:",
       apiAliasViolations,
     ),
     formatViolations(
-      "Forbidden direct @tamias/api imports found outside apps/api and packages/trpc:",
+      "Forbidden direct @tamias/api imports found outside api, dashboard, and packages/trpc:",
       apiPackageViolations,
     ),
     formatViolations(

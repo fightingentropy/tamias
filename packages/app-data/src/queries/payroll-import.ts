@@ -3,7 +3,7 @@ import {
   listPayrollRunsFromConvex,
   upsertComplianceJournalEntryInConvex,
   upsertPayrollRunInConvex,
-} from "../convex";
+} from "@tamias/app-data-convex";
 import { roundCurrency } from "@tamias/compliance";
 import type { Database } from "../client";
 import {

@@ -1,7 +1,7 @@
 import type {
   CurrentUserIdentityRecord,
   CustomerRecord,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 
 export type ConvexUserId = CurrentUserIdentityRecord["convexId"];
 

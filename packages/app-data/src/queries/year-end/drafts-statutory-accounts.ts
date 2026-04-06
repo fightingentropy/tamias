@@ -5,7 +5,7 @@ import type {
   CorporationTaxRateScheduleRecord,
   FilingProfileRecord,
   YearEndPackRecord,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import type { StatutoryAccountsDraft, TeamContext } from "./types";
 
 export function buildStatutoryAccountsDraft(args: {

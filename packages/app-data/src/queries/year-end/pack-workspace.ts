@@ -6,7 +6,7 @@ import type {
   FilingProfileRecord,
   PayrollRunRecord,
   YearEndPackRecord,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import {
   getCloseCompanyLoansScheduleByPeriodFromConvex,
   getCorporationTaxRateScheduleByPeriodFromConvex,
@@ -15,7 +15,7 @@ import {
   listCorporationTaxAdjustmentsForPeriodFromConvex,
   listPayrollRunsFromConvex,
   upsertYearEndPackInConvex,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
 import { getFilingProfile } from "../compliance";

@@ -1,5 +1,5 @@
 import { roundCurrency } from "@tamias/compliance";
-import type { CloseCompanyLoansScheduleRecord } from "../../../../convex";
+import type { CloseCompanyLoansScheduleRecord } from "@tamias/app-data-convex";
 import type { Ct600aReliefSection, Ct600aSupplement } from "../types";
 
 function hasMeaningfulCloseCompanyLoansSchedule(

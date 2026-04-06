@@ -1,4 +1,4 @@
-import { createTransactionAttachmentsInConvex } from "../../convex";
+import { createTransactionAttachmentsInConvex } from "@tamias/app-data-convex";
 import type { DatabaseOrTransaction } from "../../client";
 import { deleteAccountingSyncRecordsForTransactions } from "../accounting-sync";
 import { createActivity } from "../activities";

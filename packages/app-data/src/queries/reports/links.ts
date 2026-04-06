@@ -11,7 +11,7 @@ import {
   createReportLinkInConvex,
   getReportLinkByLinkIdFromConvex,
   type CurrentUserIdentityRecord,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import { getReports } from "./core";
 import { getRevenueForecast } from "./forecast";
 import { getBurnRate, getExpenses, getRunway, getSpending } from "./metrics";

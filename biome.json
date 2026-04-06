@@ -6,7 +6,6 @@
       "**",
       "!**/dist",
       "!**/node_modules",
-      "!**/.turbo",
       "!**/.react-email",
       "!**/.wrangler"
     ]

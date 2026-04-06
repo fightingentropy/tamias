@@ -1,7 +1,7 @@
 import {
   getTransactionByIdFromConvex,
   searchTransactionsFromConvex,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import { calculateNameScore } from "../../../utils/transaction-matching";
 import {

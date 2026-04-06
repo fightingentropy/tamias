@@ -1,5 +1,5 @@
 /**
- * Git-based replacement for `turbo build --affected --dry-run=json`.
+ * Git-based affected detection for CI (diff vs base ref).
  * Writes GitHub Actions outputs: has_affected, api, dashboard, worker.
  *
  * Env:
@@ -136,14 +136,14 @@ function classify(files: string[]): {
     markAllDeployTargets();
   } else {
   for (const f of nonIgnorable) {
-    if (f === "apps/api" || f.startsWith("apps/api/")) {
+    if (f === "api" || f.startsWith("api/")) {
       api = true;
       dashboard = true;
     }
-    if (f === "apps/dashboard" || f.startsWith("apps/dashboard/")) {
+    if (f === "dashboard" || f.startsWith("dashboard/")) {
       dashboard = true;
     }
-    if (f === "apps/worker" || f.startsWith("apps/worker/")) {
+    if (f === "worker" || f.startsWith("worker/")) {
       worker = true;
       dashboard = true;
     }

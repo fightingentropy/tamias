@@ -4,7 +4,7 @@ import {
   markInsightAsReadInConvex,
   undoDismissInsightInConvex,
   type InsightUserStatusRecord,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import type { Database, DatabaseOrTransaction } from "../../client";
 import {
   compareInsightPeriodDesc,

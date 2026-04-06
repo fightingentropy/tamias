@@ -5,7 +5,7 @@ import {
   getTransactionAttachmentsByIdsFromConvex,
   getTransactionAttachmentsByPathKeysFromConvex,
   getTransactionAttachmentsForTransactionIdsFromConvex,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 
 type GetTransactionAttachmentsByIdsParams = {

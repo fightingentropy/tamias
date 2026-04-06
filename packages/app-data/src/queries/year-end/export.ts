@@ -1,6 +1,6 @@
 import {
   upsertYearEndPackInConvex,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { buildYearEndExportArchive } from "./export-archive";
 import { persistYearEndExportBundle } from "./export-persistence";

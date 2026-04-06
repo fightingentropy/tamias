@@ -1,7 +1,7 @@
 import {
   getInboxItemsByAmountRangeFromConvex,
   searchInboxItemsFromConvex,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 
 export async function getIndexedInboxMatchCandidates(params: {
   teamId: string;

@@ -5,17 +5,13 @@
   "private": true,
   "sideEffects": false,
   "scripts": {
-    "clean": "rm -rf .turbo node_modules",
+    "clean": "rm -rf node_modules",
     "lint": "biome check .",
     "format": "biome format --write .",
     "typecheck": "tsc --noEmit"
   },
   "exports": {
     "./client": "./src/client.ts",
-    "./convex": "./src/convex/index.ts",
-    "./convex/chat-memory": "./src/convex/chat-memory.ts",
-    "./convex/api": "./src/convex/api.ts",
-    "./convex/data-model": "./src/convex/data-model.ts",
     "./errors": "./src/errors.ts",
     "./queries": "./src/queries/index.ts",
     "./queries/bank-accounts": "./src/queries/bank-accounts.ts",
@@ -42,6 +38,7 @@
     "./worker-client": "./src/worker-client.ts"
   },
   "dependencies": {
+    "@tamias/app-data-convex": "workspace:*",
     "@fast-csv/format": "catalog:",
     "@tamias/banking": "workspace:*",
     "@tamias/cache": "workspace:*",

@@ -7,7 +7,7 @@ import {
   getTaxRateForCategory,
   getTaxTypeForCountry,
 } from "@tamias/categories";
-import type { TransactionRecord } from "../../../convex";
+import type { TransactionRecord } from "@tamias/app-data-convex";
 
 export type CategoryInfo = {
   slug: string;

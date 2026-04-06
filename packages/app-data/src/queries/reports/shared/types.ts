@@ -5,7 +5,7 @@ import type {
   TransactionMetricAggregateRowRecord,
   TransactionRecurringAggregateRowRecord,
   TransactionTaxAggregateRowRecord,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 
 export type ReportTransactionAggregateRow = TransactionMetricAggregateRowRecord;
 export type ReportTransactionRecurringAggregateRow =

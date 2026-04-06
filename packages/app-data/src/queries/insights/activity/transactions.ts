@@ -1,4 +1,4 @@
-import { getTransactionsPageFromConvex } from "../../../convex";
+import { getTransactionsPageFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import type { GetInsightActivityDataParams } from "./types";
 

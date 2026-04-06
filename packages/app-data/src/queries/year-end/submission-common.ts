@@ -1,7 +1,7 @@
 import {
   listSubmissionEventsFromConvex,
   type YearEndPackRecord,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 
 export function getSubmissionEventRequestPeriodKey(
   event: {

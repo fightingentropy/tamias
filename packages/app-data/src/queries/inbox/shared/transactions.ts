@@ -3,7 +3,7 @@ import {
   getTransactionsByIdsFromConvex,
   upsertTransactionsInConvex,
   type TransactionRecord,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 import { toUpsertTransaction } from "./serialization";
 
 export type InboxTransactionSummary = Pick<

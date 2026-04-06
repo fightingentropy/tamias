@@ -5,7 +5,7 @@ import {
   startTrackerTimerInConvex,
   stopTrackerTimerInConvex,
   upsertTrackerEntriesInConvex,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { createActivity } from "../activities";
 import { enrichTrackerEntries } from "./shared";

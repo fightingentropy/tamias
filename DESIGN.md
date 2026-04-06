@@ -1,6 +1,6 @@
 # Tamias Design Reference
 
-This document captures the current design language of the app so new pages match what is already shipped. It is based on the implemented UI in `apps/dashboard` and `packages/ui`, not on aspirational design ideas.
+This document captures the current design language of the app so new pages match what is already shipped. It is based on the implemented UI in `dashboard` and `packages/ui`, not on aspirational design ideas.
 
 Use this as the default reference when building new pages, widgets, forms, tables, or public-facing screens.
 
@@ -24,19 +24,19 @@ The most important files for the design system are:
 - `packages/ui/src/globals.css` (theme tokens, **typography CSS variables**, base `body` styles)
 - `packages/ui/tailwind.config.mjs` (Tailwind theme extensions, **font families**)
 - `packages/ui/src/components/*`
-- `apps/dashboard/src/start/root-shell.tsx` (document shell, **Google Fonts** for Hedvig)
-- `apps/dashboard/src/start/routes/__root.tsx` (root route metadata and layout wiring)
-- `apps/dashboard/src/start/components/app-layout-shell.tsx` (authenticated app chrome)
-- `apps/dashboard/src/styles/globals.css` (app-level utilities; focus outline caveat below)
-- `apps/dashboard/src/components/sidebar.tsx`
-- `apps/dashboard/src/components/header.tsx`
-- `apps/dashboard/src/components/widgets/*`
-- `apps/dashboard/src/components/metrics/*`
-- `apps/dashboard/src/components/tables/*`
-- `apps/dashboard/src/components/forms/*`
-- `apps/dashboard/src/components/sheets/*`
-- `apps/dashboard/src/start/routes/index.tsx` (public `/` route entry)
-- `apps/dashboard/src/start/routes/login.tsx` and `login.lazy.tsx` (auth surfaces)
+- `dashboard/src/start/root-shell.tsx` (document shell, **Google Fonts** for Hedvig)
+- `dashboard/src/start/routes/__root.tsx` (root route metadata and layout wiring)
+- `dashboard/src/start/components/app-layout-shell.tsx` (authenticated app chrome)
+- `dashboard/src/styles/globals.css` (app-level utilities; focus outline caveat below)
+- `dashboard/src/components/sidebar.tsx`
+- `dashboard/src/components/header.tsx`
+- `dashboard/src/components/widgets/*`
+- `dashboard/src/components/metrics/*`
+- `dashboard/src/components/tables/*`
+- `dashboard/src/components/forms/*`
+- `dashboard/src/components/sheets/*`
+- `dashboard/src/start/routes/index.tsx` (public `/` route entry)
+- `dashboard/src/start/routes/login.tsx` and `login.lazy.tsx` (auth surfaces)
 
 ## Design Character
 
@@ -109,7 +109,7 @@ These are the same type families as [Midday](https://midday.ai)’s website and 
 ### Implementation (source of truth)
 
 1. **`packages/ui/src/globals.css`** — On `:root`, `--font-hedvig-sans` and `--font-hedvig-serif` are full `font-family` stacks (Hedvig first, then system UI fallbacks). Base `body` uses `font-family: var(--font-hedvig-sans)`.
-2. **`apps/dashboard/src/start/root-shell.tsx`** — Preconnect + stylesheet for `Hedvig Letters Sans` and `Hedvig Letters Serif` with `display=swap`.
+2. **`dashboard/src/start/root-shell.tsx`** — Preconnect + stylesheet for `Hedvig Letters Sans` and `Hedvig Letters Serif` with `display=swap`.
 3. **`packages/ui/tailwind.config.mjs`** — `font-sans` / `font-mono` → `var(--font-hedvig-sans)`; `font-serif` → `var(--font-hedvig-serif)`; `font-hedvig-sans` is an alias of the sans stack (e.g. charts).
 4. **Root `<body>`** — Applies `font-sans` so the whole app inherits the sans stack unless a component sets `font-serif` or another utility.
 
@@ -457,7 +457,7 @@ Do not import marketing patterns into the main authenticated workspace.
 
 ## Accessibility Caveat
 
-The app currently removes default focus outlines globally in `apps/dashboard/src/styles/globals.css`.
+The app currently removes default focus outlines globally in `dashboard/src/styles/globals.css`.
 
 That means any new interactive component should be checked carefully for visible focus treatment. If a control depends on keyboard use, add an explicit focus style instead of relying on browser defaults.
 

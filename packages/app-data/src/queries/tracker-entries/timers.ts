@@ -2,7 +2,7 @@ import {
   type CurrentUserIdentityRecord,
   getCurrentTrackerTimerFromConvex,
   getTrackerEntryByIdFromConvex,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import {
   endOfMonth,
   endOfWeek,

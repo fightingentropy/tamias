@@ -5,7 +5,7 @@ import {
   markInstitutionsRemovedInConvex,
   upsertInstitutionsInConvex,
   updateInstitutionUsageInConvex,
-} from "../convex";
+} from "@tamias/app-data-convex";
 import type { Database, DatabaseOrTransaction } from "../client";
 
 type BankProvider = "gocardless" | "plaid" | "teller";

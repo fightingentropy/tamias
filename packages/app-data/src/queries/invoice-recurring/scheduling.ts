@@ -1,7 +1,7 @@
 import {
   getDueInvoiceRecurringSeriesFromConvex,
   getUpcomingInvoiceRecurringSeriesFromConvex,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import {
   DEFAULT_BATCH_SIZE,

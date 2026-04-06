@@ -1,4 +1,4 @@
-import { ConvexChatMemoryProvider } from "@tamias/app-data/convex/chat-memory";
+import { ConvexChatMemoryProvider } from "@tamias/app-data-convex/chat-memory";
 
 let chatMemoryProviderSingleton: ConvexChatMemoryProvider | undefined;
 

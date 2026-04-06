@@ -1,5 +1,5 @@
-import { api } from "@tamias/app-data/convex/api";
-import type { Id } from "@tamias/app-data/convex/data-model";
+import { api } from "@tamias/app-data-convex/api";
+import type { Id } from "@tamias/app-data-convex/data-model";
 import type { AIProvider } from "@tamias/domain/identity";
 import {
   createConvexClient,

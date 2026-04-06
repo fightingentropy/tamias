@@ -9,7 +9,7 @@
         "typescript": "^6.0.2",
       },
     },
-    "apps/api": {
+    "api": {
       "name": "@tamias/api",
       "dependencies": {
         "@ai-sdk-tools/agents": "^1.2.0",
@@ -27,6 +27,7 @@
         "@tamias/accounting": "workspace:*",
         "@tamias/ai-artifacts": "workspace:*",
         "@tamias/app-data": "workspace:*",
+        "@tamias/app-data-convex": "workspace:*",
         "@tamias/app-services": "workspace:*",
         "@tamias/app-store": "workspace:*",
         "@tamias/auth-session": "workspace:*",
@@ -69,7 +70,7 @@
         "wrangler": "^4.43.0",
       },
     },
-    "apps/dashboard": {
+    "dashboard": {
       "name": "@tamias/dashboard",
       "version": "1.0.0",
       "dependencies": {
@@ -167,47 +168,6 @@
         "wrangler": "^4.43.0",
       },
     },
-    "apps/worker": {
-      "name": "@tamias/worker",
-      "version": "0.0.1",
-      "dependencies": {
-        "@ai-sdk/google": "catalog:",
-        "@ai-sdk/openai": "catalog:",
-        "@fast-csv/format": "catalog:",
-        "@tamias/accounting": "workspace:*",
-        "@tamias/app-data": "workspace:*",
-        "@tamias/app-store": "workspace:*",
-        "@tamias/banking": "workspace:*",
-        "@tamias/documents": "workspace:*",
-        "@tamias/email": "workspace:*",
-        "@tamias/import": "workspace:*",
-        "@tamias/inbox": "workspace:*",
-        "@tamias/insights": "workspace:*",
-        "@tamias/invoice": "workspace:*",
-        "@tamias/job-client": "workspace:*",
-        "@tamias/logger": "workspace:*",
-        "@tamias/notifications": "workspace:*",
-        "@tamias/storage": "workspace:*",
-        "@tamias/trpc": "workspace:*",
-        "@tamias/utils": "workspace:*",
-        "@types/archiver": "^7.0.0",
-        "ai": "catalog:",
-        "archiver": "^7.0.1",
-        "camelcase-keys": "^10.0.2",
-        "date-fns": "catalog:",
-        "exa-js": "^2.0.12",
-        "hono": "catalog:",
-        "node-xlsx": "catalog:",
-        "papaparse": "catalog:",
-        "zod": "catalog:",
-      },
-      "devDependencies": {
-        "@types/bun": "latest",
-        "@types/papaparse": "^5.5.2",
-        "@types/react": "^19.2.13",
-        "wrangler": "^4.43.0",
-      },
-    },
     "packages/accounting": {
       "name": "@tamias/accounting",
       "version": "0.0.1",
@@ -241,6 +201,7 @@
       "version": "1.0.0",
       "dependencies": {
         "@fast-csv/format": "catalog:",
+        "@tamias/app-data-convex": "workspace:*",
         "@tamias/banking": "workspace:*",
         "@tamias/cache": "workspace:*",
         "@tamias/categories": "workspace:*",
@@ -257,6 +218,16 @@
         "typescript": "catalog:",
       },
     },
+    "packages/app-data-convex": {
+      "name": "@tamias/app-data-convex",
+      "version": "1.0.0",
+      "dependencies": {
+        "convex": "^1.34.1",
+      },
+      "devDependencies": {
+        "typescript": "catalog:",
+      },
+    },
     "packages/app-services": {
       "name": "@tamias/app-services",
       "version": "1.0.0",
@@ -264,6 +235,7 @@
         "@date-fns/utc": "^2.1.1",
         "@polar-sh/sdk": "^0.45.1",
         "@tamias/app-data": "workspace:*",
+        "@tamias/app-data-convex": "workspace:*",
         "@tamias/auth-session": "workspace:*",
         "@tamias/domain": "workspace:*",
         "@tamias/encryption": "workspace:*",
@@ -297,6 +269,7 @@
       "version": "1.0.0",
       "dependencies": {
         "@tamias/app-data": "workspace:*",
+        "@tamias/app-data-convex": "workspace:*",
         "convex": "^1.34.1",
         "jose": "catalog:",
       },
@@ -483,6 +456,7 @@
       "version": "0.0.1",
       "dependencies": {
         "@tamias/app-data": "workspace:*",
+        "@tamias/app-data-convex": "workspace:*",
         "@tamias/logger": "workspace:*",
       },
       "devDependencies": {
@@ -513,6 +487,7 @@
       "version": "0.1.0",
       "dependencies": {
         "@tamias/app-data": "workspace:*",
+        "@tamias/app-data-convex": "workspace:*",
         "@tamias/email": "workspace:*",
         "@tamias/encryption": "workspace:*",
         "@tamias/inbox": "workspace:*",
@@ -641,6 +616,48 @@
       },
       "devDependencies": {
         "typescript": "catalog:",
+      },
+    },
+    "worker": {
+      "name": "@tamias/worker",
+      "version": "0.0.1",
+      "dependencies": {
+        "@ai-sdk/google": "catalog:",
+        "@ai-sdk/openai": "catalog:",
+        "@fast-csv/format": "catalog:",
+        "@tamias/accounting": "workspace:*",
+        "@tamias/app-data": "workspace:*",
+        "@tamias/app-data-convex": "workspace:*",
+        "@tamias/app-store": "workspace:*",
+        "@tamias/banking": "workspace:*",
+        "@tamias/documents": "workspace:*",
+        "@tamias/email": "workspace:*",
+        "@tamias/import": "workspace:*",
+        "@tamias/inbox": "workspace:*",
+        "@tamias/insights": "workspace:*",
+        "@tamias/invoice": "workspace:*",
+        "@tamias/job-client": "workspace:*",
+        "@tamias/logger": "workspace:*",
+        "@tamias/notifications": "workspace:*",
+        "@tamias/storage": "workspace:*",
+        "@tamias/trpc": "workspace:*",
+        "@tamias/utils": "workspace:*",
+        "@types/archiver": "^7.0.0",
+        "ai": "catalog:",
+        "archiver": "^7.0.1",
+        "camelcase-keys": "^10.0.2",
+        "date-fns": "catalog:",
+        "exa-js": "^2.0.12",
+        "hono": "catalog:",
+        "node-xlsx": "catalog:",
+        "papaparse": "catalog:",
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "latest",
+        "@types/papaparse": "^5.5.2",
+        "@types/react": "^19.2.13",
+        "wrangler": "^4.43.0",
       },
     },
   },
@@ -1535,9 +1552,11 @@
 
     "@tamias/ai-artifacts": ["@tamias/ai-artifacts@workspace:packages/ai-artifacts"],
 
-    "@tamias/api": ["@tamias/api@workspace:apps/api"],
+    "@tamias/api": ["@tamias/api@workspace:api"],
 
     "@tamias/app-data": ["@tamias/app-data@workspace:packages/app-data"],
+
+    "@tamias/app-data-convex": ["@tamias/app-data-convex@workspace:packages/app-data-convex"],
 
     "@tamias/app-services": ["@tamias/app-services@workspace:packages/app-services"],
 
@@ -1555,7 +1574,7 @@
 
     "@tamias/contracts": ["@tamias/contracts@workspace:packages/contracts"],
 
-    "@tamias/dashboard": ["@tamias/dashboard@workspace:apps/dashboard"],
+    "@tamias/dashboard": ["@tamias/dashboard@workspace:dashboard"],
 
     "@tamias/documents": ["@tamias/documents@workspace:packages/documents"],
 
@@ -1593,7 +1612,7 @@
 
     "@tamias/utils": ["@tamias/utils@workspace:packages/utils"],
 
-    "@tamias/worker": ["@tamias/worker@workspace:apps/worker"],
+    "@tamias/worker": ["@tamias/worker@workspace:worker"],
 
     "@tanstack/history": ["@tanstack/history@1.161.6", "", {}, "sha512-NaOGLRrddszbQj9upGat6HG/4TKvXLvu+osAIgfxPYA+eIvYKv8GKDJOrY2D3/U9MRnKfMWD7bU4jeD4xmqyIg=="],
 

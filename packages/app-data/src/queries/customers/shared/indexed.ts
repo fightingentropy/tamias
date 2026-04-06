@@ -2,7 +2,7 @@ import {
   getCustomersByIdsFromConvex,
   getCustomersPageFromConvex,
   type CustomerRecord,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 import type { GetCustomersParams } from "../types";
 import { buildCustomerRows } from "./metrics";
 import { matchesCustomerSearch } from "./search";

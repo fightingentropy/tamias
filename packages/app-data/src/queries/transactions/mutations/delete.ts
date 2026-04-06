@@ -3,7 +3,7 @@ import {
   deleteTransactionTagsForTransactionsInConvex,
   getTransactionsByIdsFromConvex,
   getTransactionsByInternalIdsFromConvex,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 
 type DeleteTransactionsParams = {

@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { ExportBundleRecord } from "../../convex";
+import type { ExportBundleRecord } from "@tamias/app-data-convex";
 import { uploadVaultFile } from "@tamias/storage";
 import type { YearEndExportArchive } from "./export-archive";
 

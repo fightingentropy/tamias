@@ -3,7 +3,7 @@ import {
   deleteCorporationTaxAdjustmentInConvex,
   upsertCorporationTaxAdjustmentInConvex,
   type CurrentUserIdentityRecord,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import type { CorporationTaxAdjustmentInput } from "../types";
 import {

@@ -1,4 +1,4 @@
-import type { ComplianceObligationRecord } from "../../../../convex";
+import type { ComplianceObligationRecord } from "@tamias/app-data-convex";
 import type { Database } from "../../../../client";
 import { getRequiredVatContext } from "../context";
 import { listVatObligations } from "../obligations";
@@ -14,14 +14,14 @@ export async function getDraftContext(
 
   if (params.obligationId) {
     const { getVatObligationByIdFromConvex } = await import(
-      "../../../../convex"
+      "@tamias/app-data-convex",
     );
     obligation = await getVatObligationByIdFromConvex({
       id: params.obligationId,
     });
   } else if (params.vatReturnId) {
     const { getVatReturnByIdFromConvex, getVatObligationByIdFromConvex } =
-      await import("../../../../convex");
+      await import("@tamias/app-data-convex");
     const existingReturn = await getVatReturnByIdFromConvex({
       id: params.vatReturnId,
     });

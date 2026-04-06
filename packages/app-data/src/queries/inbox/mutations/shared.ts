@@ -3,7 +3,7 @@ import {
   getInboxItemByIdFromConvex,
   getTransactionByIdFromConvex,
   type InboxItemRecord,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 import { createLoggerWithContext } from "@tamias/logger";
 import { deleteTransactionAttachmentsByIds } from "../../transaction-attachments";
 import {

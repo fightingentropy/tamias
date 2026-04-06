@@ -1,6 +1,6 @@
 import type { Database } from "@tamias/app-data/client";
-import { api } from "@tamias/app-data/convex/api";
-import type { Id } from "@tamias/app-data/convex/data-model";
+import { api } from "@tamias/app-data-convex/api";
+import type { Id } from "@tamias/app-data-convex/data-model";
 import {
   getBillableHours,
   getCashBalance,

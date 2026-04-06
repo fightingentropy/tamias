@@ -2,7 +2,7 @@ import {
   getInvoiceAgingAggregateRowsFromConvex,
   getInvoiceDateAggregateRowsFromConvex,
   type InvoiceAggregateDateField,
-} from "../../../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../../../client";
 import { createQueryCacheKey, getOrSetQueryCacheValue } from "../../../../client";
 import type { ProjectedInvoiceRecord } from "../../../invoice-projections";

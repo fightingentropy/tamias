@@ -7,7 +7,7 @@ import {
   listVatObligationsFromConvex,
   type FilingProfileRecord,
   upsertVatObligationInConvex,
-} from "../../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import { assertUkComplianceEnabled, getHmrcProvider } from "../shared";
 import { getVatTeamAndProfile, type VatTeamContext } from "./context";

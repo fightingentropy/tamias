@@ -9,7 +9,7 @@ import {
   type InvoiceProductRecord,
   updateInvoiceProductInConvex,
   upsertInvoiceProductInConvex,
-} from "../convex";
+} from "@tamias/app-data-convex";
 
 type ConvexUserId = CurrentUserIdentityRecord["convexId"];
 

@@ -3,7 +3,7 @@ import {
   deleteTeamByIdInConvexIdentity,
   type UpdateTeamInConvexIdentityInput,
   updateTeamByIdInConvexIdentity,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import type { ConvexUserId } from "./shared";
 import { getTeamMembers } from "./reads";

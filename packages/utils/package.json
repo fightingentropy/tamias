@@ -9,7 +9,7 @@
     "@tanstack/start-storage-context": "1.166.23"
   },
   "scripts": {
-    "clean": "rm -rf .turbo node_modules",
+    "clean": "rm -rf node_modules",
     "lint": "biome check .",
     "lint:fix": "biome format --write .",
     "typecheck": "tsc --noEmit"

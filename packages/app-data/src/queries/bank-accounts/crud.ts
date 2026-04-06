@@ -2,7 +2,7 @@ import {
   createBankAccountInConvex,
   deleteBankAccountInConvex,
   updateBankAccountInConvex,
-} from "../../convex";
+} from "@tamias/app-data-convex";
 import { nanoid } from "nanoid";
 import type { Database } from "../../client";
 import type {
