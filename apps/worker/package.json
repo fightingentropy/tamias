@@ -3,7 +3,10 @@
   "version": "0.0.1",
   "private": true,
   "exports": {
-    "./cloudflare": "./src/cloudflare/index.ts"
+    "./cloudflare": "./src/cloudflare/index.ts",
+    "./cloudflare/durable-classes": "./src/cloudflare/durable-classes.ts",
+    "./cloudflare/queue-route": "./src/cloudflare/queue-route.ts",
+    "./cloudflare/scheduled-cron": "./src/cloudflare/scheduled-cron.ts"
   },
   "scripts": {
     "cf-typegen": "tmpdir=$(mktemp -d) && wrangler types \"$PWD/src/cloudflare-env.d.ts\" --config \"$PWD/wrangler.jsonc\" --cwd \"$tmpdir\" --env-file \"$PWD/.env-template\" && rm -rf \"$tmpdir\"",

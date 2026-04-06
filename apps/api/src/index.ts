@@ -3,9 +3,8 @@ import {
   type TellerMtlsFetcher,
 } from "@tamias/banking";
 import {
-  type CloudflareAsyncServiceBinding,
   configureCloudflareAsyncServiceRuntime,
-} from "@tamias/job-client";
+} from "@tamias/job-client/cloudflare-runtime";
 import { createLoggerWithContext, logger } from "@tamias/logger";
 import { getApiUrl, getAppUrl } from "@tamias/utils/envs";
 import {
@@ -35,7 +34,6 @@ const sharedLocalDashboardOrigins = [
 ];
 
 type ApiRuntimeEnv = {
-  ASYNC_WORKER?: CloudflareAsyncServiceBinding;
   RATE_LIMIT_COORDINATOR?: DurableObjectNamespace;
   /** Present in unified dashboard+API+async worker deploys */
   RUN_COORDINATOR?: DurableObjectNamespace;
@@ -290,10 +288,10 @@ function isUnifiedCloudflareWorkerEnv(
 }
 
 function configureApiRuntime(env?: ApiRuntimeEnv) {
-  const asyncWorker: CloudflareAsyncServiceBinding | null =
+  const asyncWorker =
     env && isUnifiedCloudflareWorkerEnv(env)
       ? createInProcessAsyncBridge(env)
-      : (env?.ASYNC_WORKER ?? null);
+      : null;
 
   configureCloudflareAsyncServiceRuntime(asyncWorker ? { asyncWorker } : null);
   configureBankingRuntime({

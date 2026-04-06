@@ -1,3 +1,4 @@
+import { createFileRoute } from "@tanstack/react-router"
 import * as crypto from "node:crypto";
 import { LogEvents } from "@/lib/telemetry/events";
 import { setupAnalytics } from "@/lib/telemetry/server";

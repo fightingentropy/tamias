@@ -1,12 +1,14 @@
 import { updateAsyncRunInConvex } from "@tamias/app-data/convex";
-import { createLoggerWithContext } from "@tamias/logger";
 import type { TellerMtlsFetcher } from "@tamias/banking";
+import { createLoggerWithContext } from "@tamias/logger";
 import type { WorkerJob, WorkerJobProgress } from "../types/job";
 import type {
   CloudflareAsyncMessage,
-  CloudflareQueueGroup,
   CloudflareWorkflowPayload,
 } from "./bridge-helpers";
+
+export type { CloudflareQueueGroup } from "./bridge-helpers";
+export { getQueueBinding } from "./queue-bindings";
 
 export type CloudflareAsyncEnv = {
   TAMIAS_ENVIRONMENT?: string;
@@ -22,13 +24,6 @@ export type CloudflareAsyncEnv = {
 };
 
 export const logger = createLoggerWithContext("worker:cloudflare");
-
-export function getQueueBinding(
-  env: CloudflareAsyncEnv,
-  queue: CloudflareQueueGroup,
-) {
-  return queue === "capture" ? env.CAPTURE_QUEUE : env.LEDGER_QUEUE;
-}
 
 export async function updateRunStatus(
   runId: string | undefined,

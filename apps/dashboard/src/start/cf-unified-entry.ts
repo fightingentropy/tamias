@@ -1,17 +1,12 @@
 import "@/start/html-element-shim";
 import { RateLimitCoordinator } from "@tamias/api/rate-limit-coordinator";
+import { AsyncWorkflow, RunCoordinator } from "@tamias/worker/cloudflare/durable-classes";
 import {
-  AsyncWorkflow,
   type CloudflareAsyncMessage,
-  handleAsyncWorkerScheduled,
-  handleCaptureQueueBatch,
-  handleLedgerQueueBatch,
-  isCaptureConsumerQueue,
-  isLedgerConsumerQueue,
-  RunCoordinator,
-} from "@tamias/worker/cloudflare";
+  runUnifiedQueueConsumer,
+} from "@tamias/worker/cloudflare/queue-route";
+import { handleAsyncWorkerScheduled } from "@tamias/worker/cloudflare/scheduled-cron";
 import { shouldServeApi } from "@/start/cf-unified-routing";
-import { createServerEntry, startHandler } from "@/start/server";
 import type { DashboardCloudflareEnv } from "@/start/server/cloudflare-context";
 
 export { AsyncWorkflow, RateLimitCoordinator, RunCoordinator };
@@ -25,16 +20,28 @@ async function callApiEntryFetch(
   return apiEntryFetch(request, env as never, executionCtx);
 }
 
-const dashboardWorker = createServerEntry(
-  { fetch: startHandler },
-  {
-    internalApiEntry: (request, env, executionCtx) =>
-      callApiEntryFetch(request, env, executionCtx),
-  },
-);
+async function createDashboardWorker() {
+  const { createServerEntry, startHandler } = await import("@/start/server");
+  return createServerEntry(
+    { fetch: startHandler },
+    {
+      internalApiEntry: (request, env, executionCtx) =>
+        callApiEntryFetch(request, env, executionCtx),
+    },
+  );
+}
+
+let dashboardWorkerPromise: Promise<
+  Awaited<ReturnType<typeof createDashboardWorker>>
+> | null = null;
+
+function getDashboardWorker() {
+  dashboardWorkerPromise ??= createDashboardWorker();
+  return dashboardWorkerPromise;
+}
 
 export default {
-  fetch(
+  async fetch(
     request: Request,
     env: DashboardCloudflareEnv,
     executionCtx: ExecutionContext,
@@ -43,6 +50,7 @@ export default {
       return callApiEntryFetch(request, env, executionCtx);
     }
 
+    const dashboardWorker = await getDashboardWorker();
     return dashboardWorker.fetch(request, env, executionCtx);
   },
 
@@ -53,15 +61,6 @@ export default {
     env: DashboardCloudflareEnv,
     _executionCtx: ExecutionContext,
   ) {
-    if (isCaptureConsumerQueue(batch.queue)) {
-      await handleCaptureQueueBatch(batch, env as never);
-      return;
-    }
-    if (isLedgerConsumerQueue(batch.queue)) {
-      await handleLedgerQueueBatch(batch, env as never);
-      return;
-    }
-
-    throw new Error(`Unhandled queue consumer: ${batch.queue}`);
+    await runUnifiedQueueConsumer(batch, env as never);
   },
 };

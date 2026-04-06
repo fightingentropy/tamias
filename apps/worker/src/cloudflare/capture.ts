@@ -1,7 +1,7 @@
 import {
   configureCloudflareQueueRuntime,
   configureCloudflareScheduleRuntime,
-} from "@tamias/job-client";
+} from "@tamias/job-client/cloudflare-runtime";
 import "./runtime-shims";
 import type { CloudflareAsyncMessage } from "./bridge-helpers";
 import { isSupportedCloudflareMessage } from "./bridge-helpers";
