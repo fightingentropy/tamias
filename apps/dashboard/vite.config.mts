@@ -1,8 +1,9 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { cloudflare } from "@cloudflare/vite-plugin";
+import babel from "@rolldown/plugin-babel";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
-import react from "@vitejs/plugin-react";
+import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { defineConfig, loadEnv } from "vite";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -138,6 +139,9 @@ export default defineConfig(({ mode, command }) => {
         },
       }),
       react(),
+      babel({
+        presets: [reactCompilerPreset({ target: "19" })],
+      }),
     ],
     resolve: {
       alias: [
@@ -155,7 +159,9 @@ export default defineConfig(({ mode, command }) => {
         },
         {
           find: "nuqs/adapters/tanstack-router",
-          replacement: resolveDashboardPath("./src/framework/nuqs/tanstack-router.tsx"),
+          replacement: resolveDashboardPath(
+            "./src/framework/nuqs/tanstack-router.tsx",
+          ),
         },
         {
           find: "nuqs/server",
@@ -167,7 +173,9 @@ export default defineConfig(({ mode, command }) => {
         },
         {
           find: /^process\/?$/,
-          replacement: resolveDashboardPath("../../node_modules/process/browser.js"),
+          replacement: resolveDashboardPath(
+            "../../node_modules/process/browser.js",
+          ),
         },
       ],
       dedupe: ["react", "react-dom"],
@@ -177,22 +185,25 @@ export default defineConfig(({ mode, command }) => {
     server: {
       host: "0.0.0.0",
       port: 3001,
+      strictPort: true,
       fs: {
         allow: [workspaceRoot],
       },
-      allowedHosts: [
-        "localhost",
-        "127.0.0.1",
-        "tamias.test",
-        ".tamias.test",
-      ],
+      allowedHosts: ["localhost", "127.0.0.1", "tamias.test", ".tamias.test"],
     },
     preview: {
       host: "0.0.0.0",
       port: 3001,
+      strictPort: true,
     },
     build: {
-      sourcemap: true,
+      // Smaller prod assets = faster download/parse; keep maps in dev only.
+      // Do not use manualChunks to split react/react-dom: it duplicates React in SSR and
+      // breaks hooks (Invalid hook call / useState on null) during dev and prerender.
+      sourcemap: mode !== "production",
+      cssMinify: mode === "production",
+      target: "es2022",
+      reportCompressedSize: false,
     },
     ssr: {
       noExternal: [

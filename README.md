@@ -2,7 +2,7 @@
 
 ![hero](github.png)
 
-Tamias is a Turborepo monorepo for the product workspace, API, Cloudflare async worker runtime, public website, integrations, and shared packages behind invoicing, banking, inbox capture, time tracking, reporting, AI workflows, and UK compliance support.
+Tamias is a Bun workspaces monorepo for the product workspace, API, Cloudflare async worker runtime, public website, integrations, and shared packages behind invoicing, banking, inbox capture, time tracking, reporting, AI workflows, and UK compliance support.
 
 > Naming note
 > The public brand is `Tamias`, but much of the codebase still uses older `tamias` identifiers, package names, env vars, and URLs.
@@ -101,7 +101,7 @@ flowchart LR
 ### Core platform
 
 - Bun runtime and package manager
-- Turborepo workspaces
+- Bun workspaces (`bun run` with `--workspaces` / `--filter` for cross-package scripts)
 - TypeScript across apps and packages
 - Biome for linting/formatting
 
@@ -311,7 +311,7 @@ bun run dev:api
 cd apps/worker && bun run dev
 ```
 
-If you run the API or worker locally against the shared Convex deployment, you must set a real `CONVEX_SERVICE_KEY` in `apps/api/.env` and `apps/worker/.env`.
+If you run the API or worker locally against the shared Convex deployment, set a real `CONVEX_SERVICE_KEY`. For the API, add it to **`apps/api/.dev.vars`** (Wrangler reads this file for `wrangler dev`, not `apps/api/.env` alone). Copy from `apps/api/.dev.vars.example`. Set the same variable in **`apps/worker/.env`** (or your worker’s Wrangler secrets) for local worker processes.
 
 ### First login
 
@@ -387,13 +387,11 @@ bun run preflight:cloudflare:production
 - `apps/api/wrangler.jsonc`, `apps/dashboard/wrangler.jsonc`, and `apps/worker/wrangler.jsonc` are the deploy/runtime entrypoints.
 - `apps/api` and `apps/dashboard` bind directly to `apps/worker` through a Cloudflare service binding named `ASYNC_WORKER`.
 - `apps/dashboard` now serves both `app.tamias.xyz` and `tamias.xyz`; public-site routes are host-rewritten into the internal `/site` tree.
-- Dashboard preflight includes both the OpenNext build and a Wrangler `deploy --dry-run` against the matching `wrangler.jsonc`.
+- Dashboard preflight includes the Vite production build and a Wrangler `deploy --dry-run` against the matching `wrangler.jsonc`.
 - API, dashboard, and worker each expose environment-specific staging/production preflight commands in addition to the default local/development preflight.
 - GitHub Actions deploys expect these repository secrets:
   - `CLOUDFLARE_API_TOKEN`
   - `CLOUDFLARE_ACCOUNT_ID`
-  - `TURBO_TOKEN`
-  - `TURBO_TEAM`
 - `apps/worker` uses a Cloudflare Images binding for image resize and HEIC-to-JPEG conversion inside the Worker runtime.
 - Current runtime defaults in code assume:
   - dashboard URLs under `app.tamias.xyz`

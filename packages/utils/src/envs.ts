@@ -22,8 +22,7 @@ function getTamiasEnvironment() {
     getFirstDefined(
       process.env.TAMIAS_ENVIRONMENT,
       process.env.CLOUDFLARE_ENV,
-    ) ||
-    (process.env.NODE_ENV === "production" ? "production" : "development")
+    ) || (process.env.NODE_ENV === "production" ? "production" : "development")
   );
 }
 
@@ -152,51 +151,27 @@ export function getConvexSiteUrl() {
 }
 
 export function getStripePublishableKey() {
-  return (
-    getFirstDefined(
-      process.env.STRIPE_PUBLISHABLE_KEY,
-    ) || ""
-  );
+  return getFirstDefined(process.env.STRIPE_PUBLISHABLE_KEY) || "";
 }
 
 export function getTellerApplicationId() {
-  return (
-    getFirstDefined(
-      process.env.TELLER_APPLICATION_ID,
-    ) || ""
-  );
+  return getFirstDefined(process.env.TELLER_APPLICATION_ID) || "";
 }
 
 export function getTellerEnvironment() {
-  return (
-    getFirstDefined(
-      process.env.TELLER_ENVIRONMENT,
-    ) || ""
-  );
+  return getFirstDefined(process.env.TELLER_ENVIRONMENT) || "";
 }
 
 export function getPlaidEnvironment() {
-  return (
-    getFirstDefined(
-      process.env.PLAID_ENVIRONMENT,
-    ) || ""
-  );
+  return getFirstDefined(process.env.PLAID_ENVIRONMENT) || "";
 }
 
 export function getGoogleApiKey() {
-  return (
-    getFirstDefined(
-      process.env.GOOGLE_API_KEY,
-    ) || ""
-  );
+  return getFirstDefined(process.env.GOOGLE_API_KEY) || "";
 }
 
 export function getWhatsAppNumber() {
-  return (
-    getFirstDefined(
-      process.env.WHATSAPP_NUMBER,
-    ) || ""
-  );
+  return getFirstDefined(process.env.WHATSAPP_NUMBER) || "";
 }
 
 export function getSupportEmail() {

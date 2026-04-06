@@ -1,14 +1,14 @@
 import "@tamias/ui/globals.css";
-import { Provider as Analytics } from "@/lib/telemetry/client";
 import { cn } from "@tamias/ui/cn";
 import { HeadContent, Scripts } from "@tanstack/react-router";
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
+import type { ReactNode } from "react";
+import { Provider as Analytics } from "@/lib/telemetry/client";
 import { AppRuntimeProviders } from "@/start/app-runtime-providers";
 import {
   DEFAULT_ROOT_BOOTSTRAP,
   type RootBootstrapData,
 } from "@/start/root-bootstrap";
-import type { ReactNode } from "react";
 
 function getThemeFallbackColors(theme: "light" | "dark") {
   if (theme === "dark") {
@@ -65,10 +65,17 @@ export function StartRootShell(props: {
     <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
-        <meta
-          name="theme-color"
-          content={initialThemeFallback.background}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
         />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Hedvig+Letters+Sans&family=Hedvig+Letters+Serif&display=swap"
+          rel="stylesheet"
+        />
+        <meta name="theme-color" content={initialThemeFallback.background} />
         <style
           id="tamias-theme-fallback"
           suppressHydrationWarning
@@ -82,7 +89,11 @@ export function StartRootShell(props: {
           }}
         />
       </head>
-      <body className={cn("font-sans whitespace-pre-line overscroll-none antialiased")}>
+      <body
+        className={cn(
+          "font-sans whitespace-pre-line overscroll-none antialiased",
+        )}
+      >
         <NuqsAdapter>
           <AppRuntimeProviders bootstrap={bootstrap}>
             {props.children}

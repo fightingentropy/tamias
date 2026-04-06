@@ -7,19 +7,20 @@ import {
 import { getQueryClient, trpc } from "@/trpc/server";
 import { getPostAuthRedirectPath } from "@/utils/auth-routing";
 
-export async function resolveIndexRoute() {
+export async function resolveLoginRoute() {
   const auth = startContextAuth();
 
   if (!auth.token) {
-    throw redirect({
-      to: "/login",
-      throw: true,
-    });
+    return;
   }
 
   try {
     const queryClient = getQueryClient();
     const user = await queryClient.fetchQuery(trpc.user.me.queryOptions());
+
+    if (!user) {
+      return;
+    }
 
     throw redirect({
       to: getPostAuthRedirectPath(user),
@@ -31,10 +32,7 @@ export async function resolveIndexRoute() {
     }
 
     if (isUnauthorizedQueryError(error) || isQueryTransportError(error)) {
-      throw redirect({
-        to: "/login",
-        throw: true,
-      });
+      return;
     }
 
     throw error;

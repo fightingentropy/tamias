@@ -49,6 +49,70 @@ export async function getSessionFromConvex(
   }
 }
 
+/**
+ * Same data as {@link getCurrentUserFromConvex} / `serviceGetUserById`, but uses the caller's
+ * Convex JWT (no deploy key). Use for dashboard `user.me` so local `wrangler dev` works without
+ * `CONVEX_SERVICE_KEY` for hosted deployments.
+ */
+export async function getCurrentUserFromConvexAsAuthUser(accessToken?: string) {
+  if (!accessToken) {
+    return null;
+  }
+
+  const client = createConvexClient();
+
+  try {
+    client.setAuth(accessToken);
+    return (await client.query(api.identity.currentUser, {})) ?? null;
+  } catch {
+    return null;
+  } finally {
+    client.clearAuth();
+  }
+}
+
+/**
+ * Current team for the JWT identity (no deploy key). Matches Convex `currentTeam`.
+ */
+export async function getCurrentTeamFromConvexAsAuthUser(accessToken?: string) {
+  if (!accessToken) {
+    return null;
+  }
+
+  const client = createConvexClient();
+
+  try {
+    client.setAuth(accessToken);
+    return (await client.query(api.identity.currentTeam, {})) ?? null;
+  } catch {
+    return null;
+  } finally {
+    client.clearAuth();
+  }
+}
+
+/**
+ * Team memberships for the JWT identity (no deploy key). Matches Convex `teamList`.
+ */
+export async function listTeamsForUserFromConvexAsAuthUser(
+  accessToken?: string,
+) {
+  if (!accessToken) {
+    return null;
+  }
+
+  const client = createConvexClient();
+
+  try {
+    client.setAuth(accessToken);
+    return await client.query(api.identity.teamList, {});
+  } catch {
+    return null;
+  } finally {
+    client.clearAuth();
+  }
+}
+
 export async function ensureCurrentAppUserInConvex(accessToken?: string) {
   if (!accessToken) {
     return null;

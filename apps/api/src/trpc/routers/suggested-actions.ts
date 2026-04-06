@@ -1,13 +1,15 @@
+import { isHostedConvexMissingServiceKey } from "@tamias/app-services/convex-client";
+import {
+  buildSuggestedActionsList,
+  getSuggestedActionUsageFromConvex,
+  incrementSuggestedActionUsageInConvex,
+} from "@tamias/app-services/suggested-actions";
 import {
   getSuggestedActionsSchema,
   trackSuggestedActionUsageSchema,
 } from "../../schemas/suggested-actions";
-import {
-  getSuggestedActionUsageFromConvex,
-  incrementSuggestedActionUsageInConvex,
-} from "@tamias/app-services/suggested-actions";
+import { isMissingConvexServiceKeyError } from "../convex-service-dev-fallback";
 import { createTRPCRouter, protectedProcedure } from "../init";
-import { buildSuggestedActionsList } from "@tamias/app-services/suggested-actions";
 
 export const suggestedActionsRouter = createTRPCRouter({
   list: protectedProcedure
@@ -19,15 +21,33 @@ export const suggestedActionsRouter = createTRPCRouter({
         throw new Error("Missing Convex user id");
       }
 
-      const allUsage = await getSuggestedActionUsageFromConvex({
-        teamId: teamId!,
-        userId,
-      });
+      if (isHostedConvexMissingServiceKey()) {
+        return buildSuggestedActionsList({
+          allUsage: {},
+          limit: input.limit,
+        });
+      }
 
-      return buildSuggestedActionsList({
-        allUsage,
-        limit: input.limit,
-      });
+      try {
+        const allUsage = await getSuggestedActionUsageFromConvex({
+          teamId: teamId!,
+          userId,
+        });
+
+        return buildSuggestedActionsList({
+          allUsage,
+          limit: input.limit,
+        });
+      } catch (error) {
+        if (isMissingConvexServiceKeyError(error)) {
+          return buildSuggestedActionsList({
+            allUsage: {},
+            limit: input.limit,
+          });
+        }
+
+        throw error;
+      }
     }),
 
   trackUsage: protectedProcedure
@@ -37,11 +57,21 @@ export const suggestedActionsRouter = createTRPCRouter({
         throw new Error("Missing Convex user id");
       }
 
-      await incrementSuggestedActionUsageInConvex({
-        teamId: teamId!,
-        userId: session.user.convexId,
-        actionId: input.actionId,
-      });
+      if (isHostedConvexMissingServiceKey()) {
+        return { success: true };
+      }
+
+      try {
+        await incrementSuggestedActionUsageInConvex({
+          teamId: teamId!,
+          userId: session.user.convexId,
+          actionId: input.actionId,
+        });
+      } catch (error) {
+        if (!isMissingConvexServiceKeyError(error)) {
+          throw error;
+        }
+      }
 
       return { success: true };
     }),

@@ -1,4 +1,6 @@
 import type { Database } from "@tamias/app-data/client";
+import { api } from "@tamias/app-data/convex/api";
+import type { Id } from "@tamias/app-data/convex/data-model";
 import {
   getBillableHours,
   getCashBalance,
@@ -22,10 +24,12 @@ import {
   getTrackedTime,
 } from "@tamias/app-data/queries";
 import { getPaymentStatus } from "@tamias/app-data/queries/invoices";
-import { api } from "@tamias/app-data/convex/api";
-import type { Id } from "@tamias/app-data/convex/data-model";
 import type { WidgetType } from "@tamias/domain";
-import { getConvexServiceKey, getSharedConvexClient } from "./convex-client";
+import {
+  createConvexClient,
+  getConvexServiceKey,
+  getSharedConvexClient,
+} from "./convex-client";
 
 function serviceArgs<T extends Record<string, unknown>>(args: T) {
   return {
@@ -585,6 +589,25 @@ export async function getWidgetPreferencesFromConvex(args: {
     api.widgets.serviceGetWidgetPreferences,
     serviceArgs(args),
   );
+}
+
+export async function getWidgetPreferencesFromConvexAsAuthUser(
+  accessToken?: string,
+) {
+  if (!accessToken) {
+    return null;
+  }
+
+  const client = createConvexClient();
+
+  try {
+    client.setAuth(accessToken);
+    return await client.query(api.widgets.myWidgetPreferences, {});
+  } catch {
+    return null;
+  } finally {
+    client.clearAuth();
+  }
 }
 
 export async function updateWidgetPreferencesInConvex(args: {

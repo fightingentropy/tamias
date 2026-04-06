@@ -49,5 +49,25 @@ export function getConvexServiceKey() {
     return "local-dev";
   }
 
-  throw new Error("Missing CONVEX_SERVICE_KEY");
+  throw new Error(
+    "Missing CONVEX_SERVICE_KEY. For `wrangler dev` (apps/api), add the deploy key to apps/api/.dev.vars — not only apps/api/.env. See apps/api/.dev.vars.example.",
+  );
+}
+
+/** True when Convex URL is hosted (not localhost) and deploy key is unset. */
+export function isHostedConvexMissingServiceKey(): boolean {
+  if (process.env.CONVEX_SERVICE_KEY?.trim()) {
+    return false;
+  }
+
+  const convexUrl = getConvexUrl();
+  if (!convexUrl) {
+    return false;
+  }
+
+  if (convexUrl.includes("127.0.0.1") || convexUrl.includes("localhost")) {
+    return false;
+  }
+
+  return true;
 }

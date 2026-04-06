@@ -8,6 +8,7 @@ export default {
     extend: {
       fontFamily: {
         sans: "var(--font-hedvig-sans)",
+        "hedvig-sans": "var(--font-hedvig-sans)",
         mono: "var(--font-hedvig-sans)",
         serif: "var(--font-hedvig-serif)",
       },

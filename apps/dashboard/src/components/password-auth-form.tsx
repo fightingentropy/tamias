@@ -13,11 +13,11 @@ import {
 import { Input } from "@tamias/ui/input";
 import { Spinner } from "@tamias/ui/spinner";
 import { SubmitButton } from "@tamias/ui/submit-button";
-import { useSearchParams } from "@/framework/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod/v3";
-import { useAuth, useAuthActions } from "@/framework/auth-client";
+import { useAuthActions } from "@/framework/auth-client";
+import { useSearchParams } from "@/framework/navigation";
 import { getPasswordAuthErrorMessage } from "@/utils/password-auth-errors";
 
 const formSchema = z.object({
@@ -32,7 +32,6 @@ type PasswordAuthFormProps = {
 export function PasswordAuthForm({ className }: PasswordAuthFormProps) {
   const searchParams = useSearchParams();
   const { signIn } = useAuthActions();
-  const { isAuthenticated, isLoading } = useAuth();
   const [mode, setMode] = useState<"signIn" | "signUp">("signIn");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,14 +49,6 @@ export function PasswordAuthForm({ className }: PasswordAuthFormProps) {
       password: "",
     },
   });
-
-  useEffect(() => {
-    if (isLoading || !isAuthenticated) {
-      return;
-    }
-
-    window.location.replace(redirectTo);
-  }, [isAuthenticated, isLoading, redirectTo]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setError(null);
@@ -136,9 +127,7 @@ export function PasswordAuthForm({ className }: PasswordAuthFormProps) {
               <span className="inline-flex items-center gap-2">
                 <Spinner size={16} className="text-current" />
                 <span>
-                  {mode === "signIn"
-                    ? "Signing in"
-                    : "Creating account"}
+                  {mode === "signIn" ? "Signing in" : "Creating account"}
                 </span>
               </span>
             ) : mode === "signIn" ? (

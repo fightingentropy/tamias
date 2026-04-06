@@ -1,10 +1,12 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { useQueryStates } from "nuqs";
 import { parseAsString } from "nuqs/server";
 import { useEffect, useMemo } from "react";
-import { useTeamQuery } from "@/hooks/use-team";
+import { useAuthToken } from "@/framework/auth-client";
 import { useMetricsFilterStore } from "@/store/metrics-filter";
+import { useTRPC } from "@/trpc/client";
 import {
   getPeriodDateRange,
   type PeriodOption,
@@ -77,7 +79,12 @@ function getEffectiveValue<T extends string>(
 }
 
 export function useMetricsFilter() {
-  const { data: team } = useTeamQuery();
+  const token = useAuthToken();
+  const trpc = useTRPC();
+  const { data: team } = useQuery({
+    ...trpc.team.current.queryOptions(),
+    enabled: Boolean(token),
+  });
   const fiscalYearStartMonth = team?.fiscalYearStartMonth;
 
   // Get store state and actions

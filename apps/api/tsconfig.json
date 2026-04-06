@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
-    "lib": ["ESNext"],
+    "lib": [
+      "ESNext"
+    ],
     "target": "ESNext",
     "module": "ESNext",
     "moduleDetection": "force",
@@ -18,14 +20,25 @@
     "noPropertyAccessFromIndexSignature": false,
     "jsx": "react-jsx",
     "jsxImportSource": "react",
-    "baseUrl": ".",
     "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
     "paths": {
-      "@app-data/*": ["../../packages/app-data/src/*"],
-      "@tamias/job-client": ["../../packages/job-client/src/index.ts"]
+      "@app-data/*": [
+        "../../packages/app-data/src/*"
+      ],
+      "@tamias/job-client": [
+        "../../packages/job-client/src/index.ts"
+      ]
     },
-    "types": ["bun"]
+    "types": [
+      "bun"
+    ]
   },
-  "exclude": ["node_modules"],
-  "include": ["src/**/*.ts", "../../types"]
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "src/**/*.ts",
+    "../../types"
+  ]
 }

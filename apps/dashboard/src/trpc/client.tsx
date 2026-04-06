@@ -61,8 +61,7 @@ export function TRPCReactProvider(
               error: (...args) => trpcBrowserConsole.warn(...args),
             },
             enabled: (opts) =>
-              process.env.NODE_ENV === "development" ||
-              (opts.direction === "down" && opts.result instanceof Error),
+              process.env.NODE_ENV === "development" && opts.direction === "up",
           }),
           httpBatchLink({
             url: `${apiUrl}/trpc`,

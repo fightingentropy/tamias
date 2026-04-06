@@ -31,11 +31,11 @@ describe("getPasswordAuthErrorMessage", () => {
     ).toBe("An account with this email already exists. Sign in instead.");
   });
 
-  it("maps transport failures to a local auth service message", () => {
+  it("maps transport failures to a Convex / dev setup message", () => {
     expect(
       getPasswordAuthErrorMessage(new Error("fetch failed"), "signIn"),
     ).toBe(
-      "Unable to reach the authentication service. Make sure the dashboard and API are running.",
+      "Could not reach Convex (password auth uses it). Run the full stack with `bun run dev` from the repo root, put CONVEX_URL in apps/dashboard/.env.local, and run Convex dev (`bunx convex dev` in apps/dashboard) if you use a dev deployment.",
     );
   });
 

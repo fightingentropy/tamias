@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+import { nowIso } from "../../../packages/domain/src/identity";
 import {
   buildWidgetPreferencesFromPrimaryWidgets,
   DEFAULT_WIDGET_PREFERENCES,
@@ -7,9 +8,46 @@ import {
   type WidgetType,
 } from "../../../packages/domain/src/index";
 import { mutation, query } from "./_generated/server";
-import { getAppUserById, getTeamByPublicTeamId } from "./lib/identity";
+import {
+  getAppUserById,
+  getTeamByPublicTeamId,
+  requireCurrentAppUser,
+  resolveCurrentTeam,
+} from "./lib/identity";
 import { requireServiceKey } from "./lib/service";
-import { nowIso } from "../../../packages/domain/src/identity";
+
+export const myWidgetPreferences = query({
+  args: {},
+  async handler(ctx) {
+    const appUser = await requireCurrentAppUser(ctx).catch(() => null);
+
+    if (!appUser) {
+      return DEFAULT_WIDGET_PREFERENCES;
+    }
+
+    const team = await resolveCurrentTeam(ctx, appUser);
+
+    if (!team) {
+      return DEFAULT_WIDGET_PREFERENCES;
+    }
+
+    const record = await ctx.db
+      .query("widgetPreferences")
+      .withIndex("by_app_user_and_team", (q) =>
+        q.eq("appUserId", appUser._id).eq("teamId", team._id),
+      )
+      .unique();
+
+    if (!record) {
+      return DEFAULT_WIDGET_PREFERENCES;
+    }
+
+    return normalizeWidgetPreferences({
+      primaryWidgets: record.primaryWidgets,
+      availableWidgets: record.availableWidgets,
+    });
+  },
+});
 
 export const serviceGetWidgetPreferences = query({
   args: {

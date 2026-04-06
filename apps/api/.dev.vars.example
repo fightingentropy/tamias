@@ -1,0 +1,9 @@
+# Copy to `.dev.vars` in this directory (same folder as wrangler.jsonc).
+# `wrangler dev` loads secrets from `.dev.vars`; a plain `.env` file is not applied to the Worker.
+
+# Required when CONVEX_URL points at a hosted deployment (not localhost).
+# Convex dashboard → your deployment → Settings → Deploy Key
+CONVEX_SERVICE_KEY=
+
+# Optional: must match INTERNAL_API_KEY on the dashboard if you use trusted SSR headers.
+INTERNAL_API_KEY=

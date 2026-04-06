@@ -15,6 +15,7 @@
     "./chat-feedback": "./src/chat-feedback.ts",
     "./chat-memory": "./src/chat-memory.ts",
     "./compliance": "./src/compliance.ts",
+    "./convex-client": "./src/convex-client.ts",
     "./customers": "./src/customers.ts",
     "./foundation": "./src/foundation.ts",
     "./identity": "./src/identity.ts",

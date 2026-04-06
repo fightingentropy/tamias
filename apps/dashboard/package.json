@@ -105,6 +105,7 @@
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.30.3",
+    "@rolldown/plugin-babel": "^0.2.2",
     "@playwright/test": "^1.55.1",
     "@tanstack/router-plugin": "^1.167.12",
     "@tamias/tsconfig": "workspace:*",

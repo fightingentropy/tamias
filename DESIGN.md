@@ -21,12 +21,13 @@ When in doubt, match the authenticated product UI unless the page is clearly mar
 
 The most important files for the design system are:
 
-- `packages/ui/src/globals.css`
-- `packages/ui/tailwind.config.ts`
+- `packages/ui/src/globals.css` (theme tokens, **typography CSS variables**, base `body` styles)
+- `packages/ui/tailwind.config.mjs` (Tailwind theme extensions, **font families**)
 - `packages/ui/src/components/*`
-- `apps/dashboard/src/styles/globals.css`
-- `apps/dashboard/src/app/[locale]/layout.tsx`
-- `apps/dashboard/src/app/[locale]/(app)/(sidebar)/layout.tsx`
+- `apps/dashboard/src/start/root-shell.tsx` (document shell, **Google Fonts** for Hedvig)
+- `apps/dashboard/src/start/routes/__root.tsx` (root route metadata and layout wiring)
+- `apps/dashboard/src/start/components/app-layout-shell.tsx` (authenticated app chrome)
+- `apps/dashboard/src/styles/globals.css` (app-level utilities; focus outline caveat below)
 - `apps/dashboard/src/components/sidebar.tsx`
 - `apps/dashboard/src/components/header.tsx`
 - `apps/dashboard/src/components/widgets/*`
@@ -34,8 +35,8 @@ The most important files for the design system are:
 - `apps/dashboard/src/components/tables/*`
 - `apps/dashboard/src/components/forms/*`
 - `apps/dashboard/src/components/sheets/*`
-- `apps/dashboard/src/components/public-homepage.tsx`
-- `apps/dashboard/src/app/[locale]/(public)/login/page.tsx`
+- `apps/dashboard/src/start/routes/index.tsx` (public `/` route entry)
+- `apps/dashboard/src/start/routes/login.tsx` and `login.lazy.tsx` (auth surfaces)
 
 ## Design Character
 
@@ -102,6 +103,17 @@ The app uses:
 
 - `Hedvig Letters Sans` for most interface text
 - `Hedvig Letters Serif` for selected headings and editorial accents
+
+These are the same type families as [Midday](https://midday.ai)’s website and app. Midday injects them with `next/font`; Tamias loads them from **Google Fonts** in the dashboard shell so the CSS variables stay consistent without Next.js.
+
+### Implementation (source of truth)
+
+1. **`packages/ui/src/globals.css`** — On `:root`, `--font-hedvig-sans` and `--font-hedvig-serif` are full `font-family` stacks (Hedvig first, then system UI fallbacks). Base `body` uses `font-family: var(--font-hedvig-sans)`.
+2. **`apps/dashboard/src/start/root-shell.tsx`** — Preconnect + stylesheet for `Hedvig Letters Sans` and `Hedvig Letters Serif` with `display=swap`.
+3. **`packages/ui/tailwind.config.mjs`** — `font-sans` / `font-mono` → `var(--font-hedvig-sans)`; `font-serif` → `var(--font-hedvig-serif)`; `font-hedvig-sans` is an alias of the sans stack (e.g. charts).
+4. **Root `<body>`** — Applies `font-sans` so the whole app inherits the sans stack unless a component sets `font-serif` or another utility.
+
+Other surfaces (e.g. **PDF invoices** use Inter; **email** uses inline Hedvig via React Email). Those are intentional exceptions for rendering engines, not the product shell.
 
 ### Product shell typography
 

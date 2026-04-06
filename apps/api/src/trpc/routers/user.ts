@@ -1,23 +1,31 @@
-import { updateUserSchema } from "../../schemas/users";
+import { deleteUserByConvexId } from "@tamias/app-data/queries";
 import {
   getCurrentUserFromConvex,
+  getCurrentUserFromConvexAsAuthUser,
   getInvitesByEmailFromConvex,
   switchCurrentTeamInConvex,
   updateCurrentUserInConvex,
 } from "@tamias/app-services/identity";
-import { resend } from "../../services/resend";
-import { createTRPCRouter, protectedProcedure } from "../init";
-import { deleteUserByConvexId } from "@tamias/app-data/queries";
 import { generateOptionalFileKey } from "@tamias/encryption";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { updateUserSchema } from "../../schemas/users";
+import { resend } from "../../services/resend";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const userRouter = createTRPCRouter({
-  me: protectedProcedure.query(async ({ ctx: { session } }) => {
-    const result = await getCurrentUserFromConvex({
-      userId: session.user.convexId,
-      email: session.user.email ?? null,
-    });
+  me: protectedProcedure.query(async ({ ctx: { session, accessToken } }) => {
+    const fromAuthUser =
+      accessToken && !accessToken.startsWith("mid_")
+        ? await getCurrentUserFromConvexAsAuthUser(accessToken)
+        : null;
+
+    const result =
+      fromAuthUser ??
+      (await getCurrentUserFromConvex({
+        userId: session.user.convexId,
+        email: session.user.email ?? null,
+      }));
 
     if (!result) {
       return undefined;

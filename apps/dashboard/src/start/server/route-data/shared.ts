@@ -37,6 +37,53 @@ export function isUnauthorizedQueryError(error: unknown) {
   );
 }
 
+const QUERY_TRANSPORT_MESSAGE_RE =
+  /fetch failed|Failed to fetch|Network connection lost|ECONNREFUSED|connection refused|Load failed|network error|ENOTFOUND|ETIMEDOUT|timed out|AbortError|aborted|ECONNRESET|socket hang up/i;
+
+function collectErrorMessages(error: unknown, depth = 0): string {
+  if (depth > 6 || error == null) {
+    return "";
+  }
+
+  const parts: string[] = [];
+
+  if (error instanceof Error) {
+    parts.push(error.message);
+  } else if (typeof error === "object" && "message" in error) {
+    const message = (error as { message?: unknown }).message;
+    if (typeof message === "string") {
+      parts.push(message);
+    }
+  }
+
+  const cause =
+    error instanceof Error
+      ? error.cause
+      : typeof error === "object" &&
+          error !== null &&
+          "cause" in error &&
+          (error as { cause?: unknown }).cause !== undefined
+        ? (error as { cause: unknown }).cause
+        : undefined;
+
+  if (cause !== undefined) {
+    const nested = collectErrorMessages(cause, depth + 1);
+    if (nested) {
+      parts.push(nested);
+    }
+  }
+
+  return parts.filter(Boolean).join(" | ");
+}
+
+/**
+ * tRPC over HTTP failed before a JSON error body (API down, DNS, TLS, timeout, etc.).
+ * Treat like unauthenticated for loaders so local dev without `bun run dev` / API is not a hard crash.
+ */
+export function isQueryTransportError(error: unknown): boolean {
+  return QUERY_TRANSPORT_MESSAGE_RE.test(collectErrorMessages(error));
+}
+
 export function isNotFoundQueryError(error: unknown) {
   if (!error || typeof error !== "object") {
     return false;
@@ -66,7 +113,10 @@ export async function buildBaseAppShellState(opts?: {
   ]);
 
   if (userResult.status === "rejected") {
-    if (isUnauthorizedQueryError(userResult.reason)) {
+    if (
+      isUnauthorizedQueryError(userResult.reason) ||
+      isQueryTransportError(userResult.reason)
+    ) {
       throw redirect({
         to: "/login",
         throw: true,
@@ -86,7 +136,10 @@ export async function buildBaseAppShellState(opts?: {
   }
 
   if (teamResult.status === "rejected") {
-    if (isUnauthorizedQueryError(teamResult.reason)) {
+    if (
+      isUnauthorizedQueryError(teamResult.reason) ||
+      isQueryTransportError(teamResult.reason)
+    ) {
       throw redirect({
         to: "/login",
         throw: true,

@@ -1,16 +1,16 @@
 import { getConvexUrl } from "@tamias/utils/envs";
-import { ConvexHttpClient } from "convex/browser";
-import type { FunctionReference, FunctionReturnType } from "convex/server";
-import { jwtDecode } from "jwt-decode";
-import { serialize } from "cookie-es";
 import { redirect } from "@tanstack/react-router";
 import { getStartContext } from "@tanstack/start-storage-context";
+import { ConvexHttpClient } from "convex/browser";
+import type { FunctionReference, FunctionReturnType } from "convex/server";
+import { serialize } from "cookie-es";
+import { jwtDecode } from "jwt-decode";
 import {
+  type AuthCookieState,
   getAuthCookieNames,
   getRequestHost,
   isLocalHost,
   readAuthCookiesFromRequest,
-  type AuthCookieState,
 } from "./cookies";
 
 type AuthTokens = {
@@ -51,8 +51,20 @@ export function createAnonymousRequestAuthContext(): RequestAuthContext {
   };
 }
 
+function requireConvexUrlForAuth(): string {
+  const url = getConvexUrl().trim();
+  if (!url) {
+    throw new Error(
+      "CONVEX_URL is not set. Add CONVEX_URL (and typically CONVEX_SITE_URL) to apps/dashboard/.env.local.",
+    );
+  }
+  return url;
+}
+
 function createConvexHttpClient(token?: string) {
-  const client = new ConvexHttpClient(getConvexUrl(), { logger: false });
+  const client = new ConvexHttpClient(requireConvexUrlForAuth(), {
+    logger: false,
+  });
 
   if (token) {
     client.setAuth(token);
@@ -67,7 +79,10 @@ async function fetchConvexAction<Action extends FunctionReference<"action">>(
   args?: Record<string, unknown>,
   opts?: { token?: string },
 ): Promise<FunctionReturnType<Action>> {
-  return (createConvexHttpClient(opts?.token) as any).action(action, args ?? {});
+  return (createConvexHttpClient(opts?.token) as any).action(
+    action,
+    args ?? {},
+  );
 }
 
 function decodeToken(token: string) {
@@ -85,7 +100,8 @@ function shouldRefreshToken(token: string) {
     return true;
   }
 
-  const totalTokenLifetimeMs = decodedToken.exp * 1000 - decodedToken.iat * 1000;
+  const totalTokenLifetimeMs =
+    decodedToken.exp * 1000 - decodedToken.iat * 1000;
   const minimumExpiration =
     Date.now() +
     Math.min(
@@ -158,7 +174,10 @@ function buildAuthCookieHeaders(
   return headers;
 }
 
-export function appendCookieHeaders(response: Response, cookieHeaders: string[]) {
+export function appendCookieHeaders(
+  response: Response,
+  cookieHeaders: string[],
+) {
   for (const headerValue of cookieHeaders) {
     response.headers.append("set-cookie", headerValue);
   }
@@ -235,7 +254,11 @@ async function refreshTokensIfNeeded(
       token: null,
       refreshToken: null,
       verifier: authState.verifier,
-      cookieHeaders: buildAuthCookieHeaders(getRequestHost(request), null, null),
+      cookieHeaders: buildAuthCookieHeaders(
+        getRequestHost(request),
+        null,
+        null,
+      ),
     };
   }
 
@@ -264,7 +287,11 @@ async function refreshTokensIfNeeded(
         token: null,
         refreshToken: null,
         verifier: null,
-        cookieHeaders: buildAuthCookieHeaders(getRequestHost(request), null, null),
+        cookieHeaders: buildAuthCookieHeaders(
+          getRequestHost(request),
+          null,
+          null,
+        ),
       };
     }
 
@@ -283,7 +310,11 @@ async function refreshTokensIfNeeded(
       token: null,
       refreshToken: null,
       verifier: null,
-      cookieHeaders: buildAuthCookieHeaders(getRequestHost(request), null, null),
+      cookieHeaders: buildAuthCookieHeaders(
+        getRequestHost(request),
+        null,
+        null,
+      ),
     };
   }
 }
@@ -318,7 +349,7 @@ export async function proxyAuthActionRequest(request: Request) {
   const token =
     action === "auth:signIn" && (args.refreshToken || args.params?.code)
       ? undefined
-      : authState.token ?? undefined;
+      : (authState.token ?? undefined);
 
   try {
     if (action === "auth:signIn") {
@@ -332,7 +363,11 @@ export async function proxyAuthActionRequest(request: Request) {
         const response = jsonResponse({ redirect: result.redirect });
         return appendCookieHeaders(
           response,
-          buildAuthCookieHeaders(host, undefined as never, result.verifier ?? null),
+          buildAuthCookieHeaders(
+            host,
+            undefined as never,
+            result.verifier ?? null,
+          ),
         );
       }
 
@@ -367,11 +402,17 @@ export async function proxyAuthActionRequest(request: Request) {
         { error: error instanceof Error ? error.message : "Auth error" },
         400,
       );
-      return appendCookieHeaders(response, buildAuthCookieHeaders(host, null, null));
+      return appendCookieHeaders(
+        response,
+        buildAuthCookieHeaders(host, null, null),
+      );
     }
   }
 
-  return appendCookieHeaders(jsonResponse(null), buildAuthCookieHeaders(host, null, null));
+  return appendCookieHeaders(
+    jsonResponse(null),
+    buildAuthCookieHeaders(host, null, null),
+  );
 }
 
 export function middlewareRedirect(request: Request, route: string) {
@@ -385,7 +426,10 @@ export function middlewareRedirect(request: Request, route: string) {
 export function convexAuthMiddleware<
   THandler extends (
     request: Request,
-    ctx: { event: unknown; convexAuth: { isAuthenticated: () => Promise<boolean> } },
+    ctx: {
+      event: unknown;
+      convexAuth: { isAuthenticated: () => Promise<boolean> };
+    },
   ) => Response | Promise<Response>,
 >(handler?: THandler) {
   return async (request: Request) => {
