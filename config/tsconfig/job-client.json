@@ -1,0 +1,12 @@
+{
+  "extends": "./base.json",
+  "compilerOptions": {
+    "outDir": "../../packages/job-client/dist",
+    "rootDir": "../../packages/job-client/src",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "ES2022"
+  },
+  "include": ["../../packages/job-client/src/**/*"],
+  "exclude": ["node_modules", "../../packages/job-client/dist"]
+}

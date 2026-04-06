@@ -1,27 +1,3 @@
 {
-  "extends": "@tamias/tsconfig/base.json",
-  "compilerOptions": {
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "allowArbitraryExtensions": true,
-    "jsx": "preserve",
-    "noEmit": true,
-    "paths": {
-      "@/*": ["./src/*"],
-      "@convex/*": ["./convex/*"],
-      "@app-data/*": ["../packages/app-data/src/*"],
-      "nuqs": ["./src/framework/nuqs/index.tsx"],
-      "nuqs/server": ["./src/framework/nuqs/server.ts"],
-      "nuqs/adapters/tanstack-router": ["./src/framework/nuqs/tanstack-router.tsx"]
-    },
-    "strict": true
-  },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "../types",
-    "vite.config.mts",
-    "tailwind.config.ts"
-  ],
-  "exclude": ["node_modules"]
+  "extends": "../config/tsconfig/dashboard.json"
 }

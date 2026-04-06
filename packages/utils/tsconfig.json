@@ -1,9 +1,5 @@
 {
-  "extends": "@tamias/tsconfig/base.json",
-  "compilerOptions": {
-    "module": "ESNext",
-    "moduleResolution": "Bundler"
-  },
+  "extends": "../../config/tsconfig/package.json",
   "include": ["."],
   "exclude": ["node_modules"]
 }

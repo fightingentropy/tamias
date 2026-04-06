@@ -1,11 +1,5 @@
 {
-  "extends": "@tamias/tsconfig/base.json",
-  "compilerOptions": {
-    "jsx": "react-jsx",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "noEmit": true
-  },
-  "include": ["src"],
+  "extends": "../../config/tsconfig/package.json",
+  "include": ["."],
   "exclude": ["node_modules"]
 }

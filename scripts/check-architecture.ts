@@ -170,7 +170,7 @@ function listWorkspacePackages(rootDir: string): WorkspacePackage[] {
       const relativePath = normalizePath(rootDir, manifestPath);
       if (
         relativePath === "package.json" ||
-        (!isInside(relativePath, "apps") && !isInside(relativePath, "packages"))
+        !isInside(relativePath, "packages")
       ) {
         return null;
       }

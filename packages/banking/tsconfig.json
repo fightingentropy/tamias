@@ -1,9 +1,5 @@
 {
-  "extends": "@tamias/tsconfig/base.json",
-  "include": ["src"],
-  "exclude": ["node_modules"],
-  "compilerOptions": {
-    "composite": false,
-    "noEmit": true
-  }
+  "extends": "../../config/tsconfig/package.json",
+  "include": ["."],
+  "exclude": ["node_modules"]
 }

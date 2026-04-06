@@ -42,7 +42,7 @@ export function getPasswordAuthErrorMessage(
   }
 
   if (NETWORK_ERROR_PATTERN.test(message)) {
-    return "Could not reach Convex (password auth uses it). Run the full stack with `bun run dev` from the repo root, put CONVEX_URL in dashboard/.env.local, and run Convex dev (`bunx convex dev` in dashboard) if you use a dev deployment.";
+    return "Could not reach Convex (password auth uses it). Run the full stack with `bun run dev` from the repo root, set CONVEX_URL in the repo root `.env`, and run Convex dev (`bun run convex:dev` from `dashboard`, or `bunx convex dev` with root env loaded) if you use a dev deployment.";
   }
 
   return fallbackMessage;

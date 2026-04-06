@@ -1,0 +1,27 @@
+{
+  "extends": "./base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowArbitraryExtensions": true,
+    "jsx": "preserve",
+    "noEmit": true,
+    "paths": {
+      "@/*": ["../../dashboard/src/*"],
+      "@convex/*": ["../../dashboard/convex/*"],
+      "@app-data/*": ["../../packages/app-data/src/*"],
+      "nuqs": ["../../dashboard/src/framework/nuqs/index.tsx"],
+      "nuqs/server": ["../../dashboard/src/framework/nuqs/server.ts"],
+      "nuqs/adapters/tanstack-router": ["../../dashboard/src/framework/nuqs/tanstack-router.tsx"]
+    },
+    "strict": true
+  },
+  "include": [
+    "../../dashboard/**/*.ts",
+    "../../dashboard/**/*.tsx",
+    "../../types",
+    "../../dashboard/vite.config.mts",
+    "../../dashboard/tailwind.config.ts"
+  ],
+  "exclude": ["node_modules"]
+}

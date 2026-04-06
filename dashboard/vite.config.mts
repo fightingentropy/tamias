@@ -33,7 +33,7 @@ function getBuildEnvValue(
 }
 
 function getPublicEnv(mode: string) {
-  const env = loadEnv(mode, __dirname, "");
+  const env = loadEnv(mode, workspaceRoot, "");
 
   const dashboardUrl = getBuildEnvValue(
     mode,
@@ -113,15 +113,15 @@ export default defineConfig(({ mode, command }) => {
   return {
     plugins: [
       cloudflare({
-        configPath: "./wrangler.start.jsonc",
+        configPath: path.join(workspaceRoot, "wrangler.jsonc"),
         config:
           command === "serve"
             ? {
-                main: "./src/start/cf-unified-entry.ts",
+                main: "./dashboard/src/start/cf-unified-entry.ts",
                 vars: workerVars,
               }
             : {
-                main: "./src/start/cf-unified-entry.ts",
+                main: "./dashboard/src/start/cf-unified-entry.ts",
               },
         viteEnvironment: { name: "ssr" },
       }),
@@ -181,7 +181,7 @@ export default defineConfig(({ mode, command }) => {
       dedupe: ["react", "react-dom"],
     },
     define: defineEntries,
-    envDir: __dirname,
+    envDir: workspaceRoot,
     server: {
       host: "0.0.0.0",
       port: 3001,

@@ -1,14 +1,5 @@
 {
-  "extends": "@tamias/tsconfig/base.json",
-  "include": ["src", "../../types"],
-  "exclude": ["node_modules"],
-  "compilerOptions": {
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "jsx": "react-jsx",
-    "jsxImportSource": "react",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  }
+  "extends": "../../config/tsconfig/package.json",
+  "include": [".", "../../types/jsx.d.ts"],
+  "exclude": ["node_modules"]
 }

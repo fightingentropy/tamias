@@ -183,11 +183,19 @@ bun install
 
 ### Env files
 
-Create **`dashboard/.env.local`**, **`api/.env`**, and **`worker/.env`** (and for `wrangler dev` on the API, **`api/.dev.vars`** with secrets Wrangler injects). Use the checklist below for variables and alignment across services.
+Create a single **`.env`** at the **repository root** (gitignored). Put every variable the app needs there: dashboard, API (bundled in the same Worker in production), worker-style jobs, and scripts. Vite loads this file via `envDir` at the repo root; root `package.json` backfill scripts use `bun --env-file=.env`.
+
+Optional **`.env.local`** at the repo root is also loaded (after `.env`) by Vite and by `scripts/lib/load-repo-env.ts` for local overrides.
+
+**Convex CLI:** from `dashboard`, run `bun run convex:dev` so the CLI sees the root `.env` (or run `bunx convex dev` after exporting variables yourself).
+
+**Wrangler without Bun:** `bun run preview:cf` (in `dashboard`) runs Wrangler with **`bun --env-file=../.env`** and **`--config ../wrangler.jsonc`**, so secrets match the root `.env`. If you run **`wrangler dev`** yourself, point it at **`wrangler.jsonc` in the repo root**; Wrangler will read **`.dev.vars` next to that file** (same `KEY=value` format as `.env`). You can symlink `.dev.vars` to `.env` at the repo root.
+
+If you still have old **`dashboard/.env.local`**, **`api/.env`**, or **`worker/.env`** files, merge their contents into the repo root **`.env`** and remove the duplicates.
 
 ### Minimum env checklist
 
-Make sure these values exist and line up across services.
+Use one root `.env` with the blocks below (grouped by surface so you can see what each part of the stack needs). Values that appear in multiple blocks must match.
 
 #### Dashboard
 
@@ -217,6 +225,8 @@ CONVEX_SERVICE_KEY=...
 
 CLOUDFLARE_ASYNC_BRIDGE_URL=http://127.0.0.1:8787
 CLOUDFLARE_ASYNC_BRIDGE_TOKEN=...
+# Optional allowlist for local bridge fallback; omit to allow all supported jobs.
+# CLOUDFLARE_ASYNC_BRIDGE_JOBS=transactions:*,documents:*,inbox:*,inbox-provider:*,accounting:*,invoices:*,customers:*,teams:*,insights:*,notifications:*
 
 INTERNAL_API_KEY=...
 INVOICE_JWT_SECRET=...
@@ -259,10 +269,29 @@ INVOICE_JWT_SECRET=...
 #### Important env notes
 
 - `INTERNAL_API_KEY`, `INVOICE_JWT_SECRET`, and `FILE_KEY_SECRET` must match everywhere they are used.
-- Public site features run inside `dashboard`, so site env values should be configured there.
+- Public site features run inside `dashboard`; keep their variables in the same root `.env` alongside API/worker keys.
 - `HMRC_CT_ENVIRONMENT` defaults to `test`. Keep it there in deployed environments until you intentionally want live HMRC CT filing.
 - In `test`, CT submissions use `HMRC_CT_TEST_UTR` when present. In `production`, the filing profile UTR is required.
 - Companies House annual accounts filing uses the XML gateway presenter runtime on the API service; it does not use the OAuth app credentials.
+- In the unified Cloudflare Worker, the async bridge runs in-process (no `ASYNC_WORKER` service binding). `CLOUDFLARE_ASYNC_BRIDGE_*` is for Vite local fallback or isolated worker tests.
+
+#### Assistant backends (chat)
+
+Users can pick a provider in the dashboard. The API returns HTTP **503** if the matching secret is unset:
+
+- **OpenAI** (default): `OPENAI_API_KEY`, optional `OPENAI_ASSISTANT_MODEL_*` overrides where the code reads them.
+- **Kimi**: `KIMI_API_KEY`, optional `KIMI_BASE_URL`, `KIMI_MODEL_*`.
+- **OpenRouter**: `OPENROUTER_API_KEY`, optional `OPENROUTER_BASE_URL` (defaults to `https://openrouter.ai/api/v1`), optional `OPENROUTER_ASSISTANT_MODEL_*` (defaults include `qwen/qwen3.6-plus:free`), optional `OPENROUTER_HTTP_REFERER` and `OPENROUTER_APP_NAME`.
+
+#### Teller mTLS on Cloudflare
+
+```bash
+bunx wrangler mtls-certificate upload --cert teller-cert.pem --key teller-key.pem --name teller
+```
+
+Set `TELLER_MTLS_CERTIFICATE` in the deployed Worker environment to the returned certificate id.
+
+Convex functions for this app live under `dashboard/convex`. For Convex’s CLI and patterns, see [Convex docs](https://docs.convex.dev).
 
 ### UK Filing Runtime
 
@@ -359,9 +388,10 @@ bun run preflight:cloudflare:production
 ## Deployment notes
 
 - `dashboard` is the single Cloudflare deployment target for app, API, and async runtime behavior.
-- `dashboard/wrangler.start.jsonc` is the deploy/runtime entrypoint for Cloudflare.
+- **`wrangler.jsonc`** at the **repository root** is the only Wrangler configuration. Build artifacts live under `dashboard/dist/` as referenced there.
+- **`.wrangler/`** (under the repo or `dashboard`) is Wrangler’s local cache; it is **gitignored** and should not be committed.
 - `dashboard` now serves both `app.tamias.xyz` and `tamias.xyz`; public-site routes are host-rewritten into the internal `/site` tree.
-- Dashboard preflight includes the Vite production build and a Wrangler `deploy --dry-run` against the matching `wrangler.start.jsonc`.
+- Dashboard preflight runs the Vite production build then Wrangler `deploy --dry-run` with **`../wrangler.jsonc`**.
 - GitHub Actions deploys expect these repository secrets:
   - `CLOUDFLARE_API_TOKEN`
   - `CLOUDFLARE_ACCOUNT_ID`
@@ -374,12 +404,13 @@ bun run preflight:cloudflare:production
 
 ## Deeper docs
 
-There is one documentation layer in this repo:
+Engineering notes live under **`docs/`**:
 
-- Deeper engineering notes in `docs`
-
-Current internal docs include:
-
+- `docs/banking.md` — banking provider integration (multi-provider facade)
+- `docs/accounting.md` — accounting integration notes
+- `docs/categories.md` — categories and tax helpers
+- `docs/inbox.md` — inbox connectors
+- `docs/insights.md` — insights and metrics generation
 - `docs/weekly-insights.md`
 - `docs/inbox-matching.md`
 - `docs/invoice-recurring.md`
@@ -387,13 +418,14 @@ Current internal docs include:
 - `docs/uk-compliance.md`
 - `docs/year-end-operations.md`
 - `docs/payroll-operations.md`
+- `docs/companies-house-filing.md`
 
 ## Troubleshooting
 
 - Dashboard loads but API-backed data fails:
   `API_URL` is wrong, or the API is not running.
 - Login/signup fails:
-  Convex is not running, or the Convex URLs do not match the active deployment.
+  Convex is not running, or `CONVEX_URL` / `CONVEX_SITE_URL` in the repo root `.env` do not match the active deployment.
 - Queue-backed features do nothing:
   the unified async runtime is misconfigured or local bridge fallback vars (`CLOUDFLARE_ASYNC_BRIDGE_URL` / `CLOUDFLARE_ASYNC_BRIDGE_TOKEN`) are wrong.
 - Public invoice downloads fail:

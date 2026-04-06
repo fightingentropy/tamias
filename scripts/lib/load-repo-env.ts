@@ -44,7 +44,6 @@ function loadEnvFile(filePath: string) {
 export function loadRepoEnv() {
   const repoRoot = process.cwd();
 
-  loadEnvFile(path.join(repoRoot, "apps", "dashboard", ".env.local"));
-  loadEnvFile(path.join(repoRoot, "apps", "api", ".env"));
-  loadEnvFile(path.join(repoRoot, "apps", "worker", ".env"));
+  loadEnvFile(path.join(repoRoot, ".env"));
+  loadEnvFile(path.join(repoRoot, ".env.local"));
 }

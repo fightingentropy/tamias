@@ -16,7 +16,6 @@
     "ai": "catalog:"
   },
   "devDependencies": {
-    "@tamias/tsconfig": "workspace:*",
     "typescript": "catalog:"
   }
 }

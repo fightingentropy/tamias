@@ -50,7 +50,7 @@ export function getConvexServiceKey() {
   }
 
   throw new Error(
-    "Missing CONVEX_SERVICE_KEY. For `wrangler dev` (api), add the deploy key to api/.dev.vars (Wrangler secrets), not only api/.env.",
+    "Missing CONVEX_SERVICE_KEY. Add it to the repo root `.env` for Vite/Bun. For standalone `wrangler dev`, also set it in `.dev.vars` next to `wrangler.jsonc` (or symlink `.dev.vars` to `.env`).",
   );
 }
 

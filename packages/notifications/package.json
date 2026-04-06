@@ -24,7 +24,6 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@tamias/tsconfig": "workspace:*",
     "typescript": "catalog:"
   }
 }

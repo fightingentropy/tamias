@@ -1,18 +1,3 @@
 {
-  "compilerOptions": {
-    "lib": ["ESNext"],
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleDetection": "force",
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
-    "noEmit": true,
-    "strict": true,
-    "skipLibCheck": true,
-    "jsx": "react-jsx",
-    "jsxImportSource": "react"
-  },
-  "include": ["src"],
-  "exclude": ["node_modules"]
+  "extends": "../../config/tsconfig/trpc.json"
 }

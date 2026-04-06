@@ -1,8 +1,5 @@
 {
-  "extends": "@tamias/tsconfig/base.json",
-  "compilerOptions": {
-    "typeRoots": ["../../node_modules/@types"]
-  },
-  "include": ["src"],
+  "extends": "../../config/tsconfig/package.json",
+  "include": ["."],
   "exclude": ["node_modules"]
 }

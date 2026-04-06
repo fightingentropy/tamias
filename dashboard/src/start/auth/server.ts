@@ -56,7 +56,7 @@ function requireConvexUrlForAuth(): string {
   const url = getConvexUrl().trim();
   if (!url) {
     throw new Error(
-      "CONVEX_URL is not set. Add CONVEX_URL (and typically CONVEX_SITE_URL) to dashboard/.env.local.",
+      "CONVEX_URL is not set. Add CONVEX_URL (and typically CONVEX_SITE_URL) to the repo root `.env`.",
     );
   }
   return url;

@@ -1,0 +1,13 @@
+{
+  "extends": "./worker.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "../../worker/dist",
+    "rootDir": "../../worker/src",
+    "allowImportingTsExtensions": false,
+    "declaration": false,
+    "sourceMap": false
+  },
+  "include": ["../../worker/src"],
+  "exclude": ["../../worker/src/**/*.test.ts", "../../worker/src/**/*.test.tsx"]
+}

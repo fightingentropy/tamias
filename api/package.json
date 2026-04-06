@@ -8,7 +8,7 @@
     "predev": "bun run prompts:generate",
     "pretypecheck": "bun run prompts:generate",
     "typecheck": "tsc --noEmit",
-    "test": "find src -name '*.test.ts' -o -name '*.spec.ts' | grep -q . && bun test --exit src || echo 'No tests yet'"
+    "test": "find src -name '*.test.ts' -o -name '*.spec.ts' | grep -q . && bun test --preload ./src/__tests__/setup.ts --exit src || echo 'No tests yet'"
   },
   "exports": {
     ".": "./src/index.ts",
