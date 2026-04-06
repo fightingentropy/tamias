@@ -1,5 +1,5 @@
 {
-  "extends": "../../config/tsconfig/package.json",
+  "extends": "../../config/tsconfig/package-preset.json",
   "include": ["."],
   "exclude": ["node_modules", "evals"]
 }

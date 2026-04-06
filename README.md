@@ -177,6 +177,8 @@ App-owned modules that are no longer shared packages:
 
 ### Install
 
+Run **`bun install` at the repository root** only. Bun uses a hoisted layout: most dependencies live in the root `node_modules`, and individual workspaces may still show small local `node_modules` folders for scoped packages or tooling (for example Vite or Wrangler caches).
+
 ```bash
 bun install
 ```
@@ -301,11 +303,7 @@ The current UK filing paths split by authority and transport:
 - `HMRC corporation tax`: CT600/iXBRL generation plus Transaction Engine submit/poll. Runtime is switchable between `test` and `production`, but should stay on `test` by default until you have live sender credentials and a real company UTR.
 - `Companies House annual accounts`: XML gateway submission from the year-end workspace using presenter credentials and the company authentication code saved in compliance settings.
 
-Key operator docs:
-
-- `docs/uk-compliance.md`
-- `docs/year-end-operations.md`
-- `docs/companies-house-filing.md`
+Additional compliance and filing runbooks belong in **`docs/`** as they are added.
 
 ### Start the stack
 
@@ -404,21 +402,17 @@ bun run preflight:cloudflare:production
 
 ## Deeper docs
 
-Engineering notes live under **`docs/`**:
+Engineering notes live under **`docs/`** (see the folder for the full list). Highlights:
 
+- `docs/design.md` — product UI design language and source-of-truth file references
+- `docs/accounting-architecture.md` — accounting sync integration architecture (deep dive)
 - `docs/banking.md` — banking provider integration (multi-provider facade)
 - `docs/accounting.md` — accounting integration notes
 - `docs/categories.md` — categories and tax helpers
 - `docs/inbox.md` — inbox connectors
 - `docs/insights.md` — insights and metrics generation
-- `docs/weekly-insights.md`
-- `docs/inbox-matching.md`
-- `docs/invoice-recurring.md`
-- `docs/document-processing.md`
-- `docs/uk-compliance.md`
-- `docs/year-end-operations.md`
-- `docs/payroll-operations.md`
-- `docs/companies-house-filing.md`
+
+API assistant **prompt templates** live in **`docs/ai/prompts/`** and are bundled into `api` with `bun run prompts:generate` from the **`api`** workspace (writes `api/src/ai/agents/config/generated-prompts.ts`).
 
 ## Troubleshooting
 

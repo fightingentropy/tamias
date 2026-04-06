@@ -1,9 +1,17 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-const rootDir = join(import.meta.dir, "..");
-const promptsDir = join(rootDir, "src", "ai", "agents", "config");
-const outputPath = join(promptsDir, "generated-prompts.ts");
+const apiDir = join(import.meta.dir, "..");
+const repoRoot = join(apiDir, "..");
+const promptsDir = join(repoRoot, "docs", "ai", "prompts");
+const outputPath = join(
+  apiDir,
+  "src",
+  "ai",
+  "agents",
+  "config",
+  "generated-prompts.ts",
+);
 
 const files = {
   memoryTemplate: "memory-template.md",
