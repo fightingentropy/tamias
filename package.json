@@ -43,6 +43,8 @@
     "backfill:transaction-match-suggestion-learning-fields": "bun --env-file=.env run scripts/backfill-transaction-match-suggestion-learning-fields.ts",
     "backfill:tracker-project-tag-sort-fields": "bun --env-file=.env run scripts/backfill-tracker-project-tag-sort-fields.ts",
     "backfill:transaction-report-aggregates": "bun --env-file=.env run scripts/backfill-transaction-report-aggregates.ts",
+    "seed:marlowe-plaid": "bun --env-file=.env run scripts/seed-marlowe-plaid-replace.ts",
+    "test:marlowe-plaid-e2e": "MARLOWE_PLAID_E2E=1 bun --env-file=.env test scripts/marlowe-plaid-replace.e2e.test.ts",
     "backfill:transaction-tag-sort-fields": "bun --env-file=.env run scripts/backfill-transaction-tag-sort-fields.ts",
     "format": "prettier --write .",
     "git:doctor": "bun run scripts/git-doctor.ts",

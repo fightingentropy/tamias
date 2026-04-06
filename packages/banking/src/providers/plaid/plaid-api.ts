@@ -8,7 +8,9 @@ import {
   PlaidApi as PlaidBaseApi,
   PlaidEnvironments,
   Products,
+  SandboxItemFireWebhookRequestWebhookCodeEnum,
   type Transaction,
+  WebhookType,
 } from "plaid";
 import { env } from "../../env";
 import type { ConnectionStatus, GetInstitutionsRequest } from "../../types";
@@ -32,8 +34,15 @@ import type {
 } from "./types";
 import { isError } from "./utils";
 
-/** Plaid API host: sandbox only for now (Tamias may run with `TAMIAS_ENVIRONMENT=production`). */
-const PLAID_API_HOST: keyof typeof PlaidEnvironments = "sandbox";
+function resolvePlaidBasePath(): string {
+  const tier = env.PLAID_ENVIRONMENT.trim().toLowerCase();
+
+  if (tier === "production") {
+    return PlaidEnvironments.production;
+  }
+
+  return PlaidEnvironments.sandbox;
+}
 
 export class PlaidApi {
   #client: PlaidBaseApi;
@@ -47,7 +56,7 @@ export class PlaidApi {
     this.#clientSecret = env.PLAID_SECRET;
 
     const configuration = new Configuration({
-      basePath: PlaidEnvironments[PLAID_API_HOST],
+      basePath: resolvePlaidBasePath(),
       baseOptions: {
         headers: {
           "PLAID-CLIENT-ID": this.#clientId,
@@ -169,29 +178,53 @@ export class PlaidApi {
 
         transactions = data.transactions;
       } else {
-        // Get all transactions using /transactions/sync
-        let cursor: string | undefined;
-        let hasMore = true;
+        // Get all transactions using /transactions/sync (retry if cursor invalidated mid-pagination).
+        const maxSyncAttempts = 5;
+        let syncAttempt = 0;
 
-        while (hasMore) {
-          const { data } = await withRateLimitRetry(() =>
-            this.#client.transactionsSync({
-              access_token: accessToken,
-              cursor,
-            }),
-          );
+        while (syncAttempt < maxSyncAttempts) {
+          syncAttempt += 1;
+          let cursor: string | undefined;
+          let hasMore = true;
+          transactions = [];
 
-          transactions = transactions.concat(data.added);
-          hasMore = data.has_more;
-          cursor = data.next_cursor;
+          try {
+            while (hasMore) {
+              const { data } = await withRateLimitRetry(() =>
+                this.#client.transactionsSync({
+                  access_token: accessToken,
+                  cursor,
+                }),
+              );
+
+              transactions = transactions.concat(data.added);
+              hasMore = data.has_more;
+              cursor = data.next_cursor;
+            }
+            break;
+          } catch (loopError) {
+            const syncMutation = isError(loopError);
+            if (
+              syncMutation &&
+              syncMutation.code === "TRANSACTIONS_SYNC_MUTATION_DURING_PAGINATION" &&
+              syncAttempt < maxSyncAttempts
+            ) {
+              continue;
+            }
+
+            const parsedError = isError(loopError);
+            if (parsedError) {
+              throw new ProviderError(parsedError);
+            }
+            throw loopError;
+          }
         }
       }
 
-      // NOTE: Plaid transactions for all accounts
-      // we need to filter based on the provided accountId and pending status
-      return transactions
-        .filter((transaction) => transaction.account_id === accountId)
-        .filter((transaction) => !transaction.pending);
+      // Plaid returns transactions for every account on the item; scope to this account.
+      // Include pending: sandbox and fresh links often only have pending rows at first; dropping
+      // them made initial sync report success while importing zero rows.
+      return transactions.filter((transaction) => transaction.account_id === accountId);
     } catch (error) {
       const parsedError = isError(error);
 
@@ -248,6 +281,53 @@ export class PlaidApi {
     return this.#client.itemPublicTokenExchange({
       public_token: publicToken,
     });
+  }
+
+  /**
+   * Sandbox-only: create a public token for an institution so local/dev seeds can skip Link UI.
+   * Default Plaid test user is `user_good`; pass `user_transactions_dynamic` via `overrideUsername` when your institution supports it (often US items).
+   */
+  async sandboxPublicTokenCreate(args: {
+    institutionId: string;
+    overrideUsername?: string;
+  }): Promise<string> {
+    if (env.PLAID_ENVIRONMENT.trim().toLowerCase() !== "sandbox") {
+      throw new Error(
+        "sandboxPublicTokenCreate only works when PLAID_ENVIRONMENT=sandbox. Production Plaid has no sandbox token endpoint.",
+      );
+    }
+
+    const { data } = await this.#client.sandboxPublicTokenCreate({
+      institution_id: args.institutionId,
+      initial_products: [Products.Transactions],
+      options: {
+        override_username: args.overrideUsername ?? "user_good",
+        override_password: "pass_good",
+      },
+    });
+
+    return data.public_token;
+  }
+
+  /** Sandbox-only: nudge transaction data generation for fresh Items (helps E2E). */
+  async sandboxFireTransactionsDefaultUpdate(accessToken: string): Promise<void> {
+    if (env.PLAID_ENVIRONMENT.trim().toLowerCase() !== "sandbox") {
+      return;
+    }
+
+    await this.#client.sandboxItemFireWebhook({
+      access_token: accessToken,
+      webhook_type: WebhookType.Transactions,
+      webhook_code: SandboxItemFireWebhookRequestWebhookCodeEnum.DefaultUpdate,
+    });
+  }
+
+  async itemGet(accessToken: string) {
+    const { data } = await this.#client.itemGet({
+      access_token: accessToken,
+    });
+
+    return data.item;
   }
 
   async deleteAccounts({ accessToken }: DisconnectAccountRequest) {

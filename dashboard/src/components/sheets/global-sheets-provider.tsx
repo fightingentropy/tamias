@@ -122,7 +122,7 @@ export function GlobalSheetsProvider() {
       return;
     }
 
-    if (inboxParams.type === "details") {
+    if (inboxParams.inboxId && inboxParams.type === "details") {
       setInboxParams({
         inboxId: null,
         type: null,

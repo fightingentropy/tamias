@@ -14,6 +14,7 @@ import { Route as UpgradeRouteImport } from './routes/upgrade'
 import { Route as TransactionsRouteImport } from './routes/transactions'
 import { Route as TrackerRouteImport } from './routes/tracker'
 import { Route as TeamsRouteImport } from './routes/teams'
+import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as OauthCallbackRouteImport } from './routes/oauth-callback'
 import { Route as LoginRouteImport } from './routes/login'
@@ -86,6 +87,11 @@ const TeamsRoute = TeamsRouteImport.update({
   path: '/teams',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/teams.lazy').then((d) => d.Route))
+const ReportsRoute = ReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/reports.lazy').then((d) => d.Route))
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -367,6 +373,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/oauth-callback': typeof OauthCallbackRoute
   '/onboarding': typeof OnboardingRoute
+  '/reports': typeof ReportsRoute
   '/teams': typeof TeamsRoute
   '/tracker': typeof TrackerRoute
   '/transactions': typeof TransactionsRouteWithChildren
@@ -420,6 +427,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/oauth-callback': typeof OauthCallbackRoute
   '/onboarding': typeof OnboardingRoute
+  '/reports': typeof ReportsRoute
   '/teams': typeof TeamsRoute
   '/tracker': typeof TrackerRoute
   '/transactions': typeof TransactionsRouteWithChildren
@@ -474,6 +482,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/oauth-callback': typeof OauthCallbackRoute
   '/onboarding': typeof OnboardingRoute
+  '/reports': typeof ReportsRoute
   '/teams': typeof TeamsRoute
   '/tracker': typeof TrackerRoute
   '/transactions': typeof TransactionsRouteWithChildren
@@ -529,6 +538,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/oauth-callback'
     | '/onboarding'
+    | '/reports'
     | '/teams'
     | '/tracker'
     | '/transactions'
@@ -582,6 +592,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/oauth-callback'
     | '/onboarding'
+    | '/reports'
     | '/teams'
     | '/tracker'
     | '/transactions'
@@ -635,6 +646,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/oauth-callback'
     | '/onboarding'
+    | '/reports'
     | '/teams'
     | '/tracker'
     | '/transactions'
@@ -689,6 +701,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   OauthCallbackRoute: typeof OauthCallbackRoute
   OnboardingRoute: typeof OnboardingRoute
+  ReportsRoute: typeof ReportsRoute
   TeamsRoute: typeof TeamsRoute
   TrackerRoute: typeof TrackerRoute
   TransactionsRoute: typeof TransactionsRouteWithChildren
@@ -761,6 +774,13 @@ declare module '@tanstack/react-router' {
       path: '/teams'
       fullPath: '/teams'
       preLoaderRoute: typeof TeamsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reports': {
+      id: '/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof ReportsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding': {
@@ -1177,6 +1197,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   OauthCallbackRoute: OauthCallbackRoute,
   OnboardingRoute: OnboardingRoute,
+  ReportsRoute: ReportsRoute,
   TeamsRoute: TeamsRoute,
   TrackerRoute: TrackerRoute,
   TransactionsRoute: TransactionsRouteWithChildren,

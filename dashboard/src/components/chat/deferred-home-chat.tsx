@@ -1,7 +1,5 @@
 "use client";
 
-import { Button } from "@tamias/ui/button";
-import { Icons } from "@tamias/ui/icons";
 import { Spinner } from "@tamias/ui/spinner";
 import dynamic from "@/framework/dynamic";
 import { useEffect, useState } from "react";
@@ -21,38 +19,23 @@ const DeferredChatInterface = dynamic(loadChatInterface, {
   ),
 });
 
-export function DeferredHomeChat() {
+interface DeferredHomeChatProps {
+  forceOpen?: boolean;
+}
+
+export function DeferredHomeChat({ forceOpen }: DeferredHomeChatProps) {
   const { isChatPage } = useChatInterface();
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    if (isChatPage) {
+    if (isChatPage || forceOpen) {
       setIsOpen(true);
     }
-  }, [isChatPage]);
+  }, [isChatPage, forceOpen]);
 
   if (isOpen || isChatPage) {
     return <DeferredChatInterface />;
   }
 
-  const prefetchChatInterface = () => {
-    void loadChatInterface();
-  };
-
-  return (
-    <>
-      <div className="mt-8 mb-10 flex justify-center">
-        <Button
-          variant="outline"
-          className="h-11 rounded-full px-5 text-sm"
-          onMouseEnter={prefetchChatInterface}
-          onFocus={prefetchChatInterface}
-          onClick={() => setIsOpen(true)}
-        >
-          <Icons.AI className="mr-2 size-4" />
-          Open assistant
-        </Button>
-      </div>
-    </>
-  );
+  return null;
 }
