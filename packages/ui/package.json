@@ -4,8 +4,7 @@
   "private": true,
   "sideEffects": false,
   "files": [
-    "tailwind.config.mjs",
-    "tailwind.config.d.ts",
+    "tailwind.config.ts",
     "postcss.config.js",
     "globals.css"
   ],
@@ -61,8 +60,8 @@
     "./table": "./src/components/table.tsx",
     "./tabs": "./src/components/tabs.tsx",
     "./tailwind.config": {
-      "types": "./tailwind.config.d.ts",
-      "default": "./tailwind.config.mjs"
+      "types": "./tailwind.config.ts",
+      "default": "./tailwind.config.ts"
     },
     "./textarea": "./src/components/textarea.tsx",
     "./toast": "./src/components/toast.tsx",

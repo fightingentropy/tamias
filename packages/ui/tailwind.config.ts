@@ -1,6 +1,7 @@
+import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
 
-export default {
+const config = {
   darkMode: ["class"],
   content: ["./src/**/*.{ts,tsx}"],
   safelist: ["dark", "light"],
@@ -151,4 +152,6 @@ export default {
     },
   },
   plugins: [tailwindcssAnimate],
-};
+} satisfies Config;
+
+export default config;

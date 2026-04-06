@@ -119,7 +119,7 @@ function classify(files: string[]): {
   };
 
   const rootDepPattern =
-    /^(package\.json|bun\.lock|eslint\.config\.mjs|\.prettierignore|\.prettierrc|bunfig\.toml|tsconfig\.json|wrangler\.jsonc)/;
+    /^(package\.json|bun\.lock|eslint\.config\.ts|\.prettierignore|\.prettierrc|bunfig\.toml|tsconfig\.json|wrangler\.jsonc)/;
 
   let sharedSurfaceTouched = false;
   for (const f of nonIgnorable) {

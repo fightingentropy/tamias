@@ -41,7 +41,7 @@ When in doubt, match the authenticated product UI unless the page is clearly mar
 The most important files for the design system are:
 
 - `packages/ui/src/globals.css` (theme tokens, **typography CSS variables**, base `body` styles)
-- `packages/ui/tailwind.config.mjs` (Tailwind theme extensions, **font families**)
+- `packages/ui/tailwind.config.ts` (Tailwind theme extensions, **font families**)
 - `packages/ui/src/components/*`
 - `dashboard/src/start/root-shell.tsx` (document shell, **Google Fonts** for Hedvig)
 - `dashboard/src/start/routes/__root.tsx` (root route metadata and layout wiring)
@@ -129,7 +129,7 @@ These are the same type families as [Midday](https://midday.ai)’s website and 
 
 1. **`packages/ui/src/globals.css`** — On `:root`, `--font-hedvig-sans` and `--font-hedvig-serif` are full `font-family` stacks (Hedvig first, then system UI fallbacks). Base `body` uses `font-family: var(--font-hedvig-sans)`.
 2. **`dashboard/src/start/root-shell.tsx`** — Preconnect + stylesheet for `Hedvig Letters Sans` and `Hedvig Letters Serif` with `display=swap`.
-3. **`packages/ui/tailwind.config.mjs`** — `font-sans` / `font-mono` → `var(--font-hedvig-sans)`; `font-serif` → `var(--font-hedvig-serif)`; `font-hedvig-sans` is an alias of the sans stack (e.g. charts).
+3. **`packages/ui/tailwind.config.ts`** — `font-sans` / `font-mono` → `var(--font-hedvig-sans)`; `font-serif` → `var(--font-hedvig-serif)`; `font-hedvig-sans` is an alias of the sans stack (e.g. charts).
 4. **Root `<body>`** — Applies `font-sans` so the whole app inherits the sans stack unless a component sets `font-serif` or another utility.
 
 Other surfaces (e.g. **PDF invoices** use Inter; **email** uses inline Hedvig via React Email). Those are intentional exceptions for rendering engines, not the product shell.
