@@ -303,7 +303,7 @@ The current UK filing paths split by authority and transport:
 - `HMRC corporation tax`: CT600/iXBRL generation plus Transaction Engine submit/poll. Runtime is switchable between `test` and `production`, but should stay on `test` by default until you have live sender credentials and a real company UTR.
 - `Companies House annual accounts`: XML gateway submission from the year-end workspace using presenter credentials and the company authentication code saved in compliance settings.
 
-Additional compliance and filing runbooks belong in **`docs/`** as they are added.
+Additional compliance and filing notes can be appended to **`docs.md`** or the README as they are written.
 
 ### Start the stack
 
@@ -404,17 +404,7 @@ bun run preflight:cloudflare:production
 
 ## Deeper docs
 
-Engineering notes live under **`docs/`** (see the folder for the full list). Highlights:
-
-- `docs/design.md` — product UI design language and source-of-truth file references
-- `docs/accounting-architecture.md` — accounting sync integration architecture (deep dive)
-- `docs/banking.md` — banking provider integration (multi-provider facade)
-- `docs/accounting.md` — accounting integration notes
-- `docs/categories.md` — categories and tax helpers
-- `docs/inbox.md` — inbox connectors
-- `docs/insights.md` — insights and metrics generation
-
-API assistant **prompt templates** live in **`docs/ai/prompts/`** and are bundled into `api` with `bun run prompts:generate` from the **`api`** workspace (writes `api/src/ai/agents/config/generated-prompts.ts`).
+Consolidated engineering documentation is in **`docs.md`** (design system, banking, accounting, categories, inbox, insights). API assistant markdown prompts live in **`agent-prompts/`** and are bundled with **`bun run --cwd api prompts:generate`** into `api/src/ai/agents/config/generated-prompts.ts`.
 
 ## Troubleshooting
 
