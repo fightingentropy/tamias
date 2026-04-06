@@ -13,31 +13,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  detect-changes:
-    name: Detect changes
-    runs-on: blacksmith-2vcpu-ubuntu-2404
-    timeout-minutes: 5
-    outputs:
-      has_affected: ${{ steps.affected.outputs.has_affected }}
-      dashboard: ${{ steps.affected.outputs.dashboard }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: ./.github/actions/setup
-
-      - name: Detect affected services
-        id: affected
-        env:
-          CI_AFFECTED_BASE: origin/main
-        run: bun run ci:affected
-
   validate:
     name: Validate
     runs-on: blacksmith-16vcpu-ubuntu-2404
-    needs: detect-changes
-    if: needs.detect-changes.outputs.has_affected == 'true'
     timeout-minutes: 20
     env:
       NODE_OPTIONS: "--max-old-space-size=8192"
@@ -53,11 +31,8 @@ jobs:
 
   deploy-dashboard-staging:
     name: Deploy Dashboard (staging)
-    needs: [detect-changes, validate]
-    if: >-
-      always() &&
-      needs.validate.result == 'success' &&
-      needs.detect-changes.outputs.dashboard == 'true'
+    needs: validate
+    if: needs.validate.result == 'success'
     runs-on: blacksmith-2vcpu-ubuntu-2404
     timeout-minutes: 20
     concurrency: cloudflare-dashboard-staging
