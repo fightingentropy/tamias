@@ -7,7 +7,7 @@ const KEY_CACHE = new Map<string, { jwk: JWKPublicKey; expiredAt: number | null 
 function getPlaidClient() {
   return new PlaidApi(
     new Configuration({
-      basePath: PlaidEnvironments[process.env.PLAID_ENVIRONMENT ?? "production"],
+      basePath: PlaidEnvironments[process.env.PLAID_ENVIRONMENT ?? "sandbox"],
       baseOptions: {
         headers: {
           "PLAID-CLIENT-ID": process.env.PLAID_CLIENT_ID!,

@@ -3,7 +3,7 @@ import { z } from "zod";
 const schema = {
   PLAID_CLIENT_ID: z.string().min(1),
   PLAID_SECRET: z.string().min(1),
-  PLAID_ENVIRONMENT: z.string().default("production"),
+  PLAID_ENVIRONMENT: z.string().default("sandbox"),
   GOCARDLESS_SECRET_ID: z.string().min(1),
   GOCARDLESS_SECRET_KEY: z.string().min(1),
   R2_ENDPOINT: z.string().url(),
