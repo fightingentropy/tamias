@@ -10,7 +10,6 @@ import {
 } from "@tamias/app-data/queries";
 import { getBankAccounts } from "@tamias/app-data/queries/bank-accounts";
 import { chatCache } from "@tamias/cache/chat-cache";
-import { TRPCError } from "@trpc/server";
 import {
   createBankAccountSchema,
   deleteBankAccountSchema,
@@ -19,7 +18,7 @@ import {
   getTransactionCountSchema,
   updateBankAccountSchema,
 } from "../../schemas/bank-accounts";
-import { createTRPCRouter, protectedProcedure } from "../init";
+import { createTRPCRouter, protectedProcedure, protectedWithConvexIdProcedure } from "../init";
 
 export const bankAccountsRouter = createTRPCRouter({
   get: protectedProcedure
@@ -101,16 +100,9 @@ export const bankAccountsRouter = createTRPCRouter({
       });
     }),
 
-  create: protectedProcedure
+  create: protectedWithConvexIdProcedure
     .input(createBankAccountSchema)
     .mutation(async ({ input, ctx: { db, teamId, session } }) => {
-      if (!session.user.convexId) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Missing Convex user id",
-        });
-      }
-
       const result = await createBankAccount(db, {
         ...input,
         teamId: teamId!,

@@ -103,7 +103,12 @@ export const customersRouter = createTRPCRouter({
           await updateCustomerEnrichmentStatus(db, {
             customerId: customer.id,
             status: null,
-          }).catch(() => {}); // Ignore errors on cleanup
+          }).catch((cleanupError) => {
+            logger.warn("Failed to reset enrichment status during cleanup", {
+              customerId: customer.id,
+              error: cleanupError instanceof Error ? cleanupError.message : String(cleanupError),
+            });
+          });
         }
       }
 

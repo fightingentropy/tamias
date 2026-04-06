@@ -19,7 +19,7 @@ import {
   reconnectBankConnectionSchema,
   updateBankConnectionReconnectByIdSchema,
 } from "../../schemas/bank-connections";
-import { createTRPCRouter, protectedProcedure } from "../init";
+import { createTRPCRouter, protectedProcedure, protectedWithConvexIdProcedure } from "../init";
 
 export const bankConnectionsRouter = createTRPCRouter({
   get: protectedProcedure
@@ -31,16 +31,9 @@ export const bankConnectionsRouter = createTRPCRouter({
       });
     }),
 
-  create: protectedProcedure
+  create: protectedWithConvexIdProcedure
     .input(createBankConnectionSchema)
     .mutation(async ({ input, ctx: { db, teamId, session } }) => {
-      if (!session.user.convexId) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Missing Convex user id",
-        });
-      }
-
       const data = await createBankConnection(db, {
         ...input,
         teamId: teamId!,
@@ -85,7 +78,10 @@ export const bankConnectionsRouter = createTRPCRouter({
       });
 
       if (!data) {
-        throw new Error("Bank connection not found");
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Bank connection not found",
+        });
       }
 
       await enqueue(
@@ -104,16 +100,9 @@ export const bankConnectionsRouter = createTRPCRouter({
       return data;
     }),
 
-  addAccounts: protectedProcedure
+  addAccounts: protectedWithConvexIdProcedure
     .input(addProviderAccountsSchema)
     .mutation(async ({ input, ctx: { db, teamId, session } }) => {
-      if (!session.user.convexId) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Missing Convex user id",
-        });
-      }
-
       const result = await addProviderAccounts(db, {
         connectionId: input.connectionId,
         teamId: teamId!,

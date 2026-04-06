@@ -1,5 +1,8 @@
 import type { Session } from "@tamias/auth-session";
 import { cancelRun, enqueue } from "@tamias/job-client";
+import { createLoggerWithContext } from "@tamias/logger";
+
+const logger = createLoggerWithContext("invoice:transport");
 
 type InvoiceTransportLogger = {
   error: (message: string, payload?: Record<string, unknown>) => void;
@@ -106,5 +109,10 @@ export function enqueueInvoiceScheduledNotification(args: {
       customerName: args.customerName,
     },
     "notifications",
-  ).catch(() => {});
+  ).catch((error) => {
+    logger.warn("Failed to enqueue invoice scheduled notification", {
+      invoiceId: args.invoiceId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  });
 }

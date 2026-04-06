@@ -6,30 +6,27 @@ import {
   computeRecovery,
   computeRollingAverages,
   computeStreakInfo,
+  getCashBalance,
+  getCashFlow,
   getDraftInvoices,
   getInsightActivityData,
   getInsightHistory,
+  getOverdueInvoicesAlert,
   getOverdueInvoicesSummary,
   getOverdueInvoicesWithBehavior,
   getPredictionsFromHistory,
+  getProfit,
+  getRevenue,
   getRevenueConcentration,
+  getRunway,
+  getSpending,
+  getSpendingForPeriod,
   getUpcomingInvoicesForInsight,
   getUpcomingDueRecurringByTeam,
   type InsightHistoryData,
 } from "@tamias/app-data/queries";
 
 const logger = createLoggerWithContext("insights");
-
-import {
-  getCashBalance,
-  getCashFlow,
-  getOverdueInvoicesAlert,
-  getProfit,
-  getRevenue,
-  getRunway,
-  getSpending,
-  getSpendingForPeriod,
-} from "@tamias/app-data/queries";
 import { ContentGenerator, type YearOverYearContext } from "./content/generator";
 import {
   addActivityMetrics,

@@ -9,7 +9,7 @@ import {
   trackSuggestedActionUsageSchema,
 } from "../../schemas/suggested-actions";
 import { isMissingConvexServiceKeyError } from "../convex-service-dev-fallback";
-import { createTRPCRouter, protectedProcedure } from "../init";
+import { createTRPCRouter, protectedProcedure, protectedWithConvexIdProcedure } from "../init";
 
 export const suggestedActionsRouter = createTRPCRouter({
   list: protectedProcedure
@@ -50,13 +50,9 @@ export const suggestedActionsRouter = createTRPCRouter({
       }
     }),
 
-  trackUsage: protectedProcedure
+  trackUsage: protectedWithConvexIdProcedure
     .input(trackSuggestedActionUsageSchema)
     .mutation(async ({ ctx: { teamId, session }, input }) => {
-      if (!session.user.convexId) {
-        throw new Error("Missing Convex user id");
-      }
-
       if (isHostedConvexMissingServiceKey()) {
         return { success: true };
       }

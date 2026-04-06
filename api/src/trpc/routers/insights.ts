@@ -20,7 +20,7 @@ import {
   markInsightAsReadSchema,
 } from "../../schemas/insights";
 import { getVaultSignedUrl } from "../../services/storage";
-import { createTRPCRouter, protectedProcedure } from "../init";
+import { createTRPCRouter, protectedProcedure, protectedWithConvexIdProcedure } from "../init";
 
 const logger = createLoggerWithContext("trpc:insights");
 
@@ -29,16 +29,9 @@ export const insightsRouter = createTRPCRouter({
    * Get paginated list of insights for the team with user's read/dismiss status
    * By default, filters out insights the user has dismissed
    */
-  list: protectedProcedure
+  list: protectedWithConvexIdProcedure
     .input(listInsightsSchema)
     .query(async ({ ctx: { db, teamId, session }, input }) => {
-      if (!session.user.convexId) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Missing Convex user id",
-        });
-      }
-
       return getInsightsForUser(db, {
         teamId: teamId!,
         userId: session.user.convexId,
@@ -181,16 +174,9 @@ export const insightsRouter = createTRPCRouter({
    * Mark an insight as read for the current user
    * Safe to call multiple times - only sets readAt if not already set
    */
-  markAsRead: protectedProcedure
+  markAsRead: protectedWithConvexIdProcedure
     .input(markInsightAsReadSchema)
     .mutation(async ({ ctx: { db, teamId, session }, input }) => {
-      if (!session.user.convexId) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Missing Convex user id",
-        });
-      }
-
       // Verify the insight belongs to the user's team
       const insight = await getInsightById(db, {
         id: input.id,
@@ -216,16 +202,9 @@ export const insightsRouter = createTRPCRouter({
    * Dismiss an insight for the current user
    * The insight will no longer appear in their list unless includeDismissed is true
    */
-  dismiss: protectedProcedure
+  dismiss: protectedWithConvexIdProcedure
     .input(dismissInsightSchema)
     .mutation(async ({ ctx: { db, teamId, session }, input }) => {
-      if (!session.user.convexId) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Missing Convex user id",
-        });
-      }
-
       // Verify the insight belongs to the user's team
       const insight = await getInsightById(db, {
         id: input.id,

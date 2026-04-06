@@ -8,16 +8,12 @@ import {
   updateAllNotificationsStatusSchema,
   updateNotificationStatusSchema,
 } from "../../schemas/notifications";
-import { createTRPCRouter, protectedProcedure } from "../init";
+import { createTRPCRouter, protectedProcedure, protectedWithConvexIdProcedure } from "../init";
 
 export const notificationsRouter = createTRPCRouter({
-  list: protectedProcedure
+  list: protectedWithConvexIdProcedure
     .input(getNotificationsSchema.optional())
     .query(async ({ ctx: { teamId, db, session }, input }) => {
-      if (!session.user.convexId) {
-        throw new Error("Missing Convex user id");
-      }
-
       return getActivities(db, {
         ...input,
         teamId: teamId!,
@@ -31,13 +27,9 @@ export const notificationsRouter = createTRPCRouter({
       return updateActivityStatus(db, input.activityId, input.status, teamId!);
     }),
 
-  updateAllStatus: protectedProcedure
+  updateAllStatus: protectedWithConvexIdProcedure
     .input(updateAllNotificationsStatusSchema)
     .mutation(async ({ ctx: { db, teamId, session }, input }) => {
-      if (!session.user.convexId) {
-        throw new Error("Missing Convex user id");
-      }
-
       return updateAllActivitiesStatus(db, teamId!, input.status, {
         userId: session.user.convexId,
       });

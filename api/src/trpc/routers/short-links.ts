@@ -8,19 +8,16 @@ import {
   getShortLinkSchema,
 } from "../../schemas/short-links";
 import { getVaultSignedUrl } from "../../services/storage";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../init";
+import {
+  createTRPCRouter,
+  protectedWithConvexIdProcedure,
+  publicProcedure,
+} from "../init";
 
 export const shortLinksRouter = createTRPCRouter({
-  createForUrl: protectedProcedure
+  createForUrl: protectedWithConvexIdProcedure
     .input(createShortLinkSchema)
     .mutation(async ({ ctx: { db, teamId, session }, input }) => {
-      if (!session.user.convexId) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Missing Convex user id",
-        });
-      }
-
       const result = await createShortLink(db, {
         url: input.url,
         teamId: teamId!,
@@ -38,16 +35,9 @@ export const shortLinksRouter = createTRPCRouter({
       };
     }),
 
-  createForDocument: protectedProcedure
+  createForDocument: protectedWithConvexIdProcedure
     .input(createShortLinkForDocumentSchema)
     .mutation(async ({ ctx: { db, teamId, session }, input }) => {
-      if (!session.user.convexId) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Missing Convex user id",
-        });
-      }
-
       const document = await getDocumentById(db, {
         id: input.documentId,
         filePath: input.filePath,
