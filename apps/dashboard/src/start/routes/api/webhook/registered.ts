@@ -32,8 +32,24 @@ export const Route = createAppPublicFileRoute("/api/webhook/registered")({
           return Response.json({ message: "Not Authorized" }, { status: 401 });
         }
 
-        const body = await request.json();
-        const email = body.record.email;
+        const bodyRaw: unknown = await request.json();
+        if (
+          bodyRaw === null ||
+          typeof bodyRaw !== "object" ||
+          !("record" in bodyRaw)
+        ) {
+          return Response.json({ message: "Invalid body" }, { status: 400 });
+        }
+        const record = (bodyRaw as { record: unknown }).record;
+        if (
+          record === null ||
+          typeof record !== "object" ||
+          !("email" in record) ||
+          typeof (record as { email: unknown }).email !== "string"
+        ) {
+          return Response.json({ message: "Invalid record" }, { status: 400 });
+        }
+        const email = (record as { email: string }).email;
         const analytics = await setupAnalytics();
 
         analytics.track({

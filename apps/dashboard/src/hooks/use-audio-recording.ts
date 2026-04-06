@@ -145,13 +145,23 @@ export function useAudioRecording(): UseAudioRecordingReturn {
           );
         }
 
-        const data = await response.json();
-
-        if (!data.success) {
-          throw new Error(data.error || "Transcription failed");
+        const data: unknown = await response.json();
+        if (data === null || typeof data !== "object") {
+          throw new Error("Invalid transcription response");
+        }
+        const payload = data as Record<string, unknown>;
+        if (payload.success !== true) {
+          throw new Error(
+            typeof payload.error === "string"
+              ? payload.error
+              : "Transcription failed",
+          );
+        }
+        if (typeof payload.text !== "string") {
+          throw new Error("Transcription response missing text");
         }
 
-        return data.text;
+        return payload.text;
       } catch (error) {
         console.error("Error transcribing audio:", error);
         throw error;

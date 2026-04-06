@@ -117,7 +117,17 @@ export function useAppOAuth({
         throw new Error(`Failed to get install URL: ${response.statusText}`);
       }
 
-      const { url } = await response.json();
+      const raw: unknown = await response.json();
+      if (
+        raw === null ||
+        typeof raw !== "object" ||
+        !("url" in raw) ||
+        typeof (raw as { url: unknown }).url !== "string"
+      ) {
+        popup?.close();
+        throw new Error("Invalid install URL response");
+      }
+      const { url } = raw as { url: string };
 
       // If popup was blocked or closed, fall back to same-window navigation
       if (!popup || popup.closed) {

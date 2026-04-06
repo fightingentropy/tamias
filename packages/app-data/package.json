@@ -13,6 +13,7 @@
   "exports": {
     "./client": "./src/client.ts",
     "./convex": "./src/convex/index.ts",
+    "./convex/chat-memory": "./src/convex/chat-memory.ts",
     "./convex/api": "./src/convex/api.ts",
     "./convex/data-model": "./src/convex/data-model.ts",
     "./errors": "./src/errors.ts",

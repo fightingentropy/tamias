@@ -363,9 +363,18 @@ export async function proxyAuthActionRequest(request: Request) {
 
   const host = getRequestHost(request);
   const authState = readAuthCookiesFromRequest(request);
-  const body = await request.json();
-  const action = body?.action;
-  const args = body?.args ?? {};
+  const bodyRaw: unknown = await request.json();
+  if (bodyRaw === null || typeof bodyRaw !== "object") {
+    return new Response("Invalid body", { status: 400 });
+  }
+  const body = bodyRaw as { action?: unknown; args?: unknown };
+  const action = body.action;
+  const args: Record<string, unknown> =
+    body.args !== undefined &&
+    body.args !== null &&
+    typeof body.args === "object"
+      ? { ...(body.args as Record<string, unknown>) }
+      : {};
 
   if (action !== "auth:signIn" && action !== "auth:signOut") {
     return new Response("Invalid action", { status: 400 });
@@ -375,8 +384,18 @@ export async function proxyAuthActionRequest(request: Request) {
     args.refreshToken = authState.refreshToken;
   }
 
+  const oauthParams = args.params;
+  const oauthCode =
+    oauthParams !== undefined &&
+    oauthParams !== null &&
+    typeof oauthParams === "object" &&
+    "code" in oauthParams &&
+    typeof (oauthParams as { code: unknown }).code === "string"
+      ? (oauthParams as { code: string }).code
+      : undefined;
+
   const token =
-    action === "auth:signIn" && (args.refreshToken || args.params?.code)
+    action === "auth:signIn" && (args.refreshToken || oauthCode)
       ? undefined
       : (authState.token ?? undefined);
 

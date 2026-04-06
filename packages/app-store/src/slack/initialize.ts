@@ -8,7 +8,7 @@ export const onInitialize = async ({
   onComplete?: () => void;
 }) => {
   const apiUrl = getApiUrl();
-  const response = await fetch(`${apiUrl}/apps/slack/install-url`, {
+  const response: unknown = await fetch(`${apiUrl}/apps/slack/install-url`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
@@ -19,7 +19,16 @@ export const onInitialize = async ({
     return res.json();
   });
 
-  const { url } = response;
+  if (
+    response === null ||
+    typeof response !== "object" ||
+    !("url" in response) ||
+    typeof (response as { url: unknown }).url !== "string"
+  ) {
+    throw new Error("Invalid install URL response");
+  }
+
+  const { url } = response as { url: string };
 
   const width = 600;
   const height = 800;

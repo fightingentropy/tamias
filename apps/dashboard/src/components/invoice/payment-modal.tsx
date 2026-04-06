@@ -58,6 +58,38 @@ interface PaymentModalProps {
   useOverlay?: boolean;
 }
 
+function isPaymentIntentPayload(
+  value: unknown,
+): value is {
+  clientSecret: string;
+  stripeAccountId: string;
+  amount: number;
+  currency: string;
+} {
+  if (value === null || typeof value !== "object") {
+    return false;
+  }
+  const o = value as Record<string, unknown>;
+  return (
+    typeof o.clientSecret === "string" &&
+    typeof o.stripeAccountId === "string" &&
+    typeof o.amount === "number" &&
+    typeof o.currency === "string"
+  );
+}
+
+function errorMessageFromUnknownJson(value: unknown, fallback: string): string {
+  if (
+    value !== null &&
+    typeof value === "object" &&
+    "message" in value &&
+    typeof (value as { message: unknown }).message === "string"
+  ) {
+    return (value as { message: string }).message;
+  }
+  return fallback;
+}
+
 interface PaymentFormProps {
   onSuccess?: (paymentIntentId: string) => void;
   onCancel: () => void;
@@ -355,11 +387,19 @@ export function PaymentModal({
       );
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || "Failed to initialize payment");
+        const errorData: unknown = await response.json().catch(() => ({}));
+        throw new Error(
+          errorMessageFromUnknownJson(
+            errorData,
+            "Failed to initialize payment",
+          ),
+        );
       }
 
-      const data = await response.json();
+      const data: unknown = await response.json();
+      if (!isPaymentIntentPayload(data)) {
+        throw new Error("Invalid payment intent response");
+      }
       setPaymentData(data);
     } catch (err) {
       setError(
