@@ -1,28 +1,28 @@
 import {
-  closeCompaniesHouseTransactionSchema,
-  createCompaniesHouseRegisteredEmailAddressDraftSchema,
-  createCompaniesHouseRegisteredOfficeAddressDraftSchema,
-  createCompaniesHouseTransactionSchema,
-  deleteCompaniesHouseTransactionSchema,
-  refreshCompaniesHouseRegisteredEmailAddressDraftSchema,
-  refreshCompaniesHouseRegisteredOfficeAddressDraftSchema,
-  getCompaniesHouseTransactionSchema,
-  submitCompaniesHousePscDiscrepancyReportSchema,
-} from "../../schemas/companies-house";
-import { createTRPCRouter, protectedProcedure } from "../init";
-import {
-  getCompaniesHouseAccountsStatus,
+  closeCompaniesHouseTransaction,
   createCompaniesHouseRegisteredEmailAddressDraft,
   createCompaniesHouseRegisteredOfficeAddressDraft,
-  closeCompaniesHouseTransaction,
   createCompaniesHouseTransaction,
   deleteCompaniesHouseTransaction,
+  getCompaniesHouseAccountsStatus,
   getCompaniesHouseConnection,
   getCompaniesHouseTransaction,
   refreshCompaniesHouseRegisteredEmailAddressDraft,
   refreshCompaniesHouseRegisteredOfficeAddressDraft,
   submitCompaniesHousePscDiscrepancyReport,
 } from "@tamias/app-data/queries";
+import {
+  closeCompaniesHouseTransactionSchema,
+  createCompaniesHouseRegisteredEmailAddressDraftSchema,
+  createCompaniesHouseRegisteredOfficeAddressDraftSchema,
+  createCompaniesHouseTransactionSchema,
+  deleteCompaniesHouseTransactionSchema,
+  getCompaniesHouseTransactionSchema,
+  refreshCompaniesHouseRegisteredEmailAddressDraftSchema,
+  refreshCompaniesHouseRegisteredOfficeAddressDraftSchema,
+  submitCompaniesHousePscDiscrepancyReportSchema,
+} from "../../schemas/companies-house";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const companiesHouseRouter = createTRPCRouter({
   getConnection: protectedProcedure.query(async ({ ctx: { db, teamId } }) => {
@@ -31,11 +31,13 @@ export const companiesHouseRouter = createTRPCRouter({
     });
   }),
 
-  getAccountsStatus: protectedProcedure.query(async ({ ctx: { db, teamId } }) => {
-    return getCompaniesHouseAccountsStatus(db, {
-      teamId: teamId!,
-    });
-  }),
+  getAccountsStatus: protectedProcedure.query(
+    async ({ ctx: { db, teamId } }) => {
+      return getCompaniesHouseAccountsStatus(db, {
+        teamId: teamId!,
+      });
+    },
+  ),
 
   createRegisteredOfficeAddressDraft: protectedProcedure
     .input(createCompaniesHouseRegisteredOfficeAddressDraftSchema)

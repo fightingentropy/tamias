@@ -1,3 +1,4 @@
+import type { CurrentUserIdentityRecord } from "@tamias/app-data/convex";
 import {
   deleteTrackerEntry,
   deleteTrackerProject,
@@ -11,7 +12,6 @@ import {
   upsertTrackerProject,
 } from "@tamias/app-data/queries";
 import { getTrackerProjects } from "@tamias/app-data/queries/tracker-projects";
-import type { CurrentUserIdentityRecord } from "@tamias/app-data/convex";
 import { z } from "zod";
 import {
   deleteTrackerEntrySchema,

@@ -1,15 +1,15 @@
 import {
-  bulkUpdateNotificationSettingsSchema,
-  getNotificationSettingsSchema,
-  updateNotificationSettingSchema,
-} from "../../schemas/notification-settings";
-import { createTRPCRouter, protectedProcedure } from "../init";
-import {
   bulkUpdateNotificationSettings,
   getNotificationSettings,
   getUserNotificationPreferences,
   upsertNotificationSetting,
 } from "@tamias/app-data/queries";
+import {
+  bulkUpdateNotificationSettingsSchema,
+  getNotificationSettingsSchema,
+  updateNotificationSettingSchema,
+} from "../../schemas/notification-settings";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const notificationSettingsRouter = createTRPCRouter({
   get: protectedProcedure

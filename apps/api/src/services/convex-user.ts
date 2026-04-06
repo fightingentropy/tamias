@@ -1,7 +1,7 @@
-import { TRPCError } from "@trpc/server";
-import { ConvexHttpClient } from "convex/browser";
 import { api } from "@tamias/app-data/convex/api";
 import type { Id } from "@tamias/app-data/convex/data-model";
+import { TRPCError } from "@trpc/server";
+import { ConvexHttpClient } from "convex/browser";
 
 export { api };
 

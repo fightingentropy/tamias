@@ -1,14 +1,14 @@
 import {
+  getActivities,
+  updateActivityStatus,
+  updateAllActivitiesStatus,
+} from "@tamias/app-data/queries";
+import {
   getNotificationsSchema,
   updateAllNotificationsStatusSchema,
   updateNotificationStatusSchema,
 } from "../../schemas/notifications";
 import { createTRPCRouter, protectedProcedure } from "../init";
-import {
-  getActivities,
-  updateActivityStatus,
-  updateAllActivitiesStatus,
-} from "@tamias/app-data/queries";
 
 export const notificationsRouter = createTRPCRouter({
   list: protectedProcedure

@@ -45,27 +45,25 @@ export const teamReadProcedures = {
     return getTeamMembersFromConvex(teamId);
   }),
 
-  list: protectedProcedure.query(
-    async ({ ctx: { session, accessToken } }) => {
-      const fromAuthUser =
-        accessToken && !accessToken.startsWith("mid_")
-          ? await listTeamsForUserFromConvexAsAuthUser(accessToken)
-          : null;
+  list: protectedProcedure.query(async ({ ctx: { session, accessToken } }) => {
+    const fromAuthUser =
+      accessToken && !accessToken.startsWith("mid_")
+        ? await listTeamsForUserFromConvexAsAuthUser(accessToken)
+        : null;
 
-      if (fromAuthUser !== null) {
-        return fromAuthUser;
-      }
+    if (fromAuthUser !== null) {
+      return fromAuthUser;
+    }
 
-      if (isHostedConvexMissingServiceKey()) {
-        return [];
-      }
+    if (isHostedConvexMissingServiceKey()) {
+      return [];
+    }
 
-      return listTeamsForUserFromConvex({
-        userId: session.user.convexId,
-        email: session.user.email ?? null,
-      });
-    },
-  ),
+    return listTeamsForUserFromConvex({
+      userId: session.user.convexId,
+      email: session.user.email ?? null,
+    });
+  }),
 
   teamInvites: protectedProcedure.query(async ({ ctx: { teamId } }) => {
     if (!teamId) {

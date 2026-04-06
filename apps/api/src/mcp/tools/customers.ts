@@ -1,7 +1,4 @@
-import {
-  deleteCustomer,
-  upsertCustomer,
-} from "@tamias/app-data/queries";
+import { deleteCustomer, upsertCustomer } from "@tamias/app-data/queries";
 import {
   getCustomerByIdForTeam,
   getCustomersPage,

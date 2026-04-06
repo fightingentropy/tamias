@@ -1,17 +1,17 @@
-import { publicMiddleware } from "../../../middleware";
-import type { Context } from "../../../types";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import type { Id } from "@tamias/app-data/convex/data-model";
+import { createApp } from "@tamias/app-data/queries";
 import { config } from "@tamias/app-store/slack";
 import {
   createSlackWebClient,
   getSlackInstaller,
   publishAppHome,
 } from "@tamias/app-store/slack/server";
-import { createApp } from "@tamias/app-data/queries";
 import { logger } from "@tamias/logger";
 import { getAppUrl } from "@tamias/utils/envs";
 import { HTTPException } from "hono/http-exception";
-import type { Id } from "@tamias/app-data/convex/data-model";
+import { publicMiddleware } from "../../../middleware";
+import type { Context } from "../../../types";
 import { sendWelcomeMessage } from "./messages";
 
 type ConvexUserId = Id<"appUsers">;
@@ -240,8 +240,7 @@ app.openapi(
         });
 
         // Build redirect URL to dashboard
-        const dashboardUrl =
-          getAppUrl();
+        const dashboardUrl = getAppUrl();
 
         return c.redirect(`${dashboardUrl}/oauth-callback?status=success`, 302);
       }

@@ -1,5 +1,5 @@
-import { globalSearchSchema } from "../../schemas/search";
 import { globalSearchQuery } from "@tamias/app-data/queries";
+import { globalSearchSchema } from "../../schemas/search";
 import { hasScope, READ_ONLY_ANNOTATIONS, type RegisterTools } from "../types";
 
 export const registerSearchTools: RegisterTools = (server, ctx) => {

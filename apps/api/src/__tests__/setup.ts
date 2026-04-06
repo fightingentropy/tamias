@@ -222,146 +222,143 @@ function createModuleMock<T extends Record<string, any>>(initialExports: T): T {
 
 // Mock @tamias/app-data/queries with a module-like proxy to satisfy named imports
 const dbQueriesMock = createModuleMock({
-    // Transaction functions
-    getTransactions: mocks.getTransactions,
-    getTransactionById: mocks.getTransactionById,
-    createTransaction: mocks.createTransaction,
-    createTransactions: mocks.createTransactions,
-    updateTransaction: mocks.updateTransaction,
-    updateTransactions: mocks.updateTransactions,
-    deleteTransactions: mocks.deleteTransactions,
-    getTransactionAttachment: mocks.getTransactionAttachment,
-    getSimilarTransactions: mocks.getSimilarTransactions,
-    searchTransactionMatch: mocks.searchTransactionMatch,
-    getTransactionsReadyForExportCount:
-      mocks.getTransactionsReadyForExportCount,
-    moveTransactionToReview: mocks.moveTransactionToReview,
+  // Transaction functions
+  getTransactions: mocks.getTransactions,
+  getTransactionById: mocks.getTransactionById,
+  createTransaction: mocks.createTransaction,
+  createTransactions: mocks.createTransactions,
+  updateTransaction: mocks.updateTransaction,
+  updateTransactions: mocks.updateTransactions,
+  deleteTransactions: mocks.deleteTransactions,
+  getTransactionAttachment: mocks.getTransactionAttachment,
+  getSimilarTransactions: mocks.getSimilarTransactions,
+  searchTransactionMatch: mocks.searchTransactionMatch,
+  getTransactionsReadyForExportCount: mocks.getTransactionsReadyForExportCount,
+  moveTransactionToReview: mocks.moveTransactionToReview,
 
-    // Invoice functions
-    getInvoices: mocks.getInvoices,
-    getInvoiceById: mocks.getInvoiceById,
-    createInvoice: mocks.createInvoice,
-    updateInvoice: mocks.updateInvoice,
-    deleteInvoice: mocks.deleteInvoice,
-    draftInvoice: mocks.draftInvoice,
-    duplicateInvoice: mocks.duplicateInvoice,
-    getInvoiceNumber: mocks.getInvoiceNumber,
-    getNextInvoiceNumber: mocks.getNextInvoiceNumber,
-    getInvoiceSummary: mocks.getInvoiceSummary,
-    getInvoiceTemplate: mocks.getInvoiceTemplate,
-    getPaymentStatus: mocks.getPaymentStatus,
-    markInvoiceViewed: mock(() => ({})),
-    isInvoiceNumberUsed: mocks.isInvoiceNumberUsed,
-    searchInvoiceNumber: mocks.searchInvoiceNumber,
-    getAverageDaysToPayment: mocks.getAverageDaysToPayment,
-    getAverageInvoiceSize: mocks.getAverageInvoiceSize,
-    getInactiveClientsCount: mocks.getInactiveClientsCount,
-    getNewCustomersCount: mocks.getNewCustomersCount,
-    getMostActiveClient: mocks.getMostActiveClient,
-    getTopRevenueClient: mocks.getTopRevenueClient,
-    allocateNextInvoiceNumber: mock(() => "INV-003"),
-    getInvoiceNumberConflictMessage: mock(
-      (invoiceNumber: string) =>
-        `Invoice number ${invoiceNumber} already exists`,
-    ),
-    isInvoiceNumberConflictError: mock(() => false),
+  // Invoice functions
+  getInvoices: mocks.getInvoices,
+  getInvoiceById: mocks.getInvoiceById,
+  createInvoice: mocks.createInvoice,
+  updateInvoice: mocks.updateInvoice,
+  deleteInvoice: mocks.deleteInvoice,
+  draftInvoice: mocks.draftInvoice,
+  duplicateInvoice: mocks.duplicateInvoice,
+  getInvoiceNumber: mocks.getInvoiceNumber,
+  getNextInvoiceNumber: mocks.getNextInvoiceNumber,
+  getInvoiceSummary: mocks.getInvoiceSummary,
+  getInvoiceTemplate: mocks.getInvoiceTemplate,
+  getPaymentStatus: mocks.getPaymentStatus,
+  markInvoiceViewed: mock(() => ({})),
+  isInvoiceNumberUsed: mocks.isInvoiceNumberUsed,
+  searchInvoiceNumber: mocks.searchInvoiceNumber,
+  getAverageDaysToPayment: mocks.getAverageDaysToPayment,
+  getAverageInvoiceSize: mocks.getAverageInvoiceSize,
+  getInactiveClientsCount: mocks.getInactiveClientsCount,
+  getNewCustomersCount: mocks.getNewCustomersCount,
+  getMostActiveClient: mocks.getMostActiveClient,
+  getTopRevenueClient: mocks.getTopRevenueClient,
+  allocateNextInvoiceNumber: mock(() => "INV-003"),
+  getInvoiceNumberConflictMessage: mock(
+    (invoiceNumber: string) => `Invoice number ${invoiceNumber} already exists`,
+  ),
+  isInvoiceNumberConflictError: mock(() => false),
 
-    // Customer functions
-    getCustomers: mocks.getCustomers,
-    getCustomerPageSummary: mocks.getCustomerPageSummary,
-    getCustomerById: mocks.getCustomerById,
-    createCustomer: mocks.createCustomer,
-    updateCustomer: mocks.updateCustomer,
-    deleteCustomer: mocks.deleteCustomer,
-    upsertCustomer: mock(() => ({})),
-    getCustomerInvoiceSummary: mock(() => ({ total: 0, paid: 0, overdue: 0 })),
-    clearCustomerEnrichment: mock(() => ({})),
-    updateCustomerEnrichmentStatus: mock(() => ({})),
-    toggleCustomerPortal: mock(() => ({})),
-    getCustomerByPortalId: mock(() => null),
-    getCustomerPortalInvoices: mock(() => ({ data: [], meta: {} })),
+  // Customer functions
+  getCustomers: mocks.getCustomers,
+  getCustomerPageSummary: mocks.getCustomerPageSummary,
+  getCustomerById: mocks.getCustomerById,
+  createCustomer: mocks.createCustomer,
+  updateCustomer: mocks.updateCustomer,
+  deleteCustomer: mocks.deleteCustomer,
+  upsertCustomer: mock(() => ({})),
+  getCustomerInvoiceSummary: mock(() => ({ total: 0, paid: 0, overdue: 0 })),
+  clearCustomerEnrichment: mock(() => ({})),
+  updateCustomerEnrichmentStatus: mock(() => ({})),
+  toggleCustomerPortal: mock(() => ({})),
+  getCustomerByPortalId: mock(() => null),
+  getCustomerPortalInvoices: mock(() => ({ data: [], meta: {} })),
 
-    // Document functions
-    getDocuments: mocks.getDocuments,
+  // Document functions
+  getDocuments: mocks.getDocuments,
 
-    // Bank account functions
-    getBankAccounts: mocks.getBankAccounts,
-    getBankConnections: mocks.getBankConnections,
-    getBankAccountById: mocks.getBankAccountById,
-    createBankAccount: mocks.createBankAccount,
-    updateBankAccount: mocks.updateBankAccount,
-    deleteBankAccount: mocks.deleteBankAccount,
-    getBankAccountDetails: mock(() => null),
-    getBankAccountsBalances: mock(() => []),
-    getBankAccountsCurrencies: mock(() => []),
-    getBankAccountsWithPaymentInfo: mock(() => []),
-    getTransactionCountByBankAccountId: mock(() => 0),
+  // Bank account functions
+  getBankAccounts: mocks.getBankAccounts,
+  getBankConnections: mocks.getBankConnections,
+  getBankAccountById: mocks.getBankAccountById,
+  createBankAccount: mocks.createBankAccount,
+  updateBankAccount: mocks.updateBankAccount,
+  deleteBankAccount: mocks.deleteBankAccount,
+  getBankAccountDetails: mock(() => null),
+  getBankAccountsBalances: mock(() => []),
+  getBankAccountsCurrencies: mock(() => []),
+  getBankAccountsWithPaymentInfo: mock(() => []),
+  getTransactionCountByBankAccountId: mock(() => 0),
 
-    // Tags
-    getTags: mocks.getTags,
+  // Tags
+  getTags: mocks.getTags,
 
-    // Inbox functions
-    getInboxItems: mocks.getInboxItems,
-    getInboxItemById: mocks.getInboxItemById,
-    updateInboxItem: mocks.updateInboxItem,
-    deleteInboxItem: mocks.deleteInboxItem,
-    getInbox: mock(() => ({
-      data: [],
-      meta: { hasNextPage: false, hasPreviousPage: false },
-    })),
-    getInboxById: mocks.getInboxById,
-    createInbox: mock(() => ({})),
-    updateInbox: mocks.updateInbox,
-    deleteInbox: mocks.deleteInbox,
-    deleteInboxMany: mock(() => []),
-    getInboxSearch: mock(() => []),
-    getInboxBlocklist: mock(() => []),
-    createInboxBlocklist: mock(() => ({})),
-    deleteInboxBlocklist: mock(() => ({})),
-    checkInboxAttachments: mock(() => []),
-    matchTransaction: mock(() => ({})),
-    unmatchTransaction: mock(() => ({})),
-    confirmSuggestedMatch: mock(() => ({})),
-    declineSuggestedMatch: mock(() => ({})),
+  // Inbox functions
+  getInboxItems: mocks.getInboxItems,
+  getInboxItemById: mocks.getInboxItemById,
+  updateInboxItem: mocks.updateInboxItem,
+  deleteInboxItem: mocks.deleteInboxItem,
+  getInbox: mock(() => ({
+    data: [],
+    meta: { hasNextPage: false, hasPreviousPage: false },
+  })),
+  getInboxById: mocks.getInboxById,
+  createInbox: mock(() => ({})),
+  updateInbox: mocks.updateInbox,
+  deleteInbox: mocks.deleteInbox,
+  deleteInboxMany: mock(() => []),
+  getInboxSearch: mock(() => []),
+  getInboxBlocklist: mock(() => []),
+  createInboxBlocklist: mock(() => ({})),
+  deleteInboxBlocklist: mock(() => ({})),
+  checkInboxAttachments: mock(() => []),
+  matchTransaction: mock(() => ({})),
+  unmatchTransaction: mock(() => ({})),
+  confirmSuggestedMatch: mock(() => ({})),
+  declineSuggestedMatch: mock(() => ({})),
 
-    // API Keys
-    getApiKeyByToken: mocks.getApiKeyByToken,
-    upsertApiKey: mocks.upsertApiKey,
-    getApiKeysByTeam: mocks.getApiKeysByTeam,
-    deleteApiKey: mocks.deleteApiKey,
-    updateApiKeyLastUsedAt: mocks.updateApiKeyLastUsedAt,
+  // API Keys
+  getApiKeyByToken: mocks.getApiKeyByToken,
+  upsertApiKey: mocks.upsertApiKey,
+  getApiKeysByTeam: mocks.getApiKeysByTeam,
+  deleteApiKey: mocks.deleteApiKey,
+  updateApiKeyLastUsedAt: mocks.updateApiKeyLastUsedAt,
 
-    // Users
-    getUserById: mocks.getUserById,
-    getUser: mocks.getUser,
-    updateUser: mocks.updateUser,
-    getUserByConvexId: mock(() => null),
-    getUserTeamId: mock(() => "test-team-id"),
+  // Users
+  getUserById: mocks.getUserById,
+  getUser: mocks.getUser,
+  updateUser: mocks.updateUser,
+  getUserByConvexId: mock(() => null),
+  getUserTeamId: mock(() => "test-team-id"),
 
-    // Teams
-    getTeamById: mocks.getTeamById,
-    getTeam: mocks.getTeam,
-    updateTeam: mocks.updateTeam,
+  // Teams
+  getTeamById: mocks.getTeamById,
+  getTeam: mocks.getTeam,
+  updateTeam: mocks.updateTeam,
 
-    // Tracker
-    getTrackerProjects: mocks.getTrackerProjects,
-    getTrackerProjectById: mock(() => null),
-    getTrackerRecordsByRange: mock(() => []),
+  // Tracker
+  getTrackerProjects: mocks.getTrackerProjects,
+  getTrackerProjectById: mock(() => null),
+  getTrackerRecordsByRange: mock(() => []),
 
-    // Invoice products
-    getInvoiceProducts: mocks.getInvoiceProducts,
+  // Invoice products
+  getInvoiceProducts: mocks.getInvoiceProducts,
 
-    // Compliance
-    getFilingProfile: mocks.getFilingProfile,
-    getVatDashboard: mocks.getVatDashboard,
-    listVatSubmissions: mocks.listVatSubmissions,
-    getYearEndDashboard: mocks.getYearEndDashboard,
-    getPayrollDashboard: mocks.getPayrollDashboard,
+  // Compliance
+  getFilingProfile: mocks.getFilingProfile,
+  getVatDashboard: mocks.getVatDashboard,
+  listVatSubmissions: mocks.listVatSubmissions,
+  getYearEndDashboard: mocks.getYearEndDashboard,
+  getPayrollDashboard: mocks.getPayrollDashboard,
 
-    // Validation
-    validateAccessToken: mocks.validateAccessToken,
-  } as Record<string, any>,
-);
+  // Validation
+  validateAccessToken: mocks.validateAccessToken,
+} as Record<string, any>);
 
 mock.module("@tamias/app-data/queries", () => dbQueriesMock);
 mock.module("@tamias/app-data/queries/inbox", () => ({
@@ -450,9 +447,7 @@ mock.module("@tamias/job-client", () => ({
 // Mock @tamias/import
 mock.module("@tamias/import", () => ({
   buildCsvMappingPrompt: mock(() => "mock csv mapping prompt"),
-  compactSampleRows: mock((rows: Record<string, string>[]) =>
-    rows.slice(0, 2),
-  ),
+  compactSampleRows: mock((rows: Record<string, string>[]) => rows.slice(0, 2)),
   formatAmountValue: mocks.formatAmountValue,
   selectPromptColumns: mock((columns: string[]) => columns),
 }));

@@ -1,11 +1,4 @@
 import {
-  connectInboxAccountSchema,
-  deleteInboxAccountSchema,
-  exchangeCodeForAccountSchema,
-  syncInboxAccountSchema,
-} from "../../schemas/inbox-accounts";
-import { createTRPCRouter, protectedProcedure } from "../init";
-import {
   deleteInboxAccount,
   getInboxAccountById,
 } from "@tamias/app-data/queries";
@@ -15,6 +8,13 @@ import { encryptOAuthState } from "@tamias/inbox/utils";
 import { cancelSchedule, enqueue } from "@tamias/job-client";
 import { createLoggerWithContext } from "@tamias/logger";
 import { TRPCError } from "@trpc/server";
+import {
+  connectInboxAccountSchema,
+  deleteInboxAccountSchema,
+  exchangeCodeForAccountSchema,
+  syncInboxAccountSchema,
+} from "../../schemas/inbox-accounts";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 const logger = createLoggerWithContext("trpc:inbox-accounts");
 

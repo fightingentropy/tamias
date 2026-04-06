@@ -301,13 +301,11 @@ export const createInvoiceRecurringSchema = z
 // Update schema - extends create with id and allows partial updates
 export const updateInvoiceRecurringSchema = z
   .object({
-    id: z
-      .string()
-      .openapi({
-        description: "Unique identifier for the recurring invoice series",
-        example: "b3b7e6e2-8c2a-4e2a-9b1a-2e4b5c6d7f8a",
-        param: { in: "path", name: "id" },
-      }),
+    id: z.string().openapi({
+      description: "Unique identifier for the recurring invoice series",
+      example: "b3b7e6e2-8c2a-4e2a-9b1a-2e4b5c6d7f8a",
+      param: { in: "path", name: "id" },
+    }),
     customerId: z.string().uuid().optional(),
     customerName: z.string().nullable().optional(),
     frequency: invoiceRecurringFrequencySchema.optional(),
@@ -485,13 +483,11 @@ export const updateInvoiceRecurringSchema = z
 
 // Get by ID schema
 export const getInvoiceRecurringByIdSchema = z.object({
-  id: z
-    .string()
-    .openapi({
-      description: "Unique identifier for the recurring invoice series",
-      example: "b3b7e6e2-8c2a-4e2a-9b1a-2e4b5c6d7f8a",
-      param: { in: "path", name: "id" },
-    }),
+  id: z.string().openapi({
+    description: "Unique identifier for the recurring invoice series",
+    example: "b3b7e6e2-8c2a-4e2a-9b1a-2e4b5c6d7f8a",
+    param: { in: "path", name: "id" },
+  }),
 });
 
 // List schema
@@ -535,24 +531,20 @@ export const getInvoiceRecurringListSchema = z.object({
 
 // Pause/Resume schema
 export const pauseResumeInvoiceRecurringSchema = z.object({
-  id: z
-    .string()
-    .openapi({
-      description: "Unique identifier for the recurring invoice series",
-      example: "b3b7e6e2-8c2a-4e2a-9b1a-2e4b5c6d7f8a",
-      param: { in: "path", name: "id" },
-    }),
+  id: z.string().openapi({
+    description: "Unique identifier for the recurring invoice series",
+    example: "b3b7e6e2-8c2a-4e2a-9b1a-2e4b5c6d7f8a",
+    param: { in: "path", name: "id" },
+  }),
 });
 
 // Get upcoming invoices schema
 export const getUpcomingInvoicesSchema = z.object({
-  id: z
-    .string()
-    .openapi({
-      description: "Unique identifier for the recurring invoice series",
-      example: "b3b7e6e2-8c2a-4e2a-9b1a-2e4b5c6d7f8a",
-      param: { in: "path", name: "id" },
-    }),
+  id: z.string().openapi({
+    description: "Unique identifier for the recurring invoice series",
+    example: "b3b7e6e2-8c2a-4e2a-9b1a-2e4b5c6d7f8a",
+    param: { in: "path", name: "id" },
+  }),
   limit: z.coerce
     .number()
     .min(1)
@@ -567,14 +559,11 @@ export const getUpcomingInvoicesSchema = z.object({
 
 // Delete schema
 export const deleteInvoiceRecurringSchema = z.object({
-  id: z
-    .string()
-    .openapi({
-      description:
-        "Unique identifier for the recurring invoice series to delete",
-      example: "b3b7e6e2-8c2a-4e2a-9b1a-2e4b5c6d7f8a",
-      param: { in: "path", name: "id" },
-    }),
+  id: z.string().openapi({
+    description: "Unique identifier for the recurring invoice series to delete",
+    example: "b3b7e6e2-8c2a-4e2a-9b1a-2e4b5c6d7f8a",
+    param: { in: "path", name: "id" },
+  }),
 });
 
 // Response schemas

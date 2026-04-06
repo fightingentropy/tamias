@@ -1,4 +1,18 @@
 import {
+  getBalanceSheet,
+  getBurnRate,
+  getCashFlow,
+  getExpenses,
+  getGrowthRate,
+  getProfitMargin,
+  getRecurringExpenses,
+  getReports,
+  getRevenueForecast,
+  getRunway,
+  getSpending,
+  getTaxSummary,
+} from "@tamias/app-data/queries";
+import {
   getBalanceSheetSchema,
   getBurnRateSchema,
   getCashFlowSchema,
@@ -13,20 +27,6 @@ import {
   getSpendingSchema,
   getTaxSummarySchema,
 } from "../../schemas/reports";
-import {
-  getBalanceSheet,
-  getBurnRate,
-  getCashFlow,
-  getExpenses,
-  getGrowthRate,
-  getProfitMargin,
-  getRecurringExpenses,
-  getReports,
-  getRevenueForecast,
-  getRunway,
-  getSpending,
-  getTaxSummary,
-} from "@tamias/app-data/queries";
 import { hasScope, READ_ONLY_ANNOTATIONS, type RegisterTools } from "../types";
 
 export const registerReportTools: RegisterTools = (server, ctx) => {

@@ -1,9 +1,9 @@
-import type { Context } from "../types";
-import { globalSearchSchema, searchResponseSchema } from "../../schemas/search";
-import { validateResponse } from "../../utils/validate-response";
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import { globalSearchQuery } from "@tamias/app-data/queries";
+import { globalSearchSchema, searchResponseSchema } from "../../schemas/search";
+import { validateResponse } from "../../utils/validate-response";
 import { withRequiredScope } from "../middleware";
+import type { Context } from "../types";
 
 const app = new OpenAPIHono<Context>();
 

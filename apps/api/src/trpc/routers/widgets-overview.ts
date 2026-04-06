@@ -1,5 +1,5 @@
-import { getOverviewWidgetsSchema } from "../../schemas/widgets";
 import { getOverviewWidgetsData } from "@tamias/app-services/widgets";
+import { getOverviewWidgetsSchema } from "../../schemas/widgets";
 import { protectedProcedure } from "../init";
 
 export const widgetOverviewProcedures = {

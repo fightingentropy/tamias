@@ -1,32 +1,25 @@
-import {
-  createHmac,
-  timingSafeEqual } from "node:crypto";
-import { publicMiddleware } from "../../../middleware";
-import type { Context } from "../../../types";
-import { validateResponse } from "../../../../utils/validate-response";
-import { createRoute,
-  OpenAPIHono,
-  z } from "@hono/zod-openapi";
-import {
-  createSlackWebClient,
-  ensureBotInChannel,
-  } from "@tamias/app-store/slack/server";
+import { createHmac, timingSafeEqual } from "node:crypto";
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import type { Database } from "@tamias/app-data/client";
 import {
   confirmSuggestedMatch,
   declineSuggestedMatch,
+  getAppBySlackTeamId,
   getInboxById,
   getSuggestionByInboxAndTransaction,
 } from "@tamias/app-data/queries";
 import {
-  getAppBySlackTeamId,
-} from "@tamias/app-data/queries";
+  createSlackWebClient,
+  ensureBotInChannel,
+} from "@tamias/app-store/slack/server";
 import { logger } from "@tamias/logger";
 import { getAppUrl } from "@tamias/utils/envs";
 import { HTTPException } from "hono/http-exception";
+import { validateResponse } from "../../../../utils/validate-response";
+import { publicMiddleware } from "../../../middleware";
+import type { Context } from "../../../types";
 
-const dashboardUrl =
-  getAppUrl();
+const dashboardUrl = getAppUrl();
 
 const app = new OpenAPIHono<Context>();
 

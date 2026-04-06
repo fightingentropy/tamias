@@ -1,16 +1,16 @@
+import {
+  deleteChatSession,
+  getChatMessages,
+  listChatSessions,
+} from "@tamias/app-services/chat-memory";
 import type { UIChatMessage } from "@tamias/contracts/chat";
+import { TRPCError } from "@trpc/server";
 import {
   deleteChatSchema,
   getChatSchema,
   listChatsSchema,
 } from "../../schemas/chat";
 import { createTRPCRouter, protectedProcedure } from "../init";
-import {
-  deleteChatSession,
-  getChatMessages,
-  listChatSessions,
-} from "@tamias/app-services/chat-memory";
-import { TRPCError } from "@trpc/server";
 
 export const chatsRouter = createTRPCRouter({
   list: protectedProcedure

@@ -1,9 +1,9 @@
 import type { MiddlewareHandler } from "hono";
-import type { Context } from "../types";
 import {
   createRateLimitBucketName,
   type RateLimitOutcome,
 } from "../../rate-limit/shared";
+import type { Context } from "../types";
 
 type RateLimitOptions = {
   name: string;

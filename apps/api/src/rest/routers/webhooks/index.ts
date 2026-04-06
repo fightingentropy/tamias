@@ -1,6 +1,6 @@
+import { OpenAPIHono } from "@hono/zod-openapi";
 import { publicMiddleware } from "../../middleware";
 import type { Context } from "../../types";
-import { OpenAPIHono } from "@hono/zod-openapi";
 import { inboxWebhookRouter } from "./inbox";
 import { plaidWebhookRouter } from "./plaid";
 import { polarWebhookRouter } from "./polar";

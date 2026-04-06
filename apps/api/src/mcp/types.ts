@@ -1,7 +1,7 @@
-import type { Scope } from "@tamias/auth-session/scopes";
-import type { Database } from "@tamias/app-data/client";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { Database } from "@tamias/app-data/client";
 import type { Id } from "@tamias/app-data/convex/data-model";
+import type { Scope } from "@tamias/auth-session/scopes";
 
 export interface McpContext {
   db: Database;

@@ -1,5 +1,5 @@
-import type { Context } from "../types";
 import { OpenAPIHono } from "@hono/zod-openapi";
+import type { Context } from "../types";
 import { registerInvoiceReadRoutes } from "./invoices-read-routes";
 import { registerInvoiceWriteRoutes } from "./invoices-write-routes";
 

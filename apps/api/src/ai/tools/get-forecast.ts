@@ -1,4 +1,3 @@
-import { getAssistantModel } from "../providers";
 import { forecastArtifact } from "@tamias/ai-artifacts/forecast";
 import { db } from "@tamias/app-data/client";
 import { getRevenueForecast } from "@tamias/app-data/queries";
@@ -6,6 +5,7 @@ import { formatAmount } from "@tamias/utils/format";
 import { generateText, tool } from "ai";
 import { format, parseISO } from "date-fns";
 import { z } from "zod";
+import { getAssistantModel } from "../providers";
 import {
   getToolAppContext,
   getToolTeamId,

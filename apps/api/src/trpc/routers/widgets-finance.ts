@@ -1,4 +1,25 @@
 import {
+  getCashBalance,
+  getCashFlow,
+  getCustomerLifetimeValue,
+  getGrowthRate,
+  getNetPosition,
+  getOutstandingInvoices,
+  getOverdueInvoicesAlert,
+  getProfitMargin,
+  getRecurringExpenses,
+  getRunway,
+  getSpending,
+  getSpendingForPeriod,
+  getTaxSummary,
+  getTopRevenueClient,
+} from "@tamias/app-data/queries";
+import {
+  getCashFlowWidgetData,
+  getGrowthRateWidgetData,
+  getRevenueSummaryWidgetData,
+} from "@tamias/app-services/widgets";
+import {
   getAccountBalancesSchema,
   getCashFlowSchema,
   getCategoryExpensesSchema,
@@ -15,27 +36,6 @@ import {
   getTaxSummarySchema,
 } from "../../schemas/widgets";
 import { protectedProcedure } from "../init";
-import {
-  getCashFlowWidgetData,
-  getGrowthRateWidgetData,
-  getRevenueSummaryWidgetData,
-} from "@tamias/app-services/widgets";
-import {
-  getCashBalance,
-  getCashFlow,
-  getCustomerLifetimeValue,
-  getGrowthRate,
-  getNetPosition,
-  getOutstandingInvoices,
-  getOverdueInvoicesAlert,
-  getProfitMargin,
-  getRecurringExpenses,
-  getRunway,
-  getSpending,
-  getSpendingForPeriod,
-  getTaxSummary,
-  getTopRevenueClient,
-} from "@tamias/app-data/queries";
 
 export const widgetFinanceProcedures = {
   getRunway: protectedProcedure

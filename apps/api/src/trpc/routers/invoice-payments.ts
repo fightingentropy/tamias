@@ -1,4 +1,3 @@
-import { createTRPCRouter, protectedProcedure } from "../init";
 import {
   getInvoiceById,
   getTeamById,
@@ -10,6 +9,7 @@ import { getApiUrl } from "@tamias/utils/envs";
 import { TRPCError } from "@trpc/server";
 import Stripe from "stripe";
 import { z } from "zod";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const invoicePaymentsRouter = createTRPCRouter({
   // Get Stripe Connect status for the current team

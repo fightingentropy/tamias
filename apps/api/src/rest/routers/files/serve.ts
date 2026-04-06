@@ -1,11 +1,11 @@
-import type { Context } from "../../types";
-import { proxyFileSchema } from "../../../schemas/files";
-import { downloadVaultFile } from "../../../services/storage";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { HTTPException } from "hono/http-exception";
+import { proxyFileSchema } from "../../../schemas/files";
+import { downloadVaultFile } from "../../../services/storage";
 import { withDatabase } from "../../middleware/db";
 import { withFileAuth } from "../../middleware/file-auth";
 import { withClientIp } from "../../middleware/ip";
+import type { Context } from "../../types";
 import { getContentTypeFromFilename, normalizeAndValidatePath } from "./utils";
 
 const app = new OpenAPIHono<Context>();

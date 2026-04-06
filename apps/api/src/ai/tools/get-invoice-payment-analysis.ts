@@ -1,4 +1,3 @@
-import { getAssistantModel } from "../providers";
 import { invoicePaymentAnalysisArtifact } from "@tamias/ai-artifacts/invoice-payment-analysis";
 import { db } from "@tamias/app-data/client";
 import { getInvoicePaymentAnalysis } from "@tamias/app-data/queries";
@@ -6,12 +5,13 @@ import { formatAmount } from "@tamias/utils/format";
 import { generateText, tool } from "ai";
 import { endOfMonth, startOfMonth, subMonths } from "date-fns";
 import { z } from "zod";
+import { getAssistantModel } from "../providers";
+import { generateArtifactDescription } from "../utils/artifact-title";
 import {
   getToolAppContext,
   getToolTeamId,
   startArtifactStream,
 } from "../utils/tool-runtime";
-import { generateArtifactDescription } from "../utils/artifact-title";
 
 const getInvoicePaymentAnalysisSchema = z.object({
   from: z

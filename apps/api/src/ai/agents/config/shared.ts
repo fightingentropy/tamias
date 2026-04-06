@@ -1,11 +1,8 @@
 import { Agent, type AgentConfig } from "@ai-sdk-tools/agents";
-import { getAssistantModel } from "../../providers";
-import type { ChatUserContext } from "@tamias/cache/chat-cache";
 import { chatMemoryProvider } from "@tamias/app-services/chat-memory";
-import {
-  DEFAULT_AI_PROVIDER,
-  type AIProvider,
-} from "@tamias/domain/identity";
+import type { ChatUserContext } from "@tamias/cache/chat-cache";
+import { type AIProvider, DEFAULT_AI_PROVIDER } from "@tamias/domain/identity";
+import { getAssistantModel } from "../../providers";
 import {
   memoryTemplate,
   suggestionsInstructions,
@@ -56,9 +53,9 @@ function resolvePromptSection(section: PromptSection, context: AppContext) {
 }
 
 function joinPromptSections(sections: Array<string | null>) {
-  return sections.filter((section): section is string => Boolean(section)).join(
-    "\n\n",
-  );
+  return sections
+    .filter((section): section is string => Boolean(section))
+    .join("\n\n");
 }
 
 export function wrapPromptTag(tag: string, content: string) {
@@ -202,17 +199,24 @@ function patchAgentStreamCompatibility(agent: Agent<AppContext>) {
     const resultPromise = Promise.resolve(originalStream(options as any));
 
     return {
+      // biome-ignore lint/suspicious/noThenProperty: compatibility shim intentionally exposes then/catch/finally on agent streams.
       then: resultPromise.then.bind(resultPromise),
       catch: resultPromise.catch.bind(resultPromise),
       finally: resultPromise.finally.bind(resultPromise),
       toUIMessageStream: (...args: any[]) =>
         wrapAsyncIterable(
-          resultPromise.then((result: any) => result.toUIMessageStream(...args)),
+          resultPromise.then((result: any) =>
+            result.toUIMessageStream(...args),
+          ),
         ),
       toUIMessageStreamResponse: (...args: any[]) =>
-        resultPromise.then((result: any) => result.toUIMessageStreamResponse(...args)),
+        resultPromise.then((result: any) =>
+          result.toUIMessageStreamResponse(...args),
+        ),
       toDataStreamResponse: (...args: any[]) =>
-        resultPromise.then((result: any) => result.toDataStreamResponse(...args)),
+        resultPromise.then((result: any) =>
+          result.toDataStreamResponse(...args),
+        ),
     } as unknown as ReturnType<typeof originalStream>;
   }) as typeof agent.stream;
 

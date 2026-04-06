@@ -1,27 +1,27 @@
+import { getAssistantModel } from "../providers";
+import { operationsTools } from "../tools/operations";
+import { reportingTools } from "../tools/reporting";
+import { webSearchTool } from "../tools/web-search";
 import {
   type AppContext,
   buildAgentInstructions,
   COMMON_AGENT_RULES,
   createCachedAgentFactory,
 } from "./config/shared";
-import { getAssistantModel } from "../providers";
-import { operationsTools } from "../tools/operations";
-import { reportingTools } from "../tools/reporting";
-import { webSearchTool } from "../tools/web-search";
 import { getOperationsAgent } from "./operations";
 import { getReportsAgent } from "./reports";
 
 export const getResearchAgent = createCachedAgentFactory((aiProvider) => ({
-    name: "research",
-    model: getAssistantModel(aiProvider, "primary"),
-    temperature: 0.7,
-    instructions: (ctx: AppContext) =>
-      buildAgentInstructions(ctx, {
-        intro: `You are a research specialist for ${ctx.companyName}. Analyze affordability and purchase decisions from a business owner's perspective with specific calculations and actionable advice.`,
-        contextTag: "context",
-        sections: [
-          COMMON_AGENT_RULES,
-          `<instructions>
+  name: "research",
+  model: getAssistantModel(aiProvider, "primary"),
+  temperature: 0.7,
+  instructions: (ctx: AppContext) =>
+    buildAgentInstructions(ctx, {
+      intro: `You are a research specialist for ${ctx.companyName}. Analyze affordability and purchase decisions from a business owner's perspective with specific calculations and actionable advice.`,
+      contextTag: "context",
+      sections: [
+        COMMON_AGENT_RULES,
+        `<instructions>
 <workflow>
 1. Use webSearch ONCE for comprehensive pricing and financing information
 2. Get financial data from specialists (operations, reports, analytics)
@@ -79,16 +79,16 @@ Prioritized list (most important first):
 - Avoid long, complex queries that slow down search
 </search_guidelines>
 </instructions>`,
-        ],
-      }),
-    tools: {
-      webSearch: webSearchTool,
-      getAccountBalances: operationsTools.getAccountBalances,
-      getNetPosition: operationsTools.getNetPosition,
-      getCashFlow: reportingTools.getCashFlow,
-      getRunway: reportingTools.getRunway,
-      getBusinessHealthScore: reportingTools.getBusinessHealthScore,
-    },
-    handoffs: [getOperationsAgent(aiProvider), getReportsAgent(aiProvider)],
-    maxTurns: 5,
+      ],
+    }),
+  tools: {
+    webSearch: webSearchTool,
+    getAccountBalances: operationsTools.getAccountBalances,
+    getNetPosition: operationsTools.getNetPosition,
+    getCashFlow: reportingTools.getCashFlow,
+    getRunway: reportingTools.getRunway,
+    getBusinessHealthScore: reportingTools.getBusinessHealthScore,
+  },
+  handoffs: [getOperationsAgent(aiProvider), getReportsAgent(aiProvider)],
+  maxTurns: 5,
 }));

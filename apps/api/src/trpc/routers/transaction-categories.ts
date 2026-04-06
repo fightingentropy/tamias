@@ -1,4 +1,11 @@
 import {
+  createTransactionCategory,
+  deleteTransactionCategory,
+  getCategoryById,
+  updateTransactionCategory,
+} from "@tamias/app-data/queries";
+import { getTransactionCategoriesForTeam } from "@tamias/app-services/transactions";
+import {
   createTransactionCategorySchema,
   deleteTransactionCategorySchema,
   getCategoriesSchema,
@@ -6,13 +13,6 @@ import {
   updateTransactionCategorySchema,
 } from "../../schemas/transaction-categories";
 import { createTRPCRouter, protectedProcedure } from "../init";
-import {
-  createTransactionCategory,
-  deleteTransactionCategory,
-  getCategoryById,
-  updateTransactionCategory,
-} from "@tamias/app-data/queries";
-import { getTransactionCategoriesForTeam } from "@tamias/app-services/transactions";
 
 export const transactionCategoriesRouter = createTRPCRouter({
   get: protectedProcedure

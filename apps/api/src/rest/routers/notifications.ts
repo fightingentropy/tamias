@@ -1,5 +1,9 @@
-import { withRequiredScope } from "../middleware";
-import type { Context } from "../types";
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import {
+  getActivities,
+  updateActivityStatus,
+  updateAllActivitiesStatus,
+} from "@tamias/app-data/queries";
 import {
   getNotificationsSchema,
   notificationResponseSchema,
@@ -8,12 +12,8 @@ import {
   updateAllNotificationsStatusSchema,
 } from "../../schemas/notifications";
 import { validateResponse } from "../../utils/validate-response";
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import {
-  getActivities,
-  updateActivityStatus,
-  updateAllActivitiesStatus,
-} from "@tamias/app-data/queries";
+import { withRequiredScope } from "../middleware";
+import type { Context } from "../types";
 
 const app = new OpenAPIHono<Context>();
 

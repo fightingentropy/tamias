@@ -1,5 +1,5 @@
-import type { Context } from "../types";
 import type { Context as HonoContext } from "hono";
+import type { Context } from "../types";
 
 /**
  * Extract client IP address from request

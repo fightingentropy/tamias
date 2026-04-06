@@ -1,6 +1,6 @@
 import { db } from "@tamias/app-data/client";
-import { stopTimer } from "@tamias/app-data/queries";
 import type { CurrentUserIdentityRecord } from "@tamias/app-data/convex";
+import { stopTimer } from "@tamias/app-data/queries";
 import { getAppUrl } from "@tamias/utils/envs";
 import { formatDate } from "@tamias/utils/format";
 import { tool } from "ai";
@@ -12,11 +12,7 @@ type ConvexUserId = CurrentUserIdentityRecord["convexId"];
 
 const stopTimerSchema = z.object({
   entryId: z.string().nullable().optional().describe("Timer entry ID"),
-  assignedId: z
-    .string()
-    .nullable()
-    .optional()
-    .describe("Assigned app user ID"),
+  assignedId: z.string().nullable().optional().describe("Assigned app user ID"),
 });
 
 export const stopTimerTool = tool({

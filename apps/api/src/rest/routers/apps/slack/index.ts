@@ -1,5 +1,5 @@
-import type { Context } from "../../../types";
 import { OpenAPIHono } from "@hono/zod-openapi";
+import type { Context } from "../../../types";
 import { installUrlRouter } from "./install-url";
 import { interactionsRouter } from "./interactions";
 import { oauthCallbackRouter } from "./oauth-callback";

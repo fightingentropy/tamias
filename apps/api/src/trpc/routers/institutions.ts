@@ -1,4 +1,3 @@
-import { createTRPCRouter, protectedProcedure } from "../init";
 import {
   getInstitutionById,
   getInstitutions,
@@ -7,6 +6,7 @@ import {
 import { createLoggerWithContext } from "@tamias/logger";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 const logger = createLoggerWithContext("trpc:institutions");
 

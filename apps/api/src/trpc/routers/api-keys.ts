@@ -1,6 +1,3 @@
-import { deleteApiKeySchema, upsertApiKeySchema } from "../../schemas/api-keys";
-import { resend } from "../../services/resend";
-import { createTRPCRouter, protectedProcedure } from "../init";
 import {
   createApiKeyInConvex,
   deleteApiKeyInConvex,
@@ -10,6 +7,9 @@ import {
 import { ApiKeyCreatedEmail } from "@tamias/email/emails/api-key-created";
 import { logger } from "@tamias/logger";
 import { getSupportFromDisplay } from "@tamias/utils/envs";
+import { deleteApiKeySchema, upsertApiKeySchema } from "../../schemas/api-keys";
+import { resend } from "../../services/resend";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const apiKeysRouter = createTRPCRouter({
   get: protectedProcedure.query(async ({ ctx: { teamId } }) => {

@@ -1,6 +1,10 @@
 import { cashFlowStressTestArtifact } from "@tamias/ai-artifacts/cash-flow-stress-test";
 import { db } from "@tamias/app-data/client";
-import { getCashBalance, getCashFlow, getRunway } from "@tamias/app-data/queries";
+import {
+  getCashBalance,
+  getCashFlow,
+  getRunway,
+} from "@tamias/app-data/queries";
 import { tool } from "ai";
 import { z } from "zod";
 import {
@@ -50,10 +54,10 @@ export const getCashFlowStressTestTool = tool({
     try {
       const { finalFrom, finalTo, finalCurrency, description } =
         resolveReportToolParams({
-        toolName: "getCashFlowStressTest",
-        appContext,
-        aiParams: { period, from, to, currency },
-      });
+          toolName: "getCashFlowStressTest",
+          appContext,
+          aiParams: { period, from, to, currency },
+        });
       const analysis = startArtifactStream({
         enabled: showCanvas,
         executionOptions,

@@ -1,28 +1,28 @@
+import { getAssistantModel } from "../providers";
+import { reportingTools } from "../tools/reporting";
 import {
   buildAgentInstructions,
   COMMON_AGENT_RULES,
   createCachedAgentFactory,
   formatContextForLLM,
 } from "./config/shared";
-import { getAssistantModel } from "../providers";
-import { reportingTools } from "../tools/reporting";
 
 export const getReportsAgent = createCachedAgentFactory((aiProvider) => ({
-    name: "reports",
-    model: getAssistantModel(aiProvider, "small"),
-    temperature: 0.3,
-    instructions: (ctx) =>
-      buildAgentInstructions(ctx, {
-        intro: `You are a financial reports specialist for ${ctx.companyName}. Provide clear financial metrics and insights.`,
-        contextTag: "context",
-        contextContent: `${formatContextForLLM(ctx)}
+  name: "reports",
+  model: getAssistantModel(aiProvider, "small"),
+  temperature: 0.3,
+  instructions: (ctx) =>
+    buildAgentInstructions(ctx, {
+      intro: `You are a financial reports specialist for ${ctx.companyName}. Provide clear financial metrics and insights.`,
+      contextTag: "context",
+      contextContent: `${formatContextForLLM(ctx)}
 
 <date_reference>
 Q1: Jan-Mar | Q2: Apr-Jun | Q3: Jul-Sep | Q4: Oct-Dec
 </date_reference>`,
-        sections: [
-          COMMON_AGENT_RULES,
-          `<instructions>
+      sections: [
+        COMMON_AGENT_RULES,
+        `<instructions>
 <guidelines>
 - Default to text responses, use artifacts only when requested
 
@@ -61,8 +61,8 @@ Split by calendar periods (years/quarters/months) and call tool multiple times w
 - When getMetricsBreakdown returns data with showCanvas: true, use ONLY the tool's text response. Do NOT add tables, markdown formatting, or structured data. Keep it simple and conversational.
 </Response>
 </instructions>`,
-        ],
-      }),
-    tools: reportingTools,
-    maxTurns: 5,
+      ],
+    }),
+  tools: reportingTools,
+  maxTurns: 5,
 }));

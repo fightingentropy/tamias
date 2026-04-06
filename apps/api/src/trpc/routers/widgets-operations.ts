@@ -1,16 +1,16 @@
 import {
+  getBillableHours,
+  getInboxStats,
+  getRecentDocuments,
+  getTrackedTime,
+} from "@tamias/app-data/queries";
+import {
   getBillableHoursSchema,
   getInboxStatsSchema,
   getTrackedTimeSchema,
   getVaultActivitySchema,
 } from "../../schemas/widgets";
 import { protectedProcedure } from "../init";
-import {
-  getBillableHours,
-  getInboxStats,
-  getRecentDocuments,
-  getTrackedTime,
-} from "@tamias/app-data/queries";
 import { getWidgetAssignedUserId } from "./widgets-shared";
 
 export const widgetOperationProcedures = {

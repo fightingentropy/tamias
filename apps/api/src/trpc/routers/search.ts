@@ -1,15 +1,15 @@
 import {
-  globalSearchSchema,
-  searchAttachmentsSchema,
-} from "../../schemas/search";
-import { createTRPCRouter, protectedProcedure } from "../init";
-import { generateLLMFilters } from "../../utils/search-filters";
-import { getInvoicesPage } from "@tamias/app-services/invoices";
-import {
   getInboxSearch,
   globalSearchQuery,
   globalSemanticSearchQuery,
 } from "@tamias/app-data/queries";
+import { getInvoicesPage } from "@tamias/app-services/invoices";
+import {
+  globalSearchSchema,
+  searchAttachmentsSchema,
+} from "../../schemas/search";
+import { generateLLMFilters } from "../../utils/search-filters";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const searchRouter = createTRPCRouter({
   global: protectedProcedure

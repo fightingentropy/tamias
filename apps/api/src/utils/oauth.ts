@@ -1,5 +1,5 @@
-import { safeCompare } from "./safe-compare";
 import { hash } from "@tamias/encryption";
+import { safeCompare } from "./safe-compare";
 
 export type OAuthApplication = {
   id: string;

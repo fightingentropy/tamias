@@ -1,10 +1,7 @@
-import {
-  createTRPCContextFromHeaders,
-  type TRPCContext,
-} from "./context";
 import { createLoggerWithContext } from "@tamias/logger";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
+import { createTRPCContextFromHeaders, type TRPCContext } from "./context";
 import { withTeamPermission } from "./middleware/team-permission";
 
 export const DEBUG_PERF = process.env.DEBUG_PERF === "true";

@@ -1,8 +1,14 @@
-import type { Context } from "../../../types";
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import {
-  createRoute,
-  OpenAPIHono,
-  z } from "@hono/zod-openapi";
+  addWhatsAppConnection,
+  confirmSuggestedMatch,
+  declineSuggestedMatch,
+  getAppByWhatsAppNumber,
+  getSuggestionByInboxAndTransaction,
+  getTeamById,
+  getTeamByInboxId,
+  WhatsAppAlreadyConnectedToAnotherTeamError,
+} from "@tamias/app-data/queries";
 import {
   createWhatsAppClient,
   extractInboxIdFromMessage,
@@ -24,20 +30,9 @@ import {
   verifyWebhookSignature,
   type WhatsAppWebhookPayload,
 } from "@tamias/app-store/whatsapp/server";
-import { WhatsAppAlreadyConnectedToAnotherTeamError } from "@tamias/app-data/queries";
-import {
-  addWhatsAppConnection,
-  getAppByWhatsAppNumber,
-  getTeamById,
-  getTeamByInboxId,
-} from "@tamias/app-data/queries";
-import {
-  confirmSuggestedMatch,
-  declineSuggestedMatch,
-  getSuggestionByInboxAndTransaction,
-} from "@tamias/app-data/queries";
 import { logger } from "@tamias/logger";
 import { HTTPException } from "hono/http-exception";
+import type { Context } from "../../../types";
 
 const app = new OpenAPIHono<Context>();
 

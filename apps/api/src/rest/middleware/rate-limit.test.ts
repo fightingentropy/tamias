@@ -1,11 +1,14 @@
 import { describe, expect, test } from "bun:test";
 import { Hono } from "hono";
-import { createRateLimitMiddleware } from "./rate-limit";
-import type { Context } from "../types";
 import { consumeRateLimit } from "../../rate-limit/shared";
+import type { Context } from "../types";
+import { createRateLimitMiddleware } from "./rate-limit";
 
 function createRateLimitTestEnv() {
-  const buckets = new Map<string, ReturnType<typeof consumeRateLimit>["bucket"]>();
+  const buckets = new Map<
+    string,
+    ReturnType<typeof consumeRateLimit>["bucket"]
+  >();
 
   return {
     RATE_LIMIT_COORDINATOR: {

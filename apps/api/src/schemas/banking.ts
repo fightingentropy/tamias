@@ -1,10 +1,6 @@
 import { z } from "zod";
 
-export const providerSchema = z.enum([
-  "gocardless",
-  "teller",
-  "plaid",
-]);
+export const providerSchema = z.enum(["gocardless", "teller", "plaid"]);
 
 export const accountTypeSchema = z.enum([
   "depository",

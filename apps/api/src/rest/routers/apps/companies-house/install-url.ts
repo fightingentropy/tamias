@@ -1,15 +1,15 @@
-import { protectedMiddleware } from "../../../middleware";
-import type { Context } from "../../../types";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import {
   buildCompaniesHouseScope,
-  CompaniesHouseProvider,
   COMPANIES_HOUSE_PROFILE_SCOPE,
   COMPANIES_HOUSE_SCOPE_KINDS,
-  isCompaniesHouseCompanyScopeKind,
+  CompaniesHouseProvider,
   encryptComplianceOAuthState,
+  isCompaniesHouseCompanyScopeKind,
 } from "@tamias/compliance";
 import { HTTPException } from "hono/http-exception";
+import { protectedMiddleware } from "../../../middleware";
+import type { Context } from "../../../types";
 
 const app = new OpenAPIHono<Context>();
 
@@ -87,7 +87,8 @@ app.openapi(
       !companyNumber
     ) {
       throw new HTTPException(400, {
-        message: "companyNumber is required for company-specific scope requests",
+        message:
+          "companyNumber is required for company-specific scope requests",
       });
     }
 

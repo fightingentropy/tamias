@@ -1,9 +1,12 @@
 import {
+  createTransactionTag,
+  deleteTransactionTag,
+} from "@tamias/app-data/queries";
+import {
   createTransactionTagSchema,
   deleteTransactionTagSchema,
 } from "../../schemas/transaction-tags";
 import { createTRPCRouter, protectedProcedure } from "../init";
-import { createTransactionTag, deleteTransactionTag } from "@tamias/app-data/queries";
 
 export const transactionTagsRouter = createTRPCRouter({
   create: protectedProcedure

@@ -1,8 +1,4 @@
-import {
-  createDocumentTagSchema,
-  deleteDocumentTagSchema,
-} from "../../schemas/document-tags";
-import { createTRPCRouter, protectedProcedure } from "../init";
+import slugify from "@sindresorhus/slugify";
 import {
   createDocumentTag,
   createDocumentTagEmbedding,
@@ -10,7 +6,11 @@ import {
   getDocumentTags,
 } from "@tamias/app-data/queries";
 import { Embed } from "@tamias/documents/embed";
-import slugify from "@sindresorhus/slugify";
+import {
+  createDocumentTagSchema,
+  deleteDocumentTagSchema,
+} from "../../schemas/document-tags";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const documentTagsRouter = createTRPCRouter({
   get: protectedProcedure.query(async ({ ctx: { db, teamId } }) => {

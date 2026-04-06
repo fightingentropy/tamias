@@ -1,10 +1,10 @@
+import { getAssistantModel } from "../providers";
+import { getAnalyticsAgent } from "./analytics";
 import {
   buildAgentInstructions,
   createCachedAgentFactory,
   formatContextForLLM,
 } from "./config/shared";
-import { getAssistantModel } from "../providers";
-import { getAnalyticsAgent } from "./analytics";
 import { getCustomersAgent } from "./customers";
 import { getGeneralAgent } from "./general";
 import { getInvoicesAgent } from "./invoices";
@@ -15,19 +15,19 @@ import { getTimeTrackingAgent } from "./time-tracking";
 import { getTransactionsAgent } from "./transactions";
 
 export const getMainAgent = createCachedAgentFactory((aiProvider) => ({
-    name: "triage",
-    model: getAssistantModel(aiProvider, "small"),
-    temperature: 0.1,
-    modelSettings: {
-      toolChoice: {
-        type: "tool",
-        toolName: "handoff_to_agent",
-      },
+  name: "triage",
+  model: getAssistantModel(aiProvider, "small"),
+  temperature: 0.1,
+  modelSettings: {
+    toolChoice: {
+      type: "tool",
+      toolName: "handoff_to_agent",
     },
-    instructions: (ctx) =>
-      buildAgentInstructions(ctx, {
-        intro: "Route user requests to the appropriate specialist.",
-        contextContent: (appContext) => `${formatContextForLLM(appContext)}
+  },
+  instructions: (ctx) =>
+    buildAgentInstructions(ctx, {
+      intro: "Route user requests to the appropriate specialist.",
+      contextContent: (appContext) => `${formatContextForLLM(appContext)}
 
 <routing-rules>
 IMPORTANT: For "weekly summary", "monthly summary", "summary for week X", "insights", "business overview" → ALWAYS route to general (NOT reports)
@@ -44,17 +44,17 @@ customers: Customer management
 timeTracking: Time tracking
 </agent-capabilities>
 </routing-rules>`,
-      }),
-    handoffs: [
-      getGeneralAgent(aiProvider),
-      getResearchAgent(aiProvider),
-      getOperationsAgent(aiProvider),
-      getReportsAgent(aiProvider),
-      getAnalyticsAgent(aiProvider),
-      getTransactionsAgent(aiProvider),
-      getInvoicesAgent(aiProvider),
-      getCustomersAgent(aiProvider),
-      getTimeTrackingAgent(aiProvider),
-    ],
-    maxTurns: 1,
+    }),
+  handoffs: [
+    getGeneralAgent(aiProvider),
+    getResearchAgent(aiProvider),
+    getOperationsAgent(aiProvider),
+    getReportsAgent(aiProvider),
+    getAnalyticsAgent(aiProvider),
+    getTransactionsAgent(aiProvider),
+    getInvoicesAgent(aiProvider),
+    getCustomersAgent(aiProvider),
+    getTimeTrackingAgent(aiProvider),
+  ],
+  maxTurns: 1,
 }));

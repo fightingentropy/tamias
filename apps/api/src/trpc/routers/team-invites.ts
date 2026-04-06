@@ -1,10 +1,4 @@
 import {
-  acceptTeamInviteSchema,
-  declineTeamInviteSchema,
-  deleteTeamInviteSchema,
-  inviteTeamMembersSchema,
-} from "../../schemas/team";
-import {
   acceptTeamInviteInConvex,
   createTeamInvitesInConvex,
   declineTeamInviteInConvex,
@@ -13,6 +7,12 @@ import {
 } from "@tamias/app-services/identity";
 import { enqueue } from "@tamias/job-client";
 import { TRPCError } from "@trpc/server";
+import {
+  acceptTeamInviteSchema,
+  declineTeamInviteSchema,
+  deleteTeamInviteSchema,
+  inviteTeamMembersSchema,
+} from "../../schemas/team";
 import { protectedProcedure } from "../init";
 import { requireTeamConvexUserId } from "./team-shared";
 
@@ -86,22 +86,20 @@ export const teamInviteProcedures = {
       });
       const results = data?.results ?? [];
       const skippedInvites = data?.skippedInvites ?? [];
-      const invites: InviteTeamMemberEmail[] = results.flatMap(
-        (invite) => {
-          if (!invite?.email) {
-            return [];
-          }
+      const invites: InviteTeamMemberEmail[] = results.flatMap((invite) => {
+        if (!invite?.email) {
+          return [];
+        }
 
-          return [
-            {
-              email: invite.email,
-              invitedByName: session.user.full_name ?? "",
-              invitedByEmail,
-              teamName: invite.team?.name ?? "",
-            },
-          ];
-        },
-      );
+        return [
+          {
+            email: invite.email,
+            invitedByName: session.user.full_name ?? "",
+            invitedByEmail,
+            teamName: invite.team?.name ?? "",
+          },
+        ];
+      });
 
       if (invites.length > 0) {
         await enqueue(

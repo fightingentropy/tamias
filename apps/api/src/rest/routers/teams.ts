@@ -1,4 +1,5 @@
-import type { Context } from "../types";
+import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { updateTeamById } from "@tamias/app-data/queries";
 import {
   getTeamByPublicTeamIdFromConvexIdentity,
   getTeamMembersFromConvex,
@@ -12,9 +13,8 @@ import {
   updateTeamByIdSchema,
 } from "../../schemas/team";
 import { validateResponse } from "../../utils/validate-response";
-import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
-import { updateTeamById } from "@tamias/app-data/queries";
 import { withRequiredScope } from "../middleware";
+import type { Context } from "../types";
 
 const app = new OpenAPIHono<Context>();
 

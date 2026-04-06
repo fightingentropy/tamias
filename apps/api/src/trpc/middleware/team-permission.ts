@@ -1,6 +1,6 @@
+import type { Database } from "@tamias/app-data/client";
 import { getTeamMembershipIdsFromConvex } from "@tamias/app-services/identity";
 import type { Session } from "@tamias/auth-session";
-import type { Database } from "@tamias/app-data/client";
 import { createLoggerWithContext } from "@tamias/logger";
 import { TRPCError } from "@trpc/server";
 

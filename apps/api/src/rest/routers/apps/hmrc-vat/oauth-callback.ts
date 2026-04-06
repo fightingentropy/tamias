@@ -1,3 +1,13 @@
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { createApp } from "@tamias/app-data/queries";
+import config from "@tamias/app-store/hmrc-vat";
+import {
+  decryptComplianceOAuthState,
+  HmrcVatProvider,
+} from "@tamias/compliance";
+import { logger } from "@tamias/logger";
+import { getAppUrl } from "@tamias/utils/envs";
+import { HTTPException } from "hono/http-exception";
 import { publicMiddleware } from "../../../middleware";
 import type { Context } from "../../../types";
 import {
@@ -5,16 +15,6 @@ import {
   buildSuccessRedirect,
   mapOAuthError,
 } from "../../../utils/oauth";
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import config from "@tamias/app-store/hmrc-vat";
-import {
-  decryptComplianceOAuthState,
-  HmrcVatProvider,
-} from "@tamias/compliance";
-import { createApp } from "@tamias/app-data/queries";
-import { logger } from "@tamias/logger";
-import { getAppUrl } from "@tamias/utils/envs";
-import { HTTPException } from "hono/http-exception";
 
 const app = new OpenAPIHono<Context>();
 
@@ -86,8 +86,7 @@ app.openapi(
     const db = c.get("db");
     const query = c.req.valid("query");
     const { code, state, error } = query;
-    const dashboardUrl =
-      getAppUrl();
+    const dashboardUrl = getAppUrl();
     const parsedState = decryptComplianceOAuthState(state);
     const source = parsedState?.source;
 

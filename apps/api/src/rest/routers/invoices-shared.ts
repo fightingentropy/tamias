@@ -68,12 +68,8 @@ function getInvoiceCalculatedAmounts(invoice: RestInvoiceLike) {
 
 function getInvoiceUrls(token: string | null | undefined) {
   return {
-    pdfUrl: token
-      ? `${getAppUrl()}/api/download/invoice?token=${token}`
-      : null,
-    previewUrl: token
-      ? `${getAppUrl()}/i/${token}`
-      : null,
+    pdfUrl: token ? `${getAppUrl()}/api/download/invoice?token=${token}` : null,
+    previewUrl: token ? `${getAppUrl()}/i/${token}` : null,
   };
 }
 

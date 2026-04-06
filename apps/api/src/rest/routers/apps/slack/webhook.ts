@@ -1,17 +1,17 @@
-import { publicMiddleware } from "../../../middleware";
-import type { Context } from "../../../types";
-import { validateResponse } from "../../../../utils/validate-response";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import type { FileShareMessageEvent } from "@slack/web-api";
+import { getAppBySlackTeamId } from "@tamias/app-data/queries";
 import {
   createSlackWebClient,
   fileShare,
   publishAppHome,
   verifySlackWebhook,
 } from "@tamias/app-store/slack/server";
-import { getAppBySlackTeamId } from "@tamias/app-data/queries";
 import { createLoggerWithContext } from "@tamias/logger";
-import type { FileShareMessageEvent } from "@slack/web-api";
 import { HTTPException } from "hono/http-exception";
+import { validateResponse } from "../../../../utils/validate-response";
+import { publicMiddleware } from "../../../middleware";
+import type { Context } from "../../../types";
 
 const logger = createLoggerWithContext("slack:webhook");
 
@@ -280,7 +280,7 @@ app.openapi(
               } as FileShareMessageEvent;
 
               // Process file asynchronously - don't await to ACK Slack quickly
-                fileShare(fileShareEvent, {
+              fileShare(fileShareEvent, {
                 teamId: tamiasTeamId,
                 token,
               }).catch((error) => {

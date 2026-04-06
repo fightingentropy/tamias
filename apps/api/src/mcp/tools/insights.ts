@@ -1,15 +1,15 @@
 import {
-  insightByIdSchema,
-  insightByPeriodSchema,
-  latestInsightSchema,
-  listInsightsSchema,
-} from "../../schemas/insights";
-import {
   getInsightById,
   getInsightByPeriod,
   getInsightsForUser,
   getLatestInsight,
 } from "@tamias/app-data/queries";
+import {
+  insightByIdSchema,
+  insightByPeriodSchema,
+  latestInsightSchema,
+  listInsightsSchema,
+} from "../../schemas/insights";
 import { hasScope, READ_ONLY_ANNOTATIONS, type RegisterTools } from "../types";
 
 export const registerInsightTools: RegisterTools = (server, ctx) => {

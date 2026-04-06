@@ -1,11 +1,11 @@
 import { openai } from "@ai-sdk/openai";
-import type { Context } from "../types";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { logger } from "@tamias/logger";
 import { experimental_transcribe as transcribe } from "ai";
 import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
 import { withRequiredScope } from "../middleware";
+import type { Context } from "../types";
 
 const app = new OpenAPIHono<Context>();
 

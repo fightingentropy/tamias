@@ -64,15 +64,11 @@ export const upsertTrackerEntriesSchema = z.object({
       description: "Array of dates for which to create tracker entries",
       example: ["2024-04-15", "2024-04-16"],
     }),
-  assignedId: z
-    .string()
-    .nullable()
-    .optional()
-    .openapi({
-      description:
-        "Canonical app user ID assigned to this tracker entry. If not provided, will use the authenticated user",
-      example: "k57c9j9m4xw2n8h7p6q5r4s3t2u1v0w",
-    }),
+  assignedId: z.string().nullable().optional().openapi({
+    description:
+      "Canonical app user ID assigned to this tracker entry. If not provided, will use the authenticated user",
+    example: "k57c9j9m4xw2n8h7p6q5r4s3t2u1v0w",
+  }),
   projectId: z.string().openapi({
     description:
       "Unique identifier of the project associated with this tracker entry",
@@ -298,15 +294,11 @@ export const startTimerSchema = z.object({
     description: "Unique identifier of the project to track time for",
     example: "b3b6e2c2-1f2a-4e3b-9c1d-2a4b6e2c21f2",
   }),
-  assignedId: z
-    .string()
-    .optional()
-    .nullable()
-    .openapi({
-      description:
-        "Canonical app user ID to assign the timer to. If not provided, will use the authenticated user",
-      example: "k57c9j9m4xw2n8h7p6q5r4s3t2u1v0w",
-    }),
+  assignedId: z.string().optional().nullable().openapi({
+    description:
+      "Canonical app user ID to assign the timer to. If not provided, will use the authenticated user",
+    example: "k57c9j9m4xw2n8h7p6q5r4s3t2u1v0w",
+  }),
   description: z.string().optional().nullable().openapi({
     description: "Optional description for the timer session",
     example: "Working on implementing timer feature",

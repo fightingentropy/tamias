@@ -1,4 +1,13 @@
 import {
+  GoCardLessApi,
+  getProviderErrorDetails,
+  getRates,
+  PlaidApi,
+  Provider,
+} from "@tamias/banking";
+import { createLoggerWithContext } from "@tamias/logger";
+import { TRPCError } from "@trpc/server";
+import {
   connectionByReferenceSchema,
   connectionStatusSchema,
   deleteConnectionSchema,
@@ -16,15 +25,6 @@ import {
   protectedOrInternalProcedure,
   protectedProcedure,
 } from "../init";
-import {
-  GoCardLessApi,
-  getProviderErrorDetails,
-  getRates,
-  PlaidApi,
-  Provider,
-} from "@tamias/banking";
-import { createLoggerWithContext } from "@tamias/logger";
-import { TRPCError } from "@trpc/server";
 
 const logger = createLoggerWithContext("trpc:banking");
 

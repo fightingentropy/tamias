@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
+import { upsertTransactionCategoriesInConvex } from "@tamias/app-data/convex";
 import { createTeam, deleteTeam, getTeamById } from "@tamias/app-data/queries";
 import { getBankConnections } from "@tamias/app-data/queries/bank-connections";
-import { upsertTransactionCategoriesInConvex } from "@tamias/app-data/convex";
 import {
   getTeamMembersFromConvex,
   hasTeamAccessInConvex,

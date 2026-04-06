@@ -1,12 +1,12 @@
 import {
+  createDocumentTagAssignment,
+  deleteDocumentTagAssignment,
+} from "@tamias/app-data/queries";
+import {
   createDocumentTagAssignmentSchema,
   deleteDocumentTagAssignmentSchema,
 } from "../../schemas/document-tag-assignments";
 import { createTRPCRouter, protectedProcedure } from "../init";
-import {
-  createDocumentTagAssignment,
-  deleteDocumentTagAssignment,
-} from "@tamias/app-data/queries";
 
 export const documentTagAssignmentsRouter = createTRPCRouter({
   create: protectedProcedure

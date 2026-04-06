@@ -1,7 +1,3 @@
-import {
-  CONTRA_REVENUE_CATEGORIES,
-  REVENUE_CATEGORIES,
-} from "@tamias/categories";
 import { db } from "@tamias/app-data/client";
 import {
   getReports,
@@ -9,6 +5,10 @@ import {
   getSpendingForPeriod,
 } from "@tamias/app-data/queries";
 import { getTransactionsPage } from "@tamias/app-services/transactions";
+import {
+  CONTRA_REVENUE_CATEGORIES,
+  REVENUE_CATEGORIES,
+} from "@tamias/categories";
 import { formatAmount } from "@tamias/utils/format";
 import { format, parseISO } from "date-fns";
 import type {
@@ -20,8 +20,9 @@ import type {
   MonthlyBreakdownData,
 } from "./types";
 
-type TransactionRecord =
-  Awaited<ReturnType<typeof getTransactionsPage>>["data"][number];
+type TransactionRecord = Awaited<
+  ReturnType<typeof getTransactionsPage>
+>["data"][number];
 
 type PeriodDataOptions = {
   teamId: string;
@@ -34,7 +35,8 @@ type PeriodDataOptions = {
 
 function shouldIncludeTransaction(transaction: TransactionRecord) {
   const revenueCategories = REVENUE_CATEGORIES as readonly string[];
-  const contraRevenueCategories = CONTRA_REVENUE_CATEGORIES as readonly string[];
+  const contraRevenueCategories =
+    CONTRA_REVENUE_CATEGORIES as readonly string[];
 
   if (transaction.internal) {
     return false;
@@ -242,13 +244,15 @@ export function createMonthlyBreakdownData(options: {
       amount: category.amount,
       percentage: category.percentage,
     })),
-    topTransactions: options.result.transactions.slice(0, 5).map((transaction) => ({
-      name: transaction.name,
-      amount: transaction.amount,
-      formattedAmount: transaction.formattedAmount,
-      category: transaction.category,
-      percentage: transaction.percentage,
-    })),
+    topTransactions: options.result.transactions
+      .slice(0, 5)
+      .map((transaction) => ({
+        name: transaction.name,
+        amount: transaction.amount,
+        formattedAmount: transaction.formattedAmount,
+        category: transaction.category,
+        percentage: transaction.percentage,
+      })),
   };
 }
 
@@ -318,7 +322,9 @@ export function aggregateMonthlyBreakdownResults(options: {
   const transactions = Array.from(transactionMap.values())
     .map((transaction) => {
       const totalForPercentage =
-        transaction.amount < 0 ? options.summary.expenses : options.summary.revenue;
+        transaction.amount < 0
+          ? options.summary.expenses
+          : options.summary.revenue;
 
       return {
         name: transaction.name,
@@ -329,7 +335,8 @@ export function aggregateMonthlyBreakdownResults(options: {
             amount: transaction.amount,
             currency: options.targetCurrency,
             locale: options.locale,
-          }) || `${options.targetCurrency}${transaction.amount.toLocaleString()}`,
+          }) ||
+          `${options.targetCurrency}${transaction.amount.toLocaleString()}`,
         percentage:
           totalForPercentage > 0
             ? (Math.abs(transaction.amount) / totalForPercentage) * 100

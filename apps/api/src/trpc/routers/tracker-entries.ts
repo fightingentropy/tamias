@@ -1,13 +1,4 @@
-import {
-  deleteTrackerEntrySchema,
-  getCurrentTimerSchema,
-  getTrackerRecordsByDateSchema,
-  getTrackerRecordsByRangeSchema,
-  startTimerSchema,
-  stopTimerSchema,
-  upsertTrackerEntriesSchema,
-} from "../../schemas/tracker-entries";
-import { createTRPCRouter, protectedProcedure } from "../init";
+import type { CurrentUserIdentityRecord } from "@tamias/app-data/convex";
 import {
   deleteTrackerEntry,
   getCurrentTimer,
@@ -18,7 +9,16 @@ import {
   stopTimer,
   upsertTrackerEntries,
 } from "@tamias/app-data/queries";
-import type { CurrentUserIdentityRecord } from "@tamias/app-data/convex";
+import {
+  deleteTrackerEntrySchema,
+  getCurrentTimerSchema,
+  getTrackerRecordsByDateSchema,
+  getTrackerRecordsByRangeSchema,
+  startTimerSchema,
+  stopTimerSchema,
+  upsertTrackerEntriesSchema,
+} from "../../schemas/tracker-entries";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 type ConvexUserId = CurrentUserIdentityRecord["convexId"];
 
@@ -72,8 +72,7 @@ export const trackerEntriesRouter = createTRPCRouter({
   startTimer: protectedProcedure
     .input(startTimerSchema)
     .mutation(async ({ ctx: { db, teamId, session }, input }) => {
-      const assignedId = (input.assignedId ??
-        session.user.id) as ConvexUserId;
+      const assignedId = (input.assignedId ?? session.user.id) as ConvexUserId;
       const { assignedId: _assignedId, ...rest } = input;
 
       return startTimer(db, {
@@ -86,8 +85,7 @@ export const trackerEntriesRouter = createTRPCRouter({
   stopTimer: protectedProcedure
     .input(stopTimerSchema)
     .mutation(async ({ ctx: { db, teamId, session }, input }) => {
-      const assignedId = (input.assignedId ??
-        session.user.id) as ConvexUserId;
+      const assignedId = (input.assignedId ?? session.user.id) as ConvexUserId;
       const { assignedId: _assignedId, ...rest } = input;
 
       return stopTimer(db, {
@@ -100,8 +98,7 @@ export const trackerEntriesRouter = createTRPCRouter({
   getCurrentTimer: protectedProcedure
     .input(getCurrentTimerSchema.optional())
     .query(async ({ ctx: { db, teamId, session }, input }) => {
-      const assignedId = (input?.assignedId ??
-        session.user.id) as ConvexUserId;
+      const assignedId = (input?.assignedId ?? session.user.id) as ConvexUserId;
 
       return getCurrentTimer(db, {
         teamId: teamId!,
@@ -112,8 +109,7 @@ export const trackerEntriesRouter = createTRPCRouter({
   getTimerStatus: protectedProcedure
     .input(getCurrentTimerSchema.optional())
     .query(async ({ ctx: { db, teamId, session }, input }) => {
-      const assignedId = (input?.assignedId ??
-        session.user.id) as ConvexUserId;
+      const assignedId = (input?.assignedId ?? session.user.id) as ConvexUserId;
 
       return getTimerStatus(db, {
         teamId: teamId!,

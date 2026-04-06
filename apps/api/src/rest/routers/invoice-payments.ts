@@ -1,18 +1,18 @@
-import { protectedMiddleware, publicMiddleware } from "../middleware";
-import type { Context } from "../types";
-import { getInvoiceByToken } from "@tamias/app-services/invoice-by-token";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import {
   getTeamById,
   updateInvoice,
   updateTeamById,
 } from "@tamias/app-data/queries";
+import { getInvoiceByToken } from "@tamias/app-services/invoice-by-token";
 import { decryptOAuthState, encryptOAuthState } from "@tamias/encryption";
 import { toStripeAmount } from "@tamias/invoice/currency";
 import { logger } from "@tamias/logger";
 import { getApiUrl, getAppUrl } from "@tamias/utils/envs";
 import { HTTPException } from "hono/http-exception";
 import Stripe from "stripe";
+import { protectedMiddleware, publicMiddleware } from "../middleware";
+import type { Context } from "../types";
 
 const app = new OpenAPIHono<Context>();
 
@@ -96,8 +96,7 @@ app.openapi(
       source: "invoice-settings",
     });
 
-    const _dashboardUrl =
-      getAppUrl();
+    const _dashboardUrl = getAppUrl();
     const redirectUri = `${getApiUrl()}/invoice-payments/connect-stripe/callback`;
 
     // Build Stripe Connect OAuth URL (Standard accounts)
@@ -179,8 +178,7 @@ app.openapi(
   async (c) => {
     const db = c.get("db");
     const { code, state, error, error_description } = c.req.valid("query");
-    const dashboardUrl =
-      getAppUrl();
+    const dashboardUrl = getAppUrl();
 
     // Handle OAuth errors
     if (error || !code) {

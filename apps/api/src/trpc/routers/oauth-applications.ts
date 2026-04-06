@@ -1,15 +1,4 @@
 import {
-  authorizeOAuthApplicationSchema,
-  createOAuthApplicationSchema,
-  deleteOAuthApplicationSchema,
-  getApplicationInfoSchema,
-  getOAuthApplicationSchema,
-  regenerateClientSecretSchema,
-  updateApprovalStatusSchema,
-  updateOAuthApplicationSchema,
-} from "../../schemas/oauth-applications";
-import { revokeUserApplicationAccessSchema } from "../../schemas/oauth-flow";
-import {
   createAuthorizationCodeInConvex,
   createOAuthApplicationInConvex,
   deleteOAuthApplicationInConvex,
@@ -24,14 +13,25 @@ import {
   updateOAuthApplicationInConvex,
   updateOAuthApplicationStatusInConvex,
 } from "@tamias/app-services/foundation";
-import { resend } from "../../services/resend";
 import { getOAuthApplicationInfo } from "@tamias/app-services/oauth-application-info";
-import { createTRPCRouter, protectedProcedure } from "../init";
 import { AppInstalledEmail } from "@tamias/email/emails/app-installed";
 import { AppReviewRequestEmail } from "@tamias/email/emails/app-review-request";
 import { render } from "@tamias/email/render";
 import { createLoggerWithContext } from "@tamias/logger";
 import { getSupportFromDisplay } from "@tamias/utils/envs";
+import {
+  authorizeOAuthApplicationSchema,
+  createOAuthApplicationSchema,
+  deleteOAuthApplicationSchema,
+  getApplicationInfoSchema,
+  getOAuthApplicationSchema,
+  regenerateClientSecretSchema,
+  updateApprovalStatusSchema,
+  updateOAuthApplicationSchema,
+} from "../../schemas/oauth-applications";
+import { revokeUserApplicationAccessSchema } from "../../schemas/oauth-flow";
+import { resend } from "../../services/resend";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 const logger = createLoggerWithContext("trpc:oauth-applications");
 
@@ -64,7 +64,8 @@ export const oauthApplicationsRouter = createTRPCRouter({
       } = input;
 
       // Validate client_id first (needed for both allow and deny)
-      const application = await getOAuthApplicationByClientIdFromConvex(clientId);
+      const application =
+        await getOAuthApplicationByClientIdFromConvex(clientId);
       if (!application || !application.active) {
         throw new Error("Invalid client_id");
       }

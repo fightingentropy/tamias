@@ -1,5 +1,5 @@
-import { SCOPES } from "@tamias/auth-session/scopes";
 import { z } from "@hono/zod-openapi";
+import { SCOPES } from "@tamias/auth-session/scopes";
 
 // OAuth Authorization Request Schema
 export const oauthAuthorizationRequestSchema = z.object({

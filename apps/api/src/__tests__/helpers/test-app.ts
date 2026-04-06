@@ -1,6 +1,6 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
-import { createMiddleware } from "hono/factory";
 import type { Id } from "@tamias/app-data/convex/data-model";
+import { createMiddleware } from "hono/factory";
 import type { Context } from "../../rest/types";
 
 export interface TestAppOptions {
@@ -63,7 +63,12 @@ export function createTestApp(options: TestAppOptions = {}) {
 
   const originalRequest = app.request.bind(app);
   app.request = ((input, requestInit, env, executionCtx) =>
-    originalRequest(input, requestInit, env ?? testEnv, executionCtx)) as typeof app.request;
+    originalRequest(
+      input,
+      requestInit,
+      env ?? testEnv,
+      executionCtx,
+    )) as typeof app.request;
 
   return app;
 }

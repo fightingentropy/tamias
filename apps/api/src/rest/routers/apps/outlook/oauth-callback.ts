@@ -1,10 +1,3 @@
-import { publicMiddleware } from "../../../middleware";
-import type { Context } from "../../../types";
-import {
-  buildErrorRedirect,
-  buildSuccessRedirect,
-  mapOAuthError,
-} from "../../../utils/oauth";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { InboxConnector } from "@tamias/inbox/connector";
 import { decryptOAuthState } from "@tamias/inbox/utils";
@@ -12,6 +5,13 @@ import { enqueue } from "@tamias/job-client";
 import { logger } from "@tamias/logger";
 import { getAppUrl } from "@tamias/utils/envs";
 import { HTTPException } from "hono/http-exception";
+import { publicMiddleware } from "../../../middleware";
+import type { Context } from "../../../types";
+import {
+  buildErrorRedirect,
+  buildSuccessRedirect,
+  mapOAuthError,
+} from "../../../utils/oauth";
 
 const app = new OpenAPIHono<Context>();
 
@@ -87,8 +87,7 @@ app.openapi(
   async (c) => {
     const query = c.req.valid("query");
     const { code, state, error } = query;
-    const dashboardUrl =
-      getAppUrl();
+    const dashboardUrl = getAppUrl();
 
     // Try to decrypt state first to determine redirect target (apps vs inbox)
     const parsedState = decryptOAuthState(state);

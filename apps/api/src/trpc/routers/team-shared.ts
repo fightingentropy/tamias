@@ -1,10 +1,10 @@
+import type { getTeamMembersFromConvex } from "@tamias/app-services/identity";
+import type { Session } from "@tamias/auth-session";
 import {
   CATEGORIES,
   getTaxRateForCategory,
   getTaxTypeForCountry,
 } from "@tamias/categories";
-import { getTeamMembersFromConvex } from "@tamias/app-services/identity";
-import type { Session } from "@tamias/auth-session";
 
 type TeamMembers = Awaited<ReturnType<typeof getTeamMembersFromConvex>>;
 

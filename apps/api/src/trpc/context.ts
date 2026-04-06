@@ -1,10 +1,7 @@
-import {
-  resolveRequestAuth,
-  type Session,
-} from "@tamias/auth-session";
-import { getRequestAuthDependencies } from "@tamias/app-services/auth";
 import type { Database } from "@tamias/app-data/client";
 import { createDatabase } from "@tamias/app-data/client";
+import { getRequestAuthDependencies } from "@tamias/app-services/auth";
+import { resolveRequestAuth, type Session } from "@tamias/auth-session";
 
 export type GeoContext = {
   country: string | null;
@@ -48,7 +45,8 @@ function getHeader(headers: HeaderSource, name: string) {
 
 function getRequestTrace(headers: HeaderSource) {
   const cfRay = getHeader(headers, "cf-ray") ?? undefined;
-  const requestId = getHeader(headers, "x-request-id") ?? cfRay ?? crypto.randomUUID();
+  const requestId =
+    getHeader(headers, "x-request-id") ?? cfRay ?? crypto.randomUUID();
 
   return { requestId, cfRay };
 }

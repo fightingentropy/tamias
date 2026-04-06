@@ -1,6 +1,3 @@
-import type { Context } from "../../../types";
-import { isTeamEligibleForSync } from "../../../../utils/check-team-eligibility";
-import { validateTellerSignature } from "../../../../utils/teller";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import {
   getBankConnectionByEnrollmentId,
@@ -10,6 +7,9 @@ import { enqueue } from "@tamias/job-client";
 import { logger } from "@tamias/logger";
 import { isAfter, subDays } from "date-fns";
 import { HTTPException } from "hono/http-exception";
+import { isTeamEligibleForSync } from "../../../../utils/check-team-eligibility";
+import { validateTellerSignature } from "../../../../utils/teller";
+import type { Context } from "../../../types";
 
 const app = new OpenAPIHono<Context>();
 

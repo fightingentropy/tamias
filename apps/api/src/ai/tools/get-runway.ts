@@ -1,7 +1,11 @@
-import { runwayArtifact } from "@tamias/ai-artifacts/runway";
 import { UTCDate } from "@date-fns/utc";
+import { runwayArtifact } from "@tamias/ai-artifacts/runway";
 import { db } from "@tamias/app-data/client";
-import { getBurnRate, getCashBalance, getRunway } from "@tamias/app-data/queries";
+import {
+  getBurnRate,
+  getCashBalance,
+  getRunway,
+} from "@tamias/app-data/queries";
 import { tool } from "ai";
 import { endOfMonth, format, startOfMonth, subMonths } from "date-fns";
 import { z } from "zod";
@@ -50,10 +54,10 @@ export const getRunwayTool = tool({
     try {
       const { finalFrom, finalTo, finalCurrency, description } =
         resolveReportToolParams({
-        toolName: "getRunway",
-        appContext,
-        aiParams: { period, from, to, currency },
-      });
+          toolName: "getRunway",
+          appContext,
+          aiParams: { period, from, to, currency },
+        });
       const analysis = startArtifactStream({
         enabled: showCanvas,
         executionOptions,

@@ -7,7 +7,10 @@ import {
   resolveReportToolParams,
   throwIfBankAccountsRequired,
 } from "../utils/tool-runtime";
-import { generateMetricsBreakdownAnalysis, generateMultiMonthMetricsBreakdownAnalysis } from "./metrics-breakdown/analysis";
+import {
+  generateMetricsBreakdownAnalysis,
+  generateMultiMonthMetricsBreakdownAnalysis,
+} from "./metrics-breakdown/analysis";
 import {
   startMetricsBreakdownSummaryArtifact,
   startMonthlyBreakdownArtifacts,
@@ -17,12 +20,18 @@ import {
   createMonthlyBreakdownData,
   getMetricsBreakdownPeriodData,
 } from "./metrics-breakdown/data";
-import { splitDateRangeByMonth, spansMultipleMonths } from "./metrics-breakdown/periods";
+import {
+  spansMultipleMonths,
+  splitDateRangeByMonth,
+} from "./metrics-breakdown/periods";
 import {
   buildMultiMonthBreakdownResponse,
   buildSinglePeriodBreakdownResponse,
 } from "./metrics-breakdown/responses";
-import type { BreakdownSummary, MonthlyBreakdownData } from "./metrics-breakdown/types";
+import type {
+  BreakdownSummary,
+  MonthlyBreakdownData,
+} from "./metrics-breakdown/types";
 
 const getMetricsBreakdownSchema = z.object({
   period: z

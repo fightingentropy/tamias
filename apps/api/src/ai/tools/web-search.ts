@@ -1,10 +1,10 @@
 import { tool } from "ai";
+import { z } from "zod";
 import {
-  runOpenAIWebSearch,
   type OpenAIWebSearchSource,
+  runOpenAIWebSearch,
 } from "../utils/openai-web-search";
 import { getToolAppContext } from "../utils/tool-runtime";
-import { z } from "zod";
 
 export const webSearchTool = tool({
   description:

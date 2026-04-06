@@ -1,6 +1,4 @@
-import {
-  markInvoiceViewed,
-} from "@tamias/app-data/queries";
+import { markInvoiceViewed } from "@tamias/app-data/queries";
 import {
   getInvoiceByToken,
   getInvoiceIdFromToken,
@@ -8,8 +6,8 @@ import {
 import {
   getInvoiceByIdForTeam,
   getInvoicePaymentStatusForTeam,
-  getInvoicesPage,
   getInvoiceSummaryForTeam,
+  getInvoicesPage,
   searchInvoiceNumberForTeam,
 } from "@tamias/app-services/invoices";
 import { TRPCError } from "@trpc/server";

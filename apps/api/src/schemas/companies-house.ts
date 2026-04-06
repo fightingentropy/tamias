@@ -106,9 +106,7 @@ const companiesHousePscDiscrepancySchema = z
       .trim()
       .regex(/^\d{2}\/\d{4}$/)
       .optional(),
-    pscDiscrepancyTypes: z
-      .array(companiesHousePscDiscrepancyTypeSchema)
-      .min(1),
+    pscDiscrepancyTypes: z.array(companiesHousePscDiscrepancyTypeSchema).min(1),
     pscName: z.string().trim().max(200).optional(),
     pscType: companiesHousePscTypeSchema,
   })

@@ -1,8 +1,8 @@
-import { createMcpServer } from "../../mcp/server";
-import type { Context } from "../types";
-import type { Scope } from "@tamias/auth-session/scopes";
 import { StreamableHTTPTransport } from "@hono/mcp";
 import { OpenAPIHono } from "@hono/zod-openapi";
+import type { Scope } from "@tamias/auth-session/scopes";
+import { createMcpServer } from "../../mcp/server";
+import type { Context } from "../types";
 
 const app = new OpenAPIHono<Context>();
 

@@ -1,8 +1,8 @@
-import type { AppContext } from "../../agents/config/shared";
-import { getAssistantModel } from "../../providers";
 import { formatAmount } from "@tamias/utils/format";
 import { generateText } from "ai";
 import { format, parseISO } from "date-fns";
+import type { AppContext } from "../../agents/config/shared";
+import { getAssistantModel } from "../../providers";
 import type {
   AggregatedBreakdownTransaction,
   BreakdownCategory,

@@ -1,4 +1,6 @@
-import type { Context } from "../types";
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { deleteInbox, updateInbox } from "@tamias/app-data/queries";
+import { getInboxItemForTeam, getInboxPage } from "@tamias/app-services/inbox";
 import {
   deleteInboxResponseSchema,
   deleteInboxSchema,
@@ -12,16 +14,8 @@ import {
 } from "../../schemas/inbox";
 import { getVaultSignedUrl } from "../../services/storage";
 import { validateResponse } from "../../utils/validate-response";
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import {
-  deleteInbox,
-  updateInbox,
-} from "@tamias/app-data/queries";
-import {
-  getInboxItemForTeam,
-  getInboxPage,
-} from "@tamias/app-services/inbox";
 import { withRequiredScope } from "../middleware";
+import type { Context } from "../types";
 
 const app = new OpenAPIHono<Context>();
 

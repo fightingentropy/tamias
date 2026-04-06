@@ -1,7 +1,10 @@
 import { getWriter } from "@ai-sdk-tools/artifacts";
 import type { AppContext } from "../agents/config/shared";
 import { generateArtifactDescription } from "./artifact-title";
-import { resolveToolParams, type ResolveToolParamsOptions } from "./period-dates";
+import {
+  type ResolveToolParamsOptions,
+  resolveToolParams,
+} from "./period-dates";
 import { checkBankAccountsRequired } from "./tool-helpers";
 
 export type ToolExecutionOptions = {
@@ -44,19 +47,17 @@ export function resolveReportToolParams(
   };
 }
 
-export function startArtifactStream<TArtifactInput, TArtifactStream>(
-  options: {
-    enabled: boolean;
-    executionOptions: ToolExecutionOptions;
-    artifact: {
-      stream: (
-        input: TArtifactInput,
-        writer: ReturnType<typeof getWriter>,
-      ) => TArtifactStream;
-    };
-    input: TArtifactInput;
-  },
-): TArtifactStream | undefined {
+export function startArtifactStream<TArtifactInput, TArtifactStream>(options: {
+  enabled: boolean;
+  executionOptions: ToolExecutionOptions;
+  artifact: {
+    stream: (
+      input: TArtifactInput,
+      writer: ReturnType<typeof getWriter>,
+    ) => TArtifactStream;
+  };
+  input: TArtifactInput;
+}): TArtifactStream | undefined {
   if (!options.enabled) {
     return undefined;
   }

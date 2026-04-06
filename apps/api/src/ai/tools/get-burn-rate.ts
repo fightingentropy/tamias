@@ -1,4 +1,3 @@
-import { getAssistantModel } from "../providers";
 import { burnRateArtifact } from "@tamias/ai-artifacts/burn-rate";
 import { db } from "@tamias/app-data/client";
 import { getBurnRate, getRunway, getSpending } from "@tamias/app-data/queries";
@@ -12,6 +11,7 @@ import {
   startOfMonth,
 } from "date-fns";
 import { z } from "zod";
+import { getAssistantModel } from "../providers";
 import {
   getToolAppContext,
   getToolTeamId,
@@ -57,17 +57,12 @@ export const getBurnRateTool = tool({
     throwIfBankAccountsRequired(appContext);
 
     try {
-      const {
-        finalFrom,
-        finalTo,
-        finalCurrency,
-        description,
-        locale,
-      } = resolveReportToolParams({
-        toolName: "getBurnRate",
-        appContext,
-        aiParams: { period, from, to, currency },
-      });
+      const { finalFrom, finalTo, finalCurrency, description, locale } =
+        resolveReportToolParams({
+          toolName: "getBurnRate",
+          appContext,
+          aiParams: { period, from, to, currency },
+        });
       const analysis = startArtifactStream({
         enabled: showCanvas,
         executionOptions,

@@ -1,5 +1,8 @@
-import type { Context } from "../../../types";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import {
+  validateEvent,
+  WebhookVerificationError,
+} from "@polar-sh/sdk/webhooks";
 import {
   getTeamById,
   getTeamOwnerContact,
@@ -9,11 +12,8 @@ import {
 import { enqueue, startCloudflareWorkflow } from "@tamias/job-client";
 import { logger } from "@tamias/logger";
 import { getPlanByProductId } from "@tamias/plans";
-import {
-  validateEvent,
-  WebhookVerificationError,
-} from "@polar-sh/sdk/webhooks";
 import { HTTPException } from "hono/http-exception";
+import type { Context } from "../../../types";
 
 const app = new OpenAPIHono<Context>();
 

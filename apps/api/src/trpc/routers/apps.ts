@@ -1,10 +1,4 @@
 import {
-  disconnectAppSchema,
-  removeWhatsAppConnectionSchema,
-  updateAppSettingsSchema,
-} from "../../schemas/apps";
-import { createTRPCRouter, protectedProcedure } from "../init";
-import {
   disconnectApp,
   getApps,
   removeWhatsAppConnection,
@@ -12,6 +6,12 @@ import {
   updateAppSettingsBulk,
 } from "@tamias/app-data/queries";
 import { z } from "zod";
+import {
+  disconnectAppSchema,
+  removeWhatsAppConnectionSchema,
+  updateAppSettingsSchema,
+} from "../../schemas/apps";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const appsRouter = createTRPCRouter({
   get: protectedProcedure.query(async ({ ctx: { db, teamId } }) => {

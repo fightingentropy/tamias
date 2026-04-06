@@ -44,7 +44,9 @@ export type MonthlyBreakdownData = {
   expenses: number;
   profit: number;
   transactionCount: number;
-  topCategories: Array<Pick<BreakdownCategory, "name" | "amount" | "percentage">>;
+  topCategories: Array<
+    Pick<BreakdownCategory, "name" | "amount" | "percentage">
+  >;
   topTransactions: Array<
     Pick<
       BreakdownTransaction,

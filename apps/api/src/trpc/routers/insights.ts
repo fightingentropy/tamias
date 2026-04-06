@@ -7,10 +7,7 @@ import {
   markInsightAsRead,
   updateInsight,
 } from "@tamias/app-data/queries";
-import {
-  canGenerateAudio,
-  generateInsightAudio,
-} from "@tamias/insights/audio";
+import { canGenerateAudio, generateInsightAudio } from "@tamias/insights/audio";
 import { createLoggerWithContext } from "@tamias/logger";
 import { TRPCError } from "@trpc/server";
 import {

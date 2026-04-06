@@ -1,13 +1,13 @@
-import type { Context } from "../types";
+import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import {
   getCurrentUserFromConvex,
   updateCurrentUserInConvex,
 } from "@tamias/app-services/identity";
+import { generateOptionalFileKey } from "@tamias/encryption";
 import { updateUserSchema, userSchema } from "../../schemas/users";
 import { validateResponse } from "../../utils/validate-response";
-import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
-import { generateOptionalFileKey } from "@tamias/encryption";
 import { withRequiredScope } from "../middleware";
+import type { Context } from "../types";
 
 const app = new OpenAPIHono<Context>();
 

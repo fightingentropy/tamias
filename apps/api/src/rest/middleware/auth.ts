@@ -1,5 +1,5 @@
-import { resolveRequestAuth } from "@tamias/auth-session";
 import { getRequestAuthDependencies } from "@tamias/app-services/auth";
+import { resolveRequestAuth } from "@tamias/auth-session";
 import type { MiddlewareHandler } from "hono";
 import { HTTPException } from "hono/http-exception";
 

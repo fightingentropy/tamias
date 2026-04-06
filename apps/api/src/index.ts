@@ -2,9 +2,7 @@ import {
   configureBankingRuntime,
   type TellerMtlsFetcher,
 } from "@tamias/banking";
-import {
-  configureCloudflareAsyncServiceRuntime,
-} from "@tamias/job-client/cloudflare-runtime";
+import { configureCloudflareAsyncServiceRuntime } from "@tamias/job-client/cloudflare-runtime";
 import { createLoggerWithContext, logger } from "@tamias/logger";
 import { getApiUrl, getAppUrl } from "@tamias/utils/envs";
 import {

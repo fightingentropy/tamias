@@ -1,5 +1,5 @@
-import { taxSummaryArtifact } from "@tamias/ai-artifacts/tax-summary";
 import { UTCDate } from "@date-fns/utc";
+import { taxSummaryArtifact } from "@tamias/ai-artifacts/tax-summary";
 import { db } from "@tamias/app-data/client";
 import { getTaxSummary } from "@tamias/app-data/queries";
 import { formatAmount } from "@tamias/utils/format";
@@ -60,10 +60,10 @@ export const getTaxSummaryTool = tool({
     try {
       const { finalFrom, finalTo, finalCurrency, description, locale } =
         resolveReportToolParams({
-        toolName: "getTaxSummary",
-        appContext,
-        aiParams: { period, from, to, currency },
-      });
+          toolName: "getTaxSummary",
+          appContext,
+          aiParams: { period, from, to, currency },
+        });
       const analysis = startArtifactStream({
         enabled: showCanvas,
         executionOptions,

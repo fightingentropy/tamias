@@ -1,5 +1,20 @@
-import { publicMiddleware } from "../middleware";
-import type { Context } from "../types";
+import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { resolveTamiasUserSession } from "@tamias/app-services/auth";
+import {
+  createAuthorizationCodeInConvex,
+  exchangeAuthorizationCodeInConvex,
+  getOAuthApplicationByClientIdFromConvex,
+  getTeamByPublicTeamIdFromConvex,
+  hasUserEverAuthorizedAppInConvex,
+  refreshAccessTokenInConvex,
+  revokeAccessTokenInConvex,
+} from "@tamias/app-services/foundation";
+import { AppInstalledEmail } from "@tamias/email/emails/app-installed";
+import { render } from "@tamias/email/render";
+import { createLoggerWithContext } from "@tamias/logger";
+import { getSupportFromDisplay } from "@tamias/utils/envs";
+import { HTTPException } from "hono/http-exception";
+import { z } from "zod";
 import {
   oauthApplicationInfoSchema,
   oauthAuthorizationDecisionSchema,
@@ -11,26 +26,11 @@ import {
   oauthTokenResponseSchema,
 } from "../../schemas/oauth-flow";
 import { resend } from "../../services/resend";
-import {
-  createAuthorizationCodeInConvex,
-  exchangeAuthorizationCodeInConvex,
-  getOAuthApplicationByClientIdFromConvex,
-  getTeamByPublicTeamIdFromConvex,
-  hasUserEverAuthorizedAppInConvex,
-  refreshAccessTokenInConvex,
-  revokeAccessTokenInConvex,
-} from "@tamias/app-services/foundation";
-import { resolveTamiasUserSession } from "@tamias/app-services/auth";
 import { validateClientCredentials } from "../../utils/oauth";
 import { validateResponse } from "../../utils/validate-response";
-import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
-import { AppInstalledEmail } from "@tamias/email/emails/app-installed";
-import { render } from "@tamias/email/render";
-import { createLoggerWithContext } from "@tamias/logger";
-import { getSupportFromDisplay } from "@tamias/utils/envs";
-import { HTTPException } from "hono/http-exception";
-import { z } from "zod";
+import { publicMiddleware } from "../middleware";
 import { createRateLimitMiddleware } from "../middleware/rate-limit";
+import type { Context } from "../types";
 
 const logger = createLoggerWithContext("rest:oauth");
 
@@ -86,7 +86,8 @@ app.openapi(
     const { client_id, redirect_uri, scope, state, code_challenge } = query;
 
     // Validate client_id
-    const application = await getOAuthApplicationByClientIdFromConvex(client_id);
+    const application =
+      await getOAuthApplicationByClientIdFromConvex(client_id);
     if (!application || !application.active) {
       throw new HTTPException(400, {
         message: "Invalid client_id",
@@ -215,7 +216,8 @@ app.openapi(
     }
 
     // Validate client_id
-    const application = await getOAuthApplicationByClientIdFromConvex(client_id);
+    const application =
+      await getOAuthApplicationByClientIdFromConvex(client_id);
     if (!application || !application.active) {
       throw new HTTPException(400, {
         message: "Invalid client_id",
@@ -388,7 +390,8 @@ app.openapi(
     } = body;
 
     // Validate client credentials
-    const application = await getOAuthApplicationByClientIdFromConvex(client_id);
+    const application =
+      await getOAuthApplicationByClientIdFromConvex(client_id);
     if (!application || !application.active) {
       throw new HTTPException(400, {
         message: "Invalid client credentials",
@@ -592,7 +595,8 @@ app.openapi(
     const { token, client_id, client_secret } = body;
 
     // Validate client credentials
-    const application = await getOAuthApplicationByClientIdFromConvex(client_id);
+    const application =
+      await getOAuthApplicationByClientIdFromConvex(client_id);
     if (!application || !application.active) {
       throw new HTTPException(400, {
         message: "Invalid client credentials",

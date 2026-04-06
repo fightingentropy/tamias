@@ -1,3 +1,5 @@
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { smoothStream } from "ai";
 import type {
   ForcedToolCall,
   MetricsFilter,
@@ -9,11 +11,9 @@ import {
   normalizeAIProvider,
 } from "../../ai/providers";
 import { getUserContext } from "../../ai/utils/get-user-context";
-import type { Context } from "../types";
 import { chatRequestSchema } from "../../schemas/chat";
-import { OpenAPIHono } from "@hono/zod-openapi";
-import { smoothStream } from "ai";
 import { withRequiredScope } from "../middleware";
+import type { Context } from "../types";
 
 const app = new OpenAPIHono<Context>();
 

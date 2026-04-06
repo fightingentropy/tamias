@@ -6,8 +6,7 @@ import {
 import { logger } from "@tamias/logger";
 import { getAppUrl } from "@tamias/utils/envs";
 
-const dashboardUrl =
-  getAppUrl();
+const dashboardUrl = getAppUrl();
 
 /**
  * Returns the welcome message content for Slack

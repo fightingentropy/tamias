@@ -1,4 +1,3 @@
-import { getAssistantModel } from "../providers";
 import { expensesArtifact } from "@tamias/ai-artifacts/expenses";
 import { db } from "@tamias/app-data/client";
 import { getSpending, getSpendingForPeriod } from "@tamias/app-data/queries";
@@ -6,6 +5,7 @@ import { formatAmount } from "@tamias/utils/format";
 import { generateText, tool } from "ai";
 import { parseISO } from "date-fns";
 import { z } from "zod";
+import { getAssistantModel } from "../providers";
 import {
   getToolAppContext,
   getToolTeamId,
@@ -52,10 +52,10 @@ export const getExpensesTool = tool({
     try {
       const { finalFrom, finalTo, finalCurrency, description, locale } =
         resolveReportToolParams({
-        toolName: "getExpenses",
-        appContext,
-        aiParams: { period, from, to, currency },
-      });
+          toolName: "getExpenses",
+          appContext,
+          aiParams: { period, from, to, currency },
+        });
       const analysis = startArtifactStream({
         enabled: showCanvas,
         executionOptions,

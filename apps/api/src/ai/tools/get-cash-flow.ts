@@ -1,10 +1,10 @@
-import { getAssistantModel } from "../providers";
 import { cashFlowArtifact } from "@tamias/ai-artifacts/cash-flow";
 import { db } from "@tamias/app-data/client";
 import { getCashFlow } from "@tamias/app-data/queries";
 import { formatAmount } from "@tamias/utils/format";
 import { generateText, tool } from "ai";
 import { z } from "zod";
+import { getAssistantModel } from "../providers";
 import {
   getToolAppContext,
   getToolTeamId,
@@ -54,8 +54,14 @@ export const getCashFlowTool = tool({
     throwIfBankAccountsRequired(appContext);
 
     try {
-      const { resolved, finalFrom, finalTo, finalCurrency, description, locale } =
-        resolveReportToolParams({
+      const {
+        resolved,
+        finalFrom,
+        finalTo,
+        finalCurrency,
+        description,
+        locale,
+      } = resolveReportToolParams({
         toolName: "getCashFlow",
         appContext,
         aiParams: {

@@ -1,12 +1,12 @@
 import { artifact, getWriter } from "@ai-sdk-tools/artifacts";
 import { metricsBreakdownSummaryArtifact } from "@tamias/ai-artifacts/metrics-breakdown";
 import { z } from "zod";
-import { createMonthlyArtifactType } from "../metrics-breakdown-constants";
 import { generateArtifactDescription } from "../../utils/artifact-title";
 import {
   startArtifactStream,
   type ToolExecutionOptions,
 } from "../../utils/tool-runtime";
+import { createMonthlyArtifactType } from "../metrics-breakdown-constants";
 import type { MonthlyPeriod } from "./types";
 
 const baseBreakdownSchema = z.object({
@@ -94,7 +94,9 @@ export function startMonthlyBreakdownArtifacts(options: {
 
   return options.periods.map((period) => {
     const description = generateArtifactDescription(period.from, period.to);
-    const artifactStream = createMonthlyBreakdownArtifact(period.monthKey).stream(
+    const artifactStream = createMonthlyBreakdownArtifact(
+      period.monthKey,
+    ).stream(
       {
         stage: "loading" as const,
         currency: options.currency,

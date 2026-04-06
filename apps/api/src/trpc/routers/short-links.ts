@@ -1,21 +1,14 @@
+import { createShortLink, getDocumentById } from "@tamias/app-data/queries";
+import { getPublicShortLink } from "@tamias/app-services/public-reads";
+import { getAppUrl } from "@tamias/utils/envs";
+import { TRPCError } from "@trpc/server";
 import {
   createShortLinkForDocumentSchema,
   createShortLinkSchema,
   getShortLinkSchema,
 } from "../../schemas/short-links";
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "../init";
-import { getPublicShortLink } from "@tamias/app-services/public-reads";
-import { TRPCError } from "@trpc/server";
-import {
-  createShortLink,
-  getDocumentById,
-} from "@tamias/app-data/queries";
-import { getAppUrl } from "@tamias/utils/envs";
 import { getVaultSignedUrl } from "../../services/storage";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../init";
 
 export const shortLinksRouter = createTRPCRouter({
   createForUrl: protectedProcedure

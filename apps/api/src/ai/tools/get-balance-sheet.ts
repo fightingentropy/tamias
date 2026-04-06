@@ -55,10 +55,10 @@ export const getBalanceSheetTool = tool({
     try {
       const { finalFrom, finalTo, finalCurrency, description, locale } =
         resolveReportToolParams({
-        toolName: "getBalanceSheet",
-        appContext,
-        aiParams: { period, from, to, currency },
-      });
+          toolName: "getBalanceSheet",
+          appContext,
+          aiParams: { period, from, to, currency },
+        });
 
       const targetCurrency = finalCurrency || "USD";
 

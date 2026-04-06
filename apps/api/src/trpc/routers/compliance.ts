@@ -1,7 +1,7 @@
+import { upsertFilingProfile } from "@tamias/app-data/queries";
+import { getComplianceProfileForTeam } from "@tamias/app-services/compliance";
 import { upsertFilingProfileSchema } from "../../schemas/compliance";
 import { createTRPCRouter, protectedProcedure } from "../init";
-import { getComplianceProfileForTeam } from "@tamias/app-services/compliance";
-import { upsertFilingProfile } from "@tamias/app-data/queries";
 
 export const complianceRouter = createTRPCRouter({
   getProfile: protectedProcedure.query(async ({ ctx: { db, teamId } }) => {

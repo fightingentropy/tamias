@@ -1,9 +1,9 @@
-import { protectedMiddleware } from "../../../middleware";
-import type { Context } from "../../../types";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { InboxConnector } from "@tamias/inbox/connector";
 import { encryptOAuthState } from "@tamias/inbox/utils";
 import { HTTPException } from "hono/http-exception";
+import { protectedMiddleware } from "../../../middleware";
+import type { Context } from "../../../types";
 
 const app = new OpenAPIHono<Context>();
 

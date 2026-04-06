@@ -1,16 +1,19 @@
-import type { Context } from "../../types";
-import { downloadFileSchema, downloadInvoiceSchema } from "../../../schemas/files";
-import { downloadVaultFile } from "../../../services/storage";
-import { getInvoiceByToken } from "@tamias/app-services/invoice-by-token";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { getInvoiceById } from "@tamias/app-data/queries";
+import { getInvoiceByToken } from "@tamias/app-services/invoice-by-token";
 import { verifyFileKey } from "@tamias/encryption";
 import { PdfTemplate, renderToStream } from "@tamias/invoice";
 import { HTTPException } from "hono/http-exception";
+import {
+  downloadFileSchema,
+  downloadInvoiceSchema,
+} from "../../../schemas/files";
+import { downloadVaultFile } from "../../../services/storage";
 import { publicMiddleware } from "../../middleware";
 import { withDatabase } from "../../middleware/db";
 import { withFileAuth } from "../../middleware/file-auth";
 import { withClientIp } from "../../middleware/ip";
+import type { Context } from "../../types";
 import { getContentTypeFromFilename, normalizeAndValidatePath } from "./utils";
 
 const app = new OpenAPIHono<Context>();

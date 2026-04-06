@@ -1,16 +1,4 @@
 import {
-  addVatAdjustmentSchema,
-  getEvidencePackSchema,
-  getVatDraftSchema,
-  recalculateVatDraftSchema,
-  submitVatReturnSchema,
-} from "../../schemas/compliance";
-import { createTRPCRouter, protectedProcedure } from "../init";
-import {
-  getVatDashboardForTeam,
-  getVatSubmissionsForTeam,
-} from "@tamias/app-services/compliance";
-import {
   addVatAdjustment,
   getEvidencePack,
   getVatDraft,
@@ -18,6 +6,18 @@ import {
   recalculateVatDraft,
   submitVatReturn,
 } from "@tamias/app-data/queries";
+import {
+  getVatDashboardForTeam,
+  getVatSubmissionsForTeam,
+} from "@tamias/app-services/compliance";
+import {
+  addVatAdjustmentSchema,
+  getEvidencePackSchema,
+  getVatDraftSchema,
+  recalculateVatDraftSchema,
+  submitVatReturnSchema,
+} from "../../schemas/compliance";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const vatRouter = createTRPCRouter({
   getDashboard: protectedProcedure.query(async ({ ctx: { db, teamId } }) => {

@@ -1,3 +1,14 @@
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import {
+  decryptAccountingOAuthState,
+  FORTNOX_SCOPES,
+  getAccountingProvider,
+} from "@tamias/accounting";
+import { createApp } from "@tamias/app-data/queries";
+import config from "@tamias/app-store/fortnox";
+import { logger } from "@tamias/logger";
+import { getAppUrl } from "@tamias/utils/envs";
+import { HTTPException } from "hono/http-exception";
 import { publicMiddleware } from "../../../middleware";
 import type { Context } from "../../../types";
 import {
@@ -5,17 +16,6 @@ import {
   buildSuccessRedirect,
   mapOAuthError,
 } from "../../../utils/oauth";
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import {
-  decryptAccountingOAuthState,
-  FORTNOX_SCOPES,
-  getAccountingProvider,
-} from "@tamias/accounting";
-import config from "@tamias/app-store/fortnox";
-import { createApp } from "@tamias/app-data/queries";
-import { logger } from "@tamias/logger";
-import { getAppUrl } from "@tamias/utils/envs";
-import { HTTPException } from "hono/http-exception";
 
 const app = new OpenAPIHono<Context>();
 
@@ -87,8 +87,7 @@ app.openapi(
     const db = c.get("db");
     const query = c.req.valid("query");
     const { code, state, error } = query;
-    const dashboardUrl =
-      getAppUrl();
+    const dashboardUrl = getAppUrl();
 
     // Try to decrypt state first to determine redirect target (apps vs settings)
     const parsedState = decryptAccountingOAuthState(state);

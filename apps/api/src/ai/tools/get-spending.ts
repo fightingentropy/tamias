@@ -1,15 +1,12 @@
-import { getAssistantModel } from "../providers";
 import { spendingArtifact } from "@tamias/ai-artifacts/spending";
 import { db } from "@tamias/app-data/client";
-import {
-  getSpending,
-  getSpendingForPeriod,
-} from "@tamias/app-data/queries";
+import { getSpending, getSpendingForPeriod } from "@tamias/app-data/queries";
 import { getTransactionsPage } from "@tamias/app-services/transactions";
 import { formatAmount, formatDate } from "@tamias/utils/format";
 import { generateText, tool } from "ai";
 import { endOfMonth, parseISO, startOfMonth } from "date-fns";
 import { z } from "zod";
+import { getAssistantModel } from "../providers";
 import {
   getToolAppContext,
   getToolTeamId,
@@ -59,10 +56,10 @@ export const getSpendingTool = tool({
     try {
       const { finalFrom, finalTo, finalCurrency, description, locale } =
         resolveReportToolParams({
-        toolName: "getSpending",
-        appContext,
-        aiParams: { period, from, to, currency },
-      });
+          toolName: "getSpending",
+          appContext,
+          aiParams: { period, from, to, currency },
+        });
       const analysis = startArtifactStream({
         enabled: showCanvas,
         executionOptions,

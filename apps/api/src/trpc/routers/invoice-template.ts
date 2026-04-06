@@ -1,6 +1,3 @@
-import { upsertInvoiceTemplateSchema } from "../../schemas/invoice";
-import { createTRPCRouter, protectedProcedure } from "../init";
-import { parseInputValue } from "../../utils/parse";
 import {
   createInvoiceTemplate,
   deleteInvoiceTemplate,
@@ -11,6 +8,9 @@ import {
   upsertInvoiceTemplate,
 } from "@tamias/app-data/queries";
 import { z } from "zod";
+import { upsertInvoiceTemplateSchema } from "../../schemas/invoice";
+import { parseInputValue } from "../../utils/parse";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const invoiceTemplateRouter = createTRPCRouter({
   // List all templates for the team

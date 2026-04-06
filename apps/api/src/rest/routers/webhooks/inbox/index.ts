@@ -1,5 +1,3 @@
-import type { Context } from "../../../types";
-import { resend } from "../../../../services/resend";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { getTeamByInboxId } from "@tamias/app-data/queries";
 import { getAllowedAttachments } from "@tamias/documents";
@@ -8,6 +6,8 @@ import { logger } from "@tamias/logger";
 import { basicAuth } from "hono/basic-auth";
 import { HTTPException } from "hono/http-exception";
 import { nanoid } from "nanoid";
+import { resend } from "../../../../services/resend";
+import type { Context } from "../../../types";
 import {
   ALLOWED_FORWARDING_EMAILS,
   FORWARD_FROM_EMAIL,

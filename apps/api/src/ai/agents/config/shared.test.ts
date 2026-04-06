@@ -13,8 +13,8 @@ describe("isInsightSummaryRequest", () => {
   });
 
   test("does not match detailed report prompts", () => {
-    expect(isInsightSummaryRequest("Show me a revenue breakdown by month")).toBe(
-      false,
-    );
+    expect(
+      isInsightSummaryRequest("Show me a revenue breakdown by month"),
+    ).toBe(false);
   });
 });

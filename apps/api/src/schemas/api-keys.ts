@@ -1,5 +1,5 @@
-import { SCOPES } from "@tamias/auth-session/scopes";
 import { z } from "@hono/zod-openapi";
+import { SCOPES } from "@tamias/auth-session/scopes";
 
 export const upsertApiKeySchema = z.object({
   id: z.string().optional(),

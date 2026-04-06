@@ -49,10 +49,10 @@ export const getBusinessHealthScoreTool = tool({
     try {
       const { finalFrom, finalTo, finalCurrency, description } =
         resolveReportToolParams({
-        toolName: "getBusinessHealthScore",
-        appContext,
-        aiParams: { period, from, to, currency },
-      });
+          toolName: "getBusinessHealthScore",
+          appContext,
+          aiParams: { period, from, to, currency },
+        });
       const analysis = startArtifactStream({
         enabled: showCanvas,
         executionOptions,

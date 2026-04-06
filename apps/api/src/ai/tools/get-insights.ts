@@ -11,7 +11,10 @@ import {
   getPeriodLabel,
   getPreviousCompletePeriod,
 } from "@tamias/insights";
-import type { InsightGenerationResult, PeriodType } from "@tamias/insights/types";
+import type {
+  InsightGenerationResult,
+  PeriodType,
+} from "@tamias/insights/types";
 import { formatAmount } from "@tamias/utils/format";
 import { tool } from "ai";
 import { z } from "zod";
@@ -49,25 +52,23 @@ export const getInsightsTool = tool({
 
     try {
       let insight: Insight | null = null;
-      let generatedInsight:
-        | {
-            id: string;
-            periodLabel: string;
-            periodType: PeriodType;
-            periodYear: number;
-            periodNumber: number;
-            currency: string;
-            title: string;
-            content: InsightGenerationResult["content"];
-            selectedMetrics: InsightGenerationResult["selectedMetrics"];
-            anomalies: InsightGenerationResult["anomalies"];
-            expenseAnomalies: InsightGenerationResult["expenseAnomalies"];
-            milestones: InsightGenerationResult["milestones"];
-            activity: InsightGenerationResult["activity"];
-            predictions: InsightGenerationResult["predictions"];
-            generatedAt: string;
-          }
-        | null = null;
+      let generatedInsight: {
+        id: string;
+        periodLabel: string;
+        periodType: PeriodType;
+        periodYear: number;
+        periodNumber: number;
+        currency: string;
+        title: string;
+        content: InsightGenerationResult["content"];
+        selectedMetrics: InsightGenerationResult["selectedMetrics"];
+        anomalies: InsightGenerationResult["anomalies"];
+        expenseAnomalies: InsightGenerationResult["expenseAnomalies"];
+        milestones: InsightGenerationResult["milestones"];
+        activity: InsightGenerationResult["activity"];
+        predictions: InsightGenerationResult["predictions"];
+        generatedAt: string;
+      } | null = null;
 
       // If specific period requested, fetch it
       // Use explicit undefined checks to distinguish "not provided" from "provided as zero"
@@ -196,7 +197,10 @@ export const getInsightsTool = tool({
       }
 
       // Key numbers (compact, not a table)
-      if (activeInsight.selectedMetrics && activeInsight.selectedMetrics.length > 0) {
+      if (
+        activeInsight.selectedMetrics &&
+        activeInsight.selectedMetrics.length > 0
+      ) {
         responseText += "**The numbers:**\n";
         for (const metric of activeInsight.selectedMetrics.slice(0, 4)) {
           const formattedValue = formatMetricValue(
@@ -215,7 +219,10 @@ export const getInsightsTool = tool({
       }
 
       // Expense changes (only spikes, not decreases - decreases are good!)
-      if (activeInsight.expenseAnomalies && activeInsight.expenseAnomalies.length > 0) {
+      if (
+        activeInsight.expenseAnomalies &&
+        activeInsight.expenseAnomalies.length > 0
+      ) {
         const spikes = activeInsight.expenseAnomalies.filter(
           (ea) => ea.type === "category_spike" || ea.type === "new_category",
         );

@@ -1,6 +1,6 @@
-import { getInboxByIdSchema, getInboxSchema } from "../../schemas/inbox";
 import { getInboxById } from "@tamias/app-data/queries";
 import { getInboxPage } from "@tamias/app-services/inbox";
+import { getInboxByIdSchema, getInboxSchema } from "../../schemas/inbox";
 import { hasScope, READ_ONLY_ANNOTATIONS, type RegisterTools } from "../types";
 
 export const registerInboxTools: RegisterTools = (server, ctx) => {
