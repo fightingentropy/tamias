@@ -231,7 +231,6 @@ export default defineConfig(({ mode, command }) => {
       // breaks hooks (Invalid hook call / useState on null) during dev and prerender.
       sourcemap: mode !== "production",
       cssMinify: mode === "production",
-      minify: mode === "production",
       target: "es2022",
       reportCompressedSize: false,
       // Exclude heavy static assets from the SSR server bundle — they're served via
