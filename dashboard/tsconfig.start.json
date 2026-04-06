@@ -5,7 +5,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "@convex/*": ["./convex/*"],
-      "@app-data/*": ["../../packages/app-data/src/*"],
+      "@app-data/*": ["../packages/app-data/src/*"],
       "nuqs": ["./src/framework/nuqs/index.tsx"],
       "nuqs/server": ["./src/framework/nuqs/server.ts"],
       "nuqs/adapters/tanstack-router": ["./src/framework/nuqs/tanstack-router.tsx"]
@@ -16,8 +16,8 @@
     "src/types/**/*.d.ts",
     "src/start/**/*.ts",
     "src/start/**/*.tsx",
-    "../../packages/ui/src/**/*.d.ts",
-    "../../types"
+    "../packages/ui/src/**/*.d.ts",
+    "../types"
   ],
   "exclude": ["node_modules"]
 }

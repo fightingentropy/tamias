@@ -9,7 +9,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "@convex/*": ["./convex/*"],
-      "@app-data/*": ["../../packages/app-data/src/*"],
+      "@app-data/*": ["../packages/app-data/src/*"],
       "nuqs": ["./src/framework/nuqs/index.tsx"],
       "nuqs/server": ["./src/framework/nuqs/server.ts"],
       "nuqs/adapters/tanstack-router": ["./src/framework/nuqs/tanstack-router.tsx"]
@@ -19,7 +19,7 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "../../types",
+    "../types",
     "vite.config.mts",
     "tailwind.config.ts"
   ],

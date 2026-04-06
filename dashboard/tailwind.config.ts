@@ -6,8 +6,8 @@ const sharedPreset = baseConfig as unknown as Partial<Config>;
 export default {
   content: [
     "./src/**/*.{ts,tsx}",
-    "../../packages/ui/src/**/*.{ts,tsx}",
-    "../../packages/invoice/src/**/*.{ts,tsx}",
+    "../packages/ui/src/**/*.{ts,tsx}",
+    "../packages/invoice/src/**/*.{ts,tsx}",
   ],
   presets: [sharedPreset],
   theme: {

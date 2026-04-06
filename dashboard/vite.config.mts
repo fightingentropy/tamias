@@ -7,7 +7,7 @@ import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { defineConfig, loadEnv } from "vite";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const workspaceRoot = path.resolve(__dirname, "../..");
+const workspaceRoot = path.resolve(__dirname, "..");
 
 function resolveDashboardPath(...segments: string[]) {
   return path.resolve(__dirname, ...segments);
@@ -155,7 +155,7 @@ export default defineConfig(({ mode, command }) => {
         },
         {
           find: "@app-data",
-          replacement: resolveDashboardPath("../../packages/app-data/src"),
+          replacement: resolveDashboardPath("../packages/app-data/src"),
         },
         {
           find: "nuqs/adapters/tanstack-router",
@@ -174,7 +174,7 @@ export default defineConfig(({ mode, command }) => {
         {
           find: /^process\/?$/,
           replacement: resolveDashboardPath(
-            "../../node_modules/process/browser.js",
+            "../node_modules/process/browser.js",
           ),
         },
       ],
