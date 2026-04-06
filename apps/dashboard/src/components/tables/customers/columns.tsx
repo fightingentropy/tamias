@@ -24,7 +24,7 @@ import Link from "@/framework/link";
 import { memo, useCallback } from "react";
 import { FormatAmount } from "@/components/format-amount";
 import { useCustomerParams } from "@/hooks/use-customer-params";
-import { getWebsiteLogo } from "@/utils/logos";
+import { getWebsiteFaviconUrl } from "@/utils/logos";
 
 export type Customer = RouterOutputs["customers"]["get"]["data"][number];
 
@@ -33,7 +33,7 @@ const NameCell = memo(
     if (!name) return "-";
 
     // Logo from logo.dev based on website domain
-    const imageSrc = website ? getWebsiteLogo(website) : null;
+    const imageSrc = website ? getWebsiteFaviconUrl(website) : null;
 
     return (
       <div className="flex items-center space-x-2">

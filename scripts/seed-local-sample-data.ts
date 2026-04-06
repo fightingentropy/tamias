@@ -76,11 +76,15 @@ import {
   type TeamMemberIdentityRecord,
   type TrackerProjectRecord,
   type TransactionRecord,
-} from "../packages/app-data-convex/src/index";
+} from "../packages/app-data/src/convex/index";
 import { db } from "../packages/app-data/src/client";
-import { getInvoices, draftInvoice, updateInvoice } from "../packages/app-data/src/queries/invoices";
-import { getInsightByPeriod } from "../packages/app-data/src/queries/insights";
-import { getInvoiceRecurringById } from "../packages/app-data/src/queries/invoice-recurring";
+import {
+  draftInvoice,
+  getInsightByPeriod,
+  getInvoiceRecurringById,
+  getInvoices,
+  updateInvoice,
+} from "../packages/app-data/src/queries/index";
 import { DEFAULT_TEMPLATE } from "../packages/invoice/src/defaults";
 import type { EditorDoc, LineItem } from "../packages/invoice/src/types";
 import { uploadVaultFile } from "../packages/storage/src/convex-storage";
@@ -3787,23 +3791,50 @@ async function seedTracker(
   return projects;
 }
 
+/**
+ * HMRC Developer Hub sandbox test user — values as issued for Marlowe Walker.
+ * Password must not be stored in the repo; use HMRC / team secrets only.
+ * `legalEntityType` stays `uk_ltd` because app/API enums only allow that value today.
+ */
+const HMRC_SANDBOX_MARLOWE = {
+  hmrcUserId: "843689232556",
+  email: "marlowe.walker@example.com",
+  vatRegistrationDate: "2009-03-05",
+  selfAssessmentUtr: "2288403582",
+  vrn: "170177965",
+  eori: "GB242836484927",
+  nino: "WM737740D",
+  mtdIncomeTaxId: "XFIT00444997560",
+  groupIdentifier: "697699197204",
+  fullName: "Marlowe Walker",
+  firstName: "Marlowe",
+  lastName: "Walker",
+  dateOfBirth: "1992-03-01",
+  addressLine1: "20 Tower Hill",
+  addressLine2: "Folkstone",
+  postcode: "TS13 1PA",
+} as const;
+
 async function seedCompliance(context: SeedContext) {
   const filingProfile = await upsertFilingProfileInConvex({
     id: seedId(context, "filing-profile:vat"),
     teamId: context.teamId,
     provider: "hmrc",
-    legalEntityType: "limited_company",
+    legalEntityType: "uk_ltd",
     enabled: true,
     countryCode: "GB",
-    companyName: context.teamName,
-    companyNumber: "12345678",
-    vrn: "GB123456789",
+    companyName: HMRC_SANDBOX_MARLOWE.fullName,
+    companyNumber: null,
+    utr: HMRC_SANDBOX_MARLOWE.selfAssessmentUtr,
+    vrn: HMRC_SANDBOX_MARLOWE.vrn,
     vatScheme: "standard",
     accountingBasis: "accrual",
     filingMode: "manual",
     yearEndMonth: 3,
     yearEndDay: 31,
     baseCurrency: context.currency,
+    signingDirectorName: HMRC_SANDBOX_MARLOWE.fullName,
+    directors: [HMRC_SANDBOX_MARLOWE.fullName],
   });
 
   const obligation = await upsertVatObligationInConvex({
@@ -3818,7 +3849,22 @@ async function seedCompliance(context: SeedContext) {
     dueDate: "2026-05-07T00:00:00.000Z",
     status: "fulfilled",
     externalId: "seed-hmrc-obligation-q1",
-    raw: { seedKey: "vat-obligation-q1" },
+    raw: {
+      seedKey: "vat-obligation-q1",
+      hmrcSandboxTestUser: {
+        ...HMRC_SANDBOX_MARLOWE,
+        individual: {
+          firstName: HMRC_SANDBOX_MARLOWE.firstName,
+          lastName: HMRC_SANDBOX_MARLOWE.lastName,
+          dateOfBirth: HMRC_SANDBOX_MARLOWE.dateOfBirth,
+          address: {
+            line1: HMRC_SANDBOX_MARLOWE.addressLine1,
+            line2: HMRC_SANDBOX_MARLOWE.addressLine2,
+            postcode: HMRC_SANDBOX_MARLOWE.postcode,
+          },
+        },
+      },
+    },
   });
 
   const vatReturn = await upsertVatReturnInConvex({

@@ -32,7 +32,7 @@ import { TrackerTimer } from "@/components/tracker-timer";
 import { useTrackerParams } from "@/hooks/use-tracker-params";
 import { useUserQuery } from "@/hooks/use-user";
 import { formatAmount, secondsToHoursAndMinutes } from "@/utils/format";
-import { getWebsiteLogo } from "@/utils/logos";
+import { getWebsiteFaviconUrl } from "@/utils/logos";
 
 type DataTableCellProps = {
   children: React.ReactNode;
@@ -97,7 +97,7 @@ export function DataTableRow({ row, onDelete }: DataTableRowProps) {
                 <Avatar className="size-5">
                   {row.customer?.website && (
                     <AvatarImageNext
-                      src={getWebsiteLogo(row.customer?.website)}
+                      src={getWebsiteFaviconUrl(row.customer?.website)}
                       alt={`${row.customer?.name} logo`}
                       width={20}
                       height={20}

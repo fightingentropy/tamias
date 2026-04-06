@@ -48,6 +48,7 @@
     "@react-pdf/renderer": "catalog:",
     "@stripe/react-stripe-js": "^6.0.0",
     "@stripe/stripe-js": "^9.0.0",
+    "@tamias/api": "workspace:*",
     "@tamias/ai-artifacts": "workspace:*",
     "@tamias/app-store": "workspace:*",
     "@tamias/auth-session": "workspace:*",
@@ -62,6 +63,7 @@
     "@tamias/location": "workspace:*",
     "@tamias/plans": "workspace:*",
     "@tamias/trpc": "workspace:*",
+    "@tamias/worker": "workspace:*",
     "@tamias/ui": "workspace:*",
     "@tamias/utils": "workspace:*",
     "@tanstack/react-query": "^5.95.2",
@@ -104,6 +106,7 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251117.0",
     "@cloudflare/vite-plugin": "^1.30.3",
     "@rolldown/plugin-babel": "^0.2.2",
     "@playwright/test": "^1.55.1",

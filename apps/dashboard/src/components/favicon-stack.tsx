@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { BookIcon } from "lucide-react";
+import { getWebsiteFaviconUrl } from "@/utils/logos";
 import { OpenURL } from "./open-url";
 
 interface SourceItem {
@@ -11,18 +12,6 @@ interface SourceItem {
 
 interface FaviconStackProps {
   sources: SourceItem[];
-}
-
-/**
- * Get favicon URL for a given website URL
- */
-function getFaviconUrl(url: string): string {
-  try {
-    const domain = new URL(url).hostname;
-    return `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
-  } catch {
-    return "";
-  }
 }
 
 /**
@@ -85,7 +74,7 @@ export function FaviconStack({ sources }: FaviconStackProps) {
               <OpenURL href={modifyUrlWithUtmSource(source.url)}>
                 <div className="relative w-5 h-5 rounded-full bg-background border-2 border-border overflow-hidden flex items-center justify-center shadow-sm cursor-pointer">
                   <img
-                    src={getFaviconUrl(source.url)}
+                    src={getWebsiteFaviconUrl(source.url, 32)}
                     alt=""
                     className="w-full h-full object-cover"
                     onError={(e) => {

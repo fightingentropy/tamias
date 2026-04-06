@@ -20,7 +20,7 @@ import { useUserQuery } from "@/hooks/use-user";
 import { downloadFile } from "@/lib/download";
 import { useTRPC } from "@/trpc/client";
 import { getUrl } from "@/utils/environment";
-import { getWebsiteLogo } from "@/utils/logos";
+import { getWebsiteFaviconUrl } from "@/utils/logos";
 import { CopyInput } from "./copy-input";
 import { FormatAmount } from "./format-amount";
 import { InvoiceActivity } from "./invoice/activity";
@@ -113,7 +113,7 @@ export function InvoiceDetails() {
           <Avatar className="size-5">
             {customer?.website && (
               <AvatarImageNext
-                src={getWebsiteLogo(customer?.website)}
+                src={getWebsiteFaviconUrl(customer?.website)}
                 alt={`${customer?.name} logo`}
                 width={20}
                 height={20}

@@ -1,8 +1,8 @@
 "use client";
 
-import type { RouterOutputs } from "@tamias/trpc";
 import { TZDate } from "@date-fns/tz";
 import { getFrequencyShortLabel } from "@tamias/invoice/recurring";
+import type { RouterOutputs } from "@tamias/trpc";
 import { Avatar, AvatarFallback, AvatarImageNext } from "@tamias/ui/avatar";
 import { Checkbox } from "@tamias/ui/checkbox";
 import { cn } from "@tamias/ui/cn";
@@ -21,7 +21,7 @@ import { FormatAmount } from "@/components/format-amount";
 import { InvoiceStatus } from "@/components/invoice-status";
 import { useCustomerParams } from "@/hooks/use-customer-params";
 import { getDueDateStatus } from "@/utils/format";
-import { getWebsiteLogo } from "@/utils/logos";
+import { getWebsiteFaviconUrl } from "@/utils/logos";
 import { ActionsMenu } from "./actions-menu";
 
 /**
@@ -220,7 +220,7 @@ export const columns: ColumnDef<Invoice>[] = [
               <Avatar className="size-5 flex-shrink-0">
                 {customer?.website && (
                   <AvatarImageNext
-                    src={getWebsiteLogo(customer?.website)}
+                    src={getWebsiteFaviconUrl(customer?.website)}
                     alt={`${name} logo`}
                     width={20}
                     height={20}
@@ -238,7 +238,7 @@ export const columns: ColumnDef<Invoice>[] = [
               <Avatar className="size-5 flex-shrink-0">
                 {customer?.website && (
                   <AvatarImageNext
-                    src={getWebsiteLogo(customer?.website)}
+                    src={getWebsiteFaviconUrl(customer?.website)}
                     alt={`${name} logo`}
                     width={20}
                     height={20}

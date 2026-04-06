@@ -13,7 +13,7 @@ import type {
   CompaniesHouseTransaction,
   CompaniesHouseValidationStatus,
 } from "@tamias/compliance";
-import { COMPANIES_HOUSE_PSC_DISCREPANCY_SCOPE } from "@tamias/compliance";
+import { COMPANIES_HOUSE_PSC_DISCREPANCY_SCOPE } from "@tamias/compliance/types";
 import { Badge } from "@tamias/ui/badge";
 import { Button } from "@tamias/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@tamias/ui/card";

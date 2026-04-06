@@ -5,6 +5,7 @@ import { cn } from "@tamias/ui/cn";
 import { AnimatePresence, motion } from "framer-motion";
 import type { ComponentProps } from "react";
 import { useEffect, useState } from "react";
+import { getWebsiteFaviconUrl } from "@/utils/logos";
 import { OpenURL } from "./open-url";
 
 interface WebSearchSource {
@@ -144,7 +145,7 @@ const WebSearchSourceAvatar = ({
       >
         <Avatar className="h-5 w-5 cursor-pointer border-2 border-background shadow-sm">
           <AvatarImage
-            src={`https://img.logo.dev/${domain}?token=pk_X-1ZO13GSgeOoUrIuJ6GMQ&size=64&retina=true`}
+            src={getWebsiteFaviconUrl(domain, 32)}
             alt={`${domain} logo`}
           />
           <AvatarFallback className="text-[10px] bg-background text-muted-foreground font-medium">

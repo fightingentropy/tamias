@@ -117,11 +117,11 @@ export default defineConfig(({ mode, command }) => {
         config:
           command === "serve"
             ? {
-                main: "./src/start/server.ts",
+                main: "./src/start/cf-unified-entry.ts",
                 vars: workerVars,
               }
             : {
-                main: "./src/start/server.ts",
+                main: "./src/start/cf-unified-entry.ts",
               },
         viteEnvironment: { name: "ssr" },
       }),
@@ -207,6 +207,8 @@ export default defineConfig(({ mode, command }) => {
     },
     ssr: {
       noExternal: [
+        /^@tamias\/api(?:\/.*)?$/,
+        /^@tamias\/worker(?:\/.*)?$/,
         /^@tanstack\/react-start(?:\/.*)?$/,
         /^@tanstack\/start-storage-context(?:\/.*)?$/,
       ],

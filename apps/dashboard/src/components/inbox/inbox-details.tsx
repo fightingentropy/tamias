@@ -38,7 +38,7 @@ import { useUserQuery } from "@/hooks/use-user";
 import { downloadFile } from "@/lib/download";
 import { useTRPC } from "@/trpc/client";
 import { getUrl } from "@/utils/environment";
-import { getWebsiteLogo } from "@/utils/logos";
+import { getWebsiteFaviconUrl } from "@/utils/logos";
 import { EditInboxModal } from "../modals/edit-inbox-modal";
 import { DeleteInboxDialog } from "./delete-inbox-dialog";
 import { InboxActions } from "./inbox-actions";
@@ -433,7 +433,7 @@ export function InboxDetails() {
                           "rounded-full overflow-hidden",
                           showFallback && "hidden",
                         )}
-                        src={getWebsiteLogo(data.website)}
+                        src={getWebsiteFaviconUrl(data.website)}
                         quality={100}
                         onLoad={() => {
                           setImageLoading(false);

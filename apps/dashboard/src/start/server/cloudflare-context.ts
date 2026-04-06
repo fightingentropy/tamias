@@ -6,6 +6,12 @@ export type ApiServiceBinding = {
 
 export type DashboardCloudflareEnv = {
   API_SERVICE?: ApiServiceBinding;
+  TAMIAS_ENVIRONMENT?: string;
+  API_URL?: string;
+  DASHBOARD_URL?: string;
+  WEBSITE_URL?: string;
+  CONVEX_URL?: string;
+  CONVEX_SITE_URL?: string;
 };
 
 export type DashboardRequestContext = {
@@ -13,6 +19,8 @@ export type DashboardRequestContext = {
     env?: DashboardCloudflareEnv;
     executionCtx?: unknown;
   };
+  /** Unified worker: same-island API fetch for SSR tRPC (replaces API_SERVICE binding). */
+  internalApiFetch?: (request: Request) => Promise<Response>;
 };
 
 export function getDashboardRequestContext() {
@@ -23,5 +31,10 @@ export function getDashboardRequestContext() {
 }
 
 export function getApiServiceBinding() {
-  return getDashboardRequestContext()?.cloudflare?.env?.API_SERVICE;
+  const ctx = getDashboardRequestContext();
+  const internalApiFetch = ctx?.internalApiFetch;
+  if (internalApiFetch) {
+    return { fetch: internalApiFetch };
+  }
+  return ctx?.cloudflare?.env?.API_SERVICE;
 }

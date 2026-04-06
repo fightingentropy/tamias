@@ -29,7 +29,11 @@ import {
 import { requireServiceKey } from "./lib/service";
 
 const TRIAL_PERIOD_DAYS = 14;
-const aiProviderValidator = v.union(v.literal("openai"), v.literal("kimi"));
+const aiProviderValidator = v.union(
+  v.literal("openai"),
+  v.literal("kimi"),
+  v.literal("openrouter"),
+);
 type IdentityCtx = Parameters<typeof serializeCurrentUser>[0];
 type InsightEligibleTeamCandidate = {
   publicId: string;

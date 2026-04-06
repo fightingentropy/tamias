@@ -18,10 +18,8 @@
     "noPropertyAccessFromIndexSignature": false,
     "jsx": "react-jsx",
     "jsxImportSource": "react",
-    "ignoreDeprecations": "6.0",
-    "baseUrl": ".",
     "paths": {
-      "@worker/*": ["src/*"],
+      "@worker/*": ["./src/*"],
       "@documents/*": ["../../packages/documents/src/*"]
     },
     "types": ["bun"]

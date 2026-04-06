@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImageNext } from "@tamias/ui/avatar";
 import Link from "@/framework/link";
-import { getWebsiteLogo } from "@/utils/logos";
+import { getWebsiteFaviconUrl } from "@/utils/logos";
 import { InvoiceStatus } from "./invoice-status";
 
 type Props = {
@@ -31,7 +31,7 @@ export default function CustomerHeader({
         <Avatar className="size-5 object-contain border border-border">
           {website && (
             <AvatarImageNext
-              src={getWebsiteLogo(website)}
+              src={getWebsiteFaviconUrl(website)}
               alt={`${name} logo`}
               width={20}
               height={20}

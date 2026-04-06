@@ -1,6 +1,4 @@
-import {
-  configureBankingRuntime,
-} from "@tamias/banking";
+import { configureBankingRuntime } from "@tamias/banking";
 import {
   configureCloudflareQueueRuntime,
   configureCloudflareScheduleRuntime,
@@ -534,6 +532,17 @@ async function processQueueMessage(message: Message<CloudflareAsyncMessage>) {
   }
 }
 
+export async function handleLedgerQueueBatch(
+  batch: MessageBatch<CloudflareAsyncMessage>,
+  env: CloudflareAsyncEnv,
+) {
+  configureLedgerRuntime(env);
+
+  for (const message of batch.messages) {
+    await processQueueMessage(message);
+  }
+}
+
 export default {
   fetch(_request: Request, env: CloudflareAsyncEnv) {
     configureLedgerRuntime(env);
@@ -549,10 +558,6 @@ export default {
     batch: MessageBatch<CloudflareAsyncMessage>,
     env: CloudflareAsyncEnv,
   ) {
-    configureLedgerRuntime(env);
-
-    for (const message of batch.messages) {
-      await processQueueMessage(message);
-    }
+    await handleLedgerQueueBatch(batch, env);
   },
 };

@@ -35,6 +35,12 @@ const providerOptions: Array<{
     description:
       "Moonshot/Kimi via its OpenAI-compatible API. Requires KIMI_API_KEY on the API service.",
   },
+  {
+    value: "openrouter",
+    label: "OpenRouter",
+    description:
+      "OpenRouter (OpenAI-compatible). Set OPENROUTER_API_KEY on the API service. Default model: Qwen3.6 Plus (free).",
+  },
 ];
 
 export function AssistantProviderSettings() {

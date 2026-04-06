@@ -12,7 +12,7 @@ CLOUDFLARE_ASYNC_BRIDGE_TOKEN=...
 CLOUDFLARE_ASYNC_BRIDGE_JOBS=transactions:*,documents:*,inbox:*,inbox-provider:*,accounting:*,invoices:*,customers:*,teams:*,insights:*,notifications:*
 ```
 
-In deployed Cloudflare environments, the API uses a Worker-to-Worker service binding to `apps/worker`. The URL/token bridge variables above are only needed for local fallback paths such as `next dev` or standalone local worker testing.
+In the **unified** Cloudflare deploy from `apps/dashboard` (single production Worker `tamias` in `wrangler.start.jsonc`), the async bridge runs in-process and no `ASYNC_WORKER` binding is used. In the **split** deploy from this package’s `wrangler.jsonc`, the API uses a Worker-to-Worker service binding to `apps/worker`. The URL/token bridge variables above are for local fallback paths (`vite`/`wrangler dev` without unified bindings, or standalone worker tests).
 
 #### Local Development Setup
 
@@ -76,6 +76,16 @@ Notes:
 - Companies House annual accounts filing uses the XML gateway presenter credentials above, not the OAuth client credentials.
 - The operational filing flows are documented in `../../docs/uk-compliance.md`, `../../docs/year-end-operations.md`, and `../../docs/companies-house-filing.md`.
 
+#### Assistant providers (chat)
+
+Users can pick an assistant backend in the dashboard. The API worker must have the matching secret set or requests return HTTP 503:
+
+- **OpenAI** (default): `OPENAI_API_KEY`, optional `OPENAI_ASSISTANT_MODEL_*` overrides in code paths that read them.
+- **Kimi**: `KIMI_API_KEY`, optional `KIMI_BASE_URL`, `KIMI_MODEL_*`.
+- **OpenRouter**: `OPENROUTER_API_KEY`, optional `OPENROUTER_BASE_URL` (defaults to `https://openrouter.ai/api/v1`), optional `OPENROUTER_ASSISTANT_MODEL_*` (defaults to `qwen/qwen3.6-plus:free`), optional `OPENROUTER_HTTP_REFERER` and `OPENROUTER_APP_NAME` for OpenRouter rankings headers.
+
+See [./.env-template](./.env-template) for variable names.
+
 ### Development
 
 ```bash
@@ -94,7 +104,7 @@ The API now uses Convex for durable app state and the Cloudflare async worker fo
 
 - **Convex**: Source of truth for app state, identity, financial data, and AI chat memory
 - **Local in-memory caches**: Used only for short-lived banking metadata and assembled chat context within a single API instance
-- **Cloudflare async transport**: Uses a service binding in Cloudflare deployments and the local bridge fallback in local dev
+- **Cloudflare async transport**: Uses a service binding only in the split API deploy; unified deploy uses in-process bridge code. Local dev can use the HTTP bridge or multi-worker processes.
 
 #### Environment-Specific Configuration
 

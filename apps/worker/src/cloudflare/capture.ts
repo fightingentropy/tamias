@@ -4,9 +4,7 @@ import {
 } from "@tamias/job-client";
 import "./runtime-shims";
 import type { CloudflareAsyncMessage } from "./bridge-helpers";
-import {
-  isSupportedCloudflareMessage,
-} from "./bridge-helpers";
+import { isSupportedCloudflareMessage } from "./bridge-helpers";
 import { configureCloudflareImagesBinding } from "./images-client";
 import { createCloudflareScheduleRuntime } from "./schedule-runtime";
 import {
@@ -329,6 +327,17 @@ async function processQueueMessage(
   }
 }
 
+export async function handleCaptureQueueBatch(
+  batch: MessageBatch<CloudflareAsyncMessage>,
+  env: CloudflareAsyncEnv,
+) {
+  configureCaptureRuntime(env);
+
+  for (const message of batch.messages) {
+    await processQueueMessage(message, env);
+  }
+}
+
 export default {
   fetch(_request: Request, env: CloudflareAsyncEnv) {
     configureCaptureRuntime(env);
@@ -344,10 +353,6 @@ export default {
     batch: MessageBatch<CloudflareAsyncMessage>,
     env: CloudflareAsyncEnv,
   ) {
-    configureCaptureRuntime(env);
-
-    for (const message of batch.messages) {
-      await processQueueMessage(message, env);
-    }
+    await handleCaptureQueueBatch(batch, env);
   },
 };

@@ -3,21 +3,28 @@ import {
   type TellerMtlsFetcher,
 } from "@tamias/banking";
 import {
-  configureCloudflareAsyncServiceRuntime,
   type CloudflareAsyncServiceBinding,
+  configureCloudflareAsyncServiceRuntime,
 } from "@tamias/job-client";
+import { createLoggerWithContext, logger } from "@tamias/logger";
+import { getApiUrl, getAppUrl } from "@tamias/utils/envs";
+import {
+  type CloudflareAsyncEnv,
+  createInProcessAsyncBridge,
+  handleAsyncWorkerHttp,
+} from "@tamias/worker/cloudflare";
+import { cors } from "hono/cors";
+import { secureHeaders } from "hono/secure-headers";
 import {
   buildDependenciesResponse,
   buildReadinessResponse,
   checkDependencies,
 } from "./health/checker";
 import { apiDependencies } from "./health/probes";
-import { createLoggerWithContext, logger } from "@tamias/logger";
-import { getApiUrl, getAppUrl } from "@tamias/utils/envs";
-import { cors } from "hono/cors";
-import { secureHeaders } from "hono/secure-headers";
 import type { Context } from "./rest/types";
+
 export { RateLimitCoordinator } from "./rate-limit/coordinator";
+
 const dashboardUrl = getAppUrl();
 const apiUrl = getApiUrl();
 const sharedLocalDashboardOrigins = [
@@ -30,6 +37,8 @@ const sharedLocalDashboardOrigins = [
 type ApiRuntimeEnv = {
   ASYNC_WORKER?: CloudflareAsyncServiceBinding;
   RATE_LIMIT_COORDINATOR?: DurableObjectNamespace;
+  /** Present in unified dashboard+API+async worker deploys */
+  RUN_COORDINATOR?: DurableObjectNamespace;
   TELLER_MTLS_CERTIFICATE?: TellerMtlsFetcher;
 };
 
@@ -274,23 +283,42 @@ async function getApp() {
   return appPromise;
 }
 
+function isUnifiedCloudflareWorkerEnv(
+  env: ApiRuntimeEnv,
+): env is ApiRuntimeEnv & CloudflareAsyncEnv {
+  return !!(env.RATE_LIMIT_COORDINATOR && env.RUN_COORDINATOR);
+}
+
 function configureApiRuntime(env?: ApiRuntimeEnv) {
-  configureCloudflareAsyncServiceRuntime(
-    env?.ASYNC_WORKER ? { asyncWorker: env.ASYNC_WORKER } : null,
-  );
+  const asyncWorker: CloudflareAsyncServiceBinding | null =
+    env && isUnifiedCloudflareWorkerEnv(env)
+      ? createInProcessAsyncBridge(env)
+      : (env?.ASYNC_WORKER ?? null);
+
+  configureCloudflareAsyncServiceRuntime(asyncWorker ? { asyncWorker } : null);
   configureBankingRuntime({
     tellerMtlsFetcher: env?.TELLER_MTLS_CERTIFICATE,
   });
 }
 
+export async function apiEntryFetch(
+  request: Request,
+  env: ApiRuntimeEnv,
+  executionCtx: ExecutionContext,
+) {
+  configureApiRuntime(env);
+
+  if (isUnifiedCloudflareWorkerEnv(env)) {
+    const asyncResponse = await handleAsyncWorkerHttp(request, env);
+    if (asyncResponse) {
+      return asyncResponse;
+    }
+  }
+
+  const app = await getApp();
+  return app.fetch(request, env as unknown as Env, executionCtx);
+}
+
 export default {
-  async fetch(
-    request: Request,
-    env: ApiRuntimeEnv,
-    executionCtx: ExecutionContext,
-  ) {
-    configureApiRuntime(env);
-    const app = await getApp();
-    return app.fetch(request, env as unknown as Env, executionCtx);
-  },
+  fetch: apiEntryFetch,
 };

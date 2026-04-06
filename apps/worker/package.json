@@ -2,6 +2,9 @@
   "name": "@tamias/worker",
   "version": "0.0.1",
   "private": true,
+  "exports": {
+    "./cloudflare": "./src/cloudflare/index.ts"
+  },
   "scripts": {
     "cf-typegen": "tmpdir=$(mktemp -d) && wrangler types \"$PWD/src/cloudflare-env.d.ts\" --config \"$PWD/wrangler.jsonc\" --cwd \"$tmpdir\" --env-file \"$PWD/.env-template\" && rm -rf \"$tmpdir\"",
     "dev": "wrangler dev",

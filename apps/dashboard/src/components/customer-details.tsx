@@ -48,7 +48,7 @@ import { useInvoiceParams } from "@/hooks/use-invoice-params";
 import { useUserQuery } from "@/hooks/use-user";
 import { downloadFile } from "@/lib/download";
 import { useTRPC } from "@/trpc/client";
-import { getWebsiteLogo } from "@/utils/logos";
+import { getWebsiteFaviconUrl } from "@/utils/logos";
 import { CustomerDetailsSkeleton } from "./customer-details.loading";
 import { FormatAmount } from "./format-amount";
 import { InvoiceStatus } from "./invoice-status";
@@ -317,12 +317,11 @@ export function CustomerDetails() {
         {/* Sheet Header - matches other sheets */}
         <SheetHeader className="flex justify-between items-center flex-row px-6 mb-4">
           <div className="min-w-0 flex-1 flex items-center gap-3">
-            {/* Logo from logo.dev */}
             {isEnriching ? (
               <Skeleton className="size-9 rounded-full flex-shrink-0" />
             ) : customer.website ? (
               <img
-                src={getWebsiteLogo(customer.website)}
+                src={getWebsiteFaviconUrl(customer.website)}
                 alt={`${customer.name} logo`}
                 className="size-9 rounded-full object-cover flex-shrink-0 bg-muted"
                 onError={(e) => {

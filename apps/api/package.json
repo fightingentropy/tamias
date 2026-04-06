@@ -20,6 +20,7 @@
     "test": "find src -name '*.test.ts' -o -name '*.spec.ts' | grep -q . && bun test --exit src || echo 'No tests yet'"
   },
   "exports": {
+    ".": "./src/index.ts",
     "./trpc/routers/_app": "./src/trpc/routers/_app.ts"
   },
   "dependencies": {
@@ -51,6 +52,7 @@
     "@tamias/insights": "workspace:*",
     "@tamias/invoice": "workspace:*",
     "@tamias/job-client": "workspace:*",
+    "@tamias/worker": "workspace:*",
     "@tamias/location": "workspace:*",
     "@tamias/logger": "workspace:*",
     "@tamias/notifications": "workspace:*",

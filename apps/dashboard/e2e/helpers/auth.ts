@@ -71,7 +71,10 @@ export async function completeOnboarding(page: Page): Promise<void> {
   await expect(page.getByRole("heading", { name: "Complete your profile" })).toBeVisible({
     timeout: 30_000,
   });
-  await page.getByTestId("onboarding-full-name").fill("Playwright Smoke");
+  const nameInput = page.getByTestId("onboarding-full-name");
+  await nameInput.waitFor({ state: "visible" });
+  await nameInput.click();
+  await nameInput.fill("Playwright Smoke", { timeout: 60_000 });
   await page.getByRole("button", { name: "Continue" }).click();
 
   await expect(page.getByRole("heading", { name: "Business details" })).toBeVisible({

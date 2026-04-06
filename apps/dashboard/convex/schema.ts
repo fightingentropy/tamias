@@ -2,7 +2,11 @@ import { authTables } from "@convex-dev/auth/server";
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
-const aiProviderValidator = v.union(v.literal("openai"), v.literal("kimi"));
+const aiProviderValidator = v.union(
+  v.literal("openai"),
+  v.literal("kimi"),
+  v.literal("openrouter"),
+);
 const asyncRunProviderValidator = v.union(
   v.literal("cloudflare-queue"),
   v.literal("cloudflare-workflow"),

@@ -3,6 +3,7 @@ import { redirect } from "@tanstack/react-router";
 import { getStartContext } from "@tanstack/start-storage-context";
 import { ConvexHttpClient } from "convex/browser";
 import type { FunctionReference, FunctionReturnType } from "convex/server";
+import { ConvexError } from "convex/values";
 import { serialize } from "cookie-es";
 import { jwtDecode } from "jwt-decode";
 import {
@@ -83,6 +84,34 @@ async function fetchConvexAction<Action extends FunctionReference<"action">>(
     action,
     args ?? {},
   );
+}
+
+function convexSignInErrorResponseBody(error: unknown) {
+  if (process.env.NODE_ENV === "production") {
+    return {
+      error: error instanceof Error ? error.message : "Auth error",
+    };
+  }
+
+  if (error instanceof ConvexError) {
+    return {
+      error: error.message,
+      details: error.data,
+    };
+  }
+
+  if (error instanceof Error) {
+    const withData = error as Error & { data?: unknown };
+    return {
+      error: error.message,
+      ...(withData.data !== undefined ? { details: withData.data } : {}),
+      ...(error.cause !== undefined
+        ? { cause: String(error.cause) }
+        : {}),
+    };
+  }
+
+  return { error: String(error) };
 }
 
 function decodeToken(token: string) {
@@ -398,10 +427,11 @@ export async function proxyAuthActionRequest(request: Request) {
     );
   } catch (error) {
     if (action === "auth:signIn") {
-      const response = jsonResponse(
-        { error: error instanceof Error ? error.message : "Auth error" },
-        400,
-      );
+      if (process.env.NODE_ENV !== "production") {
+        console.error("[auth] Convex auth:signIn failed:", error);
+      }
+
+      const response = jsonResponse(convexSignInErrorResponseBody(error), 400);
       return appendCookieHeaders(
         response,
         buildAuthCookieHeaders(host, null, null),

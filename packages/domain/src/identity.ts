@@ -1,5 +1,5 @@
 export type TeamRole = "owner" | "member";
-export const AI_PROVIDER_VALUES = ["openai", "kimi"] as const;
+export const AI_PROVIDER_VALUES = ["openai", "kimi", "openrouter"] as const;
 export type AIProvider = (typeof AI_PROVIDER_VALUES)[number];
 export const DEFAULT_AI_PROVIDER: AIProvider = "openai";
 

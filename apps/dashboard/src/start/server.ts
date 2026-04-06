@@ -8,7 +8,7 @@ import type {
   DashboardRequestContext,
 } from "@/start/server/cloudflare-context";
 
-const startHandler = createStartHandler(defaultStreamHandler);
+export const startHandler = createStartHandler(defaultStreamHandler);
 
 function createRequestContext(
   env: DashboardCloudflareEnv,
@@ -22,15 +22,32 @@ function createRequestContext(
   };
 }
 
-export function createServerEntry(entry: { fetch: typeof startHandler }) {
+export function createServerEntry(
+  entry: { fetch: typeof startHandler },
+  options?: {
+    internalApiEntry?: (
+      request: Request,
+      env: DashboardCloudflareEnv,
+      executionCtx: ExecutionContext,
+    ) => Promise<Response>;
+  },
+) {
   return {
     async fetch(
       request: Request,
       env: DashboardCloudflareEnv,
-      executionCtx: unknown,
+      executionCtx: ExecutionContext,
     ) {
+      const internalApiFetch = options?.internalApiEntry
+        ? (incoming: Request) =>
+            options.internalApiEntry!(incoming, env, executionCtx)
+        : undefined;
+
       return (entry.fetch as any)(request, {
-        context: createRequestContext(env, executionCtx),
+        context: {
+          ...createRequestContext(env, executionCtx),
+          ...(internalApiFetch ? { internalApiFetch } : {}),
+        },
       });
     },
   };

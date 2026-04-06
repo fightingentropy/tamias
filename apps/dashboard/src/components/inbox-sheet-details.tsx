@@ -13,7 +13,7 @@ import { InboxActions } from "@/components/inbox/inbox-actions";
 import { useInboxParams } from "@/hooks/use-inbox-params";
 import { useUserQuery } from "@/hooks/use-user";
 import { useTRPC } from "@/trpc/client";
-import { getWebsiteLogo } from "@/utils/logos";
+import { getWebsiteFaviconUrl } from "@/utils/logos";
 
 export function InboxSheetDetails() {
   const apiUrl = getApiUrl();
@@ -61,7 +61,7 @@ export function InboxSheetDetails() {
 
   const isProcessing =
     data.status === "processing" || data.status === "analyzing";
-  const logoUrl = getWebsiteLogo(data.website);
+  const logoUrl = getWebsiteFaviconUrl(data.website);
 
   return (
     <div className="flex flex-col flex-grow min-h-0 relative h-full w-full">

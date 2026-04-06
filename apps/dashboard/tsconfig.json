@@ -1,7 +1,6 @@
 {
   "extends": "@tamias/tsconfig/base.json",
   "compilerOptions": {
-    "baseUrl": ".",
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "allowArbitraryExtensions": true,
