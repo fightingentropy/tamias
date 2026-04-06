@@ -20,8 +20,6 @@
     "noPropertyAccessFromIndexSignature": false,
     "jsx": "react-jsx",
     "jsxImportSource": "react",
-    "ignoreDeprecations": "6.0",
-    "baseUrl": ".",
     "paths": {
       "@app-data/*": [
         "../../packages/app-data/src/*"

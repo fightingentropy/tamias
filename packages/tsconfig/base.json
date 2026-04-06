@@ -1,7 +1,6 @@
 {
   "display": "Default",
   "compilerOptions": {
-    "ignoreDeprecations": "6.0",
     "esModuleInterop": true,
     "incremental": false,
     "isolatedModules": true,
@@ -14,7 +13,6 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "ES2022",
-    "baseUrl": ".",
     "types": ["bun", "node"],
     "typeRoots": [
       "./node_modules/@types",
