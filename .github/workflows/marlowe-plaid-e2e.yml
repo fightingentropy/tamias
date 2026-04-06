@@ -1,0 +1,28 @@
+# Optional: full backend E2E — Convex + Plaid Sandbox for marlowe.walker@example.com
+# Configure repo secrets: CONVEX_URL, CONVEX_SERVICE_KEY, PLAID_CLIENT_ID, PLAID_SECRET
+# Optional: MARLOWE_PLAID_USER_EMAIL, MARLOWE_PLAID_INSTITUTION_ID, PLAID_SANDBOX_TEST_USER
+name: Marlowe Plaid E2E
+on:
+  workflow_dispatch:
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - name: Run Marlowe Plaid replace E2E
+        env:
+          MARLOWE_PLAID_E2E: "1"
+          CONVEX_URL: ${{ secrets.CONVEX_URL }}
+          CONVEX_SERVICE_KEY: ${{ secrets.CONVEX_SERVICE_KEY }}
+          PLAID_CLIENT_ID: ${{ secrets.PLAID_CLIENT_ID }}
+          PLAID_SECRET: ${{ secrets.PLAID_SECRET }}
+          PLAID_ENVIRONMENT: sandbox
+          MARLOWE_PLAID_USER_EMAIL: ${{ secrets.MARLOWE_PLAID_USER_EMAIL }}
+          MARLOWE_PLAID_INSTITUTION_ID: ${{ secrets.MARLOWE_PLAID_INSTITUTION_ID }}
+          PLAID_SANDBOX_TEST_USER: ${{ secrets.PLAID_SANDBOX_TEST_USER }}
+        run: bun test scripts/marlowe-plaid-replace.e2e.test.ts

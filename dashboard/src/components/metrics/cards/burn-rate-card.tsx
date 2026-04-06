@@ -77,12 +77,12 @@ export function BurnRateCard({
   return (
     <div
       className={cn(
-        "border bg-background border-border p-6 flex flex-col h-full relative group",
+        "border bg-background border-border p-4 flex flex-col h-full relative group",
         !metricsIsCustomizing && "cursor-pointer",
       )}
       {...longPressHandlers}
     >
-      <div className="mb-4 min-h-[140px]">
+      <div className="mb-2 min-h-[100px]">
         <div className="flex items-start justify-between h-7">
           <h3 className="text-sm font-normal text-muted-foreground">Average Monthly Burn Rate</h3>
           <div className="opacity-0 group-hover:opacity-100 group-has-[*[data-state=open]]:opacity-100 transition-opacity">
@@ -113,7 +113,7 @@ export function BurnRateCard({
           </div>
         </div>
       </div>
-      <div className="h-80">
+      <div className="h-56 overflow-hidden">
         <SelectableChartWrapper
           data={burnRateChartData}
           dateKey="month"

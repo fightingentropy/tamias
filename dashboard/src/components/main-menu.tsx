@@ -12,6 +12,7 @@ import {
   InboxNavIcon,
   InvoiceNavIcon,
   OverviewIcon,
+  ReportsNavIcon,
   SettingsNavIcon,
   TaxIcon,
   TrackerNavIcon,
@@ -21,6 +22,7 @@ import {
 
 const icons = {
   "/dashboard": () => <OverviewIcon size={20} />,
+  "/reports": () => <ReportsNavIcon size={20} />,
   "/compliance": () => <TaxIcon size={20} />,
   "/transactions": () => <TransactionsNavIcon size={20} />,
   "/invoices": () => <InvoiceNavIcon size={20} />,
@@ -36,6 +38,10 @@ const baseItems = [
   {
     path: "/dashboard",
     name: "Dashboard",
+  },
+  {
+    path: "/reports",
+    name: "Reports",
   },
   {
     path: "/transactions",

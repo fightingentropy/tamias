@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useState, useRef, useCallback, useEffect } from "react";
 
 type SimpleDatum = {
   label: string;
@@ -57,7 +57,7 @@ type BarSeries = {
 
 const SVG_WIDTH = 720;
 const SVG_HEIGHT = 320;
-const MARGIN = { top: 16, right: 12, bottom: 28, left: 12 };
+const MARGIN = { top: 16, right: 12, bottom: 28, left: 44 };
 const CHART_WIDTH = SVG_WIDTH - MARGIN.left - MARGIN.right;
 const CHART_HEIGHT = SVG_HEIGHT - MARGIN.top - MARGIN.bottom;
 
@@ -134,8 +134,39 @@ function xBand(index: number, count: number) {
   return MARGIN.left + (index / count) * CHART_WIDTH;
 }
 
-function Frame({ children, labels }: { children: React.ReactNode; labels?: string[] }) {
+function formatAxisValue(value: number): string {
+  if (Math.abs(value) >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
+  if (Math.abs(value) >= 1_000) return `${(value / 1_000).toFixed(0)}k`;
+  return value.toFixed(0);
+}
+
+function niceAxisTicks(min: number, max: number, tickCount = 5): number[] {
+  if (min === max) return [min];
+  const range = max - min;
+  const rawStep = range / (tickCount - 1);
+  const magnitude = 10 ** Math.floor(Math.log10(rawStep));
+  const niceSteps = [1, 2, 2.5, 5, 10];
+  const niceStep =
+    magnitude * (niceSteps.find((s) => s * magnitude >= rawStep) ?? 10);
+  const start = Math.floor(min / niceStep) * niceStep;
+  const ticks: number[] = [];
+  for (let v = start; v <= max + niceStep * 0.01; v += niceStep) {
+    ticks.push(Math.round(v * 100) / 100);
+  }
+  return ticks;
+}
+
+function Frame({
+  children,
+  labels,
+  valueRange,
+}: {
+  children: React.ReactNode;
+  labels?: string[];
+  valueRange?: { min: number; max: number };
+}) {
   const step = labels ? getStep(labels.length) : 1;
+  const axisTicks = valueRange ? niceAxisTicks(valueRange.min, valueRange.max) : null;
 
   return (
     <svg
@@ -150,23 +181,49 @@ function Frame({ children, labels }: { children: React.ReactNode; labels?: strin
       data-plot-height={CHART_HEIGHT}
     >
       <g>
-        {Array.from({ length: 4 }).map((_, index) => {
-          const y = MARGIN.top + (CHART_HEIGHT / 3) * index;
-
-          return (
-            <line
-              key={index}
-              x1={MARGIN.left}
-              x2={SVG_WIDTH - MARGIN.right}
-              y1={y}
-              y2={y}
-              stroke="hsl(var(--border))"
-              strokeDasharray="3 6"
-              strokeWidth="1"
-              opacity="0.45"
-            />
-          );
-        })}
+        {axisTicks
+          ? axisTicks.map((tick, index) => {
+              const y = valueToY(tick, valueRange!.min, valueRange!.max);
+              return (
+                <g key={index}>
+                  <line
+                    x1={MARGIN.left}
+                    x2={SVG_WIDTH - MARGIN.right}
+                    y1={y}
+                    y2={y}
+                    stroke="hsl(var(--border))"
+                    strokeDasharray="3 6"
+                    strokeWidth="1"
+                    opacity="0.45"
+                  />
+                  <text
+                    x={MARGIN.left - 8}
+                    y={y + 3}
+                    textAnchor="end"
+                    fontSize="10"
+                    fill="hsl(var(--muted-foreground))"
+                  >
+                    {formatAxisValue(tick)}
+                  </text>
+                </g>
+              );
+            })
+          : Array.from({ length: 4 }).map((_, index) => {
+              const y = MARGIN.top + (CHART_HEIGHT / 3) * index;
+              return (
+                <line
+                  key={index}
+                  x1={MARGIN.left}
+                  x2={SVG_WIDTH - MARGIN.right}
+                  y1={y}
+                  y2={y}
+                  stroke="hsl(var(--border))"
+                  strokeDasharray="3 6"
+                  strokeWidth="1"
+                  opacity="0.45"
+                />
+              );
+            })}
       </g>
       {children}
       {labels?.map((label, index) => {
@@ -200,11 +257,37 @@ export function PublicBurnRateChart({
   const values = data.map((item) => item.amount);
   const { min, max } = getRange([...values, data[0]?.average ?? 0], true);
   const averageY = valueToY(data[0]?.average ?? 0, min, max);
-  const bandWidth = CHART_WIDTH / Math.max(data.length, 1);
-  const barWidth = Math.max(10, Math.min(34, bandWidth * 0.55));
+  const zeroY = valueToY(0, min, max);
+
+  const points = data.map((item, index) => ({
+    x: xCenter(index, data.length),
+    y: valueToY(item.amount, min, max),
+  }));
 
   return (
-    <Frame labels={labels}>
+    <Frame labels={labels} valueRange={{ min, max }}>
+      <defs>
+        <pattern
+          id="burn-rate-hatch"
+          width="6"
+          height="6"
+          patternUnits="userSpaceOnUse"
+          patternTransform="rotate(45)"
+        >
+          <line
+            x1="0"
+            y1="0"
+            x2="0"
+            y2="6"
+            stroke="hsl(var(--foreground))"
+            strokeWidth="1.5"
+            opacity="0.35"
+          />
+        </pattern>
+      </defs>
+      {/* Hatched area fill */}
+      <path d={buildAreaPath(points, zeroY)} fill="url(#burn-rate-hatch)" />
+      {/* Average dashed line */}
       <line
         x1={MARGIN.left}
         x2={SVG_WIDTH - MARGIN.right}
@@ -214,25 +297,25 @@ export function PublicBurnRateChart({
         strokeDasharray="6 6"
         strokeWidth="2"
       />
-      {data.map((item, index) => {
-        const x = xBand(index, data.length) + (bandWidth - barWidth) / 2;
-        const y = valueToY(item.amount, min, max);
-        const zeroY = valueToY(0, min, max);
-        const height = Math.max(2, Math.abs(zeroY - y));
-
-        return (
-          <rect
-            key={item.month + index}
-            x={x}
-            y={Math.min(y, zeroY)}
-            width={barWidth}
-            height={height}
-            fill="hsl(var(--foreground))"
-            opacity="0.92"
-            rx="2"
-          />
-        );
-      })}
+      {/* Line */}
+      <path
+        d={buildLinePath(points)}
+        fill="none"
+        stroke="hsl(var(--foreground))"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {/* Dots */}
+      {points.map((point, index) => (
+        <circle
+          key={labels[index]}
+          cx={point.x}
+          cy={point.y}
+          r="3"
+          fill="hsl(var(--foreground))"
+        />
+      ))}
     </Frame>
   );
 }
@@ -240,72 +323,273 @@ export function PublicBurnRateChart({
 export function PublicComparisonBarChart({
   data,
   showAverage = false,
+  currency,
+  locale,
 }: {
   data: ComparisonDatum[];
   showAverage?: boolean;
+  currency?: string;
+  locale?: string;
 }) {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
+  const [svgW, setSvgW] = useState(SVG_WIDTH);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => {
+      if (entry) {
+        const w = Math.round(entry.contentRect.width);
+        if (w > 0) setSvgW(w);
+      }
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const chartW = svgW - MARGIN.left - MARGIN.right;
+
+  const lxBand = (index: number, count: number) =>
+    MARGIN.left + (index / count) * chartW;
+
+  const lxCenter = (index: number, count: number) => {
+    if (count <= 1) return MARGIN.left + chartW / 2;
+    return MARGIN.left + (index / (count - 1)) * chartW;
+  };
+
   const labels = data.map((item) => item.label);
   const values = data.flatMap((item) => [item.primary, item.secondary]);
   const average =
     data.length > 0 ? data.reduce((sum, item) => sum + item.primary, 0) / data.length : 0;
   const { min, max } = getRange(showAverage ? [...values, average] : values, true);
   const zeroY = valueToY(0, min, max);
-  const bandWidth = CHART_WIDTH / Math.max(data.length, 1);
+  const bandWidth = chartW / Math.max(data.length, 1);
   const gap = Math.max(4, bandWidth * 0.08);
   const barWidth = Math.max(8, Math.min(22, (bandWidth - gap) / 2));
 
+  const formatValue = useCallback(
+    (value: number) => {
+      if (currency) {
+        return new Intl.NumberFormat(locale || "en-US", {
+          style: "currency",
+          currency,
+          maximumFractionDigits: 0,
+        }).format(value);
+      }
+      return formatAxisValue(value);
+    },
+    [currency, locale],
+  );
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<SVGSVGElement>) => {
+      const svg = svgRef.current;
+      if (!svg) return;
+      const rect = svg.getBoundingClientRect();
+      const svgX = ((e.clientX - rect.left) / rect.width) * svgW;
+      const svgY = ((e.clientY - rect.top) / rect.height) * SVG_HEIGHT;
+
+      const chartX = svgX - MARGIN.left;
+      if (chartX < 0 || chartX > chartW || svgY < MARGIN.top || svgY > MARGIN.top + CHART_HEIGHT) {
+        setHoveredIndex(null);
+        setTooltipPos(null);
+        return;
+      }
+
+      const index = Math.floor((chartX / chartW) * data.length);
+      const clampedIndex = Math.max(0, Math.min(data.length - 1, index));
+      setHoveredIndex(clampedIndex);
+
+      const bandX = lxBand(clampedIndex, data.length);
+      setTooltipPos({
+        x: bandX + bandWidth / 2,
+        y: Math.min(valueToY(data[clampedIndex]!.primary, min, max), zeroY) - 8,
+      });
+    },
+    [data, bandWidth, min, max, zeroY, svgW, chartW, lxBand],
+  );
+
+  const handleMouseLeave = useCallback(() => {
+    setHoveredIndex(null);
+    setTooltipPos(null);
+  }, []);
+
+  const hoveredItem = hoveredIndex !== null ? data[hoveredIndex] : null;
+
   return (
-    <Frame labels={labels}>
-      {showAverage && (
+    <div ref={containerRef} className="relative h-full w-full">
+      <svg
+        ref={svgRef}
+        aria-hidden="true"
+        viewBox={`0 0 ${svgW} ${SVG_HEIGHT}`}
+        className="h-full w-full overflow-visible"
+        preserveAspectRatio="none"
+        data-chart-plot-area="true"
+        data-plot-x={MARGIN.left}
+        data-plot-y={MARGIN.top}
+        data-plot-width={chartW}
+        data-plot-height={CHART_HEIGHT}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+      >
+        {/* Grid and axis ticks */}
+        {(() => {
+          const axisTicks = niceAxisTicks(min, max);
+          return (
+            <g>
+              {axisTicks.map((tick, i) => {
+                const y = valueToY(tick, min, max);
+                return (
+                  <g key={i}>
+                    <line
+                      x1={MARGIN.left}
+                      x2={svgW - MARGIN.right}
+                      y1={y}
+                      y2={y}
+                      stroke="hsl(var(--border))"
+                      strokeDasharray="3 6"
+                      strokeWidth="1"
+                      opacity="0.45"
+                    />
+                    <text
+                      x={MARGIN.left - 8}
+                      y={y + 3}
+                      textAnchor="end"
+                      fontSize="10"
+                      fill="hsl(var(--muted-foreground))"
+                    >
+                      {formatAxisValue(tick)}
+                    </text>
+                  </g>
+                );
+              })}
+            </g>
+          );
+        })()}
+
+        {/* Average line */}
+        {showAverage && (
+          <line
+            x1={MARGIN.left}
+            x2={svgW - MARGIN.right}
+            y1={valueToY(average, min, max)}
+            y2={valueToY(average, min, max)}
+            stroke="hsl(var(--muted-foreground))"
+            strokeDasharray="6 6"
+            strokeWidth="2"
+          />
+        )}
+
+        {/* Zero line */}
         <line
           x1={MARGIN.left}
-          x2={SVG_WIDTH - MARGIN.right}
-          y1={valueToY(average, min, max)}
-          y2={valueToY(average, min, max)}
-          stroke="hsl(var(--muted-foreground))"
-          strokeDasharray="6 6"
-          strokeWidth="2"
+          x2={svgW - MARGIN.right}
+          y1={zeroY}
+          y2={zeroY}
+          stroke="hsl(var(--border))"
+          strokeWidth="1"
         />
-      )}
-      <line
-        x1={MARGIN.left}
-        x2={SVG_WIDTH - MARGIN.right}
-        y1={zeroY}
-        y2={zeroY}
-        stroke="hsl(var(--border))"
-        strokeWidth="1"
-      />
-      {data.map((item, index) => {
-        const bandX = xBand(index, data.length);
-        const primaryX = bandX + (bandWidth - gap) / 2 - barWidth;
-        const secondaryX = bandX + (bandWidth + gap) / 2;
-        const primaryY = valueToY(item.primary, min, max);
-        const secondaryY = valueToY(item.secondary, min, max);
 
-        return (
-          <g key={item.label + index}>
-            <rect
-              x={primaryX}
-              y={Math.min(primaryY, zeroY)}
-              width={barWidth}
-              height={Math.max(2, Math.abs(zeroY - primaryY))}
-              fill="hsl(var(--foreground))"
-              opacity="0.92"
-              rx="2"
+        {/* Bars */}
+        {data.map((item, index) => {
+          const bandX = lxBand(index, data.length);
+          const primaryX = bandX + (bandWidth - gap) / 2 - barWidth;
+          const secondaryX = bandX + (bandWidth + gap) / 2;
+          const primaryY = valueToY(item.primary, min, max);
+          const secondaryY = valueToY(item.secondary, min, max);
+
+          return (
+            <g key={item.label + index}>
+              <rect
+                x={primaryX}
+                y={Math.min(primaryY, zeroY)}
+                width={barWidth}
+                height={Math.max(2, Math.abs(zeroY - primaryY))}
+                fill="hsl(var(--foreground))"
+                opacity="0.92"
+                rx="2"
+              />
+              <rect
+                x={secondaryX}
+                y={Math.min(secondaryY, zeroY)}
+                width={barWidth}
+                height={Math.max(2, Math.abs(zeroY - secondaryY))}
+                fill="var(--chart-bar-fill-secondary)"
+                opacity="0.95"
+                rx="2"
+              />
+            </g>
+          );
+        })}
+
+        {/* Hover indicator line */}
+        {hoveredIndex !== null && tooltipPos && (
+          <>
+            <line
+              x1={tooltipPos.x}
+              x2={tooltipPos.x}
+              y1={MARGIN.top}
+              y2={MARGIN.top + CHART_HEIGHT}
+              stroke="hsl(var(--muted-foreground))"
+              strokeWidth="1"
+              opacity="0.4"
             />
-            <rect
-              x={secondaryX}
-              y={Math.min(secondaryY, zeroY)}
-              width={barWidth}
-              height={Math.max(2, Math.abs(zeroY - secondaryY))}
-              fill="var(--chart-bar-fill-secondary)"
-              opacity="0.95"
-              rx="2"
+            <circle
+              cx={tooltipPos.x}
+              cy={valueToY(average, min, max)}
+              r="4"
+              fill="hsl(var(--background))"
+              stroke="hsl(var(--muted-foreground))"
+              strokeWidth="1.5"
             />
-          </g>
-        );
-      })}
-    </Frame>
+          </>
+        )}
+
+        {/* X-axis labels */}
+        {(() => {
+          const step = getStep(labels.length);
+          return labels.map((label, index) => {
+            if (index % step !== 0 && index !== labels.length - 1) return null;
+            return (
+              <text
+                key={label + index}
+                x={lxCenter(index, labels.length)}
+                y={SVG_HEIGHT - 8}
+                textAnchor="middle"
+                fontSize="10"
+                fill="hsl(var(--muted-foreground))"
+              >
+                {label}
+              </text>
+            );
+          });
+        })()}
+      </svg>
+
+      {/* Tooltip */}
+      {hoveredItem && tooltipPos && svgRef.current && (
+        <div
+          className="absolute pointer-events-none z-50"
+          style={{
+            left: `${(tooltipPos.x / svgW) * 100}%`,
+            top: `${(tooltipPos.y / SVG_HEIGHT) * 100}%`,
+            transform: "translate(-50%, -100%)",
+          }}
+        >
+          <div className="bg-background border border-border px-3 py-2 text-xs shadow-md">
+            <p className="text-muted-foreground mb-1">{hoveredItem.label}</p>
+            <p className="text-foreground font-medium">Current: {formatValue(hoveredItem.primary)}</p>
+            <p className="text-foreground font-medium">Previous: {formatValue(hoveredItem.secondary)}</p>
+            {showAverage && (
+              <p className="text-foreground font-medium">Average: {formatValue(Math.round(average))}</p>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -337,7 +621,7 @@ export function PublicForecastChart({ data }: { data: ForecastDatum[] }) {
     .filter((point): point is { x: number; y: number } => point !== null);
 
   return (
-    <Frame labels={labels}>
+    <Frame labels={labels} valueRange={{ min, max }}>
       <path
         d={buildAreaPath(actualPoints, baselineY)}
         fill="hsl(var(--foreground))"
@@ -416,7 +700,7 @@ export function PublicRunwayChart({ data }: { data: RunwayDatum[] }) {
   const baselineY = valueToY(0, min, max);
 
   return (
-    <Frame labels={labels}>
+    <Frame labels={labels} valueRange={{ min, max }}>
       <path d={buildAreaPath(points, baselineY)} fill="hsl(var(--foreground))" opacity="0.12" />
       <path
         d={buildLinePath(points)}
@@ -438,7 +722,7 @@ export function PublicStackedExpensesChart({ data }: { data: StackedDatum[] }) {
   const barWidth = Math.max(14, Math.min(36, bandWidth * 0.55));
 
   return (
-    <Frame labels={labels}>
+    <Frame labels={labels} valueRange={{ min, max }}>
       <defs>
         <pattern
           id="public-report-recurring-pattern"
@@ -564,7 +848,7 @@ export function PublicScoreLineChart({ data }: { data: Array<{ label: string; va
   }));
 
   return (
-    <Frame labels={labels}>
+    <Frame labels={labels} valueRange={{ min: 0, max: 100 }}>
       <path
         d={buildLinePath(points)}
         fill="none"
@@ -601,7 +885,7 @@ export function PublicMultiLineChart({
   const zeroY = min <= 0 && max >= 0 ? valueToY(0, min, max) : null;
 
   return (
-    <Frame labels={labels}>
+    <Frame labels={labels} valueRange={{ min, max }}>
       {zeroY !== null && (
         <line
           x1={MARGIN.left}
@@ -694,7 +978,7 @@ export function PublicGroupedBarLineChart({
     : [];
 
   return (
-    <Frame labels={labels}>
+    <Frame labels={labels} valueRange={{ min: barMin, max: barMax }}>
       {bars.some((entry) => entry.pattern) && (
         <defs>
           <pattern

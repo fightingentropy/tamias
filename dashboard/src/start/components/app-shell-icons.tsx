@@ -1,5 +1,6 @@
 import type { SVGProps } from "react";
 import {
+  MdBarChart,
   MdChevronRight,
   MdErrorOutline,
   MdExpandMore,
@@ -112,6 +113,7 @@ export function TrackerNavIcon(props: ShellIconProps) {
   );
 }
 
+export const ReportsNavIcon = MdBarChart;
 export const OverviewIcon = MdOutlineWidgets;
 export const TaxIcon = MdOutlineAssuredWorkload;
 export const MenuIcon = MdMenu;

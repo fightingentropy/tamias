@@ -14,7 +14,7 @@ function DashboardPage() {
   return (
     <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <Widgets initialPreferences={loaderData.initialPreferences} />
-      <DeferredHomeChat />
+      <DeferredHomeChat forceOpen />
     </AppLayoutShell>
   );
 }

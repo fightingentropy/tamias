@@ -84,14 +84,14 @@ export function MonthlyRevenueCard({
       )}
       {...longPressHandlers}
     >
-      <div className="mb-4 min-h-[140px]">
+      <div className="mb-4">
         <div className="flex items-start justify-between h-7">
-          <h3 className="text-sm font-normal text-muted-foreground">Revenue</h3>
+          <h3 className="text-[14px] font-normal text-muted-foreground">Revenue</h3>
           <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 group-has-[*[data-state=open]]:opacity-100 transition-opacity">
             <ShareMetricButton type="monthly_revenue" from={from} to={to} currency={currency} />
           </div>
         </div>
-        <p className="text-3xl font-normal mb-3">
+        <p className="text-[30px] font-normal tracking-tight mb-4">
           <AnimatedNumber
             value={totalRevenue}
             currency={currency || "USD"}
@@ -99,14 +99,14 @@ export function MonthlyRevenueCard({
             maximumFractionDigits={0}
           />
         </p>
-        <div className="flex items-center gap-4 mt-2">
+        <div className="flex items-center gap-4">
           <div className="flex gap-2 items-center">
-            <div className="w-2 h-2 bg-foreground" />
+            <div className="w-2 h-2 rounded-[2px] bg-foreground" />
             <span className="text-xs text-muted-foreground">Current</span>
           </div>
           <div className="flex gap-2 items-center">
             <div
-              className="w-2 h-2"
+              className="w-2 h-2 rounded-[2px]"
               style={{
                 backgroundColor: "var(--chart-bar-fill-secondary)",
               }}
@@ -115,7 +115,7 @@ export function MonthlyRevenueCard({
           </div>
           <div className="flex gap-2 items-center">
             <div
-              className="w-4 h-0.5"
+              className="w-4 h-0"
               style={{
                 borderTop: "2px dashed hsl(var(--muted-foreground))",
               }}
@@ -124,7 +124,7 @@ export function MonthlyRevenueCard({
           </div>
         </div>
       </div>
-      <div className="h-80">
+      <div className="h-[320px] overflow-hidden">
         <SelectableChartWrapper
           data={monthlyRevenueChartData}
           dateKey="label"
@@ -142,6 +142,8 @@ export function MonthlyRevenueCard({
               secondary: item.lastYearAmount,
             }))}
             showAverage={true}
+            currency={currency}
+            locale={locale}
           />
         </SelectableChartWrapper>
       </div>
