@@ -366,7 +366,7 @@ bun run lint
 bun run format
 ```
 
-End-to-end smoke tests use Playwright: specs in **`e2e/`**, config **`playwright.config.mts`** at the repo root. Run **`bun run test:e2e`** (or **`test:e2e:headed`**) from the **repository root**. Saved auth ends up under **`e2e/.auth/`** (gitignored); **`playwright-report/`** and **`test-results/`** are also gitignored.
+End-to-end smoke tests use Playwright: specs in **`e2e/`**, config **`playwright.config.ts`** at the repo root. Run **`bun run test:e2e`** (or **`test:e2e:headed`**) from the **repository root**. Saved auth ends up under **`e2e/.auth/`** (gitignored); **`playwright-report/`** and **`test-results/`** are also gitignored.
 
 ### Deploy helpers
 

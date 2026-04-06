@@ -1,6 +1,7 @@
 {
   "name": "tamias",
   "private": true,
+  "type": "module",
   "workspaces": [
     "packages/*",
     "dashboard",
@@ -25,8 +26,8 @@
     "preflight:cloudflare:production": "bun run preflight:cloudflare:dashboard:production",
     "preflight:cloudflare": "bun run preflight:cloudflare:dashboard",
     "test": "bun run --workspaces --parallel --if-present test",
-    "test:e2e": "playwright test -c playwright.config.mts",
-    "test:e2e:headed": "playwright test -c playwright.config.mts --headed",
+    "test:e2e": "playwright test -c playwright.config.ts",
+    "test:e2e:headed": "playwright test -c playwright.config.ts --headed",
     "start:dashboard": "bun run --filter @tamias/dashboard start",
     "dev:dashboard": "bun run --filter @tamias/dashboard dev",
     "build:dashboard": "bun run --filter @tamias/dashboard build",
