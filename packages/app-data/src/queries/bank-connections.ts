@@ -78,7 +78,7 @@ export type CreateBankConnectionPayload = {
   referenceId?: string | null;
   teamId: string;
   userId: ConvexUserId;
-  provider: "gocardless" | "teller" | "plaid";
+  provider: "teller" | "plaid";
 };
 
 export const createBankConnection = async (_db: Database, payload: CreateBankConnectionPayload) => {

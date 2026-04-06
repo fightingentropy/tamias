@@ -63,23 +63,6 @@ export function plaidProbe(): Dependency {
   };
 }
 
-/** GoCardless health check via @tamias/banking */
-export function gocardlessProbe(): Dependency {
-  return {
-    name: "gocardless",
-    tier: 2,
-    timeoutMs: 5_000,
-    probe: async () => {
-      try {
-        const provider = new Provider({ provider: "gocardless" });
-        return await provider.getHealthCheck().then((h) => h.gocardless.healthy);
-      } catch {
-        return false;
-      }
-    },
-  };
-}
-
 /** Teller health check via @tamias/banking */
 export function tellerProbe(): Dependency {
   return {
@@ -327,7 +310,6 @@ export function apiDependencies(): Dependency[] {
     convexProbe(),
     // Tier 2 — Important
     plaidProbe(),
-    gocardlessProbe(),
     tellerProbe(),
     stripeProbe(),
     polarProbe(),

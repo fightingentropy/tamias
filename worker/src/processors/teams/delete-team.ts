@@ -64,7 +64,7 @@ export class DeleteTeamProcessor extends BaseProcessor<DeleteTeamPayload> {
       try {
         await trpc.banking.deleteConnection.mutate({
           id: connection.referenceId,
-          provider: connection.provider as "gocardless" | "teller" | "plaid",
+          provider: connection.provider as "teller" | "plaid",
           accessToken: connection.accessToken ?? undefined,
         });
         return true;

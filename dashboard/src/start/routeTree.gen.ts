@@ -56,7 +56,6 @@ import { Route as RLinkIdOpengraphImageRouteImport } from './routes/r/$linkId/op
 import { Route as PPortalIdOpengraphImageRouteImport } from './routes/p/$portalId/opengraph-image'
 import { Route as ITokenOpengraphImageRouteImport } from './routes/i/$token/opengraph-image'
 import { Route as ApiWebhookRegisteredRouteImport } from './routes/api/webhook/registered'
-import { Route as ApiGocardlessReconnectRouteImport } from './routes/api/gocardless/reconnect'
 import { Route as ApiAuthCallbackRouteImport } from './routes/api/auth/callback'
 import { Route as ApiActionsTransactionsReconnectRouteImport } from './routes/api/actions/transactions/reconnect'
 import { Route as ApiActionsTransactionsManualSyncRouteImport } from './routes/api/actions/transactions/manual-sync'
@@ -335,11 +334,6 @@ const ApiWebhookRegisteredRoute = ApiWebhookRegisteredRouteImport.update({
   path: '/api/webhook/registered',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiGocardlessReconnectRoute = ApiGocardlessReconnectRouteImport.update({
-  id: '/api/gocardless/reconnect',
-  path: '/api/gocardless/reconnect',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiAuthCallbackRoute = ApiAuthCallbackRouteImport.update({
   id: '/callback',
   path: '/callback',
@@ -408,7 +402,6 @@ export interface FileRoutesByFullPath {
   '/compliance/': typeof ComplianceIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/api/auth/callback': typeof ApiAuthCallbackRoute
-  '/api/gocardless/reconnect': typeof ApiGocardlessReconnectRoute
   '/api/webhook/registered': typeof ApiWebhookRegisteredRoute
   '/i/$token/opengraph-image': typeof ITokenOpengraphImageRoute
   '/p/$portalId/opengraph-image': typeof PPortalIdOpengraphImageRoute
@@ -462,7 +455,6 @@ export interface FileRoutesByTo {
   '/compliance': typeof ComplianceIndexRoute
   '/settings': typeof SettingsIndexRoute
   '/api/auth/callback': typeof ApiAuthCallbackRoute
-  '/api/gocardless/reconnect': typeof ApiGocardlessReconnectRoute
   '/api/webhook/registered': typeof ApiWebhookRegisteredRoute
   '/i/$token/opengraph-image': typeof ITokenOpengraphImageRoute
   '/p/$portalId/opengraph-image': typeof PPortalIdOpengraphImageRoute
@@ -517,7 +509,6 @@ export interface FileRoutesById {
   '/compliance/': typeof ComplianceIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/api/auth/callback': typeof ApiAuthCallbackRoute
-  '/api/gocardless/reconnect': typeof ApiGocardlessReconnectRoute
   '/api/webhook/registered': typeof ApiWebhookRegisteredRoute
   '/i/$token/opengraph-image': typeof ITokenOpengraphImageRoute
   '/p/$portalId/opengraph-image': typeof PPortalIdOpengraphImageRoute
@@ -573,7 +564,6 @@ export interface FileRouteTypes {
     | '/compliance/'
     | '/settings/'
     | '/api/auth/callback'
-    | '/api/gocardless/reconnect'
     | '/api/webhook/registered'
     | '/i/$token/opengraph-image'
     | '/p/$portalId/opengraph-image'
@@ -627,7 +617,6 @@ export interface FileRouteTypes {
     | '/compliance'
     | '/settings'
     | '/api/auth/callback'
-    | '/api/gocardless/reconnect'
     | '/api/webhook/registered'
     | '/i/$token/opengraph-image'
     | '/p/$portalId/opengraph-image'
@@ -681,7 +670,6 @@ export interface FileRouteTypes {
     | '/compliance/'
     | '/settings/'
     | '/api/auth/callback'
-    | '/api/gocardless/reconnect'
     | '/api/webhook/registered'
     | '/i/$token/opengraph-image'
     | '/p/$portalId/opengraph-image'
@@ -732,7 +720,6 @@ export interface RootRouteChildren {
   AccountIndexRoute: typeof AccountIndexRoute
   ComplianceIndexRoute: typeof ComplianceIndexRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
-  ApiGocardlessReconnectRoute: typeof ApiGocardlessReconnectRoute
   ApiWebhookRegisteredRoute: typeof ApiWebhookRegisteredRoute
   ApiActionsAiTaxRateRoute: typeof ApiActionsAiTaxRateRoute
   ApiActionsTransactionsManualSyncRoute: typeof ApiActionsTransactionsManualSyncRoute
@@ -1070,13 +1057,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWebhookRegisteredRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/gocardless/reconnect': {
-      id: '/api/gocardless/reconnect'
-      path: '/api/gocardless/reconnect'
-      fullPath: '/api/gocardless/reconnect'
-      preLoaderRoute: typeof ApiGocardlessReconnectRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/auth/callback': {
       id: '/api/auth/callback'
       path: '/callback'
@@ -1228,7 +1208,6 @@ const rootRouteChildren: RootRouteChildren = {
   AccountIndexRoute: AccountIndexRoute,
   ComplianceIndexRoute: ComplianceIndexRoute,
   SettingsIndexRoute: SettingsIndexRoute,
-  ApiGocardlessReconnectRoute: ApiGocardlessReconnectRoute,
   ApiWebhookRegisteredRoute: ApiWebhookRegisteredRoute,
   ApiActionsAiTaxRateRoute: ApiActionsAiTaxRateRoute,
   ApiActionsTransactionsManualSyncRoute: ApiActionsTransactionsManualSyncRoute,
@@ -1237,13 +1216,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

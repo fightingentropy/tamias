@@ -351,7 +351,7 @@ describe("Cloudflare async bridge helpers", () => {
         jobName: "delete-connection",
         payload: {
           referenceId: "req_123",
-          provider: "gocardless",
+          provider: "plaid",
         },
       }),
     ).toBe(true);

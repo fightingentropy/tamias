@@ -1,8 +1,7 @@
 import { env } from "./env";
-import { GoCardLessApi } from "./providers/gocardless/gocardless-api";
 import { PlaidApi } from "./providers/plaid/plaid-api";
 import type { Providers } from "./types";
-import { getFileExtension, getLogoURL } from "./utils/logo";
+import { getLogoURL } from "./utils/logo";
 
 const TELLER_CDN = "https://teller.io/images/banks";
 
@@ -24,30 +23,6 @@ export type FetchInstitutionsResult = {
   errors: { provider: string; error: string }[];
   succeededProviders: Providers[];
 };
-
-async function fetchGoCardLessInstitutions(): Promise<InstitutionRecord[]> {
-  const api = new GoCardLessApi();
-  const data = await api.getInstitutions();
-
-  return data.map((institution) => {
-    const ext = getFileExtension(institution.logo);
-
-    return {
-      id: institution.id,
-      name: institution.name,
-      logo: getLogoURL(institution.id, ext),
-      sourceLogo: institution.logo ?? null,
-      provider: "gocardless" as const,
-      countries: institution.countries,
-      availableHistory: institution.transaction_total_days
-        ? Number(institution.transaction_total_days)
-        : null,
-      maximumConsentValidity: null,
-      popularity: 0,
-      type: null,
-    };
-  });
-}
 
 /**
  * Extract domain from a URL for logo.dev fallback.
@@ -132,16 +107,12 @@ async function fetchTellerInstitutions(): Promise<InstitutionRecord[]> {
  * Returns both the fetched institutions and any errors that occurred.
  */
 export async function fetchAllInstitutions(): Promise<FetchInstitutionsResult> {
-  const results = await Promise.allSettled([
-    fetchGoCardLessInstitutions(),
-    fetchPlaidInstitutions(),
-    fetchTellerInstitutions(),
-  ]);
+  const results = await Promise.allSettled([fetchPlaidInstitutions(), fetchTellerInstitutions()]);
 
   const institutions: InstitutionRecord[] = [];
   const errors: { provider: string; error: string }[] = [];
   const succeededProviders: Providers[] = [];
-  const providers: Providers[] = ["gocardless", "plaid", "teller"];
+  const providers: Providers[] = ["plaid", "teller"];
 
   for (let i = 0; i < results.length; i++) {
     const result = results[i]!;

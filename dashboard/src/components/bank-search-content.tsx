@@ -40,12 +40,12 @@ function SearchSkeleton() {
 
 function formatProvider(provider: string) {
   switch (provider) {
-    case "gocardless":
-      return "GoCardLess";
     case "plaid":
       return "Plaid";
     case "teller":
       return "Teller";
+    default:
+      return provider;
   }
 }
 
@@ -128,8 +128,10 @@ export function BankSearchContent({
   const plaidEnvironment = getPlaidEnvironment();
   const [plaidToken, setPlaidToken] = useState<string | undefined>();
   const teamCountryCode = defaultCountryCode || "";
+  const connectDefaultCountry =
+    teamCountryCode === "US" || teamCountryCode === "CA" ? teamCountryCode : "US";
 
-  const { countryCode, search: query, setParams } = useConnectParams(teamCountryCode);
+  const { countryCode, search: query, setParams } = useConnectParams(connectDefaultCountry);
 
   const createPlaidLink = useMutation(
     trpc.banking.plaidLink.mutationOptions({
@@ -185,10 +187,11 @@ export function BankSearchContent({
   const [debouncedQuery] = useDebounceValue(query ?? "", 200);
 
   const { data, isLoading } = useQuery({
-    ...trpc.institutions.get.queryOptions(
+    ...    trpc.institutions.get.queryOptions(
       {
         q: debouncedQuery,
         countryCode,
+        excludeProviders: ["teller"],
       },
       {
         enabled,

@@ -907,9 +907,9 @@ async function seedBanking(context: SeedContext) {
     id: seedId(context, "bank-connection:main"),
     teamId: context.teamId,
     userId: context.userId,
-    provider: "gocardless",
+    provider: "plaid",
     accessToken: "seed-token-main",
-    enrollmentId: "seed-enrollment-main",
+    enrollmentId: null,
     referenceId: "seed-reference-main",
     accounts: [
       {

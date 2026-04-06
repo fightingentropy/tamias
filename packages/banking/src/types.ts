@@ -1,6 +1,6 @@
 import type { AccountType } from "./utils/account";
 
-export type Providers = "teller" | "plaid" | "gocardless";
+export type Providers = "teller" | "plaid";
 
 export type ProviderParams = {
   provider: Providers;
@@ -117,7 +117,6 @@ export type HealthCheckResponse = {
 
 export type GetHealthCheckResponse = {
   teller: HealthCheckResponse;
-  gocardless: HealthCheckResponse;
   plaid: HealthCheckResponse;
 };
 

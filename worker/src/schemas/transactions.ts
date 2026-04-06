@@ -4,7 +4,7 @@ import { z } from "zod";
  * Transaction job schemas
  */
 
-const bankProviderSchema = z.enum(["gocardless", "teller", "plaid"]);
+const bankProviderSchema = z.enum(["teller", "plaid"]);
 const bankAccountTypeSchema = z.enum([
   "credit",
   "other_asset",

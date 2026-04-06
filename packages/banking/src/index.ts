@@ -1,7 +1,5 @@
-import { GoCardLessProvider } from "./providers/gocardless/gocardless-provider";
 import { PlaidProvider } from "./providers/plaid/plaid-provider";
 import { TellerProvider } from "./providers/teller/teller-provider";
-import { configureBankingRuntime } from "./runtime";
 import type {
   DeleteAccountsRequest,
   DeleteConnectionRequest,
@@ -18,15 +16,12 @@ import { logger } from "./utils/logger";
 export class Provider {
   #name: string;
 
-  #provider: PlaidProvider | TellerProvider | GoCardLessProvider;
+  #provider: PlaidProvider | TellerProvider;
 
   constructor(params: ProviderParams) {
     this.#name = params.provider;
 
     switch (params.provider) {
-      case "gocardless":
-        this.#provider = new GoCardLessProvider();
-        break;
       case "teller":
         this.#provider = new TellerProvider();
         break;
@@ -43,21 +38,16 @@ export class Provider {
   async getHealthCheck(): Promise<GetHealthCheckResponse> {
     const teller = new TellerProvider();
     const plaid = new PlaidProvider();
-    const gocardless = new GoCardLessProvider();
 
     try {
-      const [isPlaidHealthy, isGocardlessHealthy, isTellerHealthy] = await Promise.all([
+      const [isPlaidHealthy, isTellerHealthy] = await Promise.all([
         plaid.getHealthCheck(),
-        gocardless.getHealthCheck(),
         teller.getHealthCheck(),
       ]);
 
       return {
         plaid: {
           healthy: isPlaidHealthy,
-        },
-        gocardless: {
-          healthy: isGocardlessHealthy,
         },
         teller: {
           healthy: isTellerHealthy,
@@ -120,7 +110,6 @@ export class Provider {
 
 export type { FetchInstitutionsResult, InstitutionRecord } from "./institutions";
 export { fetchAllInstitutions } from "./institutions";
-export { GoCardLessApi } from "./providers/gocardless/gocardless-api";
 export { PlaidApi } from "./providers/plaid/plaid-api";
 export { TellerApi } from "./providers/teller/teller-api";
 export { configureBankingRuntime } from "./runtime";

@@ -1,21 +1,12 @@
-import {
-  GoCardLessApi,
-  getProviderErrorDetails,
-  getRates,
-  PlaidApi,
-  Provider,
-} from "@tamias/banking";
+import { getProviderErrorDetails, getRates, PlaidApi, Provider } from "@tamias/banking";
 import { createLoggerWithContext } from "@tamias/logger";
 import { TRPCError } from "@trpc/server";
 import {
-  connectionByReferenceSchema,
   connectionStatusSchema,
   deleteConnectionSchema,
   getBalanceSchema,
   getProviderAccountsSchema,
   getProviderTransactionsSchema,
-  gocardlessAgreementSchema,
-  gocardlessLinkSchema,
   plaidExchangeSchema,
   plaidLinkSchema,
 } from "../../schemas/banking";
@@ -71,38 +62,6 @@ export const bankingRouter = createTRPCRouter({
     }
   }),
 
-  gocardlessLink: protectedProcedure.input(gocardlessLinkSchema).mutation(async ({ input }) => {
-    const api = new GoCardLessApi();
-
-    try {
-      const data = await api.buildLink(input);
-      return { data };
-    } catch (error) {
-      logger.error("Failed to create GoCardless link", getProviderErrorDetails(error));
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to create GoCardless link",
-      });
-    }
-  }),
-
-  gocardlessAgreement: protectedProcedure
-    .input(gocardlessAgreementSchema)
-    .mutation(async ({ input }) => {
-      const api = new GoCardLessApi();
-
-      try {
-        const data = await api.createEndUserAgreement(input);
-        return { data };
-      } catch (error) {
-        logger.error("Failed to create GoCardless agreement", getProviderErrorDetails(error));
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to create GoCardless agreement",
-        });
-      }
-    }),
-
   connectionStatus: internalProcedure.input(connectionStatusSchema).query(async ({ input }) => {
     const api = new Provider({ provider: input.provider });
 
@@ -138,30 +97,6 @@ export const bankingRouter = createTRPCRouter({
       });
     }
   }),
-
-  connectionByReference: internalProcedure
-    .input(connectionByReferenceSchema)
-    .query(async ({ input }) => {
-      const api = new GoCardLessApi();
-
-      try {
-        const data = await api.getRequisitionByReference(input.reference);
-        if (!data) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Connection not found",
-          });
-        }
-        return { data: { id: data.id, accounts: data.accounts } };
-      } catch (error) {
-        if (error instanceof TRPCError) throw error;
-        logger.error("Failed to get connection by reference", getProviderErrorDetails(error));
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to get connection by reference",
-        });
-      }
-    }),
 
   getProviderAccounts: protectedOrInternalProcedure
     .input(getProviderAccountsSchema)

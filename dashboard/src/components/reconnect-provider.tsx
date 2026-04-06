@@ -9,14 +9,11 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { useToast } from "@tamias/ui/use-toast";
 import { useMutation } from "@tanstack/react-query";
-import { nanoid } from "nanoid";
 import { useEffect, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
 import { useScript } from "usehooks-ts";
 import { useTheme } from "@/components/theme-provider";
-import { useTeamQuery } from "@/hooks/use-team";
 import { useTRPC } from "@/trpc/client";
-import { getUrl } from "@/utils/environment";
 
 /**
  * Callback type for when a provider reconnect flow completes.
@@ -53,7 +50,6 @@ export function ReconnectProvider({
   const { toast } = useToast();
   const { theme } = useTheme();
   const trpc = useTRPC();
-  const { data: team } = useTeamQuery();
   const plaidEnvironment = getPlaidEnvironment();
   const tellerApplicationId = getTellerApplicationId();
   const tellerEnvironment = getTellerEnvironment();
@@ -69,12 +65,6 @@ export function ReconnectProvider({
       },
     }),
   );
-
-  const createGocardlessAgreement = useMutation(
-    trpc.banking.gocardlessAgreement.mutationOptions({}),
-  );
-
-  const createGocardlessLink = useMutation(trpc.banking.gocardlessLink.mutationOptions({}));
 
   useScript("https://cdn.teller.io/connect/connect.js", {
     removeOnUnmount: false,
@@ -128,45 +118,6 @@ export function ReconnectProvider({
           accessToken: accessToken ?? undefined,
         });
 
-        return;
-      }
-      case "gocardless": {
-        if (!team?.id) {
-          return;
-        }
-
-        setIsLoading(true);
-        const reference = `${team.id}:${nanoid()}`;
-        const link = new URL(`${getUrl()}/api/gocardless/reconnect`);
-        link.searchParams.append("id", id);
-
-        try {
-          const agreementData = await createGocardlessAgreement.mutateAsync({
-            institutionId,
-            transactionTotalDays: 60,
-          });
-
-          link.searchParams.append(
-            "access_valid_for_days",
-            String(agreementData.data.access_valid_for_days),
-          );
-
-          const linkData = await createGocardlessLink.mutateAsync({
-            agreement: agreementData.data.id,
-            institutionId,
-            redirect: link.toString(),
-            reference,
-          });
-
-          window.location.href = linkData.data.link;
-        } catch {
-          setIsLoading(false);
-          toast({
-            duration: 2500,
-            variant: "error",
-            title: "Something went wrong please try again.",
-          });
-        }
         return;
       }
       case "teller":

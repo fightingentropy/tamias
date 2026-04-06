@@ -134,7 +134,7 @@ flowchart LR
 - AI SDK with OpenAI, Google, Anthropic, and Mistral providers in different flows
 - ElevenLabs for optional insight audio
 - Exa and Plain in supporting flows
-- Plaid, GoCardless, and Teller for banking
+- Plaid and Teller for banking
 - Xero, QuickBooks, and Fortnox for accounting exports/sync
 - Companies House OAuth, filing transaction, and public-register readiness integration groundwork
 - Stripe and Polar for payments/billing

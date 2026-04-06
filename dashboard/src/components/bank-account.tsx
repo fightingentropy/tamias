@@ -124,9 +124,7 @@ export function BankAccount({ data, provider }: Props) {
     creditLimit,
   } = data;
 
-  // Determine if this is a US or EU account based on provider
   const isUSAccount = provider === "teller" || provider === "plaid";
-  const isEUAccount = provider === "gocardless";
   const isCreditAccount = type === "credit";
 
   // Fetch decrypted details only when user wants to reveal
@@ -390,8 +388,8 @@ export function BankAccount({ data, provider }: Props) {
               </div>
             )}
 
-            {/* EU Account Details - IBAN */}
-            {isEUAccount && (bic || details?.iban) && (
+            {/* IBAN (e.g. Plaid non-US or legacy connections) */}
+            {(bic || details?.iban) && (
               <div className="flex items-center justify-between">
                 <span className="text-[#878787]">IBAN</span>
                 <div className="flex items-center gap-1">

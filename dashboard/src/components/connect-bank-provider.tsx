@@ -3,7 +3,6 @@ import type { MutableRefObject } from "react";
 import { useConnectParams } from "@/hooks/use-connect-params";
 import { useTRPC } from "@/trpc/client";
 import { BankConnectButton } from "./bank-connect-button";
-import { GoCardLessConnect } from "./gocardless-connect";
 import { TellerConnect } from "./teller-connect";
 
 type Props = {
@@ -20,9 +19,6 @@ export function ConnectBankProvider({
   id,
   provider,
   openPlaid,
-  availableHistory,
-  redirectPath,
-  countryCode,
   connectRef,
 }: Props) {
   const { setParams } = useConnectParams();
@@ -49,19 +45,6 @@ export function ConnectBankProvider({
           }}
         />
       );
-    case "gocardless": {
-      return (
-        <GoCardLessConnect
-          id={id}
-          availableHistory={availableHistory}
-          onSelect={() => {
-            updateUsage();
-          }}
-          redirectPath={redirectPath}
-          connectRef={connectRef}
-        />
-      );
-    }
     case "plaid":
       return (
         <BankConnectButton

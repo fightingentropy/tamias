@@ -74,43 +74,6 @@ export class ReconnectConnectionProcessor extends BaseProcessor<ReconnectConnect
 
     await this.updateProgress(job, 30, undefined, "verifying-provider-state");
 
-    if (provider === "gocardless") {
-      const connectionResponse = await trpc.banking.connectionByReference.query({
-        reference: teamId,
-      });
-
-      if (!connectionResponse?.data) {
-        throw new Error("Connection not found");
-      }
-
-      const referenceId = connectionResponse.data.id;
-
-      if (referenceId) {
-        await patchBankConnectionInConvex({
-          id: connectionId,
-          teamId,
-          referenceId,
-        });
-      }
-
-      const accountsResponse = await trpc.banking.getProviderAccounts.query({
-        id: referenceId,
-        provider: "gocardless",
-      });
-
-      if (!accountsResponse.data) {
-        throw new Error("Accounts not found");
-      }
-
-      if (existingAccounts.length > 0) {
-        await matchAndUpdateAccountIds({
-          existingAccounts,
-          apiAccounts: accountsResponse.data,
-          teamId,
-        });
-      }
-    }
-
     if (provider === "teller") {
       if (!connection.accessToken || !connection.enrollmentId) {
         throw new Error("Teller connection not found");

@@ -45,7 +45,8 @@ type ExistingAccount = NonNullable<
 
 type Props = {
   connectionId: string;
-  provider: "gocardless" | "plaid" | "teller";
+  /** Plaid/Teller for new connections; legacy rows may still be `gocardless`. */
+  provider: string;
   accessToken: string | null;
   referenceId: string | null;
   enrollmentId: string | null;
@@ -80,18 +81,20 @@ export function AddBankAccountsModal({
 
   const id = provider === "teller" ? enrollmentId : referenceId;
 
+  const providerSupported = provider === "plaid" || provider === "teller";
+
   const {
     data: providerData,
     isLoading,
     isError,
   } = useQuery({
     ...trpc.banking.getProviderAccounts.queryOptions({
-      provider,
+      provider: provider as "plaid" | "teller",
       id: id ?? undefined,
       accessToken: accessToken ?? undefined,
       institutionId: institutionId ?? undefined,
     }),
-    enabled: isOpen,
+    enabled: isOpen && providerSupported,
     retry: false,
   });
 
@@ -195,21 +198,29 @@ export function AddBankAccountsModal({
           </DialogHeader>
 
           <div className="mt-6 space-y-6 max-h-[400px] overflow-auto scrollbar-hide">
-            {isLoading && <RowsSkeleton />}
+            {!providerSupported && (
+              <p className="text-sm text-[#878787] text-center py-8">
+                This connection uses a retired provider. Add accounts is only available for Plaid
+                or Teller connections.
+              </p>
+            )}
 
-            {isError && (
+            {providerSupported && isLoading && <RowsSkeleton />}
+
+            {providerSupported && isError && (
               <p className="text-sm text-[#878787] text-center py-8">
                 Failed to load accounts from bank provider. Please try reconnecting.
               </p>
             )}
 
-            {providerData && newAccounts.length === 0 && (
+            {providerSupported && providerData && newAccounts.length === 0 && (
               <p className="text-sm text-[#878787] text-center py-8">
                 All accounts are already added.
               </p>
             )}
 
-            {newAccounts.map((account) => (
+            {providerSupported &&
+              newAccounts.map((account) => (
               <div key={account.id} className="flex justify-between items-center">
                 <div className="flex items-center space-x-4 mr-8 flex-1 min-w-0">
                   <Avatar className="size-[34px]">
@@ -251,7 +262,12 @@ export function AddBankAccountsModal({
             <SubmitButton
               className="w-full"
               isSubmitting={addAccountsMutation.isPending}
-              disabled={addAccountsMutation.isPending || selectedCount === 0 || isLoading}
+              disabled={
+                addAccountsMutation.isPending ||
+                selectedCount === 0 ||
+                isLoading ||
+                !providerSupported
+              }
               onClick={handleCreate}
             >
               {selectedCount > 0

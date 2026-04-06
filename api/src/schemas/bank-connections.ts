@@ -6,7 +6,7 @@ export const createBankConnectionSchema = z.object({
   accessToken: z.string().nullable().optional(), // Teller
   enrollmentId: z.string().nullable().optional(), // Teller
   referenceId: z.string().nullable().optional(), // GoCardLess
-  provider: z.enum(["gocardless", "teller", "plaid"]),
+  provider: z.enum(["teller", "plaid"]),
   accounts: z.array(
     z.object({
       accountId: z.string(),
@@ -79,5 +79,5 @@ export const manualSyncBankConnectionSchema = z.object({
 
 export const queueReconnectBankConnectionSchema = z.object({
   connectionId: z.string(),
-  provider: z.enum(["gocardless", "teller", "plaid"]),
+  provider: z.enum(["teller", "plaid"]),
 });

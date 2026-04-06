@@ -21,11 +21,7 @@ export const accountTypeEnum = createEnum("account_type", [
   "other_liability",
 ] as const);
 
-export const bankProvidersEnum = createEnum("bank_providers", [
-  "gocardless",
-  "plaid",
-  "teller",
-] as const);
+export const bankProvidersEnum = createEnum("bank_providers", ["plaid", "teller"] as const);
 
 export const connectionStatusEnum = createEnum("connection_status", [
   "disconnected",

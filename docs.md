@@ -543,7 +543,6 @@ tRPC Router (api/src/trpc/routers/banking.ts)
     ▼
 Provider Facade (packages/banking/src/index.ts)
     │
-    ├── GoCardLessProvider  (EU/UK — xior HTTP client, OAuth2 tokens)
     ├── PlaidProvider        (US/CA — official Plaid SDK)
     ├── TellerProvider       (US — Cloudflare mTLS binding)
     │
@@ -557,8 +556,8 @@ Async Worker (worker/src/processors/transactions/)
 #### Provider Facade (Strategy Pattern)
 
 The `Provider` class in `index.ts` dispatches to the correct provider based on a
-`provider` string param (`"gocardless" | "plaid" | "teller"`).
-All four providers implement a common interface:
+`provider` string param (`"plaid" | "teller"`).
+Both providers implement a common interface:
 
 - `getAccounts()` — list accounts with balances for the account selection screen
 - `getAccountBalance()` — fetch current balance for a single account
@@ -572,48 +571,9 @@ All four providers implement a common interface:
 
 ### Providers
 
-#### GoCardless (EU/UK)
+#### GoCardless (EU/UK) — removed from codebase
 
-- **Auth**: OAuth2 — secret_id/secret_key → access_token + refresh_token, both cached in process memory
-- **HTTP client**: xior (axios-like), instance cached per token
-- **Coverage**: All EEA countries under PSD2 regulation
-- **Rate limits**: Bank-imposed, as low as **4 API calls per day per account**. Each endpoint
-  (details, balances, transactions) counts separately. Provides rate limit headers:
-  - `HTTP_X_RATELIMIT_REMAINING` — remaining requests in window
-  - `HTTP_X_RATELIMIT_ACCOUNT_SUCCESS_RESET` — seconds until reset
-- **Connection identifier**: Requisition ID (`reference_id`)
-- **Account identifier**: GoCardless account UUID
-- **Transaction history**: Institution-dependent, reported via `transaction_total_days` field
-  in the institutions list (e.g., 540 days for ABN AMRO, 730 for Revolut)
-- **Access duration**: `createEndUserAgreement()` tries 180 days first (EEA standard
-  under Article 10a RTS). If the bank rejects it, automatically falls back to 90 days.
-  UK banks are limited to 90 days by FCA regulation. The actual `access_valid_for_days`
-  accepted by the bank is read from the agreement response and used for `expires_at`.
-
-**Transaction history strategy:**
-
-The maximum history is determined per-institution via the end user agreement:
-
-1. The `/institutions/` endpoint returns `transaction_total_days` for each bank
-2. `createEndUserAgreement()` requests `max_historical_days` set to that value
-3. Some banks only provide extended history once and require separate consent for
-   continuous access. `getMaxHistoricalDays()` checks the GoCardless
-   `separate_continuous_history_consent` flag and a hardcoded fallback list, capping to 90 days.
-4. Initial sync fetches ALL available transactions (no `date_from` filter)
-5. Daily sync fetches last 5 days only (`date_from` = 5 days ago)
-6. No fallback strategy is needed — the bank controls what it returns based on the
-   agreed `max_historical_days`. If the call fails, it's an auth/rate issue, not a
-   data volume issue. `withRateLimitRetry` handles rate limits.
-
-**Key implementation details:**
-
-- `getAccounts()` pre-resolves the access token once and passes it to all sub-methods
-  to avoid repeated cache lookups (~8 → 1 per call)
-- Institution is fetched once per requisition (all accounts share the same institution)
-- Account details, balances, and institutions are cached in process memory
-  to bridge the gap between account selection and initial sync
-- Requisitions are **not** cached — they hold connection status that must be fresh
-  on every sync to avoid stale state after reconnect
+GoCardless is no longer bundled: new connections are **Plaid** or **Teller** only. The database may still contain legacy `gocardless` provider values.
 
 #### Plaid (US/CA)
 
@@ -637,6 +597,10 @@ The maximum history is determined per-institution via the end user agreement:
 - Daily sync uses `/transactions/get` with a 5-day window
 - Institution data is cached for 24 hours (static data)
 - Plaid preserves account IDs across reconnects (update mode)
+
+**Sandbox (Link test logins):** With `PLAID_ENVIRONMENT=sandbox`, Link accepts Plaid’s public test credentials at the username/password step (e.g. **user_good** / **pass_good** from the developer dashboard **Credentials** tab). More fixtures are in [Plaid Sandbox](https://plaid.com/docs/sandbox/). Those logins work only in Sandbox, not Production.
+
+**Plaid Dashboard (redirects):** Under your Plaid app’s **Allowed redirect URIs**, add the origins you use for the dashboard, for example `http://localhost:3001/`, `https://staging.tamias.xyz/`, and `https://app.tamias.xyz/` (trailing slash per Plaid’s examples; match the exact app URL you load Link from).
 
 #### Teller (US)
 

@@ -10,7 +10,7 @@ import { reconnectConnectionAction } from "@/actions/transactions/reconnect-conn
 import { useSyncStatus } from "@/hooks/use-sync-status";
 import { useTRPC } from "@/trpc/client";
 
-type Provider = "gocardless" | "plaid" | "teller";
+type Provider = "plaid" | "teller";
 
 type UseReconnectOptions = {
   connectionId: string;

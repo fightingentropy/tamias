@@ -48,7 +48,7 @@ export class SyncConnectionProcessor extends BaseProcessor<SyncConnectionPayload
 
     const connectionResult = await trpc.banking.connectionStatus.query({
       id: connection.referenceId ?? undefined,
-      provider: connection.provider as "gocardless" | "plaid" | "teller",
+      provider: connection.provider as "plaid" | "teller",
       accessToken: connection.accessToken ?? undefined,
     });
 
@@ -110,7 +110,7 @@ export class SyncConnectionProcessor extends BaseProcessor<SyncConnectionPayload
       .flatMap((account): SyncBankAccountPayload[] => {
         const provider = account.bankConnection?.provider;
 
-        if (provider !== "gocardless" && provider !== "plaid" && provider !== "teller") {
+        if (provider !== "plaid" && provider !== "teller") {
           return [];
         }
 
