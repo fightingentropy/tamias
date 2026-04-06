@@ -1,3 +1,5 @@
+"use client";
+
 import { useMutation } from "@tanstack/react-query";
 import type { MutableRefObject } from "react";
 import { useConnectParams } from "@/hooks/use-connect-params";

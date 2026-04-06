@@ -1,3 +1,5 @@
+"use client";
+
 import { track } from "@/lib/telemetry/client";
 import { LogEvents } from "@/lib/telemetry/events";
 import { getTellerApplicationId, getTellerEnvironment } from "@tamias/utils/envs";
