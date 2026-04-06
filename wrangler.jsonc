@@ -143,6 +143,8 @@
         "API_URL": "https://api-staging.tamias.xyz",
         "CONVEX_URL": "https://fleet-chameleon-251.eu-west-1.convex.cloud",
         "CONVEX_SITE_URL": "https://fleet-chameleon-251.eu-west-1.convex.site",
+        "PLAID_CLIENT_ID": "66d50ed760b266001abae367",
+        "PLAID_ENVIRONMENT": "sandbox",
       },
     },
     "production": {
