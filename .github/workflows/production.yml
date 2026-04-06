@@ -19,9 +19,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       has_affected: ${{ steps.affected.outputs.has_affected }}
-      api: ${{ steps.affected.outputs.api }}
       dashboard: ${{ steps.affected.outputs.dashboard }}
-      worker: ${{ steps.affected.outputs.worker }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -54,25 +52,6 @@ jobs:
       - name: Lint, typecheck, and test workspaces
         run: bun run lint && bun run typecheck && bun run test
 
-  deploy-api:
-    name: Deploy API
-    needs: [detect-changes, validate]
-    if: >-
-      always() &&
-      needs.validate.result == 'success' &&
-      needs.detect-changes.outputs.api == 'true'
-    runs-on: blacksmith-2vcpu-ubuntu-2404
-    timeout-minutes: 20
-    concurrency: cloudflare-api-production
-    env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup
-      - name: Deploy API to Cloudflare
-        run: bun run deploy:cloudflare:api:production
-
   deploy-dashboard:
     name: Deploy Dashboard
     needs: [detect-changes, validate]
@@ -86,27 +65,8 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-    steps:
+      steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
       - name: Deploy Dashboard to Cloudflare
         run: bun run deploy:cloudflare:dashboard:production
-
-  deploy-worker:
-    name: Deploy Worker
-    needs: [detect-changes, validate]
-    if: >-
-      always() &&
-      needs.validate.result == 'success' &&
-      needs.detect-changes.outputs.worker == 'true'
-    runs-on: blacksmith-2vcpu-ubuntu-2404
-    timeout-minutes: 30
-    concurrency: cloudflare-worker-production
-    env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup
-      - name: Deploy Worker to Cloudflare
-        run: bun run deploy:cloudflare:worker:production

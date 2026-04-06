@@ -135,17 +135,19 @@ function classify(files: string[]): {
   if (sharedSurfaceTouched) {
     markAllDeployTargets();
   } else {
-    for (const f of nonIgnorable) {
-      if (f === "apps/api" || f.startsWith("apps/api/")) {
-        api = true;
-      }
-      if (f === "apps/dashboard" || f.startsWith("apps/dashboard/")) {
-        dashboard = true;
-      }
-      if (f === "apps/worker" || f.startsWith("apps/worker/")) {
-        worker = true;
-      }
+  for (const f of nonIgnorable) {
+    if (f === "apps/api" || f.startsWith("apps/api/")) {
+      api = true;
+      dashboard = true;
     }
+    if (f === "apps/dashboard" || f.startsWith("apps/dashboard/")) {
+      dashboard = true;
+    }
+    if (f === "apps/worker" || f.startsWith("apps/worker/")) {
+      worker = true;
+      dashboard = true;
+    }
+  }
   }
 
   return {
@@ -153,7 +155,6 @@ function classify(files: string[]): {
     api,
     dashboard,
     worker,
-    website,
   };
 }
 

@@ -12,17 +12,14 @@ CLOUDFLARE_ASYNC_BRIDGE_TOKEN=...
 CLOUDFLARE_ASYNC_BRIDGE_JOBS=transactions:*,documents:*,inbox:*,inbox-provider:*,accounting:*,invoices:*,customers:*,teams:*,insights:*,notifications:*
 ```
 
-In the **unified** Cloudflare deploy from `apps/dashboard` (single production Worker `tamias` in `wrangler.start.jsonc`), the async bridge runs in-process and no `ASYNC_WORKER` binding is used. In the **split** deploy from this package’s `wrangler.jsonc`, the API uses a Worker-to-Worker service binding to `apps/worker`. The URL/token bridge variables above are for local fallback paths (`vite`/`wrangler dev` without unified bindings, or standalone worker tests).
+In the **unified** Cloudflare deploy from `apps/dashboard` (single production Worker `tamias` in `wrangler.start.jsonc`), the async bridge runs in-process and no `ASYNC_WORKER` service binding is used. The URL/token bridge variables above are for local fallback paths (`vite` with local bridge variables, or standalone worker tests).
 
 #### Local Development Setup
 
-1. **Start the Cloudflare async worker:**
-   ```bash
-   cd ../worker
-   bun run dev
-   ```
+1. **Run the unified dashboard/API app locally:**
+   Use `bun run dev:dashboard` (or `bun run dev:local`) from the repo root.
 
-2. **Set local bridge fallback variables:**
+2. **Optional local bridge fallback (for standalone worker tests):**
    ```bash
    export CLOUDFLARE_ASYNC_BRIDGE_URL=http://127.0.0.1:8787
    export CLOUDFLARE_ASYNC_BRIDGE_TOKEN=your-local-bridge-token
@@ -32,7 +29,7 @@ In the **unified** Cloudflare deploy from `apps/dashboard` (single production Wo
    ```bash
    bunx wrangler mtls-certificate upload --cert teller-cert.pem --key teller-key.pem --name teller
    ```
-   Then add the returned `certificate_id` as `TELLER_MTLS_CERTIFICATE` in both [./wrangler.jsonc](./wrangler.jsonc) and [../worker/wrangler.jsonc](../worker/wrangler.jsonc).
+   Then add the returned `certificate_id` as `TELLER_MTLS_CERTIFICATE` in your deployed Cloudflare dashboard worker environment.
 
 #### Convex Configuration
 ```bash
@@ -95,7 +92,7 @@ bun run dev
 ### Production
 
 ```bash
-bun run deploy:cf -- --env production
+bun run deploy:cloudflare:dashboard:production
 ```
 
 ### State And Caching
@@ -104,8 +101,8 @@ The API now uses Convex for durable app state and the Cloudflare async worker fo
 
 - **Convex**: Source of truth for app state, identity, financial data, and AI chat memory
 - **Local in-memory caches**: Used only for short-lived banking metadata and assembled chat context within a single API instance
-- **Cloudflare async transport**: Uses a service binding only in the split API deploy; unified deploy uses in-process bridge code. Local dev can use the HTTP bridge or multi-worker processes.
+- **Cloudflare async transport**: In unified deploy it uses the dashboard worker’s in-process async bridge. Local dev can use the HTTP bridge for isolated testing.
 
 #### Environment-Specific Configuration
 
-Background jobs use the Cloudflare async transport in `@tamias/job-client`, preferring the Worker service binding and falling back to the local bridge when needed.
+Background jobs use the Cloudflare async transport in `@tamias/job-client`, preferring the in-process async bridge and falling back to the local bridge when needed.

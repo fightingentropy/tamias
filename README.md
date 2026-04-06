@@ -47,7 +47,7 @@ flowchart LR
 
   QueryLayer --> Convex
   TRPC --> Convex
-  TRPC --> AsyncBridge["Cloudflare async transport<br/>service binding or local bridge"]
+  TRPC --> AsyncBridge["Cloudflare async transport<br/>in-process unified runtime"]
   TRPC --> Providers["External providers"]
   MCP --> Convex
   MCP --> QueryLayer
@@ -292,7 +292,7 @@ bun run dev:local
 
 That starts the local dashboard on `http://localhost:3001` against the shared deployed backend:
 
-- deployed API at `https://api.tamias.xyz`
+- deployed unified API at `https://api.tamias.xyz` (served by the same `tamias` worker)
 - shared Convex deployment at `fleet-chameleon-251`
 
 There is no separate local Convex instance anymore.
@@ -302,16 +302,7 @@ There is no separate local Convex instance anymore.
 ```bash
 bun run dev:dashboard
 ```
-
-```bash
-bun run dev:api
-```
-
-```bash
-cd apps/worker && bun run dev
-```
-
-If you run the API or worker locally against the shared Convex deployment, set a real `CONVEX_SERVICE_KEY`. For the API, add it to **`apps/api/.dev.vars`** (Wrangler reads this file for `wrangler dev`, not `apps/api/.env` alone). Copy from `apps/api/.dev.vars.example`. Set the same variable in **`apps/worker/.env`** (or your worker’s Wrangler secrets) for local worker processes.
+The current local setup uses the unified worker path in `apps/dashboard`, so separate `apps/api` and `apps/worker` Cloudflare processes are no longer required.
 
 ### First login
 
@@ -325,13 +316,12 @@ If you run the API or worker locally against the shared Convex deployment, set a
 | --- | --- |
 | Dashboard | `http://localhost:3001` |
 | Dashboard health | `http://localhost:3001/api/health` |
-| API | `http://localhost:3003` |
-| API health | `http://localhost:3003/health` |
-| API readiness | `http://localhost:3003/health/ready` |
-| OpenAPI spec | `http://localhost:3003/openapi` |
-| Scalar API docs | `http://localhost:3003/` |
-| MCP endpoint | `http://localhost:3003/mcp` |
-| Worker | `http://127.0.0.1:8787` |
+| API | `http://localhost:3001` (routed by path) |
+| API health | `http://localhost:3001/health` |
+| API readiness | `http://localhost:3001/health/ready` |
+| OpenAPI spec | `http://localhost:3001/openapi` |
+| Scalar API docs | `http://localhost:3001/` |
+| MCP endpoint | `http://localhost:3001/mcp` |
 | Public invoice link | `http://localhost:3001/i/<token>` |
 | Customer portal | `http://localhost:3001/p/<portalId>` |
 | Public report | `http://localhost:3001/r/<linkId>` |
@@ -345,7 +335,6 @@ If you run the API or worker locally against the shared Convex deployment, set a
 bun run dev
 bun run dev:local
 bun run dev:dashboard
-bun run dev:api
 bun run build
 bun run test
 bun run test:e2e
@@ -359,36 +348,24 @@ bun run format
 ```bash
 bun run deploy:cloudflare:dashboard:production
 bun run deploy:cloudflare:dashboard:staging
-bun run deploy:cloudflare:api:production
-bun run deploy:cloudflare:api:staging
-bun run deploy:cloudflare:worker:production
-bun run deploy:cloudflare:worker:staging
 ```
 
 ### Cloudflare preflight
 
 ```bash
-bun run preflight:cloudflare:api
-bun run preflight:cloudflare:api:staging
-bun run preflight:cloudflare:api:production
 bun run preflight:cloudflare:dashboard
 bun run preflight:cloudflare:dashboard:staging
 bun run preflight:cloudflare:dashboard:production
-bun run preflight:cloudflare:worker
-bun run preflight:cloudflare:worker:staging
-bun run preflight:cloudflare:worker:production
 bun run preflight:cloudflare:staging
 bun run preflight:cloudflare:production
 ```
 
 ## Deployment notes
 
-- `apps/api`, `apps/dashboard`, and `apps/worker` deploy through Cloudflare.
-- `apps/api/wrangler.jsonc`, `apps/dashboard/wrangler.jsonc`, and `apps/worker/wrangler.jsonc` are the deploy/runtime entrypoints.
-- `apps/api` and `apps/dashboard` bind directly to `apps/worker` through a Cloudflare service binding named `ASYNC_WORKER`.
+- `apps/dashboard` is the single Cloudflare deployment target for app, API, and async runtime behavior.
+- `apps/dashboard/wrangler.start.jsonc` is the deploy/runtime entrypoint for Cloudflare.
 - `apps/dashboard` now serves both `app.tamias.xyz` and `tamias.xyz`; public-site routes are host-rewritten into the internal `/site` tree.
-- Dashboard preflight includes the Vite production build and a Wrangler `deploy --dry-run` against the matching `wrangler.jsonc`.
-- API, dashboard, and worker each expose environment-specific staging/production preflight commands in addition to the default local/development preflight.
+- Dashboard preflight includes the Vite production build and a Wrangler `deploy --dry-run` against the matching `wrangler.start.jsonc`.
 - GitHub Actions deploys expect these repository secrets:
   - `CLOUDFLARE_API_TOKEN`
   - `CLOUDFLARE_ACCOUNT_ID`
@@ -422,7 +399,7 @@ Current internal docs include:
 - Login/signup fails:
   Convex is not running, or the Convex URLs do not match the active deployment.
 - Queue-backed features do nothing:
-  the Cloudflare async worker is down, the API/dashboard service binding to `apps/worker` is missing, or local bridge fallback vars (`CLOUDFLARE_ASYNC_BRIDGE_URL` / `CLOUDFLARE_ASYNC_BRIDGE_TOKEN`) are wrong.
+  the unified async runtime is misconfigured or local bridge fallback vars (`CLOUDFLARE_ASYNC_BRIDGE_URL` / `CLOUDFLARE_ASYNC_BRIDGE_TOKEN`) are wrong.
 - Public invoice downloads fail:
   `INVOICE_JWT_SECRET` does not match across services.
 - Internal service calls fail:
