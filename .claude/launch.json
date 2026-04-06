@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dashboard",
+      "runtimeExecutable": "/bin/zsh",
+      "runtimeArgs": ["-i", "-c", "export PATH=/opt/homebrew/bin:$PATH && cd /Users/erlinhoxha/Developer/tamias/dashboard && bun run routes:generate:start && TZ=UTC npx vite dev --host 0.0.0.0 --port 3001"],
+      "port": 3001
+    },
+    {
+      "name": "email",
+      "runtimeExecutable": "/bin/zsh",
+      "runtimeArgs": ["-i", "-c", "cd /Users/erlinhoxha/Developer/tamias/packages/email && bun run dev"],
+      "port": 3003
+    },
+    {
+      "name": "convex",
+      "runtimeExecutable": "/bin/zsh",
+      "runtimeArgs": ["-i", "-c", "cd /Users/erlinhoxha/Developer/tamias/dashboard && bunx convex dev --env-file ../.env"],
+      "port": 3210
+    }
+  ]
+}

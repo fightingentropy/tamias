@@ -182,10 +182,6 @@ export function slackProbe(): Dependency {
   return oauthTokenProbe("slack", "https://slack.com/api/api.test");
 }
 
-export function xeroProbe(): Dependency {
-  return oauthTokenProbe("xero", "https://identity.xero.com/connect/token");
-}
-
 export function quickbooksProbe(): Dependency {
   return oauthTokenProbe("quickbooks", "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer");
 }
@@ -211,24 +207,6 @@ export function googleAiProbe(): Dependency {
         `https://generativelanguage.googleapis.com/v1beta/models?key=${key}&pageSize=1`,
         { signal: AbortSignal.timeout(5_000) },
       );
-      return res.ok;
-    },
-  };
-}
-
-/** ElevenLabs: API reachability */
-export function elevenLabsProbe(): Dependency {
-  return {
-    name: "elevenlabs",
-    tier: 4,
-    timeoutMs: 5_000,
-    probe: async () => {
-      const key = process.env.ELEVENLABS_API_KEY;
-      if (!key) return false;
-      const res = await fetch("https://api.elevenlabs.io/v1/models", {
-        headers: { "xi-api-key": key },
-        signal: AbortSignal.timeout(5_000),
-      });
       return res.ok;
     },
   };
@@ -317,7 +295,6 @@ export function apiDependencies(): Dependency[] {
     openaiProbe(),
     // Tier 3 — Integrations
     slackProbe(),
-    xeroProbe(),
     quickbooksProbe(),
     fortnoxProbe(),
     // Tier 4 — Optional
