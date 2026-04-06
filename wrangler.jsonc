@@ -224,8 +224,8 @@
         "API_URL": "https://api.tamias.xyz",
         "CONVEX_URL": "https://fleet-chameleon-251.eu-west-1.convex.cloud",
         "CONVEX_SITE_URL": "https://fleet-chameleon-251.eu-west-1.convex.site",
-        // Plaid: sandbox for this Cloudflare `production` worker too (same client_id in vars).
-        // `wrangler secret put PLAID_SECRET --env production` must be the Plaid *sandbox* secret while PLAID_ENVIRONMENT is sandbox.
+        // Plaid: always sandbox API (even when TAMIAS_ENVIRONMENT is production). Same client_id here + staging.
+        // `wrangler secret put PLAID_SECRET --env production` must be the Plaid sandbox secret.
         "PLAID_CLIENT_ID": "66d50ed760b266001abae367",
         "PLAID_ENVIRONMENT": "sandbox",
       },

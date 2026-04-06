@@ -39,8 +39,6 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      # Baked into client `process.env.PLAID_ENVIRONMENT` via Vite (root .env is absent in CI).
-      PLAID_ENVIRONMENT: sandbox
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup

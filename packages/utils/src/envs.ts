@@ -148,7 +148,7 @@ export function getTellerEnvironment() {
 }
 
 export function getPlaidEnvironment() {
-  return getFirstDefined(process.env.PLAID_ENVIRONMENT) || "";
+  return "sandbox";
 }
 
 export function getGoogleApiKey() {

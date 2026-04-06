@@ -51,7 +51,6 @@ function getPublicEnv(mode: string) {
   const stripePublishableKey = env.STRIPE_PUBLISHABLE_KEY ?? "";
   const tellerApplicationId = env.TELLER_APPLICATION_ID ?? "";
   const tellerEnvironment = env.TELLER_ENVIRONMENT ?? "";
-  const plaidEnvironment = env.PLAID_ENVIRONMENT ?? "";
   const googleApiKey = env.GOOGLE_API_KEY ?? "";
   const whatsappNumber = env.WHATSAPP_NUMBER ?? "";
   const openPanelClientId = env.OPENPANEL_CLIENT_ID ?? "";
@@ -67,7 +66,7 @@ function getPublicEnv(mode: string) {
     STRIPE_PUBLISHABLE_KEY: stripePublishableKey,
     TELLER_APPLICATION_ID: tellerApplicationId,
     TELLER_ENVIRONMENT: tellerEnvironment,
-    PLAID_ENVIRONMENT: plaidEnvironment,
+    PLAID_ENVIRONMENT: "sandbox",
     GOOGLE_API_KEY: googleApiKey,
     WHATSAPP_NUMBER: whatsappNumber,
     OPENPANEL_CLIENT_ID: openPanelClientId,

@@ -32,6 +32,9 @@ import type {
 } from "./types";
 import { isError } from "./utils";
 
+/** Plaid API host: sandbox only for now (Tamias may run with `TAMIAS_ENVIRONMENT=production`). */
+const PLAID_API_HOST: keyof typeof PlaidEnvironments = "sandbox";
+
 export class PlaidApi {
   #client: PlaidBaseApi;
   #clientId: string;
@@ -44,7 +47,7 @@ export class PlaidApi {
     this.#clientSecret = env.PLAID_SECRET;
 
     const configuration = new Configuration({
-      basePath: PlaidEnvironments[env.PLAID_ENVIRONMENT],
+      basePath: PlaidEnvironments[PLAID_API_HOST],
       baseOptions: {
         headers: {
           "PLAID-CLIENT-ID": this.#clientId,

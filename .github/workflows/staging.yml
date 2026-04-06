@@ -39,7 +39,6 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      PLAID_ENVIRONMENT: sandbox
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
