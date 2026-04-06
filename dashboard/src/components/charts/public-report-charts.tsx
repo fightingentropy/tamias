@@ -401,12 +401,18 @@ export function PublicComparisonBarChart({
 
       const index = Math.floor((chartX / chartW) * data.length);
       const clampedIndex = Math.max(0, Math.min(data.length - 1, index));
+      const item = data[clampedIndex];
+      if (!item) {
+        setHoveredIndex(null);
+        setTooltipPos(null);
+        return;
+      }
       setHoveredIndex(clampedIndex);
 
       const bandX = lxBand(clampedIndex, data.length);
       setTooltipPos({
         x: bandX + bandWidth / 2,
-        y: Math.min(valueToY(data[clampedIndex]!.primary, min, max), zeroY) - 8,
+        y: Math.min(valueToY(item.primary, min, max), zeroY) - 8,
       });
     },
     [data, bandWidth, min, max, zeroY, svgW, chartW, lxBand],
