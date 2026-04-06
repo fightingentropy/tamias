@@ -9,10 +9,6 @@ import {
 import type { Appearance } from "@stripe/stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { fromStripeAmount } from "@tamias/invoice/currency";
-import {
-  getApiUrl,
-  getStripePublishableKey,
-} from "@tamias/utils/envs";
 import { Button } from "@tamias/ui/button";
 import { cn } from "@tamias/ui/cn";
 import { Drawer, DrawerContent } from "@tamias/ui/drawer";
@@ -21,6 +17,7 @@ import { Icons } from "@tamias/ui/icons";
 import { Skeleton } from "@tamias/ui/skeleton";
 import { Spinner } from "@tamias/ui/spinner";
 import { SubmitButton } from "@tamias/ui/submit-button";
+import { getApiUrl, getStripePublishableKey } from "@tamias/utils/envs";
 import { motion } from "framer-motion";
 import { type RefObject, useEffect, useMemo, useRef, useState } from "react";
 import { useOnClickOutside } from "usehooks-ts";
@@ -58,9 +55,7 @@ interface PaymentModalProps {
   useOverlay?: boolean;
 }
 
-function isPaymentIntentPayload(
-  value: unknown,
-): value is {
+function isPaymentIntentPayload(value: unknown): value is {
   clientSecret: string;
   stripeAccountId: string;
   amount: number;

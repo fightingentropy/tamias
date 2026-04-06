@@ -1,8 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { createAppPublicFileRoute } from "@/start/route-hosts";
 import * as crypto from "node:crypto";
 import { LogEvents } from "@/lib/telemetry/events";
 import { setupAnalytics } from "@/lib/telemetry/server";
+import { createAppPublicFileRoute } from "@/start/route-hosts";
 import { getTRPCClient } from "@/trpc/server";
 
 const SIGNATURE_HEADER = "x-webhook-signature";
@@ -15,7 +14,10 @@ export const Route = createAppPublicFileRoute("/api/webhook/registered")({
         const signature = request.headers.get(SIGNATURE_HEADER);
 
         if (!signature) {
-          return Response.json({ message: "Missing signature" }, { status: 401 });
+          return Response.json(
+            { message: "Missing signature" },
+            { status: 401 },
+          );
         }
 
         const decodedSignature = Buffer.from(signature, "base64");
