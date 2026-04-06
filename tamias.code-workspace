@@ -1,0 +1,13 @@
+{
+  "folders": [
+    {
+      "name": "tamias",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "git.openRepositoryInParentFolders": "always",
+    "git.autoRepositoryDetection": true,
+    "git.repositoryScanMaxDepth": 10
+  }
+}

@@ -45,6 +45,7 @@
     "backfill:transaction-report-aggregates": "bun --env-file=.env run scripts/backfill-transaction-report-aggregates.ts",
     "backfill:transaction-tag-sort-fields": "bun --env-file=.env run scripts/backfill-transaction-tag-sort-fields.ts",
     "format": "prettier --write .",
+    "git:doctor": "bun run scripts/git-doctor.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "bun run --workspaces --parallel --if-present typecheck"
