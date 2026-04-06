@@ -244,7 +244,7 @@ const ITokenRoute = ITokenRouteImport.update({
   id: '/i/$token',
   path: '/i/$token',
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/i/$token.lazy').then((d) => d.Route))
+} as any)
 const ComplianceYearEndRoute = ComplianceYearEndRouteImport.update({
   id: '/compliance/year-end',
   path: '/compliance/year-end',
@@ -1216,3 +1216,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

@@ -209,13 +209,7 @@ export async function buildPublicInvoicePageData(params: { token: string; viewer
     .query({
       token: params.token,
     })
-    .catch((error) => {
-      if (isNotFoundQueryError(error)) {
-        return null;
-      }
-
-      throw error;
-    });
+    .catch(() => null);
 
   if (!invoice) {
     return {

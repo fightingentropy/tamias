@@ -1,15 +1,15 @@
-import { createLazyFileRoute } from "@tanstack/react-router";
+"use client";
+
+import { getRouteApi } from "@tanstack/react-router";
 import { HtmlTemplate } from "@tamias/invoice/templates/html";
 import { InvoiceViewWrapper } from "@/components/invoice-view-wrapper";
 import { NotFoundPage } from "@/start/components/not-found-page";
-import { Route as PublicInvoiceRoute, type PublicInvoiceLoaderData } from "./$token";
+import type { PublicInvoiceLoaderData } from "./$token";
 
-export const Route = createLazyFileRoute("/i/$token")({
-  component: PublicInvoicePage,
-});
+const routeApi = getRouteApi("/i/$token");
 
-function PublicInvoicePage() {
-  const loaderData = PublicInvoiceRoute.useLoaderData() as PublicInvoiceLoaderData;
+export function PublicInvoicePage() {
+  const loaderData = routeApi.useLoaderData() as PublicInvoiceLoaderData;
 
   if (loaderData.status !== "ok") {
     return <NotFoundPage />;
@@ -39,7 +39,7 @@ function PublicInvoicePage() {
         </div>
       </InvoiceViewWrapper>
 
-      <div className="fixed bottom-4 right-4 hidden md:block">
+      <div className="fixed bottom-4 right-4 z-10">
         <a
           href="https://tamias.xyz?utm_source=invoice"
           target="_blank"

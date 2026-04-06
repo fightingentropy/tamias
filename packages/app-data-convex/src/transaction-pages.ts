@@ -1,17 +1,22 @@
-import { api, createClient, serviceArgs } from "./base";
+import { createClient, serviceArgs } from "./base";
 import {
   getTransactionsByIdsFromConvex,
   type TransactionRecord,
   type TransactionStatus,
 } from "./transaction-records";
+import { makeFunctionReference } from "convex/server";
 
-const apiWithTransactions = api as typeof api & {
-  transactions: {
-    serviceListTransactionsPage: any;
-    serviceListTransactionsByBankAccountPage: any;
-    serviceListTaggedTransactionsPage: any;
-  };
-};
+const serviceListTransactionsByBankAccountPageRef = makeFunctionReference<"query">(
+  "transactions:serviceListTransactionsByBankAccountPage",
+);
+const serviceListTransactionsPageRef = makeFunctionReference<"query">(
+  "transactions:serviceListTransactionsPage",
+);
+const serviceListTaggedTransactionsPageRef = makeFunctionReference<"query">(
+  "transactions:serviceListTaggedTransactionsPage",
+);
+const serviceCountTransactionsRef =
+  makeFunctionReference<"query">("transactions:serviceCountTransactions");
 
 export async function getTransactionsByBankAccountPageFromConvex(args: {
   teamId: string;
@@ -24,7 +29,7 @@ export async function getTransactionsByBankAccountPageFromConvex(args: {
   statusesNotIn?: TransactionStatus[];
 }) {
   return createClient().query(
-    apiWithTransactions.transactions.serviceListTransactionsByBankAccountPage,
+    serviceListTransactionsByBankAccountPageRef,
     serviceArgs({
       publicTeamId: args.teamId,
       bankAccountId: args.bankAccountId,
@@ -111,7 +116,7 @@ export async function getTransactionsPageFromConvex(args: {
   statusesNotIn?: TransactionStatus[];
 }) {
   return createClient().query(
-    apiWithTransactions.transactions.serviceListTransactionsPage,
+    serviceListTransactionsPageRef,
     serviceArgs({
       publicTeamId: args.teamId,
       dateGte: args.dateGte,
@@ -141,7 +146,7 @@ export async function getTaggedTransactionsPageFromConvex(args: {
   statusesNotIn?: TransactionStatus[];
 }) {
   return createClient().query(
-    apiWithTransactions.transactions.serviceListTaggedTransactionsPage,
+    serviceListTaggedTransactionsPageRef,
     serviceArgs({
       publicTeamId: args.teamId,
       tagIds: args.tagIds,
@@ -200,7 +205,7 @@ export async function countTransactionsFromConvex(args: {
   statusesNotIn?: TransactionStatus[];
 }) {
   return createClient().query(
-    api.transactions.serviceCountTransactions,
+    serviceCountTransactionsRef,
     serviceArgs({
       publicTeamId: args.teamId,
       bankAccountId: args.bankAccountId,

@@ -1,8 +1,19 @@
-import { api as convexModelApi } from "./api";
 import type { Id } from "./data-model";
 import { ConvexHttpClient } from "convex/browser";
+import { anyApi } from "convex/server";
+import { api as dashboardApi } from "./api";
 
-export const api = convexModelApi;
+function resolveGeneratedApi() {
+  const tx = (dashboardApi as { transactions?: unknown } | null | undefined)?.transactions;
+
+  if (dashboardApi && typeof dashboardApi === "object" && tx != null) {
+    return dashboardApi;
+  }
+
+  return anyApi;
+}
+
+export const api = resolveGeneratedApi();
 export const convexApi = api as typeof api & Record<string, any>;
 
 let sharedConvexClient: ConvexHttpClient | null = null;

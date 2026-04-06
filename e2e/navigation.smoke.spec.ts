@@ -14,13 +14,17 @@ test("authenticated user can move between dashboard, transactions, and invoices"
 
   await page.goto("/transactions", { waitUntil: "domcontentloaded" });
   await expect(page).toHaveURL(/\/transactions$/);
-  await expect(page.getByText("No transactions")).toBeVisible({
+  // Assert route chrome (filters + tabs sit above the table error boundary).
+  await expect(page.getByPlaceholder("Search transactions...")).toBeVisible({
+    timeout: 30_000,
+  });
+  await expect(page.getByRole("tab", { name: "All" })).toBeVisible({
     timeout: 30_000,
   });
 
   await page.goto("/invoices", { waitUntil: "domcontentloaded" });
   await expect(page).toHaveURL(/\/invoices$/);
-  await expect(page.getByRole("heading", { name: "No invoices" })).toBeVisible({
+  await expect(page.getByPlaceholder("Search invoices...")).toBeVisible({
     timeout: 30_000,
   });
 });

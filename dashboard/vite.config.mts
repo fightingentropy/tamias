@@ -4,13 +4,50 @@ import { cloudflare } from "@cloudflare/vite-plugin";
 import babel from "@rolldown/plugin-babel";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig, loadEnv, type Plugin } from "vite";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const workspaceRoot = path.resolve(__dirname, "..");
 
 function resolveDashboardPath(...segments: string[]) {
   return path.resolve(__dirname, ...segments);
+}
+
+/** Workerd SSR rejects `{ passive: true }` on `resize`; motion-dom defaults passive true. */
+function motionDomWorkerdResizePassivePlugin(): Plugin {
+  return {
+    name: "motion-dom-workerd-resize-passive",
+    enforce: "pre",
+    transform(code, id) {
+      if (
+        !id.includes(`${path.sep}motion-dom${path.sep}`) ||
+        !id.endsWith(`${path.sep}add-dom-event.mjs`)
+      ) {
+        return null;
+      }
+
+      if (!code.includes("function addDomEvent")) {
+        return null;
+      }
+
+      return {
+        code: `function addDomEvent(target, eventName, handler, options = { passive: true }) {
+    const merged =
+        eventName === "resize" &&
+        options &&
+        typeof options === "object" &&
+        options.passive === true
+            ? { ...options, passive: false }
+            : options;
+    target.addEventListener(eventName, handler, merged);
+    return () => target.removeEventListener(eventName, handler);
+}
+
+export { addDomEvent };
+`,
+      };
+    },
+  };
 }
 
 function isLocalUrl(value: string | undefined) {
@@ -100,6 +137,7 @@ export default defineConfig(({ mode, command }) => {
 
   return {
     plugins: [
+      motionDomWorkerdResizePassivePlugin(),
       cloudflare({
         configPath: path.join(workspaceRoot, "wrangler.jsonc"),
         config:
@@ -195,6 +233,10 @@ export default defineConfig(({ mode, command }) => {
         /^@tamias\/worker(?:\/.*)?$/,
         /^@tanstack\/react-start(?:\/.*)?$/,
         /^@tanstack\/start-storage-context(?:\/.*)?$/,
+        // Rebundle from source so `resolve.alias` can replace motion-dom's addDomEvent
+        // (workerd SSR requires passive: false for resize listeners).
+        "framer-motion",
+        "motion-dom",
       ],
     },
     css: {

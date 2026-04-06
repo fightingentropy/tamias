@@ -28,7 +28,5 @@ test("legacy website host redirects to the canonical app host", async ({ page })
   await page.goto(resolveTestUrl(websiteBaseUrl, `/i/${token}`));
 
   await expect(page).toHaveURL(resolveTestUrl(appBaseUrl, `/i/${token}`));
-  await expect(page.getByText("Page not found")).toBeVisible({
-    timeout: 30_000,
-  });
+  await expect(page).toHaveTitle(/Page not found/i, { timeout: 30_000 });
 });
