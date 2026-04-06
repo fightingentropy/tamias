@@ -118,11 +118,16 @@ function classify(files: string[]): {
     worker = true;
   };
 
-  const rootDepPattern = /^(package\.json|bun\.lock|biome\.json|bunfig\.toml)/;
+  const rootDepPattern =
+    /^(package\.json|bun\.lock|biome\.json|bunfig\.toml|tsconfig\.json|wrangler\.jsonc)/;
 
   let sharedSurfaceTouched = false;
   for (const f of nonIgnorable) {
     if (f.startsWith("packages/") || f.startsWith("scripts/")) {
+      sharedSurfaceTouched = true;
+      break;
+    }
+    if (f.startsWith("config/")) {
       sharedSurfaceTouched = true;
       break;
     }
