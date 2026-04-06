@@ -18,7 +18,7 @@ import {
   updateInvoiceProductSchema,
   upsertInvoiceProductSchema,
 } from "../../schemas/invoice";
-import { createTRPCRouter, protectedProcedure } from "../init";
+import { createTRPCRouter, protectedProcedure, protectedWithConvexIdProcedure } from "../init";
 
 export const invoiceProductsRouter = createTRPCRouter({
   get: protectedProcedure
@@ -40,16 +40,9 @@ export const invoiceProductsRouter = createTRPCRouter({
       return getInvoiceProductById(input.id, teamId!);
     }),
 
-  create: protectedProcedure
+  create: protectedWithConvexIdProcedure
     .input(createInvoiceProductSchema)
     .mutation(async ({ input, ctx: { teamId, session } }) => {
-      if (!session.user.convexId) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Missing Convex user id",
-        });
-      }
-
       try {
         return await createInvoiceProduct({
           ...input,
@@ -63,16 +56,9 @@ export const invoiceProductsRouter = createTRPCRouter({
       }
     }),
 
-  upsert: protectedProcedure
+  upsert: protectedWithConvexIdProcedure
     .input(upsertInvoiceProductSchema)
     .mutation(async ({ input, ctx: { teamId, session } }) => {
-      if (!session.user.convexId) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Missing Convex user id",
-        });
-      }
-
       return upsertInvoiceProduct({
         ...input,
         teamId: teamId!,
@@ -88,7 +74,7 @@ export const invoiceProductsRouter = createTRPCRouter({
           ...input,
           teamId: teamId!,
         });
-      } catch (_error: any) {
+      } catch (_error: unknown) {
         throw new TRPCError({
           code: "CONFLICT",
         });
@@ -108,16 +94,9 @@ export const invoiceProductsRouter = createTRPCRouter({
       return { success: true };
     }),
 
-  saveLineItemAsProduct: protectedProcedure
+  saveLineItemAsProduct: protectedWithConvexIdProcedure
     .input(saveLineItemAsProductSchema)
     .mutation(async ({ input, ctx: { teamId, session } }) => {
-      if (!session.user.convexId) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Missing Convex user id",
-        });
-      }
-
       // Convert input to LineItem format
       const lineItem = {
         name: input.name,

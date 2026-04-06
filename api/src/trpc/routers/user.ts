@@ -11,7 +11,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { updateUserSchema } from "../../schemas/users";
 import { resend } from "../../services/resend";
-import { createTRPCRouter, protectedProcedure } from "../init";
+import { createTRPCRouter, protectedProcedure, protectedWithConvexIdProcedure } from "../init";
 
 export const userRouter = createTRPCRouter({
   me: protectedProcedure.query(async ({ ctx: { session, accessToken } }) => {
@@ -86,11 +86,7 @@ export const userRouter = createTRPCRouter({
       }
     }),
 
-  delete: protectedProcedure.mutation(async ({ ctx: { db, session } }) => {
-    if (!session.user.convexId) {
-      throw new Error("Missing Convex user id");
-    }
-
+  delete: protectedWithConvexIdProcedure.mutation(async ({ ctx: { db, session } }) => {
     const [data] = await Promise.all([
       deleteUserByConvexId(db, session.user.convexId),
       resend.contacts.remove({

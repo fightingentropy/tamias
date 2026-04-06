@@ -4,7 +4,7 @@ const logger = createLoggerWithContext("api");
 
 import type { ZodSchema } from "zod";
 
-export const validateResponse = <T>(data: any, schema: ZodSchema<T>): T => {
+export const validateResponse = <T>(data: unknown, schema: ZodSchema<T>): T => {
   const result = schema.safeParse(data);
 
   if (!result.success) {

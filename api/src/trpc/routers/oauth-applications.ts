@@ -18,6 +18,7 @@ import { AppInstalledEmail } from "@tamias/email/emails/app-installed";
 import { AppReviewRequestEmail } from "@tamias/email/emails/app-review-request";
 import { render } from "@tamias/email/render";
 import { createLoggerWithContext } from "@tamias/logger";
+import { TRPCError } from "@trpc/server";
 import { getSupportFromDisplay } from "@tamias/utils/envs";
 import {
   authorizeOAuthApplicationSchema,
@@ -31,7 +32,7 @@ import {
 } from "../../schemas/oauth-applications";
 import { revokeUserApplicationAccessSchema } from "../../schemas/oauth-flow";
 import { resend } from "../../services/resend";
-import { createTRPCRouter, protectedProcedure } from "../init";
+import { createTRPCRouter, protectedProcedure, protectedWithConvexIdProcedure } from "../init";
 
 const logger = createLoggerWithContext("trpc:oauth-applications");
 
@@ -58,14 +59,20 @@ export const oauthApplicationsRouter = createTRPCRouter({
       // Validate client_id first (needed for both allow and deny)
       const application = await getOAuthApplicationByClientIdFromConvex(clientId);
       if (!application || !application.active) {
-        throw new Error("Invalid client_id");
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Invalid client_id",
+        });
       }
 
       // Validate scopes against application's registered scopes (prevent privilege escalation)
       const invalidScopes = scopes.filter((scope) => !application.scopes.includes(scope));
 
       if (invalidScopes.length > 0) {
-        throw new Error(`Invalid scopes: ${invalidScopes.join(", ")}`);
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Invalid scopes: ${invalidScopes.join(", ")}`,
+        });
       }
 
       const redirectUrl = new URL(redirectUri);
@@ -84,16 +91,25 @@ export const oauthApplicationsRouter = createTRPCRouter({
       const hasTeamAccess = session.teamMembershipIds?.includes(teamId);
 
       if (!hasTeamAccess) {
-        throw new Error("User is not a member of the specified team");
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "User is not a member of the specified team",
+        });
       }
 
       // Enforce PKCE for public clients
       if (application.isPublic && !codeChallenge) {
-        throw new Error("PKCE is required for public clients");
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "PKCE is required for public clients",
+        });
       }
 
       if (!session.user.convexId) {
-        throw new Error("Missing Convex user id");
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Missing Convex user id",
+        });
       }
 
       // Create authorization code
@@ -107,7 +123,10 @@ export const oauthApplicationsRouter = createTRPCRouter({
       });
 
       if (!authCode) {
-        throw new Error("Failed to create authorization code");
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create authorization code",
+        });
       }
 
       // Send app installation email only if this is the first time authorizing this app
@@ -156,14 +175,10 @@ export const oauthApplicationsRouter = createTRPCRouter({
       return { redirect_url: redirectUrl.toString() };
     }),
 
-  create: protectedProcedure
+  create: protectedWithConvexIdProcedure
     .input(createOAuthApplicationSchema)
     .mutation(async ({ ctx, input }) => {
       const { teamId, session } = ctx;
-
-      if (!session.user.convexId) {
-        throw new Error("Missing Convex user id");
-      }
 
       const application = await createOAuthApplicationInConvex({
         ...input,
@@ -183,7 +198,7 @@ export const oauthApplicationsRouter = createTRPCRouter({
     });
 
     if (!application) {
-      throw new Error("OAuth application not found");
+      throw new TRPCError({ code: "NOT_FOUND", message: "OAuth application not found" });
     }
 
     return application;
@@ -202,7 +217,7 @@ export const oauthApplicationsRouter = createTRPCRouter({
       });
 
       if (!application) {
-        throw new Error("OAuth application not found");
+        throw new TRPCError({ code: "NOT_FOUND", message: "OAuth application not found" });
       }
 
       return application;
@@ -219,7 +234,7 @@ export const oauthApplicationsRouter = createTRPCRouter({
       });
 
       if (!result) {
-        throw new Error("OAuth application not found");
+        throw new TRPCError({ code: "NOT_FOUND", message: "OAuth application not found" });
       }
 
       return { success: true };
@@ -236,7 +251,7 @@ export const oauthApplicationsRouter = createTRPCRouter({
       });
 
       if (!result) {
-        throw new Error("OAuth application not found");
+        throw new TRPCError({ code: "NOT_FOUND", message: "OAuth application not found" });
       }
 
       return result;
@@ -259,14 +274,10 @@ export const oauthApplicationsRouter = createTRPCRouter({
     };
   }),
 
-  revokeAccess: protectedProcedure
+  revokeAccess: protectedWithConvexIdProcedure
     .input(revokeUserApplicationAccessSchema)
     .mutation(async ({ ctx, input }) => {
       const { session } = ctx;
-
-      if (!session.user.convexId) {
-        throw new Error("Missing Convex user id");
-      }
 
       await revokeUserApplicationTokensInConvex({
         userId: session.user.convexId,
@@ -288,7 +299,7 @@ export const oauthApplicationsRouter = createTRPCRouter({
       });
 
       if (!application) {
-        throw new Error("OAuth application not found");
+        throw new TRPCError({ code: "NOT_FOUND", message: "OAuth application not found" });
       }
 
       const result = await updateOAuthApplicationStatusInConvex({
@@ -298,7 +309,7 @@ export const oauthApplicationsRouter = createTRPCRouter({
       });
 
       if (!result) {
-        throw new Error("OAuth application not found");
+        throw new TRPCError({ code: "NOT_FOUND", message: "OAuth application not found" });
       }
 
       // Send email notification when status changes to "pending"

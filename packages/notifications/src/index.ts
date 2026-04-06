@@ -1,5 +1,8 @@
 import type { Database } from "@tamias/app-data/client";
 import type { CurrentUserIdentityRecord } from "@tamias/app-data-convex";
+import { createLoggerWithContext } from "@tamias/logger";
+
+const logger = createLoggerWithContext("notifications");
 import {
   createActivity,
   shouldSendNotification,
@@ -303,7 +306,7 @@ export class Notifications {
 
           emails = await this.#emailService.sendBulk(emailInputs, type as string);
 
-          console.log("📨 Email result for customer:", {
+          logger.info("Email result for customer", {
             sent: emails.sent,
             skipped: emails.skipped,
             failed: emails.failed || 0,
@@ -316,11 +319,11 @@ export class Notifications {
             this.#createEmailInput(handler, validatedData, user, teamContext, options),
           );
 
-          console.log("📨 Email inputs for owners:", emailInputs.length);
+          logger.info("Email inputs for owners", { count: emailInputs.length });
 
           emails = await this.#emailService.sendBulk(emailInputs, type as string);
 
-          console.log("📨 Email result for owners:", {
+          logger.info("Email result for owners", {
             sent: emails.sent,
             skipped: emails.skipped,
             failed: emails.failed || 0,
@@ -331,11 +334,11 @@ export class Notifications {
             this.#createEmailInput(handler, validatedData, user, teamContext, options),
           );
 
-          console.log("📨 Email inputs for team:", emailInputs.length);
+          logger.info("Email inputs for team", { count: emailInputs.length });
 
           emails = await this.#emailService.sendBulk(emailInputs, type as string);
 
-          console.log("📨 Email result for team:", {
+          logger.info("Email result for team", {
             sent: emails.sent,
             skipped: emails.skipped,
             failed: emails.failed || 0,

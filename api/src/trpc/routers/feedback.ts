@@ -3,16 +3,12 @@ import {
   upsertChatFeedbackInConvex,
 } from "@tamias/app-services/chat-feedback";
 import { createChatFeedbackSchema, deleteChatFeedbackSchema } from "../../schemas/feedback";
-import { createTRPCRouter, protectedProcedure } from "../init";
+import { createTRPCRouter, protectedWithConvexIdProcedure } from "../init";
 
 export const chatFeedbackRouter = createTRPCRouter({
-  create: protectedProcedure
+  create: protectedWithConvexIdProcedure
     .input(createChatFeedbackSchema)
     .mutation(async ({ input, ctx: { teamId, session } }) => {
-      if (!session.user.convexId) {
-        throw new Error("Missing Convex user id");
-      }
-
       await upsertChatFeedbackInConvex({
         chatId: input.chatId,
         messageId: input.messageId,
@@ -25,13 +21,9 @@ export const chatFeedbackRouter = createTRPCRouter({
       return { success: true };
     }),
 
-  delete: protectedProcedure
+  delete: protectedWithConvexIdProcedure
     .input(deleteChatFeedbackSchema)
     .mutation(async ({ input, ctx: { session } }) => {
-      if (!session.user.convexId) {
-        throw new Error("Missing Convex user id");
-      }
-
       await deleteChatFeedbackInConvex({
         chatId: input.chatId,
         messageId: input.messageId,

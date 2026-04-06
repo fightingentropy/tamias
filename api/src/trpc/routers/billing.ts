@@ -27,7 +27,10 @@ export const billingRouter = createTRPCRouter({
       const team = await getTeamById(db, teamId!);
 
       if (!team) {
-        throw new Error("Team not found");
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Team not found",
+        });
       }
 
       const yearly = planType?.endsWith("_yearly") ?? false;

@@ -87,6 +87,35 @@ export const protectedProcedure = t.procedure
   });
 
 /**
+ * Protected procedure that also guarantees session.user.convexId is present.
+ * Use this instead of manually checking `if (!session.user.convexId)` in each router.
+ * The narrowed session type ensures `convexId` is non-optional downstream.
+ */
+export const protectedWithConvexIdProcedure = protectedProcedure.use(async (opts) => {
+  const { session } = opts.ctx;
+
+  if (!session.user.convexId) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Missing Convex user id",
+    });
+  }
+
+  return opts.next({
+    ctx: {
+      ...opts.ctx,
+      session: {
+        ...session,
+        user: {
+          ...session.user,
+          convexId: session.user.convexId,
+        },
+      },
+    },
+  });
+});
+
+/**
  * Internal procedure for service-to-service calls ONLY.
  * Authenticates exclusively via x-internal-key header (INTERNAL_API_KEY).
  * Used by the async worker, and other internal services.

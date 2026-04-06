@@ -32,7 +32,12 @@ import {
   getSpendingSchema,
   getTaxSummarySchema,
 } from "../../schemas/reports";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../init";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  protectedWithConvexIdProcedure,
+  publicProcedure,
+} from "../init";
 
 export const reportsRouter = createTRPCRouter({
   revenue: protectedProcedure
@@ -130,16 +135,9 @@ export const reportsRouter = createTRPCRouter({
       });
     }),
 
-  create: protectedProcedure
+  create: protectedWithConvexIdProcedure
     .input(createReportSchema)
     .mutation(async ({ ctx: { db, teamId, session }, input }) => {
-      if (!session.user.convexId) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Missing Convex user id",
-        });
-      }
-
       const result = await createReport(db, {
         type: input.type,
         from: input.from,

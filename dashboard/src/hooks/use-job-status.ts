@@ -9,8 +9,22 @@ type UseJobStatusProps = {
   enabled?: boolean;
 };
 
+const MIN_POLL_INTERVAL = 3_000;
+const MAX_POLL_INTERVAL = 30_000;
+
+/**
+ * Compute polling interval with exponential backoff.
+ * Starts at 3s, doubles each time, caps at 30s.
+ */
+function getBackoffInterval(fetchCount: number): number {
+  const interval = MIN_POLL_INTERVAL * 2 ** Math.max(0, fetchCount - 1);
+  return Math.min(interval, MAX_POLL_INTERVAL);
+}
+
 /**
  * Hook for polling async run status through the API.
+ * Uses exponential backoff (3s → 6s → 12s → 24s → 30s cap)
+ * to reduce unnecessary requests for long-running jobs.
  */
 export function useJobStatus({ runId, enabled = true }: UseJobStatusProps = {}) {
   const trpc = useTRPC();
@@ -31,7 +45,7 @@ export function useJobStatus({ runId, enabled = true }: UseJobStatusProps = {}) 
         return false;
       }
 
-      return 3_000;
+      return getBackoffInterval(currentQuery.state.dataUpdateCount);
     },
     refetchOnWindowFocus: false,
   });
