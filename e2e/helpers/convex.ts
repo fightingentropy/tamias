@@ -74,8 +74,7 @@ const updateUserByIdRef = makeFunctionReference<
 
 function getConvexUrl(): string {
   const convexUrl =
-    getLocalEnvValue("CONVEX_URL") ??
-    getLocalEnvValue("TAMIAS_CONVEX_URL");
+    getLocalEnvValue("CONVEX_URL") ?? getLocalEnvValue("TAMIAS_CONVEX_URL");
 
   if (!convexUrl) {
     throw new Error(
@@ -99,9 +98,7 @@ function getConvexServiceKey(): string {
     return "local-dev";
   }
 
-  throw new Error(
-    "CONVEX_SERVICE_KEY is required for Playwright smoke tests.",
-  );
+  throw new Error("CONVEX_SERVICE_KEY is required for Playwright smoke tests.");
 }
 
 function createConvexClient(): ConvexHttpClient {
@@ -112,13 +109,10 @@ export async function getInvoiceTokenByNumber(
   invoiceNumber: string,
 ): Promise<string> {
   const client = createConvexClient();
-  const record = await client.query(
-    publicInvoiceByNumberRef,
-    {
-      serviceKey: getConvexServiceKey(),
-      invoiceNumber,
-    },
-  );
+  const record = await client.query(publicInvoiceByNumberRef, {
+    serviceKey: getConvexServiceKey(),
+    invoiceNumber,
+  });
 
   if (!record?.token) {
     throw new Error(
@@ -191,7 +185,9 @@ export async function ensureSmokeUserProfile(email: string): Promise<string> {
   }
 
   if (!teamId) {
-    throw new Error(`Failed to create or resolve a smoke-test team for ${email}.`);
+    throw new Error(
+      `Failed to create or resolve a smoke-test team for ${email}.`,
+    );
   }
 
   await client.mutation(updateUserByIdRef, {

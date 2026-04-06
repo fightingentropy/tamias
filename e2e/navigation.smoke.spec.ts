@@ -1,8 +1,5 @@
 import { expect, test } from "@playwright/test";
-import {
-  readSmokeUserCredentials,
-  signInWithPassword,
-} from "./helpers/auth";
+import { readSmokeUserCredentials, signInWithPassword } from "./helpers/auth";
 import { expectDashboardAssistantReady } from "./helpers/dashboard";
 
 test.use({ storageState: { cookies: [], origins: [] } });

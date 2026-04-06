@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { test } from "@playwright/test";
 import { readSmokeUserCredentials, signInWithPassword } from "./helpers/auth";
 import { expectDashboardAssistantReady } from "./helpers/dashboard";
 

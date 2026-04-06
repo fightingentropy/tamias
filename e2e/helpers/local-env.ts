@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
-const repoRoot = path.resolve(process.cwd(), "..");
+const repoRoot = process.cwd();
 const ENV_FILE_PATHS = [
   path.join(repoRoot, ".env"),
   path.join(repoRoot, ".env.local"),

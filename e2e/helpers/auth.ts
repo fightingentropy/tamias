@@ -2,19 +2,15 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { expect, type Page } from "@playwright/test";
 
+const e2eRoot = path.join(process.cwd(), "e2e");
+
 export interface SmokeUserCredentials {
   email: string;
   password: string;
 }
 
-export const AUTH_STATE_PATH = path.join(
-  process.cwd(),
-  "playwright/.auth/user.json",
-);
-export const CREDENTIALS_PATH = path.join(
-  process.cwd(),
-  "playwright/.auth/credentials.json",
-);
+export const AUTH_STATE_PATH = path.join(e2eRoot, ".auth", "user.json");
+export const CREDENTIALS_PATH = path.join(e2eRoot, ".auth", "credentials.json");
 
 export function createSmokeUserCredentials(): SmokeUserCredentials {
   const suffix = Date.now().toString(36);
@@ -68,7 +64,9 @@ async function selectOptionByTestId(
 }
 
 export async function completeOnboarding(page: Page): Promise<void> {
-  await expect(page.getByRole("heading", { name: "Complete your profile" })).toBeVisible({
+  await expect(
+    page.getByRole("heading", { name: "Complete your profile" }),
+  ).toBeVisible({
     timeout: 30_000,
   });
   const nameInput = page.getByTestId("onboarding-full-name");
@@ -77,19 +75,19 @@ export async function completeOnboarding(page: Page): Promise<void> {
   await nameInput.fill("Playwright Smoke", { timeout: 60_000 });
   await page.getByRole("button", { name: "Continue" }).click();
 
-  await expect(page.getByRole("heading", { name: "Business details" })).toBeVisible({
+  await expect(
+    page.getByRole("heading", { name: "Business details" }),
+  ).toBeVisible({
     timeout: 30_000,
   });
   await page.getByTestId("onboarding-company-name").fill("Playwright Ltd");
-  await selectOptionByTestId(
-    page,
-    "onboarding-company-type",
-    "Just exploring",
-  );
+  await selectOptionByTestId(page, "onboarding-company-type", "Just exploring");
   await selectOptionByTestId(page, "onboarding-heard-about", "GitHub");
   await page.getByRole("button", { name: "Continue" }).click();
 
-  await expect(page.getByRole("heading", { name: "Connect your bank" })).toBeVisible({
+  await expect(
+    page.getByRole("heading", { name: "Connect your bank" }),
+  ).toBeVisible({
     timeout: 30_000,
   });
   await page.getByRole("button", { name: "Skip for now" }).click();
@@ -112,7 +110,9 @@ export async function completeOnboarding(page: Page): Promise<void> {
   });
   await page.getByRole("button", { name: "Next" }).click();
 
-  await expect(page.getByRole("heading", { name: "You're ready to go" })).toBeVisible({
+  await expect(
+    page.getByRole("heading", { name: "You're ready to go" }),
+  ).toBeVisible({
     timeout: 30_000,
   });
   await page.getByRole("button", { name: "Get started" }).click();

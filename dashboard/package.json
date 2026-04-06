@@ -20,8 +20,6 @@
     "preview:start": "bun run routes:generate:start && vite preview --host 0.0.0.0 --port 3001",
     "routes:generate:start": "bun run scripts/generate-start-route-tree.ts",
     "start": "bun run preview:start",
-    "test:e2e": "playwright test -c playwright.config.ts",
-    "test:e2e:headed": "playwright test -c playwright.config.ts --headed",
     "typecheck": "tsc --noEmit",
     "test": "bun test --exit src"
   },
@@ -104,7 +102,6 @@
     "@cloudflare/workers-types": "^4.20251117.0",
     "@cloudflare/vite-plugin": "^1.30.3",
     "@rolldown/plugin-babel": "^0.2.2",
-    "@playwright/test": "^1.55.1",
     "@tanstack/router-plugin": "^1.167.12",
     "@types/file-saver": "^2.0.7",
     "@types/node": "^25.5.0",

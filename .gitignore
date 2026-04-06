@@ -9,7 +9,8 @@ node_modules
 coverage
 playwright-report
 test-results
-dashboard/playwright/.auth
+e2e/.auth
+dashboard/playwright
 
 # expo
 .expo/

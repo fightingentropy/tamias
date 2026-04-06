@@ -1,17 +1,17 @@
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { defineConfig, devices } from "@playwright/test";
+
+const repoRoot = path.dirname(fileURLToPath(import.meta.url));
 
 const appBaseURL =
   process.env.PLAYWRIGHT_BASE_URL ?? "http://app.tamias.test:3001";
-const websiteBaseURL =
-  process.env.PLAYWRIGHT_WEBSITE_URL ?? "http://tamias.test:3001";
 const localBaseURL =
   process.env.PLAYWRIGHT_LOCAL_BASE_URL ?? "http://127.0.0.1:3001";
 const webServerURL =
   process.env.PLAYWRIGHT_WEB_SERVER_URL ??
   new URL("/login", localBaseURL).toString();
-const repoRoot = path.resolve(process.cwd(), "../..");
-const authStatePath = path.join(process.cwd(), "playwright/.auth/user.json");
+const authStatePath = path.join(repoRoot, "e2e", ".auth", "user.json");
 const sharedApiUrl = "https://api.tamias.xyz";
 const webServerCommand = `DASHBOARD_URL=${appBaseURL} API_URL=${sharedApiUrl} bun run --cwd dashboard build:start && DASHBOARD_URL=${appBaseURL} API_URL=${sharedApiUrl} bun run --cwd dashboard preview:start`;
 const hostResolverRules =
