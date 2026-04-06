@@ -31,8 +31,7 @@ export function validateCloseCompanyLoansSchedule(args: {
   }
 
   const periodEnd = parseISO(args.periodEnd);
-  const periodEndAtMonthEnd =
-    endOfMonth(periodEnd).getTime() === periodEnd.getTime();
+  const periodEndAtMonthEnd = endOfMonth(periodEnd).getTime() === periodEnd.getTime();
   const today = coerceDate(new Date());
   const earlierUpperBoundExclusive = periodEndAtMonthEnd
     ? addDays(endOfMonth(addMonths(periodEnd, 9)), 1)
@@ -88,9 +87,7 @@ export function validateCloseCompanyLoansSchedule(args: {
     schedule.reliefEarlierDue != null &&
     schedule.reliefEarlierDue > schedule.taxChargeable
   ) {
-    blockers.push(
-      "CT600A Part 2 relief due must not exceed the Part 1 tax chargeable amount.",
-    );
+    blockers.push("CT600A Part 2 relief due must not exceed the Part 1 tax chargeable amount.");
   }
 
   if (
@@ -98,9 +95,7 @@ export function validateCloseCompanyLoansSchedule(args: {
     schedule.reliefLaterDue != null &&
     schedule.reliefLaterDue > schedule.taxChargeable
   ) {
-    blockers.push(
-      "CT600A Part 3 relief due must not exceed the Part 1 tax chargeable amount.",
-    );
+    blockers.push("CT600A Part 3 relief due must not exceed the Part 1 tax chargeable amount.");
   }
 
   for (const entry of schedule.reliefEarlierThan) {
@@ -126,9 +121,7 @@ export function validateCloseCompanyLoansSchedule(args: {
     }
 
     if (date.getTime() > today.getTime()) {
-      blockers.push(
-        `CT600A Part 2 date for ${entry.name} cannot be later than today.`,
-      );
+      blockers.push(`CT600A Part 2 date for ${entry.name} cannot be later than today.`);
     }
   }
 
@@ -153,9 +146,7 @@ export function validateCloseCompanyLoansSchedule(args: {
     }
 
     if (date.getTime() > today.getTime()) {
-      blockers.push(
-        `CT600A Part 3 date for ${entry.name} cannot be later than today.`,
-      );
+      blockers.push(`CT600A Part 3 date for ${entry.name} cannot be later than today.`);
     }
   }
 

@@ -44,12 +44,8 @@ function getInvoiceCalculatedAmounts(invoice: RestInvoiceLike) {
 
   const { subTotal, total, vat, tax } = calculateTotal({
     lineItems: invoice.lineItems.map((item) => ({
-      price:
-        typeof item.price === "number" ? item.price : Number(item.price) || 0,
-      quantity:
-        typeof item.quantity === "number"
-          ? item.quantity
-          : Number(item.quantity) || 0,
+      price: typeof item.price === "number" ? item.price : Number(item.price) || 0,
+      quantity: typeof item.quantity === "number" ? item.quantity : Number(item.quantity) || 0,
     })),
     taxRate: invoice.template?.taxRate ?? 0,
     vatRate: invoice.template?.vatRate ?? 0,

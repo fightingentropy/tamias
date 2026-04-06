@@ -8,10 +8,12 @@ import {
 } from "@tamias/app-data/queries/customers";
 import { getCustomerPageSummary } from "@tamias/app-data/queries/customer-summary";
 
-export async function getCustomersPage(args: {
-  db: Database;
-  teamId: string;
-} & Omit<GetCustomersParams, "teamId">) {
+export async function getCustomersPage(
+  args: {
+    db: Database;
+    teamId: string;
+  } & Omit<GetCustomersParams, "teamId">,
+) {
   const { db, teamId, ...input } = args;
 
   return getCustomers(db, {
@@ -20,11 +22,7 @@ export async function getCustomersPage(args: {
   });
 }
 
-export async function getCustomerByIdForTeam(args: {
-  db: Database;
-  teamId: string;
-  id: string;
-}) {
+export async function getCustomerByIdForTeam(args: { db: Database; teamId: string; id: string }) {
   const { db, teamId, id } = args;
 
   return getCustomerById(db, {
@@ -33,10 +31,12 @@ export async function getCustomerByIdForTeam(args: {
   });
 }
 
-export async function getCustomerInvoiceSummaryForTeam(args: {
-  db: Database;
-  teamId: string;
-} & Omit<GetCustomerInvoiceSummaryParams, "teamId">) {
+export async function getCustomerInvoiceSummaryForTeam(
+  args: {
+    db: Database;
+    teamId: string;
+  } & Omit<GetCustomerInvoiceSummaryParams, "teamId">,
+) {
   const { db, teamId, ...input } = args;
 
   return getCustomerInvoiceSummary(db, {
@@ -45,10 +45,7 @@ export async function getCustomerInvoiceSummaryForTeam(args: {
   });
 }
 
-export async function getCustomerPageSummaryForTeam(args: {
-  db: Database;
-  teamId: string;
-}) {
+export async function getCustomerPageSummaryForTeam(args: { db: Database; teamId: string }) {
   return getCustomerPageSummary(args.db, {
     teamId: args.teamId,
   });

@@ -5,10 +5,7 @@ type DocumentFilter = {
   end?: string | null;
 };
 
-export function buildDocumentsQueryFilter(args: {
-  filter: DocumentFilter;
-  pageSize: number;
-}) {
+export function buildDocumentsQueryFilter(args: { filter: DocumentFilter; pageSize: number }) {
   return {
     ...args.filter,
     pageSize: args.pageSize,

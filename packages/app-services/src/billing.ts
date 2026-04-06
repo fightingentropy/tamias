@@ -105,8 +105,7 @@ export async function getActiveSubscriptionForTeam(
       externalCustomerId: teamId,
     });
     const active = subscriptions.result.items.find(
-      (subscription) =>
-        subscription.status === "active" || subscription.status === "past_due",
+      (subscription) => subscription.status === "active" || subscription.status === "past_due",
     );
 
     if (!active) {

@@ -1,10 +1,6 @@
 import { convexApi, createClient, serviceArgs } from "./base";
 
-export type DocumentProcessingStatus =
-  | "pending"
-  | "processing"
-  | "completed"
-  | "failed";
+export type DocumentProcessingStatus = "pending" | "processing" | "completed" | "failed";
 
 export type DocumentRecord = {
   id: string;
@@ -149,9 +145,7 @@ export async function getTaggedDocumentsPageFromConvex(args: {
   }>;
 }
 
-export async function rebuildDocumentSearchTextsInConvex(args: {
-  teamId?: string | null;
-}) {
+export async function rebuildDocumentSearchTextsInConvex(args: { teamId?: string | null }) {
   return createClient().mutation(
     convexApi.documents.serviceRebuildDocumentSearchTexts,
     serviceArgs({
@@ -166,10 +160,7 @@ export async function rebuildDocumentSearchTextsInConvex(args: {
   >;
 }
 
-export async function getDocumentsByIdsFromConvex(args: {
-  teamId: string;
-  documentIds: string[];
-}) {
+export async function getDocumentsByIdsFromConvex(args: { teamId: string; documentIds: string[] }) {
   return createClient().query(
     convexApi.documents.serviceGetDocumentsByIds,
     serviceArgs({
@@ -179,10 +170,7 @@ export async function getDocumentsByIdsFromConvex(args: {
   ) as Promise<DocumentRecord[]>;
 }
 
-export async function getDocumentByIdFromConvex(args: {
-  teamId: string;
-  documentId: string;
-}) {
+export async function getDocumentByIdFromConvex(args: { teamId: string; documentId: string }) {
   return createClient().query(
     convexApi.documents.serviceGetDocumentById,
     serviceArgs({
@@ -192,10 +180,7 @@ export async function getDocumentByIdFromConvex(args: {
   ) as Promise<DocumentRecord | null>;
 }
 
-export async function getDocumentByNameFromConvex(args: {
-  teamId: string;
-  name: string;
-}) {
+export async function getDocumentByNameFromConvex(args: { teamId: string; name: string }) {
   return createClient().query(
     convexApi.documents.serviceGetDocumentByName,
     serviceArgs({
@@ -205,9 +190,7 @@ export async function getDocumentByNameFromConvex(args: {
   ) as Promise<DocumentRecord | null>;
 }
 
-export async function upsertDocumentsInConvex(args: {
-  documents: UpsertDocumentInConvexInput[];
-}) {
+export async function upsertDocumentsInConvex(args: { documents: UpsertDocumentInConvexInput[] }) {
   return createClient().mutation(
     convexApi.documents.serviceUpsertDocuments,
     serviceArgs({
@@ -235,10 +218,7 @@ export async function upsertDocumentsInConvex(args: {
   ) as Promise<DocumentRecord[]>;
 }
 
-export async function deleteDocumentInConvex(args: {
-  teamId: string;
-  id: string;
-}) {
+export async function deleteDocumentInConvex(args: { teamId: string; id: string }) {
   return createClient().mutation(
     convexApi.documents.serviceDeleteDocument,
     serviceArgs({
@@ -263,9 +243,7 @@ export async function updateDocumentsStatusByNamesInConvex(args: {
   ) as Promise<DocumentRecord[]>;
 }
 
-export async function updateDocumentByNameInConvex(
-  args: UpdateDocumentByNameInConvexInput,
-) {
+export async function updateDocumentByNameInConvex(args: UpdateDocumentByNameInConvexInput) {
   return createClient().mutation(
     convexApi.documents.serviceUpdateDocumentByName,
     serviceArgs({

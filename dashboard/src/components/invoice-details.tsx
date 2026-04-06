@@ -2,12 +2,7 @@
 
 import { TZDate } from "@date-fns/tz";
 import { getFrequencyShortLabel } from "@tamias/invoice/recurring";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@tamias/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@tamias/ui/accordion";
 import { Avatar, AvatarFallback, AvatarImageNext } from "@tamias/ui/avatar";
 import { Button } from "@tamias/ui/button";
 import { cn } from "@tamias/ui/cn";
@@ -43,8 +38,7 @@ export function InvoiceDetails() {
   });
 
   // Fetch upcoming invoices for recurring series
-  const hasRecurringPreview =
-    !!data?.invoiceRecurringId && data?.recurring?.status === "active";
+  const hasRecurringPreview = !!data?.invoiceRecurringId && data?.recurring?.status === "active";
 
   const { data: upcomingInvoices } = useQuery(
     trpc.invoiceRecurring.getUpcoming.queryOptions(
@@ -100,10 +94,7 @@ export function InvoiceDetails() {
   const recurringGeneratedCount = recurring?.invoicesGenerated ?? 0;
   const recurringFrequencyLabel =
     recurring?.frequency && recurring?.frequencyInterval
-      ? getFrequencyShortLabel(
-          recurring.frequency,
-          recurring.frequencyInterval,
-        )
+      ? getFrequencyShortLabel(recurring.frequency, recurring.frequencyInterval)
       : "Recurring";
 
   return (
@@ -137,23 +128,19 @@ export function InvoiceDetails() {
               "line-through": status === "canceled" || status === "refunded",
             })}
           >
-            {currency && (
-              <FormatAmount amount={amount ?? 0} currency={currency} />
-            )}
+            {currency && <FormatAmount amount={amount ?? 0} currency={currency} />}
           </span>
 
           <div className="h-3 space-x-2">
             {vat !== 0 && vat != null && currency && (
               <span className="text-[#606060] text-xs select-text">
-                {template?.vatLabel}{" "}
-                <FormatAmount amount={vat} currency={currency} />
+                {template?.vatLabel} <FormatAmount amount={vat} currency={currency} />
               </span>
             )}
 
             {tax !== 0 && tax != null && currency && (
               <span className="text-[#606060] text-xs select-text">
-                {template?.taxLabel}{" "}
-                <FormatAmount amount={tax} currency={currency} />
+                {template?.taxLabel} <FormatAmount amount={tax} currency={currency} />
               </span>
             )}
           </div>
@@ -201,17 +188,13 @@ export function InvoiceDetails() {
           <div className="flex justify-between items-center">
             <span className="text-sm text-[#606060]">Due date</span>
             <span className="text-sm">
-              <span>
-                {dueDate && format(new TZDate(dueDate, "UTC"), "MMM dd")}
-              </span>
+              <span>{dueDate && format(new TZDate(dueDate, "UTC"), "MMM dd")}</span>
             </span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm text-[#606060]">Issue date</span>
             <span className="text-sm">
-              <span>
-                {issueDate && format(new TZDate(issueDate, "UTC"), "MMM dd")}
-              </span>
+              <span>{issueDate && format(new TZDate(issueDate, "UTC"), "MMM dd")}</span>
             </span>
           </div>
 
@@ -295,9 +278,7 @@ export function InvoiceDetails() {
           {refundedAt && (
             <div className="flex justify-between items-center">
               <span className="text-sm text-[#606060]">Refunded</span>
-              <span className="text-sm">
-                {format(new Date(refundedAt), "MMM dd")}
-              </span>
+              <span className="text-sm">{format(new Date(refundedAt), "MMM dd")}</span>
             </div>
           )}
         </div>
@@ -326,63 +307,45 @@ export function InvoiceDetails() {
             </div>
 
             {/* Upcoming invoices preview */}
-            {upcomingInvoices?.invoices &&
-              upcomingInvoices.invoices.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-border space-y-3">
-                  {upcomingInvoices.invoices
-                    .slice(0, recurring.endCount ? 5 : 3)
-                    .map(
-                      (
-                        invoice: { date: string; amount: number },
-                        index: number,
-                      ) => {
-                        // Check if this is the first invoice in the series and it's scheduled
-                        const isCurrentScheduledInvoice =
-                          index === 0 &&
-                          status === "scheduled" &&
-                          recurringGeneratedCount === 0;
+            {upcomingInvoices?.invoices && upcomingInvoices.invoices.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-border space-y-3">
+                {upcomingInvoices.invoices
+                  .slice(0, recurring.endCount ? 5 : 3)
+                  .map((invoice: { date: string; amount: number }, index: number) => {
+                    // Check if this is the first invoice in the series and it's scheduled
+                    const isCurrentScheduledInvoice =
+                      index === 0 && status === "scheduled" && recurringGeneratedCount === 0;
 
-                        return (
-                          <div
-                            key={index.toString()}
-                            className={cn(
-                              "flex items-center justify-between text-sm",
-                              isCurrentScheduledInvoice &&
-                                "bg-muted/50 -mx-2 px-2 py-1 rounded",
-                            )}
-                          >
-                            <div className="flex items-center gap-2">
-                              <span className="w-[100px]">
-                                {format(
-                                  new TZDate(invoice.date, "UTC"),
-                                  "MMM d, yyyy",
-                                )}
-                              </span>
-                              <span className="text-muted-foreground">
-                                {format(new TZDate(invoice.date, "UTC"), "EEE")}
-                              </span>
-                              {isCurrentScheduledInvoice && (
-                                <span className="text-xs text-muted-foreground">
-                                  (this invoice)
-                                </span>
-                              )}
-                            </div>
-                            <FormatAmount
-                              amount={invoice.amount}
-                              currency={currency ?? "USD"}
-                            />
-                          </div>
-                        );
-                      },
-                    )}
-                  {/* Show ellipsis if there are more invoices */}
-                  {((recurring.endCount &&
-                    recurring.endCount - recurringGeneratedCount > 5) ||
-                    !recurring.endCount) && (
-                    <div className="text-center text-muted-foreground">...</div>
-                  )}
-                </div>
-              )}
+                    return (
+                      <div
+                        key={index.toString()}
+                        className={cn(
+                          "flex items-center justify-between text-sm",
+                          isCurrentScheduledInvoice && "bg-muted/50 -mx-2 px-2 py-1 rounded",
+                        )}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="w-[100px]">
+                            {format(new TZDate(invoice.date, "UTC"), "MMM d, yyyy")}
+                          </span>
+                          <span className="text-muted-foreground">
+                            {format(new TZDate(invoice.date, "UTC"), "EEE")}
+                          </span>
+                          {isCurrentScheduledInvoice && (
+                            <span className="text-xs text-muted-foreground">(this invoice)</span>
+                          )}
+                        </div>
+                        <FormatAmount amount={invoice.amount} currency={currency ?? "USD"} />
+                      </div>
+                    );
+                  })}
+                {/* Show ellipsis if there are more invoices */}
+                {((recurring.endCount && recurring.endCount - recurringGeneratedCount > 5) ||
+                  !recurring.endCount) && (
+                  <div className="text-center text-muted-foreground">...</div>
+                )}
+              </div>
+            )}
 
             {/* Summary */}
             <div className="flex justify-between text-sm mt-4 pt-4 border-t border-border">
@@ -390,9 +353,7 @@ export function InvoiceDetails() {
               upcomingInvoices.summary?.totalCount !== null &&
               upcomingInvoices.summary?.totalAmount !== null ? (
                 <>
-                  <span>
-                    {upcomingInvoices.summary.totalCount} invoices total
-                  </span>
+                  <span>{upcomingInvoices.summary.totalCount} invoices total</span>
                   <FormatAmount
                     amount={upcomingInvoices.summary.totalAmount}
                     currency={currency ?? "USD"}
@@ -401,15 +362,12 @@ export function InvoiceDetails() {
               ) : recurring.endType === "on_date" ? (
                 <>
                   <span className="text-muted-foreground">Ends on date</span>
-                  <span className="text-muted-foreground">
-                    {recurringGeneratedCount} generated
-                  </span>
+                  <span className="text-muted-foreground">{recurringGeneratedCount} generated</span>
                 </>
               ) : recurring.endType === "after_count" && recurring.endCount ? (
                 <>
                   <span className="text-muted-foreground">
-                    {recurringGeneratedCount} of {recurring.endCount}{" "}
-                    invoices
+                    {recurringGeneratedCount} of {recurring.endCount} invoices
                   </span>
                   <span className="text-muted-foreground">
                     {recurring.endCount - recurringGeneratedCount} remaining

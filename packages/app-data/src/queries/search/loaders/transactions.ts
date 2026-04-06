@@ -1,19 +1,10 @@
 import { getTransactionsPageFromConvex } from "@tamias/app-data-convex";
 import { toTransactionCandidate } from "../candidates";
-import {
-  loadCandidatesForSource,
-  matchesSearchTerm,
-  matchesSemanticCandidate,
-} from "../helpers";
-import type {
-  RawSearchCandidateLoadParams,
-  SearchCandidateLoadParams,
-} from "../types";
+import { loadCandidatesForSource, matchesSearchTerm, matchesSemanticCandidate } from "../helpers";
+import type { RawSearchCandidateLoadParams, SearchCandidateLoadParams } from "../types";
 import { getTransactionStatusExclusions } from "./filters";
 
-export async function loadTransactionCandidates(
-  params: SearchCandidateLoadParams,
-) {
+export async function loadTransactionCandidates(params: SearchCandidateLoadParams) {
   const itemsPerTableLimit = params.itemsPerTableLimit ?? 5;
 
   return loadCandidatesForSource({
@@ -33,9 +24,7 @@ export async function loadTransactionCandidates(
   });
 }
 
-export async function loadRawTransactionCandidates(
-  params: RawSearchCandidateLoadParams,
-) {
+export async function loadRawTransactionCandidates(params: RawSearchCandidateLoadParams) {
   return loadCandidatesForSource({
     searchTerm: params.searchTerm,
     itemsPerTableLimit: params.itemsPerTableLimit,
@@ -47,7 +36,6 @@ export async function loadRawTransactionCandidates(
         order: "desc",
       }),
     toCandidate: (transaction) => toTransactionCandidate(transaction),
-    matchesCandidate: (candidate) =>
-      matchesSearchTerm(candidate, params.searchTerm),
+    matchesCandidate: (candidate) => matchesSearchTerm(candidate, params.searchTerm),
   });
 }

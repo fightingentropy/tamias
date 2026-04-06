@@ -121,9 +121,7 @@ export async function getActivities(
   data: Activity[];
 }> {
   const statuses =
-    typeof params.status === "string"
-      ? [params.status]
-      : params.status ?? undefined;
+    typeof params.status === "string" ? [params.status] : (params.status ?? undefined);
 
   const result = await getActivitiesFromConvex({
     teamId: params.teamId,

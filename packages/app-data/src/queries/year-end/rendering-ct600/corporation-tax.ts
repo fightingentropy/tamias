@@ -13,10 +13,7 @@ function getCorporationTaxFinancialYears(draft: Ct600Draft) {
       financialYear: draft.financialYear,
       periodStart: draft.periodStart,
       periodEnd: draft.periodEnd,
-      daysInSegment: inclusiveDayCount(
-        parseISO(draft.periodStart),
-        parseISO(draft.periodEnd),
-      ),
+      daysInSegment: inclusiveDayCount(parseISO(draft.periodStart), parseISO(draft.periodEnd)),
       associatedCompanies: draft.associatedCompaniesThisPeriod,
       chargeableProfits: draft.chargeableProfits,
       augmentedProfits: draft.augmentedProfits,
@@ -33,8 +30,7 @@ function getCorporationTaxFinancialYears(draft: Ct600Draft) {
 
 function renderAssociatedCompaniesXml(draft: Ct600Draft) {
   const periodUsesSmallProfitsRules =
-    parseISO(draft.periodEnd).getTime() >=
-    parseISO(SMALL_PROFITS_RATE_START).getTime();
+    parseISO(draft.periodEnd).getTime() >= parseISO(SMALL_PROFITS_RATE_START).getTime();
 
   if (!periodUsesSmallProfitsRules) {
     return "";
@@ -64,9 +60,7 @@ function renderFinancialYearChargeXml(draft: Ct600Draft) {
         financialYear.financialYear
       }</Year><Details><Profit>${formatMoney(
         financialYear.chargeableProfits,
-      )}</Profit><TaxRate>${formatMoney(
-        financialYear.taxRate,
-      )}</TaxRate><Tax>${formatMoney(
+      )}</Profit><TaxRate>${formatMoney(financialYear.taxRate)}</TaxRate><Tax>${formatMoney(
         financialYear.grossCorporationTax,
       )}</Tax></Details></${elementName}>`;
     })
@@ -74,7 +68,5 @@ function renderFinancialYearChargeXml(draft: Ct600Draft) {
 }
 
 export function renderCorporationTaxChargeableXml(draft: Ct600Draft) {
-  return `${renderAssociatedCompaniesXml(draft)}${renderFinancialYearChargeXml(
-    draft,
-  )}`;
+  return `${renderAssociatedCompaniesXml(draft)}${renderFinancialYearChargeXml(draft)}`;
 }

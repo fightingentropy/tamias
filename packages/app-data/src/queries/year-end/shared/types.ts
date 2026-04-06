@@ -57,14 +57,7 @@ export type SummaryLine = {
 };
 
 export type WorkingPaperSection = {
-  key:
-    | "bank"
-    | "receivables"
-    | "payables"
-    | "vat"
-    | "debt"
-    | "equity"
-    | "tax_accruals";
+  key: "bank" | "receivables" | "payables" | "vat" | "debt" | "equity" | "tax_accruals";
   label: string;
   total: number;
   lines: Array<{
@@ -187,11 +180,7 @@ export type CorporationTaxRateSummary = {
     grossCorporationTax: number;
     marginalRelief: number;
     netCorporationTax: number;
-    chargeType:
-      | "flat_main_rate"
-      | "main_rate"
-      | "small_profits_rate"
-      | "marginal_relief";
+    chargeType: "flat_main_rate" | "main_rate" | "small_profits_rate" | "marginal_relief";
   }>;
 };
 

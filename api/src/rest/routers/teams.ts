@@ -18,10 +18,7 @@ import type { Context } from "../types";
 
 const app = new OpenAPIHono<Context>();
 
-function canAccessTeam(
-  session: Context["Variables"]["session"],
-  teamId: string,
-) {
+function canAccessTeam(session: Context["Variables"]["session"], teamId: string) {
   if (session.teamMembershipIds) {
     return session.teamMembershipIds.includes(teamId);
   }

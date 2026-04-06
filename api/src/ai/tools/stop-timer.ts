@@ -16,8 +16,7 @@ const stopTimerSchema = z.object({
 });
 
 export const stopTimerTool = tool({
-  description:
-    "Stop the current running timer - calculates and saves the duration.",
+  description: "Stop the current running timer - calculates and saves the duration.",
   inputSchema: stopTimerSchema,
   execute: async function* ({ entryId, assignedId }, executionOptions) {
     const appContext = getToolAppContext(executionOptions);
@@ -62,9 +61,7 @@ export const stopTimerTool = tool({
         includeSeconds: false,
       });
 
-      const startTime = result.start
-        ? formatDate(result.start, "HH:mm")
-        : "N/A";
+      const startTime = result.start ? formatDate(result.start, "HH:mm") : "N/A";
       const stopTime = result.stop ? formatDate(result.stop, "HH:mm") : "N/A";
 
       const response = `Timer stopped successfully!\n\n**Project:** ${result.project?.name || "Unknown"}\n**Duration:** ${formattedDuration}\n**Started:** ${startTime}\n**Stopped:** ${stopTime}\n**Description:** ${result.description || "None"}`;

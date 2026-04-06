@@ -2,20 +2,9 @@
 
 import { Button } from "@tamias/ui/button";
 import { cn } from "@tamias/ui/cn";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@tamias/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@tamias/ui/table";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { useOAuthApplicationParams } from "@/hooks/use-oauth-application-params";
 import { useTRPC } from "@/trpc/client";
 import { columns } from "./columns";
@@ -45,15 +34,12 @@ export function OAuthDataTable() {
             OAuth Applications
           </h3>
           <p className="text-sm text-[#606060]">
-            These OAuth applications allow other apps to access your team data
-            on behalf of users. Manage client credentials and permissions
-            carefully.
+            These OAuth applications allow other apps to access your team data on behalf of users.
+            Manage client credentials and permissions carefully.
           </p>
         </div>
         <div className="flex-shrink-0">
-          <Button onClick={() => setParams({ createApplication: true })}>
-            Create OAuth App
-          </Button>
+          <Button onClick={() => setParams({ createApplication: true })}>Create OAuth App</Button>
         </div>
       </div>
       {applications.length > 0 ? (
@@ -63,16 +49,10 @@ export function OAuthDataTable() {
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead
-                      key={header.id}
-                      className={header.column.columnDef.meta?.className}
-                    >
+                    <TableHead key={header.id} className={header.column.columnDef.meta?.className}>
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   );
                 })}

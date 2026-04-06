@@ -1,8 +1,5 @@
 import type { MiddlewareHandler } from "hono";
-import {
-  createRateLimitBucketName,
-  type RateLimitOutcome,
-} from "../../rate-limit/shared";
+import { createRateLimitBucketName, type RateLimitOutcome } from "../../rate-limit/shared";
 import type { Context } from "../types";
 
 type RateLimitOptions = {
@@ -14,9 +11,7 @@ type RateLimitOptions = {
   message?: string;
 };
 
-export function createRateLimitMiddleware(
-  options: RateLimitOptions,
-): MiddlewareHandler<Context> {
+export function createRateLimitMiddleware(options: RateLimitOptions): MiddlewareHandler<Context> {
   return async (context, next) => {
     const key = options.keyGenerator(context) || "unknown";
     const bucketName = createRateLimitBucketName(options.name, key);

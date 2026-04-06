@@ -109,10 +109,7 @@ export type GetRecurringInvoiceProjectionParams = {
   currency?: string;
 };
 
-export type RecurringInvoiceProjectionResult = Map<
-  string,
-  { amount: number; count: number }
->;
+export type RecurringInvoiceProjectionResult = Map<string, { amount: number; count: number }>;
 
 export type InvoiceRecurringByIdResult = {
   id: string;
@@ -173,9 +170,7 @@ export function hasOwnKey(object: object, key: string) {
   return Object.hasOwn(object, key);
 }
 
-export function buildRecurringParams(
-  record: RecurringScheduleFields,
-): RecurringInvoiceParams {
+export function buildRecurringParams(record: RecurringScheduleFields): RecurringInvoiceParams {
   return {
     frequency: record.frequency,
     frequencyDay: record.frequencyDay,
@@ -276,9 +271,7 @@ export async function getProjectedInvoiceRecurringByLegacyId(id: string) {
   return getProjectedInvoiceRecurringPayload(projected);
 }
 
-export async function getProjectedInvoiceRecurringById(
-  params: GetInvoiceRecurringByIdParams,
-) {
+export async function getProjectedInvoiceRecurringById(params: GetInvoiceRecurringByIdParams) {
   const payload = await getProjectedInvoiceRecurringByLegacyId(params.id);
 
   return payload?.teamId === params.teamId ? payload : null;

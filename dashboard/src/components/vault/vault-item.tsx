@@ -40,21 +40,15 @@ export const VaultItem = memo(function VaultItem({ data, small }: Props) {
   const [isReprocessing, setIsReprocessing] = useState(false);
 
   const mimetype = (data?.metadata as { mimetype?: string })?.mimetype;
-  const isSupported = mimetype
-    ? isMimeTypeSupportedForProcessing(mimetype)
-    : false;
+  const isSupported = mimetype ? isMimeTypeSupportedForProcessing(mimetype) : false;
 
   const isFailed = data.processingStatus === "failed";
 
   // Document completed but AI classification failed - title is null
-  const needsClassification =
-    data.processingStatus === "completed" && !data.title;
+  const needsClassification = data.processingStatus === "completed" && !data.title;
 
   // Check if document is stuck in processing (pending for >10 minutes since creation)
-  const staleProcessing = isStaleProcessing(
-    data.processingStatus,
-    data.createdAt,
-  );
+  const staleProcessing = isStaleProcessing(data.processingStatus, data.createdAt);
 
   // Show skeleton only for recently pending documents (not stale ones)
   const isLoading = data.processingStatus === "pending" && !staleProcessing;
@@ -71,33 +65,18 @@ export const VaultItem = memo(function VaultItem({ data, small }: Props) {
       // The needsClassification case handles graceful degradation where AI classification
       // fails but the document is marked as completed. We need to clear isReprocessing
       // so the retry button shows again instead of an infinite loading skeleton.
-      const isSuccessfullyCompleted =
-        data.processingStatus === "completed" && !!data.title;
-      if (
-        isSuccessfullyCompleted ||
-        isFailed ||
-        isLoading ||
-        needsClassification
-      ) {
+      const isSuccessfullyCompleted = data.processingStatus === "completed" && !!data.title;
+      if (isSuccessfullyCompleted || isFailed || isLoading || needsClassification) {
         setIsReprocessing(false);
       }
     }
-  }, [
-    isReprocessing,
-    isLoading,
-    isFailed,
-    needsClassification,
-    data.processingStatus,
-    data.title,
-  ]);
+  }, [isReprocessing, isLoading, isFailed, needsClassification, data.processingStatus, data.title]);
 
   // Show retry for failed, unclassified, or stale processing
-  const showRetry =
-    isSupported && (isFailed || needsClassification || staleProcessing);
+  const showRetry = isSupported && (isFailed || needsClassification || staleProcessing);
 
   // Get display name - fallback to filename from path if no title
-  const displayName =
-    data?.title || data?.name?.split("/").at(-1) || "Document";
+  const displayName = data?.title || data?.name?.split("/").at(-1) || "Document";
 
   const reprocessMutation = useMutation(
     trpc.documents.reprocessDocument.mutationOptions({
@@ -153,11 +132,7 @@ export const VaultItem = memo(function VaultItem({ data, small }: Props) {
             e.stopPropagation();
           }}
         >
-          <VaultItemActions
-            id={data.id}
-            filePath={data.pathTokens ?? []}
-            hideDelete={small}
-          />
+          <VaultItemActions id={data.id} filePath={data.pathTokens ?? []} hideDelete={small} />
         </div>
       )}
 
@@ -177,9 +152,7 @@ export const VaultItem = memo(function VaultItem({ data, small }: Props) {
             filePath={data?.pathTokens?.join("/") ?? ""}
             mimeType={mimetype ?? ""}
             lazy
-            fixedSize={
-              small ? { width: 45, height: 63 } : { width: 60, height: 84 }
-            }
+            fixedSize={small ? { width: 45, height: 63 } : { width: 60, height: 84 }}
           />
         )}
       </div>
@@ -192,9 +165,7 @@ export const VaultItem = memo(function VaultItem({ data, small }: Props) {
         {showSkeleton ? (
           <Skeleton className="w-[50%] h-4" />
         ) : !showRetry ? (
-          <p className="text-xs text-muted-foreground line-clamp-3">
-            {data?.summary}
-          </p>
+          <p className="text-xs text-muted-foreground line-clamp-3">{data?.summary}</p>
         ) : null}
       </div>
 
@@ -217,10 +188,7 @@ export const VaultItem = memo(function VaultItem({ data, small }: Props) {
             </Button>
           )
         ) : !small ? (
-          <VaultItemTags
-            tags={data?.documentTagAssignments ?? []}
-            isLoading={showSkeleton}
-          />
+          <VaultItemTags tags={data?.documentTagAssignments ?? []} isLoading={showSkeleton} />
         ) : null}
       </div>
     </div>

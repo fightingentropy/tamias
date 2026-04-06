@@ -5,11 +5,7 @@ import { formatAmount } from "@/utils/format";
  * Replaces the repeated pattern:
  * formatAmount({ currency, amount, locale }) || formatAmount({ currency, amount: 0, locale })
  */
-export function formatCurrencyAmount(
-  amount: number,
-  currency: string,
-  locale?: string,
-): string {
+export function formatCurrencyAmount(amount: number, currency: string, locale?: string): string {
   const formatted = formatAmount({
     currency,
     amount: amount || 0,

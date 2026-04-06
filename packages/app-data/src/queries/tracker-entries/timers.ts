@@ -3,13 +3,7 @@ import {
   getCurrentTrackerTimerFromConvex,
   getTrackerEntryByIdFromConvex,
 } from "@tamias/app-data-convex";
-import {
-  endOfMonth,
-  endOfWeek,
-  formatISO,
-  startOfMonth,
-  startOfWeek,
-} from "date-fns";
+import { endOfMonth, endOfWeek, formatISO, startOfMonth, startOfWeek } from "date-fns";
 import type { Database } from "../../client";
 import { getTeamById } from "../teams";
 import { getTrackerRecordsByRange } from "./records";
@@ -27,10 +21,7 @@ export type GetTimerStatusParams = {
   assignedId?: ConvexUserId | null;
 };
 
-export async function getCurrentTimer(
-  db: Database,
-  params: GetCurrentTimerParams,
-) {
+export async function getCurrentTimer(db: Database, params: GetCurrentTimerParams) {
   const result = await getCurrentTrackerTimerFromConvex({
     teamId: params.teamId,
     assignedId: params.assignedId,
@@ -52,10 +43,7 @@ export async function getCurrentTimer(
   };
 }
 
-export async function getTimerStatus(
-  db: Database,
-  params: GetTimerStatusParams,
-) {
+export async function getTimerStatus(db: Database, params: GetTimerStatusParams) {
   const currentTimer = await getCurrentTimer(db, params);
 
   if (!currentTimer) {
@@ -96,10 +84,7 @@ export type GetTrackedTimeParams = {
   assignedId?: ConvexUserId;
 };
 
-export async function getTrackedTime(
-  _db: Database,
-  params: GetTrackedTimeParams,
-) {
+export async function getTrackedTime(_db: Database, params: GetTrackedTimeParams) {
   const entries = await getTrackerRecordsByRange(_db, {
     teamId: params.teamId,
     from: params.from,
@@ -204,11 +189,7 @@ export async function getBillableHours(
       totalDuration += entry.duration;
     }
 
-    if (
-      entry.trackerProject?.billable &&
-      entry.trackerProject?.rate &&
-      entry.duration
-    ) {
+    if (entry.trackerProject?.billable && entry.trackerProject?.rate && entry.duration) {
       const projectId = entry.trackerProject.id;
       const projectName = entry.trackerProject.name;
       const currency = entry.trackerProject.currency || baseCurrency;
@@ -216,8 +197,7 @@ export async function getBillableHours(
       const hours = entry.duration / 3600;
       const earning = rate * hours;
 
-      earningsByCurrency[currency] =
-        (earningsByCurrency[currency] || 0) + earning;
+      earningsByCurrency[currency] = (earningsByCurrency[currency] || 0) + earning;
 
       if (projects[projectId]) {
         projects[projectId].duration += entry.duration;
@@ -238,9 +218,7 @@ export async function getBillableHours(
     totalDuration,
     totalAmount: earningsByCurrency[baseCurrency] || 0,
     earningsByCurrency,
-    projectBreakdown: Object.values(projects).sort(
-      (a, b) => b.amount - a.amount,
-    ),
+    projectBreakdown: Object.values(projects).sort((a, b) => b.amount - a.amount),
     currency: baseCurrency,
   };
 }
@@ -250,10 +228,7 @@ export type GetTrackerEntryByIdParams = {
   teamId: string;
 };
 
-export async function getTrackerEntryById(
-  _db: Database,
-  params: GetTrackerEntryByIdParams,
-) {
+export async function getTrackerEntryById(_db: Database, params: GetTrackerEntryByIdParams) {
   return getTrackerEntryByIdFromConvex({
     teamId: params.teamId,
     id: params.id,

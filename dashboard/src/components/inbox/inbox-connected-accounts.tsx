@@ -4,26 +4,11 @@ import type { RouterOutputs } from "@tamias/trpc";
 import { Avatar, AvatarFallback } from "@tamias/ui/avatar";
 import { Badge } from "@tamias/ui/badge";
 import { Button } from "@tamias/ui/button";
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@tamias/ui/card";
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@tamias/ui/card";
 import { Icons } from "@tamias/ui/icons";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { useToast } from "@tamias/ui/use-toast";
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "@/framework/navigation";
 import { Suspense, useEffect, useState } from "react";
@@ -76,8 +61,7 @@ function InboxAccountItem({ account }: { account: InboxAccount }) {
     if (isSyncing) {
       toast({
         title: "Syncing...",
-        description:
-          "We're scanning for PDF attachments and receipts, please wait.",
+        description: "We're scanning for PDF attachments and receipts, please wait.",
         duration: Number.POSITIVE_INFINITY,
         variant: "spinner",
       });
@@ -169,18 +153,14 @@ function InboxAccountItem({ account }: { account: InboxAccount }) {
               <TooltipProvider delayDuration={0}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Badge
-                      variant="tag-rounded"
-                      className="text-xs cursor-help"
-                    >
+                    <Badge variant="tag-rounded" className="text-xs cursor-help">
                       Disconnected
                     </Badge>
                   </TooltipTrigger>
                   <TooltipContent className="max-w-[300px] text-xs">
                     <p>
-                      Account access has expired. Email providers typically
-                      expire access tokens periodically as part of their
-                      security practices. Simply reconnect to restore
+                      Account access has expired. Email providers typically expire access tokens
+                      periodically as part of their security practices. Simply reconnect to restore
                       functionality.
                     </p>
                   </TooltipContent>
@@ -192,10 +172,7 @@ function InboxAccountItem({ account }: { account: InboxAccount }) {
             {isSyncing ? (
               "Syncing..."
             ) : (
-              <>
-                Last accessed{" "}
-                {formatDistanceToNow(new Date(account.lastAccessed))} ago
-              </>
+              <>Last accessed {formatDistanceToNow(new Date(account.lastAccessed))} ago</>
             )}
           </span>
         </div>

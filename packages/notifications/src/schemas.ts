@@ -5,9 +5,7 @@ type ConvexUserId = CurrentUserIdentityRecord["convexId"];
 
 export const createActivitySchema = z.object({
   teamId: z.string().uuid(),
-  userId: z
-    .custom<ConvexUserId>((value) => typeof value === "string")
-    .optional(),
+  userId: z.custom<ConvexUserId>((value) => typeof value === "string").optional(),
   type: z.enum([
     "transactions_created",
     "transactions_enriched",
@@ -330,12 +328,8 @@ export const insightReadySchema = z.object({
 export type UserData = z.infer<typeof userSchema>;
 export type TransactionData = z.infer<typeof transactionSchema>;
 export type InvoiceData = z.infer<typeof invoiceSchema>;
-export type TransactionsCreatedInput = z.infer<
-  typeof transactionsCreatedSchema
->;
-export type TransactionsExportedInput = z.infer<
-  typeof transactionsExportedSchema
->;
+export type TransactionsCreatedInput = z.infer<typeof transactionsCreatedSchema>;
+export type TransactionsExportedInput = z.infer<typeof transactionsExportedSchema>;
 export type DocumentUploadedInput = z.infer<typeof documentUploadedSchema>;
 export type DocumentProcessedInput = z.infer<typeof documentProcessedSchema>;
 
@@ -344,39 +338,23 @@ export type InboxNewInput = z.infer<typeof inboxNewSchema>;
 export type InboxAutoMatchedInput = z.infer<typeof inboxAutoMatchedSchema>;
 
 export type InboxNeedsReviewInput = z.infer<typeof inboxNeedsReviewSchema>;
-export type InboxCrossCurrencyMatchedInput = z.infer<
-  typeof inboxCrossCurrencyMatchedSchema
->;
+export type InboxCrossCurrencyMatchedInput = z.infer<typeof inboxCrossCurrencyMatchedSchema>;
 
 export type InvoicePaidInput = z.infer<typeof invoicePaidSchema>;
 export type InvoiceOverdueInput = z.infer<typeof invoiceOverdueSchema>;
 export type InvoiceScheduledInput = z.infer<typeof invoiceScheduledSchema>;
 export type InvoiceSentInput = z.infer<typeof invoiceSentSchema>;
-export type InvoiceReminderSentInput = z.infer<
-  typeof invoiceReminderSentSchema
->;
+export type InvoiceReminderSentInput = z.infer<typeof invoiceReminderSentSchema>;
 export type InvoiceCancelledInput = z.infer<typeof invoiceCancelledSchema>;
 export type InvoiceCreatedInput = z.infer<typeof invoiceCreatedSchema>;
 export type InvoiceRefundedInput = z.infer<typeof invoiceRefundedSchema>;
-export type RecurringSeriesCompletedInput = z.infer<
-  typeof recurringSeriesCompletedSchema
->;
-export type RecurringSeriesStartedInput = z.infer<
-  typeof recurringSeriesStartedSchema
->;
-export type RecurringSeriesPausedInput = z.infer<
-  typeof recurringSeriesPausedSchema
->;
+export type RecurringSeriesCompletedInput = z.infer<typeof recurringSeriesCompletedSchema>;
+export type RecurringSeriesStartedInput = z.infer<typeof recurringSeriesStartedSchema>;
+export type RecurringSeriesPausedInput = z.infer<typeof recurringSeriesPausedSchema>;
 export type UpcomingInvoiceItem = z.infer<typeof upcomingInvoiceItemSchema>;
-export type RecurringInvoiceUpcomingInput = z.infer<
-  typeof recurringInvoiceUpcomingSchema
->;
-export type TransactionsCategorizedInput = z.infer<
-  typeof transactionsCategorizedSchema
->;
-export type TransactionsAssignedInput = z.infer<
-  typeof transactionsAssignedSchema
->;
+export type RecurringInvoiceUpcomingInput = z.infer<typeof recurringInvoiceUpcomingSchema>;
+export type TransactionsCategorizedInput = z.infer<typeof transactionsCategorizedSchema>;
+export type TransactionsAssignedInput = z.infer<typeof transactionsAssignedSchema>;
 export type InsightReadyInput = z.infer<typeof insightReadySchema>;
 
 // Notification types map - all available notification types with their data structures

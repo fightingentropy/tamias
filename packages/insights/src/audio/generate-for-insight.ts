@@ -40,11 +40,7 @@ export type AudioGenerationResult = {
 /**
  * Get period label from insight data
  */
-function getPeriodLabel(
-  periodType: string,
-  periodYear: number,
-  periodNumber: number,
-): string {
+function getPeriodLabel(periodType: string, periodYear: number, periodNumber: number): string {
   switch (periodType) {
     case "weekly":
       return `Week ${periodNumber}, ${periodYear}`;
@@ -94,11 +90,7 @@ export async function generateInsightAudio(
     throw new Error("Insight content is required for audio generation");
   }
 
-  const periodLabel = getPeriodLabel(
-    insight.periodType,
-    insight.periodYear,
-    insight.periodNumber,
-  );
+  const periodLabel = getPeriodLabel(insight.periodType, insight.periodYear, insight.periodNumber);
 
   // Build audio script from insight content
   const script = buildAudioScript(

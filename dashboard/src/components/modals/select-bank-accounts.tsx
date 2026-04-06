@@ -5,10 +5,7 @@ import dynamic from "@/framework/dynamic";
 import { useConnectParams } from "@/hooks/use-connect-params";
 
 const SelectBankAccountsContent = dynamic(
-  () =>
-    import("../select-bank-accounts-content").then(
-      (mod) => mod.SelectBankAccountsContent,
-    ),
+  () => import("../select-bank-accounts-content").then((mod) => mod.SelectBankAccountsContent),
   { ssr: false },
 );
 

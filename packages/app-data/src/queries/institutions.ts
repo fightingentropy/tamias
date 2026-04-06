@@ -17,10 +17,7 @@ export type GetInstitutionsParams = {
   excludeProviders?: BankProvider[];
 };
 
-export async function getInstitutions(
-  _db: Database | undefined,
-  params: GetInstitutionsParams,
-) {
+export async function getInstitutions(_db: Database | undefined, params: GetInstitutionsParams) {
   return getInstitutionsFromConvex(params);
 }
 

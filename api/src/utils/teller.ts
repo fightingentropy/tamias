@@ -9,9 +9,7 @@ export const validateTellerSignature = (params: {
     return false;
   }
 
-  const { timestamp, signatures } = parseTellerSignatureHeader(
-    params.signatureHeader,
-  );
+  const { timestamp, signatures } = parseTellerSignatureHeader(params.signatureHeader);
 
   const threeMinutesAgo = Math.floor(Date.now() / 1000) - 3 * 60;
 

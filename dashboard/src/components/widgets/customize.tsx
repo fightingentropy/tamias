@@ -12,10 +12,8 @@ export function Customize() {
   const { isMetricsTab } = useOverviewTab();
   const widgetsIsCustomizing = useIsCustomizing();
   const { setIsCustomizing: setWidgetsCustomizing } = useWidgetActions();
-  const {
-    isCustomizing: metricsIsCustomizing,
-    setIsCustomizing: setMetricsCustomizing,
-  } = useMetricsCustomize();
+  const { isCustomizing: metricsIsCustomizing, setIsCustomizing: setMetricsCustomizing } =
+    useMetricsCustomize();
 
   const isOnDashboardPath = pathname === "/dashboard";
 
@@ -23,9 +21,7 @@ export function Customize() {
     return null;
   }
 
-  const isCustomizing = isMetricsTab
-    ? metricsIsCustomizing
-    : widgetsIsCustomizing;
+  const isCustomizing = isMetricsTab ? metricsIsCustomizing : widgetsIsCustomizing;
 
   const handleToggle = () => {
     if (isMetricsTab) {
@@ -36,17 +32,8 @@ export function Customize() {
   };
 
   return (
-    <Button
-      variant="outline"
-      size="icon"
-      className="h-9 w-9"
-      onClick={handleToggle}
-    >
-      {isCustomizing ? (
-        <Icons.Check size={16} />
-      ) : (
-        <Icons.DashboardCustomize size={16} />
-      )}
+    <Button variant="outline" size="icon" className="h-9 w-9" onClick={handleToggle}>
+      {isCustomizing ? <Icons.Check size={16} /> : <Icons.DashboardCustomize size={16} />}
     </Button>
   );
 }

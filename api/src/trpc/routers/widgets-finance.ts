@@ -297,10 +297,7 @@ export const widgetFinanceProcedures = {
         .sort((a, b) => b.amount - a.amount)
         .slice(0, input.limit || 5);
 
-      const totalAmount = topCategories.reduce(
-        (sum, cat) => sum + cat.amount,
-        0,
-      );
+      const totalAmount = topCategories.reduce((sum, cat) => sum + cat.amount, 0);
 
       return {
         result: {

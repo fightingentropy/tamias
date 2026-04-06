@@ -10,21 +10,13 @@ import {
 import { createMinimalEditorExtensions } from "@tamias/ui/editor/extentions/register";
 import { formatAmount } from "@tamias/utils/format";
 import { useQuery } from "@tanstack/react-query";
-import {
-  EditorContent,
-  type JSONContent,
-  ReactRenderer,
-  useEditor,
-} from "@tiptap/react";
+import { EditorContent, type JSONContent, ReactRenderer, useEditor } from "@tiptap/react";
 import { format } from "date-fns";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import tippy, { type Instance } from "tippy.js";
 import { useTRPC } from "@/trpc/client";
-import {
-  formatBankPaymentDetails,
-  formatBankPreview,
-} from "./utils/format-bank-details";
+import { formatBankPaymentDetails, formatBankPreview } from "./utils/format-bank-details";
 
 type InvoiceEditorProps = {
   initialContent?: JSONContent;
@@ -64,8 +56,7 @@ export function InvoiceEditorCore({
   const invoiceNumber = useWatch({ control, name: "invoiceNumber" });
   const customerName = useWatch({ control, name: "customerName" });
   const currency = useWatch({ control, name: "template.currency" });
-  const dateFormat =
-    useWatch({ control, name: "template.dateFormat" }) || "MM/dd/yyyy";
+  const dateFormat = useWatch({ control, name: "template.dateFormat" }) || "MM/dd/yyyy";
 
   const { data: bankAccounts = [] } = useQuery({
     ...trpc.bankAccounts.getWithPaymentInfo.queryOptions(),
@@ -146,26 +137,13 @@ export function InvoiceEditorCore({
         id: "customer",
         label: "Customer",
         command: ({ editor, range }) => {
-          editor
-            .chain()
-            .focus()
-            .deleteRange(range)
-            .insertContent(customerName)
-            .run();
+          editor.chain().focus().deleteRange(range).insertContent(customerName).run();
         },
       });
     }
 
     return items;
-  }, [
-    bankAccounts,
-    dueDate,
-    dateFormat,
-    amount,
-    currency,
-    invoiceNumber,
-    customerName,
-  ]);
+  }, [bankAccounts, dueDate, dateFormat, amount, currency, invoiceNumber, customerName]);
 
   const slashCommandItemsRef = useRef(slashCommandItems);
   slashCommandItemsRef.current = slashCommandItems;
@@ -269,8 +247,7 @@ export function InvoiceEditorCore({
   return (
     <div
       className={cn(
-        !isFocused &&
-          "[&_.ProseMirror_p.is-editor-empty:first-child::before]:content-['']",
+        !isFocused && "[&_.ProseMirror_p.is-editor-empty:first-child::before]:content-['']",
       )}
     >
       <EditorContent

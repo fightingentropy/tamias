@@ -10,10 +10,7 @@ export type FindRelatedInboxItemsParams = {
   teamId: string;
 };
 
-export async function findRelatedInboxItems(
-  _db: Database,
-  params: FindRelatedInboxItemsParams,
-) {
+export async function findRelatedInboxItems(_db: Database, params: FindRelatedInboxItemsParams) {
   const { inboxId, teamId } = params;
   const currentItem = await getInboxItemByIdFromConvex({
     teamId,
@@ -31,10 +28,7 @@ export async function findRelatedInboxItems(
         invoiceNumber: currentItem.invoiceNumber,
       })
     ).filter(
-      (item) =>
-        item.id !== inboxId &&
-        item.status !== "deleted" &&
-        item.groupedInboxId == null,
+      (item) => item.id !== inboxId && item.status !== "deleted" && item.groupedInboxId == null,
     );
 
     if (relatedByInvoiceNumber.length > 0) {
@@ -61,9 +55,7 @@ export async function findRelatedInboxItems(
         item.website === currentItem.website &&
         item.amount === currentItem.amount &&
         item.date === currentItem.date &&
-        (currentItem.type === "invoice"
-          ? item.type === "expense"
-          : item.type === "invoice"),
+        (currentItem.type === "invoice" ? item.type === "expense" : item.type === "invoice"),
     );
   }
 
@@ -75,10 +67,7 @@ export type GroupRelatedInboxItemsParams = {
   teamId: string;
 };
 
-export async function groupRelatedInboxItems(
-  db: Database,
-  params: GroupRelatedInboxItemsParams,
-) {
+export async function groupRelatedInboxItems(db: Database, params: GroupRelatedInboxItemsParams) {
   const { inboxId, teamId } = params;
   const relatedItems = await findRelatedInboxItems(db, { inboxId, teamId });
 
@@ -114,17 +103,13 @@ export async function groupRelatedInboxItems(
     }
 
     if (item.type === primary.type) {
-      return new Date(item.createdAt) < new Date(primary.createdAt)
-        ? item
-        : primary;
+      return new Date(item.createdAt) < new Date(primary.createdAt) ? item : primary;
     }
 
     return primary;
   });
 
-  const itemsToUpdate = relatedItems.filter(
-    (item) => item.id !== primaryItem.id,
-  );
+  const itemsToUpdate = relatedItems.filter((item) => item.id !== primaryItem.id);
 
   if (itemsToUpdate.length > 0) {
     await markInboxItems(itemsToUpdate, {

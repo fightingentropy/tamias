@@ -36,9 +36,7 @@ export function normalizeAmountRange(
   return { min, max };
 }
 
-export function parseAmountFilter(
-  amount: GetTransactionsParams["amount"],
-): ParsedAmountFilter {
+export function parseAmountFilter(amount: GetTransactionsParams["amount"]): ParsedAmountFilter {
   if (!amount || amount.length !== 2) {
     return null;
   }

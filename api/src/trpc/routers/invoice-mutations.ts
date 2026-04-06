@@ -44,8 +44,7 @@ export const invoiceMutationProcedures = {
     .input(draftInvoiceSchema)
     .mutation(async ({ input, ctx: { db, teamId, session } }) => {
       const convexUserId = requireConvexUserId(session);
-      const invoiceNumber =
-        input.invoiceNumber || (await allocateNextInvoiceNumber(db, teamId!));
+      const invoiceNumber = input.invoiceNumber || (await allocateNextInvoiceNumber(db, teamId!));
 
       try {
         return draftInvoice(db, {

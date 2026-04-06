@@ -17,18 +17,12 @@ export function createInternalClient() {
   const internalApiKey = process.env.INTERNAL_API_KEY;
 
   if (!internalApiKey) {
-    throw new Error(
-      "INTERNAL_API_KEY environment variable is required for internal tRPC client",
-    );
+    throw new Error("INTERNAL_API_KEY environment variable is required for internal tRPC client");
   }
 
   const trpcUrl = `${apiUrl}/trpc`;
 
-  if (
-    !process.env.API_INTERNAL_URL &&
-    !process.env.API_URL &&
-    !process.env.TAMIAS_API_URL
-  ) {
+  if (!process.env.API_INTERNAL_URL && !process.env.API_URL && !process.env.TAMIAS_API_URL) {
     console.warn(
       `[trpc-internal] Neither API_INTERNAL_URL nor API_URL is set, falling back to ${trpcUrl}`,
     );

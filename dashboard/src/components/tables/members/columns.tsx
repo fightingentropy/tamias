@@ -18,13 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@tamias/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@tamias/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@tamias/ui/select";
 import { useToast } from "@tamias/ui/use-toast";
 import type { ColumnDef, FilterFn, Row } from "@tanstack/react-table";
 import { Loader2, MoreHorizontal } from "lucide-react";
@@ -69,12 +63,8 @@ export const columns: ColumnDef<TeamMember>[] = [
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <span className="font-medium text-sm">
-                {row.original.user?.fullName}
-              </span>
-              <span className="text-sm text-[#606060]">
-                {row.original.user?.email}
-              </span>
+              <span className="font-medium text-sm">{row.original.user?.fullName}</span>
+              <span className="text-sm text-[#606060]">{row.original.user?.email}</span>
             </div>
           </div>
         </div>
@@ -129,8 +119,7 @@ export const columns: ColumnDef<TeamMember>[] = [
           <div className="flex space-x-2 items-center">
             {(meta?.currentUser?.role === "owner" &&
               meta?.currentUser?.user?.id !== row.original.user?.id) ||
-            (meta?.currentUser?.role === "owner" &&
-              (meta?.totalOwners ?? 0) > 1) ? (
+            (meta?.currentUser?.role === "owner" && (meta?.totalOwners ?? 0) > 1) ? (
               <Select
                 value={row.original.role ?? undefined}
                 onValueChange={(role) => {
@@ -142,9 +131,7 @@ export const columns: ColumnDef<TeamMember>[] = [
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue
-                    placeholder={t(`roles.${row.original.role || "member"}`)}
-                  />
+                  <SelectValue placeholder={t(`roles.${row.original.role || "member"}`)} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="owner">Owner</SelectItem>
@@ -166,21 +153,16 @@ export const columns: ColumnDef<TeamMember>[] = [
                 <DropdownMenuContent align="end">
                   {meta?.currentUser?.user?.id !== row.original.user?.id && (
                     <AlertDialog>
-                      <DropdownMenuItem
-                        className="text-destructive"
-                        asDialogTrigger
-                      >
+                      <DropdownMenuItem className="text-destructive" asDialogTrigger>
                         <AlertDialogTrigger>Remove Member</AlertDialogTrigger>
                       </DropdownMenuItem>
 
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>
-                            Remove Team Member
-                          </AlertDialogTitle>
+                          <AlertDialogTitle>Remove Team Member</AlertDialogTitle>
                           <AlertDialogDescription>
-                            You are about to remove the following Team Member,
-                            are you sure you want to continue?
+                            You are about to remove the following Team Member, are you sure you want
+                            to continue?
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -207,10 +189,7 @@ export const columns: ColumnDef<TeamMember>[] = [
 
                   {meta?.currentUser?.user?.id === row.original.user?.id && (
                     <AlertDialog>
-                      <DropdownMenuItem
-                        className="text-destructive"
-                        asDialogTrigger
-                      >
+                      <DropdownMenuItem className="text-destructive" asDialogTrigger>
                         <AlertDialogTrigger>Leave Team</AlertDialogTrigger>
                       </DropdownMenuItem>
 
@@ -218,12 +197,9 @@ export const columns: ColumnDef<TeamMember>[] = [
                         <AlertDialogHeader>
                           <AlertDialogTitle>Leave Team</AlertDialogTitle>
                           <AlertDialogDescription>
-                            You are about to leave this team. In order to regain
-                            access at a later time, a Team Owner must invite
-                            you.
-                            <p className="mt-4">
-                              Are you sure you want to continue?
-                            </p>
+                            You are about to leave this team. In order to regain access at a later
+                            time, a Team Owner must invite you.
+                            <p className="mt-4">Are you sure you want to continue?</p>
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>

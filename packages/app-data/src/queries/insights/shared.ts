@@ -59,11 +59,9 @@ export function hydrateInsight(record: StoredInsightRecord): Insight {
     periodNumber: record.periodNumber,
     status: record.status,
     selectedMetrics: (record.selectedMetrics as InsightMetric[] | null) ?? null,
-    allMetrics:
-      (record.allMetrics as Record<string, InsightMetric> | null) ?? null,
+    allMetrics: (record.allMetrics as Record<string, InsightMetric> | null) ?? null,
     anomalies: (record.anomalies as InsightAnomaly[] | null) ?? null,
-    expenseAnomalies:
-      (record.expenseAnomalies as ExpenseAnomaly[] | null) ?? null,
+    expenseAnomalies: (record.expenseAnomalies as ExpenseAnomaly[] | null) ?? null,
     milestones: (record.milestones as InsightMilestone[] | null) ?? null,
     activity: (record.activity as InsightActivity | null) ?? null,
     currency: record.currency,
@@ -77,10 +75,7 @@ export function hydrateInsight(record: StoredInsightRecord): Insight {
   };
 }
 
-export async function listTeamInsights(
-  _db: Database | DatabaseOrTransaction,
-  teamId: string,
-) {
+export async function listTeamInsights(_db: Database | DatabaseOrTransaction, teamId: string) {
   const records = await listInsightsFromConvex({ teamId });
   return records.map(hydrateInsight);
 }
@@ -99,18 +94,12 @@ export function compareInsightGeneratedAtDesc(left: Insight, right: Insight) {
   return rightTime - leftTime;
 }
 
-function matchesExcludedPeriod(
-  insight: Insight,
-  excluded?: { year: number; number: number },
-) {
+function matchesExcludedPeriod(insight: Insight, excluded?: { year: number; number: number }) {
   if (!excluded) {
     return false;
   }
 
-  return (
-    insight.periodYear === excluded.year &&
-    insight.periodNumber === excluded.number
-  );
+  return insight.periodYear === excluded.year && insight.periodNumber === excluded.number;
 }
 
 export async function listCompletedWeeklyInsights(
@@ -138,10 +127,7 @@ export async function listCompletedWeeklyInsights(
   return records;
 }
 
-export async function getInsightById(
-  _db: Database,
-  params: { id: string; teamId: string },
-) {
+export async function getInsightById(_db: Database, params: { id: string; teamId: string }) {
   const result = await getInsightByIdFromConvex({
     teamId: params.teamId,
     id: params.id,

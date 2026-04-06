@@ -1,11 +1,4 @@
-import {
-  Body,
-  Container,
-  Heading,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
+import { Body, Container, Heading, Preview, Section, Text } from "@react-email/components";
 import { getAppUrl } from "@tamias/utils/envs";
 import { InvoiceSchema } from "../components/invoice-schema";
 import { Logo } from "../components/logo";
@@ -58,10 +51,7 @@ export const InvoiceReminderEmail = ({
           link={link}
         />
       )}
-      <Body
-        className={`my-auto mx-auto font-sans ${themeClasses.body}`}
-        style={lightStyles.body}
-      >
+      <Body className={`my-auto mx-auto font-sans ${themeClasses.body}`} style={lightStyles.body}>
         <Container
           className={`my-[40px] mx-auto p-[20px] max-w-[600px] ${themeClasses.container}`}
           style={{
@@ -87,14 +77,10 @@ export const InvoiceReminderEmail = ({
           >
             Hi {companyName},
           </span>
-          <Text
-            className={themeClasses.text}
-            style={{ color: lightStyles.text.color }}
-          >
-            This is a friendly reminder about your pending invoice. We kindly
-            ask you to review and process the payment at your earliest
-            convenience. If you have any questions or need clarification, please
-            don't hesitate to reply to this email.
+          <Text className={themeClasses.text} style={{ color: lightStyles.text.color }}>
+            This is a friendly reminder about your pending invoice. We kindly ask you to review and
+            process the payment at your earliest convenience. If you have any questions or need
+            clarification, please don't hesitate to reply to this email.
           </Text>
 
           <Section className="text-center mt-[50px] mb-[50px]">

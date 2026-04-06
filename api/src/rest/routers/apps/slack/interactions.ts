@@ -8,10 +8,7 @@ import {
   getInboxById,
   getSuggestionByInboxAndTransaction,
 } from "@tamias/app-data/queries";
-import {
-  createSlackWebClient,
-  ensureBotInChannel,
-} from "@tamias/app-store/slack/server";
+import { createSlackWebClient, ensureBotInChannel } from "@tamias/app-store/slack/server";
 import { logger } from "@tamias/logger";
 import { getAppUrl } from "@tamias/utils/envs";
 import { HTTPException } from "hono/http-exception";
@@ -60,8 +57,7 @@ async function addEmojiReactionToOriginalMessage({
         messageTs?: string;
         threadTs?: string;
       };
-      const originalMessageTs =
-        sourceMeta.messageTs || sourceMeta.threadTs || null;
+      const originalMessageTs = sourceMeta.messageTs || sourceMeta.threadTs || null;
 
       if (originalMessageTs) {
         try {
@@ -76,10 +72,7 @@ async function addEmojiReactionToOriginalMessage({
           });
         } catch (reactionError) {
           logger.debug(`Failed to add ${emojiName} emoji reaction`, {
-            error:
-              reactionError instanceof Error
-                ? reactionError.message
-                : String(reactionError),
+            error: reactionError instanceof Error ? reactionError.message : String(reactionError),
             channelId,
             messageTs: originalMessageTs,
           });
@@ -88,8 +81,7 @@ async function addEmojiReactionToOriginalMessage({
     }
   } catch (inboxError) {
     logger.debug("Failed to get inbox item for emoji reaction", {
-      error:
-        inboxError instanceof Error ? inboxError.message : String(inboxError),
+      error: inboxError instanceof Error ? inboxError.message : String(inboxError),
       inboxId,
     });
   }
@@ -143,10 +135,7 @@ async function verifySlackInteraction(req: Request): Promise<unknown> {
   }
 
   const currentTime = Math.floor(Date.now() / 1000);
-  if (
-    Math.abs(currentTime - Number.parseInt(timestamp, 10)) >
-    fiveMinutesInSeconds
-  ) {
+  if (Math.abs(currentTime - Number.parseInt(timestamp, 10)) > fiveMinutesInSeconds) {
     throw new Error("Request is too old");
   }
 
@@ -186,8 +175,7 @@ app.openapi(
     path: "/",
     summary: "Slack interactions handler",
     operationId: "slackInteractions",
-    description:
-      "Handles interactive component actions from Slack (button clicks, etc.)",
+    description: "Handles interactive component actions from Slack (button clicks, etc.)",
     tags: ["Integrations"],
     responses: {
       200: {
@@ -229,10 +217,7 @@ app.openapi(
       const actionId = action.action_id;
 
       // Handle approve/decline match actions
-      if (
-        actionId.startsWith("approve_match_") ||
-        actionId.startsWith("decline_match_")
-      ) {
+      if (actionId.startsWith("approve_match_") || actionId.startsWith("decline_match_")) {
         const isApprove = actionId.startsWith("approve_match_");
 
         // Parse action value to get inboxId, transactionId, teamId

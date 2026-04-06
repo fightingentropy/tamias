@@ -13,10 +13,7 @@ import { Icons } from "@tamias/ui/icons";
 import { Spinner } from "@tamias/ui/spinner";
 import { getApiUrl } from "@tamias/utils/envs";
 import { formatAmount } from "@tamias/utils/format";
-import {
-  useSuspenseInfiniteQuery,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useSuspenseInfiniteQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useState } from "react";
@@ -45,15 +42,14 @@ export function PortalContent({ portalId }: Props) {
   );
 
   // Fetch invoices with infinite query
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useSuspenseInfiniteQuery(
-      trpc.customers.getPortalInvoices.infiniteQueryOptions(
-        { portalId },
-        {
-          getNextPageParam: ({ meta }) => meta?.cursor,
-        },
-      ),
-    );
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useSuspenseInfiniteQuery(
+    trpc.customers.getPortalInvoices.infiniteQueryOptions(
+      { portalId },
+      {
+        getNextPageParam: ({ meta }) => meta?.cursor,
+      },
+    ),
+  );
 
   const customer = portalData?.customer;
   const summary = portalData?.summary;
@@ -66,10 +62,8 @@ export function PortalContent({ portalId }: Props) {
     return null;
   }
 
-  const allSelected =
-    invoices.length > 0 && selectedIds.size === invoices.length;
-  const someSelected =
-    selectedIds.size > 0 && selectedIds.size < invoices.length;
+  const allSelected = invoices.length > 0 && selectedIds.size === invoices.length;
+  const someSelected = selectedIds.size > 0 && selectedIds.size < invoices.length;
 
   const toggleAll = () => {
     if (allSelected) {
@@ -178,9 +172,7 @@ export function PortalContent({ portalId }: Props) {
               />
             </div>
           )}
-          <h1 className="text-2xl font-serif tracking-tight">
-            {customer.name}
-          </h1>
+          <h1 className="text-2xl font-serif tracking-tight">{customer.name}</h1>
           {customer.team.name && (
             <p className="text-sm text-[#606060] mt-1">{customer.team.name}</p>
           )}
@@ -217,9 +209,7 @@ export function PortalContent({ portalId }: Props) {
           </div>
           <div className="bg-background border border-border px-4 py-3">
             <div className="text-[12px] text-[#606060] mb-2">Invoices</div>
-            <div className="text-[18px] font-medium">
-              {summary.invoiceCount}
-            </div>
+            <div className="text-[18px] font-medium">{summary.invoiceCount}</div>
           </div>
         </div>
 
@@ -235,9 +225,7 @@ export function PortalContent({ portalId }: Props) {
             <div className="grid grid-cols-[32px_minmax(80px,1.2fr)_minmax(70px,1fr)_minmax(70px,1fr)_minmax(70px,1fr)_minmax(60px,0.8fr)_32px] gap-2 px-3 py-3 bg-muted/50 border-b border-border text-[12px] font-medium text-[#606060] items-center">
               <div className="flex items-center justify-center">
                 <Checkbox
-                  checked={
-                    allSelected ? true : someSelected ? "indeterminate" : false
-                  }
+                  checked={allSelected ? true : someSelected ? "indeterminate" : false}
                   onCheckedChange={toggleAll}
                 />
               </div>
@@ -274,18 +262,12 @@ export function PortalContent({ portalId }: Props) {
                   </Link>
                   <div className="text-[12px] text-[#606060]">
                     {invoice.issueDate
-                      ? format(
-                          new TZDate(invoice.issueDate, "UTC"),
-                          "MMM d, yyyy",
-                        )
+                      ? format(new TZDate(invoice.issueDate, "UTC"), "MMM d, yyyy")
                       : "-"}
                   </div>
                   <div className="text-[12px] text-[#606060]">
                     {invoice.dueDate
-                      ? format(
-                          new TZDate(invoice.dueDate, "UTC"),
-                          "MMM d, yyyy",
-                        )
+                      ? format(new TZDate(invoice.dueDate, "UTC"), "MMM d, yyyy")
                       : "-"}
                   </div>
                   <div className="text-[12px] text-right">
@@ -316,9 +298,7 @@ export function PortalContent({ portalId }: Props) {
                             View invoice
                           </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleDownloadSingle(invoice)}
-                        >
+                        <DropdownMenuItem onClick={() => handleDownloadSingle(invoice)}>
                           Download
                         </DropdownMenuItem>
                         {invoice.status === "paid" && (
@@ -410,10 +390,7 @@ export function PortalContent({ portalId }: Props) {
                     <span>Deselect all</span>
                   </Button>
 
-                  <Button
-                    onClick={handleDownloadSelected}
-                    disabled={isDownloading}
-                  >
+                  <Button onClick={handleDownloadSelected} disabled={isDownloading}>
                     {isDownloading ? (
                       <div className="flex items-center space-x-2">
                         <Spinner size={16} />

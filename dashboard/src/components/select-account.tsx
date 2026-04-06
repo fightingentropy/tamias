@@ -1,7 +1,4 @@
-import {
-  ComboboxDropdown,
-  type ComboboxItem,
-} from "@tamias/ui/combobox-dropdown";
+import { ComboboxDropdown, type ComboboxItem } from "@tamias/ui/combobox-dropdown";
 import type { PopoverContent } from "@tamias/ui/popover";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type React from "react";
@@ -27,13 +24,7 @@ type Props = {
   modal?: boolean;
 };
 
-export function SelectAccount({
-  placeholder,
-  onChange,
-  value,
-  popoverProps,
-  modal,
-}: Props) {
+export function SelectAccount({ placeholder, onChange, value, popoverProps, modal }: Props) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const [selectedItem, setSelectedItem] = useState<SelectedItem | null>(null);

@@ -28,20 +28,15 @@ function decodeIndexedCustomerCursor(
 
   try {
     const parsed = JSON.parse(
-      Buffer.from(
-        cursor.slice(CUSTOMER_PAGE_CURSOR_PREFIX.length),
-        "base64url",
-      ).toString("utf8"),
+      Buffer.from(cursor.slice(CUSTOMER_PAGE_CURSOR_PREFIX.length), "base64url").toString("utf8"),
     ) as Partial<IndexedCustomerCursorState>;
 
     return {
-      sourceCursor:
-        typeof parsed.sourceCursor === "string" ? parsed.sourceCursor : null,
+      sourceCursor: typeof parsed.sourceCursor === "string" ? parsed.sourceCursor : null,
       sourceExhausted: parsed.sourceExhausted === true,
       bufferedIds: Array.isArray(parsed.bufferedIds)
         ? parsed.bufferedIds.filter(
-            (bufferedId): bufferedId is string =>
-              typeof bufferedId === "string",
+            (bufferedId): bufferedId is string => typeof bufferedId === "string",
           )
         : [],
     };
@@ -55,10 +50,9 @@ function decodeIndexedCustomerCursor(
 }
 
 function encodeIndexedCustomerCursor(state: IndexedCustomerCursorState) {
-  return `${CUSTOMER_PAGE_CURSOR_PREFIX}${Buffer.from(
-    JSON.stringify(state),
-    "utf8",
-  ).toString("base64url")}`;
+  return `${CUSTOMER_PAGE_CURSOR_PREFIX}${Buffer.from(JSON.stringify(state), "utf8").toString(
+    "base64url",
+  )}`;
 }
 
 function getIndexedCustomerOrder(sort: GetCustomersParams["sort"]) {
@@ -72,10 +66,7 @@ function getIndexedCustomerOrder(sort: GetCustomersParams["sort"]) {
 
   const [column, direction] = sort;
 
-  if (
-    column !== "created_at" ||
-    (direction !== "asc" && direction !== "desc")
-  ) {
+  if (column !== "created_at" || (direction !== "asc" && direction !== "desc")) {
     return null;
   }
 
@@ -90,10 +81,7 @@ function getIndexedCustomerBatchSize(pageSize: number) {
   return Math.min(Math.max(pageSize * 3, 50), 200);
 }
 
-async function getCustomersByIdsInOrder(args: {
-  teamId: string;
-  customerIds: string[];
-}) {
+async function getCustomersByIdsInOrder(args: { teamId: string; customerIds: string[] }) {
   if (args.customerIds.length === 0) {
     return [];
   }
@@ -141,9 +129,7 @@ export async function getIndexedCustomersPage(params: GetCustomersParams) {
       order,
     });
 
-    eligibleCustomers.push(
-      ...result.page.filter((customer) => matchesCustomerSearch(customer, q)),
-    );
+    eligibleCustomers.push(...result.page.filter((customer) => matchesCustomerSearch(customer, q)));
 
     sourceCursor = result.isDone ? null : result.continueCursor;
     sourceExhausted = result.isDone;

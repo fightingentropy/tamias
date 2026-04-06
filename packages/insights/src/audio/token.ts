@@ -25,9 +25,7 @@ const DEFAULT_EXPIRY_SECONDS = 7 * 24 * 60 * 60;
 function getSecret(): Uint8Array {
   const secret = process.env.INSIGHTS_AUDIO_TOKEN_SECRET;
   if (!secret) {
-    throw new Error(
-      "INSIGHTS_AUDIO_TOKEN_SECRET environment variable is not set",
-    );
+    throw new Error("INSIGHTS_AUDIO_TOKEN_SECRET environment variable is not set");
   }
   return new TextEncoder().encode(secret);
 }
@@ -73,19 +71,14 @@ export async function createAudioToken(
  * @returns Decoded payload with insightId and teamId
  * @throws Error if token is invalid, expired, or malformed
  */
-export async function verifyAudioToken(
-  token: string,
-): Promise<AudioTokenPayload> {
+export async function verifyAudioToken(token: string): Promise<AudioTokenPayload> {
   const secret = getSecret();
 
   try {
     const { payload } = await jose.jwtVerify(token, secret);
 
     // Validate required fields
-    if (
-      typeof payload.insightId !== "string" ||
-      typeof payload.teamId !== "string"
-    ) {
+    if (typeof payload.insightId !== "string" || typeof payload.teamId !== "string") {
       throw new Error("Invalid token payload: missing required fields");
     }
 
@@ -112,10 +105,6 @@ export async function verifyAudioToken(
  * @param token - The signed JWT token
  * @returns Full URL for public audio access
  */
-export function buildAudioUrl(
-  baseUrl: string,
-  insightId: string,
-  token: string,
-): string {
+export function buildAudioUrl(baseUrl: string, insightId: string, token: string): string {
   return `${baseUrl}/v1/insights/${insightId}/audio?token=${encodeURIComponent(token)}`;
 }

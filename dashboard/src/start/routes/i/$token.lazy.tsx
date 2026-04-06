@@ -26,9 +26,7 @@ function PublicInvoicePage() {
         amount={invoice.amount ?? undefined}
         currency={invoice.currency ?? undefined}
         initialStatus={invoice.status}
-        customerName={
-          invoice.customerName || (invoice.customer?.name as string)
-        }
+        customerName={invoice.customerName || (invoice.customer?.name as string)}
         customerWebsite={invoice.customer?.website}
         customerPortalEnabled={invoice.customer?.portalEnabled ?? false}
         customerPortalId={invoice.customer?.portalId ?? undefined}

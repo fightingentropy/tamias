@@ -1,9 +1,5 @@
-
 import type { SearchParams } from "nuqs/server";
-import {
-  getPeriodDateRange,
-  type PeriodOption,
-} from "@/utils/metrics-date-utils";
+import { getPeriodDateRange, type PeriodOption } from "@/utils/metrics-date-utils";
 
 const DEFAULT_PERIOD: PeriodOption = "1-year";
 const DEFAULT_REVENUE_TYPE = "net" as const;
@@ -12,9 +8,7 @@ function getFirstValue(value: SearchParams[string]) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-function isPeriodOption(
-  value: string | null | undefined,
-): value is PeriodOption {
+function isPeriodOption(value: string | null | undefined): value is PeriodOption {
   if (!value) {
     return false;
   }
@@ -33,9 +27,7 @@ function isPeriodOption(
   return validPeriods.includes(value as PeriodOption);
 }
 
-function isRevenueType(
-  value: string | null | undefined,
-): value is "gross" | "net" {
+function isRevenueType(value: string | null | undefined): value is "gross" | "net" {
   return value === "gross" || value === "net";
 }
 
@@ -45,9 +37,7 @@ export function getInitialMetricsFilter(
 ) {
   const rawPeriod = getFirstValue(searchParams.period);
   const rawRevenueType = getFirstValue(searchParams.revenueType);
-  const period: PeriodOption = isPeriodOption(rawPeriod)
-    ? rawPeriod
-    : DEFAULT_PERIOD;
+  const period: PeriodOption = isPeriodOption(rawPeriod) ? rawPeriod : DEFAULT_PERIOD;
   const revenueType: "gross" | "net" = isRevenueType(rawRevenueType)
     ? rawRevenueType
     : DEFAULT_REVENUE_TYPE;

@@ -137,20 +137,17 @@ export const CT_ADJUSTMENT_CATEGORIES: Array<{
   {
     value: "depreciation_amortisation",
     label: "Depreciation and amortisation",
-    guidance:
-      "Use a positive amount to add back book depreciation or amortisation.",
+    guidance: "Use a positive amount to add back book depreciation or amortisation.",
   },
   {
     value: "capital_allowances_balancing_charges",
     label: "Balancing charges",
-    guidance:
-      "Use a positive amount when balancing charges increase taxable profits.",
+    guidance: "Use a positive amount when balancing charges increase taxable profits.",
   },
   {
     value: "capital_allowances",
     label: "Capital allowances",
-    guidance:
-      "Use a negative amount for capital allowances claimed against profits.",
+    guidance: "Use a negative amount for capital allowances claimed against profits.",
   },
   {
     value: "charitable_donations",
@@ -160,8 +157,7 @@ export const CT_ADJUSTMENT_CATEGORIES: Array<{
   {
     value: "losses_brought_forward",
     label: "Losses brought forward",
-    guidance:
-      "Use a negative amount for losses claimed against current profits.",
+    guidance: "Use a negative amount for losses claimed against current profits.",
   },
   {
     value: "group_relief",
@@ -171,8 +167,7 @@ export const CT_ADJUSTMENT_CATEGORIES: Array<{
   {
     value: "other",
     label: "Other (blocks filing-ready path)",
-    guidance:
-      "Use only when you are not targeting the supported filing-ready path.",
+    guidance: "Use only when you are not targeting the supported filing-ready path.",
   },
 ];
 
@@ -231,9 +226,7 @@ export function describeHmrcCtReferenceSource(value?: string | null) {
 
 export function getCorporationTaxFinancialYear(value: string) {
   const date = new Date(value);
-  return date.getUTCMonth() >= 3
-    ? date.getUTCFullYear()
-    : date.getUTCFullYear() - 1;
+  return date.getUTCMonth() >= 3 ? date.getUTCFullYear() : date.getUTCFullYear() - 1;
 }
 
 export function periodUsesSmallProfitsRules(periodEnd?: string | null) {
@@ -296,30 +289,22 @@ export function createLoanRow(entry?: CloseCompanyLoanEntry): LoanRowState {
   };
 }
 
-export function createLoanReliefRow(
-  entry?: CloseCompanyLoanReliefEntry,
-): LoanReliefRowState {
+export function createLoanReliefRow(entry?: CloseCompanyLoanReliefEntry): LoanReliefRowState {
   return {
     id: crypto.randomUUID(),
     name: entry?.name ?? "",
     amountRepaid: entry?.amountRepaid != null ? String(entry.amountRepaid) : "",
     amountReleasedOrWrittenOff:
-      entry?.amountReleasedOrWrittenOff != null
-        ? String(entry.amountReleasedOrWrittenOff)
-        : "",
+      entry?.amountReleasedOrWrittenOff != null ? String(entry.amountReleasedOrWrittenOff) : "",
     date: entry?.date ?? "",
   };
 }
 
 export function buildLoanRows(entries?: CloseCompanyLoanEntry[] | null) {
-  return entries?.length
-    ? entries.map((entry) => createLoanRow(entry))
-    : [createLoanRow()];
+  return entries?.length ? entries.map((entry) => createLoanRow(entry)) : [createLoanRow()];
 }
 
-export function buildLoanReliefRows(
-  entries?: CloseCompanyLoanReliefEntry[] | null,
-) {
+export function buildLoanReliefRows(entries?: CloseCompanyLoanReliefEntry[] | null) {
   return entries?.length
     ? entries.map((entry) => createLoanReliefRow(entry))
     : [createLoanReliefRow()];
@@ -330,9 +315,7 @@ export function isBlankLoanRow(row: LoanRowState) {
 }
 
 export function isCompleteLoanRow(row: LoanRowState) {
-  return (
-    row.name.trim().length >= 2 && toNullableInteger(row.amountOfLoan) != null
-  );
+  return row.name.trim().length >= 2 && toNullableInteger(row.amountOfLoan) != null;
 }
 
 export function isBlankLoanReliefRow(row: LoanReliefRowState) {
@@ -353,36 +336,22 @@ export function isCompleteLoanReliefRow(row: LoanReliefRowState) {
   );
 }
 
-export function payloadString(
-  payload: Record<string, unknown> | undefined,
-  key: string,
-) {
+export function payloadString(payload: Record<string, unknown> | undefined, key: string) {
   const value = payload?.[key];
   return typeof value === "string" ? value : null;
 }
 
-export function payloadObject(
-  payload: Record<string, unknown> | undefined,
-  key: string,
-) {
+export function payloadObject(payload: Record<string, unknown> | undefined, key: string) {
   const value = payload?.[key];
-  return typeof value === "object" && value !== null
-    ? (value as Record<string, unknown>)
-    : null;
+  return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : null;
 }
 
-export function payloadArray(
-  payload: Record<string, unknown> | undefined,
-  key: string,
-) {
+export function payloadArray(payload: Record<string, unknown> | undefined, key: string) {
   const value = payload?.[key];
   return Array.isArray(value) ? value : [];
 }
 
-export function payloadNumber(
-  payload: Record<string, unknown> | undefined,
-  key: string,
-) {
+export function payloadNumber(payload: Record<string, unknown> | undefined, key: string) {
   const value = payload?.[key];
   return typeof value === "number" ? value : null;
 }
@@ -399,15 +368,13 @@ export function describeHmrcCtOutcome(event: SubmissionEvent) {
 
 export function getHmrcCtErrors(event: SubmissionEvent) {
   return payloadArray(event.responsePayload, "errors").filter(
-    (item): item is HmrcCtGatewayError =>
-      typeof item === "object" && item !== null,
+    (item): item is HmrcCtGatewayError => typeof item === "object" && item !== null,
   );
 }
 
 export function getHmrcCtNotices(event: SubmissionEvent) {
   return payloadArray(event.responsePayload, "notices").filter(
-    (item): item is string =>
-      typeof item === "string" && item.trim().length > 0,
+    (item): item is string => typeof item === "string" && item.trim().length > 0,
   );
 }
 
@@ -417,10 +384,7 @@ export function describeCompaniesHouseAccountsOutcome(event: SubmissionEvent) {
     Array.isArray(selectedStatus?.rejections) &&
     typeof selectedStatus.rejections[0] === "object" &&
     selectedStatus.rejections[0] !== null
-      ? payloadString(
-          selectedStatus.rejections[0] as Record<string, unknown>,
-          "description",
-        )
+      ? payloadString(selectedStatus.rejections[0] as Record<string, unknown>, "description")
       : null;
 
   return (

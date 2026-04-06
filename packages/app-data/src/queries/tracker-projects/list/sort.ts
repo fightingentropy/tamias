@@ -1,9 +1,6 @@
 import type { TrackerProjectListItem } from "../types";
 
-export function sortTrackerProjects(
-  data: TrackerProjectListItem[],
-  sort?: string[] | null,
-) {
+export function sortTrackerProjects(data: TrackerProjectListItem[], sort?: string[] | null) {
   const [column, direction = "desc"] = sort ?? [];
   const isAscending = direction === "asc";
   const ordered = [...data];
@@ -18,9 +15,7 @@ export function sortTrackerProjects(
         case "assigned":
           return left.users.length - right.users.length;
         case "customer":
-          return (left.customer?.name ?? "").localeCompare(
-            right.customer?.name ?? "",
-          );
+          return (left.customer?.name ?? "").localeCompare(right.customer?.name ?? "");
         case "name":
           return left.name.localeCompare(right.name);
         case "tags":

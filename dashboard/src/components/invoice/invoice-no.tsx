@@ -1,12 +1,7 @@
 "use client";
 
 import { cn } from "@tamias/ui/cn";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";

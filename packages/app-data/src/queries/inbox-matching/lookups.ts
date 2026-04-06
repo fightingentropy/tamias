@@ -32,9 +32,7 @@ export async function getPendingInboxForMatching(
       order: "desc",
     });
 
-    pendingItems.push(
-      ...page.page.filter((item) => item.transactionId == null),
-    );
+    pendingItems.push(...page.page.filter((item) => item.transactionId == null));
 
     if (page.isDone) {
       break;

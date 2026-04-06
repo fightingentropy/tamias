@@ -14,28 +14,26 @@ import { getInboxAccountsForTeam } from "@tamias/app-services/inbox";
 import { protectedProcedure } from "../init";
 
 export const teamReadProcedures = {
-  current: protectedProcedure.query(
-    async ({ ctx: { teamId, accessToken } }) => {
-      if (!teamId) {
-        return null;
-      }
+  current: protectedProcedure.query(async ({ ctx: { teamId, accessToken } }) => {
+    if (!teamId) {
+      return null;
+    }
 
-      const fromAuthUser =
-        accessToken && !accessToken.startsWith("mid_")
-          ? await getCurrentTeamFromConvexAsAuthUser(accessToken)
-          : null;
+    const fromAuthUser =
+      accessToken && !accessToken.startsWith("mid_")
+        ? await getCurrentTeamFromConvexAsAuthUser(accessToken)
+        : null;
 
-      if (fromAuthUser && fromAuthUser.id === teamId) {
-        return fromAuthUser;
-      }
+    if (fromAuthUser && fromAuthUser.id === teamId) {
+      return fromAuthUser;
+    }
 
-      if (isHostedConvexMissingServiceKey()) {
-        return null;
-      }
+    if (isHostedConvexMissingServiceKey()) {
+      return null;
+    }
 
-      return getTeamByPublicTeamIdFromConvexIdentity(teamId);
-    },
-  ),
+    return getTeamByPublicTeamIdFromConvexIdentity(teamId);
+  }),
 
   members: protectedProcedure.query(async ({ ctx: { teamId } }) => {
     if (!teamId) {
@@ -85,32 +83,30 @@ export const teamReadProcedures = {
     return getAvailablePlans(db, teamId!);
   }),
 
-  connectionStatus: protectedProcedure.query(
-    async ({ ctx: { db, teamId } }) => {
-      if (!teamId) {
-        return { bankConnections: [], inboxAccounts: [] };
-      }
+  connectionStatus: protectedProcedure.query(async ({ ctx: { db, teamId } }) => {
+    if (!teamId) {
+      return { bankConnections: [], inboxAccounts: [] };
+    }
 
-      const [bankConnections, inboxAccounts] = await Promise.all([
-        getBankConnections(db, { teamId }),
-        getInboxAccountsForTeam(teamId),
-      ]);
+    const [bankConnections, inboxAccounts] = await Promise.all([
+      getBankConnections(db, { teamId }),
+      getInboxAccountsForTeam(teamId),
+    ]);
 
-      return {
-        bankConnections: bankConnections.map((c) => ({
-          id: c.id,
-          name: c.name,
-          status: c.status,
-          expiresAt: c.expiresAt,
-          logoUrl: c.logoUrl,
-        })),
-        inboxAccounts: inboxAccounts.map((a) => ({
-          id: a.id,
-          email: a.email,
-          status: a.status,
-          provider: a.provider,
-        })),
-      };
-    },
-  ),
+    return {
+      bankConnections: bankConnections.map((c) => ({
+        id: c.id,
+        name: c.name,
+        status: c.status,
+        expiresAt: c.expiresAt,
+        logoUrl: c.logoUrl,
+      })),
+      inboxAccounts: inboxAccounts.map((a) => ({
+        id: a.id,
+        email: a.email,
+        status: a.status,
+        provider: a.provider,
+      })),
+    };
+  }),
 };

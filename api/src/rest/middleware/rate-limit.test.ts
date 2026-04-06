@@ -5,10 +5,7 @@ import type { Context } from "../types";
 import { createRateLimitMiddleware } from "./rate-limit";
 
 function createRateLimitTestEnv() {
-  const buckets = new Map<
-    string,
-    ReturnType<typeof consumeRateLimit>["bucket"]
-  >();
+  const buckets = new Map<string, ReturnType<typeof consumeRateLimit>["bucket"]>();
 
   return {
     RATE_LIMIT_COORDINATOR: {
@@ -56,16 +53,8 @@ describe("REST rate limit middleware", () => {
     const app = createApp();
     const env = createRateLimitTestEnv();
 
-    const first = await app.request(
-      "/",
-      { headers: { "x-test-key": "team-1" } },
-      env,
-    );
-    const second = await app.request(
-      "/",
-      { headers: { "x-test-key": "team-1" } },
-      env,
-    );
+    const first = await app.request("/", { headers: { "x-test-key": "team-1" } }, env);
+    const second = await app.request("/", { headers: { "x-test-key": "team-1" } }, env);
 
     expect(first.status).toBe(200);
     expect(second.status).toBe(200);
@@ -79,11 +68,7 @@ describe("REST rate limit middleware", () => {
 
     await app.request("/", { headers: { "x-test-key": "team-1" } }, env);
     await app.request("/", { headers: { "x-test-key": "team-1" } }, env);
-    const blocked = await app.request(
-      "/",
-      { headers: { "x-test-key": "team-1" } },
-      env,
-    );
+    const blocked = await app.request("/", { headers: { "x-test-key": "team-1" } }, env);
 
     expect(blocked.status).toBe(429);
     expect(await blocked.text()).toBe("Rate limit exceeded");
@@ -97,11 +82,7 @@ describe("REST rate limit middleware", () => {
 
     await app.request("/", { headers: { "x-test-key": "team-1" } }, env);
     await app.request("/", { headers: { "x-test-key": "team-1" } }, env);
-    const differentKey = await app.request(
-      "/",
-      { headers: { "x-test-key": "team-2" } },
-      env,
-    );
+    const differentKey = await app.request("/", { headers: { "x-test-key": "team-2" } }, env);
 
     expect(differentKey.status).toBe(200);
     expect(differentKey.headers.get("X-RateLimit-Remaining")).toBe("1");

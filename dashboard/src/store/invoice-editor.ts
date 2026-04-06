@@ -27,36 +27,34 @@ interface InvoiceEditorState {
   reset: () => void;
 }
 
-export const useInvoiceEditorStore = create<InvoiceEditorState>()(
-  (set, get) => ({
-    snapshot: "",
-    initialized: false,
+export const useInvoiceEditorStore = create<InvoiceEditorState>()((set, get) => ({
+  snapshot: "",
+  initialized: false,
 
-    markReset: () => {
-      set({ snapshot: "", initialized: false });
-    },
+  markReset: () => {
+    set({ snapshot: "", initialized: false });
+  },
 
-    initialize: (values) => {
-      set({ snapshot: JSON.stringify(values), initialized: true });
-    },
+  initialize: (values) => {
+    set({ snapshot: JSON.stringify(values), initialized: true });
+  },
 
-    setSnapshot: (valuesOrSerialized) => {
-      set({
-        snapshot:
-          typeof valuesOrSerialized === "string"
-            ? valuesOrSerialized
-            : JSON.stringify(valuesOrSerialized),
-      });
-    },
+  setSnapshot: (valuesOrSerialized) => {
+    set({
+      snapshot:
+        typeof valuesOrSerialized === "string"
+          ? valuesOrSerialized
+          : JSON.stringify(valuesOrSerialized),
+    });
+  },
 
-    hasChanged: (values) => {
-      const { snapshot, initialized } = get();
-      if (!initialized) return false;
-      return JSON.stringify(values) !== snapshot;
-    },
+  hasChanged: (values) => {
+    const { snapshot, initialized } = get();
+    if (!initialized) return false;
+    return JSON.stringify(values) !== snapshot;
+  },
 
-    reset: () => {
-      set({ snapshot: "", initialized: false });
-    },
-  }),
-);
+  reset: () => {
+    set({ snapshot: "", initialized: false });
+  },
+}));

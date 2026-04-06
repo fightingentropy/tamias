@@ -9,28 +9,18 @@ import { getToolAppContext, getToolTeamId } from "../utils/tool-runtime";
 
 const getTrackerProjectsSchema = z.object({
   cursor: z.string().nullable().optional().describe("Pagination cursor"),
-  sort: z
-    .array(z.string())
-    .length(2)
-    .nullable()
-    .optional()
-    .describe("Sort order"),
+  sort: z.array(z.string()).length(2).nullable().optional().describe("Sort order"),
   pageSize: z.number().min(1).max(100).default(10).describe("Page size"),
   q: z.string().nullable().optional().describe("Search query"),
   start: z.string().nullable().optional().describe("Start date (ISO 8601)"),
   end: z.string().nullable().optional().describe("End date (ISO 8601)"),
-  status: z
-    .enum(["in_progress", "completed"])
-    .nullable()
-    .optional()
-    .describe("Project status"),
+  status: z.enum(["in_progress", "completed"]).nullable().optional().describe("Project status"),
   customers: z.array(z.string()).nullable().optional().describe("Customer IDs"),
   tags: z.array(z.string()).nullable().optional().describe("Tag IDs"),
 });
 
 export const getTrackerProjectsTool = tool({
-  description:
-    "Retrieve and filter tracker projects with pagination, sorting, and search.",
+  description: "Retrieve and filter tracker projects with pagination, sorting, and search.",
   inputSchema: getTrackerProjectsSchema,
   execute: async function* (
     { cursor, sort, pageSize = 10, q, start, end, status, customers, tags },
@@ -101,34 +91,22 @@ export const getTrackerProjectsTool = tool({
         };
       });
 
-      const totalDuration = result.data.reduce(
-        (sum, p) => sum + (p.totalDuration ?? 0),
-        0,
-      );
-      const totalAmount = result.data.reduce(
-        (sum, p) => sum + (p.totalAmount ?? 0),
-        0,
-      );
+      const totalDuration = result.data.reduce((sum, p) => sum + (p.totalDuration ?? 0), 0);
+      const totalAmount = result.data.reduce((sum, p) => sum + (p.totalAmount ?? 0), 0);
       const formattedTotalAmount = formatAmount({
         amount: totalAmount,
         currency: baseCurrency,
         locale,
       });
 
-      const inProgressCount = result.data.filter(
-        (p) => p.status === "in_progress",
-      ).length;
-      const completedCount = result.data.filter(
-        (p) => p.status === "completed",
-      ).length;
+      const inProgressCount = result.data.filter((p) => p.status === "in_progress").length;
+      const completedCount = result.data.filter((p) => p.status === "completed").length;
 
       const durationStart = new Date(0);
       const durationEnd = new Date(totalDuration * 1000);
-      const formattedTotalDuration = formatDistance(
-        durationStart,
-        durationEnd,
-        { includeSeconds: false },
-      );
+      const formattedTotalDuration = formatDistance(durationStart, durationEnd, {
+        includeSeconds: false,
+      });
 
       const response = `| Name | Status | Customer | Rate | Duration | Total Amount | Created |\n|------|--------|----------|------|----------|--------------|----------|\n${formattedProjects.map((p) => `| ${p.name} | ${p.status} | ${p.customerName} | ${p.rate} | ${p.totalDuration} | ${p.totalAmount} | ${p.createdAt} |`).join("\n")}\n\n**${result.data.length} projects** | Total Duration: ${formattedTotalDuration} | Total Amount: ${formattedTotalAmount} | In Progress: ${inProgressCount} | Completed: ${completedCount}`;
 

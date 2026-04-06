@@ -58,9 +58,7 @@ export function Summary({
   return (
     <div className="w-[320px] flex flex-col">
       <div className="flex justify-between items-center py-1">
-        <span className="text-[11px] text-[#878787] font-mono">
-          {subtotalLabel}
-        </span>
+        <span className="text-[11px] text-[#878787] font-mono">{subtotalLabel}</span>
         <span className="text-right text-[11px] text-[#878787]">
           {currency &&
             new Intl.NumberFormat(locale, {
@@ -73,9 +71,7 @@ export function Summary({
 
       {includeDiscount && (
         <div className="flex justify-between items-center py-1">
-          <span className="text-[11px] text-[#878787] font-mono">
-            {discountLabel}
-          </span>
+          <span className="text-[11px] text-[#878787] font-mono">{discountLabel}</span>
           <span className="text-right text-[11px] text-[#878787]">
             {currency &&
               new Intl.NumberFormat(locale, {
@@ -121,9 +117,7 @@ export function Summary({
 
       {includeLineItemTax && totalTax > 0 && (
         <div className="flex justify-between items-center py-1">
-          <span className="text-[11px] text-[#878787] font-mono">
-            {taxLabel}
-          </span>
+          <span className="text-[11px] text-[#878787] font-mono">{taxLabel}</span>
           <span className="text-right text-[11px] text-[#878787]">
             {currency &&
               new Intl.NumberFormat(locale, {
@@ -136,18 +130,14 @@ export function Summary({
       )}
 
       <div className="flex justify-between items-center py-4 mt-2 border-t border-border">
-        <span className="text-[11px] text-[#878787] font-mono">
-          {totalLabel}
-        </span>
+        <span className="text-[11px] text-[#878787] font-mono">{totalLabel}</span>
         <span className="text-right text-[21px]">
           {currency &&
             new Intl.NumberFormat(locale, {
               style: "currency",
               currency: currency,
               maximumFractionDigits:
-                includeTax || includeVat || includeLineItemTax
-                  ? 2
-                  : maximumFractionDigits,
+                includeTax || includeVat || includeLineItemTax ? 2 : maximumFractionDigits,
             }).format(total)}
         </span>
       </div>

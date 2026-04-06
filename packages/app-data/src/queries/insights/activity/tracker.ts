@@ -49,9 +49,7 @@ export async function getTrackerActivityStats(
     if (!entry.billed) {
       unbilledSeconds += duration;
       const rate = Number(
-        entry.rate ??
-          (entry.projectId ? projectById.get(entry.projectId)?.rate : 0) ??
-          0,
+        entry.rate ?? (entry.projectId ? projectById.get(entry.projectId)?.rate : 0) ?? 0,
       );
 
       billableAmount += (rate * duration) / 3600;

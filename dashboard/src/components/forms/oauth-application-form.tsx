@@ -8,12 +8,7 @@ import {
   scopePresets,
   scopesToName,
 } from "@tamias/auth-session/scopes";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@tamias/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@tamias/ui/accordion";
 import { Button } from "@tamias/ui/button";
 import { cn } from "@tamias/ui/cn";
 import {
@@ -79,10 +74,7 @@ const formSchema = z.object({
               try {
                 const urlObj = new URL(url);
                 // Allow localhost with HTTP, all others must use HTTPS
-                if (
-                  urlObj.hostname === "localhost" ||
-                  urlObj.hostname === "127.0.0.1"
-                ) {
+                if (urlObj.hostname === "localhost" || urlObj.hostname === "127.0.0.1") {
                   return true;
                 }
                 return urlObj.protocol === "https:";
@@ -117,9 +109,7 @@ export function OAuthApplicationForm({ data }: Props) {
   const { setParams } = useOAuthApplicationParams();
   const { setSecret } = useOAuthSecretModalStore();
   const [preset, setPreset] = useState<ScopePreset>(() =>
-    data?.scopes
-      ? (scopesToName(data.scopes).preset as ScopePreset)
-      : "all_access",
+    data?.scopes ? (scopesToName(data.scopes).preset as ScopePreset) : "all_access",
   );
   const { toast } = useToast();
   const { uploadFile } = useUpload();
@@ -138,9 +128,7 @@ export function OAuthApplicationForm({ data }: Props) {
       website: data?.website || "",
       installUrl: data?.installUrl || "",
       screenshots: data?.screenshots || [],
-      redirectUris: data?.redirectUris?.map((uri) => ({ url: uri })) || [
-        { url: "" },
-      ],
+      redirectUris: data?.redirectUris?.map((uri) => ({ url: uri })) || [{ url: "" }],
       scopes: (data?.scopes as Scope[]) || ["apis.all"],
       isPublic: data?.isPublic || false,
       active: data?.active ?? true,
@@ -165,9 +153,7 @@ export function OAuthApplicationForm({ data }: Props) {
         website: data.website || "",
         installUrl: data.installUrl || "",
         screenshots: data.screenshots || [],
-        redirectUris: data.redirectUris?.map((uri) => ({ url: uri })) || [
-          { url: "" },
-        ],
+        redirectUris: data.redirectUris?.map((uri) => ({ url: uri })) || [{ url: "" }],
         scopes: (data.scopes as Scope[]) || ["apis.all"],
         isPublic: data.isPublic || false,
         active: data.active ?? true,
@@ -226,9 +212,7 @@ export function OAuthApplicationForm({ data }: Props) {
     // Convert redirect URIs from object array to string array for API
     const formattedValues = {
       ...values,
-      redirectUris: values.redirectUris
-        .map((uri) => uri.url)
-        .filter((url) => url.trim() !== ""),
+      redirectUris: values.redirectUris.map((uri) => uri.url).filter((url) => url.trim() !== ""),
     };
 
     if (data?.id) {
@@ -250,14 +234,11 @@ export function OAuthApplicationForm({ data }: Props) {
 
     // Remove any existing scopes for this resource
     const filteredScopes = currentScopes.filter(
-      (currentScope: string) =>
-        !resource.scopes.some((s) => s.scope === currentScope),
+      (currentScope: string) => !resource.scopes.some((s) => s.scope === currentScope),
     );
 
     // Add the new scope if it's not empty
-    const newScopes = scope
-      ? [...filteredScopes, scope as Scope]
-      : filteredScopes;
+    const newScopes = scope ? [...filteredScopes, scope as Scope] : filteredScopes;
 
     form.setValue("scopes", newScopes, { shouldDirty: true });
   };
@@ -301,9 +282,7 @@ export function OAuthApplicationForm({ data }: Props) {
     if (!user?.teamId) return;
 
     // Filter for image files only
-    const imageFiles = acceptedFiles.filter((file) =>
-      file.type.startsWith("image/"),
-    );
+    const imageFiles = acceptedFiles.filter((file) => file.type.startsWith("image/"));
 
     if (imageFiles.length === 0) {
       toast({
@@ -399,8 +378,7 @@ export function OAuthApplicationForm({ data }: Props) {
   // Helper function to check if an accordion section has errors
   const hasErrors = (fields: string[]) => {
     return fields.some((field) => {
-      const fieldError =
-        form.formState.errors[field as keyof typeof form.formState.errors];
+      const fieldError = form.formState.errors[field as keyof typeof form.formState.errors];
       return fieldError !== undefined;
     });
   };
@@ -421,16 +399,11 @@ export function OAuthApplicationForm({ data }: Props) {
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(handleSubmit)}
-        className="flex flex-col h-full"
-      >
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col h-full">
         <div className="flex-1 space-y-6 overflow-auto">
           <Accordion type="multiple" defaultValue={["general", "redirects"]}>
             <AccordionItem value="general">
-              <AccordionTrigger
-                className={cn(generalErrors && "text-destructive")}
-              >
+              <AccordionTrigger className={cn(generalErrors && "text-destructive")}>
                 General
               </AccordionTrigger>
               <AccordionContent>
@@ -461,15 +434,10 @@ export function OAuthApplicationForm({ data }: Props) {
                       <FormItem>
                         <FormLabel>Name</FormLabel>
                         <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="My Awesome App"
-                            autoFocus
-                          />
+                          <Input {...field} placeholder="My Awesome App" autoFocus />
                         </FormControl>
                         <FormDescription>
-                          Application name will be displayed in the OAuth
-                          consent screen
+                          Application name will be displayed in the OAuth consent screen
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -489,9 +457,7 @@ export function OAuthApplicationForm({ data }: Props) {
                             rows={3}
                           />
                         </FormControl>
-                        <FormDescription>
-                          Description of your application
-                        </FormDescription>
+                        <FormDescription>Description of your application</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -510,9 +476,7 @@ export function OAuthApplicationForm({ data }: Props) {
                             rows={5}
                           />
                         </FormControl>
-                        <FormDescription>
-                          Detailed overview of your application
-                        </FormDescription>
+                        <FormDescription>Detailed overview of your application</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -589,15 +553,12 @@ export function OAuthApplicationForm({ data }: Props) {
             </AccordionItem>
 
             <AccordionItem value="redirects">
-              <AccordionTrigger
-                className={cn(redirectErrors && "text-destructive")}
-              >
+              <AccordionTrigger className={cn(redirectErrors && "text-destructive")}>
                 Redirect URIs
               </AccordionTrigger>
               <AccordionContent className="space-y-4">
                 <FormDescription>
-                  All OAuth redirect URLs, All URLs must use HTTPS, except for
-                  localhost.
+                  All OAuth redirect URLs, All URLs must use HTTPS, except for localhost.
                 </FormDescription>
 
                 <div className="space-y-3 mt-2">
@@ -654,24 +615,14 @@ export function OAuthApplicationForm({ data }: Props) {
             </AccordionItem>
 
             <AccordionItem value="permissions">
-              <AccordionTrigger
-                className={cn(permissionErrors && "text-destructive")}
-              >
+              <AccordionTrigger className={cn(permissionErrors && "text-destructive")}>
                 Permissions
               </AccordionTrigger>
               <AccordionContent>
-                <Tabs
-                  value={preset}
-                  className="w-full"
-                  onValueChange={handlePresetChange}
-                >
+                <Tabs value={preset} className="w-full" onValueChange={handlePresetChange}>
                   <TabsList className="w-full flex">
                     {scopePresets.map((scope) => (
-                      <TabsTrigger
-                        value={scope.value}
-                        className="flex-1"
-                        key={scope.value}
-                      >
+                      <TabsTrigger value={scope.value} className="flex-1" key={scope.value}>
                         {scope.label}
                       </TabsTrigger>
                     ))}
@@ -681,10 +632,7 @@ export function OAuthApplicationForm({ data }: Props) {
                 <p className="text-sm text-[#878787] mt-4">
                   This OAuth application will have{" "}
                   <span className="font-semibold">
-                    {
-                      scopePresets.find((scope) => scope.value === preset)
-                        ?.description
-                    }
+                    {scopePresets.find((scope) => scope.value === preset)?.description}
                   </span>
                   .
                 </p>
@@ -704,15 +652,13 @@ export function OAuthApplicationForm({ data }: Props) {
             </AccordionItem>
 
             <AccordionItem value="screenshots">
-              <AccordionTrigger
-                className={cn(screenshotErrors && "text-destructive")}
-              >
+              <AccordionTrigger className={cn(screenshotErrors && "text-destructive")}>
                 Screenshots
               </AccordionTrigger>
               <AccordionContent>
                 <span className="text-[0.8rem] text-muted-foreground">
-                  You can upload up to 4 screenshots that will be displayed on
-                  the apps and integrations page.
+                  You can upload up to 4 screenshots that will be displayed on the apps and
+                  integrations page.
                 </span>
                 <div className="space-y-4 mt-3">
                   <div
@@ -731,13 +677,9 @@ export function OAuthApplicationForm({ data }: Props) {
                       <div>
                         <p className="text-xs">
                           Drop your files here, or{" "}
-                          <span className="underline underline-offset-1">
-                            click to browse.
-                          </span>
+                          <span className="underline underline-offset-1">click to browse.</span>
                         </p>
-                        <p className="text-xs text-muted-foreground">
-                          3MB limit per file.
-                        </p>
+                        <p className="text-xs text-muted-foreground">3MB limit per file.</p>
                       </div>
                     )}
                   </div>
@@ -747,10 +689,7 @@ export function OAuthApplicationForm({ data }: Props) {
                     <div className="space-y-2">
                       <div className="grid grid-cols-2 gap-4">
                         {form.watch("screenshots").map((screenshot, index) => (
-                          <div
-                            key={`screenshot-${index}-${screenshot}`}
-                            className="relative group"
-                          >
+                          <div key={`screenshot-${index}-${screenshot}`} className="relative group">
                             <div className="aspect-video bg-muted overflow-hidden">
                               <img
                                 src={screenshot}
@@ -783,9 +722,7 @@ export function OAuthApplicationForm({ data }: Props) {
             </AccordionItem>
 
             <AccordionItem value="settings">
-              <AccordionTrigger
-                className={cn(settingsErrors && "text-destructive")}
-              >
+              <AccordionTrigger className={cn(settingsErrors && "text-destructive")}>
                 Settings
               </AccordionTrigger>
               <AccordionContent className="space-y-6">
@@ -798,16 +735,12 @@ export function OAuthApplicationForm({ data }: Props) {
                         <div className="space-y-1">
                           <FormLabel className="!mt-0">Allow PKCE</FormLabel>
                           <FormDescription>
-                            We strongly recommend using the PKCE flow for
-                            increased security. Make sure your application
-                            supports it.
+                            We strongly recommend using the PKCE flow for increased security. Make
+                            sure your application supports it.
                           </FormDescription>
                         </div>
                         <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
+                          <Switch checked={field.value} onCheckedChange={field.onChange} />
                         </FormControl>
                       </FormItem>
                     )}
@@ -822,15 +755,11 @@ export function OAuthApplicationForm({ data }: Props) {
                           <div className="space-y-1">
                             <FormLabel className="!mt-0">Active</FormLabel>
                             <FormDescription>
-                              Inactive applications cannot be used for
-                              authorization.
+                              Inactive applications cannot be used for authorization.
                             </FormDescription>
                           </div>
                           <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
+                            <Switch checked={field.value} onCheckedChange={field.onChange} />
                           </FormControl>
                         </FormItem>
                       )}

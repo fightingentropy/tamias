@@ -1,10 +1,6 @@
 import { cashFlowStressTestArtifact } from "@tamias/ai-artifacts/cash-flow-stress-test";
 import { db } from "@tamias/app-data/client";
-import {
-  getCashBalance,
-  getCashFlow,
-  getRunway,
-} from "@tamias/app-data/queries";
+import { getCashBalance, getCashFlow, getRunway } from "@tamias/app-data/queries";
 import { tool } from "ai";
 import { z } from "zod";
 import {
@@ -30,10 +26,7 @@ export const getCashFlowStressTestTool = tool({
   description:
     "Perform cash flow stress testing - analyzes base case, worst case, and best case scenarios to assess financial resilience.",
   inputSchema: getCashFlowStressTestSchema,
-  execute: async function* (
-    { period, from, to, currency, showCanvas },
-    executionOptions,
-  ) {
+  execute: async function* ({ period, from, to, currency, showCanvas }, executionOptions) {
     const appContext = getToolAppContext(executionOptions);
     const teamId = getToolTeamId(appContext);
 
@@ -52,12 +45,11 @@ export const getCashFlowStressTestTool = tool({
     throwIfBankAccountsRequired(appContext);
 
     try {
-      const { finalFrom, finalTo, finalCurrency, description } =
-        resolveReportToolParams({
-          toolName: "getCashFlowStressTest",
-          appContext,
-          aiParams: { period, from, to, currency },
-        });
+      const { finalFrom, finalTo, finalCurrency, description } = resolveReportToolParams({
+        toolName: "getCashFlowStressTest",
+        appContext,
+        aiParams: { period, from, to, currency },
+      });
       const analysis = startArtifactStream({
         enabled: showCanvas,
         executionOptions,
@@ -74,24 +66,23 @@ export const getCashFlowStressTestTool = tool({
       const targetCurrency = finalCurrency || "USD";
 
       // Fetch required data in parallel
-      const [cashFlowData, balanceResult, baseCaseRunwayFromQuery] =
-        await Promise.all([
-          getCashFlow(db, {
-            teamId,
-            from: finalFrom,
-            to: finalTo,
-            currency: finalCurrency ?? undefined,
-            period: "monthly",
-          }),
-          getCashBalance(db, {
-            teamId,
-            currency: finalCurrency ?? undefined,
-          }),
-          getRunway(db, {
-            teamId,
-            currency: finalCurrency ?? undefined,
-          }),
-        ]);
+      const [cashFlowData, balanceResult, baseCaseRunwayFromQuery] = await Promise.all([
+        getCashFlow(db, {
+          teamId,
+          from: finalFrom,
+          to: finalTo,
+          currency: finalCurrency ?? undefined,
+          period: "monthly",
+        }),
+        getCashBalance(db, {
+          teamId,
+          currency: finalCurrency ?? undefined,
+        }),
+        getRunway(db, {
+          teamId,
+          currency: finalCurrency ?? undefined,
+        }),
+      ]);
 
       // Get current cash balance
       const currentCashBalance = balanceResult.totalBalance || 0;
@@ -100,10 +91,8 @@ export const getCashFlowStressTestTool = tool({
       const monthlyData = cashFlowData.monthlyData || [];
       const averageMonthlyIncome =
         monthlyData.length > 0
-          ? monthlyData.reduce(
-              (sum: number, item: { income: number }) => sum + item.income,
-              0,
-            ) / monthlyData.length
+          ? monthlyData.reduce((sum: number, item: { income: number }) => sum + item.income, 0) /
+            monthlyData.length
           : 0;
       const averageMonthlyExpenses =
         monthlyData.length > 0
@@ -140,12 +129,9 @@ export const getCashFlowStressTestTool = tool({
 
       // Calculate scenarios
       const scenarioResults = scenarios.map((scenario, index) => {
-        const adjustedMonthlyIncome =
-          averageMonthlyIncome * scenario.revenueMultiplier;
-        const adjustedMonthlyExpenses =
-          averageMonthlyExpenses * scenario.expenseMultiplier;
-        const adjustedMonthlyCashFlow =
-          adjustedMonthlyIncome - adjustedMonthlyExpenses;
+        const adjustedMonthlyIncome = averageMonthlyIncome * scenario.revenueMultiplier;
+        const adjustedMonthlyExpenses = averageMonthlyExpenses * scenario.expenseMultiplier;
+        const adjustedMonthlyCashFlow = adjustedMonthlyIncome - adjustedMonthlyExpenses;
 
         // Calculate runway (months until cash runs out)
         // Base case uses the same calculation as getRunway tool
@@ -207,37 +193,25 @@ export const getCashFlowStressTestTool = tool({
         // Base case projection
         let baseCaseBalance = currentCashBalance;
         if (baseCaseResult.cashFlow < 0) {
-          baseCaseBalance = Math.max(
-            0,
-            currentCashBalance + baseCaseResult.cashFlow * month,
-          );
+          baseCaseBalance = Math.max(0, currentCashBalance + baseCaseResult.cashFlow * month);
         } else {
-          baseCaseBalance =
-            currentCashBalance + baseCaseResult.cashFlow * month;
+          baseCaseBalance = currentCashBalance + baseCaseResult.cashFlow * month;
         }
 
         // Worst case projection
         let worstCaseBalance = currentCashBalance;
         if (worstCaseResult.cashFlow < 0) {
-          worstCaseBalance = Math.max(
-            0,
-            currentCashBalance + worstCaseResult.cashFlow * month,
-          );
+          worstCaseBalance = Math.max(0, currentCashBalance + worstCaseResult.cashFlow * month);
         } else {
-          worstCaseBalance =
-            currentCashBalance + worstCaseResult.cashFlow * month;
+          worstCaseBalance = currentCashBalance + worstCaseResult.cashFlow * month;
         }
 
         // Best case projection
         let bestCaseBalance = currentCashBalance;
         if (bestCaseResult.cashFlow < 0) {
-          bestCaseBalance = Math.max(
-            0,
-            currentCashBalance + bestCaseResult.cashFlow * month,
-          );
+          bestCaseBalance = Math.max(0, currentCashBalance + bestCaseResult.cashFlow * month);
         } else {
-          bestCaseBalance =
-            currentCashBalance + bestCaseResult.cashFlow * month;
+          bestCaseBalance = currentCashBalance + bestCaseResult.cashFlow * month;
         }
 
         projectionMonths.push({
@@ -248,11 +222,7 @@ export const getCashFlowStressTestTool = tool({
         });
 
         // Stop if all scenarios reach zero (optimization)
-        if (
-          baseCaseBalance <= 0 &&
-          worstCaseBalance <= 0 &&
-          bestCaseBalance <= 0
-        ) {
+        if (baseCaseBalance <= 0 && worstCaseBalance <= 0 && bestCaseBalance <= 0) {
           break;
         }
       }

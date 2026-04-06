@@ -1,11 +1,4 @@
-import {
-  Body,
-  Container,
-  Heading,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
+import { Body, Container, Heading, Preview, Section, Text } from "@react-email/components";
 import { Footer } from "../components/footer";
 import { Logo } from "../components/logo";
 import {
@@ -31,15 +24,8 @@ export const AppReviewRequestEmail = ({
   const lightStyles = getEmailInlineStyles("light");
 
   return (
-    <EmailThemeProvider
-      preview={
-        <Preview>Application Review Request - {applicationName}</Preview>
-      }
-    >
-      <Body
-        className={`my-auto mx-auto font-sans ${themeClasses.body}`}
-        style={lightStyles.body}
-      >
+    <EmailThemeProvider preview={<Preview>Application Review Request - {applicationName}</Preview>}>
+      <Body className={`my-auto mx-auto font-sans ${themeClasses.body}`} style={lightStyles.body}>
         <Container
           className={`my-[40px] mx-auto p-[20px] max-w-[600px] ${themeClasses.container}`}
           style={{

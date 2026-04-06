@@ -86,94 +86,93 @@ const DEFAULT_STAGE_MESSAGES: Record<ArtifactStage, string> = {
 /**
  * Custom stage messages per artifact type (overrides defaults)
  */
-const CUSTOM_STAGE_MESSAGES: Partial<
-  Record<ArtifactType, Partial<Record<ArtifactStage, string>>>
-> = {
-  "burn-rate-canvas": {
-    loading: "Preparing burn rate analysis...",
-    chart_ready: "Chart data ready, calculating metrics...",
-    metrics_ready: "Metrics calculated, generating insights...",
-    analysis_ready: "Analysis complete",
-  },
-  "revenue-canvas": {
-    loading: "Preparing revenue analysis...",
-    chart_ready: "Chart data ready, calculating metrics...",
-    metrics_ready: "Metrics calculated, generating insights...",
-    analysis_ready: "Analysis complete",
-  },
-  "profit-canvas": {
-    loading: "Preparing profit analysis...",
-    chart_ready: "Chart data ready, calculating metrics...",
-    metrics_ready: "Metrics calculated, generating insights...",
-    analysis_ready: "Analysis complete",
-  },
-  "growth-rate-canvas": {
-    loading: "Preparing growth rate analysis...",
-    chart_ready: "Chart data ready, calculating metrics...",
-    metrics_ready: "Metrics calculated, generating insights...",
-    analysis_ready: "Analysis complete",
-  },
-  "runway-canvas": {
-    loading: "Preparing runway analysis...",
-    chart_ready: "Chart data ready, calculating metrics...",
-    metrics_ready: "Metrics calculated, generating insights...",
-    analysis_ready: "Analysis complete",
-  },
-  "forecast-canvas": {
-    loading: "Preparing revenue forecast...",
-    chart_ready: "Chart data ready, calculating metrics...",
-    metrics_ready: "Metrics calculated, generating insights...",
-    analysis_ready: "Analysis complete",
-  },
-  "cash-flow-canvas": {
-    loading: "Preparing cash flow analysis...",
-    chart_ready: "Chart data ready, calculating metrics...",
-    metrics_ready: "Metrics calculated, generating insights...",
-    analysis_ready: "Analysis complete",
-  },
-  "tax-summary-canvas": {
-    loading: "Preparing tax summary...",
-    chart_ready: "Chart data ready, calculating metrics...",
-    metrics_ready: "Metrics calculated, generating insights...",
-    analysis_ready: "Analysis complete",
-  },
-  "stress-test-canvas": {
-    loading: "Preparing stress test scenarios...",
-    chart_ready: "Scenarios calculated, computing metrics...",
-    metrics_ready: "Metrics ready, generating insights...",
-    analysis_ready: "Analysis complete",
-  },
-  "spending-canvas": {
-    loading: "Preparing spending analysis...",
-    chart_ready: "Chart data ready, calculating metrics...",
-    metrics_ready: "Metrics calculated, generating insights...",
-    analysis_ready: "Analysis complete",
-  },
-  "balance-sheet-canvas": {
-    loading: "Preparing balance sheet...",
-    chart_ready: "Chart data ready, calculating metrics...",
-    metrics_ready: "Metrics calculated, generating insights...",
-    analysis_ready: "Analysis complete",
-  },
-  "health-report-canvas": {
-    loading: "Preparing business health score...",
-    chart_ready: "Chart data ready, calculating metrics...",
-    metrics_ready: "Metrics calculated, generating insights...",
-    analysis_ready: "Analysis complete",
-  },
-  "invoice-payment-canvas": {
-    loading: "Preparing invoice payment analysis...",
-    chart_ready: "Chart data ready, calculating metrics...",
-    metrics_ready: "Metrics calculated, generating insights...",
-    analysis_ready: "Analysis complete",
-  },
-  "breakdown-summary-canvas": {
-    loading: "Preparing breakdown summary...",
-    chart_ready: "Chart data ready, calculating metrics...",
-    metrics_ready: "Metrics calculated, generating insights...",
-    analysis_ready: "Analysis complete",
-  },
-};
+const CUSTOM_STAGE_MESSAGES: Partial<Record<ArtifactType, Partial<Record<ArtifactStage, string>>>> =
+  {
+    "burn-rate-canvas": {
+      loading: "Preparing burn rate analysis...",
+      chart_ready: "Chart data ready, calculating metrics...",
+      metrics_ready: "Metrics calculated, generating insights...",
+      analysis_ready: "Analysis complete",
+    },
+    "revenue-canvas": {
+      loading: "Preparing revenue analysis...",
+      chart_ready: "Chart data ready, calculating metrics...",
+      metrics_ready: "Metrics calculated, generating insights...",
+      analysis_ready: "Analysis complete",
+    },
+    "profit-canvas": {
+      loading: "Preparing profit analysis...",
+      chart_ready: "Chart data ready, calculating metrics...",
+      metrics_ready: "Metrics calculated, generating insights...",
+      analysis_ready: "Analysis complete",
+    },
+    "growth-rate-canvas": {
+      loading: "Preparing growth rate analysis...",
+      chart_ready: "Chart data ready, calculating metrics...",
+      metrics_ready: "Metrics calculated, generating insights...",
+      analysis_ready: "Analysis complete",
+    },
+    "runway-canvas": {
+      loading: "Preparing runway analysis...",
+      chart_ready: "Chart data ready, calculating metrics...",
+      metrics_ready: "Metrics calculated, generating insights...",
+      analysis_ready: "Analysis complete",
+    },
+    "forecast-canvas": {
+      loading: "Preparing revenue forecast...",
+      chart_ready: "Chart data ready, calculating metrics...",
+      metrics_ready: "Metrics calculated, generating insights...",
+      analysis_ready: "Analysis complete",
+    },
+    "cash-flow-canvas": {
+      loading: "Preparing cash flow analysis...",
+      chart_ready: "Chart data ready, calculating metrics...",
+      metrics_ready: "Metrics calculated, generating insights...",
+      analysis_ready: "Analysis complete",
+    },
+    "tax-summary-canvas": {
+      loading: "Preparing tax summary...",
+      chart_ready: "Chart data ready, calculating metrics...",
+      metrics_ready: "Metrics calculated, generating insights...",
+      analysis_ready: "Analysis complete",
+    },
+    "stress-test-canvas": {
+      loading: "Preparing stress test scenarios...",
+      chart_ready: "Scenarios calculated, computing metrics...",
+      metrics_ready: "Metrics ready, generating insights...",
+      analysis_ready: "Analysis complete",
+    },
+    "spending-canvas": {
+      loading: "Preparing spending analysis...",
+      chart_ready: "Chart data ready, calculating metrics...",
+      metrics_ready: "Metrics calculated, generating insights...",
+      analysis_ready: "Analysis complete",
+    },
+    "balance-sheet-canvas": {
+      loading: "Preparing balance sheet...",
+      chart_ready: "Chart data ready, calculating metrics...",
+      metrics_ready: "Metrics calculated, generating insights...",
+      analysis_ready: "Analysis complete",
+    },
+    "health-report-canvas": {
+      loading: "Preparing business health score...",
+      chart_ready: "Chart data ready, calculating metrics...",
+      metrics_ready: "Metrics calculated, generating insights...",
+      analysis_ready: "Analysis complete",
+    },
+    "invoice-payment-canvas": {
+      loading: "Preparing invoice payment analysis...",
+      chart_ready: "Chart data ready, calculating metrics...",
+      metrics_ready: "Metrics calculated, generating insights...",
+      analysis_ready: "Analysis complete",
+    },
+    "breakdown-summary-canvas": {
+      loading: "Preparing breakdown summary...",
+      chart_ready: "Chart data ready, calculating metrics...",
+      metrics_ready: "Metrics calculated, generating insights...",
+      analysis_ready: "Analysis complete",
+    },
+  };
 
 /**
  * Default section messages
@@ -187,9 +186,7 @@ const DEFAULT_SECTION_MESSAGES: Record<string, string> = {
 /**
  * Custom section messages per artifact type (overrides defaults)
  */
-const CUSTOM_SECTION_MESSAGES: Partial<
-  Record<ArtifactType, Partial<Record<string, string>>>
-> = {
+const CUSTOM_SECTION_MESSAGES: Partial<Record<ArtifactType, Partial<Record<string, string>>>> = {
   "burn-rate-canvas": {
     Chart: "Loading chart data...",
     Metrics: "Calculating metrics...",
@@ -205,9 +202,7 @@ const CUSTOM_SECTION_MESSAGES: Partial<
 /**
  * Get artifact type from tool name
  */
-export function getArtifactTypeFromTool(
-  toolName: string | null,
-): ArtifactType | null {
+export function getArtifactTypeFromTool(toolName: string | null): ArtifactType | null {
   if (!toolName) return null;
   return TOOL_TO_ARTIFACT_MAP[toolName] || null;
 }
@@ -253,9 +248,7 @@ export function getArtifactSectionMessage(
 /**
  * Get section name from stage
  */
-export function getSectionFromStage(
-  stage: ArtifactStage | null,
-): string | null {
+export function getSectionFromStage(stage: ArtifactStage | null): string | null {
   if (!stage) return null;
   return STAGE_TO_SECTION_MAP[stage] || null;
 }

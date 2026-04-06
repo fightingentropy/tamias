@@ -18,10 +18,7 @@ import { logger } from "./utils/logger";
 export class Provider {
   #name: string;
 
-  #provider:
-    | PlaidProvider
-    | TellerProvider
-    | GoCardLessProvider;
+  #provider: PlaidProvider | TellerProvider | GoCardLessProvider;
 
   constructor(params: ProviderParams) {
     this.#name = params.provider;
@@ -49,8 +46,7 @@ export class Provider {
     const gocardless = new GoCardLessProvider();
 
     try {
-      const [isPlaidHealthy, isGocardlessHealthy, isTellerHealthy] =
-        await Promise.all([
+      const [isPlaidHealthy, isGocardlessHealthy, isTellerHealthy] = await Promise.all([
         plaid.getHealthCheck(),
         gocardless.getHealthCheck(),
         teller.getHealthCheck(),
@@ -122,10 +118,7 @@ export class Provider {
   }
 }
 
-export type {
-  FetchInstitutionsResult,
-  InstitutionRecord,
-} from "./institutions";
+export type { FetchInstitutionsResult, InstitutionRecord } from "./institutions";
 export { fetchAllInstitutions } from "./institutions";
 export { GoCardLessApi } from "./providers/gocardless/gocardless-api";
 export { PlaidApi } from "./providers/plaid/plaid-api";
@@ -135,10 +128,6 @@ export { syncInstitutionLogos } from "./sync-logos";
 // Re-export types, provider APIs, and institution sync
 export type * from "./types";
 export type { TellerMtlsFetcher } from "./runtime";
-export {
-  createErrorResponse,
-  getProviderErrorDetails,
-  ProviderError,
-} from "./utils/error";
+export { createErrorResponse, getProviderErrorDetails, ProviderError } from "./utils/error";
 export { getFileExtension, getLogoURL } from "./utils/logo";
 export { getRates } from "./utils/rates";

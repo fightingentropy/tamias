@@ -145,9 +145,7 @@ export function createInvoiceWithLineItems(): InvoiceResponse {
 /**
  * Creates a valid invoice input for POST/create operations.
  */
-export function createInvoiceInput(
-  overrides: Partial<InvoiceInput> = {},
-): InvoiceInput {
+export function createInvoiceInput(overrides: Partial<InvoiceInput> = {}): InvoiceInput {
   return {
     customerId: "cust-1234-5678-90ab-cdef01234567",
     issueDate: "2024-05-01",

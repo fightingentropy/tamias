@@ -14,17 +14,10 @@ function resolveDashboardPath(...segments: string[]) {
 }
 
 function isLocalUrl(value: string | undefined) {
-  return Boolean(
-    value &&
-      /^(https?:\/\/)?(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?/i.test(value),
-  );
+  return Boolean(value && /^(https?:\/\/)?(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?/i.test(value));
 }
 
-function getBuildEnvValue(
-  mode: string,
-  explicitValue: string | undefined,
-  fallbackValue: string,
-) {
+function getBuildEnvValue(mode: string, explicitValue: string | undefined, fallbackValue: string) {
   if (mode === "production" && isLocalUrl(explicitValue)) {
     return fallbackValue;
   }
@@ -86,15 +79,11 @@ function getPublicEnv(mode: string) {
 export default defineConfig(({ mode, command }) => {
   const publicEnv = getPublicEnv(mode);
   const defineEntries = Object.fromEntries(
-    Object.entries(publicEnv).map(([key, value]) => [
-      `process.env.${key}`,
-      JSON.stringify(value),
-    ]),
+    Object.entries(publicEnv).map(([key, value]) => [`process.env.${key}`, JSON.stringify(value)]),
   );
   const workerVars = {
     TAMIAS_ENVIRONMENT:
-      process.env.TAMIAS_ENVIRONMENT ??
-      (mode === "production" ? "production" : "development"),
+      process.env.TAMIAS_ENVIRONMENT ?? (mode === "production" ? "production" : "development"),
     API_URL: publicEnv.API_URL,
     DASHBOARD_URL: publicEnv.DASHBOARD_URL,
     CONVEX_URL: publicEnv.CONVEX_URL,
@@ -159,9 +148,7 @@ export default defineConfig(({ mode, command }) => {
         },
         {
           find: "nuqs/adapters/tanstack-router",
-          replacement: resolveDashboardPath(
-            "./src/framework/nuqs/tanstack-router.tsx",
-          ),
+          replacement: resolveDashboardPath("./src/framework/nuqs/tanstack-router.tsx"),
         },
         {
           find: "nuqs/server",
@@ -173,9 +160,7 @@ export default defineConfig(({ mode, command }) => {
         },
         {
           find: /^process\/?$/,
-          replacement: resolveDashboardPath(
-            "../node_modules/process/browser.js",
-          ),
+          replacement: resolveDashboardPath("../node_modules/process/browser.js"),
         },
       ],
       dedupe: ["react", "react-dom"],

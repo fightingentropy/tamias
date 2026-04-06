@@ -1,9 +1,6 @@
 import { format, parseISO, subMonths } from "date-fns";
 import type { Database } from "../../../client";
-import {
-  getReportInvoiceAgingAggregateRows,
-  getReportInvoiceDateAggregateRows,
-} from "../shared";
+import { getReportInvoiceAgingAggregateRows, getReportInvoiceDateAggregateRows } from "../shared";
 import type { ExpectedCollections, TeamCollectionMetrics } from "./types";
 
 export async function getTeamCollectionMetrics(
@@ -19,23 +16,13 @@ export async function getTeamCollectionMetrics(
   });
 
   if (aggregateRows) {
-    const onTimeCount = aggregateRows.reduce(
-      (sum, row) => sum + row.onTimeCount,
-      0,
-    );
-    const totalDaysToPay = aggregateRows.reduce(
-      (sum, row) => sum + row.totalDaysToPay,
-      0,
-    );
-    const validPaymentCount = aggregateRows.reduce(
-      (sum, row) => sum + row.validPaymentCount,
-      0,
-    );
+    const onTimeCount = aggregateRows.reduce((sum, row) => sum + row.onTimeCount, 0);
+    const totalDaysToPay = aggregateRows.reduce((sum, row) => sum + row.totalDaysToPay, 0);
+    const validPaymentCount = aggregateRows.reduce((sum, row) => sum + row.validPaymentCount, 0);
 
     return {
       onTimeRate: validPaymentCount > 0 ? onTimeCount / validPaymentCount : 0.7,
-      avgDaysToPay:
-        validPaymentCount > 0 ? totalDaysToPay / validPaymentCount : 30,
+      avgDaysToPay: validPaymentCount > 0 ? totalDaysToPay / validPaymentCount : 30,
       sampleSize: validPaymentCount,
     };
   }
@@ -69,16 +56,10 @@ export async function calculateExpectedCollections(
     for (const row of aggregateRows) {
       const amount = row.totalAmount;
       const daysSinceIssue = row.issueDate
-        ? Math.floor(
-            (now.getTime() - parseISO(row.issueDate).getTime()) /
-              (1000 * 60 * 60 * 24),
-          )
+        ? Math.floor((now.getTime() - parseISO(row.issueDate).getTime()) / (1000 * 60 * 60 * 24))
         : 0;
       const daysPastDue = row.dueDate
-        ? Math.floor(
-            (now.getTime() - parseISO(row.dueDate).getTime()) /
-              (1000 * 60 * 60 * 24),
-          )
+        ? Math.floor((now.getTime() - parseISO(row.dueDate).getTime()) / (1000 * 60 * 60 * 24))
         : 0;
 
       let baseProbability: number;
@@ -96,10 +77,7 @@ export async function calculateExpectedCollections(
         baseProbability = 0.05;
       }
 
-      const adjustedProbability = Math.min(
-        0.95,
-        Math.max(0.05, baseProbability * teamFactor),
-      );
+      const adjustedProbability = Math.min(0.95, Math.max(0.05, baseProbability * teamFactor));
       const expectedAmount = amount * adjustedProbability;
 
       if (daysSinceIssue < 45) {

@@ -27,10 +27,7 @@ export function useBillableHours(params: UseBillableHoursParams) {
   const trpc = useTRPC();
 
   // Convert date to ISO string format (YYYY-MM-DD)
-  const dateString =
-    typeof date === "string"
-      ? date
-      : formatISO(date, { representation: "date" });
+  const dateString = typeof date === "string" ? date : formatISO(date, { representation: "date" });
 
   return useQuery({
     ...trpc.widgets.getBillableHours.queryOptions({

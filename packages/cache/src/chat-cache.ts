@@ -30,19 +30,12 @@ export interface ChatUserContext {
 }
 
 export const chatCache = {
-  getUserContext: (
-    userId: string,
-    teamId: string,
-  ): Promise<ChatUserContext | undefined> => {
+  getUserContext: (userId: string, teamId: string): Promise<ChatUserContext | undefined> => {
     if (isDevelopment) return Promise.resolve(undefined);
     return Promise.resolve(userContextCache.get(`${userId}:${teamId}`));
   },
 
-  setUserContext: (
-    userId: string,
-    teamId: string,
-    context: ChatUserContext,
-  ): Promise<void> => {
+  setUserContext: (userId: string, teamId: string, context: ChatUserContext): Promise<void> => {
     if (isDevelopment) return Promise.resolve();
     userContextCache.set(`${userId}:${teamId}`, context);
     return Promise.resolve();

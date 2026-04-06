@@ -1,8 +1,5 @@
 import { batchPrefetch, trpc } from "@/trpc/server";
-import {
-  buildBaseAppShellState,
-  dehydrateQueryClient,
-} from "@/start/server/route-data/shared";
+import { buildBaseAppShellState, dehydrateQueryClient } from "@/start/server/route-data/shared";
 
 export async function buildCompliancePageData() {
   const { queryClient, user } = await buildBaseAppShellState();
@@ -10,11 +7,7 @@ export async function buildCompliancePageData() {
   const yearEndDashboardQuery = trpc.yearEnd.getDashboard.queryOptions();
   const payrollDashboardQuery = trpc.payroll.getDashboard.queryOptions();
 
-  await batchPrefetch([
-    vatDashboardQuery,
-    yearEndDashboardQuery,
-    payrollDashboardQuery,
-  ]);
+  await batchPrefetch([vatDashboardQuery, yearEndDashboardQuery, payrollDashboardQuery]);
 
   return {
     dehydratedState: dehydrateQueryClient(queryClient),

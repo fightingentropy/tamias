@@ -1,11 +1,5 @@
-import {
-  getBankAccounts,
-  getBankConnectionById,
-} from "@tamias/app-data/queries";
-import {
-  patchBankAccountInConvex,
-  patchBankConnectionInConvex,
-} from "@tamias/app-data-convex";
+import { getBankAccounts, getBankConnectionById } from "@tamias/app-data/queries";
+import { patchBankAccountInConvex, patchBankConnectionInConvex } from "@tamias/app-data-convex";
 import { enqueue } from "@tamias/job-client";
 import { trpc } from "@tamias/trpc";
 import {
@@ -29,11 +23,7 @@ async function matchAndUpdateAccountIds(params: {
   const matchedDbIds = new Set<string>();
 
   for (const apiAccount of params.apiAccounts) {
-    const match = findMatchingAccount(
-      apiAccount,
-      params.existingAccounts,
-      matchedDbIds,
-    );
+    const match = findMatchingAccount(apiAccount, params.existingAccounts, matchedDbIds);
 
     if (!match) {
       continue;
@@ -85,11 +75,9 @@ export class ReconnectConnectionProcessor extends BaseProcessor<ReconnectConnect
     await this.updateProgress(job, 30, undefined, "verifying-provider-state");
 
     if (provider === "gocardless") {
-      const connectionResponse = await trpc.banking.connectionByReference.query(
-        {
-          reference: teamId,
-        },
-      );
+      const connectionResponse = await trpc.banking.connectionByReference.query({
+        reference: teamId,
+      });
 
       if (!connectionResponse?.data) {
         throw new Error("Connection not found");

@@ -549,26 +549,20 @@ describe("Cloudflare async bridge helpers", () => {
       },
     ]);
 
-    expect(
-      getScheduledCloudflareMessages(
-        "*/30 * * * *",
-        Date.UTC(2026, 2, 29, 12, 0, 0),
-      ),
-    ).toEqual([
-      {
-        queue: "ledger",
-        queueName: "invoices",
-        jobName: "invoice-recurring-scheduler",
-        payload: {},
-        maxAttempts: 3,
-      },
-    ]);
+    expect(getScheduledCloudflareMessages("*/30 * * * *", Date.UTC(2026, 2, 29, 12, 0, 0))).toEqual(
+      [
+        {
+          queue: "ledger",
+          queueName: "invoices",
+          jobName: "invoice-recurring-scheduler",
+          payload: {},
+          maxAttempts: 3,
+        },
+      ],
+    );
 
     expect(
-      getScheduledCloudflareMessages(
-        "*/30 * * * *",
-        Date.UTC(2026, 2, 29, 12, 30, 0),
-      ),
+      getScheduledCloudflareMessages("*/30 * * * *", Date.UTC(2026, 2, 29, 12, 30, 0)),
     ).toEqual([
       {
         queue: "ledger",
@@ -609,10 +603,7 @@ describe("Cloudflare async bridge helpers", () => {
     ]);
 
     expect(
-      getScheduledCloudflareMessages(
-        "*/30 * * * *",
-        Date.UTC(2026, 2, 29, 12, 15, 0),
-      ),
+      getScheduledCloudflareMessages("*/30 * * * *", Date.UTC(2026, 2, 29, 12, 15, 0)),
     ).toEqual([]);
 
     expect(getScheduledCloudflareMessages("*/15 * * * *")).toEqual([]);
@@ -628,10 +619,7 @@ describe("Cloudflare async bridge helpers", () => {
     ).toBe("cloudflare-schedule:inbox-sync-scheduler:inbox_account_123");
 
     expect(
-      buildCloudflareRecurringScheduleMessage(
-        "inbox-sync-scheduler",
-        "inbox_account_123",
-      ),
+      buildCloudflareRecurringScheduleMessage("inbox-sync-scheduler", "inbox_account_123"),
     ).toEqual({
       queue: "capture",
       queueName: "inbox-provider",
@@ -643,12 +631,7 @@ describe("Cloudflare async bridge helpers", () => {
       maxAttempts: 4,
     });
 
-    expect(
-      buildCloudflareRecurringScheduleMessage(
-        "bank-sync-scheduler",
-        "team_123",
-      ),
-    ).toEqual({
+    expect(buildCloudflareRecurringScheduleMessage("bank-sync-scheduler", "team_123")).toEqual({
       queue: "ledger",
       queueName: "transactions",
       jobName: "bank-sync-scheduler",
@@ -740,8 +723,7 @@ describe("Cloudflare async bridge helpers", () => {
   test("validates recurring schedule payloads", () => {
     expect(
       isCloudflareRecurringScheduleRequest({
-        scheduleId:
-          "cloudflare-schedule:inbox-sync-scheduler:inbox_account_123",
+        scheduleId: "cloudflare-schedule:inbox-sync-scheduler:inbox_account_123",
         taskId: "inbox-sync-scheduler",
         cron: "17 */6 * * *",
         timezone: "UTC",

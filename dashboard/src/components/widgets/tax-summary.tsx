@@ -17,10 +17,7 @@ import { BaseWidget } from "./base";
 import { WIDGET_POLLING_CONFIG } from "./widget-config";
 import { WidgetSkeleton } from "./widget-skeleton";
 
-function getTaxTerminology(
-  countryCode: string | undefined,
-  t: ReturnType<typeof useI18n>,
-) {
+function getTaxTerminology(countryCode: string | undefined, t: ReturnType<typeof useI18n>) {
   if (!countryCode) {
     return {
       collected: t("tax_summary.collected.default"),
@@ -33,14 +30,10 @@ function getTaxTerminology(
 
   // Map tax type to i18n key
   const typeKey =
-    taxType === "vat" || taxType === "gst" || taxType === "sales_tax"
-      ? taxType
-      : "default";
+    taxType === "vat" || taxType === "gst" || taxType === "sales_tax" ? taxType : "default";
 
   return {
-    collected: t(
-      `tax_summary.collected.${typeKey}` as "tax_summary.collected.vat",
-    ),
+    collected: t(`tax_summary.collected.${typeKey}` as "tax_summary.collected.vat"),
     paid: t(`tax_summary.paid.${typeKey}` as "tax_summary.paid.vat"),
     title: t(`tax_summary.title.${typeKey}` as "tax_summary.title.vat"),
   };
@@ -158,23 +151,15 @@ export function TaxSummaryWidget() {
           {/* Main net amount */}
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-normal">
-              <FormatAmount
-                amount={Math.abs(netAmount)}
-                currency={currency || "USD"}
-              />
+              <FormatAmount amount={Math.abs(netAmount)} currency={currency || "USD"} />
             </span>
           </div>
 
           <div className="space-y-2 text-xs">
             <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">
-                {taxTerms.collected}
-              </span>
+              <span className="text-muted-foreground">{taxTerms.collected}</span>
               <span className="font-medium">
-                <FormatAmount
-                  amount={collectedTax}
-                  currency={currency || "USD"}
-                />
+                <FormatAmount amount={collectedTax} currency={currency || "USD"} />
               </span>
             </div>
             <div className="flex justify-between items-center">

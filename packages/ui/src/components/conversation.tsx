@@ -22,14 +22,9 @@ export const Conversation = ({ className, ...props }: ConversationProps) => (
   />
 );
 
-export type ConversationContentProps = ComponentProps<
-  typeof StickToBottom.Content
->;
+export type ConversationContentProps = ComponentProps<typeof StickToBottom.Content>;
 
-export const ConversationContent = ({
-  className,
-  ...props
-}: ConversationContentProps) => (
+export const ConversationContent = ({ className, ...props }: ConversationContentProps) => (
   <StickToBottom.Content className={cn("p-4", className)} {...props} />
 );
 
@@ -59,9 +54,7 @@ export const ConversationEmptyState = ({
         {icon && <div className="text-muted-foreground">{icon}</div>}
         <div className="space-y-1">
           <h3 className="font-medium text-sm">{title}</h3>
-          {description && (
-            <p className="text-muted-foreground text-sm">{description}</p>
-          )}
+          {description && <p className="text-muted-foreground text-sm">{description}</p>}
         </div>
       </>
     )}

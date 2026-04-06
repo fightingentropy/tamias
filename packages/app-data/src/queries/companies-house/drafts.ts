@@ -1,8 +1,5 @@
 import type { Database } from "../../client";
-import {
-  requireCompaniesHouseProviderData,
-  requireScopedCompanyNumber,
-} from "./shared";
+import { requireCompaniesHouseProviderData, requireScopedCompanyNumber } from "./shared";
 
 async function withDraftTransactionCleanup<T>(args: {
   provider: Awaited<ReturnType<typeof requireCompaniesHouseProviderData>>["provider"];
@@ -74,21 +71,19 @@ export async function createCompaniesHouseRegisteredOfficeAddressDraft(
     accessToken: providerData.config.accessToken,
     transactionId: transaction.id,
     action: async () => {
-      const filing =
-        await providerData.provider.upsertRegisteredOfficeAddressResource({
-          transactionId: transaction.id,
-          accessToken: providerData.config.accessToken,
-          referenceEtag,
-          acceptAppropriateOfficeAddressStatement:
-            params.acceptAppropriateOfficeAddressStatement,
-          premises: params.premises,
-          addressLine1: params.addressLine1,
-          addressLine2: params.addressLine2,
-          locality: params.locality,
-          region: params.region,
-          postalCode: params.postalCode,
-          country: params.country,
-        });
+      const filing = await providerData.provider.upsertRegisteredOfficeAddressResource({
+        transactionId: transaction.id,
+        accessToken: providerData.config.accessToken,
+        referenceEtag,
+        acceptAppropriateOfficeAddressStatement: params.acceptAppropriateOfficeAddressStatement,
+        premises: params.premises,
+        addressLine1: params.addressLine1,
+        addressLine2: params.addressLine2,
+        locality: params.locality,
+        region: params.region,
+        postalCode: params.postalCode,
+        country: params.country,
+      });
       const validationStatus =
         await providerData.provider.getRegisteredOfficeAddressValidationStatus({
           transactionId: transaction.id,
@@ -178,14 +173,12 @@ export async function createCompaniesHouseRegisteredEmailAddressDraft(
     accessToken: providerData.config.accessToken,
     transactionId: transaction.id,
     action: async () => {
-      const filing =
-        await providerData.provider.upsertRegisteredEmailAddressResource({
-          transactionId: transaction.id,
-          accessToken: providerData.config.accessToken,
-          registeredEmailAddress: params.registeredEmailAddress,
-          acceptAppropriateEmailAddressStatement:
-            params.acceptAppropriateEmailAddressStatement,
-        });
+      const filing = await providerData.provider.upsertRegisteredEmailAddressResource({
+        transactionId: transaction.id,
+        accessToken: providerData.config.accessToken,
+        registeredEmailAddress: params.registeredEmailAddress,
+        acceptAppropriateEmailAddressStatement: params.acceptAppropriateEmailAddressStatement,
+      });
       const validationStatus =
         await providerData.provider.getRegisteredEmailAddressValidationStatus({
           transactionId: transaction.id,

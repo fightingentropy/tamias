@@ -16,10 +16,7 @@ function AppsPage() {
   const loaderData = Route.useLoaderData() as AppsLoaderData;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <div className="mt-4">
         <AppsHeader />
 

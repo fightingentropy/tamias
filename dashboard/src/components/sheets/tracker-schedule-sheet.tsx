@@ -5,16 +5,12 @@ import { useTrackerParams } from "@/hooks/use-tracker-params";
 import { TrackerSchedule } from "../tracker-schedule";
 
 export function TrackerScheduleSheet() {
-  const { setParams, projectId, range, selectedDate, eventId, update, create } =
-    useTrackerParams();
+  const { setParams, projectId, range, selectedDate, eventId, update, create } = useTrackerParams();
 
   const isOpen =
     !update &&
     !create &&
-    (Boolean(projectId) ||
-      range?.length === 2 ||
-      Boolean(selectedDate) ||
-      Boolean(eventId));
+    (Boolean(projectId) || range?.length === 2 || Boolean(selectedDate) || Boolean(eventId));
 
   return (
     <Sheet

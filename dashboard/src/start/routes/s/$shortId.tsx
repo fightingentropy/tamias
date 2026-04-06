@@ -5,11 +5,9 @@ import { createServerFn } from "@tanstack/react-start";
 export const loadShortLinkData = createServerFn({ method: "GET" })
   .inputValidator((data: { shortId: string }) => data)
   .handler(async ({ data }) => {
-    const { buildShortLinkPageData } = await import(
-      "@/start/server/route-data/public"
-    );
+    const { buildShortLinkPageData } = await import("@/start/server/route-data/public");
 
-    return (await buildShortLinkPageData(data.shortId));
+    return await buildShortLinkPageData(data.shortId);
   });
 
 export const Route = createAppPublicFileRoute("/s/$shortId")({

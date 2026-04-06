@@ -1,9 +1,6 @@
 import { getPublicInvoicesPageFromConvex } from "@tamias/app-data-convex";
 import { normalizeTimestampBoundary } from "../date-boundaries";
-import {
-  getProjectedInvoicePayload,
-  type ProjectedInvoiceRecord,
-} from "../invoices/shared";
+import { getProjectedInvoicePayload, type ProjectedInvoiceRecord } from "../invoices/shared";
 import { collectCursorPages, DEFAULT_PAGE_SIZE } from "./shared";
 
 async function collectPublicInvoicePages(args: {
@@ -39,10 +36,7 @@ export async function getProjectedInvoicesPaged(args: {
   const createdAtTo = args.createdAtTo
     ? normalizeTimestampBoundary(args.createdAtTo, "end")
     : undefined;
-  const statuses =
-    args.statuses && args.statuses.length > 0
-      ? [...new Set(args.statuses)]
-      : null;
+  const statuses = args.statuses && args.statuses.length > 0 ? [...new Set(args.statuses)] : null;
 
   const records = statuses
     ? (

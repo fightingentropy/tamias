@@ -15,7 +15,12 @@ import type {
 } from "../types";
 import { buildCorporationTaxSummary } from "./corporation-tax";
 import { buildRetainedEarnings } from "./retained-earnings";
-import { buildBalanceSheet, buildProfitAndLoss, buildTrialBalance, buildWorkingPapers } from "./trial-balance";
+import {
+  buildBalanceSheet,
+  buildProfitAndLoss,
+  buildTrialBalance,
+  buildWorkingPapers,
+} from "./trial-balance";
 import { buildSnapshotChecksum } from "./checksum";
 
 function buildYearEndPackSnapshotImpl(args: {
@@ -70,10 +75,7 @@ function buildYearEndPackSnapshotImpl(args: {
     corporationTax,
   };
   const trialBalanceDifference = roundCurrency(
-    trialBalance.reduce(
-      (total, line) => total + roundCurrency(line.debit - line.credit),
-      0,
-    ),
+    trialBalance.reduce((total, line) => total + roundCurrency(line.debit - line.credit), 0),
   );
 
   return {
@@ -96,8 +98,6 @@ function buildYearEndPackSnapshotImpl(args: {
   };
 }
 
-export function buildYearEndPackSnapshot(
-  args: Parameters<typeof buildYearEndPackSnapshotImpl>[0],
-) {
+export function buildYearEndPackSnapshot(args: Parameters<typeof buildYearEndPackSnapshotImpl>[0]) {
   return buildYearEndPackSnapshotImpl(args);
 }

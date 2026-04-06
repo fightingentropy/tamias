@@ -22,10 +22,7 @@ export interface ToolCallIndicatorProps {
   className?: string;
 }
 
-export function ToolCallIndicator({
-  toolName,
-  className,
-}: ToolCallIndicatorProps) {
+export function ToolCallIndicator({ toolName, className }: ToolCallIndicatorProps) {
   const config = toolDisplayConfig[toolName];
 
   if (!config) {

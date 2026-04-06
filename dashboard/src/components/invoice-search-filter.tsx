@@ -24,15 +24,7 @@ import { useTRPC } from "@/trpc/client";
 import { DateRangeFilter } from "./date-range-filter";
 import { FilterList } from "./filter-list";
 
-const allowedStatuses = [
-  "draft",
-  "overdue",
-  "paid",
-  "unpaid",
-  "canceled",
-  "scheduled",
-  "refunded",
-];
+const allowedStatuses = ["draft", "overdue", "paid", "unpaid", "canceled", "scheduled", "refunded"];
 
 export function InvoiceSearchFilter() {
   const [input, setInput] = useState("");
@@ -84,13 +76,9 @@ export function InvoiceSearchFilter() {
     setFilter({ q: input.length > 0 ? input : null });
   };
 
-  const validFilters = Object.fromEntries(
-    Object.entries(filter).filter(([key]) => key !== "q"),
-  );
+  const validFilters = Object.fromEntries(Object.entries(filter).filter(([key]) => key !== "q"));
 
-  const hasValidFilters = Object.values(validFilters).some(
-    (value) => value !== null,
-  );
+  const hasValidFilters = Object.values(validFilters).some((value) => value !== null);
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -152,16 +140,8 @@ export function InvoiceSearchFilter() {
               <span>Due Date</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
-              <DropdownMenuSubContent
-                sideOffset={14}
-                alignOffset={-4}
-                className="p-0"
-              >
-                <DateRangeFilter
-                  start={filter?.start}
-                  end={filter?.end}
-                  onSelect={setFilter}
-                />
+              <DropdownMenuSubContent sideOffset={14} alignOffset={-4} className="p-0">
+                <DateRangeFilter start={filter?.start} end={filter?.end} onSelect={setFilter} />
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
           </DropdownMenuSub>
@@ -196,9 +176,7 @@ export function InvoiceSearchFilter() {
                 ))}
 
                 {!customersData?.data?.length && (
-                  <DropdownMenuItem disabled>
-                    No customers found
-                  </DropdownMenuItem>
+                  <DropdownMenuItem disabled>No customers found</DropdownMenuItem>
                 )}
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
@@ -212,11 +190,7 @@ export function InvoiceSearchFilter() {
               <span>Status</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
-              <DropdownMenuSubContent
-                sideOffset={14}
-                alignOffset={-4}
-                className="p-0"
-              >
+              <DropdownMenuSubContent sideOffset={14} alignOffset={-4} className="p-0">
                 {statusFilters?.map((status) => (
                   <DropdownMenuCheckboxItem
                     key={status.id}
@@ -244,11 +218,7 @@ export function InvoiceSearchFilter() {
               <span>Type</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
-              <DropdownMenuSubContent
-                sideOffset={14}
-                alignOffset={-4}
-                className="p-0"
-              >
+              <DropdownMenuSubContent sideOffset={14} alignOffset={-4} className="p-0">
                 <DropdownMenuCheckboxItem
                   checked={filter?.recurring === true}
                   onSelect={(e) => e.preventDefault()}

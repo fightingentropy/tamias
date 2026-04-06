@@ -15,10 +15,7 @@ export type GetTrackerRecordsByDateParams = {
   userId?: ConvexUserId;
 };
 
-export async function getTrackerRecordsByDate(
-  db: Database,
-  params: GetTrackerRecordsByDateParams,
-) {
+export async function getTrackerRecordsByDate(db: Database, params: GetTrackerRecordsByDateParams) {
   const { teamId, projectId, date, userId } = params;
   const data = await enrichTrackerEntries(
     db,
@@ -31,10 +28,7 @@ export async function getTrackerRecordsByDate(
     }),
   );
 
-  const totalDuration = data.reduce(
-    (duration, item) => (item.duration ?? 0) + duration,
-    0,
-  );
+  const totalDuration = data.reduce((duration, item) => (item.duration ?? 0) + duration, 0);
 
   return {
     meta: {
@@ -74,24 +68,18 @@ export async function getTrackerRecordsByRange(
   }));
 
   type EntryType = (typeof dataWithProject)[number];
-  const result = dataWithProject.reduce<Record<string, EntryType[]>>(
-    (acc, item) => {
-      const dateKey = item.date;
+  const result = dataWithProject.reduce<Record<string, EntryType[]>>((acc, item) => {
+    const dateKey = item.date;
 
-      if (!acc[dateKey]) {
-        acc[dateKey] = [];
-      }
+    if (!acc[dateKey]) {
+      acc[dateKey] = [];
+    }
 
-      acc[dateKey].push(item);
-      return acc;
-    },
-    {},
-  );
+    acc[dateKey].push(item);
+    return acc;
+  }, {});
 
-  const totalDuration = data.reduce(
-    (duration, item) => duration + (item.duration ?? 0),
-    0,
-  );
+  const totalDuration = data.reduce((duration, item) => duration + (item.duration ?? 0), 0);
   const totalAmount = data.reduce((amount, item) => {
     const rate = item.trackerProject?.rate ?? 0;
     const duration = item.duration ?? 0;

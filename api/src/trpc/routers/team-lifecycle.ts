@@ -57,16 +57,14 @@ export const teamLifecycleProcedures = {
         if (error instanceof Error && error.message === "PAID_PLAN_REQUIRED") {
           throw new TRPCError({
             code: "FORBIDDEN",
-            message:
-              "All existing teams must be on a paid plan before creating another",
+            message: "All existing teams must be on a paid plan before creating another",
           });
         }
 
         throw error;
       }
 
-      const categoryCountryCode =
-        createdTeam.countryCode ?? input.countryCode ?? null;
+      const categoryCountryCode = createdTeam.countryCode ?? input.countryCode ?? null;
       const { parentCategories, taxType } = buildTeamSystemCategoryInputs(
         createdTeam.id,
         categoryCountryCode,
@@ -75,9 +73,7 @@ export const teamLifecycleProcedures = {
         teamId: createdTeam.id,
         categories: parentCategories,
       });
-      const parentIdBySlug = new Map(
-        insertedParents.map((parent) => [parent.slug, parent.id]),
-      );
+      const parentIdBySlug = new Map(insertedParents.map((parent) => [parent.slug, parent.id]));
       const childCategories = buildChildTeamSystemCategories({
         teamId: createdTeam.id,
         categoryCountryCode,
@@ -95,25 +91,20 @@ export const teamLifecycleProcedures = {
       return createdTeam.id;
     }),
 
-  leave: protectedProcedure
-    .input(leaveTeamSchema)
-    .mutation(async ({ ctx: { session }, input }) => {
-      const teamMembers = await getTeamMembersFromConvex(input.teamId);
-      const currentUserRole = getTeamMemberRoleByConvexId(
-        teamMembers,
-        session.user.id,
-      );
+  leave: protectedProcedure.input(leaveTeamSchema).mutation(async ({ ctx: { session }, input }) => {
+    const teamMembers = await getTeamMembersFromConvex(input.teamId);
+    const currentUserRole = getTeamMemberRoleByConvexId(teamMembers, session.user.id);
 
-      if (currentUserRole === "owner" && getTeamOwnerCount(teamMembers) === 1) {
-        throw Error("Action not allowed");
-      }
+    if (currentUserRole === "owner" && getTeamOwnerCount(teamMembers) === 1) {
+      throw Error("Action not allowed");
+    }
 
-      return leaveTeamInConvex({
-        publicTeamId: input.teamId,
-        userId: session.user.convexId,
-        email: session.user.email ?? null,
-      });
-    }),
+    return leaveTeamInConvex({
+      publicTeamId: input.teamId,
+      userId: session.user.convexId,
+      email: session.user.email ?? null,
+    });
+  }),
 
   delete: protectedProcedure
     .input(deleteTeamSchema)
@@ -199,10 +190,7 @@ function buildChildTeamSystemCategories(args: {
     }
 
     return parent.children.map((child) => {
-      const taxRate = getTaxRateForCategory(
-        args.categoryCountryCode,
-        child.slug,
-      );
+      const taxRate = getTaxRateForCategory(args.categoryCountryCode, child.slug);
 
       return {
         teamId: args.teamId,

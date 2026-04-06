@@ -118,10 +118,7 @@ export function ConnectWhatsApp({ showTrigger = true }: ConnectWhatsAppProps) {
           </SubmitButton>
         ) : (
           <DialogTrigger asChild>
-            <Button
-              className="px-6 py-4 w-full font-medium h-[40px]"
-              variant="outline"
-            >
+            <Button className="px-6 py-4 w-full font-medium h-[40px]" variant="outline">
               <div className="flex items-center space-x-2">
                 <Icons.WhatsApp className="size-5 text-[#25D366]" />
                 <span>Connect WhatsApp</span>
@@ -144,11 +141,7 @@ export function ConnectWhatsApp({ showTrigger = true }: ConnectWhatsAppProps) {
           <div className="size-[206px]">
             {qrCodeUrl ? (
               <div className="bg-white p-3 border">
-                <img
-                  src={qrCodeUrl}
-                  alt="WhatsApp QR Code"
-                  className="w-[180px] h-[180px]"
-                />
+                <img src={qrCodeUrl} alt="WhatsApp QR Code" className="w-[180px] h-[180px]" />
               </div>
             ) : (
               <div className="flex items-center justify-center w-[180px] h-[180px] border border-dashed border-border">
@@ -166,11 +159,7 @@ export function ConnectWhatsApp({ showTrigger = true }: ConnectWhatsAppProps) {
                 Open WhatsApp
               </a>
             </Button>
-            <Button
-              onClick={copyToClipboard}
-              variant="outline"
-              className="flex-1"
-            >
+            <Button onClick={copyToClipboard} variant="outline" className="flex-1">
               {copied ? (
                 <>
                   <Icons.Check className="mr-2 h-4 w-4" />
@@ -198,12 +187,8 @@ export function ConnectWhatsApp({ showTrigger = true }: ConnectWhatsAppProps) {
                     key={connection.phoneNumber}
                     className="flex items-center justify-between text-sm"
                   >
-                    <span className="text-[#878787]">
-                      +{connection.phoneNumber}
-                    </span>
-                    <span className="text-xs text-[#878787]">
-                      {connection.displayName}
-                    </span>
+                    <span className="text-[#878787]">+{connection.phoneNumber}</span>
+                    <span className="text-xs text-[#878787]">{connection.displayName}</span>
                   </div>
                 ))}
               </div>

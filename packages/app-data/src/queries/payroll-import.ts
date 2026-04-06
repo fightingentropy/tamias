@@ -18,10 +18,7 @@ import {
   validateBalancedLines,
 } from "./payroll-shared";
 
-export async function importPayrollRun(
-  db: Database,
-  params: PayrollImportParams,
-) {
+export async function importPayrollRun(db: Database, params: PayrollImportParams) {
   ensureDateString(params.payPeriodStart, "Pay period start");
   ensureDateString(params.payPeriodEnd, "Pay period end");
   ensureDateString(params.runDate, "Run date");
@@ -39,10 +36,7 @@ export async function importPayrollRun(
 
   validateBalancedLines(normalizedLines);
 
-  const periodKey = buildPayrollPeriodKey(
-    params.payPeriodStart,
-    params.payPeriodEnd,
-  );
+  const periodKey = buildPayrollPeriodKey(params.payPeriodStart, params.payPeriodEnd);
   const existingRun = await getPayrollRunByPeriodFromConvex({
     teamId: params.teamId,
     periodKey,
@@ -57,10 +51,7 @@ export async function importPayrollRun(
     lines: normalizedLines,
   });
   const currency =
-    params.currency ??
-    context.profile.baseCurrency ??
-    context.team.baseCurrency ??
-    "GBP";
+    params.currency ?? context.profile.baseCurrency ?? context.team.baseCurrency ?? "GBP";
 
   await upsertComplianceJournalEntryInConvex({
     teamId: params.teamId,
@@ -92,8 +83,7 @@ export async function importPayrollRun(
     payPeriodEnd: params.payPeriodEnd,
     runDate: params.runDate,
     source: params.source,
-    status:
-      (existingRun?.exportBundles.length ?? 0) > 0 ? "exported" : "imported",
+    status: (existingRun?.exportBundles.length ?? 0) > 0 ? "exported" : "imported",
     checksum,
     currency,
     journalEntryId: payrollRunId,

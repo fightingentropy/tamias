@@ -11,10 +11,7 @@ import {
   getPeriodLabel,
   getPreviousCompletePeriod,
 } from "@tamias/insights";
-import type {
-  InsightGenerationResult,
-  PeriodType,
-} from "@tamias/insights/types";
+import type { InsightGenerationResult, PeriodType } from "@tamias/insights/types";
 import { formatAmount } from "@tamias/utils/format";
 import { tool } from "ai";
 import { z } from "zod";
@@ -36,10 +33,7 @@ export const getInsightsTool = tool({
   description:
     "Get AI-generated business insights summary for a period (weekly, monthly, quarterly, or yearly). Shows key metrics with comparisons, achievements, and personalized recommendations.",
   inputSchema: getInsightsSchema,
-  execute: async function* (
-    { periodType, periodNumber, year },
-    executionOptions,
-  ) {
+  execute: async function* ({ periodType, periodNumber, year }, executionOptions) {
     const appContext = getToolAppContext(executionOptions);
     const teamId = getToolTeamId(appContext);
 
@@ -134,10 +128,7 @@ export const getInsightsTool = tool({
 
       const locale = appContext.locale || "en-US";
       const currency =
-        generatedInsight?.currency ||
-        insight?.currency ||
-        appContext.baseCurrency ||
-        "USD";
+        generatedInsight?.currency || insight?.currency || appContext.baseCurrency || "USD";
 
       const activeInsight = generatedInsight ?? insight;
 
@@ -172,10 +163,7 @@ export const getInsightsTool = tool({
       }
 
       // Action items (specific and actionable)
-      if (
-        activeInsight.content?.actions &&
-        activeInsight.content.actions.length > 0
-      ) {
+      if (activeInsight.content?.actions && activeInsight.content.actions.length > 0) {
         responseText += "**What to do:**\n";
         for (const action of activeInsight.content.actions) {
           responseText += `- ${action.text}\n`;
@@ -184,10 +172,7 @@ export const getInsightsTool = tool({
       }
 
       // Overdue invoices (if any)
-      if (
-        activeInsight.activity?.invoicesOverdue &&
-        activeInsight.activity.invoicesOverdue > 0
-      ) {
+      if (activeInsight.activity?.invoicesOverdue && activeInsight.activity.invoicesOverdue > 0) {
         responseText += "**Needs attention:**\n";
         responseText += `- ${activeInsight.activity.invoicesOverdue} overdue invoice${activeInsight.activity.invoicesOverdue > 1 ? "s" : ""}`;
         if (activeInsight.activity.overdueAmount) {
@@ -197,32 +182,18 @@ export const getInsightsTool = tool({
       }
 
       // Key numbers (compact, not a table)
-      if (
-        activeInsight.selectedMetrics &&
-        activeInsight.selectedMetrics.length > 0
-      ) {
+      if (activeInsight.selectedMetrics && activeInsight.selectedMetrics.length > 0) {
         responseText += "**The numbers:**\n";
         for (const metric of activeInsight.selectedMetrics.slice(0, 4)) {
-          const formattedValue = formatMetricValue(
-            metric.value,
-            metric.type,
-            currency,
-            locale,
-          );
-          const changeText = formatChangeCompact(
-            metric.change,
-            metric.changeDirection,
-          );
+          const formattedValue = formatMetricValue(metric.value, metric.type, currency, locale);
+          const changeText = formatChangeCompact(metric.change, metric.changeDirection);
           responseText += `- ${metric.label}: ${formattedValue} ${changeText}\n`;
         }
         responseText += "\n";
       }
 
       // Expense changes (only spikes, not decreases - decreases are good!)
-      if (
-        activeInsight.expenseAnomalies &&
-        activeInsight.expenseAnomalies.length > 0
-      ) {
+      if (activeInsight.expenseAnomalies && activeInsight.expenseAnomalies.length > 0) {
         const spikes = activeInsight.expenseAnomalies.filter(
           (ea) => ea.type === "category_spike" || ea.type === "new_category",
         );
@@ -284,8 +255,7 @@ export const getInsightsTool = tool({
       return {
         success: true,
         insight: insightData,
-        instruction:
-          "The insight has been displayed to the user. Do not repeat or summarize it.",
+        instruction: "The insight has been displayed to the user. Do not repeat or summarize it.",
       };
     } catch (error) {
       yield {
@@ -296,18 +266,9 @@ export const getInsightsTool = tool({
   },
 });
 
-function formatMetricValue(
-  value: number,
-  type: string,
-  currency: string,
-  locale: string,
-): string {
+function formatMetricValue(value: number, type: string, currency: string, locale: string): string {
   // Percentage metrics
-  if (
-    type.includes("margin") ||
-    type.includes("rate") ||
-    type === "profit_margin"
-  ) {
+  if (type.includes("margin") || type.includes("rate") || type === "profit_margin") {
     return `${value.toFixed(1)}%`;
   }
 
@@ -316,11 +277,7 @@ function formatMetricValue(
     return `${value.toFixed(1)} months`;
   }
 
-  if (
-    type === "hours_tracked" ||
-    type === "billable_hours" ||
-    type === "unbilled_hours"
-  ) {
+  if (type === "hours_tracked" || type === "billable_hours" || type === "unbilled_hours") {
     return `${value.toFixed(1)}h`;
   }
 
@@ -346,10 +303,7 @@ function formatMetricValue(
   );
 }
 
-function formatChangeCompact(
-  change: number,
-  direction: "up" | "down" | "flat",
-): string {
+function formatChangeCompact(change: number, direction: "up" | "down" | "flat"): string {
   if (direction === "flat" || Math.abs(change) < 0.5) {
     return "(steady)";
   }

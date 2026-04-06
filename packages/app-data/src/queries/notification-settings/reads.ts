@@ -60,8 +60,7 @@ export async function getUserNotificationPreferences(
     settings: notificationType.channels.map((channel) => {
       const setting = userSettings.find(
         (userSetting) =>
-          userSetting.notificationType === notificationType.type &&
-          userSetting.channel === channel,
+          userSetting.notificationType === notificationType.type && userSetting.channel === channel,
       );
 
       return {

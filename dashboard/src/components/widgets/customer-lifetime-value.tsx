@@ -90,10 +90,7 @@ export function CustomerLifetimeValueWidget() {
               {/* Average CLV */}
               <div className="flex items-baseline gap-2">
                 <p className="text-2xl font-medium">
-                  <FormatAmount
-                    amount={summary.averageCLV}
-                    currency={displayCurrency}
-                  />
+                  <FormatAmount amount={summary.averageCLV} currency={displayCurrency} />
                 </p>
                 <span className="text-xs text-[#878787]">avg. CLV</span>
               </div>
@@ -101,25 +98,19 @@ export function CustomerLifetimeValueWidget() {
               {/* Summary Stats */}
               <div className="flex flex-col gap-2 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-[#878787] text-xs">
-                    Total customers
-                  </span>
+                  <span className="text-[#878787] text-xs">Total customers</span>
                   <span className="font-medium">{summary.totalCustomers}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[#878787] text-xs">Active (30d)</span>
                   <span className="font-medium">
                     {summary.activeCustomers}{" "}
-                    <span className="text-[#878787]">
-                      ({activePercentage}%)
-                    </span>
+                    <span className="text-[#878787]">({activePercentage}%)</span>
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[#878787] text-xs">Avg. lifespan</span>
-                  <span className="font-medium">
-                    {summary.averageLifespanDays} days
-                  </span>
+                  <span className="font-medium">{summary.averageLifespanDays} days</span>
                 </div>
               </div>
 
@@ -133,9 +124,7 @@ export function CustomerLifetimeValueWidget() {
             </>
           ) : (
             <div className="flex items-center min-h-[120px]">
-              <div className="text-xs text-muted-foreground">
-                No customer data available
-              </div>
+              <div className="text-xs text-muted-foreground">No customer data available</div>
             </div>
           )}
         </div>

@@ -1,17 +1,7 @@
-import {
-  getDocumentsPageFromConvex,
-  searchDocumentsFromConvex,
-} from "@tamias/app-data-convex";
+import { getDocumentsPageFromConvex, searchDocumentsFromConvex } from "@tamias/app-data-convex";
 import { isSearchableDocument, toDocumentCandidate } from "../candidates";
-import {
-  loadCandidatesForSource,
-  matchesSearchTerm,
-  matchesSemanticCandidate,
-} from "../helpers";
-import type {
-  RawSearchCandidateLoadParams,
-  SearchCandidateLoadParams,
-} from "../types";
+import { loadCandidatesForSource, matchesSearchTerm, matchesSemanticCandidate } from "../helpers";
+import type { RawSearchCandidateLoadParams, SearchCandidateLoadParams } from "../types";
 
 export async function loadDocumentCandidates(params: SearchCandidateLoadParams) {
   const itemsPerTableLimit = params.itemsPerTableLimit ?? 5;
@@ -40,9 +30,7 @@ export async function loadDocumentCandidates(params: SearchCandidateLoadParams) 
   });
 }
 
-export async function loadRawDocumentCandidates(
-  params: RawSearchCandidateLoadParams,
-) {
+export async function loadRawDocumentCandidates(params: RawSearchCandidateLoadParams) {
   return loadCandidatesForSource({
     searchTerm: params.searchTerm,
     itemsPerTableLimit: params.itemsPerTableLimit,
@@ -63,7 +51,6 @@ export async function loadRawDocumentCandidates(
       }),
     toCandidate: (document) =>
       isSearchableDocument(document) ? toDocumentCandidate(document) : null,
-    matchesCandidate: (candidate) =>
-      matchesSearchTerm(candidate, params.searchTerm),
+    matchesCandidate: (candidate) => matchesSearchTerm(candidate, params.searchTerm),
   });
 }

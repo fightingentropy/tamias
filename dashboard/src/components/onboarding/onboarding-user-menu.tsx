@@ -1,12 +1,7 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImageNext } from "@tamias/ui/avatar";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@tamias/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@tamias/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,9 +35,7 @@ export function OnboardingUserMenu() {
               />
             )}
             <AvatarFallback>
-              <span className="text-xs">
-                {user?.fullName?.charAt(0)?.toUpperCase()}
-              </span>
+              <span className="text-xs">{user?.fullName?.charAt(0)?.toUpperCase()}</span>
             </AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
@@ -52,18 +45,13 @@ export function OnboardingUserMenu() {
               <span className="truncate line-clamp-1 max-w-[155px] block text-xs">
                 {user?.fullName}
               </span>
-              <span className="truncate text-xs text-[#606060] font-normal">
-                {user?.email}
-              </span>
+              <span className="truncate text-xs text-[#606060] font-normal">{user?.email}</span>
             </div>
           </DropdownMenuLabel>
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem
-            className="text-xs"
-            onSelect={() => setSupportOpen(true)}
-          >
+          <DropdownMenuItem className="text-xs" onSelect={() => setSupportOpen(true)}>
             Support
           </DropdownMenuItem>
 

@@ -1,13 +1,7 @@
-import {
-  getInboxItemByIdFromConvex,
-  getInboxItemsFromConvex,
-} from "@tamias/app-data-convex";
+import { getInboxItemByIdFromConvex, getInboxItemsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import { markInboxItems } from "../shared";
-import {
-  cleanupDeletedInboxArtifacts,
-  logger,
-} from "./shared";
+import { cleanupDeletedInboxArtifacts, logger } from "./shared";
 
 export type DeleteInboxParams = {
   id: string;
@@ -44,10 +38,7 @@ export type DeleteInboxManyParams = {
   teamId: string;
 };
 
-export async function deleteInboxMany(
-  _db: Database,
-  params: DeleteInboxManyParams,
-) {
+export async function deleteInboxMany(_db: Database, params: DeleteInboxManyParams) {
   const { ids, teamId } = params;
 
   if (ids.length === 0) {

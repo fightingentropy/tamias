@@ -62,9 +62,7 @@ export async function submitCompaniesHousePscDiscrepancyReport(
   const reportId = report.links?.self?.split("/").pop();
 
   if (!reportId) {
-    throw new Error(
-      "Companies House did not return a discrepancy report id for the new report",
-    );
+    throw new Error("Companies House did not return a discrepancy report id for the new report");
   }
 
   const discrepancies = [];

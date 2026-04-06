@@ -5,13 +5,8 @@ import {
 } from "@tamias/app-data-convex";
 import type { CustomerTag } from "../types";
 
-function groupCustomerTagAssignmentsByCustomerId(
-  assignments: CustomerTagAssignmentRecord[],
-) {
-  const assignmentsByCustomerId = new Map<
-    string,
-    CustomerTagAssignmentRecord[]
-  >();
+function groupCustomerTagAssignmentsByCustomerId(assignments: CustomerTagAssignmentRecord[]) {
+  const assignmentsByCustomerId = new Map<string, CustomerTagAssignmentRecord[]>();
 
   for (const assignment of assignments) {
     const current = assignmentsByCustomerId.get(assignment.customerId) ?? [];
@@ -36,11 +31,8 @@ async function getCustomerTagsByCustomerId(teamId: string, customerIds: string[]
     return new Map<string, CustomerTag[]>();
   }
 
-  const assignmentsByCustomerId =
-    groupCustomerTagAssignmentsByCustomerId(assignments);
-  const tagIds = [
-    ...new Set(assignments.map((assignment) => assignment.tagId)),
-  ];
+  const assignmentsByCustomerId = groupCustomerTagAssignmentsByCustomerId(assignments);
+  const tagIds = [...new Set(assignments.map((assignment) => assignment.tagId))];
   const tagRows = await getTagsByIdsFromConvex({
     teamId,
     tagIds,

@@ -7,6 +7,6 @@ export const manualSyncTransactionsActionSchema = z.object({
 
 export function manualSyncTransactionsAction(
   input: z.infer<typeof manualSyncTransactionsActionSchema>,
-) : Promise<{ runId?: string }> {
+): Promise<{ runId?: string }> {
   return postAction("/api/actions/transactions/manual-sync", input);
 }

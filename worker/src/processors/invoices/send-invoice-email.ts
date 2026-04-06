@@ -40,9 +40,7 @@ export class SendInvoiceEmailProcessor extends BaseProcessor<SendInvoiceEmailPay
       if (attachmentData) {
         attachments = [
           {
-            content: Buffer.from(await attachmentData.arrayBuffer()).toString(
-              "base64",
-            ),
+            content: Buffer.from(await attachmentData.arrayBuffer()).toString("base64"),
             filename,
           },
         ];
@@ -63,10 +61,7 @@ export class SendInvoiceEmailProcessor extends BaseProcessor<SendInvoiceEmailPay
       : [];
 
     // Build BCC list
-    const bcc = [
-      ...billingEmails,
-      ...(shouldSendCopy && userEmail ? [userEmail] : []),
-    ];
+    const bcc = [...billingEmails, ...(shouldSendCopy && userEmail ? [userEmail] : [])];
 
     if (!customerEmail) {
       this.logger.error("Invoice customer email not found", { invoiceId });

@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@tamias/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@tamias/ui/accordion";
 import { Carousel, CarouselContent, CarouselItem } from "@tamias/ui/carousel";
 import { useQuery } from "@tanstack/react-query";
 import { useDocumentParams } from "@/hooks/use-document-params";
@@ -40,9 +35,7 @@ export function VaultRelatedFiles() {
   return (
     <Accordion className="relative mt-2" type="single" collapsible>
       <AccordionItem value="related-files">
-        <AccordionTrigger className="text-sm font-medium">
-          Related Files
-        </AccordionTrigger>
+        <AccordionTrigger className="text-sm font-medium">Related Files</AccordionTrigger>
         <AccordionContent>
           <Carousel
             opts={{

@@ -25,6 +25,5 @@ export const useExportStore = create<ExportState>()((set) => ({
   exportingTransactionIds: [],
   setExportData: (exportData) => set({ exportData }),
   setIsExporting: (isExporting) => set({ isExporting }),
-  setExportingTransactionIds: (exportingTransactionIds) =>
-    set({ exportingTransactionIds }),
+  setExportingTransactionIds: (exportingTransactionIds) => set({ exportingTransactionIds }),
 }));

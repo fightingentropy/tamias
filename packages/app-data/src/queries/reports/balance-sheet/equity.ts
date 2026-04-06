@@ -1,4 +1,10 @@
-import { buildNameMap, groupTransactionsByCategory, roundMoney, sumExpenseTransactions, sumRevenueTransactions } from "./helpers";
+import {
+  buildNameMap,
+  groupTransactionsByCategory,
+  roundMoney,
+  sumExpenseTransactions,
+  sumRevenueTransactions,
+} from "./helpers";
 import type { BalanceSheetContext, BalanceSheetResult } from "./types";
 
 const EQUITY_CATEGORY_SLUGS = ["capital-investment", "owner-draws"];

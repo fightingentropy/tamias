@@ -106,9 +106,7 @@ export const billingRouter = createTRPCRouter({
         logger.error("Failed to get invoice download URL", {
           error: error instanceof Error ? error.message : String(error),
         });
-        throw new Error(
-          error instanceof Error ? error.message : "Failed to download invoice",
-        );
+        throw new Error(error instanceof Error ? error.message : "Failed to download invoice");
       }
     }),
 
@@ -149,11 +147,7 @@ export const billingRouter = createTRPCRouter({
         logger.error("Failed to check invoice status", {
           error: error instanceof Error ? error.message : String(error),
         });
-        throw new Error(
-          error instanceof Error
-            ? error.message
-            : "Failed to check invoice status",
-        );
+        throw new Error(error instanceof Error ? error.message : "Failed to check invoice status");
       }
     }),
 
@@ -228,40 +222,36 @@ export const billingRouter = createTRPCRouter({
       return { success: true };
     }),
 
-  reactivateSubscription: protectedProcedure.mutation(
-    async ({ ctx: { db, teamId } }) => {
-      const subscriptions = await api.subscriptions.list({
-        externalCustomerId: teamId!,
+  reactivateSubscription: protectedProcedure.mutation(async ({ ctx: { db, teamId } }) => {
+    const subscriptions = await api.subscriptions.list({
+      externalCustomerId: teamId!,
+    });
+
+    const subscription = subscriptions.result.items.find(
+      (s) => (s.status === "active" || s.status === "past_due") && s.cancelAtPeriodEnd,
+    );
+
+    if (!subscription) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "No canceled subscription found to reactivate",
       });
+    }
 
-      const subscription = subscriptions.result.items.find(
-        (s) =>
-          (s.status === "active" || s.status === "past_due") &&
-          s.cancelAtPeriodEnd,
-      );
+    await api.subscriptions.update({
+      id: subscription.id,
+      subscriptionUpdate: {
+        cancelAtPeriodEnd: false,
+      },
+    });
 
-      if (!subscription) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "No canceled subscription found to reactivate",
-        });
-      }
+    await updateTeamById(db, {
+      id: teamId!,
+      data: { canceledAt: null },
+    });
 
-      await api.subscriptions.update({
-        id: subscription.id,
-        subscriptionUpdate: {
-          cancelAtPeriodEnd: false,
-        },
-      });
+    logger.info("Subscription reactivated", { teamId });
 
-      await updateTeamById(db, {
-        id: teamId!,
-        data: { canceledAt: null },
-      });
-
-      logger.info("Subscription reactivated", { teamId });
-
-      return { success: true };
-    },
-  ),
+    return { success: true };
+  }),
 });

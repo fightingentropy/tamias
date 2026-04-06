@@ -1,8 +1,4 @@
-export type {
-  Insight,
-  InsightPeriodType,
-  InsightStatus,
-} from "./insights/shared";
+export type { Insight, InsightPeriodType, InsightStatus } from "./insights/shared";
 export {
   compareInsightGeneratedAtDesc,
   compareInsightPeriodDesc,

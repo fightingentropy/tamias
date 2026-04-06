@@ -59,8 +59,7 @@ export function InboxSheetDetails() {
     );
   }
 
-  const isProcessing =
-    data.status === "processing" || data.status === "analyzing";
+  const isProcessing = data.status === "processing" || data.status === "analyzing";
   const logoUrl = getWebsiteFaviconUrl(data.website);
 
   return (
@@ -88,16 +87,10 @@ export function InboxSheetDetails() {
 
             <div className="grid gap-1 select-text">
               <div className="font-semibold">
-                {isProcessing ? (
-                  <Skeleton className="h-3 w-[120px] mb-1" />
-                ) : (
-                  data.displayName
-                )}
+                {isProcessing ? <Skeleton className="h-3 w-[120px] mb-1" /> : data.displayName}
               </div>
               <div className="line-clamp-1 text-xs">
-                {isProcessing && !data.currency && (
-                  <Skeleton className="h-3 w-[50px]" />
-                )}
+                {isProcessing && !data.currency && <Skeleton className="h-3 w-[50px]" />}
                 {data.currency && data.amount != null && (
                   <FormatAmount amount={data.amount} currency={data.currency} />
                 )}
@@ -106,9 +99,7 @@ export function InboxSheetDetails() {
           </div>
           <div className="grid gap-1 ml-auto text-right">
             <div className="text-xs text-muted-foreground select-text">
-              {isProcessing && !data.date && (
-                <Skeleton className="h-3 w-[50px]" />
-              )}
+              {isProcessing && !data.date && <Skeleton className="h-3 w-[50px]" />}
               {data.date && formatDate(data.date, user?.dateFormat)}
             </div>
           </div>

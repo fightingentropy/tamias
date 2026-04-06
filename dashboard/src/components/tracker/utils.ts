@@ -34,19 +34,13 @@ export function checkIsFirstSelectedDate(
   if (isDragging && localRange[0]) {
     const start = new TZDate(localRange[0], "UTC");
     const end = localRange[1] ? new TZDate(localRange[1], "UTC") : start;
-    const firstDate = new TZDate(
-      Math.min(start.getTime(), end.getTime()),
-      "UTC",
-    );
+    const firstDate = new TZDate(Math.min(start.getTime(), end.getTime()), "UTC");
     return formattedDate === formatISO(firstDate, { representation: "date" });
   }
   if (!isDragging && range && range.length === 2) {
     const start = new TZDate(range[0], "UTC");
     const end = new TZDate(range[1], "UTC");
-    const firstDate = new TZDate(
-      Math.min(start.getTime(), end.getTime()),
-      "UTC",
-    );
+    const firstDate = new TZDate(Math.min(start.getTime(), end.getTime()), "UTC");
     return formattedDate === formatISO(firstDate, { representation: "date" });
   }
   return false;
@@ -62,19 +56,13 @@ export function checkIsLastSelectedDate(
   if (isDragging && localRange[0] && localRange[1]) {
     const start = new TZDate(localRange[0], "UTC");
     const end = new TZDate(localRange[1], "UTC");
-    const lastDate = new TZDate(
-      Math.max(start.getTime(), end.getTime()),
-      "UTC",
-    );
+    const lastDate = new TZDate(Math.max(start.getTime(), end.getTime()), "UTC");
     return formattedDate === formatISO(lastDate, { representation: "date" });
   }
   if (!isDragging && range && range.length === 2) {
     const start = new TZDate(range[0], "UTC");
     const end = new TZDate(range[1], "UTC");
-    const lastDate = new TZDate(
-      Math.max(start.getTime(), end.getTime()),
-      "UTC",
-    );
+    const lastDate = new TZDate(Math.max(start.getTime(), end.getTime()), "UTC");
     return formattedDate === formatISO(lastDate, { representation: "date" });
   }
   return false;

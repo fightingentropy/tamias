@@ -93,9 +93,7 @@ function ChartRenderer({ type, linkId }: ChartRendererProps) {
 function BurnRateChartView({ linkId }: { linkId: string }) {
   const trpc = useTRPC();
 
-  const { data: chartData } = useQuery(
-    trpc.reports.getChartDataByLinkId.queryOptions({ linkId }),
-  );
+  const { data: chartData } = useQuery(trpc.reports.getChartDataByLinkId.queryOptions({ linkId }));
 
   const burnRateData =
     chartData?.type === "burn_rate"
@@ -132,11 +130,7 @@ function BurnRateChartView({ linkId }: { linkId: string }) {
     <>
       <div className="mb-4">
         <p className="text-3xl font-normal mb-3">
-          <AnimatedNumber
-            value={averageBurnRate}
-            currency={currency}
-            maximumFractionDigits={0}
-          />
+          <AnimatedNumber value={averageBurnRate} currency={currency} maximumFractionDigits={0} />
         </p>
         <div className="flex items-center gap-4">
           <div className="flex gap-2 items-center">
@@ -162,9 +156,7 @@ function BurnRateChartView({ linkId }: { linkId: string }) {
 function MonthlyRevenueChartView({ linkId }: { linkId: string }) {
   const trpc = useTRPC();
 
-  const { data: chartData } = useQuery(
-    trpc.reports.getChartDataByLinkId.queryOptions({ linkId }),
-  );
+  const { data: chartData } = useQuery(trpc.reports.getChartDataByLinkId.queryOptions({ linkId }));
 
   const revenueData =
     chartData?.type === "revenue" &&
@@ -206,11 +198,7 @@ function MonthlyRevenueChartView({ linkId }: { linkId: string }) {
     <>
       <div className="mb-4">
         <p className="text-3xl font-normal mb-3">
-          <AnimatedNumber
-            value={totalRevenue}
-            currency={currency}
-            maximumFractionDigits={0}
-          />
+          <AnimatedNumber value={totalRevenue} currency={currency} maximumFractionDigits={0} />
         </p>
         <div className="flex items-center gap-4">
           <div className="flex gap-2 items-center">
@@ -243,9 +231,7 @@ function MonthlyRevenueChartView({ linkId }: { linkId: string }) {
 function ProfitChartView({ linkId }: { linkId: string }) {
   const trpc = useTRPC();
 
-  const { data: chartData } = useQuery(
-    trpc.reports.getChartDataByLinkId.queryOptions({ linkId }),
-  );
+  const { data: chartData } = useQuery(trpc.reports.getChartDataByLinkId.queryOptions({ linkId }));
 
   const profitData =
     chartData?.type === "profit" &&
@@ -268,8 +254,7 @@ function ProfitChartView({ linkId }: { linkId: string }) {
     if (!profitData?.result || profitData.result.length === 0) return [];
 
     const currentValues = profitData.result.map((item) => item.current.value);
-    const average =
-      currentValues.reduce((sum, val) => sum + val, 0) / currentValues.length;
+    const average = currentValues.reduce((sum, val) => sum + val, 0) / currentValues.length;
 
     return profitData.result.map((item) => ({
       month: format(parseISO(item.date), "MMM"),
@@ -285,11 +270,7 @@ function ProfitChartView({ linkId }: { linkId: string }) {
     <>
       <div className="mb-4">
         <p className="text-3xl font-normal">
-          <AnimatedNumber
-            value={totalProfit}
-            currency={currency}
-            maximumFractionDigits={0}
-          />
+          <AnimatedNumber value={totalProfit} currency={currency} maximumFractionDigits={0} />
         </p>
       </div>
       <div className="h-80">
@@ -309,9 +290,7 @@ function ProfitChartView({ linkId }: { linkId: string }) {
 function ExpensesChartView({ linkId }: { linkId: string }) {
   const trpc = useTRPC();
 
-  const { data: chartData } = useQuery(
-    trpc.reports.getChartDataByLinkId.queryOptions({ linkId }),
-  );
+  const { data: chartData } = useQuery(trpc.reports.getChartDataByLinkId.queryOptions({ linkId }));
 
   const expenseData =
     chartData?.type === "expense" &&
@@ -337,11 +316,7 @@ function ExpensesChartView({ linkId }: { linkId: string }) {
     <>
       <div className="mb-4">
         <p className="text-3xl font-normal mb-3">
-          <AnimatedNumber
-            value={averageExpense}
-            currency={currency}
-            maximumFractionDigits={0}
-          />
+          <AnimatedNumber value={averageExpense} currency={currency} maximumFractionDigits={0} />
         </p>
         <div className="flex items-center gap-4 mt-2">
           <div className="flex gap-2 items-center">
@@ -378,9 +353,7 @@ function ExpensesChartView({ linkId }: { linkId: string }) {
 function RevenueForecastChartView({ linkId }: { linkId: string }) {
   const trpc = useTRPC();
 
-  const { data: chartData } = useQuery(
-    trpc.reports.getChartDataByLinkId.queryOptions({ linkId }),
-  );
+  const { data: chartData } = useQuery(trpc.reports.getChartDataByLinkId.queryOptions({ linkId }));
 
   const revenueForecastData =
     chartData?.type === "revenue_forecast" &&
@@ -423,18 +396,13 @@ function RevenueForecastChartView({ linkId }: { linkId: string }) {
     return revenueForecastData.historical.length - 1;
   }, [revenueForecastData]);
 
-  const forecastedRevenue =
-    revenueForecastData?.summary?.totalProjectedRevenue ?? 0;
+  const forecastedRevenue = revenueForecastData?.summary?.totalProjectedRevenue ?? 0;
 
   return (
     <>
       <div className="mb-4">
         <p className="text-3xl font-normal">
-          <AnimatedNumber
-            value={forecastedRevenue}
-            currency={currency}
-            maximumFractionDigits={0}
-          />
+          <AnimatedNumber value={forecastedRevenue} currency={currency} maximumFractionDigits={0} />
         </p>
         <div className="flex gap-4 items-center mt-2">
           <div className="flex gap-2 items-center">
@@ -472,9 +440,7 @@ function RunwayChartView({ linkId }: { linkId: string }) {
   const displayRunwayRef = useRef<number>(0);
   const hasInitializedRef = useRef<boolean>(false);
 
-  const { data: chartData } = useQuery(
-    trpc.reports.getChartDataByLinkId.queryOptions({ linkId }),
-  );
+  const { data: chartData } = useQuery(trpc.reports.getChartDataByLinkId.queryOptions({ linkId }));
 
   const runwayChartResponse =
     chartData?.type === "runway"
@@ -503,8 +469,7 @@ function RunwayChartView({ linkId }: { linkId: string }) {
 
     const burnRateAvg =
       burnRateData && burnRateData.length > 0
-        ? burnRateData.reduce((sum, item) => sum + item.value, 0) /
-          burnRateData.length
+        ? burnRateData.reduce((sum, item) => sum + item.value, 0) / burnRateData.length
         : 0;
 
     if (burnRateAvg <= 0 || !Number.isFinite(burnRateAvg)) return [];
@@ -524,12 +489,8 @@ function RunwayChartView({ linkId }: { linkId: string }) {
 
     for (let i = 0; i <= 8; i++) {
       const monthsFromNow = i;
-      const remainingCash = Math.max(
-        0,
-        currentCashBalance - burnRateAvg * monthsFromNow,
-      );
-      const projectedRunwayMonths =
-        burnRateAvg > 0 ? remainingCash / burnRateAvg : 0;
+      const remainingCash = Math.max(0, currentCashBalance - burnRateAvg * monthsFromNow);
+      const projectedRunwayMonths = burnRateAvg > 0 ? remainingCash / burnRateAvg : 0;
 
       if (!Number.isFinite(projectedRunwayMonths)) continue;
 
@@ -550,11 +511,7 @@ function RunwayChartView({ linkId }: { linkId: string }) {
   const currentRunway = typeof runwayData === "number" ? runwayData : 0;
 
   useEffect(() => {
-    if (
-      currentRunway !== undefined &&
-      currentRunway !== null &&
-      !Number.isNaN(currentRunway)
-    ) {
+    if (currentRunway !== undefined && currentRunway !== null && !Number.isNaN(currentRunway)) {
       if (!hasInitializedRef.current) {
         displayRunwayRef.current = currentRunway;
         setDisplayRunway(currentRunway);
@@ -604,9 +561,7 @@ function RunwayChartView({ linkId }: { linkId: string }) {
 function CategoryExpensesChartView({ linkId }: { linkId: string }) {
   const trpc = useTRPC();
 
-  const { data: chartData } = useQuery(
-    trpc.reports.getChartDataByLinkId.queryOptions({ linkId }),
-  );
+  const { data: chartData } = useQuery(trpc.reports.getChartDataByLinkId.queryOptions({ linkId }));
 
   const spendingData =
     chartData?.type === "category_expenses"
@@ -621,10 +576,7 @@ function CategoryExpensesChartView({ linkId }: { linkId: string }) {
   const categoryDonutChartData = useMemo(() => {
     if (!spendingData || spendingData.length === 0) return [];
 
-    const total = spendingData.reduce(
-      (sum, item) => sum + Math.abs(item.amount),
-      0,
-    );
+    const total = spendingData.reduce((sum, item) => sum + Math.abs(item.amount), 0);
 
     return spendingData.slice(0, 5).map((item) => ({
       category: item.name,
@@ -633,10 +585,7 @@ function CategoryExpensesChartView({ linkId }: { linkId: string }) {
     }));
   }, [spendingData]);
 
-  const totalExpenses = categoryDonutChartData.reduce(
-    (sum, item) => sum + item.amount,
-    0,
-  );
+  const totalExpenses = categoryDonutChartData.reduce((sum, item) => sum + item.amount, 0);
 
   return (
     <>
@@ -655,15 +604,10 @@ function CategoryExpensesChartView({ linkId }: { linkId: string }) {
                 <div
                   className="w-2 h-2 rounded-full"
                   style={{
-                    backgroundColor:
-                      publicChartGrayShades[
-                        idx % publicChartGrayShades.length
-                      ],
+                    backgroundColor: publicChartGrayShades[idx % publicChartGrayShades.length],
                   }}
                 />
-                <span className="text-xs text-muted-foreground">
-                  {item.category}
-                </span>
+                <span className="text-xs text-muted-foreground">{item.category}</span>
               </div>
             ))}
           </div>

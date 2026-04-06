@@ -40,10 +40,7 @@ function serializeSourceLink(
   };
 }
 
-async function getTeamOrThrow(
-  ctx: SourceLinkCtx,
-  publicTeamId: string,
-) {
+async function getTeamOrThrow(ctx: SourceLinkCtx, publicTeamId: string) {
   const team = await getTeamByPublicTeamId(ctx, publicTeamId);
 
   if (!team) {
@@ -167,10 +164,7 @@ export const serviceUpsertSourceLink = mutation({
     const existing = await ctx.db
       .query("sourceLinks")
       .withIndex("by_team_source_type_source_id", (q) =>
-        q
-          .eq("teamId", team._id)
-          .eq("sourceType", args.sourceType)
-          .eq("sourceId", args.sourceId),
+        q.eq("teamId", team._id).eq("sourceType", args.sourceType).eq("sourceId", args.sourceId),
       )
       .unique();
     const timestamp = nowIso();
@@ -234,9 +228,7 @@ export const serviceDeleteSourceLinksByIds = mutation({
     for (const sourceLinkId of [...new Set(args.sourceLinkIds)]) {
       const record = await ctx.db
         .query("sourceLinks")
-        .withIndex("by_public_source_link_id", (q) =>
-          q.eq("publicSourceLinkId", sourceLinkId),
-        )
+        .withIndex("by_public_source_link_id", (q) => q.eq("publicSourceLinkId", sourceLinkId))
         .unique();
 
       if (!record || record.teamId !== team._id) {

@@ -18,11 +18,7 @@ export function registerPrompts(server: McpServer): void {
     async (args) => {
       const period = args.period || "quarter";
       const periodText =
-        period === "month"
-          ? "this month"
-          : period === "quarter"
-            ? "this quarter"
-            : "this year";
+        period === "month" ? "this month" : period === "quarter" ? "this quarter" : "this year";
 
       return {
         messages: [
@@ -91,13 +87,9 @@ Then create a follow-up action plan:
     "expense_analysis",
     {
       title: "Expense Analysis",
-      description:
-        "Deep dive into expenses to identify cost-saving opportunities",
+      description: "Deep dive into expenses to identify cost-saving opportunities",
       argsSchema: {
-        category: z
-          .string()
-          .optional()
-          .describe("Specific category to analyze (optional)"),
+        category: z.string().optional().describe("Specific category to analyze (optional)"),
       },
     },
     async (args) => {

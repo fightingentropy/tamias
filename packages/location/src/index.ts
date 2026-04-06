@@ -17,9 +17,7 @@ export function parseLocale(acceptLanguage: string | null): string {
  * Extract all location values from a resolved headers object (Cloudflare headers).
  * Use this when you already have the headers and want to avoid multiple async calls.
  */
-export function getLocationHeaders(headersList: {
-  get: (name: string) => string | null;
-}): {
+export function getLocationHeaders(headersList: { get: (name: string) => string | null }): {
   country: string;
   timezone: string;
   locale: string;
@@ -31,9 +29,7 @@ export function getLocationHeaders(headersList: {
   };
 }
 
-export function getCurrencyForCountry(
-  countryCode: string | null | undefined,
-): string | undefined {
+export function getCurrencyForCountry(countryCode: string | null | undefined): string | undefined {
   if (!countryCode) {
     return undefined;
   }

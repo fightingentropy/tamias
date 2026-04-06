@@ -1,9 +1,6 @@
 import type { Database } from "../../../client";
 import { reuseQueryResult } from "../../../utils/request-cache";
-import {
-  listCompletedWeeklyInsights,
-  type Insight,
-} from "../shared";
+import { listCompletedWeeklyInsights, type Insight } from "../shared";
 import type { InsightHistoryData, InsightHistoryWeek } from "./types";
 
 type InsightHistoryParams = {

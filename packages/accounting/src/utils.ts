@@ -20,9 +20,7 @@ export interface AccountingOAuthStatePayload {
 /**
  * Type guard to validate accounting OAuth state payload
  */
-function isValidAccountingOAuthState(
-  parsed: unknown,
-): parsed is AccountingOAuthStatePayload {
+function isValidAccountingOAuthState(parsed: unknown): parsed is AccountingOAuthStatePayload {
   return (
     typeof parsed === "object" &&
     parsed !== null &&
@@ -31,9 +29,7 @@ function isValidAccountingOAuthState(
     ["xero", "quickbooks", "fortnox"].includes(
       (parsed as Record<string, unknown>).provider as string,
     ) &&
-    ["apps", "settings"].includes(
-      (parsed as Record<string, unknown>).source as string,
-    )
+    ["apps", "settings"].includes((parsed as Record<string, unknown>).source as string)
   );
 }
 
@@ -45,9 +41,7 @@ function isValidAccountingOAuthState(
  * @param payload - The OAuth state data to encrypt
  * @returns Encrypted state string safe for URL parameters
  */
-export function encryptAccountingOAuthState(
-  payload: AccountingOAuthStatePayload,
-): string {
+export function encryptAccountingOAuthState(payload: AccountingOAuthStatePayload): string {
   return encryptOAuthState(payload);
 }
 
@@ -82,10 +76,7 @@ export function decryptAccountingOAuthState(
  * generateTransactionIdempotencyKey("tx-123", "job-456")
  * // Returns: "tamias-tx-tx-123-job-456"
  */
-export function generateTransactionIdempotencyKey(
-  transactionId: string,
-  jobId: string,
-): string {
+export function generateTransactionIdempotencyKey(transactionId: string, jobId: string): string {
   return `tamias-tx-${transactionId}-${jobId}`;
 }
 
@@ -119,9 +110,7 @@ export function generateAttachmentIdempotencyKey(
  * @param content - The content to convert (Buffer or ReadableStream)
  * @returns A Buffer containing the content
  */
-export async function streamToBuffer(
-  content: Buffer | ReadableStream,
-): Promise<Buffer> {
+export async function streamToBuffer(content: Buffer | ReadableStream): Promise<Buffer> {
   if (Buffer.isBuffer(content)) {
     return content;
   }
@@ -165,12 +154,7 @@ export const PROVIDER_ATTACHMENT_CONFIG = {
     maxSizeBytes: 20 * 1024 * 1024, // 20 MB
   },
   xero: {
-    supportedTypes: new Set([
-      "application/pdf",
-      "image/jpeg",
-      "image/png",
-      "image/gif",
-    ]),
+    supportedTypes: new Set(["application/pdf", "image/jpeg", "image/png", "image/gif"]),
     maxSizeBytes: 3 * 1024 * 1024, // 3 MB
   },
   fortnox: {
@@ -207,8 +191,7 @@ const MIME_TO_EXTENSION: Record<string, string> = {
   "image/gif": ".gif",
   "image/webp": ".webp",
   "application/msword": ".doc",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-    ".docx",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ".docx",
   "application/vnd.ms-excel": ".xls",
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": ".xlsx",
   "text/plain": ".txt",
@@ -228,10 +211,7 @@ const MIME_TO_EXTENSION: Record<string, string> = {
  * ensureFileExtension("receipt.", "image/jpeg") // "receipt.jpg"
  * ensureFileExtension("doc.pdf", "application/pdf") // "doc.pdf" (unchanged)
  */
-export function ensureFileExtension(
-  fileName: string,
-  mimeType: string,
-): string {
+export function ensureFileExtension(fileName: string, mimeType: string): string {
   // Check if filename already has a valid extension (2-5 chars after dot)
   const hasExtension = /\.[a-zA-Z0-9]{2,5}$/.test(fileName);
   if (hasExtension) {
@@ -301,15 +281,9 @@ function detectMimeTypeFromBuffer(buffer: Buffer): string | null {
   // Check TIFF (starts with II or MM)
   if (buffer.length >= 4) {
     const tiffLE =
-      buffer[0] === 0x49 &&
-      buffer[1] === 0x49 &&
-      buffer[2] === 0x2a &&
-      buffer[3] === 0x00;
+      buffer[0] === 0x49 && buffer[1] === 0x49 && buffer[2] === 0x2a && buffer[3] === 0x00;
     const tiffBE =
-      buffer[0] === 0x4d &&
-      buffer[1] === 0x4d &&
-      buffer[2] === 0x00 &&
-      buffer[3] === 0x2a;
+      buffer[0] === 0x4d && buffer[1] === 0x4d && buffer[2] === 0x00 && buffer[3] === 0x2a;
     if (tiffLE || tiffBE) {
       return "image/tiff";
     }

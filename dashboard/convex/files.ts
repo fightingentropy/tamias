@@ -4,11 +4,7 @@ import type { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import { nowIso } from "../../packages/domain/src/identity";
 import { buildSearchIndexText } from "../../packages/domain/src/text-search";
-import {
-  getAppUserByAuthUserId,
-  getTeamByPublicTeamId,
-  publicUserId,
-} from "./lib/identity";
+import { getAppUserByAuthUserId, getTeamByPublicTeamId, publicUserId } from "./lib/identity";
 
 const DOCUMENT_SEARCH_SNIPPET_LIMIT = 4000;
 
@@ -46,16 +42,11 @@ function getVaultDocumentSearchText(args: {
 
 function hasInternalAccess(internalKey?: string) {
   return Boolean(
-    internalKey &&
-      process.env.INTERNAL_API_KEY &&
-      internalKey === process.env.INTERNAL_API_KEY,
+    internalKey && process.env.INTERNAL_API_KEY && internalKey === process.env.INTERNAL_API_KEY,
   );
 }
 
-async function requireUploadAccess(
-  ctx: any,
-  internalKey?: string,
-) {
+async function requireUploadAccess(ctx: any, internalKey?: string) {
   const userId = await getAuthUserId(ctx);
 
   if (userId || hasInternalAccess(internalKey)) {
@@ -109,15 +100,11 @@ async function syncVaultDocument(
     throw new ConvexError("Convex document team not found");
   }
 
-  const owner = args.uploadedBy
-    ? await getAppUserByAuthUserId(ctx, args.uploadedBy)
-    : null;
+  const owner = args.uploadedBy ? await getAppUserByAuthUserId(ctx, args.uploadedBy) : null;
 
   const existing = await ctx.db
     .query("documents")
-    .withIndex("by_team_and_name", (q: any) =>
-      q.eq("teamId", team._id).eq("name", args.path),
-    )
+    .withIndex("by_team_and_name", (q: any) => q.eq("teamId", team._id).eq("name", args.path))
     .unique();
 
   const timestamp = nowIso();

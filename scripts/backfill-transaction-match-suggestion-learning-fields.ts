@@ -12,11 +12,9 @@ function getArgValue(name: string) {
 
 async function main() {
   const teamId = getArgValue("--team");
-  const results = await rebuildTransactionMatchSuggestionLearningFieldsInConvex(
-    {
-      teamId,
-    },
-  );
+  const results = await rebuildTransactionMatchSuggestionLearningFieldsInConvex({
+    teamId,
+  });
 
   console.log(
     JSON.stringify(

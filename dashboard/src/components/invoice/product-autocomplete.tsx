@@ -4,13 +4,7 @@ import { extractTextFromValue } from "@tamias/invoice/extract-text";
 import type { InvoiceProduct } from "@tamias/invoice/types";
 import { cn } from "@tamias/ui/cn";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { useProductParams } from "@/hooks/use-product-params";
 import { useTRPC } from "@/trpc/client";
@@ -156,14 +150,7 @@ export function ProductAutocomplete({
       // Adjust textarea height after value change
       requestAnimationFrame(adjustTextareaHeight);
     },
-    [
-      onChange,
-      isFocused,
-      currentProductId,
-      setValue,
-      index,
-      adjustTextareaHeight,
-    ],
+    [onChange, isFocused, currentProductId, setValue, index, adjustTextareaHeight],
   );
 
   const handleProductSelect = useCallback(
@@ -259,10 +246,7 @@ export function ProductAutocomplete({
   // Close suggestions when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        textareaRef.current &&
-        !textareaRef.current.contains(event.target as Node)
-      ) {
+      if (textareaRef.current && !textareaRef.current.contains(event.target as Node)) {
         setShowSuggestions(false);
         setSelectedIndex(-1);
       }
@@ -270,8 +254,7 @@ export function ProductAutocomplete({
 
     if (showSuggestions) {
       document.addEventListener("mousedown", handleClickOutside);
-      return () =>
-        document.removeEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [showSuggestions]);
 
@@ -286,11 +269,7 @@ export function ProductAutocomplete({
             e.stopPropagation();
             setSelectedIndex((prev) => {
               const newIndex =
-                prev === -1
-                  ? 0
-                  : prev < displaySuggestions.length - 1
-                    ? prev + 1
-                    : 0;
+                prev === -1 ? 0 : prev < displaySuggestions.length - 1 ? prev + 1 : 0;
               return newIndex;
             });
             return;
@@ -347,17 +326,13 @@ export function ProductAutocomplete({
         onKeyDown={handleKeyDown}
         disabled={disabled}
         rows={1}
-        placeholder={
-          isFocused && !parsedValue ? "Search or create product..." : ""
-        }
+        placeholder={isFocused && !parsedValue ? "Search or create product..." : ""}
         role="combobox"
         aria-expanded={showSuggestions}
         aria-haspopup="listbox"
         aria-autocomplete="list"
         aria-controls="product-suggestions-listbox"
-        aria-activedescendant={
-          selectedIndex >= 0 ? `product-option-${selectedIndex}` : undefined
-        }
+        aria-activedescendant={selectedIndex >= 0 ? `product-option-${selectedIndex}` : undefined}
         className={cn(
           "border-0 p-0 min-h-6 border-b border-transparent focus:border-border text-xs pt-1",
           "transition-colors duration-200 bg-transparent outline-none resize-none w-full",
@@ -368,89 +343,85 @@ export function ProductAutocomplete({
         )}
       />
 
-      {showSuggestions &&
-        !currentProductId &&
-        displaySuggestions.length > 0 && (
-          <div
-            id="product-suggestions-listbox"
-            className="absolute z-50 mt-1 bg-background border shadow-md max-h-64 overflow-y-auto right-0 left-0"
-          >
-            {displaySuggestions.map((product, suggestionIndex) => (
-              <div
-                key={product.id}
-                id={`product-option-${suggestionIndex}`}
-                aria-selected={selectedIndex === suggestionIndex}
-                className={cn(
-                  "w-full cursor-pointer px-3 py-2 transition-colors",
-                  selectedIndex === suggestionIndex &&
-                    "bg-accent text-accent-foreground",
-                  hoveredIndex === suggestionIndex &&
-                    "bg-accent text-accent-foreground",
-                )}
-                onMouseDown={(e) => {
-                  e.preventDefault(); // Prevent blur from firing before click
-                  handleProductSelect(product);
-                }}
-                onMouseEnter={() => {
-                  setSelectedIndex(suggestionIndex);
-                  setHoveredIndex(suggestionIndex);
-                }}
-                onMouseLeave={() => setHoveredIndex(-1)}
-              >
-                <div className="flex items-center justify-between w-full">
-                  <div className="flex flex-col">
-                    <div className="text-xs">{product.name}</div>
-                    {product.description && (
-                      <div className="text-xs text-muted-foreground line-clamp-1">
-                        {product.description}
-                      </div>
+      {showSuggestions && !currentProductId && displaySuggestions.length > 0 && (
+        <div
+          id="product-suggestions-listbox"
+          className="absolute z-50 mt-1 bg-background border shadow-md max-h-64 overflow-y-auto right-0 left-0"
+        >
+          {displaySuggestions.map((product, suggestionIndex) => (
+            <div
+              key={product.id}
+              id={`product-option-${suggestionIndex}`}
+              aria-selected={selectedIndex === suggestionIndex}
+              className={cn(
+                "w-full cursor-pointer px-3 py-2 transition-colors",
+                selectedIndex === suggestionIndex && "bg-accent text-accent-foreground",
+                hoveredIndex === suggestionIndex && "bg-accent text-accent-foreground",
+              )}
+              onMouseDown={(e) => {
+                e.preventDefault(); // Prevent blur from firing before click
+                handleProductSelect(product);
+              }}
+              onMouseEnter={() => {
+                setSelectedIndex(suggestionIndex);
+                setHoveredIndex(suggestionIndex);
+              }}
+              onMouseLeave={() => setHoveredIndex(-1)}
+            >
+              <div className="flex items-center justify-between w-full">
+                <div className="flex flex-col">
+                  <div className="text-xs">{product.name}</div>
+                  {product.description && (
+                    <div className="text-xs text-muted-foreground line-clamp-1">
+                      {product.description}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="text-xs text-muted-foreground">
+                    {product.price && product.currency && (
+                      <span>
+                        {formatAmount({
+                          amount: product.price,
+                          currency: product.currency,
+                          locale,
+                          maximumFractionDigits,
+                        })}
+                        {product.unit && `/${product.unit}`}
+                      </span>
                     )}
                   </div>
-
-                  <div className="flex items-center gap-2">
-                    <div className="text-xs text-muted-foreground">
-                      {product.price && product.currency && (
-                        <span>
-                          {formatAmount({
-                            amount: product.price,
-                            currency: product.currency,
-                            locale,
-                            maximumFractionDigits,
-                          })}
-                          {product.unit && `/${product.unit}`}
-                        </span>
-                      )}
-                    </div>
-                    <div
+                  <div
+                    className={cn(
+                      "flex justify-end transition-all duration-150 ease-out",
+                      hoveredIndex === suggestionIndex ? "w-8" : "w-0",
+                    )}
+                  >
+                    <button
+                      type="button"
+                      onMouseDown={(e) => {
+                        e.preventDefault(); // Prevent blur from firing before click
+                        e.stopPropagation();
+                        setProductParams({ productId: product.id });
+                        setShowSuggestions(false);
+                      }}
                       className={cn(
-                        "flex justify-end transition-all duration-150 ease-out",
-                        hoveredIndex === suggestionIndex ? "w-8" : "w-0",
+                        "text-xs px-1 transition-all duration-150 ease-out",
+                        hoveredIndex === suggestionIndex
+                          ? "opacity-50 hover:opacity-100"
+                          : "opacity-0 pointer-events-none",
                       )}
                     >
-                      <button
-                        type="button"
-                        onMouseDown={(e) => {
-                          e.preventDefault(); // Prevent blur from firing before click
-                          e.stopPropagation();
-                          setProductParams({ productId: product.id });
-                          setShowSuggestions(false);
-                        }}
-                        className={cn(
-                          "text-xs px-1 transition-all duration-150 ease-out",
-                          hoveredIndex === suggestionIndex
-                            ? "opacity-50 hover:opacity-100"
-                            : "opacity-0 pointer-events-none",
-                        )}
-                      >
-                        Edit
-                      </button>
-                    </div>
+                      Edit
+                    </button>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

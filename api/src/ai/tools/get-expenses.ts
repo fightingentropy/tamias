@@ -26,13 +26,9 @@ const getExpensesSchema = z.object({
 });
 
 export const getExpensesTool = tool({
-  description:
-    "Analyze expenses by category - totals grouped by category with trends.",
+  description: "Analyze expenses by category - totals grouped by category with trends.",
   inputSchema: getExpensesSchema,
-  execute: async function* (
-    { period, from, to, currency, showCanvas },
-    executionOptions,
-  ) {
+  execute: async function* ({ period, from, to, currency, showCanvas }, executionOptions) {
     const appContext = getToolAppContext(executionOptions);
     const teamId = getToolTeamId(appContext);
 
@@ -50,12 +46,11 @@ export const getExpensesTool = tool({
     throwIfBankAccountsRequired(appContext);
 
     try {
-      const { finalFrom, finalTo, finalCurrency, description, locale } =
-        resolveReportToolParams({
-          toolName: "getExpenses",
-          appContext,
-          aiParams: { period, from, to, currency },
-        });
+      const { finalFrom, finalTo, finalCurrency, description, locale } = resolveReportToolParams({
+        toolName: "getExpenses",
+        appContext,
+        aiParams: { period, from, to, currency },
+      });
       const analysis = startArtifactStream({
         enabled: showCanvas,
         executionOptions,
@@ -104,8 +99,7 @@ export const getExpensesTool = tool({
         (toDate.getFullYear() - fromDate.getFullYear()) * 12 +
         (toDate.getMonth() - fromDate.getMonth()) +
         1;
-      const averageMonthlyExpenses =
-        monthsDiff > 0 ? totalExpenses / monthsDiff : totalExpenses;
+      const averageMonthlyExpenses = monthsDiff > 0 ? totalExpenses / monthsDiff : totalExpenses;
 
       // Update artifact with chart data
       if (showCanvas && analysis) {
@@ -226,13 +220,11 @@ Provide a concise analysis (2-3 sentences) of the key expense patterns by catego
       let responseText_output = `**Total Expenses:** ${formattedTotalExpenses}\n\n`;
 
       if (topCategory) {
-        responseText_output += `**Top Category:** ${topCategory.name} - ${formatAmount(
-          {
-            amount: topCategory.amount,
-            currency: targetCurrency,
-            locale,
-          },
-        )} (${topCategory.percentage.toFixed(1)}% of total)\n\n`;
+        responseText_output += `**Top Category:** ${topCategory.name} - ${formatAmount({
+          amount: topCategory.amount,
+          currency: targetCurrency,
+          locale,
+        })} (${topCategory.percentage.toFixed(1)}% of total)\n\n`;
       }
 
       if (categoryData.length > 0) {

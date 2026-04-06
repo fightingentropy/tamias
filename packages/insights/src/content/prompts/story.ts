@@ -1,8 +1,4 @@
-import {
-  getToneGuidance,
-  type InsightSlots,
-  selectPrimaryAction,
-} from "./slots";
+import { getToneGuidance, type InsightSlots, selectPrimaryAction } from "./slots";
 
 /**
  * Build the story generation prompt
@@ -86,11 +82,7 @@ Write 1-2 sentences (15-25 words). Connect this week to the action naturally. Be
 </output>`;
 }
 
-function buildNoActionStoryPrompt(
-  slots: InsightSlots,
-  highlight: string,
-  tone: string,
-): string {
+function buildNoActionStoryPrompt(slots: InsightSlots, highlight: string, tone: string): string {
   // When there's no primary action, provide a forward-looking observation
   return `<role>
 You write ONE sentence that looks forward or provides useful context.
@@ -225,29 +217,19 @@ function getHighlight(slots: InsightSlots): string {
   }
 
   // Strong revenue growth (20%+) - but only if there's actual revenue
-  if (
-    slots.revenueChange >= 20 &&
-    slots.revenueDirection === "up" &&
-    slots.revenueRaw > 0
-  ) {
+  if (slots.revenueChange >= 20 && slots.revenueDirection === "up" && slots.revenueRaw > 0) {
     return `Revenue up ${Math.round(slots.revenueChange)}% vs last week`;
   }
 
   // High margin week
-  if (
-    slots.expensesRaw > 0 &&
-    slots.profitDirection === "up" &&
-    slots.marginRaw >= 50
-  ) {
+  if (slots.expensesRaw > 0 && slots.profitDirection === "up" && slots.marginRaw >= 50) {
     return `${slots.margin}% margin this week`;
   }
 
   // Challenging week - focus on actionable next steps
   if (slots.weekType === "challenging") {
     if (slots.hasOverdue || slots.hasDrafts) {
-      const pendingAmount = slots.hasOverdue
-        ? slots.overdueTotal
-        : slots.draftsTotal;
+      const pendingAmount = slots.hasOverdue ? slots.overdueTotal : slots.draftsTotal;
       return `Pending receivables (${pendingAmount}) available to accelerate. ${slots.runway} months runway.`;
     }
     return "Payment timing gap. Focus on accelerating pending invoices.";

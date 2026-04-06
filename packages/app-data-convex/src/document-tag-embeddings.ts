@@ -16,9 +16,7 @@ export type UpsertDocumentTagEmbeddingInput = {
   model?: string;
 };
 
-export async function getDocumentTagEmbeddingsFromConvex(args: {
-  slugs: string[];
-}) {
+export async function getDocumentTagEmbeddingsFromConvex(args: { slugs: string[] }) {
   return createClient().query(
     api.documentTagEmbeddings.serviceGetDocumentTagEmbeddings,
     serviceArgs({

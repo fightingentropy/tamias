@@ -1,7 +1,4 @@
-import type {
-  ProjectedInvoiceRecurringRecord,
-  UpdateInvoiceRecurringParams,
-} from "../shared";
+import type { ProjectedInvoiceRecurringRecord, UpdateInvoiceRecurringParams } from "../shared";
 import { hasOwnKey } from "../shared";
 
 export function mergeNextCustomer(

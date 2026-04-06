@@ -66,18 +66,13 @@ export function InboxBulkActions() {
           .flatMap((page: any) => page.data ?? []);
 
         // Optimistically update infinite query data by filtering out deleted items
-        queryClient.setQueriesData(
-          { queryKey: trpc.inbox.get.infiniteQueryKey() },
-          (old: any) => ({
-            pages: old.pages.map((page: any) => ({
-              ...page,
-              data: page.data.filter(
-                (item: any) => !selectedIdsArray.includes(item.id),
-              ),
-            })),
-            pageParams: old.pageParams,
-          }),
-        );
+        queryClient.setQueriesData({ queryKey: trpc.inbox.get.infiniteQueryKey() }, (old: any) => ({
+          pages: old.pages.map((page: any) => ({
+            ...page,
+            data: page.data.filter((item: any) => !selectedIdsArray.includes(item.id)),
+          })),
+          pageParams: old.pageParams,
+        }));
 
         return { previousData, allInboxes };
       },
@@ -106,9 +101,7 @@ export function InboxBulkActions() {
           (item) => !selectedIdsArray.includes(item.id),
         );
 
-        const hasFilters = Object.values(filter).some(
-          (value) => value !== null,
-        );
+        const hasFilters = Object.values(filter).some((value) => value !== null);
 
         // Navigate to empty state if inbox is empty and no filters
         if (remainingInboxes.length === 0 && !hasFilters) {
@@ -171,12 +164,9 @@ export function InboxBulkActions() {
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        Are you absolutely sure?
-                      </AlertDialogTitle>
+                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This action cannot be undone. This will permanently
-                        delete {selectedCount}{" "}
+                        This action cannot be undone. This will permanently delete {selectedCount}{" "}
                         {selectedCount === 1 ? "inbox item" : "inbox items"}.
                       </AlertDialogDescription>
                     </AlertDialogHeader>

@@ -49,10 +49,7 @@ export function InlineAssignUser({ selectedId, onSelect }: Props) {
           }}
         >
           {selectedUser ? (
-            <AssignedUser
-              avatarUrl={selectedUser.avatarUrl}
-              fullName={selectedUser.fullName}
-            />
+            <AssignedUser avatarUrl={selectedUser.avatarUrl} fullName={selectedUser.fullName} />
           ) : (
             <span className="text-muted-foreground">-</span>
           )}
@@ -83,10 +80,7 @@ export function InlineAssignUser({ selectedId, onSelect }: Props) {
                   });
                 }}
               >
-                <AssignedUser
-                  avatarUrl={user.avatarUrl}
-                  fullName={user.fullName}
-                />
+                <AssignedUser avatarUrl={user.avatarUrl} fullName={user.fullName} />
               </button>
             );
           })}

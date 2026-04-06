@@ -1639,8 +1639,7 @@ export function getTaxRateForCategory(
   categorySlug: string,
 ): number {
   const effectiveCountryCode = countryCode || "DEFAULT";
-  const config =
-    TAX_RATE_CONFIGS[effectiveCountryCode] || TAX_RATE_CONFIGS.DEFAULT;
+  const config = TAX_RATE_CONFIGS[effectiveCountryCode] || TAX_RATE_CONFIGS.DEFAULT;
   // Check if there's a specific rate for this category
   if (config?.categoryRates?.[categorySlug] !== undefined) {
     return config.categoryRates[categorySlug];
@@ -1650,12 +1649,9 @@ export function getTaxRateForCategory(
 }
 
 // Helper function to get tax type for a country
-export function getTaxTypeForCountry(
-  countryCode: string | undefined | null,
-): string | null {
+export function getTaxTypeForCountry(countryCode: string | undefined | null): string | null {
   const effectiveCountryCode = countryCode || "DEFAULT";
-  const config =
-    TAX_RATE_CONFIGS[effectiveCountryCode] || TAX_RATE_CONFIGS.DEFAULT;
+  const config = TAX_RATE_CONFIGS[effectiveCountryCode] || TAX_RATE_CONFIGS.DEFAULT;
   return config?.taxType || null;
 }
 

@@ -12,10 +12,7 @@ type SearchInvoiceNumberParams = {
   query: string;
 };
 
-export async function searchInvoiceNumber(
-  _db: Database,
-  params: SearchInvoiceNumberParams,
-) {
+export async function searchInvoiceNumber(_db: Database, params: SearchInvoiceNumberParams) {
   const normalizedQuery = params.query.trim();
 
   if (!normalizedQuery) {
@@ -39,10 +36,7 @@ export function getInvoiceNumberConflictMessage(invoiceNumber: string) {
 }
 
 export function isInvoiceNumberConflictError(error: unknown) {
-  return (
-    error instanceof Error &&
-    error.message.includes(INVOICE_NUMBER_CONFLICT_PREFIX)
-  );
+  return error instanceof Error && error.message.includes(INVOICE_NUMBER_CONFLICT_PREFIX);
 }
 
 export async function getNextInvoiceNumber(

@@ -78,10 +78,7 @@ function extractFileParts(parts: UIMessage["parts"]) {
   return parts.filter((part) => part.type === "file");
 }
 
-export function ChatMessages({
-  messages,
-  isStreaming = false,
-}: ChatMessagesProps) {
+export function ChatMessages({ messages, isStreaming = false }: ChatMessagesProps) {
   const { data: user } = useUserQuery();
 
   return (
@@ -105,22 +102,18 @@ export function ChatMessages({
         // Combine sources and deduplicate between AI SDK and webSearch sources
         const allSources = [...aiSdkSources, ...webSearchSources];
         const uniqueSources = allSources.filter(
-          (source, index, self) =>
-            index === self.findIndex((s) => s.url === source.url),
+          (source, index, self) => index === self.findIndex((s) => s.url === source.url),
         );
 
         // Check if bank account is required
         const bankAccountRequired = extractBankAccountRequired(parts);
 
         // Check if this is an insight response
-        const insightData =
-          message.role === "assistant" ? extractInsightData(parts) : null;
+        const insightData = message.role === "assistant" ? extractInsightData(parts) : null;
 
         // Extract artifact type from message parts
         const artifactType =
-          message.role === "assistant"
-            ? extractArtifactTypeFromMessage(parts)
-            : null;
+          message.role === "assistant" ? extractArtifactTypeFromMessage(parts) : null;
 
         // Check if this is the last (currently streaming) message
         const isLastMessage = index === messages.length - 1;
@@ -130,9 +123,7 @@ export function ChatMessages({
 
         // Show sources only after response is finished (not on the currently streaming message)
         const shouldShowSources =
-          uniqueSources.length > 0 &&
-          message.role === "assistant" &&
-          isMessageFinished;
+          uniqueSources.length > 0 && message.role === "assistant" && isMessageFinished;
 
         return (
           <div key={message.id} className="group">
@@ -157,10 +148,7 @@ export function ChatMessages({
 
                       if (isImage && file.url) {
                         return (
-                          <div
-                            key={fileKey}
-                            className="relative rounded-lg border overflow-hidden"
-                          >
+                          <div key={fileKey} className="relative rounded-lg border overflow-hidden">
                             <Image
                               src={file.url}
                               alt={file.filename || "attachment"}
@@ -206,15 +194,13 @@ export function ChatMessages({
             )}
 
             {/* Render insight as a dedicated component - full width */}
-            {insightData &&
-              message.role === "assistant" &&
-              !bankAccountRequired && (
-                <Message from={message.role}>
-                  <MessageContent className="!max-w-full w-full">
-                    <InsightMessage insight={insightData} />
-                  </MessageContent>
-                </Message>
-              )}
+            {insightData && message.role === "assistant" && !bankAccountRequired && (
+              <Message from={message.role}>
+                <MessageContent className="!max-w-full w-full">
+                  <InsightMessage insight={insightData} />
+                </MessageContent>
+              </Message>
+            )}
 
             {/* Render text content in message (skip if we rendered insight) */}
             {textParts.length > 0 && !bankAccountRequired && !insightData && (
@@ -252,9 +238,7 @@ export function ChatMessages({
                       insightId={insightData?.id}
                     />
                     {/* Artifact toggle icon */}
-                    {artifactType && (
-                      <ArtifactToggleIcon artifactType={artifactType} />
-                    )}
+                    {artifactType && <ArtifactToggleIcon artifactType={artifactType} />}
                   </div>
                 </div>
               )}

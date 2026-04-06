@@ -40,9 +40,7 @@ export function CanvasChart({
     <div className={cn("mb-6", className)}>
       {/* Chart Header */}
       <div className="flex items-center justify-between mb-4">
-        <h4 className="text-[18px] font-normal font-serif text-primary">
-          {title}
-        </h4>
+        <h4 className="text-[18px] font-normal font-serif text-primary">{title}</h4>
         {legend && (
           <div className="flex gap-4 items-center" data-hide-in-pdf="true">
             {legend.items.map((item, index) => {
@@ -61,9 +59,7 @@ export function CanvasChart({
                       : lineColor === "black" || lineColor === "#000000"
                         ? "bg-black dark:bg-white"
                         : `bg-[${lineColor}]`;
-                  lineElement = (
-                    <div className={`w-4 h-0.5 ${bgColor} flex-shrink-0`} />
-                  );
+                  lineElement = <div className={`w-4 h-0.5 ${bgColor} flex-shrink-0`} />;
                 } else if (lineStyle === "dashed") {
                   // Dashed line - use color prop or default to grey
                   const dashColor = lineColor || "#666666";
@@ -92,10 +88,7 @@ export function CanvasChart({
                 }
 
                 return (
-                  <div
-                    key={`legend-${item.label}-${index}`}
-                    className="flex gap-2 items-center"
-                  >
+                  <div key={`legend-${item.label}-${index}`} className="flex gap-2 items-center">
                     {lineElement}
                     <span className="text-[12px] text-[#707070] dark:text-[#666666] leading-none">
                       {item.label}
@@ -134,10 +127,7 @@ export function CanvasChart({
               };
 
               return (
-                <div
-                  key={`legend-${item.label}-${index}`}
-                  className="flex gap-2 items-center"
-                >
+                <div key={`legend-${item.label}-${index}`} className="flex gap-2 items-center">
                   <div
                     className={getSquareClasses(item.type, item.color)}
                     style={getSquareStyle(item.type, item.color)}

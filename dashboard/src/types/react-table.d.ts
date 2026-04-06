@@ -55,14 +55,7 @@ declare module "@tanstack/table-core" {
     sortField?: string;
     /** Skeleton configuration for loading states */
     skeleton?: {
-      type:
-        | "checkbox"
-        | "text"
-        | "avatar-text"
-        | "icon-text"
-        | "badge"
-        | "tags"
-        | "icon";
+      type: "checkbox" | "text" | "avatar-text" | "icon-text" | "badge" | "tags" | "icon";
       width?: string;
     };
     /** Header label for skeleton headers */
@@ -111,14 +104,7 @@ declare module "@tanstack/react-table" {
     sticky?: boolean;
     sortField?: string;
     skeleton?: {
-      type:
-        | "checkbox"
-        | "text"
-        | "avatar-text"
-        | "icon-text"
-        | "badge"
-        | "tags"
-        | "icon";
+      type: "checkbox" | "text" | "avatar-text" | "icon-text" | "badge" | "tags" | "icon";
       width?: string;
     };
     headerLabel?: string;

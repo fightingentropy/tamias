@@ -1,10 +1,7 @@
 import { setupAnalytics } from "@/lib/telemetry/server";
 import { canResolveConvexSessionLocally } from "@/start/auth/runtime";
 import { getConvexAuthToken } from "@/start/auth/server";
-import {
-  getCurrentUserFromConvex,
-  resolveConvexUserSession,
-} from "@tamias/auth-session/convex";
+import { getCurrentUserFromConvex, resolveConvexUserSession } from "@tamias/auth-session/convex";
 
 type ActionTrackMetadata = {
   event: string;

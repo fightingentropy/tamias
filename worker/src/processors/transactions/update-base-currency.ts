@@ -70,13 +70,8 @@ export class UpdateBaseCurrencyProcessor extends BaseProcessor<UpdateBaseCurrenc
     const results = await Promise.allSettled(accountUpdates);
 
     // Calculate progress based on completed accounts
-    const completedCount = results.filter(
-      (result) => result.status === "fulfilled",
-    ).length;
-    const accountProgress = Math.min(
-      90,
-      25 + Math.round((completedCount / accounts.length) * 65),
-    );
+    const completedCount = results.filter((result) => result.status === "fulfilled").length;
+    const accountProgress = Math.min(90, 25 + Math.round((completedCount / accounts.length) * 65));
 
     await this.updateProgress(job, accountProgress);
 

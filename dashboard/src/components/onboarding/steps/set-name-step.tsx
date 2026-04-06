@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@tamias/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@tamias/ui/form";
 import { Input } from "@tamias/ui/input";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
@@ -29,12 +22,7 @@ type Props = {
   onLoadingChange?: (loading: boolean) => void;
 };
 
-export function SetNameStep({
-  userId,
-  avatarUrl,
-  onComplete,
-  onLoadingChange,
-}: Props) {
+export function SetNameStep({ userId, avatarUrl, onComplete, onLoadingChange }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const isSubmittedRef = useRef(false);
   const updateUserMutation = useUserMutation();
@@ -109,9 +97,7 @@ export function SetNameStep({
               name="fullName"
               render={({ field }) => (
                 <FormItem className="w-full">
-                  <FormLabel className="text-xs text-primary font-normal">
-                    Full name
-                  </FormLabel>
+                  <FormLabel className="text-xs text-primary font-normal">Full name</FormLabel>
                   <FormControl>
                     <Input
                       autoFocus

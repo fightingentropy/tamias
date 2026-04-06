@@ -1,15 +1,7 @@
 import type { VatReturnDraftLine } from "./types";
 
 export type VatBoxValues = Record<
-  | "box1"
-  | "box2"
-  | "box3"
-  | "box4"
-  | "box5"
-  | "box6"
-  | "box7"
-  | "box8"
-  | "box9",
+  "box1" | "box2" | "box3" | "box4" | "box5" | "box6" | "box7" | "box8" | "box9",
   number
 >;
 
@@ -44,12 +36,8 @@ export function buildVatBoxValues(input: {
   const box5 = roundCurrency(box3 - box4 + (adjustments.box5 ?? 0));
   const box6 = roundHmrcInteger(input.salesExVat + (adjustments.box6 ?? 0));
   const box7 = roundHmrcInteger(input.purchasesExVat + (adjustments.box7 ?? 0));
-  const box8 = roundHmrcInteger(
-    (input.goodsSuppliedExVat ?? 0) + (adjustments.box8 ?? 0),
-  );
-  const box9 = roundHmrcInteger(
-    (input.acquisitionsExVat ?? 0) + (adjustments.box9 ?? 0),
-  );
+  const box8 = roundHmrcInteger((input.goodsSuppliedExVat ?? 0) + (adjustments.box8 ?? 0));
+  const box9 = roundHmrcInteger((input.acquisitionsExVat ?? 0) + (adjustments.box9 ?? 0));
 
   return { box1, box2, box3, box4, box5, box6, box7, box8, box9 };
 }

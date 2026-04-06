@@ -24,9 +24,7 @@ export async function getInsightUserStatus(
     userId: params.userId,
   });
 
-  return (
-    statuses.find((status) => status.insightId === params.insightId) ?? null
-  );
+  return statuses.find((status) => status.insightId === params.insightId) ?? null;
 }
 
 export async function markInsightAsRead(
@@ -69,10 +67,7 @@ export type GetInsightsForUserParams = {
   status?: InsightStatus;
 };
 
-export async function getInsightsForUser(
-  db: Database,
-  params: GetInsightsForUserParams,
-) {
+export async function getInsightsForUser(db: Database, params: GetInsightsForUserParams) {
   const {
     teamId,
     userId,
@@ -105,10 +100,7 @@ export async function getInsightsForUser(
     .sort(compareInsightPeriodDesc);
   const data = filtered.slice(offset, offset + pageSize);
 
-  const nextCursor =
-    data && data.length === pageSize
-      ? (offset + pageSize).toString()
-      : undefined;
+  const nextCursor = data && data.length === pageSize ? (offset + pageSize).toString() : undefined;
 
   return {
     meta: {

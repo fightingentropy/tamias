@@ -65,9 +65,7 @@ export function TransactionAttachments({
         });
 
         // Start polling for tax information
-        if (
-          pollingTransaction?.taxRate !== pollingTransaction?.category?.taxRate
-        ) {
+        if (pollingTransaction?.taxRate !== pollingTransaction?.category?.taxRate) {
           setPollingForTax(true);
         }
       },
@@ -284,8 +282,7 @@ export function TransactionAttachments({
           return;
         }
 
-        const invoiceFilename =
-          file.data.invoiceNumber || `invoice-${file.data.id}.pdf`;
+        const invoiceFilename = file.data.invoiceNumber || `invoice-${file.data.id}.pdf`;
 
         const attachmentItem = {
           name: stripSpecialCharacters(invoiceFilename),
@@ -314,8 +311,7 @@ export function TransactionAttachments({
           variant: "error",
           duration: 2500,
           title: "Failed to attach invoice",
-          description:
-            error instanceof Error ? error.message : "Unknown error occurred",
+          description: error instanceof Error ? error.message : "Unknown error occurred",
         });
       }
     } else {
@@ -434,9 +430,7 @@ export function TransactionAttachments({
           <div>
             <p className="text-xs">
               Drop your files here, or{" "}
-              <span className="underline underline-offset-1">
-                click to browse.
-              </span>
+              <span className="underline underline-offset-1">click to browse.</span>
             </p>
             <p className="text-xs text-dark-gray">3MB file limit.</p>
           </div>

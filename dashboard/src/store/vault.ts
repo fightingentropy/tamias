@@ -11,8 +11,7 @@ export const useDocumentsStore = create<DocumentsState>()((set) => ({
   setRowSelection: (updater: Updater<RowSelectionState>) =>
     set((state) => {
       return {
-        rowSelection:
-          typeof updater === "function" ? updater(state.rowSelection) : updater,
+        rowSelection: typeof updater === "function" ? updater(state.rowSelection) : updater,
       };
     }),
 }));

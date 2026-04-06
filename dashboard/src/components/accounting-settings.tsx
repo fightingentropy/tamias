@@ -1,13 +1,7 @@
 "use client";
 
 import { Button } from "@tamias/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@tamias/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@tamias/ui/card";
 import { Skeleton } from "@tamias/ui/skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -38,9 +32,7 @@ export function AccountingSettings() {
   const queryClient = useQueryClient();
 
   // Fetch connected accounting providers
-  const { data: connections, isLoading } = useQuery(
-    trpc.accounting.getConnections.queryOptions(),
-  );
+  const { data: connections, isLoading } = useQuery(trpc.accounting.getConnections.queryOptions());
 
   // Disconnect mutation
   const disconnectMutation = useMutation(
@@ -71,15 +63,12 @@ export function AccountingSettings() {
         <CardHeader>
           <CardTitle className="text-lg">Accounting Integrations</CardTitle>
           <CardDescription>
-            Connect your accounting software to export transactions and
-            receipts.
+            Connect your accounting software to export transactions and receipts.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-center py-6">
-            <p className="text-sm text-[#878787] mb-4">
-              No accounting software connected yet.
-            </p>
+            <p className="text-sm text-[#878787] mb-4">No accounting software connected yet.</p>
             <Button asChild variant="outline">
               <Link href="/settings/apps">Browse Integrations</Link>
             </Button>
@@ -94,14 +83,12 @@ export function AccountingSettings() {
       <div className="mb-6">
         <h3 className="text-lg font-medium">Accounting Integrations</h3>
         <p className="text-sm text-[#878787]">
-          Manage your connected accounting software. Export transactions from
-          the Transactions page.
+          Manage your connected accounting software. Export transactions from the Transactions page.
         </p>
       </div>
 
       {connections.map((connection) => {
-        const providerInfo =
-          PROVIDER_INFO[connection.providerId as keyof typeof PROVIDER_INFO];
+        const providerInfo = PROVIDER_INFO[connection.providerId as keyof typeof PROVIDER_INFO];
 
         return (
           <Card key={connection.providerId}>
@@ -113,9 +100,7 @@ export function AccountingSettings() {
                     <CardTitle className="text-base">
                       {providerInfo?.name ?? connection.providerId}
                     </CardTitle>
-                    <CardDescription className="text-xs">
-                      {connection.tenantName}
-                    </CardDescription>
+                    <CardDescription className="text-xs">{connection.tenantName}</CardDescription>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -139,17 +124,12 @@ export function AccountingSettings() {
                   size="sm"
                   onClick={() =>
                     disconnectMutation.mutate({
-                      providerId: connection.providerId as
-                        | "xero"
-                        | "quickbooks"
-                        | "fortnox",
+                      providerId: connection.providerId as "xero" | "quickbooks" | "fortnox",
                     })
                   }
                   disabled={disconnectMutation.isPending}
                 >
-                  {disconnectMutation.isPending
-                    ? "Disconnecting..."
-                    : "Disconnect"}
+                  {disconnectMutation.isPending ? "Disconnecting..." : "Disconnect"}
                 </Button>
               </div>
             </CardContent>

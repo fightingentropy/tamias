@@ -17,10 +17,7 @@ function VaultPage() {
   const loaderData = Route.useLoaderData() as VaultLoaderData;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <ScrollableContent>
         <VaultHeader />
 

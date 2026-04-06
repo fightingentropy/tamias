@@ -169,9 +169,7 @@ VALIDATION REQUIREMENTS:
 /**
  * Chain-of-thought prompt variant for complex documents
  */
-export const createInvoicePromptWithChainOfThought = (
-  companyName?: string | null,
-) => `
+export const createInvoicePromptWithChainOfThought = (companyName?: string | null) => `
 You are an expert invoice extraction system. Use step-by-step reasoning to extract data accurately.
 
 ${companyName ? `CRITICAL CONTEXT: "${companyName}" is the RECIPIENT/CUSTOMER company receiving this invoice.` : ""}
@@ -186,10 +184,7 @@ Now extract the invoice data following the step-by-step process above. Think thr
 /**
  * Field-specific extraction prompts for targeted re-extraction
  */
-export const createFieldSpecificPrompt = (
-  field: string,
-  companyName?: string | null,
-) => {
+export const createFieldSpecificPrompt = (field: string, companyName?: string | null) => {
   const fieldInstructions: Record<string, string> = {
     total_amount: `
 Extract ONLY the total amount from this invoice. 
@@ -406,9 +401,7 @@ VALIDATION REQUIREMENTS:
 /**
  * Chain-of-thought prompt variant for complex receipts
  */
-export const createReceiptPromptWithChainOfThought = (
-  companyName?: string | null,
-) => `
+export const createReceiptPromptWithChainOfThought = (companyName?: string | null) => `
 You are an expert receipt extraction system. Use step-by-step reasoning to extract data accurately.
 
 ${companyName ? `CRITICAL CONTEXT: "${companyName}" is the CUSTOMER/BUYER making the purchase.` : ""}

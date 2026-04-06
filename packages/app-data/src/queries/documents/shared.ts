@@ -18,7 +18,4 @@ export {
   getRelatedDocumentCandidates,
   getDocumentsByIdsInOrder,
 } from "./shared/queries";
-export {
-  attachAssignments,
-  deleteDocumentTagAssignments,
-} from "./shared/assignments";
+export { attachAssignments, deleteDocumentTagAssignments } from "./shared/assignments";

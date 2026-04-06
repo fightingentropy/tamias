@@ -20,20 +20,14 @@ export function InvoiceColumnVisibility() {
       <PopoverContent className="w-[200px] p-0" align="end" sideOffset={8}>
         <div className="flex flex-col p-4 space-y-2 max-h-[450px] overflow-auto">
           {columns
-            .filter(
-              (column) =>
-                column.columnDef.enableHiding !== false &&
-                column.id !== "actions",
-            )
+            .filter((column) => column.columnDef.enableHiding !== false && column.id !== "actions")
             .map((column) => {
               return (
                 <div key={column.id} className="flex items-center space-x-2">
                   <Checkbox
                     id={column.id}
                     checked={column.getIsVisible()}
-                    onCheckedChange={(checked) =>
-                      column.toggleVisibility(checked === true)
-                    }
+                    onCheckedChange={(checked) => column.toggleVisibility(checked === true)}
                   />
                   <label
                     htmlFor={column.id}

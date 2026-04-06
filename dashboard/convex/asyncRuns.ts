@@ -1,11 +1,6 @@
 import { nowIso } from "../../packages/domain/src/identity";
 import type { Doc } from "./_generated/dataModel";
-import {
-  type MutationCtx,
-  type QueryCtx,
-  mutation,
-  query,
-} from "./_generated/server";
+import { type MutationCtx, type QueryCtx, mutation, query } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
 import {
   getAppUserById,
@@ -48,10 +43,7 @@ async function getAsyncRunByPublicRunId(
     .unique();
 }
 
-async function serializeAsyncRun(
-  ctx: AsyncRunsCtx,
-  run: Doc<"asyncRuns">,
-) {
+async function serializeAsyncRun(ctx: AsyncRunsCtx, run: Doc<"asyncRuns">) {
   const [team, appUser] = await Promise.all([
     run.teamId ? ctx.db.get(run.teamId) : null,
     run.appUserId ? ctx.db.get(run.appUserId) : null,
@@ -105,11 +97,7 @@ export const currentUserRun = query({
       return null;
     }
 
-    const membership = await requireMembership(
-      ctx,
-      run.teamId,
-      appUser._id,
-    ).catch(() => null);
+    const membership = await requireMembership(ctx, run.teamId, appUser._id).catch(() => null);
 
     if (!membership) {
       return null;
@@ -277,11 +265,7 @@ export const serviceUpdateAsyncRun = mutation({
     if (args.status !== undefined) {
       patch.status = args.status;
 
-      if (
-        args.status === "active" &&
-        !run.startedAt &&
-        args.startedAt === undefined
-      ) {
+      if (args.status === "active" && !run.startedAt && args.startedAt === undefined) {
         patch.startedAt = timestamp;
       }
 
@@ -293,11 +277,7 @@ export const serviceUpdateAsyncRun = mutation({
         patch.completedAt = timestamp;
       }
 
-      if (
-        args.status === "canceled" &&
-        !run.canceledAt &&
-        args.canceledAt === undefined
-      ) {
+      if (args.status === "canceled" && !run.canceledAt && args.canceledAt === undefined) {
         patch.canceledAt = timestamp;
       }
     }

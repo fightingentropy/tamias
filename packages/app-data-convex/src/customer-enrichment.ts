@@ -100,9 +100,7 @@ export async function updateCustomerEnrichmentInConvex(args: {
   ) as Promise<{ id: string } | null>;
 }
 
-export async function markCustomerEnrichmentFailedInConvex(args: {
-  customerId: string;
-}) {
+export async function markCustomerEnrichmentFailedInConvex(args: { customerId: string }) {
   return createClient().mutation(
     api.customers.serviceMarkCustomerEnrichmentFailed,
     serviceArgs({

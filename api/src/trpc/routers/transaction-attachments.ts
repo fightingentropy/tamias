@@ -31,9 +31,7 @@ export const transactionAttachmentsRouter = createTRPCRouter({
   processAttachment: protectedProcedure
     .input(processTransactionAttachmentSchema)
     .mutation(async ({ input, ctx: { teamId, session } }) => {
-      const allowedAttachments = input.filter((item) =>
-        allowedMimeTypes.includes(item.mimetype),
-      );
+      const allowedAttachments = input.filter((item) => allowedMimeTypes.includes(item.mimetype));
 
       if (allowedAttachments.length === 0) {
         return;

@@ -28,9 +28,7 @@ export type CreatedShortLinkRecord = {
   expiresAt: string | null;
 };
 
-export async function getShortLinkByShortIdFromConvex(args: {
-  shortId: string;
-}) {
+export async function getShortLinkByShortIdFromConvex(args: { shortId: string }) {
   return createClient().query(
     api.shortLinks.serviceGetShortLinkByShortId,
     serviceArgs({

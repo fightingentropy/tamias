@@ -1,14 +1,6 @@
 import { cn } from "@tamias/ui/cn";
 import { getAppUrl } from "@tamias/utils/envs";
-import {
-  Body,
-  Container,
-  Heading,
-  Link,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
+import { Body, Container, Heading, Link, Preview, Section, Text } from "@react-email/components";
 import { format, parseISO } from "date-fns";
 import { Footer } from "../components/footer";
 import { Logo } from "../components/logo";
@@ -167,10 +159,7 @@ export const TransactionsEmail = ({
 
   return (
     <EmailThemeProvider preview={<Preview>{previewText}</Preview>}>
-      <Body
-        className={`my-auto mx-auto font-sans ${themeClasses.body}`}
-        style={lightStyles.body}
-      >
+      <Body className={`my-auto mx-auto font-sans ${themeClasses.body}`} style={lightStyles.body}>
         <Container
           className={`my-[40px] mx-auto p-[20px] max-w-[600px] ${themeClasses.container}`}
           style={{
@@ -263,26 +252,17 @@ export const TransactionsEmail = ({
                   <td align="left" style={{ width: "50%" }}>
                     <Link
                       href={`${baseAppUrl}/transactions?id=${transaction.id}`}
-                      className={cn(
-                        transaction.amount > 0
-                          ? "text-[#00C969]"
-                          : themeClasses.link,
-                      )}
+                      className={cn(transaction.amount > 0 ? "text-[#00C969]" : themeClasses.link)}
                       style={{
                         color:
-                          transaction.amount > 0
-                            ? "#00C969 !important"
-                            : lightStyles.text.color,
+                          transaction.amount > 0 ? "#00C969 !important" : lightStyles.text.color,
                         textDecoration: "none",
                       }}
                     >
                       <Text
                         className="text-[14px] m-0 p-0 mt-1 pb-1 line-clamp-1"
                         style={{
-                          color:
-                            transaction.amount > 0
-                              ? "#00C969 !important"
-                              : "inherit",
+                          color: transaction.amount > 0 ? "#00C969 !important" : "inherit",
                         }}
                       >
                         {transaction.name}
@@ -293,15 +273,11 @@ export const TransactionsEmail = ({
                     <Text
                       className={cn(
                         "text-[14px] m-0 p-0 mt-1 pb-1",
-                        transaction.amount > 0
-                          ? "text-[#00C969]"
-                          : themeClasses.text,
+                        transaction.amount > 0 ? "text-[#00C969]" : themeClasses.text,
                       )}
                       style={{
                         color:
-                          transaction.amount > 0
-                            ? "#00C969 !important"
-                            : lightStyles.text.color,
+                          transaction.amount > 0 ? "#00C969 !important" : lightStyles.text.color,
                       }}
                     >
                       {Intl.NumberFormat(locale, {

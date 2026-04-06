@@ -26,12 +26,7 @@ export function AccountBalancesWidget() {
   });
 
   if (isLoading) {
-    return (
-      <WidgetSkeleton
-        title="Account Balances"
-        icon={<Icons.Accounts className="size-4" />}
-      />
-    );
+    return <WidgetSkeleton title="Account Balances" icon={<Icons.Accounts className="size-4" />} />;
   }
 
   const balanceData = data?.result;

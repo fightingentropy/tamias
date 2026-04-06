@@ -34,10 +34,7 @@ function getHostname(host: string) {
 function getCanonicalAppOrigin(requestUrl: URL, currentHost: string) {
   const currentHostname = getHostname(currentHost);
 
-  if (
-    currentHostname === LOCAL_APP_HOSTNAME ||
-    LOCAL_LEGACY_HOSTNAMES.has(currentHostname)
-  ) {
+  if (currentHostname === LOCAL_APP_HOSTNAME || LOCAL_LEGACY_HOSTNAMES.has(currentHostname)) {
     const port = requestUrl.port ? `:${requestUrl.port}` : "";
 
     return {

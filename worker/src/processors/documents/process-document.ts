@@ -1,26 +1,14 @@
 import { loadDocument } from "@tamias/documents/loader";
-import {
-  getContentSample,
-  isMimeTypeSupportedForProcessing,
-} from "@tamias/documents/utils";
+import { getContentSample, isMimeTypeSupportedForProcessing } from "@tamias/documents/utils";
 import { enqueue, getRunStatus } from "@tamias/job-client";
-import {
-  downloadVaultFile,
-  uploadVaultFile,
-} from "@tamias/storage";
+import { downloadVaultFile, uploadVaultFile } from "@tamias/storage";
 import type { WorkerJob as Job } from "../../types/job";
 import type { ProcessDocumentPayload } from "../../schemas/documents";
 import { getDb } from "../../utils/db";
 import { detectFileTypeFromBlob } from "../../utils/detect-file-type";
 import { updateDocumentWithRetry } from "../../utils/document-update";
-import {
-  NonRetryableError,
-  UnsupportedFileTypeError,
-} from "../../utils/error-classification";
-import {
-  convertHeicToJpeg,
-  MAX_HEIC_FILE_SIZE,
-} from "../../utils/image-processing";
+import { NonRetryableError, UnsupportedFileTypeError } from "../../utils/error-classification";
+import { convertHeicToJpeg, MAX_HEIC_FILE_SIZE } from "../../utils/image-processing";
 import { TIMEOUTS, withTimeout } from "../../utils/timeout";
 import { BaseProcessor } from "../base";
 
@@ -40,19 +28,11 @@ async function waitForQueuedRunCompletion(runId: string, timeoutMs: number) {
       return status;
     }
 
-    if (
-      status.status === "failed" ||
-      status.status === "canceled" ||
-      status.status === "unknown"
-    ) {
-      throw new Error(
-        status.error ?? `Queued run ${runId} finished with status ${status.status}`,
-      );
+    if (status.status === "failed" || status.status === "canceled" || status.status === "unknown") {
+      throw new Error(status.error ?? `Queued run ${runId} finished with status ${status.status}`);
     }
 
-    await new Promise((resolve) =>
-      setTimeout(resolve, CHILD_RUN_POLL_INTERVAL_MS),
-    );
+    await new Promise((resolve) => setTimeout(resolve, CHILD_RUN_POLL_INTERVAL_MS));
   }
 
   throw new Error(`Timed out waiting for queued run ${runId}`);
@@ -116,18 +96,10 @@ export class ProcessDocumentProcessor extends BaseProcessor<ProcessDocumentPaylo
         );
 
         if (!data) {
-          throw new NonRetryableError(
-            "File not found",
-            undefined,
-            "validation",
-          );
+          throw new NonRetryableError("File not found", undefined, "validation");
         }
 
-        await this.updateProgress(
-          job,
-          this.ProgressMilestones.FETCHED,
-          "HEIC file downloaded",
-        );
+        await this.updateProgress(job, this.ProgressMilestones.FETCHED, "HEIC file downloaded");
 
         const buffer = await data.arrayBuffer();
 
@@ -142,15 +114,12 @@ export class ProcessDocumentProcessor extends BaseProcessor<ProcessDocumentPaylo
         // Skip AI classification for very large HEIC files to prevent OOM
         // 15MB HEIC ≈ 24MP ≈ ~100MB decoded. Complete with filename instead.
         if (buffer.byteLength > MAX_HEIC_FILE_SIZE) {
-          this.logger.warn(
-            "HEIC file too large for AI classification - completing with filename",
-            {
-              fileName,
-              teamId,
-              sizeBytes: buffer.byteLength,
-              maxSizeBytes: MAX_HEIC_FILE_SIZE,
-            },
-          );
+          this.logger.warn("HEIC file too large for AI classification - completing with filename", {
+            fileName,
+            teamId,
+            sizeBytes: buffer.byteLength,
+            maxSizeBytes: MAX_HEIC_FILE_SIZE,
+          });
 
           await updateDocumentWithRetry(
             db,
@@ -168,10 +137,7 @@ export class ProcessDocumentProcessor extends BaseProcessor<ProcessDocumentPaylo
 
         // Try to convert HEIC to JPEG - use graceful degradation if it fails (e.g., OOM)
         try {
-          const { buffer: image } = await convertHeicToJpeg(
-            buffer,
-            this.logger,
-          );
+          const { buffer: image } = await convertHeicToJpeg(buffer, this.logger);
 
           await this.updateProgress(
             job,
@@ -210,18 +176,12 @@ export class ProcessDocumentProcessor extends BaseProcessor<ProcessDocumentPaylo
         } catch (conversionError) {
           // HEIC conversion failed (possibly OOM) - complete with fallback
           // User can still see the file and retry later
-          this.logger.error(
-            "HEIC conversion failed - completing with fallback",
-            {
-              fileName,
-              teamId,
-              fileSizeMB,
-              error:
-                conversionError instanceof Error
-                  ? conversionError.message
-                  : "Unknown error",
-            },
-          );
+          this.logger.error("HEIC conversion failed - completing with fallback", {
+            fileName,
+            teamId,
+            fileSizeMB,
+            error: conversionError instanceof Error ? conversionError.message : "Unknown error",
+          });
 
           await updateDocumentWithRetry(
             db,
@@ -262,11 +222,7 @@ export class ProcessDocumentProcessor extends BaseProcessor<ProcessDocumentPaylo
         });
 
         if (!data) {
-          throw new NonRetryableError(
-            "File not found",
-            undefined,
-            "validation",
-          );
+          throw new NonRetryableError("File not found", undefined, "validation");
         }
 
         fileData = data;
@@ -278,14 +234,11 @@ export class ProcessDocumentProcessor extends BaseProcessor<ProcessDocumentPaylo
           const detectionResult = await detectFileTypeFromBlob(fileData);
 
           if (detectionResult.detected) {
-            this.logger.info(
-              "Detected file type from application/octet-stream",
-              {
-                fileName,
-                teamId,
-                detectedMimetype: detectionResult.mimetype,
-              },
-            );
+            this.logger.info("Detected file type from application/octet-stream", {
+              fileName,
+              teamId,
+              detectedMimetype: detectionResult.mimetype,
+            });
             processedMimetype = detectionResult.mimetype;
             // Recreate Blob with correct mimetype for further processing
             fileData = new Blob([new Uint8Array(detectionResult.buffer)], {
@@ -420,29 +373,23 @@ export class ProcessDocumentProcessor extends BaseProcessor<ProcessDocumentPaylo
       } catch (error) {
         // Log error but don't fail - complete with null values so user can still access file
         documentLoadFailed = true;
-        this.logger.warn(
-          "Failed to extract document content - completing with fallback",
-          {
-            jobId: job.id,
-            fileName,
-            teamId,
-            mimetype: processedMimetype,
-            error: error instanceof Error ? error.message : "Unknown error",
-          },
-        );
+        this.logger.warn("Failed to extract document content - completing with fallback", {
+          jobId: job.id,
+          fileName,
+          teamId,
+          mimetype: processedMimetype,
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
       }
 
       // If document loading failed, complete with null values
       // User can still view/download the file and retry classification later
       if (documentLoadFailed || !document) {
-        this.logger.info(
-          "Completing document with null values - user can retry classification",
-          {
-            fileName,
-            teamId,
-            documentLoadFailed,
-          },
-        );
+        this.logger.info("Completing document with null values - user can retry classification", {
+          fileName,
+          teamId,
+          documentLoadFailed,
+        });
         await updateDocumentWithRetry(
           db,
           {
@@ -482,14 +429,11 @@ export class ProcessDocumentProcessor extends BaseProcessor<ProcessDocumentPaylo
 
       // Edge case: Validate sample has content
       if (!sample || sample.trim().length === 0) {
-        this.logger.warn(
-          "Document sample is empty, marking as completed without classification",
-          {
-            fileName,
-            teamId,
-            contentLength: document.length,
-          },
-        );
+        this.logger.warn("Document sample is empty, marking as completed without classification", {
+          fileName,
+          teamId,
+          contentLength: document.length,
+        });
         // Mark as completed - document exists but has no extractable content to classify
         await updateDocumentWithRetry(
           db,

@@ -19,30 +19,25 @@ export const updateUserSchema = z.object({
     })
     .optional()
     .openapi({
-      description:
-        "URL to the user's avatar image. Must be hosted on tamias.xyz domain",
+      description: "URL to the user's avatar image. Must be hosted on tamias.xyz domain",
       example: "https://cdn.tamias.xyz/avatars/jane-doe.jpg",
     }),
   locale: z.string().optional().openapi({
-    description:
-      "User's preferred locale for internationalization (language and region)",
+    description: "User's preferred locale for internationalization (language and region)",
     example: "en-US",
   }),
   weekStartsOnMonday: z.boolean().optional().openapi({
-    description:
-      "Whether the user's calendar week starts on Monday (true) or Sunday (false)",
+    description: "Whether the user's calendar week starts on Monday (true) or Sunday (false)",
     example: true,
   }),
   timezone: z
     .string()
     .refine(isValidTimezone, {
-      message:
-        "Invalid timezone. Use IANA timezone format (e.g., 'America/New_York', 'UTC')",
+      message: "Invalid timezone. Use IANA timezone format (e.g., 'America/New_York', 'UTC')",
     })
     .optional()
     .openapi({
-      description:
-        "User's timezone identifier in IANA Time Zone Database format",
+      description: "User's timezone identifier in IANA Time Zone Database format",
       example: "America/New_York",
     }),
   timezoneAutoSync: z.boolean().optional().openapi({
@@ -50,8 +45,7 @@ export const updateUserSchema = z.object({
     example: true,
   }),
   timeFormat: z.number().optional().openapi({
-    description:
-      "User's preferred time format: 12 for 12-hour format, 24 for 24-hour format",
+    description: "User's preferred time format: 12 for 12-hour format, 24 for 24-hour format",
     example: 24,
   }),
   dateFormat: z
@@ -92,13 +86,11 @@ export const userSchema = z.object({
     example: "https://cdn.tamias.xyz/avatars/jane-doe.jpg",
   }),
   locale: z.string().nullable().openapi({
-    description:
-      "User's preferred locale for internationalization (language and region)",
+    description: "User's preferred locale for internationalization (language and region)",
     example: "en-US",
   }),
   weekStartsOnMonday: z.boolean().nullable().openapi({
-    description:
-      "Whether the user's calendar week starts on Monday (true) or Sunday (false)",
+    description: "Whether the user's calendar week starts on Monday (true) or Sunday (false)",
     example: true,
   }),
   timezone: z.string().nullable().openapi({
@@ -110,8 +102,7 @@ export const userSchema = z.object({
     example: true,
   }),
   timeFormat: z.number().nullable().openapi({
-    description:
-      "User's preferred time format: 12 for 12-hour format, 24 for 24-hour format",
+    description: "User's preferred time format: 12 for 12-hour format, 24 for 24-hour format",
     example: 24,
   }),
   dateFormat: z

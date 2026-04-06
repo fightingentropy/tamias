@@ -36,9 +36,7 @@ export function DocumentDetails() {
         .flatMap((page) => page.data ?? []);
 
       return pages.find(
-        (d) =>
-          d.id === params.documentId ||
-          d.path_tokens?.join("/") === params.filePath,
+        (d) => d.id === params.documentId || d.path_tokens?.join("/") === params.filePath,
       );
     },
   });
@@ -76,14 +74,10 @@ export function DocumentDetails() {
 
       <div>
         {data?.summary && (
-          <p className="text-sm text-[#878787] mb-4 line-clamp-2">
-            {data?.summary}
-          </p>
+          <p className="text-sm text-[#878787] mb-4 line-clamp-2">{data?.summary}</p>
         )}
 
-        {data?.id && (
-          <DocumentTags tags={data.documentTagAssignments} id={data.id} />
-        )}
+        {data?.id && <DocumentTags tags={data.documentTagAssignments} id={data.id} />}
 
         {fullView && <VaultRelatedFiles />}
       </div>

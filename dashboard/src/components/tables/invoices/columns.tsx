@@ -7,12 +7,7 @@ import { Avatar, AvatarFallback, AvatarImageNext } from "@tamias/ui/avatar";
 import { Checkbox } from "@tamias/ui/checkbox";
 import { cn } from "@tamias/ui/cn";
 import { Icons } from "@tamias/ui/icons";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { formatDate } from "@tamias/utils/format";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format, formatDistanceToNow } from "date-fns";
@@ -38,9 +33,7 @@ function formatDateUTC(date: string, dateFormat?: string | null): string {
   return format(tzDate, dateFormat ?? "P");
 }
 
-export type Invoice = NonNullable<
-  RouterOutputs["invoice"]["get"]["data"]
->[number];
+export type Invoice = NonNullable<RouterOutputs["invoice"]["get"]["data"]>[number];
 
 export const columns: ColumnDef<Invoice>[] = [
   {
@@ -89,9 +82,7 @@ export const columns: ColumnDef<Invoice>[] = [
     cell: ({ row }) => (
       <span
         className={cn("truncate", {
-          "line-through":
-            row.original.status === "canceled" ||
-            row.original.status === "refunded",
+          "line-through": row.original.status === "canceled" || row.original.status === "refunded",
         })}
       >
         {row.getValue("invoiceNumber")}
@@ -123,11 +114,7 @@ export const columns: ColumnDef<Invoice>[] = [
               <TooltipTrigger>
                 <InvoiceStatus status={status as any} />
               </TooltipTrigger>
-              <TooltipContent
-                className="text-xs py-1 px-2"
-                side="right"
-                sideOffset={5}
-              >
+              <TooltipContent className="text-xs py-1 px-2" side="right" sideOffset={5}>
                 Scheduled to send:{" "}
                 {format(
                   scheduledAt,
@@ -159,8 +146,7 @@ export const columns: ColumnDef<Invoice>[] = [
     cell: ({ row, table }) => {
       const date = row.original.dueDate;
 
-      const showDate =
-        row.original.status === "unpaid" || row.original.status === "overdue";
+      const showDate = row.original.status === "unpaid" || row.original.status === "overdue";
 
       return (
         <div className="flex flex-col space-y-1">
@@ -227,9 +213,7 @@ export const columns: ColumnDef<Invoice>[] = [
                     quality={100}
                   />
                 )}
-                <AvatarFallback className="text-[9px] font-medium">
-                  {name?.[0]}
-                </AvatarFallback>
+                <AvatarFallback className="text-[9px] font-medium">{name?.[0]}</AvatarFallback>
               </Avatar>
               <span className="truncate">{name}</span>
             </button>
@@ -245,9 +229,7 @@ export const columns: ColumnDef<Invoice>[] = [
                     quality={100}
                   />
                 )}
-                <AvatarFallback className="text-[9px] font-medium">
-                  {name?.[0]}
-                </AvatarFallback>
+                <AvatarFallback className="text-[9px] font-medium">{name?.[0]}</AvatarFallback>
               </Avatar>
               <span className="truncate">{name}</span>
             </>
@@ -259,14 +241,8 @@ export const columns: ColumnDef<Invoice>[] = [
                 <TooltipTrigger className="flex items-center space-x-2 flex-shrink-0">
                   <Icons.Visibility className="size-4 text-[#878787]" />
                 </TooltipTrigger>
-                <TooltipContent
-                  className="text-xs py-1 px-2"
-                  side="right"
-                  sideOffset={5}
-                >
-                  {viewAt
-                    ? `Viewed ${formatDistanceToNow(new Date(viewAt))} ago`
-                    : ""}
+                <TooltipContent className="text-xs py-1 px-2" side="right" sideOffset={5}>
+                  {viewAt ? `Viewed ${formatDistanceToNow(new Date(viewAt))} ago` : ""}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -297,10 +273,7 @@ export const columns: ColumnDef<Invoice>[] = [
             "line-through": row.original.status === "canceled",
           })}
         >
-          <FormatAmount
-            amount={row.original.amount}
-            currency={row.original.currency ?? "USD"}
-          />
+          <FormatAmount amount={row.original.amount} currency={row.original.currency ?? "USD"} />
         </span>
       );
     },
@@ -320,8 +293,7 @@ export const columns: ColumnDef<Invoice>[] = [
     },
     cell: ({ row }) => {
       const vatRate = row.original.template.vatRate as number | undefined;
-      const value =
-        vatRate !== undefined && vatRate !== null ? `${vatRate}%` : "-";
+      const value = vatRate !== undefined && vatRate !== null ? `${vatRate}%` : "-";
       return (
         <span
           className={cn("truncate", {
@@ -375,8 +347,7 @@ export const columns: ColumnDef<Invoice>[] = [
     },
     cell: ({ row }) => {
       const taxRate = row.original.template.taxRate as number | undefined;
-      const value =
-        taxRate !== undefined && taxRate !== null ? `${taxRate}%` : "-";
+      const value = taxRate !== undefined && taxRate !== null ? `${taxRate}%` : "-";
       return (
         <span
           className={cn("truncate", {
@@ -435,9 +406,7 @@ export const columns: ColumnDef<Invoice>[] = [
         })}
       >
         <FormatAmount
-          amount={
-            (row.original.amount as number) - (row.original.vat as number)
-          }
+          amount={(row.original.amount as number) - (row.original.vat as number)}
           currency={row.original.currency ?? "USD"}
         />
       </span>
@@ -463,9 +432,7 @@ export const columns: ColumnDef<Invoice>[] = [
         })}
       >
         <FormatAmount
-          amount={
-            (row.original.amount as number) - (row.original.tax as number)
-          }
+          amount={(row.original.amount as number) - (row.original.tax as number)}
           currency={row.original.currency ?? "USD"}
         />
       </span>
@@ -544,14 +511,10 @@ export const columns: ColumnDef<Invoice>[] = [
       // For scheduled invoices that are the first in the series,
       // show "Sends on" instead of "Next on" since THIS invoice is the scheduled one
       const isFirstScheduled =
-        invoiceStatus === "scheduled" &&
-        sequence === 1 &&
-        recurring.invoicesGenerated === 0;
+        invoiceStatus === "scheduled" && sequence === 1 && recurring.invoicesGenerated === 0;
 
       // For sent/paid invoices, show the sequence info instead of "Next on"
-      const isAlreadySent = ["unpaid", "paid", "overdue"].includes(
-        invoiceStatus,
-      );
+      const isAlreadySent = ["unpaid", "paid", "overdue"].includes(invoiceStatus);
 
       // Build the subtitle based on context
       let subtitle: string | null = null;
@@ -573,9 +536,7 @@ export const columns: ColumnDef<Invoice>[] = [
       return (
         <div className="flex flex-col">
           <span>{frequencyLabel}</span>
-          {subtitle && (
-            <span className="text-xs text-muted-foreground">{subtitle}</span>
-          )}
+          {subtitle && <span className="text-xs text-muted-foreground">{subtitle}</span>}
         </div>
       );
     },
@@ -603,9 +564,7 @@ export const columns: ColumnDef<Invoice>[] = [
 
       if (!sentTo) {
         return (
-          <span className="truncate">
-            {formatDate(sentAt, table.options.meta?.dateFormat)}
-          </span>
+          <span className="truncate">{formatDate(sentAt, table.options.meta?.dateFormat)}</span>
         );
       }
 
@@ -613,15 +572,9 @@ export const columns: ColumnDef<Invoice>[] = [
         <TooltipProvider delayDuration={0}>
           <Tooltip>
             <TooltipTrigger className="flex items-center space-x-2">
-              <span className="truncate">
-                {formatDate(sentAt, table.options.meta?.dateFormat)}
-              </span>
+              <span className="truncate">{formatDate(sentAt, table.options.meta?.dateFormat)}</span>
             </TooltipTrigger>
-            <TooltipContent
-              className="text-xs py-1 px-2"
-              side="right"
-              sideOffset={5}
-            >
+            <TooltipContent className="text-xs py-1 px-2" side="right" sideOffset={5}>
               {sentTo}
             </TooltipContent>
           </Tooltip>

@@ -8,11 +8,7 @@ import { nowIso } from "../../packages/domain/src/identity";
 
 type AccountingSyncCtx = QueryCtx | MutationCtx;
 
-const providerValidator = v.union(
-  v.literal("xero"),
-  v.literal("quickbooks"),
-  v.literal("fortnox"),
-);
+const providerValidator = v.union(v.literal("xero"), v.literal("quickbooks"), v.literal("fortnox"));
 
 const statusValidator = v.union(
   v.literal("synced"),
@@ -26,10 +22,7 @@ type AccountingSyncStatus = "synced" | "partial" | "failed" | "pending";
 
 type AccountingSyncDocument = Doc<"accountingSyncRecords">;
 
-function serializeAccountingSyncRecord(
-  publicTeamId: string,
-  record: AccountingSyncDocument,
-) {
+function serializeAccountingSyncRecord(publicTeamId: string, record: AccountingSyncDocument) {
   return {
     id: record.publicSyncRecordId ?? record._id,
     transactionId: record.transactionId,
@@ -37,8 +30,10 @@ function serializeAccountingSyncRecord(
     provider: record.provider,
     providerTenantId: record.providerTenantId,
     providerTransactionId: record.providerTransactionId ?? null,
-    syncedAttachmentMapping:
-      (record.syncedAttachmentMapping ?? {}) as Record<string, string | null>,
+    syncedAttachmentMapping: (record.syncedAttachmentMapping ?? {}) as Record<
+      string,
+      string | null
+    >,
     syncedAt: record.syncedAt,
     syncType: record.syncType ?? null,
     status: record.status,
@@ -49,10 +44,7 @@ function serializeAccountingSyncRecord(
   };
 }
 
-async function getTeamOrThrow(
-  ctx: AccountingSyncCtx,
-  publicTeamId: string,
-) {
+async function getTeamOrThrow(ctx: AccountingSyncCtx, publicTeamId: string) {
   const team = await getTeamByPublicTeamId(ctx, publicTeamId);
 
   if (!team) {
@@ -68,9 +60,7 @@ async function getAccountingSyncRecordByLegacyId(
 ) {
   return ctx.db
     .query("accountingSyncRecords")
-    .withIndex("by_public_sync_record_id", (q) =>
-      q.eq("publicSyncRecordId", publicSyncRecordId),
-    )
+    .withIndex("by_public_sync_record_id", (q) => q.eq("publicSyncRecordId", publicSyncRecordId))
     .unique();
 }
 
@@ -93,10 +83,7 @@ async function getAccountingSyncRecordByTransactionProvider(
     .unique();
 }
 
-async function listAccountingSyncRecordsByTeam(
-  ctx: AccountingSyncCtx,
-  teamId: Id<"teams">,
-) {
+async function listAccountingSyncRecordsByTeam(ctx: AccountingSyncCtx, teamId: Id<"teams">) {
   return ctx.db
     .query("accountingSyncRecords")
     .withIndex("by_team_id", (q) => q.eq("teamId", teamId))
@@ -135,9 +122,7 @@ export const serviceGetAccountingSyncStatus = query({
           ),
         );
 
-        records = existing.flatMap((record) =>
-          record ? [record as AccountingSyncDocument] : [],
-        );
+        records = existing.flatMap((record) => (record ? [record as AccountingSyncDocument] : []));
       } else {
         const existing = await Promise.all(
           transactionIds.map((transactionId) =>
@@ -153,21 +138,13 @@ export const serviceGetAccountingSyncStatus = query({
         records = existing.flat() as AccountingSyncDocument[];
       }
     } else if (args.provider) {
-      const statuses: AccountingSyncStatus[] = [
-        "synced",
-        "partial",
-        "failed",
-        "pending",
-      ];
+      const statuses: AccountingSyncStatus[] = ["synced", "partial", "failed", "pending"];
       const existing = await Promise.all(
         statuses.map((status) =>
           ctx.db
             .query("accountingSyncRecords")
             .withIndex("by_team_provider_status", (q) =>
-              q
-                .eq("teamId", team._id)
-                .eq("provider", args.provider!)
-                .eq("status", status),
+              q.eq("teamId", team._id).eq("provider", args.provider!).eq("status", status),
             )
             .collect(),
         ),
@@ -175,10 +152,7 @@ export const serviceGetAccountingSyncStatus = query({
 
       records = existing.flat() as AccountingSyncDocument[];
     } else {
-      records = (await listAccountingSyncRecordsByTeam(
-        ctx,
-        team._id,
-      )) as AccountingSyncDocument[];
+      records = (await listAccountingSyncRecordsByTeam(ctx, team._id)) as AccountingSyncDocument[];
     }
 
     return records
@@ -223,8 +197,7 @@ export const serviceUpsertAccountingSyncRecord = mutation({
         providerTenantId: args.providerTenantId,
         providerTransactionId: args.providerTransactionId,
         syncedAttachmentMapping:
-          (args.syncedAttachmentMapping as Record<string, string | null> | undefined) ??
-          {},
+          (args.syncedAttachmentMapping as Record<string, string | null> | undefined) ?? {},
         syncedAt,
         syncType: args.syncType,
         status,
@@ -239,10 +212,7 @@ export const serviceUpsertAccountingSyncRecord = mutation({
         throw new ConvexError("Failed to update accounting sync record");
       }
 
-      return serializeAccountingSyncRecord(
-        args.publicTeamId,
-        updated as AccountingSyncDocument,
-      );
+      return serializeAccountingSyncRecord(args.publicTeamId, updated as AccountingSyncDocument);
     }
 
     const insertedId = await ctx.db.insert("accountingSyncRecords", {
@@ -253,8 +223,7 @@ export const serviceUpsertAccountingSyncRecord = mutation({
       providerTenantId: args.providerTenantId,
       providerTransactionId: args.providerTransactionId,
       syncedAttachmentMapping:
-        (args.syncedAttachmentMapping as Record<string, string | null> | undefined) ??
-        {},
+        (args.syncedAttachmentMapping as Record<string, string | null> | undefined) ?? {},
       syncedAt,
       syncType: args.syncType,
       status,
@@ -270,10 +239,7 @@ export const serviceUpsertAccountingSyncRecord = mutation({
       throw new ConvexError("Failed to create accounting sync record");
     }
 
-    return serializeAccountingSyncRecord(
-      args.publicTeamId,
-      inserted as AccountingSyncDocument,
-    );
+    return serializeAccountingSyncRecord(args.publicTeamId, inserted as AccountingSyncDocument);
   },
 });
 
@@ -353,10 +319,7 @@ export const serviceUpdateSyncedAttachmentMapping = mutation({
   async handler(ctx, args) {
     requireServiceKey(args.serviceKey);
 
-    const existing = await getAccountingSyncRecordByLegacyId(
-      ctx,
-      args.syncRecordId,
-    );
+    const existing = await getAccountingSyncRecordByLegacyId(ctx, args.syncRecordId);
 
     if (!existing) {
       return null;
@@ -364,16 +327,11 @@ export const serviceUpdateSyncedAttachmentMapping = mutation({
 
     await ctx.db.patch(existing._id, {
       syncedAttachmentMapping:
-        (args.syncedAttachmentMapping as Record<string, string | null> | undefined) ??
-        {},
+        (args.syncedAttachmentMapping as Record<string, string | null> | undefined) ?? {},
       syncedAt: nowIso(),
       ...(args.status !== undefined ? { status: args.status } : {}),
-      ...(args.errorMessage !== undefined
-        ? { errorMessage: args.errorMessage ?? undefined }
-        : {}),
-      ...(args.errorCode !== undefined
-        ? { errorCode: args.errorCode ?? undefined }
-        : {}),
+      ...(args.errorMessage !== undefined ? { errorMessage: args.errorMessage ?? undefined } : {}),
+      ...(args.errorCode !== undefined ? { errorCode: args.errorCode ?? undefined } : {}),
     });
 
     const updated = await ctx.db.get(existing._id);

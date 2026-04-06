@@ -1,9 +1,6 @@
 import { track } from "@/lib/telemetry/client";
 import { LogEvents } from "@/lib/telemetry/events";
-import {
-  getTellerApplicationId,
-  getTellerEnvironment,
-} from "@tamias/utils/envs";
+import { getTellerApplicationId, getTellerEnvironment } from "@tamias/utils/envs";
 import { useEffect, useState } from "react";
 import { useTheme } from "@/components/theme-provider";
 import { useConnectParams } from "@/hooks/use-connect-params";
@@ -30,10 +27,7 @@ export function TellerConnect({ id, onSelect, connectRef }: Props) {
         environment: tellerEnvironment,
         institution,
         appearance: theme,
-        onSuccess: (authorization: {
-          accessToken: string;
-          enrollment: { id: string };
-        }) => {
+        onSuccess: (authorization: { accessToken: string; enrollment: { id: string } }) => {
           setParams({
             step: "account",
             provider: "teller",

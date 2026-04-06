@@ -11,12 +11,7 @@ type Props = {
   selectedId?: string;
 };
 
-export function SearchCustomers({
-  onCreate,
-  onSelect,
-  onEdit,
-  selectedId,
-}: Props) {
+export function SearchCustomers({ onCreate, onSelect, onEdit, selectedId }: Props) {
   const trpc = useTRPC();
 
   const { data: customers } = useQuery(
@@ -62,10 +57,7 @@ export function SearchCustomers({
       renderOnCreate={(name) => {
         return (
           <div className="flex items-center space-x-2">
-            <button
-              type="button"
-              onClick={() => onCreate?.(name)}
-            >{`Create "${name}"`}</button>
+            <button type="button" onClick={() => onCreate?.(name)}>{`Create "${name}"`}</button>
           </div>
         );
       }}

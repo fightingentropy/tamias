@@ -4,13 +4,8 @@ import {
   type DocumentTagAssignmentRecord,
 } from "@tamias/app-data-convex";
 
-function groupAssignmentsByDocumentId(
-  assignments: DocumentTagAssignmentRecord[],
-) {
-  const assignmentsByDocumentId = new Map<
-    string,
-    DocumentTagAssignmentRecord[]
-  >();
+function groupAssignmentsByDocumentId(assignments: DocumentTagAssignmentRecord[]) {
+  const assignmentsByDocumentId = new Map<string, DocumentTagAssignmentRecord[]>();
 
   for (const assignment of assignments) {
     const current = assignmentsByDocumentId.get(assignment.documentId) ?? [];
@@ -21,10 +16,7 @@ function groupAssignmentsByDocumentId(
   return assignmentsByDocumentId;
 }
 
-async function getAssignmentsByDocumentId(
-  teamId: string,
-  documentIds: string[],
-) {
+async function getAssignmentsByDocumentId(teamId: string, documentIds: string[]) {
   if (documentIds.length === 0) {
     return new Map<string, DocumentTagAssignmentRecord[]>();
   }
@@ -52,10 +44,7 @@ export async function attachAssignments<TDocument extends { id: string }>(
   }));
 }
 
-export async function deleteDocumentTagAssignments(
-  teamId: string,
-  documentId: string,
-) {
+export async function deleteDocumentTagAssignments(teamId: string, documentId: string) {
   const assignments = await getDocumentTagAssignmentsForDocumentIdsFromConvex({
     teamId,
     documentIds: [documentId],

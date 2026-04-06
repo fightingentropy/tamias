@@ -140,9 +140,7 @@ function getCurrencyWord(currency: string): string {
 /**
  * Determine the emotional tone based on the week's performance
  */
-function computeMood(
-  slots: InsightSlots,
-): "celebratory" | "positive" | "neutral" | "supportive" {
+function computeMood(slots: InsightSlots): "celebratory" | "positive" | "neutral" | "supportive" {
   // Always be supportive for challenging weeks (losses, no revenue, critical runway)
   if (slots.weekType === "challenging") return "supportive";
 
@@ -263,12 +261,8 @@ export function extractFacts(slots: InsightSlots): InsightFacts {
 
   // Extract alerts and warnings (handle undefined anomalies for eval tests)
   const anomalies = slots.anomalies ?? [];
-  const alerts = anomalies
-    .filter((a) => a.severity === "alert")
-    .map((a) => a.message);
-  const warnings = anomalies
-    .filter((a) => a.severity === "warning")
-    .map((a) => a.message);
+  const alerts = anomalies.filter((a) => a.severity === "alert").map((a) => a.message);
+  const warnings = anomalies.filter((a) => a.severity === "warning").map((a) => a.message);
 
   return {
     periodLabel: slots.periodLabel,
@@ -308,9 +302,7 @@ export function extractFacts(slots: InsightSlots): InsightFacts {
       ? {
           customer: slots.largestPayment.customer,
           amount: slots.largestPayment.amount,
-          rawAmount: Number.parseFloat(
-            slots.largestPayment.amount.replace(/[^0-9.-]/g, ""),
-          ),
+          rawAmount: Number.parseFloat(slots.largestPayment.amount.replace(/[^0-9.-]/g, "")),
         }
       : null,
 

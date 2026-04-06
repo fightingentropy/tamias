@@ -1,19 +1,9 @@
 import type { UnifiedApp } from "@tamias/app-store/types";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@tamias/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@tamias/ui/accordion";
 import { Badge } from "@tamias/ui/badge";
 import { Button } from "@tamias/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@tamias/ui/card";
-import {
-  Carousel,
-  type CarouselApi,
-  CarouselContent,
-  CarouselItem,
-} from "@tamias/ui/carousel";
+import { Carousel, type CarouselApi, CarouselContent, CarouselItem } from "@tamias/ui/carousel";
 import { ScrollArea } from "@tamias/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader } from "@tamias/ui/sheet";
 import { SubmitButton } from "@tamias/ui/submit-button";
@@ -57,13 +47,7 @@ interface UnifiedAppProps {
   userEmail?: string;
 }
 
-function CarouselWithDots({
-  images,
-  appName,
-}: {
-  images: string[];
-  appName: string;
-}) {
+function CarouselWithDots({ images, appName }: { images: string[]; appName: string }) {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
 
@@ -104,9 +88,7 @@ function CarouselWithDots({
             key={`dot-${image}-${index.toString()}`}
             type="button"
             className={`w-2 h-2 rounded-full transition-all ${
-              index === current
-                ? "bg-white shadow-lg"
-                : "bg-white/50 hover:bg-white/75"
+              index === current ? "bg-white shadow-lg" : "bg-white/50 hover:bg-white/75"
             }`}
             onClick={() => api?.scrollTo(index)}
             aria-label={`Go to screenshot ${index + 1}`}
@@ -280,9 +262,7 @@ export function UnifiedAppComponent({ app }: UnifiedAppProps) {
     <Card key={app.id} className="w-full flex flex-col">
       <Sheet open={params.app === app.id} onOpenChange={() => setParams(null)}>
         <div className="pt-6 px-6 h-16 flex items-center justify-between">
-          {app.type === "official" &&
-          app.logo &&
-          typeof app.logo !== "string" ? (
+          {app.type === "official" && app.logo && typeof app.logo !== "string" ? (
             <app.logo />
           ) : (
             <img src={app.logo as string} alt={app.name} className="w-8 h-8" />
@@ -299,9 +279,7 @@ export function UnifiedAppComponent({ app }: UnifiedAppProps) {
 
         <CardHeader className="pb-0">
           <div className="flex items-center space-x-2 pb-4">
-            <CardTitle className="text-md font-medium leading-none p-0 m-0">
-              {app.name}
-            </CardTitle>
+            <CardTitle className="text-md font-medium leading-none p-0 m-0">{app.name}</CardTitle>
             {!app.active && (
               <span className="text-[#878787] bg-[#F2F1EF] text-[10px] dark:bg-[#1D1D1D] px-3 py-1 rounded-full font-mono">
                 Coming soon
@@ -379,16 +357,10 @@ export function UnifiedAppComponent({ app }: UnifiedAppProps) {
 
             <div className="flex items-center justify-between border-b border-border pb-2">
               <div className="flex items-center space-x-2">
-                {app.type === "official" &&
-                app.logo &&
-                typeof app.logo !== "string" ? (
+                {app.type === "official" && app.logo && typeof app.logo !== "string" ? (
                   <app.logo />
                 ) : (
-                  <img
-                    src={app.logo as string}
-                    alt={app.name}
-                    className="w-8 h-8 rounded"
-                  />
+                  <img src={app.logo as string} alt={app.name} className="w-8 h-8 rounded" />
                 )}
                 <div>
                   <div className="flex items-center space-x-2">
@@ -400,9 +372,7 @@ export function UnifiedAppComponent({ app }: UnifiedAppProps) {
 
                   <span className="text-xs text-[#878787]">
                     {app.category} •{" "}
-                    {app.type === "external"
-                      ? `By ${app.developerName}`
-                      : "By Tamias"}
+                    {app.type === "external" ? `By ${app.developerName}` : "By Tamias"}
                   </span>
                 </div>
               </div>
@@ -435,10 +405,7 @@ export function UnifiedAppComponent({ app }: UnifiedAppProps) {
               <ScrollArea className="h-[calc(100vh-530px)] pt-2" hideScrollbar>
                 <Accordion
                   type="multiple"
-                  defaultValue={[
-                    "description",
-                    ...(params.settings ? ["settings"] : []),
-                  ]}
+                  defaultValue={["description", ...(params.settings ? ["settings"] : [])]}
                   className="mt-4"
                 >
                   <AccordionItem value="description" className="border-none">
@@ -459,37 +426,28 @@ export function UnifiedAppComponent({ app }: UnifiedAppProps) {
                     </AccordionItem>
                   )}
 
-                  {app.type === "official" &&
-                    app.settings &&
-                    app.settings.length > 0 && (
-                      <AccordionItem value="settings" className="border-none">
-                        <AccordionTrigger>Settings</AccordionTrigger>
-                        <AccordionContent className="text-[#878787] text-sm">
-                          <AppSettings
-                            appId={app.id}
-                            settings={app.settings.map((setting) => {
-                              // Find the user setting for this setting ID
-                              const userSetting = Array.isArray(
-                                app.userSettings,
-                              )
-                                ? app.userSettings.find(
-                                    (us: any) => us.id === setting.id,
-                                  )
-                                : null;
+                  {app.type === "official" && app.settings && app.settings.length > 0 && (
+                    <AccordionItem value="settings" className="border-none">
+                      <AccordionTrigger>Settings</AccordionTrigger>
+                      <AccordionContent className="text-[#878787] text-sm">
+                        <AppSettings
+                          appId={app.id}
+                          settings={app.settings.map((setting) => {
+                            // Find the user setting for this setting ID
+                            const userSetting = Array.isArray(app.userSettings)
+                              ? app.userSettings.find((us: any) => us.id === setting.id)
+                              : null;
 
-                              return {
-                                ...setting,
-                                type: setting.type as
-                                  | "switch"
-                                  | "text"
-                                  | "select",
-                                value: userSetting?.value ?? setting.value,
-                              };
-                            })}
-                          />
-                        </AccordionContent>
-                      </AccordionItem>
-                    )}
+                            return {
+                              ...setting,
+                              type: setting.type as "switch" | "text" | "select",
+                              value: userSetting?.value ?? setting.value,
+                            };
+                          })}
+                        />
+                      </AccordionContent>
+                    </AccordionItem>
+                  )}
 
                   {app.type === "external" && (
                     <>
@@ -510,10 +468,7 @@ export function UnifiedAppComponent({ app }: UnifiedAppProps) {
                       )}
 
                       {app.scopes && app.scopes.length > 0 && (
-                        <AccordionItem
-                          value="permissions"
-                          className="border-none"
-                        >
+                        <AccordionItem value="permissions" className="border-none">
                           <AccordionTrigger>Permissions</AccordionTrigger>
                           <AccordionContent>
                             <div className="flex flex-wrap gap-2">
@@ -533,17 +488,13 @@ export function UnifiedAppComponent({ app }: UnifiedAppProps) {
 
               <div className="absolute bottom-4 pt-8 border-t border-border">
                 <p className="text-[10px] text-[#878787]">
-                  All apps on the Tamias App Store are open-source and
-                  peer-reviewed. Tamias Labs AB maintains high standards but
-                  doesn't endorse third-party apps. Apps published by Tamias are
-                  officially certified. Report any concerns about app content or
+                  All apps on the Tamias App Store are open-source and peer-reviewed. Tamias Labs AB
+                  maintains high standards but doesn't endorse third-party apps. Apps published by
+                  Tamias are officially certified. Report any concerns about app content or
                   behavior.
                 </p>
 
-                <a
-                  href="mailto:support@tamias.dev"
-                  className="text-[10px] text-red-500"
-                >
+                <a href="mailto:support@tamias.dev" className="text-[10px] text-red-500">
                   Report app
                 </a>
               </div>

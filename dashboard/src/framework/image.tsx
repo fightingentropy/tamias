@@ -36,8 +36,7 @@ const Image = forwardRef<HTMLImageElement, ImageProps>(function Image(
 ) {
   const resolvedSrc = typeof src === "string" ? src : src.src;
   const resolvedWidth = width ?? (typeof src === "object" ? src.width : undefined);
-  const resolvedHeight =
-    height ?? (typeof src === "object" ? src.height : undefined);
+  const resolvedHeight = height ?? (typeof src === "object" ? src.height : undefined);
   const imageStyle: CSSProperties = fill
     ? {
         position: "absolute",
@@ -46,7 +45,7 @@ const Image = forwardRef<HTMLImageElement, ImageProps>(function Image(
         height: "100%",
         ...style,
       }
-    : style ?? {};
+    : (style ?? {});
 
   return (
     <img

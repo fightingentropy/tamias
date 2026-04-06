@@ -18,12 +18,7 @@ interface EmptyStateProps {
  * Generic empty state component for tables
  * Used when there is no data to display
  */
-export function EmptyState({
-  title,
-  description,
-  actionLabel,
-  onAction,
-}: EmptyStateProps) {
+export function EmptyState({ title, description, actionLabel, onAction }: EmptyStateProps) {
   return (
     <div className="flex items-center justify-center">
       <div className="flex flex-col items-center mt-40">

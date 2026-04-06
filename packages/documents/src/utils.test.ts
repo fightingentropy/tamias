@@ -2,9 +2,7 @@ import { expect, test } from "bun:test";
 import { getAllowedAttachments, getDomainFromEmail } from "./utils";
 
 test("Get domain from email", () => {
-  expect(getDomainFromEmail("invoice@northstarcloud.com")).toMatch(
-    "northstarcloud.com",
-  );
+  expect(getDomainFromEmail("invoice@northstarcloud.com")).toMatch("northstarcloud.com");
 });
 
 test("Should return 2 allowed attachments", () => {

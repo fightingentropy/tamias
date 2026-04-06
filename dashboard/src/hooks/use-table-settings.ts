@@ -1,10 +1,6 @@
 "use client";
 
-import type {
-  ColumnOrderState,
-  ColumnSizingState,
-  VisibilityState,
-} from "@tanstack/react-table";
+import type { ColumnOrderState, ColumnSizingState, VisibilityState } from "@tanstack/react-table";
 import { addYears } from "date-fns";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { setJsonClientCookie } from "@/utils/client-cookies";
@@ -43,16 +39,10 @@ export function useTableSettings({
   // Merge initial settings with defaults
   const settings = mergeWithDefaults(initialSettings, tableId);
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    settings.columns,
-  );
-  const [columnSizing, setColumnSizing] = useState<ColumnSizingState>(
-    settings.sizing,
-  );
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(settings.columns);
+  const [columnSizing, setColumnSizing] = useState<ColumnSizingState>(settings.sizing);
   const [columnOrder, setColumnOrder] = useState<ColumnOrderState>(
-    columnIds
-      ? normalizeColumnOrder(settings.order, columnIds)
-      : settings.order,
+    columnIds ? normalizeColumnOrder(settings.order, columnIds) : settings.order,
   );
 
   // Track initial mount to skip first persist
@@ -63,11 +53,7 @@ export function useTableSettings({
 
   // Persist settings to unified cookie
   const persistSettings = useCallback(
-    (
-      visibility: VisibilityState,
-      sizing: ColumnSizingState,
-      order: ColumnOrderState,
-    ) => {
+    (visibility: VisibilityState, sizing: ColumnSizingState, order: ColumnOrderState) => {
       // Clear existing debounce
       if (debounceRef.current) {
         clearTimeout(debounceRef.current);
@@ -84,9 +70,7 @@ export function useTableSettings({
           let allSettings: Record<string, Partial<TableSettings>> = {};
           if (existingCookie) {
             try {
-              allSettings = JSON.parse(
-                decodeURIComponent(existingCookie.split("=")[1] ?? "{}"),
-              );
+              allSettings = JSON.parse(decodeURIComponent(existingCookie.split("=")[1] ?? "{}"));
             } catch {
               // Invalid JSON, start fresh
               allSettings = {};

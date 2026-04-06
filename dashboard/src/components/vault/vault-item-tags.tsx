@@ -41,10 +41,7 @@ export function VaultItemTags({ tags, isLoading }: Props) {
             });
           }}
         >
-          <Badge
-            variant="tag-rounded"
-            className="whitespace-nowrap shrink-0 text-[10px]"
-          >
+          <Badge variant="tag-rounded" className="whitespace-nowrap shrink-0 text-[10px]">
             {tag.documentTag.name}
           </Badge>
         </button>

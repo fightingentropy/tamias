@@ -3,12 +3,7 @@
 import { Avatar, AvatarFallback, AvatarImageNext } from "@tamias/ui/avatar";
 import { Button } from "@tamias/ui/button";
 import { Skeleton } from "@tamias/ui/skeleton";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "@/framework/link";
@@ -80,9 +75,7 @@ export function TeamDropdown({ isExpanded = false }: Props) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
-  const [selectedId, setSelectedId] = useState<string | undefined>(
-    user?.team?.id,
-  );
+  const [selectedId, setSelectedId] = useState<string | undefined>(user?.team?.id);
   const [isActive, setActive] = useState(false);
   const [isChangingTeam, setIsChangingTeam] = useState(false);
   const [hasRequestedTeams, setHasRequestedTeams] = useState(false);
@@ -136,10 +129,7 @@ export function TeamDropdown({ isExpanded = false }: Props) {
       logoUrl: team.logoUrl,
     }));
 
-    if (
-      currentTeam[0] &&
-      !normalizedTeams.some((team) => team.id === currentTeam[0]?.id)
-    ) {
+    if (currentTeam[0] && !normalizedTeams.some((team) => team.id === currentTeam[0]?.id)) {
       return [...currentTeam, ...normalizedTeams];
     }
 

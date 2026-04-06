@@ -16,20 +16,13 @@ import { Button } from "@tamias/ui/button";
 import { Icons } from "@tamias/ui/icons";
 import { Input } from "@tamias/ui/input";
 import { Label } from "@tamias/ui/label";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useTRPC } from "@/trpc/client";
 
-type BankConnection = NonNullable<
-  RouterOutputs["bankConnections"]["get"]
->[number];
+type BankConnection = NonNullable<RouterOutputs["bankConnections"]["get"]>[number];
 
 type Props = {
   connection: BankConnection;
@@ -92,8 +85,8 @@ export function DeleteConnection({ connection }: Props) {
           <AlertDialogDescription asChild>
             <div className="space-y-3">
               <p>
-                This will permanently remove the connection and all its accounts
-                and transaction history. This cannot be undone.
+                This will permanently remove the connection and all its accounts and transaction
+                history. This cannot be undone.
               </p>
               <div className="my-6 px-3 py-3 bg-amber-50 border border-amber-200 dark:bg-amber-900/10 dark:border-amber-800/30">
                 <div className="flex items-start gap-2">
@@ -127,20 +120,14 @@ export function DeleteConnection({ connection }: Props) {
           <Label htmlFor="confirm-delete">
             Type <span className="font-medium">DELETE</span> to confirm
           </Label>
-          <Input
-            id="confirm-delete"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-          />
+          <Input id="confirm-delete" value={value} onChange={(e) => setValue(e.target.value)} />
         </div>
 
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             disabled={value !== "DELETE" || deleteConnectionMutation.isPending}
-            onClick={() =>
-              deleteConnectionMutation.mutate({ id: connection.id })
-            }
+            onClick={() => deleteConnectionMutation.mutate({ id: connection.id })}
           >
             {deleteConnectionMutation.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />

@@ -15,12 +15,7 @@ type Props = {
   }[];
 };
 
-export function NotificationSetting({
-  type,
-  name,
-  description,
-  settings,
-}: Props) {
+export function NotificationSetting({ type, name, description, settings }: Props) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
@@ -33,36 +28,31 @@ export function NotificationSetting({
         });
 
         // Snapshot the previous value
-        const previousData = queryClient.getQueryData(
-          trpc.notificationSettings.getAll.queryKey(),
-        );
+        const previousData = queryClient.getQueryData(trpc.notificationSettings.getAll.queryKey());
 
         // Optimistically update the cache
-        queryClient.setQueryData(
-          trpc.notificationSettings.getAll.queryKey(),
-          (old) => {
-            if (!old) return old;
+        queryClient.setQueryData(trpc.notificationSettings.getAll.queryKey(), (old) => {
+          if (!old) return old;
 
-            return old.map((notificationType) => {
-              if (notificationType.type !== variables.notificationType) {
-                return notificationType;
-              }
+          return old.map((notificationType) => {
+            if (notificationType.type !== variables.notificationType) {
+              return notificationType;
+            }
 
-              return {
-                ...notificationType,
-                settings: notificationType.settings.map((setting) => {
-                  if (setting.channel !== variables.channel) {
-                    return setting;
-                  }
-                  return {
-                    ...setting,
-                    enabled: variables.enabled,
-                  };
-                }),
-              };
-            });
-          },
-        );
+            return {
+              ...notificationType,
+              settings: notificationType.settings.map((setting) => {
+                if (setting.channel !== variables.channel) {
+                  return setting;
+                }
+                return {
+                  ...setting,
+                  enabled: variables.enabled,
+                };
+              }),
+            };
+          });
+        });
 
         // Return a context object with the snapshotted value
         return { previousData };
@@ -85,10 +75,7 @@ export function NotificationSetting({
     }),
   );
 
-  const onChange = (
-    channel: "in_app" | "email" | "push",
-    newEnabled: boolean,
-  ) => {
+  const onChange = (channel: "in_app" | "email" | "push", newEnabled: boolean) => {
     updateSetting.mutate({
       notificationType: type,
       channel,
@@ -113,9 +100,7 @@ export function NotificationSetting({
           {/* In-App Checkbox */}
           {getSettingByChannel("in_app") && (
             <div className="flex flex-col items-center space-y-2">
-              <Label className="text-xs font-medium text-[#606060]">
-                In-app
-              </Label>
+              <Label className="text-xs font-medium text-[#606060]">In-app</Label>
               <Checkbox
                 id={`${type}-in_app`}
                 checked={getSettingByChannel("in_app")?.enabled ?? false}
@@ -126,9 +111,7 @@ export function NotificationSetting({
 
           {getSettingByChannel("email") && (
             <div className="flex flex-col items-center space-y-2">
-              <Label className="text-xs font-medium text-[#606060]">
-                Email
-              </Label>
+              <Label className="text-xs font-medium text-[#606060]">Email</Label>
               <Checkbox
                 id={`${type}-email`}
                 checked={getSettingByChannel("email")?.enabled ?? false}

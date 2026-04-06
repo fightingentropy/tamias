@@ -13,10 +13,7 @@ export type UpdateAppTokensParams = {
   expiresAt: string;
 };
 
-export const updateAppTokens = async (
-  _db: Database,
-  params: UpdateAppTokensParams,
-) => {
+export const updateAppTokens = async (_db: Database, params: UpdateAppTokensParams) => {
   const result = await mergeInstalledAppConfigInConvex({
     teamId: params.teamId,
     appId: params.appId,

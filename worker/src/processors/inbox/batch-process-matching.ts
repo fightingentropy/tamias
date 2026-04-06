@@ -1,9 +1,6 @@
 import { calculateInboxSuggestions, hasSuggestion } from "@tamias/app-data/queries";
 import type { WorkerJob as Job } from "../../types/job";
-import {
-  type BatchProcessMatchingPayload,
-  batchProcessMatchingSchema,
-} from "../../schemas/inbox";
+import { type BatchProcessMatchingPayload, batchProcessMatchingSchema } from "../../schemas/inbox";
 import { getDb } from "../../utils/db";
 import { classifyError } from "../../utils/error-classification";
 import { triggerMatchingNotification } from "../../utils/inbox-matching-notifications";

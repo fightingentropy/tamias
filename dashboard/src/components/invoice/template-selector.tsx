@@ -26,9 +26,7 @@ export function TemplateSelector() {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const { data: templates, refetch } = useQuery(
-    trpc.invoiceTemplate.list.queryOptions(),
-  );
+  const { data: templates, refetch } = useQuery(trpc.invoiceTemplate.list.queryOptions());
 
   const currentTemplateId = watch("template.id");
   const currentTemplateName = watch("template.name") || "Default";
@@ -62,10 +60,7 @@ export function TemplateSelector() {
     }
   };
 
-  const handleTemplateCreated = async (newTemplate: {
-    id: string;
-    name: string;
-  }) => {
+  const handleTemplateCreated = async (newTemplate: { id: string; name: string }) => {
     // Invalidate count query so settings-menu has fresh data
     queryClient.invalidateQueries({
       queryKey: trpc.invoiceTemplate.count.queryKey(),
@@ -96,9 +91,7 @@ export function TemplateSelector() {
             type="button"
             className="h-9 px-3 flex items-center justify-center gap-2 border border-border hover:bg-accent transition-colors text-xs"
           >
-            <span className="max-w-[120px] truncate">
-              {currentTemplateName}
-            </span>
+            <span className="max-w-[120px] truncate">{currentTemplateName}</span>
             <Icons.ChevronDown className="size-4 text-[#666]" />
           </button>
         </DropdownMenuTrigger>
@@ -123,26 +116,19 @@ export function TemplateSelector() {
                 <span className="flex items-center gap-1">
                   {template.name}
                   {template.isDefault && (
-                    <span className="text-muted-foreground text-[10px]">
-                      (Default)
-                    </span>
+                    <span className="text-muted-foreground text-[10px]">(Default)</span>
                   )}
                 </span>
               </DropdownMenuCheckboxItem>
             ))}
             {(!templates || templates.length === 0) && (
-              <div className="px-2 py-1.5 text-xs text-muted-foreground">
-                No templates yet
-              </div>
+              <div className="px-2 py-1.5 text-xs text-muted-foreground">No templates yet</div>
             )}
           </DropdownMenuGroup>
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem
-            onClick={() => setDialogOpen(true)}
-            className="text-xs cursor-pointer"
-          >
+          <DropdownMenuItem onClick={() => setDialogOpen(true)} className="text-xs cursor-pointer">
             <Icons.Add className="mr-2 size-4" />
             Create new
           </DropdownMenuItem>

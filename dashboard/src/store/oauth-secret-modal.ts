@@ -8,22 +8,20 @@ interface OAuthSecretModalState {
   close: () => void;
 }
 
-export const useOAuthSecretModalStore = create<OAuthSecretModalState>()(
-  (set) => ({
-    isOpen: false,
-    clientSecret: undefined,
-    applicationName: undefined,
-    setSecret: (secret, applicationName) =>
-      set({
-        isOpen: true,
-        clientSecret: secret,
-        applicationName,
-      }),
-    close: () =>
-      set({
-        isOpen: false,
-        clientSecret: undefined,
-        applicationName: undefined,
-      }),
-  }),
-);
+export const useOAuthSecretModalStore = create<OAuthSecretModalState>()((set) => ({
+  isOpen: false,
+  clientSecret: undefined,
+  applicationName: undefined,
+  setSecret: (secret, applicationName) =>
+    set({
+      isOpen: true,
+      clientSecret: secret,
+      applicationName,
+    }),
+  close: () =>
+    set({
+      isOpen: false,
+      clientSecret: undefined,
+      applicationName: undefined,
+    }),
+}));

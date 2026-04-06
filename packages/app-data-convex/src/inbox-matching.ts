@@ -1,17 +1,9 @@
 import type { ConvexUserId } from "./base";
 import { api, convexApi, createClient, serviceArgs } from "./base";
 
-export type MatchSuggestionStatus =
-  | "pending"
-  | "confirmed"
-  | "declined"
-  | "expired"
-  | "unmatched";
+export type MatchSuggestionStatus = "pending" | "confirmed" | "declined" | "expired" | "unmatched";
 
-export type MatchSuggestionType =
-  | "auto_matched"
-  | "high_confidence"
-  | "suggested";
+export type MatchSuggestionType = "auto_matched" | "high_confidence" | "suggested";
 
 export type TransactionMatchSuggestionRecord = {
   id: string;

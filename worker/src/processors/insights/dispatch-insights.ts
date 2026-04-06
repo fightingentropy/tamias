@@ -1,10 +1,6 @@
 import { getInsightByPeriod } from "@tamias/app-data/queries";
 import { getTeamsForInsights } from "@tamias/app-data/queries";
-import {
-  getEnabledTeamIds,
-  getPreviousCompletePeriod,
-  type PeriodType,
-} from "@tamias/insights";
+import { getEnabledTeamIds, getPreviousCompletePeriod, type PeriodType } from "@tamias/insights";
 import { enqueue } from "@tamias/job-client";
 import type { WorkerJob as Job } from "../../types/job";
 import { getDb } from "../../utils/db";
@@ -80,10 +76,9 @@ export class DispatchInsightsProcessor extends BaseProcessor<DispatchInsightsPay
 
     // Empty array = no teams enabled (safe default for staging)
     if (enabledTeamIds !== undefined && enabledTeamIds.length === 0) {
-      this.logger.info(
-        "No teams configured for insights (INSIGHTS_ENABLED_TEAM_IDS is empty)",
-        { periodType },
-      );
+      this.logger.info("No teams configured for insights (INSIGHTS_ENABLED_TEAM_IDS is empty)", {
+        periodType,
+      });
       return emptyResult();
     }
 
@@ -109,13 +104,10 @@ export class DispatchInsightsProcessor extends BaseProcessor<DispatchInsightsPay
     let cursor: string | null = null;
     let totalTeamsProcessed = 0;
 
-    this.logger.info(
-      `Generating insights for teams where it's ${TARGET_LOCAL_HOUR} AM local`,
-      {
-        periodType,
-        periodLabel: period.periodLabel,
-      },
-    );
+    this.logger.info(`Generating insights for teams where it's ${TARGET_LOCAL_HOUR} AM local`, {
+      periodType,
+      periodLabel: period.periodLabel,
+    });
 
     // Process teams in batches using cursor-based pagination
     while (true) {
@@ -208,13 +200,9 @@ export class DispatchInsightsProcessor extends BaseProcessor<DispatchInsightsPay
               delay: jobDelay,
             };
           } catch (error) {
-            const errorMessage =
-              error instanceof Error ? error.message : "Unknown error";
+            const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
-            if (
-              errorMessage.includes("Job with id") ||
-              errorMessage.includes("already exists")
-            ) {
+            if (errorMessage.includes("Job with id") || errorMessage.includes("already exists")) {
               return {
                 teamId: team.id,
                 status: "duplicate" as const,
@@ -277,8 +265,7 @@ export class DispatchInsightsProcessor extends BaseProcessor<DispatchInsightsPay
     }
 
     // Calculate estimated completion time
-    const estimatedCompletionSeconds =
-      dispatched > 0 ? (dispatched * STAGGER_DELAY_MS) / 1000 : 0;
+    const estimatedCompletionSeconds = dispatched > 0 ? (dispatched * STAGGER_DELAY_MS) / 1000 : 0;
 
     this.logger.info("Insights dispatch complete", {
       periodType,

@@ -58,11 +58,6 @@ export const notificationSettingsRouter = createTRPCRouter({
         throw new Error("Missing Convex user id");
       }
 
-      return bulkUpdateNotificationSettings(
-        db,
-        session.user.convexId,
-        teamId!,
-        input.updates,
-      );
+      return bulkUpdateNotificationSettings(db, session.user.convexId, teamId!, input.updates);
     }),
 });

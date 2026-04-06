@@ -1,7 +1,4 @@
-import type {
-  AgentDataParts,
-  AgentUIMessage as BaseAgentUIMessage,
-} from "@ai-sdk-tools/agents";
+import type { AgentDataParts, AgentUIMessage as BaseAgentUIMessage } from "@ai-sdk-tools/agents";
 
 /**
  * Extended agent status type with application-specific agent names

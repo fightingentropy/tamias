@@ -94,14 +94,10 @@ export class GoCardLessApi {
       return this.#getRefreshToken(refreshToken);
     }
 
-    const response = await this.#post<GetAccessTokenResponse>(
-      "/api/v2/token/new/",
-      undefined,
-      {
-        secret_id: this.#secretId,
-        secret_key: this.#secretKey,
-      },
-    );
+    const response = await this.#post<GetAccessTokenResponse>("/api/v2/token/new/", undefined, {
+      secret_id: this.#secretId,
+      secret_key: this.#secretKey,
+    });
 
     try {
       await Promise.all([
@@ -123,9 +119,7 @@ export class GoCardLessApi {
     return response.access;
   }
 
-  async getAccountBalance(
-    accountId: string,
-  ): Promise<AccountBalance["balanceAmount"] | undefined> {
+  async getAccountBalance(accountId: string): Promise<AccountBalance["balanceAmount"] | undefined> {
     const result = await this.getAccountBalances(accountId);
     return result?.primaryBalance?.balanceAmount;
   }
@@ -173,9 +167,7 @@ export class GoCardLessApi {
     }
   }
 
-  async getInstitutions(
-    params?: GetInstitutionsRequest,
-  ): Promise<GetInstitutionsResponse> {
+  async getInstitutions(params?: GetInstitutionsRequest): Promise<GetInstitutionsResponse> {
     const countryCode = params?.countryCode;
     const cacheKey = `${this.#institutionsCacheKey}_${countryCode}`;
 
@@ -185,19 +177,14 @@ export class GoCardLessApi {
       async () => {
         const token = await this.#getAccessToken();
 
-        return this.#get<GetInstitutionsResponse>(
-          "/api/v2/institutions/",
-          token,
-          undefined,
-          { params: { country: countryCode } },
-        );
+        return this.#get<GetInstitutionsResponse>("/api/v2/institutions/", token, undefined, {
+          params: { country: countryCode },
+        });
       },
     );
 
     if (countryCode) {
-      return response.filter((institution) =>
-        institution.countries.includes(countryCode),
-      );
+      return response.filter((institution) => institution.countries.includes(countryCode));
     }
 
     return response;
@@ -211,16 +198,12 @@ export class GoCardLessApi {
   }: PostRequisitionsRequest): Promise<PostRequisitionsResponse> {
     const token = await this.#getAccessToken();
 
-    return this.#post<PostRequisitionsResponse>(
-      "/api/v2/requisitions/",
-      token,
-      {
-        redirect,
-        institution_id: institutionId,
-        agreement,
-        reference,
-      },
-    );
+    return this.#post<PostRequisitionsResponse>("/api/v2/requisitions/", token, {
+      redirect,
+      institution_id: institutionId,
+      agreement,
+      reference,
+    });
   }
 
   async createEndUserAgreement({
@@ -235,21 +218,16 @@ export class GoCardLessApi {
     const maxHistoricalDays = getMaxHistoricalDays({
       institutionId,
       transactionTotalDays,
-      separateContinuousHistoryConsent:
-        institution.separate_continuous_history_consent,
+      separateContinuousHistoryConsent: institution.separate_continuous_history_consent,
     });
 
     const createAgreement = (accessDays: number) =>
-      this.#post<PostCreateAgreementResponse>(
-        "/api/v2/agreements/enduser/",
-        token,
-        {
-          institution_id: institutionId,
-          access_scope: ["balances", "details", "transactions"],
-          access_valid_for_days: accessDays,
-          max_historical_days: maxHistoricalDays,
-        },
-      );
+      this.#post<PostCreateAgreementResponse>("/api/v2/agreements/enduser/", token, {
+        institution_id: institutionId,
+        access_scope: ["balances", "details", "transactions"],
+        access_valid_for_days: accessDays,
+        max_historical_days: maxHistoricalDays,
+      });
 
     try {
       return await createAgreement(180);
@@ -270,10 +248,7 @@ export class GoCardLessApi {
     return bankingCache.getOrSet(cacheKey, CacheTTL.ONE_HOUR, async () => {
       const token = await this.#getAccessToken();
 
-      return this.#get<PostCreateAgreementResponse>(
-        `/api/v2/agreements/enduser/${id}/`,
-        token,
-      );
+      return this.#get<PostCreateAgreementResponse>(`/api/v2/agreements/enduser/${id}/`, token);
     });
   }
 
@@ -289,10 +264,7 @@ export class GoCardLessApi {
 
         const [account, details] = await Promise.all([
           this.#get<GetAccountResponse>(`/api/v2/accounts/${id}/`, token),
-          this.#get<GetAccountDetailsResponse>(
-            `/api/v2/accounts/${id}/details/`,
-            token,
-          ),
+          this.#get<GetAccountDetailsResponse>(`/api/v2/accounts/${id}/details/`, token),
         ]);
 
         return { ...account, ...details };
@@ -307,17 +279,12 @@ export class GoCardLessApi {
       async () => {
         const token = await this.#getAccessToken();
 
-        return this.#get<GetInstitutionResponse>(
-          `/api/v2/institutions/${id}/`,
-          token,
-        );
+        return this.#get<GetInstitutionResponse>(`/api/v2/institutions/${id}/`, token);
       },
     );
   }
 
-  async getAccounts({
-    id,
-  }: GetAccountsRequest): Promise<GetAccountsResponse | undefined> {
+  async getAccounts({ id }: GetAccountsRequest): Promise<GetAccountsResponse | undefined> {
     try {
       // Pre-resolve token once for all sub-requests to avoid repeated token fetches
       const token = await this.#getAccessToken();
@@ -342,10 +309,8 @@ export class GoCardLessApi {
           ]);
 
           return {
-            balance: selectPrimaryBalance(
-              balanceResult.balances,
-              details.account.currency,
-            )?.balanceAmount,
+            balance: selectPrimaryBalance(balanceResult.balances, details.account.currency)
+              ?.balanceAmount,
             balances: balanceResult.balances,
             institution,
             accessValidForDays: agreement.access_valid_for_days,
@@ -403,10 +368,7 @@ export class GoCardLessApi {
     try {
       const token = await this.#getAccessToken();
 
-      return await this.#get<GetRequisitionResponse>(
-        `/api/v2/requisitions/${id}/`,
-        token,
-      );
+      return await this.#get<GetRequisitionResponse>(`/api/v2/requisitions/${id}/`, token);
     } catch (error) {
       const parsedError = parseProviderError(error);
 
@@ -416,33 +378,22 @@ export class GoCardLessApi {
     }
   }
 
-  async getRequisitionByReference(
-    reference: string,
-  ): Promise<GetRequisitionResponse | undefined> {
+  async getRequisitionByReference(reference: string): Promise<GetRequisitionResponse | undefined> {
     const token = await this.#getAccessToken();
 
-    const response = await this.#get<GetRequisitionsResponse>(
-      "/api/v2/requisitions/",
-      token,
-    );
+    const response = await this.#get<GetRequisitionsResponse>("/api/v2/requisitions/", token);
 
     const id = reference.split(":").at(0);
 
     return response.results?.find((requisition) => {
-      return (
-        requisition.reference?.split(":").at(0) === id &&
-        requisition.status === "LN"
-      );
+      return requisition.reference?.split(":").at(0) === id && requisition.status === "LN";
     });
   }
 
   async deleteRequisition(id: string): Promise<DeleteRequistionResponse> {
     const token = await this.#getAccessToken();
 
-    return this.#_delete<DeleteRequistionResponse>(
-      `/api/v2/requisitions/${id}/`,
-      token,
-    );
+    return this.#_delete<DeleteRequistionResponse>(`/api/v2/requisitions/${id}/`, token);
   }
 
   // Cache xior instance per token to reuse HTTP connections
@@ -475,9 +426,7 @@ export class GoCardLessApi {
   ): Promise<TResponse> {
     return withRateLimitRetry(async () => {
       const api = await this.#getApi(token);
-      return api
-        .get<TResponse>(path, { params, ...config })
-        .then(({ data }) => data);
+      return api.get<TResponse>(path, { params, ...config }).then(({ data }) => data);
     });
   }
 
@@ -501,8 +450,6 @@ export class GoCardLessApi {
   ): Promise<TResponse> {
     const api = await this.#getApi(token);
 
-    return api
-      .delete<TResponse>(path, { params, ...config })
-      .then(({ data }) => data);
+    return api.delete<TResponse>(path, { params, ...config }).then(({ data }) => data);
   }
 }

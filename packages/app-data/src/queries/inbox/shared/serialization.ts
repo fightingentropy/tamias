@@ -4,10 +4,7 @@ import type {
   TransactionRecord,
 } from "@tamias/app-data-convex";
 
-export function toUpsertInboxItem(
-  item: InboxItemRecord,
-  overrides: Partial<InboxItemRecord> = {},
-) {
+export function toUpsertInboxItem(item: InboxItemRecord, overrides: Partial<InboxItemRecord> = {}) {
   const next = { ...item, ...overrides };
 
   return {

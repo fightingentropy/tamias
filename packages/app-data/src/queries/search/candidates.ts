@@ -4,10 +4,7 @@ import type {
   TrackerProjectRecord,
   TransactionRecord,
 } from "@tamias/app-data-convex";
-import {
-  getProjectedInvoicePayload,
-  type ProjectedInvoiceRecord,
-} from "../invoices/shared";
+import { getProjectedInvoicePayload, type ProjectedInvoiceRecord } from "../invoices/shared";
 import type { SearchCandidate } from "./types";
 
 function normalizeText(value: string | null | undefined) {
@@ -101,9 +98,7 @@ export function toDocumentCandidate(document: DocumentRecord): SearchCandidate {
   };
 }
 
-export function toInvoiceCandidate(
-  invoice: ProjectedInvoiceRecord,
-): SearchCandidate {
+export function toInvoiceCandidate(invoice: ProjectedInvoiceRecord): SearchCandidate {
   return {
     id: invoice.id,
     type: "invoice",
@@ -137,9 +132,7 @@ export function toInvoiceCandidate(
   };
 }
 
-export function toTrackerProjectCandidate(
-  project: TrackerProjectRecord,
-): SearchCandidate {
+export function toTrackerProjectCandidate(project: TrackerProjectRecord): SearchCandidate {
   return {
     id: project.id,
     type: "tracker_project",
@@ -167,9 +160,7 @@ export function toTrackerProjectCandidate(
   };
 }
 
-export function toTransactionCandidate(
-  transaction: TransactionRecord,
-): SearchCandidate {
+export function toTransactionCandidate(transaction: TransactionRecord): SearchCandidate {
   return {
     id: transaction.id,
     type: "transaction",
@@ -208,7 +199,5 @@ export function toProjectedInvoiceCandidate(
 ) {
   const projected = getProjectedInvoicePayload(invoice);
 
-  return projected && projected.teamId === teamId
-    ? toInvoiceCandidate(projected)
-    : null;
+  return projected && projected.teamId === teamId ? toInvoiceCandidate(projected) : null;
 }

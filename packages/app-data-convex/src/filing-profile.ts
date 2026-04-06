@@ -35,10 +35,7 @@ export type FilingProfileRecord = {
   updatedAt: string;
 };
 
-export async function getFilingProfileFromConvex(args: {
-  teamId: string;
-  provider?: string;
-}) {
+export async function getFilingProfileFromConvex(args: { teamId: string; provider?: string }) {
   return createClient().query(
     convexApi.complianceState.serviceGetFilingProfile,
     serviceArgs({
@@ -111,10 +108,8 @@ export async function upsertFilingProfileInConvex(args: {
       dormant: args.dormant,
       auditExemptionClaimed: args.auditExemptionClaimed,
       membersDidNotRequireAudit: args.membersDidNotRequireAudit,
-      directorsAcknowledgeResponsibilities:
-        args.directorsAcknowledgeResponsibilities,
-      accountsPreparedUnderSmallCompaniesRegime:
-        args.accountsPreparedUnderSmallCompaniesRegime,
+      directorsAcknowledgeResponsibilities: args.directorsAcknowledgeResponsibilities,
+      accountsPreparedUnderSmallCompaniesRegime: args.accountsPreparedUnderSmallCompaniesRegime,
     }),
   ) as Promise<FilingProfileRecord>;
 }

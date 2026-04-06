@@ -95,8 +95,7 @@ export const transformTransactionName = (transaction: Transaction) => {
     return capitalCase(transaction.remittanceInformationUnstructured);
   }
 
-  const remittanceInformation =
-    transaction?.remittanceInformationUnstructuredArray?.at(0);
+  const remittanceInformation = transaction?.remittanceInformationUnstructuredArray?.at(0);
 
   if (remittanceInformation) {
     return capitalCase(remittanceInformation);
@@ -109,10 +108,7 @@ export const transformTransactionName = (transaction: Transaction) => {
   return "No information";
 };
 
-const transformDescription = ({
-  transaction,
-  name,
-}: TransactionDescription) => {
+const transformDescription = ({ transaction, name }: TransactionDescription) => {
   if (transaction?.remittanceInformationUnstructuredArray?.length) {
     const text = transaction?.remittanceInformationUnstructuredArray.join(" ");
     const description = capitalCase(text);
@@ -123,8 +119,7 @@ const transformDescription = ({
   }
 
   const additionalInformation =
-    transaction.additionalInformation &&
-    capitalCase(transaction.additionalInformation);
+    transaction.additionalInformation && capitalCase(transaction.additionalInformation);
 
   if (additionalInformation !== name) {
     return additionalInformation;
@@ -154,9 +149,7 @@ export const transformTransaction = ({
   transaction,
   accountType,
 }: TransformTransactionPayload): BaseTransaction => {
-  const method = transformTransactionMethod(
-    transaction?.proprietaryBankTransactionCode,
-  );
+  const method = transformTransactionMethod(transaction?.proprietaryBankTransactionCode);
 
   let currencyExchange: { rate: number; currency: string } | undefined;
 
@@ -229,9 +222,8 @@ const getAvailableBalance = (
     b.balanceAmount.currency.toUpperCase() === preferredCurrency.toUpperCase();
 
   const interimAvailable =
-    balances.find(
-      (b) => b.balanceType === "interimAvailable" && matchesCurrency(b),
-    ) ?? balances.find((b) => b.balanceType === "interimAvailable");
+    balances.find((b) => b.balanceType === "interimAvailable" && matchesCurrency(b)) ??
+    balances.find((b) => b.balanceType === "interimAvailable");
   if (interimAvailable) {
     return +interimAvailable.balanceAmount.amount;
   }
@@ -302,14 +294,10 @@ export const transformAccountBalance = ({
 }: TransformAccountBalanceParams): GetAccountBalanceResponse => {
   const rawAmount = +(balance?.amount ?? 0);
 
-  const amount =
-    accountType === "credit" && rawAmount < 0 ? Math.abs(rawAmount) : rawAmount;
+  const amount = accountType === "credit" && rawAmount < 0 ? Math.abs(rawAmount) : rawAmount;
 
   const balanceCurrencies = balances?.map((b) => b.balanceAmount.currency);
-  const currency = resolveCurrency(
-    balance?.currency,
-    ...(balanceCurrencies ?? []),
-  );
+  const currency = resolveCurrency(balance?.currency, ...(balanceCurrencies ?? []));
 
   return {
     currency,
@@ -319,9 +307,7 @@ export const transformAccountBalance = ({
   };
 };
 
-export const transformInstitution = (
-  institution: Institution,
-): TransformInstitution => ({
+export const transformInstitution = (institution: Institution): TransformInstitution => ({
   id: institution.id,
   name: institution.name,
   logo: getLogoURL(institution.id, getFileExtension(institution.logo)),

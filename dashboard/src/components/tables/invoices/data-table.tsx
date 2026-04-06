@@ -68,12 +68,9 @@ export function DataTable({ initialSettings }: Props) {
     sort: params.sort,
   });
 
-  const infiniteQueryOptions = trpc.invoice.get.infiniteQueryOptions(
-    invoiceQueryFilter,
-    {
-      getNextPageParam: ({ meta }) => meta?.cursor,
-    },
-  );
+  const infiniteQueryOptions = trpc.invoice.get.infiniteQueryOptions(invoiceQueryFilter, {
+    getNextPageParam: ({ meta }) => meta?.cursor,
+  });
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useSuspenseInfiniteQuery(infiniteQueryOptions);
@@ -179,14 +176,11 @@ export function DataTable({ initialSettings }: Props) {
           ref={(el) => {
             // Combine refs for both scroll container and virtualizer
             if (parentRef) {
-              (
-                parentRef as React.MutableRefObject<HTMLDivElement | null>
-              ).current = el;
+              (parentRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
             }
             if (tableScroll.containerRef) {
-              (
-                tableScroll.containerRef as React.MutableRefObject<HTMLDivElement | null>
-              ).current = el;
+              (tableScroll.containerRef as React.MutableRefObject<HTMLDivElement | null>).current =
+                el;
             }
           }}
           className="overflow-auto overscroll-contain border-l border-r border-b border-border scrollbar-hide"
@@ -235,16 +229,11 @@ export function DataTable({ initialSettings }: Props) {
             </Table>
           </DndContext>
           {/* Spacer ensures scrolling works when content barely overflows */}
-          <div
-            style={{ height: "var(--header-offset, 0px)", flexShrink: 0 }}
-            aria-hidden
-          />
+          <div style={{ height: "var(--header-offset, 0px)", flexShrink: 0 }} aria-hidden />
         </div>
       </div>
 
-      <AnimatePresence>
-        {showBottomBar && <BottomBar data={tableData} />}
-      </AnimatePresence>
+      <AnimatePresence>{showBottomBar && <BottomBar data={tableData} />}</AnimatePresence>
     </div>
   );
 }

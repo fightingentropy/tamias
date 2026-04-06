@@ -8,13 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@tamias/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@tamias/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@tamias/ui/form";
 import { Input } from "@tamias/ui/input";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { z } from "zod/v3";
@@ -46,8 +40,7 @@ export function CompanyEmail() {
           <CardHeader>
             <CardTitle>Company email</CardTitle>
             <CardDescription>
-              This is the email address that will be used to receive emails from
-              Tamias.
+              This is the email address that will be used to receive emails from Tamias.
             </CardDescription>
           </CardHeader>
 

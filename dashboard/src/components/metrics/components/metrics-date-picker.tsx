@@ -4,13 +4,7 @@ import { Button } from "@tamias/ui/button";
 import { Calendar } from "@tamias/ui/calendar";
 import { Icons } from "@tamias/ui/icons";
 import { Popover, PopoverContent, PopoverTrigger } from "@tamias/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@tamias/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@tamias/ui/select";
 import { format, formatISO, parseISO } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 import type { DateRange } from "react-day-picker";

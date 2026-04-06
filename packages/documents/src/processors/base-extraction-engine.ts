@@ -3,10 +3,7 @@ import { createMistral } from "@ai-sdk/mistral";
 import { createLoggerWithContext } from "@tamias/logger";
 import { generateObject } from "ai";
 import type { z } from "zod/v4";
-import type {
-  ExtractionConfig,
-  ModelConfig,
-} from "../config/extraction-config";
+import type { ExtractionConfig, ModelConfig } from "../config/extraction-config";
 import type { PromptComponents } from "../prompts/factory";
 import { createFieldSpecificPrompt } from "../prompts/field-specific";
 import type { DocumentFormat } from "../utils/format-detection";
@@ -61,14 +58,10 @@ export abstract class BaseExtractionEngine<T extends z.ZodSchema> {
   protected config: ExtractionConfig<T>;
   protected logger: ReturnType<typeof createLoggerWithContext>;
 
-  constructor(
-    config: ExtractionConfig<T>,
-    logger?: ReturnType<typeof createLoggerWithContext>,
-  ) {
+  constructor(config: ExtractionConfig<T>, logger?: ReturnType<typeof createLoggerWithContext>) {
     this.config = config;
     this.logger =
-      logger ||
-      createLoggerWithContext(`BaseExtractionEngine:${this.getDocumentType()}`);
+      logger || createLoggerWithContext(`BaseExtractionEngine:${this.getDocumentType()}`);
   }
 
   protected getDocumentType(): string {
@@ -96,9 +89,7 @@ export abstract class BaseExtractionEngine<T extends z.ZodSchema> {
           };
 
     const model =
-      modelConfig.provider === "mistral"
-        ? mistral(modelConfig.model)
-        : google(modelConfig.model);
+      modelConfig.provider === "mistral" ? mistral(modelConfig.model) : google(modelConfig.model);
 
     // Provider-specific options
     const providerOptions =
@@ -159,11 +150,7 @@ export abstract class BaseExtractionEngine<T extends z.ZodSchema> {
           model: modelConfig.model,
         });
 
-        const result = await this.extractWithProvider(
-          documentUrl,
-          prompt,
-          modelConfig,
-        );
+        const result = await this.extractWithProvider(documentUrl, prompt, modelConfig);
 
         this.logger.info(`Extraction succeeded with ${name} model`, {
           provider: modelConfig.provider,
@@ -196,10 +183,7 @@ export abstract class BaseExtractionEngine<T extends z.ZodSchema> {
     documentUrl: string,
     prompt: string,
   ): Promise<z.infer<T>> {
-    const { result } = await this.extractWithCascadingFallback(
-      documentUrl,
-      prompt,
-    );
+    const { result } = await this.extractWithCascadingFallback(documentUrl, prompt);
     return result;
   }
 
@@ -212,20 +196,12 @@ export abstract class BaseExtractionEngine<T extends z.ZodSchema> {
   ): Promise<z.infer<T>> {
     // Try secondary first, then tertiary
     try {
-      return await this.extractWithProvider(
-        documentUrl,
-        prompt,
-        this.config.models.secondary,
-      );
+      return await this.extractWithProvider(documentUrl, prompt, this.config.models.secondary);
     } catch (error) {
       this.logger.warn("Secondary model failed, trying tertiary", {
         error: error instanceof Error ? error.message : "Unknown error",
       });
-      return await this.extractWithProvider(
-        documentUrl,
-        prompt,
-        this.config.models.tertiary,
-      );
+      return await this.extractWithProvider(documentUrl, prompt, this.config.models.tertiary);
     }
   }
 
@@ -242,18 +218,14 @@ export abstract class BaseExtractionEngine<T extends z.ZodSchema> {
     const extractedText = await extractTextFromPdf(documentUrl);
 
     if (!extractedText) {
-      throw new Error(
-        "Failed to extract text from PDF - PDF may be image-based or corrupted",
-      );
+      throw new Error("Failed to extract text from PDF - PDF may be image-based or corrupted");
     }
 
     // Modify prompt to indicate text was extracted from PDF
     const modifiedPrompt = `${prompt}\n\nNOTE: The document content below was extracted as text from a PDF. Some formatting, layout, or visual elements may be missing. Please extract the requested information from the text content.`;
 
     const model =
-      modelConfig.provider === "mistral"
-        ? mistral(modelConfig.model)
-        : google(modelConfig.model);
+      modelConfig.provider === "mistral" ? mistral(modelConfig.model) : google(modelConfig.model);
 
     // Send extracted text as text content (not file)
     const result = await retryCall(
@@ -298,11 +270,7 @@ export abstract class BaseExtractionEngine<T extends z.ZodSchema> {
       invalidFields: string[];
     },
   ): {
-    strategy:
-      | "field_specific"
-      | "mathematical"
-      | "format_aware"
-      | "comprehensive";
+    strategy: "field_specific" | "mathematical" | "format_aware" | "comprehensive";
     criticalFieldsMissing: boolean;
     consistencyIssues: boolean;
     formatIssues: boolean;
@@ -313,11 +281,8 @@ export abstract class BaseExtractionEngine<T extends z.ZodSchema> {
     );
     const detectedFormat = this.detectFormat(result);
 
-    let strategy:
-      | "field_specific"
-      | "mathematical"
-      | "format_aware"
-      | "comprehensive" = "field_specific";
+    let strategy: "field_specific" | "mathematical" | "format_aware" | "comprehensive" =
+      "field_specific";
 
     if (criticalFieldsMissing && hasNumericFields && detectedFormat) {
       strategy = "comprehensive"; // Use both mathematical and format-aware
@@ -356,12 +321,8 @@ export abstract class BaseExtractionEngine<T extends z.ZodSchema> {
     });
 
     // Batch critical fields (priority >= 8) separately from others
-    const criticalFields = sortedFields.filter(
-      (f) => (this.config.fieldPriority[f] || 0) >= 8,
-    );
-    const otherFields = sortedFields.filter(
-      (f) => (this.config.fieldPriority[f] || 0) < 8,
-    );
+    const criticalFields = sortedFields.filter((f) => (this.config.fieldPriority[f] || 0) >= 8);
+    const otherFields = sortedFields.filter((f) => (this.config.fieldPriority[f] || 0) < 8);
 
     const reExtractedFields: Partial<z.infer<T>> = {};
 
@@ -584,17 +545,13 @@ export abstract class BaseExtractionEngine<T extends z.ZodSchema> {
             error.message.includes("timed out")));
 
       const isPdfFile =
-        this.config.contentType === "file" &&
-        this.config.mediaType === "application/pdf";
+        this.config.contentType === "file" && this.config.mediaType === "application/pdf";
 
       // If timeout error on PDF, try text extraction fallback as last resort
       if (isTimeoutError && isPdfFile) {
-        logger.warn(
-          "PDF extraction timed out, attempting text extraction fallback",
-          {
-            error: error instanceof Error ? error.message : "Unknown error",
-          },
-        );
+        logger.warn("PDF extraction timed out, attempting text extraction fallback", {
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
 
         try {
           const promptComponents = promptFactory(companyName);
@@ -617,10 +574,7 @@ export abstract class BaseExtractionEngine<T extends z.ZodSchema> {
           };
         } catch (textFallbackError) {
           logger.error("Text extraction fallback also failed", {
-            error:
-              textFallbackError instanceof Error
-                ? textFallbackError.message
-                : "Unknown error",
+            error: textFallbackError instanceof Error ? textFallbackError.message : "Unknown error",
           });
           // Fall through to try fallback model
         }
@@ -654,42 +608,24 @@ export abstract class BaseExtractionEngine<T extends z.ZodSchema> {
     }
 
     // Pass 2: Re-extract with fallback model and chain-of-thought prompt
-    logger.info(
-      "Pass 1 quality poor, running Pass 2 with fallback model and chain-of-thought",
-      {
-        pass: 2,
-        model: `${this.config.models.secondary.provider}:${this.config.models.secondary.model}`,
-      },
-    );
+    logger.info("Pass 1 quality poor, running Pass 2 with fallback model and chain-of-thought", {
+      pass: 2,
+      model: `${this.config.models.secondary.provider}:${this.config.models.secondary.model}`,
+    });
     try {
       // Detect format from initial extraction for adaptive prompts
       const detectedFormat = this.detectFormat(result);
 
-      const chainOfThoughtPromptComponents = promptFactory(
-        companyName,
-        detectedFormat,
-      );
-      const chainOfThoughtPrompt = this.composePrompt(
-        chainOfThoughtPromptComponents,
-        true,
-      );
+      const chainOfThoughtPromptComponents = promptFactory(companyName, detectedFormat);
+      const chainOfThoughtPrompt = this.composePrompt(chainOfThoughtPromptComponents, true);
 
-      const fallbackResult = await this.extractWithFallbackModel(
-        documentUrl,
-        chainOfThoughtPrompt,
-      );
+      const fallbackResult = await this.extractWithFallbackModel(documentUrl, chainOfThoughtPrompt);
 
       // Calculate confidence scores for both extractions
       const primaryQuality = this.calculateQualityScore(result);
       const fallbackQuality = this.calculateQualityScore(fallbackResult);
-      const primaryConfidence = this.calculateConfidence(
-        result,
-        primaryQuality,
-      );
-      const fallbackConfidence = this.calculateConfidence(
-        fallbackResult,
-        fallbackQuality,
-      );
+      const primaryConfidence = this.calculateConfidence(result, primaryQuality);
+      const fallbackConfidence = this.calculateConfidence(fallbackResult, fallbackQuality);
 
       logger.info("Confidence scores for Pass 2 merge", {
         primaryConfidence: primaryConfidence.toFixed(2),
@@ -718,10 +654,7 @@ export abstract class BaseExtractionEngine<T extends z.ZodSchema> {
       }
     } catch (fallbackError) {
       logger.warn("Pass 2 fallback extraction failed", {
-        error:
-          fallbackError instanceof Error
-            ? fallbackError.message
-            : "Unknown error",
+        error: fallbackError instanceof Error ? fallbackError.message : "Unknown error",
       });
       // Continue to Pass 3 even if Pass 2 fails
     }
@@ -752,10 +685,7 @@ export abstract class BaseExtractionEngine<T extends z.ZodSchema> {
         });
       } catch (reExtractError) {
         logger.warn("Pass 3 field re-extraction failed", {
-          error:
-            reExtractError instanceof Error
-              ? reExtractError.message
-              : "Unknown error",
+          error: reExtractError instanceof Error ? reExtractError.message : "Unknown error",
         });
         // Return what we have even if re-extraction fails
       }
@@ -763,10 +693,7 @@ export abstract class BaseExtractionEngine<T extends z.ZodSchema> {
 
     // Pass 4: Cross-field consistency validation and mathematical fixes
     const consistencyResult = this.validateConsistency(result);
-    if (
-      consistencyResult.issues.length > 0 ||
-      consistencyResult.suggestedFixes.length > 0
-    ) {
+    if (consistencyResult.issues.length > 0 || consistencyResult.suggestedFixes.length > 0) {
       logger.info("Pass 4: Cross-field consistency validation", {
         pass: 4,
         issues: consistencyResult.issues.length,
@@ -775,10 +702,7 @@ export abstract class BaseExtractionEngine<T extends z.ZodSchema> {
 
       // Apply suggested fixes
       if (consistencyResult.suggestedFixes.length > 0) {
-        result = this.applyConsistencyFixes(
-          result,
-          consistencyResult.suggestedFixes,
-        );
+        result = this.applyConsistencyFixes(result, consistencyResult.suggestedFixes);
         logger.info("Applied consistency fixes", {
           fixesApplied: consistencyResult.suggestedFixes.map((f) => f.field),
         });
@@ -805,25 +729,18 @@ export abstract class BaseExtractionEngine<T extends z.ZodSchema> {
   /**
    * Get format-specific hints for a field
    */
-  protected getFormatHintsForField(
-    field: string,
-    format: DocumentFormat,
-  ): string | null {
+  protected getFormatHintsForField(field: string, format: DocumentFormat): string | null {
     const hints: string[] = [];
 
     if (field.includes("amount") || field.includes("rate")) {
       if (format.numberFormat === "european") {
-        hints.push(
-          "NUMBER FORMAT: Use European format (1.234,56) - comma as decimal separator.",
-        );
+        hints.push("NUMBER FORMAT: Use European format (1.234,56) - comma as decimal separator.");
       }
     }
 
     if (field.includes("date")) {
       if (format.dateFormat === "european") {
-        hints.push(
-          "DATE FORMAT: Convert from DD/MM/YYYY to YYYY-MM-DD format.",
-        );
+        hints.push("DATE FORMAT: Convert from DD/MM/YYYY to YYYY-MM-DD format.");
       }
     }
 
@@ -841,10 +758,7 @@ export abstract class BaseExtractionEngine<T extends z.ZodSchema> {
   /**
    * Compose prompt from components
    */
-  protected composePrompt(
-    components: PromptComponents,
-    useChainOfThought: boolean,
-  ): string {
+  protected composePrompt(components: PromptComponents, useChainOfThought: boolean): string {
     const parts: string[] = [];
 
     parts.push(components.base);
@@ -892,9 +806,7 @@ export abstract class BaseExtractionEngine<T extends z.ZodSchema> {
   /**
    * Detect document format from extracted data
    */
-  protected abstract detectFormat(
-    result: z.infer<T>,
-  ): DocumentFormat | undefined;
+  protected abstract detectFormat(result: z.infer<T>): DocumentFormat | undefined;
 
   /**
    * Validate cross-field consistency
@@ -958,8 +870,5 @@ export abstract class BaseExtractionEngine<T extends z.ZodSchema> {
 
   protected abstract getFieldsNeedingReExtraction(result: z.infer<T>): string[];
 
-  protected abstract mergeResults(
-    primary: z.infer<T>,
-    secondary: Partial<z.infer<T>>,
-  ): z.infer<T>;
+  protected abstract mergeResults(primary: z.infer<T>, secondary: Partial<z.infer<T>>): z.infer<T>;
 }

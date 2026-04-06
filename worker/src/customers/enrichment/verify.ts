@@ -30,9 +30,7 @@ export function verifyLinkedInUrl(url: string | null): string | null {
   }
 
   // Check format: must be linkedin.com/company/
-  const match = normalizedUrl.match(
-    /^https?:\/\/(www\.)?linkedin\.com\/company\/[\w-]+\/?$/i,
-  );
+  const match = normalizedUrl.match(/^https?:\/\/(www\.)?linkedin\.com\/company\/[\w-]+\/?$/i);
 
   if (!match) {
     console.log("[verifyLinkedInUrl] Invalid format:", url);
@@ -66,9 +64,7 @@ export function verifyTwitterUrl(url: string | null): string | null {
   }
 
   // Check format: must be twitter.com or x.com with a handle
-  const match = normalizedUrl.match(
-    /^https?:\/\/(www\.)?(twitter\.com|x\.com)\/[\w]+\/?$/i,
-  );
+  const match = normalizedUrl.match(/^https?:\/\/(www\.)?(twitter\.com|x\.com)\/[\w]+\/?$/i);
 
   if (!match) {
     console.log("[verifyTwitterUrl] Invalid format:", url);
@@ -105,9 +101,7 @@ export function verifyInstagramUrl(url: string | null): string | null {
   }
 
   // Check format: must be instagram.com with a handle
-  const match = normalizedUrl.match(
-    /^https?:\/\/(www\.)?instagram\.com\/[\w.]+\/?$/i,
-  );
+  const match = normalizedUrl.match(/^https?:\/\/(www\.)?instagram\.com\/[\w.]+\/?$/i);
 
   if (!match) {
     console.log("[verifyInstagramUrl] Invalid format:", url);
@@ -141,9 +135,7 @@ export function verifyFacebookUrl(url: string | null): string | null {
   }
 
   // Check format: must be facebook.com with a page/handle
-  const match = normalizedUrl.match(
-    /^https?:\/\/(www\.)?facebook\.com\/[\w.]+\/?$/i,
-  );
+  const match = normalizedUrl.match(/^https?:\/\/(www\.)?facebook\.com\/[\w.]+\/?$/i);
 
   if (!match) {
     console.log("[verifyFacebookUrl] Invalid format:", url);
@@ -191,10 +183,7 @@ export function validateTimezone(timezone: string | null): string | null {
 /**
  * Validate that a value is one of the allowed enum options.
  */
-export function validateEnum<T extends string>(
-  value: T | null,
-  options: readonly T[],
-): T | null {
+export function validateEnum<T extends string>(value: T | null, options: readonly T[]): T | null {
   if (!value) return null;
   return options.includes(value) ? value : null;
 }
@@ -303,8 +292,7 @@ export async function verifyEnrichmentData(
     facebookUrl,
     ceoName: rawData.ceoName?.trim() || null,
     financeContact: rawData.financeContact?.trim() || null,
-    financeContactEmail:
-      rawData.financeContactEmail?.trim()?.toLowerCase() || null,
+    financeContactEmail: rawData.financeContactEmail?.trim()?.toLowerCase() || null,
     primaryLanguage: rawData.primaryLanguage?.trim() || null,
     fiscalYearEnd: rawData.fiscalYearEnd?.trim() || null,
     vatNumber: rawData.vatNumber?.trim()?.toUpperCase() || null,

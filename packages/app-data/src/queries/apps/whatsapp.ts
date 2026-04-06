@@ -21,10 +21,7 @@ export class WhatsAppAlreadyConnectedToAnotherTeamError extends Error {
   }
 }
 
-export const getAppByWhatsAppNumber = async (
-  _db: Database,
-  phoneNumber: string,
-) => {
+export const getAppByWhatsAppNumber = async (_db: Database, phoneNumber: string) => {
   const result = await getInstalledAppByWhatsAppNumberFromConvex({
     phoneNumber,
   });
@@ -38,10 +35,7 @@ export type AddWhatsAppConnectionParams = {
   displayName?: string;
 };
 
-export const addWhatsAppConnection = async (
-  _db: Database,
-  params: AddWhatsAppConnectionParams,
-) => {
+export const addWhatsAppConnection = async (_db: Database, params: AddWhatsAppConnectionParams) => {
   try {
     const result = await addWhatsAppConnectionInConvex({
       teamId: params.teamId,
@@ -51,9 +45,7 @@ export const addWhatsAppConnection = async (
 
     return toAppRecord(result);
   } catch (error) {
-    if (
-      isConvexMessage(error, "WHATSAPP_ALREADY_CONNECTED_TO_ANOTHER_TEAM")
-    ) {
+    if (isConvexMessage(error, "WHATSAPP_ALREADY_CONNECTED_TO_ANOTHER_TEAM")) {
       throw new WhatsAppAlreadyConnectedToAnotherTeamError();
     }
 

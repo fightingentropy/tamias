@@ -10,11 +10,7 @@ import {
 } from "../utils/tool-runtime";
 
 const getNetPositionSchema = z.object({
-  currency: z
-    .string()
-    .describe("Currency code (ISO 4217, e.g. 'USD')")
-    .nullable()
-    .optional(),
+  currency: z.string().describe("Currency code (ISO 4217, e.g. 'USD')").nullable().optional(),
 });
 
 export const getNetPositionTool = tool({
@@ -45,8 +41,7 @@ export const getNetPositionTool = tool({
         currency: currency ?? undefined,
       });
 
-      const targetCurrency =
-        currency || result.currency || appContext.baseCurrency || "USD";
+      const targetCurrency = currency || result.currency || appContext.baseCurrency || "USD";
       const locale = appContext.locale || "en-US";
 
       const formattedCash = formatAmount({

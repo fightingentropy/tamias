@@ -120,9 +120,7 @@ function buildDataSection(facts: InsightFacts): string[] {
   }
 
   if (facts.marginPercent !== null && facts.marginPercent > 0) {
-    dataLines.push(
-      `<margin>${Math.round(facts.marginPercent)} percent</margin>`,
-    );
+    dataLines.push(`<margin>${Math.round(facts.marginPercent)} percent</margin>`);
   }
 
   // Historical context
@@ -130,9 +128,7 @@ function buildDataSection(facts: InsightFacts): string[] {
     dataLines.push("<personal_best>true</personal_best>");
   }
   if (facts.historicalContext) {
-    dataLines.push(
-      `<historical_context>${facts.historicalContext}</historical_context>`,
-    );
+    dataLines.push(`<historical_context>${facts.historicalContext}</historical_context>`);
   }
 
   // Streak and momentum
@@ -198,9 +194,7 @@ function buildDataSection(facts: InsightFacts): string[] {
   // Primary action (same as summary/story)
   const primaryAction = getPrimaryAction(facts);
   if (primaryAction) {
-    dataLines.push(
-      `<primary_action>${primaryAction.description}</primary_action>`,
-    );
+    dataLines.push(`<primary_action>${primaryAction.description}</primary_action>`);
   }
 
   // Alerts (high priority warnings)

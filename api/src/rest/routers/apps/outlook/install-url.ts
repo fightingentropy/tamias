@@ -19,8 +19,7 @@ app.openapi(
     path: "/",
     summary: "Get Outlook install URL",
     operationId: "getOutlookInstallUrl",
-    description:
-      "Generates OAuth install URL for Outlook integration. Requires authentication.",
+    description: "Generates OAuth install URL for Outlook integration. Requires authentication.",
     tags: ["Integrations"],
     responses: {
       200: {

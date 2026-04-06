@@ -10,19 +10,14 @@ export async function getInsightActivityData(
   db: Database,
   params: GetInsightActivityDataParams,
 ): Promise<InsightActivityData> {
-  const [
-    invoiceStats,
-    trackerStats,
-    customerStats,
-    inboxStats,
-    transactionStats,
-  ] = await Promise.all([
-    getInvoiceActivityStats(db, params),
-    getTrackerActivityStats(db, params),
-    getCustomerActivityStats(db, params),
-    getInboxActivityStats(db, params),
-    getTransactionActivityStats(db, params),
-  ]);
+  const [invoiceStats, trackerStats, customerStats, inboxStats, transactionStats] =
+    await Promise.all([
+      getInvoiceActivityStats(db, params),
+      getTrackerActivityStats(db, params),
+      getCustomerActivityStats(db, params),
+      getInboxActivityStats(db, params),
+      getTransactionActivityStats(db, params),
+    ]);
 
   return {
     invoicesSent: invoiceStats.sent,

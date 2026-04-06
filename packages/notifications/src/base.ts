@@ -40,11 +40,7 @@ export interface NotificationHandler<T = any> {
      * Find an existing activity to combine with
      * Should return null if no suitable activity is found
      */
-    findExisting: (
-      db: Database,
-      data: T,
-      user: UserData,
-    ) => Promise<Activity | null>;
+    findExisting: (db: Database, data: T, user: UserData) => Promise<Activity | null>;
     /**
      * Merge metadata from new notification into existing activity
      * Receives the metadata objects (not the full activity data) from both

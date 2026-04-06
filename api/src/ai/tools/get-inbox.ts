@@ -29,21 +29,13 @@ const getInboxSchema = z.object({
     .nullable()
     .optional()
     .describe("Sort field"),
-  order: z
-    .enum(["asc", "desc"])
-    .nullable()
-    .optional()
-    .describe("Sort direction"),
+  order: z.enum(["asc", "desc"]).nullable().optional().describe("Sort direction"),
 });
 
 export const getInboxTool = tool({
-  description:
-    "Retrieve and filter inbox items with pagination, sorting, and search.",
+  description: "Retrieve and filter inbox items with pagination, sorting, and search.",
   inputSchema: getInboxSchema,
-  execute: async function* (
-    { cursor, pageSize = 10, q, status, sort, order },
-    executionOptions,
-  ) {
+  execute: async function* ({ cursor, pageSize = 10, q, status, sort, order }, executionOptions) {
     const appContext = getToolAppContext(executionOptions);
     const teamId = getToolTeamId(appContext);
 
@@ -95,10 +87,7 @@ export const getInboxTool = tool({
         };
       });
 
-      const totalAmount = result.data.reduce(
-        (sum, item) => sum + (item.amount ?? 0),
-        0,
-      );
+      const totalAmount = result.data.reduce((sum, item) => sum + (item.amount ?? 0), 0);
       const formattedTotalAmount = formatAmount({
         amount: totalAmount,
         currency: baseCurrency,

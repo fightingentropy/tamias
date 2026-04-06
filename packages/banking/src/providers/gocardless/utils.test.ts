@@ -51,9 +51,7 @@ const mkBalance = (
 });
 
 test("selectPrimaryBalance - single interimAvailable", () => {
-  const result = selectPrimaryBalance([
-    mkBalance("interimAvailable", "5000.00", "EUR"),
-  ]);
+  const result = selectPrimaryBalance([mkBalance("interimAvailable", "5000.00", "EUR")]);
   expect(result?.balanceAmount).toEqual({ amount: "5000.00", currency: "EUR" });
 });
 
@@ -120,10 +118,7 @@ test("selectPrimaryBalance - uses absolute value for negative balances (credit)"
 
 test("selectPrimaryBalance - preferredCurrency narrows to matching currency", () => {
   const result = selectPrimaryBalance(
-    [
-      mkBalance("interimBooked", "9000.00", "DKK"),
-      mkBalance("interimBooked", "5000.00", "EUR"),
-    ],
+    [mkBalance("interimBooked", "9000.00", "DKK"), mkBalance("interimBooked", "5000.00", "EUR")],
     "EUR",
   );
   expect(result?.balanceAmount).toEqual({ amount: "5000.00", currency: "EUR" });
@@ -131,10 +126,7 @@ test("selectPrimaryBalance - preferredCurrency narrows to matching currency", ()
 
 test("selectPrimaryBalance - preferredCurrency falls back to all when no match", () => {
   const result = selectPrimaryBalance(
-    [
-      mkBalance("interimBooked", "9000.00", "DKK"),
-      mkBalance("interimAvailable", "5000.00", "DKK"),
-    ],
+    [mkBalance("interimBooked", "9000.00", "DKK"), mkBalance("interimAvailable", "5000.00", "DKK")],
     "EUR",
   );
   expect(result?.balanceAmount).toEqual({ amount: "9000.00", currency: "DKK" });
@@ -142,10 +134,7 @@ test("selectPrimaryBalance - preferredCurrency falls back to all when no match",
 
 test("selectPrimaryBalance - preferredCurrency ignores XXX hint", () => {
   const result = selectPrimaryBalance(
-    [
-      mkBalance("interimBooked", "100.00", "DKK"),
-      mkBalance("interimBooked", "9000.00", "EUR"),
-    ],
+    [mkBalance("interimBooked", "100.00", "DKK"), mkBalance("interimBooked", "9000.00", "EUR")],
     "XXX",
   );
   expect(result?.balanceAmount).toEqual({ amount: "9000.00", currency: "EUR" });

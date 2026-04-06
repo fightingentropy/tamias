@@ -1,28 +1,20 @@
 /**
  * Metric definitions and metadata
  */
-import {
-  CORE_FINANCIAL_METRICS,
-  METRIC_DEFINITIONS,
-  type MetricDefinition,
-} from "../constants";
+import { CORE_FINANCIAL_METRICS, METRIC_DEFINITIONS, type MetricDefinition } from "../constants";
 import type { MetricCategory } from "../types";
 
 /**
  * Get a metric definition by type
  */
-export function getMetricDefinition(
-  type: string,
-): MetricDefinition | undefined {
+export function getMetricDefinition(type: string): MetricDefinition | undefined {
   return METRIC_DEFINITIONS.find((d) => d.type === type);
 }
 
 /**
  * Get all metrics in a category
  */
-export function getMetricsByCategory(
-  category: MetricCategory,
-): MetricDefinition[] {
+export function getMetricsByCategory(category: MetricCategory): MetricDefinition[] {
   return METRIC_DEFINITIONS.filter((d) => d.category === category);
 }
 
@@ -52,9 +44,7 @@ export function getMetricLabel(type: string): string {
 /**
  * Get the unit type for a metric
  */
-export function getMetricUnit(
-  type: string,
-): MetricDefinition["unit"] | undefined {
+export function getMetricUnit(type: string): MetricDefinition["unit"] | undefined {
   return getMetricDefinition(type)?.unit;
 }
 

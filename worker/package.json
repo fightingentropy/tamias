@@ -11,8 +11,6 @@
   "scripts": {
     "test": "bun test --exit src",
     "typecheck": "tsc --noEmit",
-    "lint": "biome check .",
-    "lint:fix": "biome check --write .",
     "generate-insight": "bun run scripts/generate-test-insight.ts"
   },
   "dependencies": {

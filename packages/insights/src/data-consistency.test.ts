@@ -110,11 +110,7 @@ describe("financial math consistency", () => {
     ];
 
     for (const { revenue, profit, reportedExpenses } of testCases) {
-      const expenses = ensureExpenseConsistency(
-        revenue,
-        profit,
-        reportedExpenses,
-      );
+      const expenses = ensureExpenseConsistency(revenue, profit, reportedExpenses);
 
       // After consistency check, the math should hold (within tolerance)
       const calculatedProfit = revenue - expenses;

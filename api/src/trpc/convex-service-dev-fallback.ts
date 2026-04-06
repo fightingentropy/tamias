@@ -33,10 +33,7 @@ function collectErrorMessages(error: unknown, depth = 0): string {
       parts.push(message);
     }
     if ("cause" in error) {
-      const nested = collectErrorMessages(
-        (error as { cause?: unknown }).cause,
-        depth + 1,
-      );
+      const nested = collectErrorMessages((error as { cause?: unknown }).cause, depth + 1);
       if (nested) {
         parts.push(nested);
       }

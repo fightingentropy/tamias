@@ -38,9 +38,7 @@ export class InboxConnector extends Connector {
     return this.#provider.getAuthUrl(state);
   }
 
-  async exchangeCodeForAccount(
-    params: ExchangeCodeForAccountParams,
-  ): Promise<Account | null> {
+  async exchangeCodeForAccount(params: ExchangeCodeForAccountParams): Promise<Account | null> {
     const tokens = await this.#provider.exchangeCodeForTokens(params.code);
 
     // Set tokens to configure provider auth client with expiry date
@@ -86,9 +84,7 @@ export class InboxConnector extends Connector {
     this.#provider.setAccountId(account.id);
 
     // Set tokens to configure provider auth client with expiry date
-    const expiryDate = account.expiryDate
-      ? new Date(account.expiryDate).getTime()
-      : undefined;
+    const expiryDate = account.expiryDate ? new Date(account.expiryDate).getTime() : undefined;
 
     this.#provider.setTokens({
       access_token: decrypt(account.accessToken),
@@ -117,10 +113,7 @@ export class InboxConnector extends Connector {
           return await this.#retryWithTokenRefresh(options, account);
         } catch (retryError) {
           // Propagate structured errors
-          if (
-            retryError instanceof InboxAuthError ||
-            retryError instanceof InboxSyncError
-          ) {
+          if (retryError instanceof InboxAuthError || retryError instanceof InboxSyncError) {
             throw retryError;
           }
           throw new InboxSyncError({

@@ -113,8 +113,7 @@ export function extractInboxIdFromMessage(text: string): string | null {
 
   // Pattern 1: "Connect to Tamias: xxx" or legacy "Connect to Midday: xxx" (case-insensitive).
   // Using [ \t]+ instead of \s+ and avoiding ambiguous quantifiers to prevent backtracking
-  const patternConnect =
-    /connect[ \t]+to[ \t]+(?:tamias|midday)[ \t]*:?[ \t]*([a-zA-Z0-9]+)/i;
+  const patternConnect = /connect[ \t]+to[ \t]+(?:tamias|midday)[ \t]*:?[ \t]*([a-zA-Z0-9]+)/i;
   const matchConnect = normalizedText.match(patternConnect);
   if (matchConnect?.[1]) {
     return matchConnect[1].trim();
@@ -122,8 +121,7 @@ export function extractInboxIdFromMessage(text: string): string | null {
 
   // Pattern 2: "inbox ID is: xxx" or "My inbox ID is: xxx" (case-insensitive)
   // Using [ \t]+ instead of \s+ to avoid ReDoS
-  const patternInbox =
-    /inbox[ \t]*(?:ID|id)[ \t]*(?:is)?[ \t]*:?[ \t]*([a-zA-Z0-9]+)/i;
+  const patternInbox = /inbox[ \t]*(?:ID|id)[ \t]*(?:is)?[ \t]*:?[ \t]*([a-zA-Z0-9]+)/i;
   const matchInbox = normalizedText.match(patternInbox);
   if (matchInbox?.[1]) {
     return matchInbox[1].trim();
@@ -141,9 +139,7 @@ export function extractInboxIdFromMessage(text: string): string | null {
 /**
  * Check if a message type is a supported media type
  */
-export function isSupportedMediaType(
-  type: string,
-): type is "image" | "document" {
+export function isSupportedMediaType(type: string): type is "image" | "document" {
   return type === "image" || type === "document";
 }
 
@@ -175,15 +171,7 @@ export async function triggerWhatsAppUploadJob(params: {
   filename?: string;
   caption?: string;
 }) {
-  const {
-    teamId,
-    phoneNumber,
-    messageId,
-    mediaId,
-    mimeType,
-    filename,
-    caption,
-  } = params;
+  const { teamId, phoneNumber, messageId, mediaId, mimeType, filename, caption } = params;
 
   logger.info("Triggering whatsapp-upload job", {
     teamId,

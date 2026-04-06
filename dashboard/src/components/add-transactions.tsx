@@ -27,10 +27,7 @@ export function AddTransactions() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent sideOffset={10} align="end">
-        <DropdownMenuItem
-          onClick={() => setParams({ step: "connect" })}
-          className="space-x-2"
-        >
+        <DropdownMenuItem onClick={() => setParams({ step: "connect" })} className="space-x-2">
           <Icons.Accounts size={18} />
           <span>Connect account</span>
         </DropdownMenuItem>
@@ -49,9 +46,7 @@ export function AddTransactions() {
           <span>Create transaction</span>
         </DropdownMenuItem>
         <DropdownMenuItem
-          onClick={() =>
-            document.getElementById("upload-transaction-files")?.click()
-          }
+          onClick={() => document.getElementById("upload-transaction-files")?.click()}
           className="space-x-2"
         >
           <Icons.ReceiptLong size={18} />

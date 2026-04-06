@@ -4,10 +4,7 @@ import {
   globalSemanticSearchQuery,
 } from "@tamias/app-data/queries";
 import { getInvoicesPage } from "@tamias/app-services/invoices";
-import {
-  globalSearchSchema,
-  searchAttachmentsSchema,
-} from "../../schemas/search";
+import { globalSearchSchema, searchAttachmentsSchema } from "../../schemas/search";
 import { generateLLMFilters } from "../../utils/search-filters";
 import { createTRPCRouter, protectedProcedure } from "../init";
 
@@ -19,8 +16,7 @@ export const searchRouter = createTRPCRouter({
 
       // Determine if we should fall back to LLM-generated filters:
       // we only do this when the user provides a multi-word query.
-      const shouldUseLLMFilters =
-        !!searchTerm && searchTerm.trim().split(/\s+/).length > 1;
+      const shouldUseLLMFilters = !!searchTerm && searchTerm.trim().split(/\s+/).length > 1;
 
       const results = await globalSearchQuery(db, {
         teamId: teamId!,
@@ -37,9 +33,7 @@ export const searchRouter = createTRPCRouter({
          *    surfacing low-quality matches and give the LLM a chance to produce a more
          *    intelligent result instead.
          */
-        relevanceThreshold: shouldUseLLMFilters
-          ? 0.01
-          : input.relevanceThreshold,
+        relevanceThreshold: shouldUseLLMFilters ? 0.01 : input.relevanceThreshold,
       });
 
       if (shouldUseLLMFilters && !results.length) {

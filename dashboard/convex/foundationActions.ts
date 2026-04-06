@@ -10,20 +10,13 @@ function randomToken(prefix: string, bytes = 16) {
   const buffer = new Uint8Array(bytes);
   crypto.getRandomValues(buffer);
 
-  return `${prefix}${Array.from(buffer, (value) =>
-    value.toString(16).padStart(2, "0"),
-  ).join("")}`;
+  return `${prefix}${Array.from(buffer, (value) => value.toString(16).padStart(2, "0")).join("")}`;
 }
 
 async function sha256Hex(value: string) {
-  const buffer = await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(value),
-  );
+  const buffer = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
 
-  return Array.from(new Uint8Array(buffer), (byte) =>
-    byte.toString(16).padStart(2, "0"),
-  ).join("");
+  return Array.from(new Uint8Array(buffer), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
 function toBase64Url(bytes: Uint8Array) {
@@ -37,10 +30,7 @@ function toBase64Url(bytes: Uint8Array) {
 }
 
 async function toPkceChallenge(verifier: string) {
-  const buffer = await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(verifier),
-  );
+  const buffer = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier));
 
   return toBase64Url(new Uint8Array(buffer));
 }
@@ -229,21 +219,16 @@ export const serviceExchangeAuthorizationCode = action({
     }
 
     if (authCode.publicApplicationId !== args.publicApplicationId) {
-      throw new ConvexError(
-        "Authorization code does not belong to this application",
-      );
+      throw new ConvexError("Authorization code does not belong to this application");
     }
 
     if (authCode.used) {
-      await ctx.runMutation(
-        internalApi.foundation.revokeOAuthTokensByAuthorizationWindowInternal,
-        {
-          applicationId: authCode.applicationId,
-          appUserId: authCode.appUserId,
-          teamId: authCode.teamId,
-          createdAt: authCode.createdAt,
-        },
-      );
+      await ctx.runMutation(internalApi.foundation.revokeOAuthTokensByAuthorizationWindowInternal, {
+        applicationId: authCode.applicationId,
+        appUserId: authCode.appUserId,
+        teamId: authCode.teamId,
+        createdAt: authCode.createdAt,
+      });
 
       throw new ConvexError(
         "Authorization code already used - all related tokens have been revoked for security",
@@ -260,9 +245,7 @@ export const serviceExchangeAuthorizationCode = action({
 
     if (authCode.codeChallenge) {
       if (!args.codeVerifier) {
-        throw new ConvexError(
-          "Code verifier is required when code challenge is present",
-        );
+        throw new ConvexError("Code verifier is required when code challenge is present");
       }
 
       if ((await toPkceChallenge(args.codeVerifier)) !== authCode.codeChallenge) {
@@ -288,9 +271,7 @@ export const serviceExchangeAuthorizationCode = action({
       refreshToken: await sha256Hex(refreshToken),
       scopes: authCode.scopes,
       expiresAt: new Date(Date.now() + expiresIn * 1000).toISOString(),
-      refreshTokenExpiresAt: new Date(
-        Date.now() + refreshTokenExpiresIn * 1000,
-      ).toISOString(),
+      refreshTokenExpiresAt: new Date(Date.now() + refreshTokenExpiresIn * 1000).toISOString(),
     });
 
     return {
@@ -347,9 +328,7 @@ export const serviceRefreshAccessToken = action({
 
       for (const scope of args.scopes) {
         if (!granted.has(scope)) {
-          throw new ConvexError(
-            `Requested scope '${scope}' is not authorized for this token`,
-          );
+          throw new ConvexError(`Requested scope '${scope}' is not authorized for this token`);
         }
       }
 
@@ -374,9 +353,7 @@ export const serviceRefreshAccessToken = action({
       refreshToken: await sha256Hex(refreshToken),
       scopes,
       expiresAt: new Date(Date.now() + expiresIn * 1000).toISOString(),
-      refreshTokenExpiresAt: new Date(
-        Date.now() + refreshTokenExpiresIn * 1000,
-      ).toISOString(),
+      refreshTokenExpiresAt: new Date(Date.now() + refreshTokenExpiresIn * 1000).toISOString(),
     });
 
     return {

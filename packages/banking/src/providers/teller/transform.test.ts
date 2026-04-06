@@ -1,9 +1,5 @@
 import { expect, test } from "bun:test";
-import {
-  transformAccount,
-  transformAccountBalance,
-  transformTransaction,
-} from "./transform";
+import { transformAccount, transformAccountBalance, transformTransaction } from "./transform";
 
 test("Transform pending transaction", () => {
   expect(
@@ -257,11 +253,9 @@ test("Transform accounts", () => {
       status: "open",
       name: "Platinum Card",
       links: {
-        transactions:
-          "https://api.teller.io/accounts/acc_os557c2mge29shubl2000/transactions",
+        transactions: "https://api.teller.io/accounts/acc_os557c2mge29shubl2000/transactions",
         self: "https://api.teller.io/accounts/acc_os557c2mge29shubl2000",
-        balances:
-          "https://api.teller.io/accounts/acc_os557c2mge29shubl2000/balances",
+        balances: "https://api.teller.io/accounts/acc_os557c2mge29shubl2000/balances",
       },
       last_four: "6587",
       institution: {

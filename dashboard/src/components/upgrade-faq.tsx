@@ -27,19 +27,14 @@ export function UpgradeFAQ() {
     <div className="mt-12 max-w-xl mx-auto">
       <div className="space-y-2">
         {faqs.map((faq, index) => (
-          <div
-            key={faq.question}
-            className="border border-border bg-background"
-          >
+          <div key={faq.question} className="border border-border bg-background">
             <button
               type="button"
               onClick={() => setOpenIndex(openIndex === index ? null : index)}
               className="w-full flex items-center justify-between p-3 text-left hover:bg-muted/50 transition-colors"
               style={{ WebkitTapHighlightColor: "transparent" }}
             >
-              <span className="font-sans text-sm text-foreground pr-6">
-                {faq.question}
-              </span>
+              <span className="font-sans text-sm text-foreground pr-6">{faq.question}</span>
               <span className="flex-shrink-0 text-muted-foreground text-base">
                 {openIndex === index ? "−" : "+"}
               </span>

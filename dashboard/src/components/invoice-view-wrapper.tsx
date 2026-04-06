@@ -77,10 +77,7 @@ export function InvoiceViewWrapper({
         )}
       >
         <div className="flex flex-col justify-center items-center min-h-screen dotted-bg p-4 sm:p-6 md:p-0">
-          <div
-            className="flex flex-col w-full max-w-full py-6"
-            style={{ maxWidth: invoiceWidth }}
-          >
+          <div className="flex flex-col w-full max-w-full py-6" style={{ maxWidth: invoiceWidth }}>
             <CustomerHeader
               name={customerName}
               website={customerWebsite}

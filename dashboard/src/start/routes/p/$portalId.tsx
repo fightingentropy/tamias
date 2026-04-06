@@ -1,6 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router";
 import { createAppPublicFileRoute } from "@/start/route-hosts";
-import { HydrationBoundary, type DehydratedState, } from "@tanstack/react-query";
+import { HydrationBoundary, type DehydratedState } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { getAppUrl } from "@tamias/utils/envs";
 
@@ -9,16 +9,12 @@ const appUrl = getAppUrl();
 const loadCustomerPortalData = createServerFn({ method: "GET" })
   .inputValidator((data: { portalId: string }) => data)
   .handler(async ({ data }) => {
-    const { buildCustomerPortalPageData } = await import(
-      "@/start/server/route-data/public"
-    );
+    const { buildCustomerPortalPageData } = await import("@/start/server/route-data/public");
 
-    return (await buildCustomerPortalPageData(data.portalId));
+    return await buildCustomerPortalPageData(data.portalId);
   });
 
-export type CustomerPortalLoaderData = Awaited<
-  ReturnType<typeof loadCustomerPortalData>
->;
+export type CustomerPortalLoaderData = Awaited<ReturnType<typeof loadCustomerPortalData>>;
 
 export const Route = createAppPublicFileRoute("/p/$portalId")({
   loader: ({ params }) =>
@@ -28,16 +24,14 @@ export const Route = createAppPublicFileRoute("/p/$portalId")({
       },
     }),
   head: ({ loaderData }) => {
-    const data = loaderData as Awaited<
-      ReturnType<typeof loadCustomerPortalData>
-    > | null | undefined;
+    const data = loaderData as
+      | Awaited<ReturnType<typeof loadCustomerPortalData>>
+      | null
+      | undefined;
 
     if (!data || data.status !== "ok") {
       return {
-        meta: [
-          { title: "Page not found" },
-          { name: "robots", content: "noindex,nofollow" },
-        ],
+        meta: [{ title: "Page not found" }, { name: "robots", content: "noindex,nofollow" }],
       };
     }
 

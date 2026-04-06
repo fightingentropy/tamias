@@ -3,27 +3,12 @@
 import { useArtifact } from "@ai-sdk-tools/artifacts/client";
 import { spendingArtifact } from "@tamias/ai-artifacts/spending";
 import { cn } from "@tamias/ui/cn";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@tamias/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@tamias/ui/table";
 import Link from "@/framework/link";
 import { parseAsInteger, useQueryState } from "nuqs";
-import {
-  BaseCanvas,
-  CanvasHeader,
-  CanvasSection,
-} from "@/components/canvas/base";
+import { BaseCanvas, CanvasHeader, CanvasSection } from "@/components/canvas/base";
 import { CanvasContent } from "@/components/canvas/base/canvas-content";
-import {
-  Skeleton,
-  SkeletonCard,
-  SkeletonLine,
-} from "@/components/canvas/base/skeleton";
+import { Skeleton, SkeletonCard, SkeletonLine } from "@/components/canvas/base/skeleton";
 import { useTransactionParams } from "@/hooks/use-transaction-params";
 import { useUserQuery } from "@/hooks/use-user";
 import { formatAmount } from "@/utils/format";
@@ -43,10 +28,8 @@ export function SpendingCanvas() {
   const currency = data?.currency || "USD";
   const locale = user?.locale ?? undefined;
 
-  const showTransactions =
-    stage && ["metrics_ready", "analysis_ready"].includes(stage);
-  const showCards =
-    stage && ["metrics_ready", "analysis_ready"].includes(stage);
+  const showTransactions = stage && ["metrics_ready", "analysis_ready"].includes(stage);
+  const showCards = stage && ["metrics_ready", "analysis_ready"].includes(stage);
   const showSummary = stage === "analysis_ready";
 
   return (
@@ -95,13 +78,10 @@ export function SpendingCanvas() {
                     {transactions.slice(0, 10).map((transaction, index) => (
                       <TableRow
                         key={transaction.id}
-                        onClick={() =>
-                          setParams({ transactionId: transaction.id })
-                        }
+                        onClick={() => setParams({ transactionId: transaction.id })}
                         className={cn(
                           "cursor-pointer hover:bg-[#F2F1EF] dark:hover:bg-[#0f0f0f] transition-colors",
-                          index === transactions.slice(0, 10).length - 1 &&
-                            "border-b-0",
+                          index === transactions.slice(0, 10).length - 1 && "border-b-0",
                         )}
                       >
                         <TableCell className="text-[12px] text-black dark:text-white">
@@ -141,12 +121,11 @@ export function SpendingCanvas() {
               </div>
               <div className="border border-[#e6e6e6] dark:border-[#1d1d1d]">
                 <div className="p-3 space-y-3">
-                  {Array.from(
-                    { length: 5 },
-                    (_, i) => `skeleton-transaction-row-${i}`,
-                  ).map((key) => (
-                    <SkeletonLine key={key} width="100%" />
-                  ))}
+                  {Array.from({ length: 5 }, (_, i) => `skeleton-transaction-row-${i}`).map(
+                    (key) => (
+                      <SkeletonLine key={key} width="100%" />
+                    ),
+                  )}
                 </div>
               </div>
             </div>
@@ -198,10 +177,7 @@ export function SpendingCanvas() {
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3 mb-6">
-              {Array.from(
-                { length: 2 },
-                (_, i) => `skeleton-summary-card-${i}`,
-              ).map((key) => (
+              {Array.from({ length: 2 }, (_, i) => `skeleton-summary-card-${i}`).map((key) => (
                 <SkeletonCard key={key}>
                   <SkeletonLine width="5rem" />
                   <Skeleton width="8rem" height="1.125rem" className="mb-1" />
@@ -212,15 +188,10 @@ export function SpendingCanvas() {
           )}
 
           {/* Summary & Recommendations section */}
-          <CanvasSection
-            title="Summary & Recommendations"
-            isLoading={!showSummary}
-          >
+          <CanvasSection title="Summary & Recommendations" isLoading={!showSummary}>
             {data?.analysis?.summary && (
               <div className="space-y-3">
-                <div className="whitespace-pre-wrap">
-                  {data.analysis.summary}
-                </div>
+                <div className="whitespace-pre-wrap">{data.analysis.summary}</div>
               </div>
             )}
           </CanvasSection>

@@ -81,14 +81,9 @@ app.openapi(
       });
     }
 
-    if (
-      scopeKind &&
-      isCompaniesHouseCompanyScopeKind(scopeKind) &&
-      !companyNumber
-    ) {
+    if (scopeKind && isCompaniesHouseCompanyScopeKind(scopeKind) && !companyNumber) {
       throw new HTTPException(400, {
-        message:
-          "companyNumber is required for company-specific scope requests",
+        message: "companyNumber is required for company-specific scope requests",
       });
     }
 
@@ -117,9 +112,7 @@ app.openapi(
     } catch (error) {
       throw new HTTPException(500, {
         message:
-          error instanceof Error
-            ? error.message
-            : "Companies House OAuth configuration missing",
+          error instanceof Error ? error.message : "Companies House OAuth configuration missing",
       });
     }
   },

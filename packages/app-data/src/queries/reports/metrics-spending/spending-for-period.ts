@@ -12,15 +12,9 @@ export type GetSpendingForPeriodParams = {
   exactDates?: boolean;
 };
 
-async function getSpendingForPeriodImpl(
-  db: Database,
-  params: GetSpendingForPeriodParams,
-) {
+async function getSpendingForPeriodImpl(db: Database, params: GetSpendingForPeriodParams) {
   const expensesData = await getExpenses(db, params);
-  const totalSpending = expensesData.result.reduce(
-    (sum, item) => sum + item.total,
-    0,
-  );
+  const totalSpending = expensesData.result.reduce((sum, item) => sum + item.total, 0);
   const currency = expensesData.meta.currency || params.currency || "USD";
   const spendingCategories = await getSpending(db, params);
   const topCategory = spendingCategories[0] || null;
@@ -31,9 +25,7 @@ async function getSpendingForPeriodImpl(
     topCategory: topCategory
       ? {
           name: topCategory.name,
-          amount:
-            Math.round(((totalSpending * topCategory.percentage) / 100) * 100) /
-            100,
+          amount: Math.round(((totalSpending * topCategory.percentage) / 100) * 100) / 100,
           percentage: topCategory.percentage,
         }
       : null,

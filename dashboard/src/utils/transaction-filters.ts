@@ -75,9 +75,7 @@ export function hasActiveFilters(filters: Record<string, any>): boolean {
 /**
  * Clean filters by removing null/undefined/empty values
  */
-export function cleanFilters(
-  filters: Record<string, any>,
-): Record<string, any> {
+export function cleanFilters(filters: Record<string, any>): Record<string, any> {
   return Object.fromEntries(
     Object.entries(filters).filter(([_, value]) => isFilterValueActive(value)),
   );
@@ -108,9 +106,7 @@ export function hasActiveUrlFilters(urlFilters: Record<string, any>): boolean {
 /**
  * Create an empty filter state for any entity
  */
-export function createEmptyFilterState<T extends Record<string, any>>(
-  keys: (keyof T)[],
-): T {
+export function createEmptyFilterState<T extends Record<string, any>>(keys: (keyof T)[]): T {
   return keys.reduce((acc, key) => {
     (acc as any)[key] = null;
     return acc;

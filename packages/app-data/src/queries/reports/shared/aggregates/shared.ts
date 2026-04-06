@@ -29,9 +29,7 @@ export async function getTransactionAggregateScopeContext(
   };
 }
 
-export function normalizeReportInvoiceStatuses(
-  statuses?: ProjectedInvoiceRecord["status"][],
-) {
+export function normalizeReportInvoiceStatuses(statuses?: ProjectedInvoiceRecord["status"][]) {
   if (!statuses || statuses.length === 0) {
     return null;
   }

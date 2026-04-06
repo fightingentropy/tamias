@@ -1,6 +1,4 @@
-export {
-  getReportInboxLiabilityAggregateRows,
-} from "./aggregates/inbox";
+export { getReportInboxLiabilityAggregateRows } from "./aggregates/inbox";
 export {
   getReportInvoiceAgingAggregateRows,
   getReportInvoiceDateAggregateRows,

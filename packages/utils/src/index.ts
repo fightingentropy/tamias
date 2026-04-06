@@ -6,11 +6,7 @@ export function stripSpecialCharacters(inputString: string) {
     .toLowerCase(); // Convert to lowercase for consistency
 }
 
-export type {
-  ApiAccount,
-  DbAccount,
-  MatchingResult,
-} from "./account-matching";
+export type { ApiAccount, DbAccount, MatchingResult } from "./account-matching";
 export { findMatchingAccount } from "./account-matching";
 export { isValidEmail, isValidEmailList, parseEmailList } from "./email";
 export {
@@ -19,10 +15,7 @@ export {
   getFiscalYearLabel,
   getFiscalYearToDate,
 } from "./fiscal-year";
-export {
-  ensureFileExtension,
-  getExtensionFromMimeType,
-} from "./mime-to-extension";
+export { ensureFileExtension, getExtensionFromMimeType } from "./mime-to-extension";
 export { sanitizeRedirectPath } from "./sanitize-redirect";
 export {
   getDefaultTaxType,

@@ -12,9 +12,7 @@ function normalizeInvoiceToken(token: string) {
   }
 }
 
-export async function getInvoiceIdFromToken(
-  token: string,
-): Promise<string | null> {
+export async function getInvoiceIdFromToken(token: string): Promise<string | null> {
   const record = await getPublicInvoiceByTokenFromConvex({
     token: normalizeInvoiceToken(token),
   });
@@ -22,9 +20,7 @@ export async function getInvoiceIdFromToken(
   return record?.id ?? null;
 }
 
-export async function getInvoiceByToken(
-  token: string,
-): Promise<InvoiceByTokenRecord | null> {
+export async function getInvoiceByToken(token: string): Promise<InvoiceByTokenRecord | null> {
   const record = await getPublicInvoiceByTokenFromConvex({
     token: normalizeInvoiceToken(token),
   });

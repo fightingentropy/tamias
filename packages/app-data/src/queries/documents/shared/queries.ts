@@ -40,16 +40,10 @@ function getRelatedDocumentSearchQueries(document: Partial<DocumentRecord>) {
     tokenQuery,
   ]
     .map((value) => normalizeText(value))
-    .filter(
-      (value, index, values) =>
-        value.length >= 3 && values.indexOf(value) === index,
-    );
+    .filter((value, index, values) => value.length >= 3 && values.indexOf(value) === index);
 }
 
-export async function getRecentDocumentsPage(args: {
-  teamId: string;
-  limit: number;
-}) {
+export async function getRecentDocumentsPage(args: { teamId: string; limit: number }) {
   const documents: DocumentRecord[] = [];
   let cursor: string | null = null;
 
@@ -61,9 +55,7 @@ export async function getRecentDocumentsPage(args: {
       order: "desc",
     });
 
-    documents.push(
-      ...result.page.filter((document) => !isFolderPlaceholder(document)),
-    );
+    documents.push(...result.page.filter((document) => !isFolderPlaceholder(document)));
 
     if (result.isDone) {
       break;
@@ -123,10 +115,7 @@ export async function getRelatedDocumentCandidates(args: {
   ];
 }
 
-export async function getDocumentsByIdsInOrder(args: {
-  teamId: string;
-  documentIds: string[];
-}) {
+export async function getDocumentsByIdsInOrder(args: { teamId: string; documentIds: string[] }) {
   if (args.documentIds.length === 0) {
     return [];
   }
@@ -145,9 +134,7 @@ export async function getDocumentsByIdsInOrder(args: {
       ),
     )
   ).flat();
-  const documentsById = new Map(
-    documents.map((document) => [document.id, document]),
-  );
+  const documentsById = new Map(documents.map((document) => [document.id, document]));
 
   return args.documentIds.flatMap((documentId) => {
     const document = documentsById.get(documentId);

@@ -4,18 +4,14 @@ import { Trial } from "@/components/trial";
 import { UserMenu } from "@/components/user-menu";
 import dynamic from "@/framework/dynamic";
 
-const ConnectionStatus = dynamic(
-  () => import("@/components/connection-status").then((m) => m.ConnectionStatus),
+const ConnectionStatus = dynamic(() =>
+  import("@/components/connection-status").then((m) => m.ConnectionStatus),
 );
-const NotificationCenter = dynamic(
-  () =>
-    import("@/components/notification-center").then((m) => m.NotificationCenter),
+const NotificationCenter = dynamic(() =>
+  import("@/components/notification-center").then((m) => m.NotificationCenter),
 );
 const OpenSearchButton = dynamic(
-  () =>
-    import("@/components/search/open-search-button").then(
-      (m) => m.OpenSearchButton,
-    ),
+  () => import("@/components/search/open-search-button").then((m) => m.OpenSearchButton),
   {
     loading: () => (
       <div className="hidden md:flex w-40 lg:w-64 h-8 rounded-md border border-transparent" />

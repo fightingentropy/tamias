@@ -13,9 +13,7 @@ const SMALL_PROFITS_MARGINAL_RELIEF_FRACTION = 3 / 200;
 export function getCorporationTaxFinancialYear(value: string | Date) {
   const date = typeof value === "string" ? parseISO(value) : value;
 
-  return date.getUTCMonth() >= 3
-    ? date.getUTCFullYear()
-    : date.getUTCFullYear() - 1;
+  return date.getUTCMonth() >= 3 ? date.getUTCFullYear() : date.getUTCFullYear() - 1;
 }
 
 function getCorporationTaxFinancialYearStart(financialYear: number) {
@@ -74,17 +72,12 @@ export function resolveCorporationTaxFinancialYearSegments(args: {
     financialYear <= endFinancialYear;
     financialYear += 1
   ) {
-    const financialYearStart =
-      getCorporationTaxFinancialYearStart(financialYear);
+    const financialYearStart = getCorporationTaxFinancialYearStart(financialYear);
     const financialYearEnd = getCorporationTaxFinancialYearEnd(financialYear);
     const segmentStart =
-      periodStart.getTime() > financialYearStart.getTime()
-        ? periodStart
-        : financialYearStart;
+      periodStart.getTime() > financialYearStart.getTime() ? periodStart : financialYearStart;
     const segmentEnd =
-      periodEnd.getTime() < financialYearEnd.getTime()
-        ? periodEnd
-        : financialYearEnd;
+      periodEnd.getTime() < financialYearEnd.getTime() ? periodEnd : financialYearEnd;
 
     if (segmentStart.getTime() > segmentEnd.getTime()) {
       continue;
@@ -95,10 +88,7 @@ export function resolveCorporationTaxFinancialYearSegments(args: {
       periodStart: formatIsoDate(segmentStart),
       periodEnd: formatIsoDate(segmentEnd),
       daysInSegment: inclusiveDayCount(segmentStart, segmentEnd),
-      daysInFinancialYear: inclusiveDayCount(
-        financialYearStart,
-        financialYearEnd,
-      ),
+      daysInFinancialYear: inclusiveDayCount(financialYearStart, financialYearEnd),
     });
   }
 
@@ -138,9 +128,7 @@ export function buildCorporationTaxRateSummary(args: {
   const exemptDistributions = roundCurrency(
     Math.max(args.rateSchedule?.exemptDistributions ?? 0, 0),
   );
-  const usesSmallProfitsRules = segments.some(
-    (segment) => segment.financialYear >= 2023,
-  );
+  const usesSmallProfitsRules = segments.some((segment) => segment.financialYear >= 2023);
   const associatedCompaniesMode = usesSmallProfitsRules
     ? resolveCorporationTaxRateScheduleMode(args.rateSchedule, segments.length)
     : ("not_applicable" as const);
@@ -174,8 +162,7 @@ export function buildCorporationTaxRateSummary(args: {
           ? (associatedCompaniesThisPeriod ?? 0)
           : null;
     const segmentChargeableProfits = apportionedChargeableProfits[index] ?? 0;
-    const segmentExemptDistributions =
-      apportionedExemptDistributions[index] ?? 0;
+    const segmentExemptDistributions = apportionedExemptDistributions[index] ?? 0;
     const segmentAugmentedProfits = roundCurrency(
       segmentChargeableProfits + segmentExemptDistributions,
     );
@@ -205,23 +192,15 @@ export function buildCorporationTaxRateSummary(args: {
 
     const divisor = Math.max((associatedCompanies ?? 0) + 1, 1);
     const lowerLimit = roundCurrency(
-      (SMALL_PROFITS_LOWER_LIMIT * segment.daysInSegment) /
-        segment.daysInFinancialYear /
-        divisor,
+      (SMALL_PROFITS_LOWER_LIMIT * segment.daysInSegment) / segment.daysInFinancialYear / divisor,
     );
     const upperLimit = roundCurrency(
-      (SMALL_PROFITS_UPPER_LIMIT * segment.daysInSegment) /
-        segment.daysInFinancialYear /
-        divisor,
+      (SMALL_PROFITS_UPPER_LIMIT * segment.daysInSegment) / segment.daysInFinancialYear / divisor,
     );
-    const grossMainRateTax = roundCurrency(
-      segmentChargeableProfits * SMALL_PROFITS_MAIN_RATE,
-    );
+    const grossMainRateTax = roundCurrency(segmentChargeableProfits * SMALL_PROFITS_MAIN_RATE);
 
     if (segmentAugmentedProfits <= lowerLimit) {
-      const grossCorporationTax = roundCurrency(
-        segmentChargeableProfits * SMALL_PROFITS_RATE,
-      );
+      const grossCorporationTax = roundCurrency(segmentChargeableProfits * SMALL_PROFITS_RATE);
 
       return {
         financialYear: segment.financialYear,
@@ -261,8 +240,7 @@ export function buildCorporationTaxRateSummary(args: {
     }
 
     const marginalRelief = roundCurrency(
-      (upperLimit - segmentAugmentedProfits) *
-        SMALL_PROFITS_MARGINAL_RELIEF_FRACTION,
+      (upperLimit - segmentAugmentedProfits) * SMALL_PROFITS_MARGINAL_RELIEF_FRACTION,
     );
 
     return {
@@ -288,12 +266,8 @@ export function buildCorporationTaxRateSummary(args: {
   const marginalRelief = roundCurrency(
     financialYears.reduce((total, item) => total + item.marginalRelief, 0),
   );
-  const netCorporationTaxDue = roundCurrency(
-    grossCorporationTaxDue - marginalRelief,
-  );
-  const augmentedProfits = roundCurrency(
-    chargeableProfits + exemptDistributions,
-  );
+  const netCorporationTaxDue = roundCurrency(grossCorporationTaxDue - marginalRelief);
+  const augmentedProfits = roundCurrency(chargeableProfits + exemptDistributions);
   const effectiveTaxRate =
     chargeableProfits > 0
       ? roundCurrency((netCorporationTaxDue / chargeableProfits) * 100) / 100
@@ -311,9 +285,7 @@ export function buildCorporationTaxRateSummary(args: {
     associatedCompaniesFirstYear,
     associatedCompaniesSecondYear,
     startingOrSmallCompaniesRate: financialYears.some(
-      (item) =>
-        item.chargeType === "small_profits_rate" ||
-        item.chargeType === "marginal_relief",
+      (item) => item.chargeType === "small_profits_rate" || item.chargeType === "marginal_relief",
     ),
     financialYears,
   };

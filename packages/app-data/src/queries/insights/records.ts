@@ -29,10 +29,7 @@ export type CreateInsightParams = {
   currency: string;
 };
 
-export async function createInsight(
-  _db: DatabaseOrTransaction,
-  params: CreateInsightParams,
-) {
+export async function createInsight(_db: DatabaseOrTransaction, params: CreateInsightParams) {
   const result = await createInsightInConvex({
     teamId: params.teamId,
     periodType: params.periodType,
@@ -63,10 +60,7 @@ export type UpdateInsightParams = {
   generatedAt?: Date;
 };
 
-export async function updateInsight(
-  _db: DatabaseOrTransaction,
-  params: UpdateInsightParams,
-) {
+export async function updateInsight(_db: DatabaseOrTransaction, params: UpdateInsightParams) {
   const result = await updateInsightInConvex({
     teamId: params.teamId,
     id: params.id,
@@ -108,10 +102,7 @@ export async function getInsights(db: Database, params: GetInsightsParams) {
     .sort(compareInsightPeriodDesc);
   const data = filtered.slice(offset, offset + pageSize);
 
-  const nextCursor =
-    data && data.length === pageSize
-      ? (offset + pageSize).toString()
-      : undefined;
+  const nextCursor = data && data.length === pageSize ? (offset + pageSize).toString() : undefined;
 
   return {
     meta: {
@@ -130,10 +121,7 @@ export type GetInsightByPeriodParams = {
   periodNumber: number;
 };
 
-export async function getInsightByPeriod(
-  db: Database,
-  params: GetInsightByPeriodParams,
-) {
+export async function getInsightByPeriod(db: Database, params: GetInsightByPeriodParams) {
   const { teamId, periodType, periodYear, periodNumber } = params;
   const insightsForTeam = await listTeamInsights(db, teamId);
 
@@ -152,18 +140,14 @@ export type GetLatestInsightParams = {
   periodType?: InsightPeriodType;
 };
 
-async function getLatestInsightImpl(
-  db: Database,
-  params: GetLatestInsightParams,
-) {
+async function getLatestInsightImpl(db: Database, params: GetLatestInsightParams) {
   const { teamId, periodType } = params;
 
   return (
     (await listTeamInsights(db, teamId))
       .filter(
         (insight) =>
-          insight.status === "completed" &&
-          (!periodType || insight.periodType === periodType),
+          insight.status === "completed" && (!periodType || insight.periodType === periodType),
       )
       .sort(compareInsightGeneratedAtDesc)[0] ?? null
   );
@@ -171,8 +155,7 @@ async function getLatestInsightImpl(
 
 export const getLatestInsight = reuseQueryResult({
   keyPrefix: "latest-insight",
-  keyFn: (params: GetLatestInsightParams) =>
-    [params.teamId, params.periodType ?? ""].join(":"),
+  keyFn: (params: GetLatestInsightParams) => [params.teamId, params.periodType ?? ""].join(":"),
   load: getLatestInsightImpl,
 });
 
@@ -201,7 +184,6 @@ export async function hasEarlierInsight(
       insight.periodType === periodType &&
       insight.status === "completed" &&
       (insight.periodYear < periodYear ||
-        (insight.periodYear === periodYear &&
-          insight.periodNumber < periodNumber)),
+        (insight.periodYear === periodYear && insight.periodNumber < periodNumber)),
   );
 }

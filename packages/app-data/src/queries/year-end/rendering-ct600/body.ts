@@ -1,9 +1,6 @@
 import { escapeXml } from "../formatting";
 import type { Ct600Draft } from "../types";
-import {
-  renderCt600AttachedFilesXml,
-  renderCt600ReturnInfoSummaryXml,
-} from "./attachments";
+import { renderCt600AttachedFilesXml, renderCt600ReturnInfoSummaryXml } from "./attachments";
 import { renderCorporationTaxChargeableXml } from "./corporation-tax";
 import { renderCt600aXml } from "./ct600a";
 import { formatMoney } from "./shared";
@@ -15,8 +12,7 @@ export function renderCt600DraftBodyXml(args: {
   encodedAccountsAttachment?: string;
   encodedComputationsAttachment?: string;
 }) {
-  const registrationNumber =
-    args.draft.companyNumber ?? "MISSING-COMPANY-NUMBER";
+  const registrationNumber = args.draft.companyNumber ?? "MISSING-COMPANY-NUMBER";
   const ct600aSupplement = args.draft.supplementaryPages.ct600a;
   const returnInfoSummary = renderCt600ReturnInfoSummaryXml({
     encodedAccountsAttachment: args.encodedAccountsAttachment,
@@ -28,14 +24,10 @@ export function renderCt600DraftBodyXml(args: {
     encodedComputationsAttachment: args.encodedComputationsAttachment,
   });
   const ct600aXml = renderCt600aXml(args.draft);
-  const corporationTaxChargeableXml = renderCorporationTaxChargeableXml(
-    args.draft,
-  );
+  const corporationTaxChargeableXml = renderCorporationTaxChargeableXml(args.draft);
 
   return `<Body><IRenvelope xmlns="http://www.govtalk.gov.uk/taxation/CT/5"><IRheader><Keys><Key Type="UTR">${escapeXml(args.submissionReference)}</Key></Keys><PeriodEnd>${escapeXml(args.draft.periodEnd)}</PeriodEnd><DefaultCurrency>${escapeXml(args.draft.currency)}</DefaultCurrency><Manifest><Contains><Reference><Namespace>http://www.govtalk.gov.uk/taxation/CT/5</Namespace><SchemaVersion>2022-v1.99</SchemaVersion><TopElementName>CompanyTaxReturn</TopElementName></Reference></Contains></Manifest>${
-    args.irMark
-      ? `<IRmark Type="generic">${escapeXml(args.irMark)}</IRmark>`
-      : ""
+    args.irMark ? `<IRmark Type="generic">${escapeXml(args.irMark)}</IRmark>` : ""
   }<Sender>Company</Sender></IRheader><CompanyTaxReturn ReturnType="${escapeXml(
     args.draft.returnType,
   )}"><CompanyInformation><CompanyName>${escapeXml(
@@ -88,9 +80,7 @@ export function renderCt600DraftBodyXml(args: {
     args.draft.taxPayable,
   )}</TaxPayable></CalculationOfTaxOutstandingOrOverpaid><Declaration><AcceptDeclaration>yes</AcceptDeclaration><Name>${escapeXml(
     args.draft.declarationName,
-  )}</Name><Status>${escapeXml(
-    args.draft.declarationStatus,
-  )}</Status></Declaration>${ct600aXml}${
+  )}</Name><Status>${escapeXml(args.draft.declarationStatus)}</Status></Declaration>${ct600aXml}${
     attachedFiles
       ? `<AttachedFiles><XBRLsubmission>${attachedFiles}</XBRLsubmission></AttachedFiles>`
       : ""

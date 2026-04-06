@@ -684,14 +684,14 @@ process-local in-memory TTL storage.
 
 #### Cache TTLs
 
-| Data | TTL | Rationale |
-|------|-----|-----------|
-| GoCardless access token | Dynamic (expires - 1h) | OAuth token lifecycle |
-| GoCardless refresh token | Dynamic (expires - 1h) | OAuth token lifecycle |
-| Account details | 30 minutes | Static within a flow, rarely changes |
-| Account balance | 30 minutes | DB is source of truth; prevents redundant API calls |
-| Individual institution | 24 hours | Institution data is static |
-| Institution lists | 24 hours | Lists change very rarely |
+| Data                     | TTL                    | Rationale                                           |
+| ------------------------ | ---------------------- | --------------------------------------------------- |
+| GoCardless access token  | Dynamic (expires - 1h) | OAuth token lifecycle                               |
+| GoCardless refresh token | Dynamic (expires - 1h) | OAuth token lifecycle                               |
+| Account details          | 30 minutes             | Static within a flow, rarely changes                |
+| Account balance          | 30 minutes             | DB is source of truth; prevents redundant API calls |
+| Individual institution   | 24 hours               | Institution data is static                          |
+| Institution lists        | 24 hours               | Lists change very rarely                            |
 
 #### `getOrSet` Pattern
 
@@ -786,6 +786,7 @@ All providers are wrapped with `withRateLimitRetry` which:
 4. Retries up to 3 times before propagating the error
 
 Additionally:
+
 - Accounts are synced **sequentially** with delays (30s manual, 60s background) to avoid
   overwhelming provider rate limits
 - GoCardless bank-level rate limits (4/day/account) are addressed by caching
@@ -933,6 +934,7 @@ Currently, daily syncs use `/transactions/get` with a 5-day window. Plaid recomm
 persisting the `/transactions/sync` cursor between syncs for true incremental updates.
 
 Requirements:
+
 - Add `plaid_sync_cursor` column to `bank_connections` table (cursor is per-Item)
 - Restructure sync to call `transactionsSync` at the connection level, then distribute
   transactions to individual accounts
@@ -969,34 +971,34 @@ cache for HTTP clients.
 
 #### Banking Package (`packages/banking/src/`)
 
-| File | Purpose |
-|------|---------|
-| `index.ts` | Provider facade class + exports |
-| `interface.ts` | Common Provider interface |
-| `types.ts` | Core request/response types |
-| `providers/*/provider.ts` | Provider interface implementations |
-| `providers/*/api.ts` | HTTP API clients with caching + rate limit retry |
-| `providers/*/transform.ts` | Provider → common type transformers |
-| `providers/*/types.ts` | Provider-specific types |
-| `utils/retry.ts` | `withRetry` + `withRateLimitRetry` utilities |
-| `utils/error.ts` | `ProviderError` class |
+| File                       | Purpose                                          |
+| -------------------------- | ------------------------------------------------ |
+| `index.ts`                 | Provider facade class + exports                  |
+| `interface.ts`             | Common Provider interface                        |
+| `types.ts`                 | Core request/response types                      |
+| `providers/*/provider.ts`  | Provider interface implementations               |
+| `providers/*/api.ts`       | HTTP API clients with caching + rate limit retry |
+| `providers/*/transform.ts` | Provider → common type transformers              |
+| `providers/*/types.ts`     | Provider-specific types                          |
+| `utils/retry.ts`           | `withRetry` + `withRateLimitRetry` utilities     |
+| `utils/error.ts`           | `ProviderError` class                            |
 
 #### Cache (`packages/cache/src/`)
 
-| File | Purpose |
-|------|---------|
+| File               | Purpose                                                        |
+| ------------------ | -------------------------------------------------------------- |
 | `banking-cache.ts` | `bankingCache` object, `getOrSet` helper, `CacheTTL` constants |
-| `local-cache.ts` | Generic in-memory TTL cache used by `banking-cache.ts` |
+| `local-cache.ts`   | Generic in-memory TTL cache used by `banking-cache.ts`         |
 
 #### Async Processing (`worker/src/processors/transactions/`)
 
-| File | Purpose |
-|------|---------|
-| `cloudflare/index.ts` | `bank-initial-setup` workflow orchestration + recurring schedule setup |
-| `sync-connection.ts` | Connection status check + inline account sync |
-| `bank-sync.ts` | Shared balance/transaction sync logic per account |
-| `transaction-notifications.ts` | New transaction notifications after background sync |
-| `reconnect-connection.ts` | Account ID remapping after reconnect |
+| File                           | Purpose                                                                |
+| ------------------------------ | ---------------------------------------------------------------------- |
+| `cloudflare/index.ts`          | `bank-initial-setup` workflow orchestration + recurring schedule setup |
+| `sync-connection.ts`           | Connection status check + inline account sync                          |
+| `bank-sync.ts`                 | Shared balance/transaction sync logic per account                      |
+| `transaction-notifications.ts` | New transaction notifications after background sync                    |
+| `reconnect-connection.ts`      | Account ID remapping after reconnect                                   |
 
 ---
 
@@ -1025,11 +1027,11 @@ The accounting integration enables Tamias users to export their enriched financi
 
 #### Supported Providers
 
-| Provider | Status | OAuth | Export | Attachments |
-|----------|--------|-------|--------|-------------|
-| Xero | Active | OAuth 2.0 | Yes | Yes |
-| QuickBooks | Active | OAuth 2.0 | Yes | Yes |
-| Fortnox | Active | OAuth 2.0 | Yes (Vouchers) | Yes |
+| Provider   | Status | OAuth     | Export         | Attachments |
+| ---------- | ------ | --------- | -------------- | ----------- |
+| Xero       | Active | OAuth 2.0 | Yes            | Yes         |
+| QuickBooks | Active | OAuth 2.0 | Yes            | Yes         |
+| Fortnox    | Active | OAuth 2.0 | Yes (Vouchers) | Yes         |
 
 #### Key Features
 
@@ -1091,20 +1093,20 @@ flowchart TB
     UI --> REST
     TRPC --> DB
     REST --> DB
-    
+
     PROC3 --> PROC2
-    
+
     PROC2 --> IFACE
     PROC3 --> IFACE
-    
+
     IFACE --> XERO
     IFACE --> QB
     IFACE --> FNX
-    
+
     XERO --> XERO_API
     QB --> QB_API
     FNX --> FNX_API
-    
+
     PROC2 --> DB
     PROC3 --> DB
 ```
@@ -1161,17 +1163,17 @@ sequenceDiagram
     API->>ExportProcessor: Trigger export job
     ExportProcessor->>Database: Load transactions
     Database-->>ExportProcessor: Transaction data
-    
+
     loop For each batch (50)
         ExportProcessor->>Provider: syncTransactions()
         Provider-->>ExportProcessor: Results with IDs
         ExportProcessor->>Database: Upsert sync records
-        
+
         alt Has attachments
             ExportProcessor->>AttachmentProcessor: Trigger attachment job
         end
     end
-    
+
     ExportProcessor-->>Dashboard: Export complete
 ```
 
@@ -1265,9 +1267,9 @@ OAuth tokens and settings stored in JSONB config field:
 interface AccountingProviderConfig {
   accessToken: string;
   refreshToken: string;
-  expiresAt: string;      // ISO timestamp
-  tenantId: string;       // Organization ID (realmId for QB)
-  tenantName?: string;    // Organization name
+  expiresAt: string; // ISO timestamp
+  tenantId: string; // Organization ID (realmId for QB)
+  tenantName?: string; // Organization name
 }
 ```
 
@@ -1279,12 +1281,12 @@ interface AccountingProviderConfig {
 
 Users manually select which transactions to export. The system validates that transactions are eligible:
 
-| Condition | Exports | Reason |
-|-----------|---------|--------|
-| Status = pending | Yes | User can export anytime |
-| Status = completed | Yes | User marked as done |
-| Status = excluded | No | User excluded from books |
-| Status = archived | No | Old transaction |
+| Condition          | Exports | Reason                   |
+| ------------------ | ------- | ------------------------ |
+| Status = pending   | Yes     | User can export anytime  |
+| Status = completed | Yes     | User marked as done      |
+| Status = excluded  | No      | User excluded from books |
+| Status = archived  | No      | Old transaction          |
 
 #### Re-export Behavior
 
@@ -1295,11 +1297,11 @@ Users manually select which transactions to export. The system validates that tr
 
 #### Provider-Specific Behavior
 
-| Provider | Entity Type | Idempotency | Notes |
-|----------|-------------|-------------|-------|
-| Xero | BankTransaction | `updateOrCreate` | SPEND/RECEIVE, deterministic keys |
-| QuickBooks | Purchase/Deposit | `Request-Id` header | Based on amount sign |
-| Fortnox | Voucher | None (immutable) | Posted vouchers, double-entry |
+| Provider   | Entity Type      | Idempotency         | Notes                             |
+| ---------- | ---------------- | ------------------- | --------------------------------- |
+| Xero       | BankTransaction  | `updateOrCreate`    | SPEND/RECEIVE, deterministic keys |
+| QuickBooks | Purchase/Deposit | `Request-Id` header | Based on amount sign              |
+| Fortnox    | Voucher          | None (immutable)    | Posted vouchers, double-entry     |
 
 #### Important: Re-Export Behavior
 
@@ -1363,7 +1365,7 @@ const accountingQueueOptions: QueueOptions = {
     attempts: 4,
     backoff: {
       type: "exponential",
-      delay: 5 * 60 * 1000,  // 5 minutes initial
+      delay: 5 * 60 * 1000, // 5 minutes initial
     },
     removeOnComplete: { age: 24 * 3600, count: 100 },
     removeOnFail: { age: 7 * 24 * 3600, count: 500 },
@@ -1386,10 +1388,10 @@ flowchart LR
 
 #### Job Types
 
-| Job Name | Processor | Trigger | Purpose |
-|----------|-----------|---------|---------|
-| `export-to-accounting` | ExportTransactionsProcessor | User action | Export selected transactions |
-| `sync-accounting-attachments` | SyncAttachmentsProcessor | Export job | Upload attachments to provider |
+| Job Name                      | Processor                   | Trigger     | Purpose                        |
+| ----------------------------- | --------------------------- | ----------- | ------------------------------ |
+| `export-to-accounting`        | ExportTransactionsProcessor | User action | Export selected transactions   |
+| `sync-accounting-attachments` | SyncAttachmentsProcessor    | Export job  | Upload attachments to provider |
 
 ---
 
@@ -1492,13 +1494,13 @@ ACCOUNTING_OAUTH_SECRET=32_byte_encryption_key
 
 #### Retry Strategy
 
-| Error Type | Retry | Notes |
-|------------|-------|-------|
-| Network timeout | Yes | Exponential backoff |
-| Rate limit (429) | Yes | Backoff allows recovery |
-| Auth failure (401) | Yes | Token refresh attempted |
-| Invalid data (400) | No | Logged, marked as failed |
-| Server error (5xx) | Yes | Provider may recover |
+| Error Type         | Retry | Notes                    |
+| ------------------ | ----- | ------------------------ |
+| Network timeout    | Yes   | Exponential backoff      |
+| Rate limit (429)   | Yes   | Backoff allows recovery  |
+| Auth failure (401) | Yes   | Token refresh attempted  |
+| Invalid data (400) | No    | Logged, marked as failed |
+| Server error (5xx) | Yes   | Provider may recover     |
 
 #### Error Recording
 
@@ -1530,11 +1532,11 @@ await upsertAccountingSyncRecord(db, {
 
 #### Provider Rate Limits (2025)
 
-| Provider | Calls/Min | Concurrent | Daily | Notes |
-|----------|-----------|------------|-------|-------|
-| Xero | 60 | 5 | 5,000 | Per tenant |
-| QuickBooks | 500 | 10 | None | Per realm |
-| Fortnox | ~300 | 3 | None | ~25/5 seconds |
+| Provider   | Calls/Min | Concurrent | Daily | Notes         |
+| ---------- | --------- | ---------- | ----- | ------------- |
+| Xero       | 60        | 5          | 5,000 | Per tenant    |
+| QuickBooks | 500       | 10         | None  | Per realm     |
+| Fortnox    | ~300      | 3          | None  | ~25/5 seconds |
 
 #### Job-Level Rate Limiting
 
@@ -1551,6 +1553,7 @@ function calculateAttachmentJobDelay(providerId: string, jobIndex: number): numb
 ```
 
 **Benefits:**
+
 - Jobs are in "delayed" state, not blocking workers
 - Different teams process in parallel (no blocking)
 - Zero rate limit errors (jobs are pre-spaced)
@@ -1578,11 +1581,11 @@ All providers sort transactions by date before export:
 
 #### Estimated Export Times
 
-| Transactions + Attachments | Xero | QuickBooks | Fortnox |
-|---------------------------|------|------------|---------|
-| 200 | ~4 min | ~30 sec | ~1 min |
-| 1000 | ~18 min | ~2 min | ~4 min |
-| 2000 | ~37 min | ~4 min | ~8 min |
+| Transactions + Attachments | Xero    | QuickBooks | Fortnox |
+| -------------------------- | ------- | ---------- | ------- |
+| 200                        | ~4 min  | ~30 sec    | ~1 min  |
+| 1000                       | ~18 min | ~2 min     | ~4 min  |
+| 2000                       | ~37 min | ~4 min     | ~8 min  |
 
 **Note:** Xero has a daily limit of 5,000 calls. Exports larger than ~4,500 attachments may span multiple days.
 
@@ -1679,7 +1682,7 @@ erDiagram
     teams ||--o{ transactions : "owns"
     teams ||--o{ apps : "has"
     teams ||--o{ accountingSyncRecords : "owns"
-    
+
     transactions ||--o{ transaction_attachments : "has"
     transactions ||--o{ accountingSyncRecords : "tracked by"
 
@@ -1758,17 +1761,17 @@ flowchart TD
 flowchart TD
     A[Batch of 50 transactions] --> B[Call provider.syncTransactions]
     B --> C{Success?}
-    
+
     C -->|Yes| D[Record as synced]
     C -->|No| E[Record as failed]
-    
+
     D --> F{Has attachments?}
     F -->|Yes| G[Trigger attachment job]
     F -->|No| H[Continue to next batch]
-    
+
     E --> H
     G --> H
-    
+
     H --> I{More batches?}
     I -->|Yes| A
     I -->|No| J[Check attachment updates]
@@ -1780,11 +1783,11 @@ flowchart TD
 flowchart TD
     A[Query synced records] --> B[JOIN with current attachments]
     B --> C[Compare synced_attachment_ids vs current]
-    
+
     C --> D{New attachments found?}
     D -->|No| E[Done]
     D -->|Yes| F[For each transaction with changes]
-    
+
     F --> G[Trigger attachment sync job]
     G --> H{More transactions?}
     H -->|Yes| F
@@ -1800,15 +1803,15 @@ flowchart TD
 ```mermaid
 stateDiagram-v2
     [*] --> CheckExpiry: Job starts
-    
+
     CheckExpiry --> Valid: Token not expired
     CheckExpiry --> Refresh: Token expired
-    
+
     Refresh --> UpdateDB: Get new tokens
     UpdateDB --> Valid: Atomic update complete
-    
+
     Valid --> [*]: Continue with API calls
-    
+
     Refresh --> Error: Refresh failed
     Error --> [*]: Throw error, job retries
 ```
@@ -1823,11 +1826,11 @@ sequenceDiagram
 
     Job->>Provider: refreshTokens(refreshToken)
     Provider-->>Job: New tokens
-    
+
     Job->>Database: UPDATE apps SET config = config || new_tokens
     Note over Database: JSONB merge preserves other fields
     Database-->>Job: Success
-    
+
     Job->>Job: Update local config reference
 ```
 
@@ -1842,31 +1845,31 @@ flowchart LR
     subgraph Attempt1["Attempt 1"]
         A1[Execute]
     end
-    
+
     subgraph Delay1["Delay"]
         D1[5 minutes]
     end
-    
+
     subgraph Attempt2["Attempt 2"]
         A2[Execute]
     end
-    
+
     subgraph Delay2["Delay"]
         D2[10 minutes]
     end
-    
+
     subgraph Attempt3["Attempt 3"]
         A3[Execute]
     end
-    
+
     subgraph Delay3["Delay"]
         D3[20 minutes]
     end
-    
+
     subgraph Attempt4["Attempt 4"]
         A4[Execute]
     end
-    
+
     subgraph Final["Final"]
         F[Permanent Failure]
     end
@@ -1875,7 +1878,7 @@ flowchart LR
     A2 -->|fail| D2 --> A3
     A3 -->|fail| D3 --> A4
     A4 -->|fail| F
-    
+
     A1 -->|success| S1[Done]
     A2 -->|success| S2[Done]
     A3 -->|success| S3[Done]
@@ -1887,19 +1890,19 @@ flowchart LR
 ```mermaid
 flowchart TD
     E[Error Occurred] --> T{Error Type}
-    
+
     T -->|Network Timeout| R1[Retry with backoff]
     T -->|Rate Limit 429| R2[Retry with backoff]
     T -->|Auth Error 401| R3[Refresh token, retry]
     T -->|Bad Request 400| F1[Mark failed, no retry]
     T -->|Not Found 404| F2[Mark failed, no retry]
     T -->|Server Error 5xx| R4[Retry with backoff]
-    
+
     R1 --> Q[Back to queue]
     R2 --> Q
     R3 --> Q
     R4 --> Q
-    
+
     F1 --> D[Record in database]
     F2 --> D
 ```
@@ -1912,12 +1915,12 @@ flowchart TD
 
 ```typescript
 const workerOptions: WorkerOptions = {
-  concurrency: 10,              // Max 10 jobs in parallel
-  lockDuration: 300000,         // 5 minute lock (API can be slow)
+  concurrency: 10, // Max 10 jobs in parallel
+  lockDuration: 300000, // 5 minute lock (API can be slow)
   stalledInterval: 5 * 60 * 1000,
   maxStalledCount: 1,
   limiter: {
-    max: 20,                    // Max 20 jobs per second
+    max: 20, // Max 20 jobs per second
     duration: 1000,
   },
 };
@@ -1933,20 +1936,20 @@ flowchart TB
             TOK1[Token State]
             PROC1[Processing]
         end
-        
+
         subgraph Job2["Job 2 (Team B)"]
             DB2[DB Connection]
             TOK2[Token State]
             PROC2[Processing]
         end
-        
+
         subgraph Job3["Job 3 (Team C)"]
             DB3[DB Connection]
             TOK3[Token State]
             PROC3[Processing]
         end
     end
-    
+
     Queue[(Cloudflare Queue)] --> Worker
     DataStore[(Application Data Store)] --> DB1
     DataStore --> DB2
@@ -2005,16 +2008,16 @@ sequenceDiagram
 
     Processor->>Database: Get attachment metadata
     Database-->>Processor: id, name, path, type, size
-    
+
     Processor->>Storage: Download from vault
     Storage-->>Processor: File blob
-    
+
     Processor->>Processor: Convert to Buffer
-    
+
     Processor->>Provider: Upload attachment
     Note over Provider: POST /BankTransactions/{id}/Attachments
     Provider-->>Processor: Attachment ID
-    
+
     Processor->>Database: Update synced_attachment_ids
 ```
 
@@ -2024,27 +2027,27 @@ sequenceDiagram
 
 #### Query Complexity
 
-| Query | Complexity | Index Used |
-|-------|------------|------------|
-| Get synced IDs | O(n) | idx_accounting_sync_team_provider |
-| Get transactions for sync | O(n log n) | transactions PK + team_id |
-| Detect attachment changes | O(n) | Single JOIN, grouped |
-| Upsert sync record | O(1) | Unique constraint |
+| Query                     | Complexity | Index Used                        |
+| ------------------------- | ---------- | --------------------------------- |
+| Get synced IDs            | O(n)       | idx_accounting_sync_team_provider |
+| Get transactions for sync | O(n log n) | transactions PK + team_id         |
+| Detect attachment changes | O(n)       | Single JOIN, grouped              |
+| Upsert sync record        | O(1)       | Unique constraint                 |
 
 #### Batch Sizes
 
-| Operation | Batch Size | Rationale |
-|-----------|------------|-----------|
-| Transaction sync | 50 | Balance between API calls and memory |
-| Attachment upload | 1 | Sequential for error isolation |
-| Progress updates | Per batch | User feedback without overhead |
+| Operation         | Batch Size | Rationale                            |
+| ----------------- | ---------- | ------------------------------------ |
+| Transaction sync  | 50         | Balance between API calls and memory |
+| Attachment upload | 1          | Sequential for error isolation       |
+| Progress updates  | Per batch  | User feedback without overhead       |
 
 #### Rate Limits
 
-| Provider | Limit | Tamias Handling |
-|----------|-------|-----------------|
-| Xero | 60 calls/minute | Async worker concurrency + provider backoff |
-| Xero | 5000 calls/day | Batch processing reduces calls |
+| Provider | Limit           | Tamias Handling                             |
+| -------- | --------------- | ------------------------------------------- |
+| Xero     | 60 calls/minute | Async worker concurrency + provider backoff |
+| Xero     | 5000 calls/day  | Batch processing reduces calls              |
 
 ---
 
@@ -2073,7 +2076,7 @@ flowchart TD
     RLS --> T1
     RLS --> T2
     RLS --> T3
-    
+
     W -->|Bypasses RLS| T1
     W -->|Bypasses RLS| T2
     W -->|Bypasses RLS| T3
@@ -2081,12 +2084,12 @@ flowchart TD
 
 #### Secret Storage
 
-| Secret Type | Storage | Access |
-|-------------|---------|--------|
-| OAuth Client ID/Secret | Environment vars | Worker process only |
-| Access Token | apps.config (DB) | Encrypted at rest |
-| Refresh Token | apps.config (DB) | Encrypted at rest |
-| OAuth State | Encrypted string | HMAC with server secret |
+| Secret Type            | Storage          | Access                  |
+| ---------------------- | ---------------- | ----------------------- |
+| OAuth Client ID/Secret | Environment vars | Worker process only     |
+| Access Token           | apps.config (DB) | Encrypted at rest       |
+| Refresh Token          | apps.config (DB) | Encrypted at rest       |
+| OAuth State            | Encrypted string | HMAC with server secret |
 
 ---
 
@@ -2112,28 +2115,28 @@ bun add @tamias/categories
 #### Basic Category Access
 
 ```typescript
-import { CATEGORIES, getCategoryBySlug, getParentCategory } from '@tamias/categories';
+import { CATEGORIES, getCategoryBySlug, getParentCategory } from "@tamias/categories";
 
 // Get all categories
 const allCategories = CATEGORIES;
 
 // Find a specific category
-const softwareCategory = getCategoryBySlug('software');
+const softwareCategory = getCategoryBySlug("software");
 
 // Get parent category
-const parent = getParentCategory('software'); // Returns 'technology'
+const parent = getParentCategory("software"); // Returns 'technology'
 ```
 
 #### Tax Rate Lookup
 
 ```typescript
-import { getTaxRateForCategory, getTaxTypeForCountry } from '@tamias/categories';
+import { getTaxRateForCategory, getTaxTypeForCountry } from "@tamias/categories";
 
 // Get tax rate for a category in a specific country
-const taxRate = getTaxRateForCategory('SE', 'meals'); // Returns 12 (Sweden, reduced rate)
+const taxRate = getTaxRateForCategory("SE", "meals"); // Returns 12 (Sweden, reduced rate)
 
 // Get tax type for a country
-const taxType = getTaxTypeForCountry('SE'); // Returns 'vat'
+const taxType = getTaxTypeForCountry("SE"); // Returns 'vat'
 ```
 
 #### Category Names
@@ -2142,10 +2145,10 @@ All categories include built-in display names that can be used directly:
 
 ```typescript
 // Access category names directly
-const revenueCategory = getCategoryBySlug('revenue');
+const revenueCategory = getCategoryBySlug("revenue");
 console.log(revenueCategory.name); // "Revenue"
 
-const officeSupplies = getCategoryBySlug('office-supplies');
+const officeSupplies = getCategoryBySlug("office-supplies");
 console.log(officeSupplies.name); // "Office Supplies"
 ```
 
@@ -2154,17 +2157,18 @@ console.log(officeSupplies.name); // "Office Supplies"
 Each category has a predefined color for consistent UI representation:
 
 ```typescript
-import { getCategoryColor, CATEGORY_COLOR_MAP } from '@tamias/categories';
+import { getCategoryColor, CATEGORY_COLOR_MAP } from "@tamias/categories";
 
 // Get color for any category
-const revenueColor = getCategoryColor('revenue'); // "#00D084" (Green)
-const officeSuppliesColor = getCategoryColor('office-supplies'); // "#8ED1FC" (Sky Blue)
+const revenueColor = getCategoryColor("revenue"); // "#00D084" (Green)
+const officeSuppliesColor = getCategoryColor("office-supplies"); // "#8ED1FC" (Sky Blue)
 
 // Access the complete color map
 const allColors = CATEGORY_COLOR_MAP;
 ```
 
 **Color Philosophy:**
+
 - **Revenue categories**: Green variations (income, growth)
 - **Cost categories**: Orange variations (expenses, caution)
 - **Each parent category**: Distinct base color
@@ -2214,6 +2218,7 @@ Email inbox integration package for syncing PDF attachments from Gmail and Outlo
 ### Overview
 
 This package provides OAuth-based email provider integrations that:
+
 - Connect user email accounts via OAuth 2.0
 - Sync PDF attachments from incoming emails
 - Handle token refresh and expiration automatically
@@ -2299,10 +2304,10 @@ try {
   await connector.getAttachments(options);
 } catch (error) {
   if (isInboxAuthError(error)) {
-    console.log(error.code);          // "token_expired" | "refresh_token_invalid" | ...
-    console.log(error.provider);      // "gmail" | "outlook"
+    console.log(error.code); // "token_expired" | "refresh_token_invalid" | ...
+    console.log(error.provider); // "gmail" | "outlook"
     console.log(error.requiresReauth); // true = user must reconnect
-    
+
     if (error.requiresReauth) {
       // Mark account as disconnected, prompt user to reconnect
     } else {
@@ -2332,7 +2337,7 @@ Non-authentication sync errors. These are typically transient.
 import { InboxSyncError } from "@tamias/inbox/errors";
 
 if (error instanceof InboxSyncError) {
-  console.log(error.code);        // "fetch_failed" | "rate_limited" | ...
+  console.log(error.code); // "fetch_failed" | "rate_limited" | ...
   console.log(error.isRetryable()); // true for network/rate limit errors
 }
 ```
@@ -2402,11 +2407,13 @@ import { isAuthenticationError } from "@tamias/inbox/utils";
 ### Environment Variables
 
 #### Gmail
+
 - `GMAIL_CLIENT_ID` - Google OAuth client ID
 - `GMAIL_CLIENT_SECRET` - Google OAuth client secret
 - `GMAIL_REDIRECT_URI` - OAuth callback URL
 
 #### Outlook
+
 - `OUTLOOK_CLIENT_ID` - Microsoft OAuth client ID
 - `OUTLOOK_CLIENT_SECRET` - Microsoft OAuth client secret
 - `OUTLOOK_REDIRECT_URI` - OAuth callback URL
@@ -2547,9 +2554,7 @@ bun test
 
 ## Assistant prompt templates
 
-
 The API assistant uses markdown templates in **`agent-prompts/`** (`memory-template.md`, `title-instructions.md`, `suggestions-instructions.md`). They are embedded into `api/src/ai/agents/config/generated-prompts.ts` by:
-
 
 ```bash
 bun run --cwd api prompts:generate

@@ -1,6 +1,4 @@
-type CloudflareRecurringScheduleTask =
-  | "inbox-sync-scheduler"
-  | "bank-sync-scheduler";
+type CloudflareRecurringScheduleTask = "inbox-sync-scheduler" | "bank-sync-scheduler";
 
 type CloudflareQueueGroup = "capture" | "ledger";
 
@@ -70,15 +68,9 @@ export interface CloudflareAsyncServiceBinding {
   getWorkflowStatus(
     request: CloudflareWorkflowInstanceRequest,
   ): Promise<CloudflareWorkflowStatusResponse>;
-  cancelWorkflow(
-    request: CloudflareWorkflowInstanceRequest,
-  ): Promise<{ canceled?: boolean }>;
-  upsertRecurringSchedule(
-    request: CloudflareRecurringScheduleRequest,
-  ): Promise<unknown>;
-  cancelRecurringSchedule(
-    request: { scheduleId: string },
-  ): Promise<{ canceled?: boolean }>;
+  cancelWorkflow(request: CloudflareWorkflowInstanceRequest): Promise<{ canceled?: boolean }>;
+  upsertRecurringSchedule(request: CloudflareRecurringScheduleRequest): Promise<unknown>;
+  cancelRecurringSchedule(request: { scheduleId: string }): Promise<{ canceled?: boolean }>;
 }
 
 type CloudflareAsyncServiceRuntime = {
@@ -86,9 +78,7 @@ type CloudflareAsyncServiceRuntime = {
 };
 
 type CloudflareScheduleRuntime = {
-  upsertRecurringSchedule(
-    request: CloudflareRecurringScheduleRequest,
-  ): Promise<void>;
+  upsertRecurringSchedule(request: CloudflareRecurringScheduleRequest): Promise<void>;
   cancelRecurringSchedule(scheduleId: string): Promise<boolean>;
 };
 
@@ -114,9 +104,7 @@ let cloudflareQueueRuntime: CloudflareQueueRuntime | null = null;
 let cloudflareAsyncServiceRuntime: CloudflareAsyncServiceRuntime | null = null;
 let cloudflareScheduleRuntime: CloudflareScheduleRuntime | null = null;
 
-function getCloudflareQueueGroup(
-  queueName: string,
-): CloudflareQueueGroup | null {
+function getCloudflareQueueGroup(queueName: string): CloudflareQueueGroup | null {
   if (captureQueueNames.has(queueName)) {
     return "capture";
   }
@@ -129,9 +117,7 @@ function getCloudflareQueueGroup(
 }
 
 function hasCloudflareQueueRuntime() {
-  return !!(
-    cloudflareQueueRuntime?.captureQueue || cloudflareQueueRuntime?.ledgerQueue
-  );
+  return !!(cloudflareQueueRuntime?.captureQueue || cloudflareQueueRuntime?.ledgerQueue);
 }
 
 function getCloudflareBridgeEnabledJobs() {
@@ -166,9 +152,7 @@ export function getCloudflareQueueBinding(queue: CloudflareQueueGroup) {
     : cloudflareQueueRuntime?.ledgerQueue;
 }
 
-export function configureCloudflareQueueRuntime(
-  runtime: CloudflareQueueRuntime | null,
-) {
+export function configureCloudflareQueueRuntime(runtime: CloudflareQueueRuntime | null) {
   cloudflareQueueRuntime = runtime;
 }
 
@@ -178,9 +162,7 @@ export function configureCloudflareAsyncServiceRuntime(
   cloudflareAsyncServiceRuntime = runtime;
 }
 
-export function configureCloudflareScheduleRuntime(
-  runtime: CloudflareScheduleRuntime | null,
-) {
+export function configureCloudflareScheduleRuntime(runtime: CloudflareScheduleRuntime | null) {
   cloudflareScheduleRuntime = runtime;
 }
 
@@ -215,9 +197,7 @@ export function requireCloudflareQueueTransport(
   }
 
   if (!isEnabledCloudflareQueueJob(queueName, jobName)) {
-    throw new Error(
-      `Cloudflare async queue job is not enabled: ${queueName}:${jobName}`,
-    );
+    throw new Error(`Cloudflare async queue job is not enabled: ${queueName}:${jobName}`);
   }
 
   if (

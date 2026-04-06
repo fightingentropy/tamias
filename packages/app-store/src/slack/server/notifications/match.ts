@@ -1,6 +1,4 @@
-import {
-  getAppByAppId,
-} from "@tamias/app-data/queries";
+import { getAppByAppId } from "@tamias/app-data/queries";
 import { getWorkerDb } from "@tamias/app-data/worker-client";
 import { createLoggerWithContext } from "@tamias/logger";
 import { getAppUrl } from "@tamias/utils/envs";

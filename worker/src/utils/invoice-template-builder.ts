@@ -3,10 +3,7 @@
  * Centralizes template construction logic for consistency and maintainability.
  */
 
-import {
-  DEFAULT_TEMPLATE_LABELS,
-  DEFAULT_TEMPLATE_SETTINGS,
-} from "@tamias/invoice";
+import { DEFAULT_TEMPLATE_LABELS, DEFAULT_TEMPLATE_SETTINGS } from "@tamias/invoice";
 
 /**
  * Invoice line item type
@@ -106,45 +103,25 @@ export function buildInvoiceTemplateFromRecurring(
 
   return {
     // Labels with defaults
-    customerLabel:
-      (template.customerLabel as string) ??
-      DEFAULT_TEMPLATE_LABELS.customerLabel,
+    customerLabel: (template.customerLabel as string) ?? DEFAULT_TEMPLATE_LABELS.customerLabel,
     title: (template.title as string) ?? DEFAULT_TEMPLATE_LABELS.title,
-    fromLabel:
-      (template.fromLabel as string) ?? DEFAULT_TEMPLATE_LABELS.fromLabel,
-    invoiceNoLabel:
-      (template.invoiceNoLabel as string) ??
-      DEFAULT_TEMPLATE_LABELS.invoiceNoLabel,
-    issueDateLabel:
-      (template.issueDateLabel as string) ??
-      DEFAULT_TEMPLATE_LABELS.issueDateLabel,
-    dueDateLabel:
-      (template.dueDateLabel as string) ?? DEFAULT_TEMPLATE_LABELS.dueDateLabel,
+    fromLabel: (template.fromLabel as string) ?? DEFAULT_TEMPLATE_LABELS.fromLabel,
+    invoiceNoLabel: (template.invoiceNoLabel as string) ?? DEFAULT_TEMPLATE_LABELS.invoiceNoLabel,
+    issueDateLabel: (template.issueDateLabel as string) ?? DEFAULT_TEMPLATE_LABELS.issueDateLabel,
+    dueDateLabel: (template.dueDateLabel as string) ?? DEFAULT_TEMPLATE_LABELS.dueDateLabel,
     descriptionLabel:
-      (template.descriptionLabel as string) ??
-      DEFAULT_TEMPLATE_LABELS.descriptionLabel,
-    priceLabel:
-      (template.priceLabel as string) ?? DEFAULT_TEMPLATE_LABELS.priceLabel,
-    quantityLabel:
-      (template.quantityLabel as string) ??
-      DEFAULT_TEMPLATE_LABELS.quantityLabel,
-    totalLabel:
-      (template.totalLabel as string) ?? DEFAULT_TEMPLATE_LABELS.totalLabel,
+      (template.descriptionLabel as string) ?? DEFAULT_TEMPLATE_LABELS.descriptionLabel,
+    priceLabel: (template.priceLabel as string) ?? DEFAULT_TEMPLATE_LABELS.priceLabel,
+    quantityLabel: (template.quantityLabel as string) ?? DEFAULT_TEMPLATE_LABELS.quantityLabel,
+    totalLabel: (template.totalLabel as string) ?? DEFAULT_TEMPLATE_LABELS.totalLabel,
     totalSummaryLabel:
-      (template.totalSummaryLabel as string) ??
-      DEFAULT_TEMPLATE_LABELS.totalSummaryLabel,
+      (template.totalSummaryLabel as string) ?? DEFAULT_TEMPLATE_LABELS.totalSummaryLabel,
     vatLabel: (template.vatLabel as string) ?? DEFAULT_TEMPLATE_LABELS.vatLabel,
-    subtotalLabel:
-      (template.subtotalLabel as string) ??
-      DEFAULT_TEMPLATE_LABELS.subtotalLabel,
+    subtotalLabel: (template.subtotalLabel as string) ?? DEFAULT_TEMPLATE_LABELS.subtotalLabel,
     taxLabel: (template.taxLabel as string) ?? DEFAULT_TEMPLATE_LABELS.taxLabel,
-    discountLabel:
-      (template.discountLabel as string) ??
-      DEFAULT_TEMPLATE_LABELS.discountLabel,
-    paymentLabel:
-      (template.paymentLabel as string) ?? DEFAULT_TEMPLATE_LABELS.paymentLabel,
-    noteLabel:
-      (template.noteLabel as string) ?? DEFAULT_TEMPLATE_LABELS.noteLabel,
+    discountLabel: (template.discountLabel as string) ?? DEFAULT_TEMPLATE_LABELS.discountLabel,
+    paymentLabel: (template.paymentLabel as string) ?? DEFAULT_TEMPLATE_LABELS.paymentLabel,
+    noteLabel: (template.noteLabel as string) ?? DEFAULT_TEMPLATE_LABELS.noteLabel,
 
     // Required fields from recurring
     timezone: recurring.timezone,
@@ -152,43 +129,29 @@ export function buildInvoiceTemplateFromRecurring(
     // Optional fields with defaults
     logoUrl: (template.logoUrl as string | null) ?? null,
     currency: recurring.currency ?? DEFAULT_TEMPLATE_SETTINGS.currency,
-    dateFormat:
-      (template.dateFormat as string) ?? DEFAULT_TEMPLATE_SETTINGS.dateFormat,
+    dateFormat: (template.dateFormat as string) ?? DEFAULT_TEMPLATE_SETTINGS.dateFormat,
     locale: (template.locale as string) ?? DEFAULT_TEMPLATE_SETTINGS.locale,
     size: (template.size as "a4" | "letter") ?? DEFAULT_TEMPLATE_SETTINGS.size,
 
     // Boolean settings with defaults
-    includeVat:
-      (template.includeVat as boolean) ?? DEFAULT_TEMPLATE_SETTINGS.includeVat,
-    includeTax:
-      (template.includeTax as boolean) ?? DEFAULT_TEMPLATE_SETTINGS.includeTax,
+    includeVat: (template.includeVat as boolean) ?? DEFAULT_TEMPLATE_SETTINGS.includeVat,
+    includeTax: (template.includeTax as boolean) ?? DEFAULT_TEMPLATE_SETTINGS.includeTax,
     includeDiscount:
-      (template.includeDiscount as boolean) ??
-      DEFAULT_TEMPLATE_SETTINGS.includeDiscount,
+      (template.includeDiscount as boolean) ?? DEFAULT_TEMPLATE_SETTINGS.includeDiscount,
     includeDecimals:
-      (template.includeDecimals as boolean) ??
-      DEFAULT_TEMPLATE_SETTINGS.includeDecimals,
-    includeUnits:
-      (template.includeUnits as boolean) ??
-      DEFAULT_TEMPLATE_SETTINGS.includeUnits,
-    includeQr:
-      (template.includeQr as boolean) ?? DEFAULT_TEMPLATE_SETTINGS.includeQr,
-    includePdf:
-      (template.includePdf as boolean) ?? DEFAULT_TEMPLATE_SETTINGS.includePdf,
+      (template.includeDecimals as boolean) ?? DEFAULT_TEMPLATE_SETTINGS.includeDecimals,
+    includeUnits: (template.includeUnits as boolean) ?? DEFAULT_TEMPLATE_SETTINGS.includeUnits,
+    includeQr: (template.includeQr as boolean) ?? DEFAULT_TEMPLATE_SETTINGS.includeQr,
+    includePdf: (template.includePdf as boolean) ?? DEFAULT_TEMPLATE_SETTINGS.includePdf,
     includeLineItemTax:
-      (template.includeLineItemTax as boolean) ??
-      DEFAULT_TEMPLATE_SETTINGS.includeLineItemTax,
+      (template.includeLineItemTax as boolean) ?? DEFAULT_TEMPLATE_SETTINGS.includeLineItemTax,
     lineItemTaxLabel:
-      (template.lineItemTaxLabel as string) ??
-      DEFAULT_TEMPLATE_LABELS.lineItemTaxLabel,
-    sendCopy:
-      (template.sendCopy as boolean) ?? DEFAULT_TEMPLATE_SETTINGS.sendCopy,
+      (template.lineItemTaxLabel as string) ?? DEFAULT_TEMPLATE_LABELS.lineItemTaxLabel,
+    sendCopy: (template.sendCopy as boolean) ?? DEFAULT_TEMPLATE_SETTINGS.sendCopy,
     paymentEnabled:
-      (template.paymentEnabled as boolean) ??
-      DEFAULT_TEMPLATE_SETTINGS.paymentEnabled,
+      (template.paymentEnabled as boolean) ?? DEFAULT_TEMPLATE_SETTINGS.paymentEnabled,
     paymentTermsDays:
-      (template.paymentTermsDays as number) ??
-      DEFAULT_TEMPLATE_SETTINGS.paymentTermsDays,
+      (template.paymentTermsDays as number) ?? DEFAULT_TEMPLATE_SETTINGS.paymentTermsDays,
 
     // Numeric settings with defaults
     taxRate: (template.taxRate as number) ?? DEFAULT_TEMPLATE_SETTINGS.taxRate,
@@ -214,9 +177,7 @@ export function stringifyJsonField(field: unknown): string | null {
  * Parse line items from recurring invoice data.
  * Returns undefined if no line items exist.
  */
-export function parseLineItems(
-  lineItems: unknown,
-): InvoiceLineItem[] | undefined {
+export function parseLineItems(lineItems: unknown): InvoiceLineItem[] | undefined {
   if (!lineItems || !Array.isArray(lineItems)) {
     return undefined;
   }
@@ -263,10 +224,7 @@ export function validateRecurringDataIntegrity(
   }
 
   // Check dueDateOffset is a valid number
-  if (
-    typeof recurring.dueDateOffset !== "number" ||
-    Number.isNaN(recurring.dueDateOffset)
-  ) {
+  if (typeof recurring.dueDateOffset !== "number" || Number.isNaN(recurring.dueDateOffset)) {
     errors.push("Invalid dueDateOffset");
   }
 

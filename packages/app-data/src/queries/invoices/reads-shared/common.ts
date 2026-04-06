@@ -25,9 +25,7 @@ export function compareNullableNumbers(
   return (left ?? 0) - (right ?? 0);
 }
 
-export function getValidInvoiceStatuses(
-  statuses: GetInvoicesParams["statuses"],
-): InvoiceStatus[] {
+export function getValidInvoiceStatuses(statuses: GetInvoicesParams["statuses"]): InvoiceStatus[] {
   return (statuses ?? []).filter((status) =>
     INVOICE_STATUSES.includes(status as InvoiceStatus),
   ) as InvoiceStatus[];

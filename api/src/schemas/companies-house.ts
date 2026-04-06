@@ -62,11 +62,9 @@ export const getCompaniesHouseTransactionSchema = z.object({
   transactionId: z.string().trim().min(1),
 });
 
-export const closeCompaniesHouseTransactionSchema =
-  getCompaniesHouseTransactionSchema;
+export const closeCompaniesHouseTransactionSchema = getCompaniesHouseTransactionSchema;
 
-export const deleteCompaniesHouseTransactionSchema =
-  getCompaniesHouseTransactionSchema;
+export const deleteCompaniesHouseTransactionSchema = getCompaniesHouseTransactionSchema;
 
 const companiesHouseAddressDraftBaseSchema = z.object({
   companyNumber: z.string().trim().min(1).max(20).optional(),
@@ -111,10 +109,7 @@ const companiesHousePscDiscrepancySchema = z
     pscType: companiesHousePscTypeSchema,
   })
   .superRefine((value, ctx) => {
-    if (
-      value.pscType === "individual-person-with-significant-control" &&
-      !value.pscDateOfBirth
-    ) {
+    if (value.pscType === "individual-person-with-significant-control" && !value.pscDateOfBirth) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Date of birth is required for an individual PSC.",
@@ -133,9 +128,7 @@ const companiesHousePscDiscrepancySchema = z
 
 export const submitCompaniesHousePscDiscrepancyReportSchema = z.object({
   companyNumber: z.string().trim().min(1).max(20).optional(),
-  materialDiscrepancies: z
-    .array(companiesHouseMaterialDiscrepancySchema)
-    .min(1),
+  materialDiscrepancies: z.array(companiesHouseMaterialDiscrepancySchema).min(1),
   obligedEntityType: companiesHouseObligedEntityTypeSchema,
   obligedEntityOrganisationName: z.string().trim().min(1).max(160),
   obligedEntityContactName: z.string().trim().min(1).max(160),

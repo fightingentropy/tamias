@@ -35,12 +35,8 @@ export function TransactionsUploadZone({ children }: Props) {
   const { toast, dismiss, update } = useToast();
   const { uploadFile } = useUpload();
   const addPending = usePendingUploadsStore((state) => state.addPending);
-  const processAttachmentsMutation = useMutation(
-    trpc.inbox.processAttachments.mutationOptions(),
-  );
-  const createInboxItemMutation = useMutation(
-    trpc.inbox.create.mutationOptions(),
-  );
+  const processAttachmentsMutation = useMutation(trpc.inbox.processAttachments.mutationOptions());
+  const createInboxItemMutation = useMutation(trpc.inbox.create.mutationOptions());
 
   useEffect(() => {
     if (!toastId && showProgress) {
@@ -103,9 +99,7 @@ export function TransactionsUploadZone({ children }: Props) {
       );
 
       // Store inbox IDs for tracking via realtime
-      const inboxIds = inboxItems
-        .map((item) => item?.id)
-        .filter((id): id is string => !!id);
+      const inboxIds = inboxItems.map((item) => item?.id).filter((id): id is string => !!id);
       addPending(inboxIds);
 
       // Invalidate inbox queries to show new items immediately
@@ -126,12 +120,9 @@ export function TransactionsUploadZone({ children }: Props) {
             onProgress: (bytesUploaded, bytesTotal) => {
               uploadProgress.current[idx] = (bytesUploaded / bytesTotal) * 100;
 
-              const _progress = uploadProgress.current.reduce(
-                (acc, currentValue) => {
-                  return acc + currentValue;
-                },
-                0,
-              );
+              const _progress = uploadProgress.current.reduce((acc, currentValue) => {
+                return acc + currentValue;
+              }, 0);
 
               setProgress(Math.round(_progress / files.length));
             },
@@ -227,9 +218,7 @@ export function TransactionsUploadZone({ children }: Props) {
             Drop your receipts here. <br />
             They will be matched to transactions automatically.
             <br />
-            <span className="text-[#878787]">
-              Maximum of 25 files at a time.
-            </span>
+            <span className="text-[#878787]">Maximum of 25 files at a time.</span>
           </p>
         </div>
       </div>

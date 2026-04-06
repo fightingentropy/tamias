@@ -31,13 +31,10 @@ export function selectPrimaryBalance<T>(
           return curAbs > maxAbs ? current : max;
         });
 
-  const hasCurrencyHint =
-    preferredCurrency && isValidCurrency(preferredCurrency);
+  const hasCurrencyHint = preferredCurrency && isValidCurrency(preferredCurrency);
   const currencyMatch = hasCurrencyHint
     ? balances.filter(
-        (b) =>
-          adapter.getCurrency(b).toUpperCase() ===
-          preferredCurrency.toUpperCase(),
+        (b) => adapter.getCurrency(b).toUpperCase() === preferredCurrency.toUpperCase(),
       )
     : [];
 

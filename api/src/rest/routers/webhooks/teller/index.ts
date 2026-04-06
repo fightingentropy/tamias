@@ -137,10 +137,7 @@ app.openapi(
 
     switch (type) {
       case "transactions.processed": {
-        const manualSync = isAfter(
-          new Date(connectionData.createdAt),
-          subDays(new Date(), 1),
-        );
+        const manualSync = isAfter(new Date(connectionData.createdAt), subDays(new Date(), 1));
 
         await enqueue(
           "sync-connection",

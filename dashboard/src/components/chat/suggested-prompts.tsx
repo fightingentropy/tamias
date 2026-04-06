@@ -16,8 +16,7 @@ type SuggestionsData = {
 const delay = 0.05;
 
 export function SuggestedPrompts() {
-  const [suggestions, clearSuggestions] =
-    useDataPart<SuggestionsData>("suggestions");
+  const [suggestions, clearSuggestions] = useDataPart<SuggestionsData>("suggestions");
   const { sendMessage } = useChatActions();
   const { isChatPage } = useChatInterface();
   const { messages } = useChat();
@@ -34,9 +33,7 @@ export function SuggestedPrompts() {
   // Check if last message requires bank account
   const lastMessage = messages[messages.length - 1];
   const bankAccountRequired =
-    lastMessage?.role === "assistant"
-      ? extractBankAccountRequired(lastMessage.parts)
-      : false;
+    lastMessage?.role === "assistant" ? extractBankAccountRequired(lastMessage.parts) : false;
 
   const handlePromptClick = (prompt: string) => {
     clearSuggestions();

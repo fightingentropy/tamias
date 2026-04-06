@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  useChatActions,
-  useChat,
-  useChatId,
-  useDataPart,
-} from "@ai-sdk-tools/store";
+import { useChatActions, useChat, useChatId, useDataPart } from "@ai-sdk-tools/store";
 import type { UIChatMessage } from "@tamias/contracts/chat";
 import { getApiUrl } from "@tamias/utils/envs";
 import { useQuery } from "@tanstack/react-query";
@@ -40,9 +35,7 @@ export function useDashboardChatSession({ geo }: Props) {
   );
   const { reset } = useChatActions();
   const prevChatIdRef = useRef<string | null>(routeChatId);
-  const [, clearSuggestions] = useDataPart<{ prompts: string[] }>(
-    "suggestions",
-  );
+  const [, clearSuggestions] = useDataPart<{ prompts: string[] }>("suggestions");
 
   const { period, from, to, currency, revenueType } = useMetricsFilter();
 
@@ -60,22 +53,20 @@ export function useDashboardChatSession({ geo }: Props) {
 
   const authenticatedFetch = useMemo(
     () =>
-      Object.assign(
-        async (url: RequestInfo | URL, requestOptions?: RequestInit) => {
-          if (!token) {
-            throw new Error("Not authenticated");
-          }
+      Object.assign(async (url: RequestInfo | URL, requestOptions?: RequestInit) => {
+        if (!token) {
+          throw new Error("Not authenticated");
+        }
 
-          return fetch(url, {
-            ...requestOptions,
-            headers: {
-              ...requestOptions?.headers,
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          });
-        },
-      ),
+        return fetch(url, {
+          ...requestOptions,
+          headers: {
+            ...requestOptions?.headers,
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+      }),
     [token],
   );
 

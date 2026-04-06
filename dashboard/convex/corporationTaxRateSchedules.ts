@@ -21,19 +21,14 @@ function serializeSchedule(
   },
 ) {
   return {
-    id:
-      record.publicCorporationTaxRateScheduleId ??
-      record._id,
+    id: record.publicCorporationTaxRateScheduleId ?? record._id,
     teamId: publicTeamId,
     filingProfileId: record.filingProfileId,
     periodKey: record.periodKey,
     exemptDistributions: record.exemptDistributions ?? null,
-    associatedCompaniesThisPeriod:
-      record.associatedCompaniesThisPeriod ?? null,
-    associatedCompaniesFirstYear:
-      record.associatedCompaniesFirstYear ?? null,
-    associatedCompaniesSecondYear:
-      record.associatedCompaniesSecondYear ?? null,
+    associatedCompaniesThisPeriod: record.associatedCompaniesThisPeriod ?? null,
+    associatedCompaniesFirstYear: record.associatedCompaniesFirstYear ?? null,
+    associatedCompaniesSecondYear: record.associatedCompaniesSecondYear ?? null,
     createdBy: record.createdBy ?? null,
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
@@ -88,9 +83,7 @@ export const serviceUpsertCorporationTaxRateSchedule = mutation({
     const team = await getTeamByPublicTeamId(ctx, args.publicTeamId);
 
     if (!team) {
-      throw new ConvexError(
-        "Convex corporation tax rate schedule team not found",
-      );
+      throw new ConvexError("Convex corporation tax rate schedule team not found");
     }
 
     const timestamp = nowIso();
@@ -108,12 +101,9 @@ export const serviceUpsertCorporationTaxRateSchedule = mutation({
       filingProfileId: args.filingProfileId,
       periodKey: args.periodKey,
       exemptDistributions: args.exemptDistributions ?? undefined,
-      associatedCompaniesThisPeriod:
-        args.associatedCompaniesThisPeriod ?? undefined,
-      associatedCompaniesFirstYear:
-        args.associatedCompaniesFirstYear ?? undefined,
-      associatedCompaniesSecondYear:
-        args.associatedCompaniesSecondYear ?? undefined,
+      associatedCompaniesThisPeriod: args.associatedCompaniesThisPeriod ?? undefined,
+      associatedCompaniesFirstYear: args.associatedCompaniesFirstYear ?? undefined,
+      associatedCompaniesSecondYear: args.associatedCompaniesSecondYear ?? undefined,
       createdBy: args.createdBy ?? undefined,
       updatedAt: timestamp,
     };
@@ -124,9 +114,7 @@ export const serviceUpsertCorporationTaxRateSchedule = mutation({
       const updated = await ctx.db.get(existing._id);
 
       if (!updated) {
-        throw new ConvexError(
-          "Failed to update corporation tax rate schedule",
-        );
+        throw new ConvexError("Failed to update corporation tax rate schedule");
       }
 
       return serializeSchedule(args.publicTeamId, updated);
@@ -142,9 +130,7 @@ export const serviceUpsertCorporationTaxRateSchedule = mutation({
     const inserted = await ctx.db.get(insertedId);
 
     if (!inserted) {
-      throw new ConvexError(
-        "Failed to create corporation tax rate schedule",
-      );
+      throw new ConvexError("Failed to create corporation tax rate schedule");
     }
 
     return serializeSchedule(args.publicTeamId, inserted);

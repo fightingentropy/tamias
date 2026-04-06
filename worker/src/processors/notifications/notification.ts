@@ -1,9 +1,6 @@
 import { Notifications } from "@tamias/notifications";
 import type { WorkerJob as Job } from "../../types/job";
-import {
-  type NotificationPayload,
-  notificationPayloadSchema,
-} from "../../schemas/notifications";
+import { type NotificationPayload, notificationPayloadSchema } from "../../schemas/notifications";
 import { getDb } from "../../utils/db";
 import { sendToProviders } from "../../utils/provider-notifications";
 import { BaseProcessor } from "../base";
@@ -36,9 +33,7 @@ export class NotificationProcessor extends BaseProcessor<NotificationPayload> {
         errors: parseResult.error.issues,
         data: job.data,
       });
-      throw new Error(
-        `Invalid notification payload: ${parseResult.error.message}`,
-      );
+      throw new Error(`Invalid notification payload: ${parseResult.error.message}`);
     }
 
     const payload = parseResult.data;

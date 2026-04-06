@@ -1,34 +1,19 @@
 import type { getTeamMembersFromConvex } from "@tamias/app-services/identity";
 import type { Session } from "@tamias/auth-session";
-import {
-  CATEGORIES,
-  getTaxRateForCategory,
-  getTaxTypeForCountry,
-} from "@tamias/categories";
+import { CATEGORIES, getTaxRateForCategory, getTaxTypeForCountry } from "@tamias/categories";
 
 type TeamMembers = Awaited<ReturnType<typeof getTeamMembersFromConvex>>;
 
-export function getTeamMemberRoleByPublicId(
-  teamMembers: TeamMembers,
-  userId: string,
-) {
+export function getTeamMemberRoleByPublicId(teamMembers: TeamMembers, userId: string) {
   return teamMembers.find((member) => member.user?.id === userId)?.role ?? null;
 }
 
-export function getTeamMemberByPublicId(
-  teamMembers: TeamMembers,
-  userId: string,
-) {
+export function getTeamMemberByPublicId(teamMembers: TeamMembers, userId: string) {
   return teamMembers.find((member) => member.user?.id === userId) ?? null;
 }
 
-export function getTeamMemberRoleByConvexId(
-  teamMembers: TeamMembers,
-  userId: string,
-) {
-  return (
-    teamMembers.find((member) => member.user?.convexId === userId)?.role ?? null
-  );
+export function getTeamMemberRoleByConvexId(teamMembers: TeamMembers, userId: string) {
+  return teamMembers.find((member) => member.user?.convexId === userId)?.role ?? null;
 }
 
 export function getTeamOwnerCount(teamMembers: TeamMembers) {

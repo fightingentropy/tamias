@@ -5,10 +5,7 @@ type InvoiceTransportLogger = {
   error: (message: string, payload?: Record<string, unknown>) => void;
 };
 
-export function requireSessionConvexUserId(
-  session: Session,
-  onMissing: () => never,
-) {
+export function requireSessionConvexUserId(session: Session, onMissing: () => never) {
   if (!session.user.convexId) {
     return onMissing();
   }
@@ -16,10 +13,7 @@ export function requireSessionConvexUserId(
   return session.user.convexId;
 }
 
-export function assertScheduledAtInFuture(
-  scheduledAt: string,
-  onInvalid: () => never,
-) {
+export function assertScheduledAtInFuture(scheduledAt: string, onInvalid: () => never) {
   const scheduledDate = new Date(scheduledAt);
   const now = new Date();
 
@@ -34,10 +28,7 @@ export function assertScheduledAtInFuture(
   };
 }
 
-export async function createScheduledInvoiceJob(
-  invoiceId: string,
-  delayMs: number,
-) {
+export async function createScheduledInvoiceJob(invoiceId: string, delayMs: number) {
   const scheduledRun = await enqueue(
     "schedule-invoice",
     {

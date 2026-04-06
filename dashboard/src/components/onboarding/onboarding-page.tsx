@@ -102,13 +102,7 @@ type Props = {
   };
 };
 
-function ProgressBar({
-  currentStep,
-  totalSteps,
-}: {
-  currentStep: number;
-  totalSteps: number;
-}) {
+function ProgressBar({ currentStep, totalSteps }: { currentStep: number; totalSteps: number }) {
   if (currentStep >= totalSteps) return null;
 
   return (
@@ -140,11 +134,7 @@ const NAV_LABELS: Record<StepConfig["navigation"], string | null> = {
   finish: null,
 };
 
-export function OnboardingPage({
-  defaultCurrencyPromise,
-  defaultCountryCodePromise,
-  user,
-}: Props) {
+export function OnboardingPage({ defaultCurrencyPromise, defaultCountryCodePromise, user }: Props) {
   const router = useRouter();
   const [hasTeam, setHasTeam] = useState(!!user.teamId);
   const [hasFullName, setHasFullName] = useState(!!user.fullName);
@@ -170,11 +160,7 @@ export function OnboardingPage({
   const { trackNavigation, trackEvent } = useOnboardingTracking(step);
 
   useEffect(() => {
-    if (
-      connectionParams.connected === "true" &&
-      connectionParams.provider &&
-      !inboxSync
-    ) {
+    if (connectionParams.connected === "true" && connectionParams.provider && !inboxSync) {
       setInboxSync({ provider: connectionParams.provider });
       trackEvent(LogEvents.OnboardingInboxConnected, {
         provider: connectionParams.provider,
@@ -291,12 +277,7 @@ export function OnboardingPage({
       {
         key: "start-trial",
         animation: <DashboardImageAnimation />,
-        content: (
-          <StartTrialStep
-            hasBankConnected={!!bankSync}
-            hasInboxConnected={!!inboxSync}
-          />
-        ),
+        content: <StartTrialStep hasBankConnected={!!bankSync} hasInboxConnected={!!inboxSync} />,
         overlay: true,
         navigation: "finish",
         canGoBack: true,
@@ -386,10 +367,7 @@ export function OnboardingPage({
           </div>
 
           <div className="flex-1 flex flex-col justify-center pt-20 min-h-0 overflow-y-auto scrollbar-hide">
-            <motion.div
-              layout
-              transition={{ layout: { duration: 0.3, ease: "easeInOut" } }}
-            >
+            <motion.div layout transition={{ layout: { duration: 0.3, ease: "easeInOut" } }}>
               <AnimatePresence mode="wait" initial={false}>
                 <motion.div
                   key={stepKey}
@@ -443,8 +421,7 @@ export function OnboardingPage({
                         onClick={handleNavigation}
                         className="px-4 py-2 bg-secondary border border-border text-foreground text-sm hover:bg-accent transition-colors"
                       >
-                        {currentStep.key === "connect-bank" ||
-                        currentStep.key === "connect-inbox"
+                        {currentStep.key === "connect-bank" || currentStep.key === "connect-inbox"
                           ? "Skip for now"
                           : navLabel}
                       </button>

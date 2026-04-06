@@ -14,10 +14,7 @@ type RawSearchCandidateLoader = (
   params: RawSearchCandidateLoadParams,
 ) => Promise<SearchCandidate[]>;
 
-const rawSearchCandidateLoaders: Record<
-  SearchSourceType,
-  RawSearchCandidateLoader
-> = {
+const rawSearchCandidateLoaders: Record<SearchSourceType, RawSearchCandidateLoader> = {
   customers: loadRawCustomerCandidates,
   documents: loadRawDocumentCandidates,
   invoices: loadRawInvoiceCandidates,
@@ -25,13 +22,9 @@ const rawSearchCandidateLoaders: Record<
   transactions: loadRawTransactionCandidates,
 };
 
-export async function loadRawSearchCandidates(
-  params: RawSearchCandidateLoadParams,
-) {
+export async function loadRawSearchCandidates(params: RawSearchCandidateLoadParams) {
   const loads = await Promise.all(
-    ALL_SEARCH_SOURCE_TYPES.map((sourceType) =>
-      rawSearchCandidateLoaders[sourceType](params),
-    ),
+    ALL_SEARCH_SOURCE_TYPES.map((sourceType) => rawSearchCandidateLoaders[sourceType](params)),
   );
 
   return loads.flat();

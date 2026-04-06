@@ -25,8 +25,7 @@ export { WhatsAppUploadProcessor } from "./whatsapp-upload";
  */
 export const inboxProcessors = {
   "batch-process-matching": new BatchProcessMatchingProcessor(),
-  "match-transactions-bidirectional":
-    new MatchTransactionsBidirectionalProcessor(),
+  "match-transactions-bidirectional": new MatchTransactionsBidirectionalProcessor(),
   "process-attachment": new ProcessAttachmentProcessor(),
   "slack-upload": new SlackUploadProcessor(),
   "whatsapp-upload": new WhatsAppUploadProcessor(),

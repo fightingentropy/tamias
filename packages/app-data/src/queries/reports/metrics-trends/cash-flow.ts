@@ -1,11 +1,5 @@
 import { UTCDate } from "@date-fns/utc";
-import {
-  eachMonthOfInterval,
-  endOfMonth,
-  format,
-  parseISO,
-  startOfMonth,
-} from "date-fns";
+import { eachMonthOfInterval, endOfMonth, format, parseISO, startOfMonth } from "date-fns";
 import type { Database } from "../../../client";
 import { reuseQueryResult } from "../../../utils/request-cache";
 import {
@@ -37,9 +31,7 @@ async function getCashFlowImpl(db: Database, params: GetCashFlowParams) {
   const fromDate = exactDates
     ? new UTCDate(parseISO(from))
     : startOfMonth(new UTCDate(parseISO(from)));
-  const toDate = exactDates
-    ? new UTCDate(parseISO(to))
-    : endOfMonth(new UTCDate(parseISO(to)));
+  const toDate = exactDates ? new UTCDate(parseISO(to)) : endOfMonth(new UTCDate(parseISO(to)));
 
   const excludedCategorySlugs = getExcludedCategorySlugs();
   const aggregateData = await getReportTransactionAggregateRows(db, {
@@ -86,19 +78,11 @@ async function getCashFlowImpl(db: Database, params: GetCashFlowParams) {
     };
   });
 
-  const totalIncome = completeMonthlyData.reduce(
-    (sum, item) => sum + item.income,
-    0,
-  );
-  const totalExpenses = completeMonthlyData.reduce(
-    (sum, item) => sum + item.expenses,
-    0,
-  );
+  const totalIncome = completeMonthlyData.reduce((sum, item) => sum + item.income, 0);
+  const totalExpenses = completeMonthlyData.reduce((sum, item) => sum + item.expenses, 0);
   const netCashFlow = totalIncome - totalExpenses;
   const averageMonthlyCashFlow =
-    completeMonthlyData.length > 0
-      ? netCashFlow / completeMonthlyData.length
-      : 0;
+    completeMonthlyData.length > 0 ? netCashFlow / completeMonthlyData.length : 0;
 
   return {
     summary: {

@@ -19,10 +19,7 @@ export type InvoiceProductRecord = {
 };
 
 export type InvoiceTemplateSize = "a4" | "letter";
-export type InvoiceTemplateDeliveryType =
-  | "create"
-  | "create_and_send"
-  | "scheduled";
+export type InvoiceTemplateDeliveryType = "create" | "create_and_send" | "scheduled";
 
 export type InvoiceTemplateRecord = {
   id: string;
@@ -97,10 +94,7 @@ export async function getInvoiceProductsFromConvex(args: {
   ) as Promise<InvoiceProductRecord[]>;
 }
 
-export async function getInvoiceProductByIdFromConvex(args: {
-  teamId: string;
-  id: string;
-}) {
+export async function getInvoiceProductByIdFromConvex(args: { teamId: string; id: string }) {
   return createClient().query(
     api.invoiceProducts.serviceGetInvoiceProductById,
     serviceArgs({
@@ -193,10 +187,7 @@ export async function updateInvoiceProductInConvex(args: {
   ) as Promise<InvoiceProductRecord | null>;
 }
 
-export async function deleteInvoiceProductInConvex(args: {
-  teamId: string;
-  id: string;
-}) {
+export async function deleteInvoiceProductInConvex(args: { teamId: string; id: string }) {
   return createClient().mutation(
     api.invoiceProducts.serviceDeleteInvoiceProduct,
     serviceArgs({
@@ -206,10 +197,7 @@ export async function deleteInvoiceProductInConvex(args: {
   ) as Promise<boolean>;
 }
 
-export async function incrementInvoiceProductUsageInConvex(args: {
-  teamId: string;
-  id: string;
-}) {
+export async function incrementInvoiceProductUsageInConvex(args: { teamId: string; id: string }) {
   return createClient().mutation(
     api.invoiceProducts.serviceIncrementInvoiceProductUsage,
     serviceArgs({
@@ -228,10 +216,7 @@ export async function getInvoiceTemplatesFromConvex(args: { teamId: string }) {
   ) as Promise<InvoiceTemplateRecord[]>;
 }
 
-export async function getInvoiceTemplateByIdFromConvex(args: {
-  teamId: string;
-  id: string;
-}) {
+export async function getInvoiceTemplateByIdFromConvex(args: { teamId: string; id: string }) {
   return createClient().query(
     api.invoiceTemplates.serviceGetInvoiceTemplateById,
     serviceArgs({
@@ -241,9 +226,7 @@ export async function getInvoiceTemplateByIdFromConvex(args: {
   ) as Promise<InvoiceTemplateRecord | null>;
 }
 
-export async function getDefaultInvoiceTemplateFromConvex(args: {
-  teamId: string;
-}) {
+export async function getDefaultInvoiceTemplateFromConvex(args: { teamId: string }) {
   return createClient().query(
     api.invoiceTemplates.serviceGetInvoiceTemplate,
     serviceArgs({
@@ -286,10 +269,7 @@ export async function upsertInvoiceTemplateInConvex(args: {
   ) as Promise<InvoiceTemplateRecord>;
 }
 
-export async function setDefaultInvoiceTemplateInConvex(args: {
-  teamId: string;
-  id: string;
-}) {
+export async function setDefaultInvoiceTemplateInConvex(args: { teamId: string; id: string }) {
   return createClient().mutation(
     api.invoiceTemplates.serviceSetDefaultInvoiceTemplate,
     serviceArgs({
@@ -299,10 +279,7 @@ export async function setDefaultInvoiceTemplateInConvex(args: {
   ) as Promise<InvoiceTemplateRecord>;
 }
 
-export async function deleteInvoiceTemplateInConvex(args: {
-  teamId: string;
-  id: string;
-}) {
+export async function deleteInvoiceTemplateInConvex(args: { teamId: string; id: string }) {
   return createClient().mutation(
     api.invoiceTemplates.serviceDeleteInvoiceTemplate,
     serviceArgs({
@@ -312,9 +289,7 @@ export async function deleteInvoiceTemplateInConvex(args: {
   ) as Promise<InvoiceTemplateDeleteResult>;
 }
 
-export async function getInvoiceTemplateCountFromConvex(args: {
-  teamId: string;
-}) {
+export async function getInvoiceTemplateCountFromConvex(args: { teamId: string }) {
   return createClient().query(
     api.invoiceTemplates.serviceGetInvoiceTemplateCount,
     serviceArgs({

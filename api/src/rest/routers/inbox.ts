@@ -33,8 +33,7 @@ app.openapi(
     },
     responses: {
       200: {
-        description:
-          "Retrieve a list of inbox items for the authenticated team.",
+        description: "Retrieve a list of inbox items for the authenticated team.",
         content: {
           "application/json": {
             schema: inboxResponseSchema,
@@ -71,8 +70,7 @@ app.openapi(
     summary: "Retrieve a inbox item",
     operationId: "getInboxItemById",
     "x-speakeasy-name-override": "get",
-    description:
-      "Retrieve a inbox item by its unique identifier for the authenticated team.",
+    description: "Retrieve a inbox item by its unique identifier for the authenticated team.",
     tags: ["Inbox"],
     request: {
       params: getInboxByIdSchema.pick({ id: true }),
@@ -148,8 +146,7 @@ app.openapi(
         },
       },
       500: {
-        description:
-          "Internal server error - Failed to generate pre-signed URL",
+        description: "Internal server error - Failed to generate pre-signed URL",
         content: {
           "application/json": {
             schema: z.object({
@@ -207,10 +204,7 @@ app.openapi(
       fileName: inboxItem.fileName || inboxItem.filePath.at(-1) || null,
     };
 
-    return c.json(
-      validateResponse(result, inboxPreSignedUrlResponseSchema),
-      200,
-    );
+    return c.json(validateResponse(result, inboxPreSignedUrlResponseSchema), 200);
   },
 );
 
@@ -221,8 +215,7 @@ app.openapi(
     summary: "Delete a inbox item",
     operationId: "deleteInboxItem",
     "x-speakeasy-name-override": "delete",
-    description:
-      "Delete a inbox item by its unique identifier for the authenticated team.",
+    description: "Delete a inbox item by its unique identifier for the authenticated team.",
     tags: ["Inbox"],
     request: {
       params: deleteInboxSchema.pick({ id: true }),

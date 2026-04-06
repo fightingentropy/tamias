@@ -156,9 +156,7 @@ export function NotificationLink({
   // Non-clickable notification
   return (
     <div className="flex items-between space-x-4 px-3 py-3">
-      <div className="flex items-between justify-between space-x-4 flex-1">
-        {children}
-      </div>
+      <div className="flex items-between justify-between space-x-4 flex-1">{children}</div>
       {actionButton}
     </div>
   );

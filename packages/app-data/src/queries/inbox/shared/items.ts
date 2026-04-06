@@ -8,10 +8,7 @@ import { getInboxAccountMap } from "./accounts";
 import { toUpsertInboxItem } from "./serialization";
 import { getInboxTransactionMap } from "./transactions";
 
-export async function hydrateInboxItems(
-  teamId: string,
-  items: InboxItemRecord[],
-) {
+export async function hydrateInboxItems(teamId: string, items: InboxItemRecord[]) {
   const [inboxAccountMap, transactionMap] = await Promise.all([
     getInboxAccountMap(items.map((item) => item.inboxAccountId)),
     getInboxTransactionMap(
@@ -22,19 +19,12 @@ export async function hydrateInboxItems(
 
   return items.map((item) => ({
     ...item,
-    inboxAccount: item.inboxAccountId
-      ? (inboxAccountMap.get(item.inboxAccountId) ?? null)
-      : null,
-    transaction: item.transactionId
-      ? (transactionMap.get(item.transactionId) ?? null)
-      : null,
+    inboxAccount: item.inboxAccountId ? (inboxAccountMap.get(item.inboxAccountId) ?? null) : null,
+    transaction: item.transactionId ? (transactionMap.get(item.transactionId) ?? null) : null,
   }));
 }
 
-export async function getRelatedInboxItems(
-  teamId: string,
-  item: InboxItemRecord,
-) {
+export async function getRelatedInboxItems(teamId: string, item: InboxItemRecord) {
   const primaryInboxId = item.groupedInboxId ?? item.id;
   const [resolvedPrimaryItem, groupedItems] = await Promise.all([
     item.groupedInboxId

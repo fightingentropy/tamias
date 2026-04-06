@@ -3,12 +3,7 @@ import { ConvexError, v } from "convex/values";
 import { nowIso } from "../../packages/domain/src/identity";
 import { buildSearchIndexText, buildSearchQuery } from "../../packages/domain/src/text-search";
 import type { Doc } from "./_generated/dataModel";
-import {
-  type MutationCtx,
-  mutation,
-  type QueryCtx,
-  query,
-} from "./_generated/server";
+import { type MutationCtx, mutation, type QueryCtx, query } from "./_generated/server";
 import { syncPublicInvoiceComplianceJournalEntryForChange } from "./complianceLedger";
 import { getTeamByPublicTeamId } from "./lib/identity";
 import { requireServiceKey } from "./lib/service";
@@ -34,10 +29,7 @@ const publicInvoiceDateFieldValidator = v.union(
   v.literal("dueDate"),
   v.literal("paidAt"),
 );
-const invoiceAggregateDateFieldValidator = v.union(
-  v.literal("issueDate"),
-  v.literal("paidAt"),
-);
+const invoiceAggregateDateFieldValidator = v.union(v.literal("issueDate"), v.literal("paidAt"));
 const invoiceCustomerAggregateDateFieldValidator = v.union(
   v.literal("createdAt"),
   v.literal("paidAt"),
@@ -47,17 +39,9 @@ const invoiceAnalyticsAggregateDateFieldValidator = v.union(
   v.literal("sentAt"),
   v.literal("paidAt"),
 );
-const publicInvoiceOrderValidator = v.union(
-  v.literal("asc"),
-  v.literal("desc"),
-);
+const publicInvoiceOrderValidator = v.union(v.literal("asc"), v.literal("desc"));
 
-type PublicInvoiceDateField =
-  | "createdAt"
-  | "issueDate"
-  | "sentAt"
-  | "dueDate"
-  | "paidAt";
+type PublicInvoiceDateField = "createdAt" | "issueDate" | "sentAt" | "dueDate" | "paidAt";
 type InvoiceAggregateDateField = "issueDate" | "paidAt";
 type InvoiceCustomerAggregateDateField = "createdAt" | "paidAt";
 type InvoiceAnalyticsAggregateDateField = "createdAt" | "sentAt" | "paidAt";
@@ -134,15 +118,10 @@ type InvoiceAnalyticsAggregateEntry = InvoiceAnalyticsAggregateKey & {
 };
 
 function getStringFieldFromPayload(payload: PublicInvoicePayload, key: string) {
-  return typeof payload[key] === "string" && payload[key].length > 0
-    ? payload[key]
-    : null;
+  return typeof payload[key] === "string" && payload[key].length > 0 ? payload[key] : null;
 }
 
-function getNestedStringFieldFromPayload(
-  payload: PublicInvoicePayload,
-  path: string[],
-) {
+function getNestedStringFieldFromPayload(payload: PublicInvoicePayload, path: string[]) {
   let current: unknown = payload;
 
   for (const key of path) {
@@ -169,9 +148,7 @@ function getInvoiceRecurringIdFromPayload(payload: PublicInvoicePayload) {
 }
 
 function getRecurringSequenceFromPayload(payload: PublicInvoicePayload) {
-  return typeof payload.recurringSequence === "number"
-    ? payload.recurringSequence
-    : null;
+  return typeof payload.recurringSequence === "number" ? payload.recurringSequence : null;
 }
 
 function getCustomerIdFromPayload(payload: PublicInvoicePayload) {
@@ -230,10 +207,7 @@ function getPublicInvoiceProjectionFields(
   invoiceNumberOverride?: string | null,
 ): PublicInvoiceProjectionFields {
   return {
-    invoiceNumber:
-      invoiceNumberOverride ??
-      getInvoiceNumberFromPayload(payload) ??
-      undefined,
+    invoiceNumber: invoiceNumberOverride ?? getInvoiceNumberFromPayload(payload) ?? undefined,
     invoiceRecurringId: getInvoiceRecurringIdFromPayload(payload) ?? undefined,
     recurringSequence: getRecurringSequenceFromPayload(payload) ?? undefined,
     customerId: getCustomerIdFromPayload(payload) ?? undefined,
@@ -248,9 +222,7 @@ function getPublicInvoiceProjectionFields(
 }
 
 function getInvoiceAggregateScopeKey(customerId?: string | null) {
-  return customerId
-    ? `customer:${customerId}`
-    : TEAM_INVOICE_AGGREGATE_SCOPE_KEY;
+  return customerId ? `customer:${customerId}` : TEAM_INVOICE_AGGREGATE_SCOPE_KEY;
 }
 
 function getInvoicePaymentAggregateMetrics(
@@ -280,19 +252,13 @@ function getInvoicePaymentAggregateMetrics(
 
   return {
     validPaymentCount: 1,
-    onTimeCount:
-      dueTime !== null && Number.isFinite(dueTime) && paidTime <= dueTime
-        ? 1
-        : 0,
+    onTimeCount: dueTime !== null && Number.isFinite(dueTime) && paidTime <= dueTime ? 1 : 0,
     totalDaysToPay: daysToPay,
   };
 }
 
 function getInvoiceAnalyticsPaymentMetrics(
-  record: Pick<
-    PublicInvoiceDoc,
-    "createdAt" | "issueDate" | "sentAt" | "paidAt" | "dueDate"
-  >,
+  record: Pick<PublicInvoiceDoc, "createdAt" | "issueDate" | "sentAt" | "paidAt" | "dueDate">,
 ) {
   if (!record.paidAt) {
     return {
@@ -305,40 +271,23 @@ function getInvoiceAnalyticsPaymentMetrics(
 
   const paidTime = new Date(record.paidAt).getTime();
   const issueBaseline = record.issueDate ?? record.createdAt ?? record.dueDate;
-  const issueBaselineTime = issueBaseline
-    ? new Date(issueBaseline).getTime()
-    : Number.NaN;
-  const issueToPaidDays =
-    (paidTime - issueBaselineTime) / (1000 * 60 * 60 * 24);
+  const issueBaselineTime = issueBaseline ? new Date(issueBaseline).getTime() : Number.NaN;
+  const issueToPaidDays = (paidTime - issueBaselineTime) / (1000 * 60 * 60 * 24);
 
-  const sentTime = record.sentAt
-    ? new Date(record.sentAt).getTime()
-    : Number.NaN;
+  const sentTime = record.sentAt ? new Date(record.sentAt).getTime() : Number.NaN;
   const sentToPaidDays = (paidTime - sentTime) / (1000 * 60 * 60 * 24);
 
   return {
     issueToPaidValidCount:
-      Number.isFinite(issueToPaidDays) &&
-      issueToPaidDays >= 0 &&
-      issueToPaidDays <= 365
-        ? 1
-        : 0,
+      Number.isFinite(issueToPaidDays) && issueToPaidDays >= 0 && issueToPaidDays <= 365 ? 1 : 0,
     issueToPaidTotalDays:
-      Number.isFinite(issueToPaidDays) &&
-      issueToPaidDays >= 0 &&
-      issueToPaidDays <= 365
+      Number.isFinite(issueToPaidDays) && issueToPaidDays >= 0 && issueToPaidDays <= 365
         ? issueToPaidDays
         : 0,
     sentToPaidValidCount:
-      Number.isFinite(sentToPaidDays) &&
-      sentToPaidDays >= 0 &&
-      sentToPaidDays <= 365
-        ? 1
-        : 0,
+      Number.isFinite(sentToPaidDays) && sentToPaidDays >= 0 && sentToPaidDays <= 365 ? 1 : 0,
     sentToPaidTotalDays:
-      Number.isFinite(sentToPaidDays) &&
-      sentToPaidDays >= 0 &&
-      sentToPaidDays <= 365
+      Number.isFinite(sentToPaidDays) && sentToPaidDays >= 0 && sentToPaidDays <= 365
         ? sentToPaidDays
         : 0,
   };
@@ -348,13 +297,7 @@ function getInvoiceDateAggregateEntries(
   teamId: TeamDoc["_id"],
   record: Pick<
     PublicInvoiceDoc,
-    | "status"
-    | "currency"
-    | "amount"
-    | "issueDate"
-    | "paidAt"
-    | "dueDate"
-    | "invoiceRecurringId"
+    "status" | "currency" | "amount" | "issueDate" | "paidAt" | "dueDate" | "invoiceRecurringId"
   >,
 ) {
   const entries: InvoiceDateAggregateEntry[] = [];
@@ -437,14 +380,7 @@ function getInvoiceAnalyticsAggregateEntries(
   teamId: TeamDoc["_id"],
   record: Pick<
     PublicInvoiceDoc,
-    | "createdAt"
-    | "sentAt"
-    | "paidAt"
-    | "status"
-    | "currency"
-    | "amount"
-    | "issueDate"
-    | "dueDate"
+    "createdAt" | "sentAt" | "paidAt" | "status" | "currency" | "amount" | "issueDate" | "dueDate"
   >,
 ) {
   const amount = record.amount ?? 0;
@@ -495,10 +431,7 @@ function getInvoiceAnalyticsAggregateEntries(
 
 function getInvoiceAgingAggregateEntries(
   teamId: TeamDoc["_id"],
-  record: Pick<
-    PublicInvoiceDoc,
-    "status" | "currency" | "amount" | "issueDate" | "dueDate"
-  >,
+  record: Pick<PublicInvoiceDoc, "status" | "currency" | "amount" | "issueDate" | "dueDate">,
 ) {
   if (record.status !== "unpaid" && record.status !== "overdue") {
     return [];
@@ -547,13 +480,7 @@ function getInvoiceAggregateKeys(
 }
 
 function serializeInvoiceAggregateKey(key: InvoiceAggregateKey) {
-  return [
-    key.teamId,
-    key.scopeKey,
-    key.customerId ?? "",
-    key.status,
-    key.currency,
-  ].join(":");
+  return [key.teamId, key.scopeKey, key.customerId ?? "", key.status, key.currency].join(":");
 }
 
 function serializeInvoiceDateAggregateKey(key: InvoiceDateAggregateKey) {
@@ -567,22 +494,11 @@ function serializeInvoiceDateAggregateKey(key: InvoiceDateAggregateKey) {
   ].join(":");
 }
 
-function serializeInvoiceCustomerDateAggregateKey(
-  key: InvoiceCustomerDateAggregateKey,
-) {
-  return [
-    key.teamId,
-    key.customerId,
-    key.status,
-    key.dateField,
-    key.date,
-    key.currency,
-  ].join(":");
+function serializeInvoiceCustomerDateAggregateKey(key: InvoiceCustomerDateAggregateKey) {
+  return [key.teamId, key.customerId, key.status, key.dateField, key.date, key.currency].join(":");
 }
 
-function serializeInvoiceAnalyticsAggregateKey(
-  key: InvoiceAnalyticsAggregateKey,
-) {
+function serializeInvoiceAnalyticsAggregateKey(key: InvoiceAnalyticsAggregateKey) {
   return JSON.stringify([
     key.teamId,
     key.dateField,
@@ -594,19 +510,10 @@ function serializeInvoiceAnalyticsAggregateKey(
 }
 
 function serializeInvoiceAgingAggregateKey(key: InvoiceAgingAggregateKey) {
-  return JSON.stringify([
-    key.teamId,
-    key.status,
-    key.currency,
-    key.issueDate,
-    key.dueDate,
-  ]);
+  return JSON.stringify([key.teamId, key.status, key.currency, key.issueDate, key.dueDate]);
 }
 
-async function getInvoiceAggregateRecord(
-  ctx: ReadCtx,
-  key: InvoiceAggregateKey,
-) {
+async function getInvoiceAggregateRecord(ctx: ReadCtx, key: InvoiceAggregateKey) {
   return ctx.db
     .query("invoiceAggregates")
     .withIndex("by_team_scope_status_currency", (q) =>
@@ -619,10 +526,7 @@ async function getInvoiceAggregateRecord(
     .unique();
 }
 
-async function getInvoiceDateAggregateRecord(
-  ctx: ReadCtx,
-  key: InvoiceDateAggregateKey,
-) {
+async function getInvoiceDateAggregateRecord(ctx: ReadCtx, key: InvoiceDateAggregateKey) {
   return ctx.db
     .query("invoiceDateAggregates")
     .withIndex("by_team_status_date_field_currency_recurring_date", (q) =>
@@ -655,10 +559,7 @@ async function getInvoiceCustomerDateAggregateRecord(
     .unique();
 }
 
-async function getInvoiceAnalyticsAggregateRecord(
-  ctx: ReadCtx,
-  key: InvoiceAnalyticsAggregateKey,
-) {
+async function getInvoiceAnalyticsAggregateRecord(ctx: ReadCtx, key: InvoiceAnalyticsAggregateKey) {
   return ctx.db
     .query("invoiceAnalyticsAggregates")
     .withIndex("by_team_date_field_status_date", (q) =>
@@ -669,18 +570,12 @@ async function getInvoiceAnalyticsAggregateRecord(
         .eq("date", key.date),
     )
     .filter((q) =>
-      q.and(
-        q.eq(q.field("currency"), key.currency),
-        q.eq(q.field("dueDate"), key.dueDate),
-      ),
+      q.and(q.eq(q.field("currency"), key.currency), q.eq(q.field("dueDate"), key.dueDate)),
     )
     .unique();
 }
 
-async function getInvoiceAgingAggregateRecord(
-  ctx: ReadCtx,
-  key: InvoiceAgingAggregateKey,
-) {
+async function getInvoiceAgingAggregateRecord(ctx: ReadCtx, key: InvoiceAgingAggregateKey) {
   return ctx.db
     .query("invoiceAgingAggregates")
     .withIndex("by_team_status_currency_issue_due", (q) =>
@@ -694,10 +589,7 @@ async function getInvoiceAgingAggregateRecord(
     .unique();
 }
 
-async function getInvoicesForAggregateKey(
-  ctx: ReadCtx,
-  key: InvoiceAggregateKey,
-) {
+async function getInvoicesForAggregateKey(ctx: ReadCtx, key: InvoiceAggregateKey) {
   const records = key.customerId
     ? await ctx.db
         .query("publicInvoices")
@@ -707,39 +599,27 @@ async function getInvoicesForAggregateKey(
         .collect()
     : await ctx.db
         .query("publicInvoices")
-        .withIndex("by_team_status", (q) =>
-          q.eq("teamId", key.teamId).eq("status", key.status),
-        )
+        .withIndex("by_team_status", (q) => q.eq("teamId", key.teamId).eq("status", key.status))
         .collect();
 
   return records.filter(
-    (record) =>
-      record.status === key.status && (record.currency ?? "") === key.currency,
+    (record) => record.status === key.status && (record.currency ?? "") === key.currency,
   );
 }
 
-async function getInvoicesForDateAggregateKey(
-  ctx: ReadCtx,
-  key: InvoiceDateAggregateKey,
-) {
+async function getInvoicesForDateAggregateKey(ctx: ReadCtx, key: InvoiceDateAggregateKey) {
   const records =
     key.dateField === "issueDate"
       ? await ctx.db
           .query("publicInvoices")
           .withIndex("by_team_status_issue_date", (q) =>
-            q
-              .eq("teamId", key.teamId)
-              .eq("status", key.status)
-              .eq("issueDate", key.date),
+            q.eq("teamId", key.teamId).eq("status", key.status).eq("issueDate", key.date),
           )
           .collect()
       : await ctx.db
           .query("publicInvoices")
           .withIndex("by_team_status_paid_at", (q) =>
-            q
-              .eq("teamId", key.teamId)
-              .eq("status", key.status)
-              .eq("paidAt", key.date),
+            q.eq("teamId", key.teamId).eq("status", key.status).eq("paidAt", key.date),
           )
           .collect();
 
@@ -759,26 +639,18 @@ async function getInvoicesForCustomerDateAggregateKey(
       ? await ctx.db
           .query("publicInvoices")
           .withIndex("by_team_status_created_at", (q) =>
-            q
-              .eq("teamId", key.teamId)
-              .eq("status", key.status)
-              .eq("createdAt", key.date),
+            q.eq("teamId", key.teamId).eq("status", key.status).eq("createdAt", key.date),
           )
           .collect()
       : await ctx.db
           .query("publicInvoices")
           .withIndex("by_team_status_paid_at", (q) =>
-            q
-              .eq("teamId", key.teamId)
-              .eq("status", key.status)
-              .eq("paidAt", key.date),
+            q.eq("teamId", key.teamId).eq("status", key.status).eq("paidAt", key.date),
           )
           .collect();
 
   return records.filter(
-    (record) =>
-      record.customerId === key.customerId &&
-      (record.currency ?? "") === key.currency,
+    (record) => record.customerId === key.customerId && (record.currency ?? "") === key.currency,
   );
 }
 
@@ -791,26 +663,18 @@ async function getInvoicesForAnalyticsAggregateKey(
       ? await ctx.db
           .query("publicInvoices")
           .withIndex("by_team_status_created_at", (q) =>
-            q
-              .eq("teamId", key.teamId)
-              .eq("status", key.status)
-              .eq("createdAt", key.date),
+            q.eq("teamId", key.teamId).eq("status", key.status).eq("createdAt", key.date),
           )
           .collect()
       : key.dateField === "sentAt"
         ? await ctx.db
             .query("publicInvoices")
-            .withIndex("by_team_sent_at", (q) =>
-              q.eq("teamId", key.teamId).eq("sentAt", key.date),
-            )
+            .withIndex("by_team_sent_at", (q) => q.eq("teamId", key.teamId).eq("sentAt", key.date))
             .collect()
         : await ctx.db
             .query("publicInvoices")
             .withIndex("by_team_status_paid_at", (q) =>
-              q
-                .eq("teamId", key.teamId)
-                .eq("status", key.status)
-                .eq("paidAt", key.date),
+              q.eq("teamId", key.teamId).eq("status", key.status).eq("paidAt", key.date),
             )
             .collect();
 
@@ -822,10 +686,7 @@ async function getInvoicesForAnalyticsAggregateKey(
   );
 }
 
-async function getInvoicesForAgingAggregateKey(
-  ctx: ReadCtx,
-  key: InvoiceAgingAggregateKey,
-) {
+async function getInvoicesForAgingAggregateKey(ctx: ReadCtx, key: InvoiceAgingAggregateKey) {
   let records: PublicInvoiceDoc[];
 
   if (key.dueDate !== null) {
@@ -833,10 +694,7 @@ async function getInvoicesForAgingAggregateKey(
     records = await ctx.db
       .query("publicInvoices")
       .withIndex("by_team_status_due_date", (q) =>
-        q
-          .eq("teamId", key.teamId)
-          .eq("status", key.status)
-          .eq("dueDate", dueDate),
+        q.eq("teamId", key.teamId).eq("status", key.status).eq("dueDate", dueDate),
       )
       .collect();
   } else if (key.issueDate !== null) {
@@ -844,18 +702,13 @@ async function getInvoicesForAgingAggregateKey(
     records = await ctx.db
       .query("publicInvoices")
       .withIndex("by_team_status_issue_date", (q) =>
-        q
-          .eq("teamId", key.teamId)
-          .eq("status", key.status)
-          .eq("issueDate", issueDate),
+        q.eq("teamId", key.teamId).eq("status", key.status).eq("issueDate", issueDate),
       )
       .collect();
   } else {
     records = await ctx.db
       .query("publicInvoices")
-      .withIndex("by_team_status", (q) =>
-        q.eq("teamId", key.teamId).eq("status", key.status),
-      )
+      .withIndex("by_team_status", (q) => q.eq("teamId", key.teamId).eq("status", key.status))
       .collect();
   }
 
@@ -879,10 +732,7 @@ function summarizeInvoicesForAggregate(records: PublicInvoiceDoc[]) {
       oldestDueDate = record.dueDate;
     }
 
-    if (
-      record.issueDate &&
-      (!latestIssueDate || record.issueDate > latestIssueDate)
-    ) {
+    if (record.issueDate && (!latestIssueDate || record.issueDate > latestIssueDate)) {
       latestIssueDate = record.issueDate;
     }
   }
@@ -932,13 +782,9 @@ function summarizeInvoicesForDateAggregate(
   };
 }
 
-function summarizeInvoicesForCustomerDateAggregate(
-  records: PublicInvoiceDoc[],
-) {
+function summarizeInvoicesForCustomerDateAggregate(records: PublicInvoiceDoc[]) {
   const totalAmount =
-    Math.round(
-      records.reduce((sum, record) => sum + (record.amount ?? 0), 0) * 100,
-    ) / 100;
+    Math.round(records.reduce((sum, record) => sum + (record.amount ?? 0), 0) * 100) / 100;
 
   return {
     invoiceCount: records.length,
@@ -959,10 +805,7 @@ function summarizeInvoicesForAnalyticsAggregate(
   let sentToPaidTotalDays = 0;
 
   for (const record of records) {
-    for (const entry of getInvoiceAnalyticsAggregateEntries(
-      teamId,
-      record,
-    ).filter(
+    for (const entry of getInvoiceAnalyticsAggregateEntries(teamId, record).filter(
       (candidate) =>
         candidate.dateField === key.dateField &&
         candidate.date === key.date &&
@@ -991,9 +834,7 @@ function summarizeInvoicesForAnalyticsAggregate(
 
 function summarizeInvoicesForAgingAggregate(records: PublicInvoiceDoc[]) {
   const totalAmount =
-    Math.round(
-      records.reduce((sum, record) => sum + (record.amount ?? 0), 0) * 100,
-    ) / 100;
+    Math.round(records.reduce((sum, record) => sum + (record.amount ?? 0), 0) * 100) / 100;
 
   return {
     invoiceCount: records.length,
@@ -1001,10 +842,7 @@ function summarizeInvoicesForAgingAggregate(records: PublicInvoiceDoc[]) {
   };
 }
 
-function buildInvoiceAggregateBackfillMaps(
-  teamId: TeamDoc["_id"],
-  records: PublicInvoiceDoc[],
-) {
+function buildInvoiceAggregateBackfillMaps(teamId: TeamDoc["_id"], records: PublicInvoiceDoc[]) {
   const invoiceAggregateMap = new Map<
     string,
     {
@@ -1067,13 +905,9 @@ function buildInvoiceAggregateBackfillMaps(
       };
 
       current.invoiceCount += 1;
-      current.totalAmount =
-        Math.round((current.totalAmount + (record.amount ?? 0)) * 100) / 100;
+      current.totalAmount = Math.round((current.totalAmount + (record.amount ?? 0)) * 100) / 100;
 
-      if (
-        record.dueDate &&
-        (!current.oldestDueDate || record.dueDate < current.oldestDueDate)
-      ) {
+      if (record.dueDate && (!current.oldestDueDate || record.dueDate < current.oldestDueDate)) {
         current.oldestDueDate = record.dueDate;
       }
 
@@ -1088,8 +922,7 @@ function buildInvoiceAggregateBackfillMaps(
     }
 
     for (const entry of getInvoiceDateAggregateEntries(teamId, record)) {
-      const { amount, validPaymentCount, onTimeCount, totalDaysToPay, ...key } =
-        entry;
+      const { amount, validPaymentCount, onTimeCount, totalDaysToPay, ...key } = entry;
       const serializedKey = serializeInvoiceDateAggregateKey(key);
       const current = invoiceDateAggregateMap.get(serializedKey) ?? {
         key,
@@ -1101,18 +934,14 @@ function buildInvoiceAggregateBackfillMaps(
       };
 
       current.invoiceCount += 1;
-      current.totalAmount =
-        Math.round((current.totalAmount + amount) * 100) / 100;
+      current.totalAmount = Math.round((current.totalAmount + amount) * 100) / 100;
       current.validPaymentCount += validPaymentCount;
       current.onTimeCount += onTimeCount;
       current.totalDaysToPay += totalDaysToPay;
       invoiceDateAggregateMap.set(serializedKey, current);
     }
 
-    for (const entry of getInvoiceCustomerDateAggregateEntries(
-      teamId,
-      record,
-    )) {
+    for (const entry of getInvoiceCustomerDateAggregateEntries(teamId, record)) {
       const { amount, ...key } = entry;
       const serializedKey = serializeInvoiceCustomerDateAggregateKey(key);
       const current = invoiceCustomerDateAggregateMap.get(serializedKey) ?? {
@@ -1122,8 +951,7 @@ function buildInvoiceAggregateBackfillMaps(
       };
 
       current.invoiceCount += 1;
-      current.totalAmount =
-        Math.round((current.totalAmount + amount) * 100) / 100;
+      current.totalAmount = Math.round((current.totalAmount + amount) * 100) / 100;
       invoiceCustomerDateAggregateMap.set(serializedKey, current);
     }
 
@@ -1148,8 +976,7 @@ function buildInvoiceAggregateBackfillMaps(
       };
 
       current.invoiceCount += 1;
-      current.totalAmount =
-        Math.round((current.totalAmount + amount) * 100) / 100;
+      current.totalAmount = Math.round((current.totalAmount + amount) * 100) / 100;
       current.issueToPaidValidCount += issueToPaidValidCount;
       current.issueToPaidTotalDays += issueToPaidTotalDays;
       current.sentToPaidValidCount += sentToPaidValidCount;
@@ -1167,8 +994,7 @@ function buildInvoiceAggregateBackfillMaps(
       };
 
       current.invoiceCount += 1;
-      current.totalAmount =
-        Math.round((current.totalAmount + amount) * 100) / 100;
+      current.totalAmount = Math.round((current.totalAmount + amount) * 100) / 100;
       invoiceAgingAggregateMap.set(serializedKey, current);
     }
   }
@@ -1182,10 +1008,7 @@ function buildInvoiceAggregateBackfillMaps(
   };
 }
 
-async function syncInvoiceAggregateKey(
-  ctx: MutationCtx,
-  key: InvoiceAggregateKey,
-) {
+async function syncInvoiceAggregateKey(ctx: MutationCtx, key: InvoiceAggregateKey) {
   const existing = await getInvoiceAggregateRecord(ctx, key);
   const records = await getInvoicesForAggregateKey(ctx, key);
 
@@ -1228,10 +1051,7 @@ async function syncInvoiceAggregateKey(
   });
 }
 
-async function syncInvoiceDateAggregateKey(
-  ctx: MutationCtx,
-  key: InvoiceDateAggregateKey,
-) {
+async function syncInvoiceDateAggregateKey(ctx: MutationCtx, key: InvoiceDateAggregateKey) {
   const existing = await getInvoiceDateAggregateRecord(ctx, key);
   const records = await getInvoicesForDateAggregateKey(ctx, key);
 
@@ -1334,11 +1154,7 @@ async function syncInvoiceAnalyticsAggregateKey(
   }
 
   const timestamp = nowIso();
-  const summary = summarizeInvoicesForAnalyticsAggregate(
-    key.teamId,
-    key,
-    records,
-  );
+  const summary = summarizeInvoicesForAnalyticsAggregate(key.teamId, key, records);
 
   if (existing) {
     await ctx.db.patch(existing._id, {
@@ -1372,10 +1188,7 @@ async function syncInvoiceAnalyticsAggregateKey(
   });
 }
 
-async function syncInvoiceAgingAggregateKey(
-  ctx: MutationCtx,
-  key: InvoiceAgingAggregateKey,
-) {
+async function syncInvoiceAgingAggregateKey(ctx: MutationCtx, key: InvoiceAgingAggregateKey) {
   const existing = await getInvoiceAgingAggregateRecord(ctx, key);
   const records = await getInvoicesForAgingAggregateKey(ctx, key);
 
@@ -1421,14 +1234,8 @@ async function syncInvoiceAggregatesForChange(
 ) {
   const keys = new Map<string, InvoiceAggregateKey>();
   const dateAggregateKeys = new Map<string, InvoiceDateAggregateKey>();
-  const customerDateAggregateKeys = new Map<
-    string,
-    InvoiceCustomerDateAggregateKey
-  >();
-  const analyticsAggregateKeys = new Map<
-    string,
-    InvoiceAnalyticsAggregateKey
-  >();
+  const customerDateAggregateKeys = new Map<string, InvoiceCustomerDateAggregateKey>();
+  const analyticsAggregateKeys = new Map<string, InvoiceAnalyticsAggregateKey>();
   const agingAggregateKeys = new Map<string, InvoiceAgingAggregateKey>();
 
   for (const key of [
@@ -1449,16 +1256,11 @@ async function syncInvoiceAggregatesForChange(
       totalDaysToPay: _totalDaysToPay,
       ...aggregateKey
     } = key;
-    dateAggregateKeys.set(
-      serializeInvoiceDateAggregateKey(aggregateKey),
-      aggregateKey,
-    );
+    dateAggregateKeys.set(serializeInvoiceDateAggregateKey(aggregateKey), aggregateKey);
   }
 
   for (const key of [
-    ...(previous
-      ? getInvoiceCustomerDateAggregateEntries(teamId, previous)
-      : []),
+    ...(previous ? getInvoiceCustomerDateAggregateEntries(teamId, previous) : []),
     ...(next ? getInvoiceCustomerDateAggregateEntries(teamId, next) : []),
   ]) {
     const { amount: _amount, ...aggregateKey } = key;
@@ -1480,10 +1282,7 @@ async function syncInvoiceAggregatesForChange(
       sentToPaidTotalDays: _sentToPaidTotalDays,
       ...aggregateKey
     } = key;
-    analyticsAggregateKeys.set(
-      serializeInvoiceAnalyticsAggregateKey(aggregateKey),
-      aggregateKey,
-    );
+    analyticsAggregateKeys.set(serializeInvoiceAnalyticsAggregateKey(aggregateKey), aggregateKey);
   }
 
   for (const key of [
@@ -1491,10 +1290,7 @@ async function syncInvoiceAggregatesForChange(
     ...(next ? getInvoiceAgingAggregateEntries(teamId, next) : []),
   ]) {
     const { amount: _amount, ...aggregateKey } = key;
-    agingAggregateKeys.set(
-      serializeInvoiceAgingAggregateKey(aggregateKey),
-      aggregateKey,
-    );
+    agingAggregateKeys.set(serializeInvoiceAgingAggregateKey(aggregateKey), aggregateKey);
   }
 
   for (const key of keys.values()) {
@@ -1544,18 +1340,14 @@ async function rebuildInvoiceReportAggregatesForTeam(
 
   for (const record of await ctx.db
     .query("invoiceDateAggregates")
-    .withIndex("by_team_status_date_field_date", (q) =>
-      q.eq("teamId", team._id),
-    )
+    .withIndex("by_team_status_date_field_date", (q) => q.eq("teamId", team._id))
     .collect()) {
     await ctx.db.delete(record._id);
   }
 
   for (const record of await ctx.db
     .query("invoiceCustomerDateAggregates")
-    .withIndex("by_team_status_date_field_date", (q) =>
-      q.eq("teamId", team._id),
-    )
+    .withIndex("by_team_status_date_field_date", (q) => q.eq("teamId", team._id))
     .collect()) {
     await ctx.db.delete(record._id);
   }
@@ -1730,9 +1522,7 @@ function serializeInvoiceDateAggregate(record: InvoiceDateAggregateDoc) {
   };
 }
 
-function serializeInvoiceCustomerDateAggregate(
-  record: InvoiceCustomerDateAggregateDoc,
-) {
+function serializeInvoiceCustomerDateAggregate(record: InvoiceCustomerDateAggregateDoc) {
   return {
     customerId: record.customerId,
     status: record.status,
@@ -1745,9 +1535,7 @@ function serializeInvoiceCustomerDateAggregate(
   };
 }
 
-function serializeInvoiceAnalyticsAggregate(
-  record: InvoiceAnalyticsAggregateDoc,
-) {
+function serializeInvoiceAnalyticsAggregate(record: InvoiceAnalyticsAggregateDoc) {
   return {
     dateField: record.dateField,
     date: record.date,
@@ -1813,19 +1601,13 @@ function getNextInvoiceSequenceFromRecords(records: PublicInvoiceDoc[]) {
   return records.length + 1;
 }
 
-async function getInitialNextInvoiceSequence(
-  ctx: ReadCtx,
-  teamId: TeamDoc["_id"],
-) {
+async function getInitialNextInvoiceSequence(ctx: ReadCtx, teamId: TeamDoc["_id"]) {
   const records = await getTeamPublicInvoices(ctx, teamId);
 
   return getNextInvoiceSequenceFromRecords(records);
 }
 
-async function getNextInvoiceSequencePreview(
-  ctx: QueryCtx,
-  teamId: TeamDoc["_id"],
-) {
+async function getNextInvoiceSequencePreview(ctx: QueryCtx, teamId: TeamDoc["_id"]) {
   const records = await getTeamPublicInvoices(ctx, teamId);
 
   return getNextInvoiceSequenceFromRecords(records);
@@ -1864,15 +1646,10 @@ async function advanceNextInvoiceSequenceIfNeeded(
 }
 
 function sortByNewestCreatedAt(records: PublicInvoiceDoc[]) {
-  return [...records].sort((left, right) =>
-    right.createdAt.localeCompare(left.createdAt),
-  );
+  return [...records].sort((left, right) => right.createdAt.localeCompare(left.createdAt));
 }
 
-function sortByRecurringSequence(
-  records: PublicInvoiceDoc[],
-  direction: "asc" | "desc" = "asc",
-) {
+function sortByRecurringSequence(records: PublicInvoiceDoc[], direction: "asc" | "desc" = "asc") {
   const multiplier = direction === "asc" ? 1 : -1;
 
   return [...records].sort((left, right) => {
@@ -1904,10 +1681,7 @@ function getStoredDateField(
   }
 }
 
-function getStoredDateFieldValue(
-  record: PublicInvoiceDoc,
-  field: PublicInvoiceDateField,
-) {
+function getStoredDateFieldValue(record: PublicInvoiceDoc, field: PublicInvoiceDateField) {
   if (field === "createdAt") {
     return record.createdAt;
   }
@@ -1915,10 +1689,7 @@ function getStoredDateFieldValue(
   return getStoredDateField(record, field);
 }
 
-function normalizeDateBoundary(
-  value: string | null | undefined,
-  boundary: "start" | "end",
-) {
+function normalizeDateBoundary(value: string | null | undefined, boundary: "start" | "end") {
   if (!value) {
     return null;
   }
@@ -1927,9 +1698,7 @@ function normalizeDateBoundary(
     return value;
   }
 
-  return boundary === "start"
-    ? `${value}T00:00:00.000Z`
-    : `${value}T23:59:59.999Z`;
+  return boundary === "start" ? `${value}T00:00:00.000Z` : `${value}T23:59:59.999Z`;
 }
 
 function matchesDateRange(
@@ -1968,9 +1737,7 @@ async function getPublicInvoicesByStatuses(
     statuses.map((status) =>
       ctx.db
         .query("publicInvoices")
-        .withIndex("by_team_status", (q) =>
-          q.eq("teamId", teamId).eq("status", status),
-        )
+        .withIndex("by_team_status", (q) => q.eq("teamId", teamId).eq("status", status))
         .collect(),
     ),
   );
@@ -2223,9 +1990,7 @@ async function getPublicInvoiceForTeam(
   }
 
   try {
-    const byDocId = await ctx.db.get(
-      args.invoiceId as Doc<"publicInvoices">["_id"],
-    );
+    const byDocId = await ctx.db.get(args.invoiceId as Doc<"publicInvoices">["_id"]);
 
     if (byDocId && byDocId.teamId === args.teamId) {
       return byDocId;
@@ -2266,10 +2031,7 @@ export const serviceUpsertPublicInvoice = mutation({
 
     const timestamp = nowIso();
     const payload = args.payload as PublicInvoicePayload;
-    const projectionFields = getPublicInvoiceProjectionFields(
-      payload,
-      args.invoiceNumber,
-    );
+    const projectionFields = getPublicInvoiceProjectionFields(payload, args.invoiceNumber);
     const invoiceNumber = projectionFields.invoiceNumber ?? null;
     const searchText = getInvoiceSearchText(payload, args.invoiceNumber);
     const existing =
@@ -2323,12 +2085,7 @@ export const serviceUpsertPublicInvoice = mutation({
       }
 
       await syncInvoiceAggregatesForChange(ctx, team._id, existing, updated);
-      await syncPublicInvoiceComplianceJournalEntryForChange(
-        ctx,
-        team,
-        existing,
-        updated,
-      );
+      await syncPublicInvoiceComplianceJournalEntryForChange(ctx, team, existing, updated);
 
       return serializePublicInvoice({
         _id: updated._id,
@@ -2369,12 +2126,7 @@ export const serviceUpsertPublicInvoice = mutation({
     }
 
     await syncInvoiceAggregatesForChange(ctx, team._id, null, inserted);
-    await syncPublicInvoiceComplianceJournalEntryForChange(
-      ctx,
-      team,
-      null,
-      inserted,
-    );
+    await syncPublicInvoiceComplianceJournalEntryForChange(ctx, team, null, inserted);
 
     return serializePublicInvoice({
       _id: inserted._id,
@@ -2403,9 +2155,7 @@ export const serviceGetPublicInvoiceByPublicInvoiceId = query({
 
     const record = await ctx.db
       .query("publicInvoices")
-      .withIndex("by_public_invoice_id", (q) =>
-        q.eq("publicInvoiceId", args.publicInvoiceId),
-      )
+      .withIndex("by_public_invoice_id", (q) => q.eq("publicInvoiceId", args.publicInvoiceId))
       .unique();
 
     if (!record) {
@@ -2470,9 +2220,7 @@ export const serviceGetPublicInvoiceByInvoiceNumber = query({
     const record = sortByNewestCreatedAt(
       await ctx.db
         .query("publicInvoices")
-        .withIndex("by_invoice_number", (q) =>
-          q.eq("invoiceNumber", args.invoiceNumber),
-        )
+        .withIndex("by_invoice_number", (q) => q.eq("invoiceNumber", args.invoiceNumber))
         .collect(),
     )[0];
 
@@ -2609,14 +2357,10 @@ export const serviceGetPublicInvoicesByRecurringId = query({
       await ctx.db
         .query("publicInvoices")
         .withIndex("by_team_and_invoice_recurring_id", (q) =>
-          q
-            .eq("teamId", team._id)
-            .eq("invoiceRecurringId", args.invoiceRecurringId),
+          q.eq("teamId", team._id).eq("invoiceRecurringId", args.invoiceRecurringId),
         )
         .collect(),
-    ).filter((record) =>
-      args.statuses ? args.statuses.includes(record.status) : true,
-    );
+    ).filter((record) => (args.statuses ? args.statuses.includes(record.status) : true));
 
     return records.map((record) =>
       serializePublicInvoice({
@@ -2795,10 +2539,7 @@ export const serviceGetInvoiceAggregateRows = query({
                 ctx.db
                   .query("invoiceAggregates")
                   .withIndex("by_team_scope_status", (q) =>
-                    q
-                      .eq("teamId", team._id)
-                      .eq("scopeKey", scopeKey)
-                      .eq("status", status),
+                    q.eq("teamId", team._id).eq("scopeKey", scopeKey).eq("status", status),
                   )
                   .collect(),
               ),
@@ -2806,9 +2547,7 @@ export const serviceGetInvoiceAggregateRows = query({
           ).flat()
         : await ctx.db
             .query("invoiceAggregates")
-            .withIndex("by_team_scope", (q) =>
-              q.eq("teamId", team._id).eq("scopeKey", scopeKey),
-            )
+            .withIndex("by_team_scope", (q) => q.eq("teamId", team._id).eq("scopeKey", scopeKey))
             .collect();
 
     return records.map(serializeInvoiceAggregate);
@@ -2851,9 +2590,7 @@ export const serviceGetInvoiceDateAggregateRows = query({
                 .eq("dateField", args.dateField);
 
               if (args.dateFrom && args.dateTo) {
-                return range
-                  .gte("date", args.dateFrom)
-                  .lte("date", args.dateTo);
+                return range.gte("date", args.dateFrom).lte("date", args.dateTo);
               }
 
               if (args.dateFrom) {
@@ -2878,9 +2615,7 @@ export const serviceGetInvoiceDateAggregateRows = query({
           : record.currency === args.currency,
       )
       .filter((record) =>
-        args.recurring === undefined
-          ? true
-          : record.recurring === args.recurring,
+        args.recurring === undefined ? true : record.recurring === args.recurring,
       )
       .map(serializeInvoiceDateAggregate);
   },
@@ -2921,9 +2656,7 @@ export const serviceGetInvoiceCustomerDateAggregateRows = query({
                 .eq("dateField", args.dateField);
 
               if (args.dateFrom && args.dateTo) {
-                return range
-                  .gte("date", args.dateFrom)
-                  .lte("date", args.dateTo);
+                return range.gte("date", args.dateFrom).lte("date", args.dateTo);
               }
 
               if (args.dateFrom) {
@@ -2971,9 +2704,7 @@ export const serviceGetInvoiceAnalyticsAggregateRows = query({
     }
 
     const normalizedStatuses =
-      args.statuses && args.statuses.length > 0
-        ? [...new Set(args.statuses)]
-        : null;
+      args.statuses && args.statuses.length > 0 ? [...new Set(args.statuses)] : null;
     const records = normalizedStatuses
       ? (
           await Promise.all(
@@ -2987,9 +2718,7 @@ export const serviceGetInvoiceAnalyticsAggregateRows = query({
                     .eq("status", status);
 
                   if (args.dateFrom && args.dateTo) {
-                    return range
-                      .gte("date", args.dateFrom)
-                      .lte("date", args.dateTo);
+                    return range.gte("date", args.dateFrom).lte("date", args.dateTo);
                   }
 
                   if (args.dateFrom) {
@@ -3009,9 +2738,7 @@ export const serviceGetInvoiceAnalyticsAggregateRows = query({
       : await ctx.db
           .query("invoiceAnalyticsAggregates")
           .withIndex("by_team_date_field_date", (q) => {
-            const range = q
-              .eq("teamId", team._id)
-              .eq("dateField", args.dateField);
+            const range = q.eq("teamId", team._id).eq("dateField", args.dateField);
 
             if (args.dateFrom && args.dateTo) {
               return range.gte("date", args.dateFrom).lte("date", args.dateTo);
@@ -3064,9 +2791,7 @@ export const serviceGetInvoiceAgingAggregateRows = query({
         [...new Set(args.statuses)].map((status) =>
           ctx.db
             .query("invoiceAgingAggregates")
-            .withIndex("by_team_status", (q) =>
-              q.eq("teamId", team._id).eq("status", status),
-            )
+            .withIndex("by_team_status", (q) => q.eq("teamId", team._id).eq("status", status))
             .collect(),
         ),
       )
@@ -3092,9 +2817,7 @@ export const serviceRebuildInvoiceReportAggregates = mutation({
 
     const teams = args.publicTeamId
       ? [await getTeamByPublicTeamId(ctx, args.publicTeamId)]
-      : (await ctx.db.query("teams").collect()).filter(
-          (team) => !!team.publicTeamId,
-        );
+      : (await ctx.db.query("teams").collect()).filter((team) => !!team.publicTeamId);
 
     const validTeams = teams.filter(
       (team): team is NonNullable<(typeof teams)[number]> => team !== null,
@@ -3124,9 +2847,7 @@ export const serviceRebuildPublicInvoiceSearchTexts = mutation({
 
     const teams = args.publicTeamId
       ? [await getTeamByPublicTeamId(ctx, args.publicTeamId)]
-      : (await ctx.db.query("teams").collect()).filter(
-          (team) => !!team.publicTeamId,
-        );
+      : (await ctx.db.query("teams").collect()).filter((team) => !!team.publicTeamId);
 
     const validTeams = teams.filter(
       (team): team is NonNullable<(typeof teams)[number]> => team !== null,
@@ -3222,34 +2943,28 @@ export const serviceListPublicInvoicesPage = query({
 
     const db = ctx.db as any;
     const baseQuery = args.status
-      ? ctx.db
-          .query("publicInvoices")
-          .withIndex("by_team_status_created_at", (q) => {
-            const range = q.eq("teamId", team._id).eq("status", args.status!);
+      ? ctx.db.query("publicInvoices").withIndex("by_team_status_created_at", (q) => {
+          const range = q.eq("teamId", team._id).eq("status", args.status!);
 
-            if (args.createdAtFrom && args.createdAtTo) {
-              return range
-                .gte("createdAt", args.createdAtFrom)
-                .lte("createdAt", args.createdAtTo);
-            }
+          if (args.createdAtFrom && args.createdAtTo) {
+            return range.gte("createdAt", args.createdAtFrom).lte("createdAt", args.createdAtTo);
+          }
 
-            if (args.createdAtFrom) {
-              return range.gte("createdAt", args.createdAtFrom);
-            }
+          if (args.createdAtFrom) {
+            return range.gte("createdAt", args.createdAtFrom);
+          }
 
-            if (args.createdAtTo) {
-              return range.lte("createdAt", args.createdAtTo);
-            }
+          if (args.createdAtTo) {
+            return range.lte("createdAt", args.createdAtTo);
+          }
 
-            return range;
-          })
+          return range;
+        })
       : db.query("publicInvoices").withIndex("by_team_created_at", (q: any) => {
           const range = q.eq("teamId", team._id);
 
           if (args.createdAtFrom && args.createdAtTo) {
-            return range
-              .gte("createdAt", args.createdAtFrom)
-              .lte("createdAt", args.createdAtTo);
+            return range.gte("createdAt", args.createdAtFrom).lte("createdAt", args.createdAtTo);
           }
 
           if (args.createdAtFrom) {
@@ -3315,9 +3030,7 @@ export const serviceSearchPublicInvoices = query({
 
     return records
       .filter((record) =>
-        args.status === undefined || args.status === null
-          ? true
-          : record.status === args.status,
+        args.status === undefined || args.status === null ? true : record.status === args.status,
       )
       .slice(0, args.limit ?? records.length)
       .map((record) =>
@@ -3358,8 +3071,7 @@ export const serviceGetPublicInvoicesByFilters = query({
       return [];
     }
 
-    const statuses =
-      args.statuses && args.statuses.length > 0 ? args.statuses : null;
+    const statuses = args.statuses && args.statuses.length > 0 ? args.statuses : null;
     const dateField = args.dateField ?? null;
     const from = normalizeDateBoundary(args.from, "start");
     const to = normalizeDateBoundary(args.to, "end");
@@ -3367,21 +3079,10 @@ export const serviceGetPublicInvoicesByFilters = query({
     let records: PublicInvoiceDoc[];
 
     if (statuses && dateField === "createdAt") {
-      records = await getPublicInvoicesByStatusAndCreatedAt(
-        ctx,
-        team._id,
-        statuses,
-        from,
-        to,
-      );
+      records = await getPublicInvoicesByStatusAndCreatedAt(ctx, team._id, statuses, from, to);
     } else if (!statuses && dateField === "createdAt") {
       records = await getPublicInvoicesByCreatedAt(ctx, team._id, from, to);
-    } else if (
-      statuses &&
-      dateField &&
-      dateField !== "createdAt" &&
-      dateField !== "sentAt"
-    ) {
+    } else if (statuses && dateField && dateField !== "createdAt" && dateField !== "sentAt") {
       records = await getPublicInvoicesByStatusAndDateField(
         ctx,
         team._id,
@@ -3397,13 +3098,7 @@ export const serviceGetPublicInvoicesByFilters = query({
       dateField !== "dueDate" &&
       dateField !== "paidAt"
     ) {
-      records = await getPublicInvoicesByTeamDateField(
-        ctx,
-        team._id,
-        dateField,
-        from,
-        to,
-      );
+      records = await getPublicInvoicesByTeamDateField(ctx, team._id, dateField, from, to);
     } else if (statuses) {
       records = await getPublicInvoicesByStatuses(ctx, team._id, statuses);
     } else {
@@ -3496,9 +3191,7 @@ export const serviceGetPublicInvoiceByPaymentIntentId = query({
 
     const record = await ctx.db
       .query("publicInvoices")
-      .withIndex("by_payment_intent_id", (q) =>
-        q.eq("paymentIntentId", args.paymentIntentId),
-      )
+      .withIndex("by_payment_intent_id", (q) => q.eq("paymentIntentId", args.paymentIntentId))
       .unique();
 
     if (!record) {
@@ -3548,12 +3241,7 @@ export const serviceDeletePublicInvoice = mutation({
 
     await ctx.db.delete(record._id);
     await syncInvoiceAggregatesForChange(ctx, team._id, record, null);
-    await syncPublicInvoiceComplianceJournalEntryForChange(
-      ctx,
-      team,
-      record,
-      null,
-    );
+    await syncPublicInvoiceComplianceJournalEntryForChange(ctx, team, record, null);
 
     return serializePublicInvoice({
       _id: record._id,

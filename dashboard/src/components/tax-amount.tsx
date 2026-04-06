@@ -60,9 +60,7 @@ export function TaxAmount({
           details: queryClient.getQueryData(
             trpc.transactions.getById.queryKey({ id: transactionId }),
           ),
-          list: queryClient.getQueryData(
-            trpc.transactions.get.infiniteQueryKey(),
-          ),
+          list: queryClient.getQueryData(trpc.transactions.get.infiniteQueryKey()),
         };
 
         // Optimistically update the details view
@@ -75,27 +73,24 @@ export function TaxAmount({
         );
 
         // Optimistically update the list view
-        queryClient.setQueryData(
-          trpc.transactions.get.infiniteQueryKey(),
-          (old: any) => {
-            if (!old?.pages) return old;
+        queryClient.setQueryData(trpc.transactions.get.infiniteQueryKey(), (old: any) => {
+          if (!old?.pages) return old;
 
-            return {
-              ...old,
-              pages: old.pages.map((page: any) => ({
-                ...page,
-                data: page.data.map((transaction: any) =>
-                  transaction.id === transactionId
-                    ? {
-                        ...transaction,
-                        ...variables,
-                      }
-                    : transaction,
-                ),
-              })),
-            };
-          },
-        );
+          return {
+            ...old,
+            pages: old.pages.map((page: any) => ({
+              ...page,
+              data: page.data.map((transaction: any) =>
+                transaction.id === transactionId
+                  ? {
+                      ...transaction,
+                      ...variables,
+                    }
+                  : transaction,
+              ),
+            })),
+          };
+        });
 
         return { previousData };
       },
@@ -179,9 +174,7 @@ export function TaxAmount({
               const inputValue = e.target.value;
               setLocalTaxRate(inputValue);
 
-              const numValue = inputValue
-                ? Number.parseFloat(inputValue)
-                : null;
+              const numValue = inputValue ? Number.parseFloat(inputValue) : null;
 
               // Validate percentage is between 0 and 100
               if (numValue !== null && (numValue < 0 || numValue > 100)) {
@@ -192,9 +185,7 @@ export function TaxAmount({
               // Note: 0 is a valid value (explicit override of category default)
               // Transaction amounts are gross (tax-inclusive), so use reverse calculation
               const calculatedTaxAmount =
-                numValue !== null && amount
-                  ? calculateTaxAmountFromGross(amount, numValue)
-                  : null;
+                numValue !== null && amount ? calculateTaxAmountFromGross(amount, numValue) : null;
 
               debouncedUpdate({
                 taxRate: numValue,
@@ -230,9 +221,7 @@ export function TaxAmount({
               // Calculate rate from existing taxAmount but keep the taxAmount as-is
               // Transaction amounts are gross (tax-inclusive), so use reverse calculation
               const calculatedRate =
-                taxAmount && amount
-                  ? calculateTaxRateFromGross(amount, taxAmount)
-                  : 0;
+                taxAmount && amount ? calculateTaxRateFromGross(amount, taxAmount) : 0;
 
               // Keep the existing taxAmount to avoid rounding errors
               updateTransactionMutation.mutate({
@@ -264,15 +253,8 @@ export function TaxAmount({
       {taxAmount !== null && taxAmount !== undefined && taxAmount > 0 && (
         <p className="text-xs text-muted-foreground mt-2">
           {getTaxLabel()}:{" "}
-          <FormatAmount
-            amount={taxAmount}
-            currency={currency}
-            maximumFractionDigits={2}
-          />
-          {taxRate !== null &&
-            taxRate !== undefined &&
-            taxRate > 0 &&
-            ` (${taxRate}%)`}
+          <FormatAmount amount={taxAmount} currency={currency} maximumFractionDigits={2} />
+          {taxRate !== null && taxRate !== undefined && taxRate > 0 && ` (${taxRate}%)`}
         </p>
       )}
     </div>

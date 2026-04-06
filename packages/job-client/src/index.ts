@@ -185,15 +185,10 @@ export async function scheduleRecurring(
     options.externalId,
     options.deduplicationKey,
   );
-  const message = buildCloudflareRecurringScheduleMessage(
-    taskId,
-    options.externalId,
-  );
+  const message = buildCloudflareRecurringScheduleMessage(taskId, options.externalId);
 
   if (!message) {
-    throw new Error(
-      `Cloudflare recurring schedule requires externalId for ${taskId}`,
-    );
+    throw new Error(`Cloudflare recurring schedule requires externalId for ${taskId}`);
   }
 
   const metadata = {
@@ -262,9 +257,7 @@ export async function cancelRun(runId: string): Promise<boolean> {
   }
 
   if (asyncRun.provider === "cloudflare-schedule" && asyncRun.providerRunId) {
-    const canceled = await cancelCloudflareScheduleViaBridge(
-      asyncRun.providerRunId,
-    );
+    const canceled = await cancelCloudflareScheduleViaBridge(asyncRun.providerRunId);
 
     if (!canceled) {
       return false;
@@ -312,11 +305,7 @@ export async function getRunStatus(
     };
   }
 
-  if (
-    options?.teamId &&
-    asyncRun.teamId &&
-    asyncRun.teamId !== options.teamId
-  ) {
+  if (options?.teamId && asyncRun.teamId && asyncRun.teamId !== options.teamId) {
     logger.warn("Unauthorized run access attempt", {
       runId,
       requestingTeamId: options.teamId,
@@ -327,14 +316,10 @@ export async function getRunStatus(
 
   if (asyncRun.provider === "cloudflare-workflow" && asyncRun.providerRunId) {
     try {
-      const workflow = await getCloudflareWorkflowStatusViaBridge(
-        asyncRun.providerRunId,
-      );
+      const workflow = await getCloudflareWorkflowStatusViaBridge(asyncRun.providerRunId);
       const status = mapCloudflareWorkflowStatus(workflow.workflowStatus);
       const error =
-        typeof workflow.error?.message === "string"
-          ? workflow.error.message
-          : undefined;
+        typeof workflow.error?.message === "string" ? workflow.error.message : undefined;
       const response = {
         status,
         result: workflow.output,
@@ -347,11 +332,8 @@ export async function getRunStatus(
         result: workflow.output,
         error,
         completedAt:
-          status === "completed" || status === "failed"
-            ? new Date().toISOString()
-            : undefined,
-        canceledAt:
-          status === "canceled" ? new Date().toISOString() : undefined,
+          status === "completed" || status === "failed" ? new Date().toISOString() : undefined,
+        canceledAt: status === "canceled" ? new Date().toISOString() : undefined,
       }).catch(() => undefined);
 
       return response;

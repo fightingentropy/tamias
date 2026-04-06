@@ -8,9 +8,7 @@ const mockAccountingApi = {
   getBankTransactions: mock(() => Promise.resolve({ body: {} })),
   getAccounts: mock(() => Promise.resolve({ body: {} })),
   createAccount: mock(() => Promise.resolve({ body: {} })),
-  createBankTransactionAttachmentByFileName: mock(() =>
-    Promise.resolve({ body: {} }),
-  ),
+  createBankTransactionAttachmentByFileName: mock(() => Promise.resolve({ body: {} })),
   getBankTransactionAttachments: mock(() => Promise.resolve({ body: {} })),
   deleteAttachmentByFileName: mock(() => Promise.resolve({ body: {} })),
 };
@@ -101,18 +99,16 @@ describe("XeroProvider", () => {
     test("creates BankTransaction with SPEND type for expenses", async () => {
       const provider = createProvider();
 
-      mockAccountingApi.updateOrCreateBankTransactions.mockImplementation(
-        async () => ({
-          body: {
-            bankTransactions: [
-              {
-                bankTransactionID: "bt-123",
-                type: "SPEND",
-              },
-            ],
-          },
-        }),
-      );
+      mockAccountingApi.updateOrCreateBankTransactions.mockImplementation(async () => ({
+        body: {
+          bankTransactions: [
+            {
+              bankTransactionID: "bt-123",
+              type: "SPEND",
+            },
+          ],
+        },
+      }));
 
       const result = await provider.syncTransactions({
         transactions: [
@@ -136,8 +132,7 @@ describe("XeroProvider", () => {
       expect(result.results[0]?.providerTransactionId).toBe("bt-123");
 
       // Verify the API was called with SPEND type
-      const call = mockAccountingApi.updateOrCreateBankTransactions.mock
-        .calls[0] as unknown[];
+      const call = mockAccountingApi.updateOrCreateBankTransactions.mock.calls[0] as unknown[];
       expect((call[1] as any).bankTransactions[0].type).toBe(
         originalXeroNode.BankTransaction.TypeEnum.SPEND,
       );
@@ -146,18 +141,16 @@ describe("XeroProvider", () => {
     test("creates BankTransaction with RECEIVE type for income", async () => {
       const provider = createProvider();
 
-      mockAccountingApi.updateOrCreateBankTransactions.mockImplementation(
-        async () => ({
-          body: {
-            bankTransactions: [
-              {
-                bankTransactionID: "bt-456",
-                type: "RECEIVE",
-              },
-            ],
-          },
-        }),
-      );
+      mockAccountingApi.updateOrCreateBankTransactions.mockImplementation(async () => ({
+        body: {
+          bankTransactions: [
+            {
+              bankTransactionID: "bt-456",
+              type: "RECEIVE",
+            },
+          ],
+        },
+      }));
 
       const result = await provider.syncTransactions({
         transactions: [
@@ -179,8 +172,7 @@ describe("XeroProvider", () => {
       expect(result.results[0]?.providerTransactionId).toBe("bt-456");
 
       // Verify the API was called with RECEIVE type
-      const call = mockAccountingApi.updateOrCreateBankTransactions.mock
-        .calls[0] as unknown[];
+      const call = mockAccountingApi.updateOrCreateBankTransactions.mock.calls[0] as unknown[];
       expect((call[1] as any).bankTransactions[0].type).toBe(
         originalXeroNode.BankTransaction.TypeEnum.RECEIVE,
       );
@@ -190,13 +182,11 @@ describe("XeroProvider", () => {
       const provider = createProvider();
 
       // API should not be called since validation fails before sync
-      mockAccountingApi.updateOrCreateBankTransactions.mockImplementation(
-        async () => ({
-          body: {
-            bankTransactions: [{ bankTransactionID: "bt-789" }],
-          },
-        }),
-      );
+      mockAccountingApi.updateOrCreateBankTransactions.mockImplementation(async () => ({
+        body: {
+          bankTransactions: [{ bankTransactionID: "bt-789" }],
+        },
+      }));
 
       const result = await provider.syncTransactions({
         transactions: [
@@ -225,13 +215,11 @@ describe("XeroProvider", () => {
     test("uses default income account code (200) when categoryReportingCode is missing", async () => {
       const provider = createProvider();
 
-      mockAccountingApi.updateOrCreateBankTransactions.mockImplementation(
-        async () => ({
-          body: {
-            bankTransactions: [{ bankTransactionID: "bt-101" }],
-          },
-        }),
-      );
+      mockAccountingApi.updateOrCreateBankTransactions.mockImplementation(async () => ({
+        body: {
+          bankTransactions: [{ bankTransactionID: "bt-101" }],
+        },
+      }));
 
       await provider.syncTransactions({
         transactions: [
@@ -249,23 +237,18 @@ describe("XeroProvider", () => {
         jobId: "test-job-4",
       });
 
-      const call = mockAccountingApi.updateOrCreateBankTransactions.mock
-        .calls[0] as unknown[];
-      expect(
-        (call[1] as any).bankTransactions[0].lineItems[0].accountCode,
-      ).toBe("200");
+      const call = mockAccountingApi.updateOrCreateBankTransactions.mock.calls[0] as unknown[];
+      expect((call[1] as any).bankTransactions[0].lineItems[0].accountCode).toBe("200");
     });
 
     test("sets lineAmountTypes to Inclusive", async () => {
       const provider = createProvider();
 
-      mockAccountingApi.updateOrCreateBankTransactions.mockImplementation(
-        async () => ({
-          body: {
-            bankTransactions: [{ bankTransactionID: "bt-inc" }],
-          },
-        }),
-      );
+      mockAccountingApi.updateOrCreateBankTransactions.mockImplementation(async () => ({
+        body: {
+          bankTransactions: [{ bankTransactionID: "bt-inc" }],
+        },
+      }));
 
       await provider.syncTransactions({
         transactions: [
@@ -282,8 +265,7 @@ describe("XeroProvider", () => {
         jobId: "test-job-5",
       });
 
-      const call = mockAccountingApi.updateOrCreateBankTransactions.mock
-        .calls[0] as unknown[];
+      const call = mockAccountingApi.updateOrCreateBankTransactions.mock.calls[0] as unknown[];
       expect((call[1] as any).bankTransactions[0].lineAmountTypes).toBe(
         originalXeroNode.LineAmountTypes.Inclusive,
       );
@@ -292,13 +274,11 @@ describe("XeroProvider", () => {
     test("includes contact when counterpartyName is provided", async () => {
       const provider = createProvider();
 
-      mockAccountingApi.updateOrCreateBankTransactions.mockImplementation(
-        async () => ({
-          body: {
-            bankTransactions: [{ bankTransactionID: "bt-contact" }],
-          },
-        }),
-      );
+      mockAccountingApi.updateOrCreateBankTransactions.mockImplementation(async () => ({
+        body: {
+          bankTransactions: [{ bankTransactionID: "bt-contact" }],
+        },
+      }));
 
       await provider.syncTransactions({
         transactions: [
@@ -316,8 +296,7 @@ describe("XeroProvider", () => {
         jobId: "test-job-6",
       });
 
-      const call = mockAccountingApi.updateOrCreateBankTransactions.mock
-        .calls[0] as unknown[];
+      const call = mockAccountingApi.updateOrCreateBankTransactions.mock.calls[0] as unknown[];
       expect((call[1] as any).bankTransactions[0].contact).toEqual({
         name: "Starbucks",
       });
@@ -335,17 +314,15 @@ describe("XeroProvider", () => {
         currency: "USD",
       }));
 
-      (
-        mockAccountingApi.updateOrCreateBankTransactions as any
-      ).mockImplementation(async (_tenantId: any, req: any) => ({
-        body: {
-          bankTransactions: req.bankTransactions.map(
-            (_: unknown, idx: number) => ({
+      (mockAccountingApi.updateOrCreateBankTransactions as any).mockImplementation(
+        async (_tenantId: any, req: any) => ({
+          body: {
+            bankTransactions: req.bankTransactions.map((_: unknown, idx: number) => ({
               bankTransactionID: `bt-batch-${idx}`,
-            }),
-          ),
-        },
-      }));
+            })),
+          },
+        }),
+      );
 
       const result = await provider.syncTransactions({
         transactions,
@@ -355,27 +332,23 @@ describe("XeroProvider", () => {
       });
 
       // Should have made 2 API calls (50 + 10)
-      expect(
-        mockAccountingApi.updateOrCreateBankTransactions.mock.calls.length,
-      ).toBe(2);
+      expect(mockAccountingApi.updateOrCreateBankTransactions.mock.calls.length).toBe(2);
       expect(result.syncedCount).toBe(60);
     });
 
     test("handles validation errors gracefully", async () => {
       const provider = createProvider();
 
-      mockAccountingApi.updateOrCreateBankTransactions.mockImplementation(
-        async () => ({
-          body: {
-            bankTransactions: [
-              {
-                // No bankTransactionID = failed
-                validationErrors: [{ message: "Account code not found" }],
-              },
-            ],
-          },
-        }),
-      );
+      mockAccountingApi.updateOrCreateBankTransactions.mockImplementation(async () => ({
+        body: {
+          bankTransactions: [
+            {
+              // No bankTransactionID = failed
+              validationErrors: [{ message: "Account code not found" }],
+            },
+          ],
+        },
+      }));
 
       const result = await provider.syncTransactions({
         transactions: [
@@ -403,18 +376,16 @@ describe("XeroProvider", () => {
     test("attaches file to bank transaction", async () => {
       const provider = createProvider();
 
-      mockAccountingApi.createBankTransactionAttachmentByFileName.mockImplementation(
-        async () => ({
-          body: {
-            attachments: [
-              {
-                attachmentID: "att-123",
-                fileName: "receipt.pdf",
-              },
-            ],
-          },
-        }),
-      );
+      mockAccountingApi.createBankTransactionAttachmentByFileName.mockImplementation(async () => ({
+        body: {
+          attachments: [
+            {
+              attachmentID: "att-123",
+              fileName: "receipt.pdf",
+            },
+          ],
+        },
+      }));
 
       const result = await provider.uploadAttachment({
         transactionId: "bt-123",
@@ -431,18 +402,16 @@ describe("XeroProvider", () => {
     test("sanitizes filename with extension", async () => {
       const provider = createProvider();
 
-      mockAccountingApi.createBankTransactionAttachmentByFileName.mockImplementation(
-        async () => ({
-          body: {
-            attachments: [
-              {
-                attachmentID: "att-456",
-                fileName: "document.pdf",
-              },
-            ],
-          },
-        }),
-      );
+      mockAccountingApi.createBankTransactionAttachmentByFileName.mockImplementation(async () => ({
+        body: {
+          attachments: [
+            {
+              attachmentID: "att-456",
+              fileName: "document.pdf",
+            },
+          ],
+        },
+      }));
 
       await provider.uploadAttachment({
         transactionId: "bt-456",
@@ -453,8 +422,8 @@ describe("XeroProvider", () => {
       });
 
       // Verify filename was sanitized
-      const call = mockAccountingApi.createBankTransactionAttachmentByFileName
-        .mock.calls[0] as unknown[];
+      const call = mockAccountingApi.createBankTransactionAttachmentByFileName.mock
+        .calls[0] as unknown[];
       // The fileName parameter should have .pdf extension
       expect(call[2]).toBe("document.pdf");
     });

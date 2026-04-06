@@ -140,9 +140,7 @@ export function SelectTags({ tags, onSelect, onRemove, onChange }: Props) {
             setSelected(options);
             onChange?.(options);
 
-            const newTag = options.find(
-              (tag) => !selected.find((opt) => opt.value === tag.value),
-            );
+            const newTag = options.find((tag) => !selected.find((opt) => opt.value === tag.value));
 
             if (newTag) {
               onSelect?.(newTag);
@@ -190,10 +188,7 @@ export function SelectTags({ tags, onSelect, onRemove, onChange }: Props) {
 
           <DialogFooter className="mt-8 w-full">
             <div className="space-y-2 w-full flex flex-col">
-              <SubmitButton
-                isSubmitting={updateTagMutation.isPending}
-                onClick={handleUpdate}
-              >
+              <SubmitButton isSubmitting={updateTagMutation.isPending} onClick={handleUpdate}>
                 Save
               </SubmitButton>
 

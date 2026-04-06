@@ -19,13 +19,11 @@ let polarEmbedCheckoutPromise: Promise<PolarEmbedCheckoutApi> | null = null;
 
 export function getPolarEmbedCheckout() {
   if (!polarEmbedCheckoutPromise) {
-    polarEmbedCheckoutPromise = import("@polar-sh/checkout/embed").then(
-      (module) => {
-        const PolarEmbedCheckout = module.PolarEmbedCheckout as PolarEmbedCheckoutApi;
-        PolarEmbedCheckout.init();
-        return PolarEmbedCheckout;
-      },
-    );
+    polarEmbedCheckoutPromise = import("@polar-sh/checkout/embed").then((module) => {
+      const PolarEmbedCheckout = module.PolarEmbedCheckout as PolarEmbedCheckoutApi;
+      PolarEmbedCheckout.init();
+      return PolarEmbedCheckout;
+    });
   }
 
   return polarEmbedCheckoutPromise;

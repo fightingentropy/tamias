@@ -18,9 +18,7 @@ function TextShimmerComponent({
   duration = 2,
   spread = 2,
 }: TextShimmerProps) {
-  const MotionComponent = motion.create(
-    Component as keyof JSX.IntrinsicElements,
-  );
+  const MotionComponent = motion.create(Component as keyof JSX.IntrinsicElements);
 
   const dynamicSpread = useMemo(() => {
     return children.length * spread;
@@ -45,8 +43,7 @@ function TextShimmerComponent({
       style={
         {
           "--spread": `${dynamicSpread}px`,
-          backgroundImage:
-            "var(--bg), linear-gradient(var(--base-color), var(--base-color))",
+          backgroundImage: "var(--bg), linear-gradient(var(--base-color), var(--base-color))",
         } as React.CSSProperties
       }
     >

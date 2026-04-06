@@ -10,8 +10,7 @@ export const CacheTTL = {
 const cache: LocalCache<unknown> = new LocalCache(30 * 60);
 
 export const bankingCache = {
-  get: (key: string): Promise<any | undefined> =>
-    Promise.resolve(cache.get(key)),
+  get: (key: string): Promise<any | undefined> => Promise.resolve(cache.get(key)),
   set: (key: string, value: any, ttl?: number): Promise<void> => {
     cache.set(key, value, ttl);
     return Promise.resolve();
@@ -25,11 +24,7 @@ export const bankingCache = {
    * Get a cached value or compute and store it.
    * Eliminates the repeated check-cache / fetch / store pattern.
    */
-  getOrSet: async <T>(
-    key: string,
-    ttl: number,
-    fn: () => Promise<T>,
-  ): Promise<T> => {
+  getOrSet: async <T>(key: string, ttl: number, fn: () => Promise<T>): Promise<T> => {
     const cached = cache.get(key) as T | undefined;
     if (cached !== undefined) return cached;
     const result = await fn();

@@ -45,9 +45,7 @@ export class HmrcVatProvider {
   get environment() {
     return (
       this.config?.environment ??
-      (process.env.HMRC_VAT_ENVIRONMENT === "production"
-        ? "production"
-        : "sandbox")
+      (process.env.HMRC_VAT_ENVIRONMENT === "production" ? "production" : "sandbox")
     );
   }
 
@@ -115,26 +113,19 @@ export class HmrcVatProvider {
     accessToken?: string;
     fraudHeaders?: Record<string, string>;
   }): Promise<HmrcVatSubmissionResponse> {
-    return this.request<HmrcVatSubmissionResponse>(
-      `/organisations/vat/${params.vrn}/returns`,
-      {
-        method: "POST",
-        accessToken: params.accessToken,
-        fraudHeaders: params.fraudHeaders,
-        body: JSON.stringify(params.submission),
-      },
-    );
+    return this.request<HmrcVatSubmissionResponse>(`/organisations/vat/${params.vrn}/returns`, {
+      method: "POST",
+      accessToken: params.accessToken,
+      fraudHeaders: params.fraudHeaders,
+      body: JSON.stringify(params.submission),
+    });
   }
 
   async checkConnection(params: { vrn: string; accessToken?: string }) {
     const obligations = await this.getObligations({
       vrn: params.vrn,
-      from: new Date(Date.now() - 180 * 24 * 3600 * 1000)
-        .toISOString()
-        .slice(0, 10),
-      to: new Date(Date.now() + 365 * 24 * 3600 * 1000)
-        .toISOString()
-        .slice(0, 10),
+      from: new Date(Date.now() - 180 * 24 * 3600 * 1000).toISOString().slice(0, 10),
+      to: new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString().slice(0, 10),
       accessToken: params.accessToken,
     });
 
@@ -160,26 +151,19 @@ export class HmrcVatProvider {
       "Gov-Client-Screens":
         process.env.HMRC_FRAUD_CLIENT_SCREENS ??
         "width=1440;height=900;scaling-factor=2;colour-depth=24",
-      "Gov-Client-Timezone":
-        process.env.HMRC_FRAUD_CLIENT_TIMEZONE ?? "UTC+00:00",
+      "Gov-Client-Timezone": process.env.HMRC_FRAUD_CLIENT_TIMEZONE ?? "UTC+00:00",
       "Gov-Client-User-Agent":
         params.userAgent ?? process.env.HMRC_FRAUD_USER_AGENT ?? "Tamias/1.0",
       "Gov-Client-User-Ids": `tamias=${encodeURIComponent(params.userId)}`,
-      "Gov-Client-Public-IP":
-        params.publicIp ?? process.env.HMRC_FRAUD_PUBLIC_IP ?? "127.0.0.1",
+      "Gov-Client-Public-IP": params.publicIp ?? process.env.HMRC_FRAUD_PUBLIC_IP ?? "127.0.0.1",
       "Gov-Client-Public-Port": process.env.HMRC_FRAUD_PUBLIC_PORT ?? "443",
-      "Gov-Vendor-License-Ids":
-        process.env.HMRC_FRAUD_VENDOR_LICENSE_IDS ?? "tamias=uk-compliance",
-      "Gov-Vendor-Product-Name":
-        process.env.HMRC_FRAUD_VENDOR_PRODUCT_NAME ?? "Tamias",
-      "Gov-Vendor-Version":
-        process.env.HMRC_FRAUD_VENDOR_VERSION ?? "tamias=0.1.0",
+      "Gov-Vendor-License-Ids": process.env.HMRC_FRAUD_VENDOR_LICENSE_IDS ?? "tamias=uk-compliance",
+      "Gov-Vendor-Product-Name": process.env.HMRC_FRAUD_VENDOR_PRODUCT_NAME ?? "Tamias",
+      "Gov-Vendor-Version": process.env.HMRC_FRAUD_VENDOR_VERSION ?? "tamias=0.1.0",
     };
   }
 
-  private async exchangeToken(
-    payload: Record<string, string>,
-  ): Promise<HmrcVatProviderConfig> {
+  private async exchangeToken(payload: Record<string, string>): Promise<HmrcVatProviderConfig> {
     const body = new URLSearchParams({
       client_id: this.credentials.clientId,
       client_secret: this.credentials.clientSecret,
@@ -205,12 +189,8 @@ export class HmrcVatProvider {
       provider: "hmrc-vat",
       accessToken: tokenData.access_token,
       refreshToken: tokenData.refresh_token,
-      expiresAt: new Date(
-        Date.now() + tokenData.expires_in * 1000,
-      ).toISOString(),
-      scope: tokenData.scope?.split(" ").filter(Boolean) ?? [
-        ...HMRC_VAT_SCOPES,
-      ],
+      expiresAt: new Date(Date.now() + tokenData.expires_in * 1000).toISOString(),
+      scope: tokenData.scope?.split(" ").filter(Boolean) ?? [...HMRC_VAT_SCOPES],
       tokenType: tokenData.token_type,
       vrn: this.config?.vrn,
       environment: this.environment,

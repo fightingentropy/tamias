@@ -31,8 +31,7 @@ export function InvoiceNote({ id, defaultValue }: Props) {
     if (debouncedValue !== defaultValue) {
       updateInvoiceMutation.mutate({
         id,
-        internalNote:
-          debouncedValue && debouncedValue.length > 0 ? debouncedValue : null,
+        internalNote: debouncedValue && debouncedValue.length > 0 ? debouncedValue : null,
       });
     }
   }, [debouncedValue, defaultValue, id, updateInvoiceMutation.mutate]);

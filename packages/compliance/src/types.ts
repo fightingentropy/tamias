@@ -11,21 +11,10 @@ export const AuthorityProviderIdSchema = z.enum([
 ]);
 export type AuthorityProviderId = z.infer<typeof AuthorityProviderIdSchema>;
 
-export const ObligationTypeSchema = z.enum([
-  "vat",
-  "accounts",
-  "corporation_tax",
-  "payroll",
-]);
+export const ObligationTypeSchema = z.enum(["vat", "accounts", "corporation_tax", "payroll"]);
 export type ObligationType = z.infer<typeof ObligationTypeSchema>;
 
-export const ReturnStatusSchema = z.enum([
-  "draft",
-  "ready",
-  "submitted",
-  "accepted",
-  "rejected",
-]);
+export const ReturnStatusSchema = z.enum(["draft", "ready", "submitted", "accepted", "rejected"]);
 export type ReturnStatus = z.infer<typeof ReturnStatusSchema>;
 
 export const VatSchemeSchema = z.enum(["standard_quarterly"]);
@@ -54,9 +43,7 @@ export const CloseCompanyLoanEntrySchema = z.object({
   name: z.string().trim().min(2).max(56),
   amountOfLoan: z.number().int().positive(),
 });
-export type CloseCompanyLoanEntry = z.infer<
-  typeof CloseCompanyLoanEntrySchema
->;
+export type CloseCompanyLoanEntry = z.infer<typeof CloseCompanyLoanEntrySchema>;
 
 export const CloseCompanyLoanReliefEntrySchema = z
   .object({
@@ -66,21 +53,15 @@ export const CloseCompanyLoanReliefEntrySchema = z
     date: z.string().date(),
   })
   .superRefine((value, ctx) => {
-    if (
-      value.amountRepaid == null &&
-      value.amountReleasedOrWrittenOff == null
-    ) {
+    if (value.amountRepaid == null && value.amountReleasedOrWrittenOff == null) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message:
-          "Enter either an amount repaid or an amount released/written off.",
+        message: "Enter either an amount repaid or an amount released/written off.",
         path: ["amountRepaid"],
       });
     }
   });
-export type CloseCompanyLoanReliefEntry = z.infer<
-  typeof CloseCompanyLoanReliefEntrySchema
->;
+export type CloseCompanyLoanReliefEntry = z.infer<typeof CloseCompanyLoanReliefEntrySchema>;
 
 export const CloseCompanyLoansScheduleSchema = z.object({
   beforeEndPeriod: z.boolean(),
@@ -92,9 +73,7 @@ export const CloseCompanyLoansScheduleSchema = z.object({
   reliefLaterDue: z.number().positive().nullable(),
   totalLoansOutstanding: z.number().int().positive().nullable(),
 });
-export type CloseCompanyLoansSchedule = z.infer<
-  typeof CloseCompanyLoansScheduleSchema
->;
+export type CloseCompanyLoansSchedule = z.infer<typeof CloseCompanyLoansScheduleSchema>;
 
 export const CorporationTaxRateScheduleSchema = z
   .object({
@@ -131,15 +110,11 @@ export const CorporationTaxRateScheduleSchema = z
         code: z.ZodIssueCode.custom,
         message:
           "When using split financial-year counts, enter both the first-year and second-year values.",
-        path: hasFirstYear
-          ? ["associatedCompaniesSecondYear"]
-          : ["associatedCompaniesFirstYear"],
+        path: hasFirstYear ? ["associatedCompaniesSecondYear"] : ["associatedCompaniesFirstYear"],
       });
     }
   });
-export type CorporationTaxRateSchedule = z.infer<
-  typeof CorporationTaxRateScheduleSchema
->;
+export type CorporationTaxRateSchedule = z.infer<typeof CorporationTaxRateScheduleSchema>;
 
 export const ComplianceSourceTypeSchema = z.enum([
   "transaction",
@@ -209,17 +184,7 @@ export const ObligationSchema = z.object({
 export type Obligation = z.infer<typeof ObligationSchema>;
 
 export const VatReturnDraftLineSchema = z.object({
-  code: z.enum([
-    "box1",
-    "box2",
-    "box3",
-    "box4",
-    "box5",
-    "box6",
-    "box7",
-    "box8",
-    "box9",
-  ]),
+  code: z.enum(["box1", "box2", "box3", "box4", "box5", "box6", "box7", "box8", "box9"]),
   amount: z.number(),
   label: z.string(),
 });
@@ -271,9 +236,7 @@ export const WorkingPaperSectionKeySchema = z.enum([
   "equity",
   "tax_accruals",
 ]);
-export type WorkingPaperSectionKey = z.infer<
-  typeof WorkingPaperSectionKeySchema
->;
+export type WorkingPaperSectionKey = z.infer<typeof WorkingPaperSectionKeySchema>;
 
 export const YearEndTrialBalanceLineSchema = z.object({
   accountCode: z.string(),
@@ -283,9 +246,7 @@ export const YearEndTrialBalanceLineSchema = z.object({
   credit: z.number(),
   balance: z.number(),
 });
-export type YearEndTrialBalanceLine = z.infer<
-  typeof YearEndTrialBalanceLineSchema
->;
+export type YearEndTrialBalanceLine = z.infer<typeof YearEndTrialBalanceLineSchema>;
 
 export const YearEndSummaryLineSchema = z.object({
   key: z.string(),
@@ -316,9 +277,7 @@ export const RetainedEarningsRollforwardSchema = z.object({
   manualEquityAdjustments: z.number(),
   closingBalance: z.number(),
 });
-export type RetainedEarningsRollforward = z.infer<
-  typeof RetainedEarningsRollforwardSchema
->;
+export type RetainedEarningsRollforward = z.infer<typeof RetainedEarningsRollforwardSchema>;
 
 export const CorporationTaxAdjustmentSchema = z.object({
   id: z.string().uuid(),
@@ -328,9 +287,7 @@ export const CorporationTaxAdjustmentSchema = z.object({
   note: z.string().nullable(),
   createdAt: z.string(),
 });
-export type CorporationTaxAdjustment = z.infer<
-  typeof CorporationTaxAdjustmentSchema
->;
+export type CorporationTaxAdjustment = z.infer<typeof CorporationTaxAdjustmentSchema>;
 
 export const CorporationTaxSummarySchema = z.object({
   accountingProfitBeforeTax: z.number(),
@@ -395,9 +352,7 @@ export const PayrollLiabilityTotalsSchema = z.object({
   employerTaxes: z.number(),
   payeLiability: z.number(),
 });
-export type PayrollLiabilityTotals = z.infer<
-  typeof PayrollLiabilityTotalsSchema
->;
+export type PayrollLiabilityTotals = z.infer<typeof PayrollLiabilityTotalsSchema>;
 
 export const PayrollRunSchema = z.object({
   id: z.string().uuid(),
@@ -426,9 +381,7 @@ export const PayrollLiabilitySummarySchema = z.object({
   latestRunAt: z.string().nullable(),
   payeLiability: z.number(),
 });
-export type PayrollLiabilitySummary = z.infer<
-  typeof PayrollLiabilitySummarySchema
->;
+export type PayrollLiabilitySummary = z.infer<typeof PayrollLiabilitySummarySchema>;
 
 const BaseAuthorityConfigSchema = z.object({
   provider: AuthorityProviderIdSchema,
@@ -439,13 +392,8 @@ const BaseAuthorityConfigSchema = z.object({
   tokenType: z.string().optional(),
 });
 
-export const CompaniesHouseEnvironmentSchema = z.enum([
-  "sandbox",
-  "production",
-]);
-export type CompaniesHouseEnvironment = z.infer<
-  typeof CompaniesHouseEnvironmentSchema
->;
+export const CompaniesHouseEnvironmentSchema = z.enum(["sandbox", "production"]);
+export type CompaniesHouseEnvironment = z.infer<typeof CompaniesHouseEnvironmentSchema>;
 
 export const CompaniesHouseUserProfileSchema = z.object({
   id: z.string(),
@@ -454,9 +402,7 @@ export const CompaniesHouseUserProfileSchema = z.object({
   surname: z.string().optional(),
   language: z.string().optional(),
 });
-export type CompaniesHouseUserProfile = z.infer<
-  typeof CompaniesHouseUserProfileSchema
->;
+export type CompaniesHouseUserProfile = z.infer<typeof CompaniesHouseUserProfileSchema>;
 
 export const CompaniesHouseAccountsWindowSchema = z.object({
   dueOn: z.string().optional(),
@@ -464,9 +410,7 @@ export const CompaniesHouseAccountsWindowSchema = z.object({
   periodEndOn: z.string().optional(),
   periodStartOn: z.string().optional(),
 });
-export type CompaniesHouseAccountsWindow = z.infer<
-  typeof CompaniesHouseAccountsWindowSchema
->;
+export type CompaniesHouseAccountsWindow = z.infer<typeof CompaniesHouseAccountsWindowSchema>;
 
 export const CompaniesHouseLastAccountsSchema = z.object({
   madeUpTo: z.string().optional(),
@@ -474,9 +418,7 @@ export const CompaniesHouseLastAccountsSchema = z.object({
   periodStartOn: z.string().optional(),
   type: z.string().optional(),
 });
-export type CompaniesHouseLastAccounts = z.infer<
-  typeof CompaniesHouseLastAccountsSchema
->;
+export type CompaniesHouseLastAccounts = z.infer<typeof CompaniesHouseLastAccountsSchema>;
 
 export const CompaniesHouseCompanyAccountsSchema = z.object({
   accountingReferenceDate: z
@@ -491,9 +433,7 @@ export const CompaniesHouseCompanyAccountsSchema = z.object({
   nextMadeUpTo: z.string().optional(),
   overdue: z.boolean().optional(),
 });
-export type CompaniesHouseCompanyAccounts = z.infer<
-  typeof CompaniesHouseCompanyAccountsSchema
->;
+export type CompaniesHouseCompanyAccounts = z.infer<typeof CompaniesHouseCompanyAccountsSchema>;
 
 export const CompaniesHouseCompanyProfileSchema = z.object({
   companyName: z.string(),
@@ -509,9 +449,7 @@ export const CompaniesHouseCompanyProfileSchema = z.object({
     })
     .optional(),
 });
-export type CompaniesHouseCompanyProfile = z.infer<
-  typeof CompaniesHouseCompanyProfileSchema
->;
+export type CompaniesHouseCompanyProfile = z.infer<typeof CompaniesHouseCompanyProfileSchema>;
 
 export const CompaniesHouseFilingHistoryItemSchema = z.object({
   transactionId: z.string().optional(),
@@ -530,9 +468,7 @@ export const CompaniesHouseFilingHistoryItemSchema = z.object({
     })
     .optional(),
 });
-export type CompaniesHouseFilingHistoryItem = z.infer<
-  typeof CompaniesHouseFilingHistoryItemSchema
->;
+export type CompaniesHouseFilingHistoryItem = z.infer<typeof CompaniesHouseFilingHistoryItemSchema>;
 
 export const CompaniesHouseFilingHistoryPageSchema = z.object({
   items: z.array(CompaniesHouseFilingHistoryItemSchema),
@@ -540,21 +476,15 @@ export const CompaniesHouseFilingHistoryPageSchema = z.object({
   startIndex: z.number().int(),
   totalCount: z.number().int(),
 });
-export type CompaniesHouseFilingHistoryPage = z.infer<
-  typeof CompaniesHouseFilingHistoryPageSchema
->;
+export type CompaniesHouseFilingHistoryPage = z.infer<typeof CompaniesHouseFilingHistoryPageSchema>;
 
-export const CompaniesHouseProviderConfigSchema = BaseAuthorityConfigSchema.extend(
-  {
-    provider: z.literal("companies-house"),
-    environment: CompaniesHouseEnvironmentSchema.default("sandbox"),
-    userId: z.string().optional(),
-    userProfile: CompaniesHouseUserProfileSchema.optional(),
-  },
-);
-export type CompaniesHouseProviderConfig = z.infer<
-  typeof CompaniesHouseProviderConfigSchema
->;
+export const CompaniesHouseProviderConfigSchema = BaseAuthorityConfigSchema.extend({
+  provider: z.literal("companies-house"),
+  environment: CompaniesHouseEnvironmentSchema.default("sandbox"),
+  userId: z.string().optional(),
+  userProfile: CompaniesHouseUserProfileSchema.optional(),
+});
+export type CompaniesHouseProviderConfig = z.infer<typeof CompaniesHouseProviderConfigSchema>;
 
 export const HmrcVatProviderConfigSchema = BaseAuthorityConfigSchema.extend({
   provider: z.literal("hmrc-vat"),

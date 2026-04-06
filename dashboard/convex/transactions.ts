@@ -13,12 +13,7 @@ import {
   buildSearchQuery,
 } from "../../packages/domain/src/text-search";
 import type { Doc, Id } from "./_generated/dataModel";
-import {
-  type MutationCtx,
-  mutation,
-  type QueryCtx,
-  query,
-} from "./_generated/server";
+import { type MutationCtx, mutation, type QueryCtx, query } from "./_generated/server";
 import { syncTransactionComplianceJournalEntriesForChanges } from "./complianceLedger";
 import { getTeamByPublicTeamId } from "./lib/identity";
 import { requireServiceKey } from "./lib/service";
@@ -63,14 +58,8 @@ const transactionFrequency = v.union(
   v.literal("unknown"),
 );
 const transactionOrder = v.union(v.literal("asc"), v.literal("desc"));
-const transactionAggregateScope = v.union(
-  v.literal("base"),
-  v.literal("native"),
-);
-const transactionAggregateDirection = v.union(
-  v.literal("income"),
-  v.literal("expense"),
-);
+const transactionAggregateScope = v.union(v.literal("base"), v.literal("native"));
+const transactionAggregateDirection = v.union(v.literal("income"), v.literal("expense"));
 
 const transactionRecord = v.object({
   id: v.string(),
@@ -109,9 +98,7 @@ type TransactionRecurringAggregateDoc = Doc<"transactionRecurringAggregates">;
 type TransactionTaxAggregateDoc = Doc<"transactionTaxAggregates">;
 type TransactionAggregateScope = "base" | "native";
 type TransactionAggregateDirection = "income" | "expense";
-type TransactionRecurringAggregateFrequency = NonNullable<
-  Doc<"transactions">["frequency"]
-> | null;
+type TransactionRecurringAggregateFrequency = NonNullable<Doc<"transactions">["frequency"]> | null;
 type TransactionAggregateKey = {
   teamId: Id<"teams">;
   scope: TransactionAggregateScope;
@@ -194,16 +181,10 @@ function decodeTaggedTransactionCursor(
 
   try {
     const normalizedCursor = cursor.replace(/-/g, "+").replace(/_/g, "/");
-    const paddedCursor =
-      normalizedCursor + "=".repeat((4 - (normalizedCursor.length % 4)) % 4);
-    const parsed = JSON.parse(
-      atob(paddedCursor),
-    ) as Partial<TaggedTransactionCursor>;
+    const paddedCursor = normalizedCursor + "=".repeat((4 - (normalizedCursor.length % 4)) % 4);
+    const parsed = JSON.parse(atob(paddedCursor)) as Partial<TaggedTransactionCursor>;
 
-    if (
-      typeof parsed.date !== "string" ||
-      typeof parsed.transactionId !== "string"
-    ) {
+    if (typeof parsed.date !== "string" || typeof parsed.transactionId !== "string") {
       throw new ConvexError("Invalid tagged transaction cursor");
     }
 
@@ -217,10 +198,7 @@ function decodeTaggedTransactionCursor(
 }
 
 function encodeTaggedTransactionCursor(cursor: TaggedTransactionCursor) {
-  return btoa(JSON.stringify(cursor))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/g, "");
+  return btoa(JSON.stringify(cursor)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
 
 function compareTaggedTransactionRows(
@@ -228,17 +206,13 @@ function compareTaggedTransactionRows(
   right: Pick<Doc<"transactionTags">, "transactionDate" | "transactionId">,
   order: "asc" | "desc",
 ) {
-  const dateComparison = left.transactionDate!.localeCompare(
-    right.transactionDate!,
-  );
+  const dateComparison = left.transactionDate!.localeCompare(right.transactionDate!);
 
   if (dateComparison !== 0) {
     return order === "asc" ? dateComparison : -dateComparison;
   }
 
-  const transactionIdComparison = left.transactionId.localeCompare(
-    right.transactionId,
-  );
+  const transactionIdComparison = left.transactionId.localeCompare(right.transactionId);
 
   return order === "asc" ? transactionIdComparison : -transactionIdComparison;
 }
@@ -255,15 +229,13 @@ function isTaggedTransactionRowPastCursor(
   if (order === "asc") {
     return (
       row.transactionDate < cursor.date ||
-      (row.transactionDate === cursor.date &&
-        row.transactionId <= cursor.transactionId)
+      (row.transactionDate === cursor.date && row.transactionId <= cursor.transactionId)
     );
   }
 
   return (
     row.transactionDate > cursor.date ||
-    (row.transactionDate === cursor.date &&
-      row.transactionId >= cursor.transactionId)
+    (row.transactionDate === cursor.date && row.transactionId >= cursor.transactionId)
   );
 }
 
@@ -273,10 +245,7 @@ function publicTransactionId(
   return transaction.publicTransactionId ?? transaction._id;
 }
 
-function serializeTransaction(
-  publicTeamId: string,
-  transaction: Doc<"transactions">,
-) {
+function serializeTransaction(publicTeamId: string, transaction: Doc<"transactions">) {
   return {
     id: publicTransactionId(transaction),
     teamId: publicTeamId,
@@ -312,9 +281,7 @@ function serializeTransaction(
   };
 }
 
-function getTransactionAggregateDirection(
-  amount: number,
-): TransactionAggregateDirection | null {
+function getTransactionAggregateDirection(amount: number): TransactionAggregateDirection | null {
   if (amount > 0) {
     return "income";
   }
@@ -342,9 +309,7 @@ function getTransactionBaseAggregateAmount(transaction: Doc<"transactions">) {
   return null;
 }
 
-function shouldAggregateTransactionForMetrics(
-  transaction: Doc<"transactions">,
-) {
+function shouldAggregateTransactionForMetrics(transaction: Doc<"transactions">) {
   return !transaction.internal && transaction.status !== "excluded";
 }
 
@@ -355,9 +320,7 @@ function isRevenueCategory(slug: string | null) {
 
   return (
     REVENUE_CATEGORIES.includes(slug as (typeof REVENUE_CATEGORIES)[number]) &&
-    !CONTRA_REVENUE_CATEGORIES.includes(
-      slug as (typeof CONTRA_REVENUE_CATEGORIES)[number],
-    )
+    !CONTRA_REVENUE_CATEGORIES.includes(slug as (typeof CONTRA_REVENUE_CATEGORIES)[number])
   );
 }
 
@@ -380,10 +343,7 @@ function getEffectiveTransactionTaxType(
   transaction: Doc<"transactions">,
   teamCountryCode: string | null | undefined,
 ) {
-  return (
-    transaction.taxType ??
-    (teamCountryCode ? getTaxTypeForCountry(teamCountryCode) : null)
-  );
+  return transaction.taxType ?? (teamCountryCode ? getTaxTypeForCountry(teamCountryCode) : null);
 }
 
 function getTransactionNetAggregateAmount(args: {
@@ -392,28 +352,19 @@ function getTransactionNetAggregateAmount(args: {
   direction: TransactionAggregateDirection;
   teamCountryCode: string | null | undefined;
 }) {
-  if (
-    args.direction !== "income" ||
-    !isRevenueCategory(args.transaction.categorySlug ?? null)
-  ) {
+  if (args.direction !== "income" || !isRevenueCategory(args.transaction.categorySlug ?? null)) {
     return args.amount;
   }
 
-  const effectiveTaxRate = getEffectiveTransactionTaxRate(
-    args.transaction,
-    args.teamCountryCode,
-  );
+  const effectiveTaxRate = getEffectiveTransactionTaxRate(args.transaction, args.teamCountryCode);
 
   if (effectiveTaxRate <= 0) {
     return args.amount;
   }
 
   return (
-    Math.round(
-      (args.amount -
-        (args.amount * effectiveTaxRate) / (100 + effectiveTaxRate)) *
-        100,
-    ) / 100
+    Math.round((args.amount - (args.amount * effectiveTaxRate) / (100 + effectiveTaxRate)) * 100) /
+    100
   );
 }
 
@@ -448,8 +399,7 @@ function getTransactionMetricAggregateEntries(
   }
 
   const baseAmount = getTransactionBaseAggregateAmount(transaction);
-  const baseDirection =
-    baseAmount === null ? null : getTransactionAggregateDirection(baseAmount);
+  const baseDirection = baseAmount === null ? null : getTransactionAggregateDirection(baseAmount);
 
   if (transaction.baseCurrency && baseAmount !== null && baseDirection) {
     entries.push({
@@ -476,10 +426,7 @@ function getTransactionMetricAggregateEntries(
 function getTransactionRecurringAggregateEntries(
   transaction: Doc<"transactions">,
 ): TransactionRecurringAggregateEntry[] {
-  if (
-    !shouldAggregateTransactionForMetrics(transaction) ||
-    !transaction.recurring
-  ) {
+  if (!shouldAggregateTransactionForMetrics(transaction) || !transaction.recurring) {
     return [];
   }
 
@@ -502,8 +449,7 @@ function getTransactionRecurringAggregateEntries(
   }
 
   const baseAmount = getTransactionBaseAggregateAmount(transaction);
-  const baseDirection =
-    baseAmount === null ? null : getTransactionAggregateDirection(baseAmount);
+  const baseDirection = baseAmount === null ? null : getTransactionAggregateDirection(baseAmount);
 
   if (transaction.baseCurrency && baseAmount !== null && baseDirection) {
     entries.push({
@@ -535,15 +481,8 @@ function getTransactionTaxAggregateEntries(
   const effectiveTaxRate = roundAggregateTaxRate(
     getEffectiveTransactionTaxRate(transaction, teamCountryCode),
   );
-  const effectiveTaxType = getEffectiveTransactionTaxType(
-    transaction,
-    teamCountryCode,
-  );
-  const buildEntry = (
-    amount: number,
-    scope: TransactionAggregateScope,
-    currency: string,
-  ) => {
+  const effectiveTaxType = getEffectiveTransactionTaxType(transaction, teamCountryCode);
+  const buildEntry = (amount: number, scope: TransactionAggregateScope, currency: string) => {
     const direction = getTransactionAggregateDirection(amount);
 
     if (!direction) {
@@ -561,9 +500,7 @@ function getTransactionTaxAggregateEntries(
       taxRate: effectiveTaxRate,
       totalTaxAmount:
         effectiveTaxRate > 0
-          ? roundAggregateAmount(
-              Math.abs((amount * effectiveTaxRate) / (100 + effectiveTaxRate)),
-            )
+          ? roundAggregateAmount(Math.abs((amount * effectiveTaxRate) / (100 + effectiveTaxRate)))
           : 0,
       totalTransactionAmount: roundAggregateAmount(Math.abs(amount)),
     });
@@ -592,9 +529,7 @@ function serializeTransactionAggregateKey(key: TransactionAggregateKey) {
   ].join(":");
 }
 
-function serializeTransactionRecurringAggregateKey(
-  key: TransactionRecurringAggregateKey,
-) {
+function serializeTransactionRecurringAggregateKey(key: TransactionRecurringAggregateKey) {
   return JSON.stringify([
     key.teamId,
     key.scope,
@@ -667,23 +602,18 @@ function matchesTransactionTaxAggregateKey(
   );
 }
 
-async function getTransactionAggregateRecord(
-  ctx: TransactionCtx,
-  key: TransactionAggregateKey,
-) {
+async function getTransactionAggregateRecord(ctx: TransactionCtx, key: TransactionAggregateKey) {
   return ctx.db
     .query("transactionMetricAggregates")
-    .withIndex(
-      "by_team_scope_currency_date_direction_category_recurring",
-      (q) =>
-        q
-          .eq("teamId", key.teamId)
-          .eq("scope", key.scope)
-          .eq("currency", key.currency)
-          .eq("date", key.date)
-          .eq("direction", key.direction)
-          .eq("categorySlug", key.categorySlug)
-          .eq("recurring", key.recurring),
+    .withIndex("by_team_scope_currency_date_direction_category_recurring", (q) =>
+      q
+        .eq("teamId", key.teamId)
+        .eq("scope", key.scope)
+        .eq("currency", key.currency)
+        .eq("date", key.date)
+        .eq("direction", key.direction)
+        .eq("categorySlug", key.categorySlug)
+        .eq("recurring", key.recurring),
     )
     .unique();
 }
@@ -695,14 +625,12 @@ async function getTransactionAggregateEntriesForKey(
 ) {
   const transactions = await ctx.db
     .query("transactions")
-    .withIndex("by_team_and_date", (q) =>
-      q.eq("teamId", key.teamId).eq("date", key.date),
-    )
+    .withIndex("by_team_and_date", (q) => q.eq("teamId", key.teamId).eq("date", key.date))
     .collect();
 
   return transactions.flatMap((transaction) =>
-    getTransactionMetricAggregateEntries(transaction, teamCountryCode).filter(
-      (entry) => matchesTransactionAggregateKey(entry, key),
+    getTransactionMetricAggregateEntries(transaction, teamCountryCode).filter((entry) =>
+      matchesTransactionAggregateKey(entry, key),
     ),
   );
 }
@@ -713,18 +641,16 @@ async function getTransactionRecurringAggregateRecord(
 ) {
   return ctx.db
     .query("transactionRecurringAggregates")
-    .withIndex(
-      "by_team_scope_direction_currency_name_frequency_category_date",
-      (q) =>
-        q
-          .eq("teamId", key.teamId)
-          .eq("scope", key.scope)
-          .eq("direction", key.direction)
-          .eq("currency", key.currency)
-          .eq("name", key.name)
-          .eq("frequency", key.frequency)
-          .eq("categorySlug", key.categorySlug)
-          .eq("date", key.date),
+    .withIndex("by_team_scope_direction_currency_name_frequency_category_date", (q) =>
+      q
+        .eq("teamId", key.teamId)
+        .eq("scope", key.scope)
+        .eq("direction", key.direction)
+        .eq("currency", key.currency)
+        .eq("name", key.name)
+        .eq("frequency", key.frequency)
+        .eq("categorySlug", key.categorySlug)
+        .eq("date", key.date),
     )
     .unique();
 }
@@ -735,33 +661,24 @@ async function getTransactionTaxAggregateRecord(
 ) {
   return ctx.db
     .query("transactionTaxAggregates")
-    .withIndex(
-      "by_team_scope_currency_date_direction_category_tax_type_tax_rate",
-      (q) =>
-        q
-          .eq("teamId", key.teamId)
-          .eq("scope", key.scope)
-          .eq("currency", key.currency)
-          .eq("date", key.date)
-          .eq("direction", key.direction)
-          .eq("categorySlug", key.categorySlug)
-          .eq("taxType", key.taxType)
-          .eq("taxRate", key.taxRate),
+    .withIndex("by_team_scope_currency_date_direction_category_tax_type_tax_rate", (q) =>
+      q
+        .eq("teamId", key.teamId)
+        .eq("scope", key.scope)
+        .eq("currency", key.currency)
+        .eq("date", key.date)
+        .eq("direction", key.direction)
+        .eq("categorySlug", key.categorySlug)
+        .eq("taxType", key.taxType)
+        .eq("taxRate", key.taxRate),
     )
     .unique();
 }
 
-async function syncTransactionMetricAggregateKey(
-  ctx: MutationCtx,
-  key: TransactionAggregateKey,
-) {
+async function syncTransactionMetricAggregateKey(ctx: MutationCtx, key: TransactionAggregateKey) {
   const existing = await getTransactionAggregateRecord(ctx, key);
   const team = await ctx.db.get(key.teamId);
-  const entries = await getTransactionAggregateEntriesForKey(
-    ctx,
-    key,
-    team?.countryCode ?? null,
-  );
+  const entries = await getTransactionAggregateEntriesForKey(ctx, key, team?.countryCode ?? null);
 
   if (entries.length === 0) {
     if (existing) {
@@ -772,12 +689,9 @@ async function syncTransactionMetricAggregateKey(
   }
 
   const timestamp = nowIso();
-  const totalAmount =
-    Math.round(entries.reduce((sum, entry) => sum + entry.amount, 0) * 100) /
-    100;
+  const totalAmount = Math.round(entries.reduce((sum, entry) => sum + entry.amount, 0) * 100) / 100;
   const totalNetAmount =
-    Math.round(entries.reduce((sum, entry) => sum + entry.netAmount, 0) * 100) /
-    100;
+    Math.round(entries.reduce((sum, entry) => sum + entry.netAmount, 0) * 100) / 100;
 
   if (existing) {
     await ctx.db.patch(existing._id, {
@@ -812,9 +726,7 @@ async function getTransactionRecurringAggregateEntriesForKey(
 ) {
   const transactions = await ctx.db
     .query("transactions")
-    .withIndex("by_team_and_date", (q) =>
-      q.eq("teamId", key.teamId).eq("date", key.date),
-    )
+    .withIndex("by_team_and_date", (q) => q.eq("teamId", key.teamId).eq("date", key.date))
     .collect();
 
   return transactions.flatMap((transaction) =>
@@ -840,9 +752,7 @@ async function syncTransactionRecurringAggregateKey(
   }
 
   const timestamp = nowIso();
-  const totalAmount =
-    Math.round(entries.reduce((sum, entry) => sum + entry.amount, 0) * 100) /
-    100;
+  const totalAmount = Math.round(entries.reduce((sum, entry) => sum + entry.amount, 0) * 100) / 100;
   const latestEntry = entries.reduce((latest, entry) =>
     !latest || entry.createdAt > latest.createdAt ? entry : latest,
   );
@@ -884,22 +794,17 @@ async function getTransactionTaxAggregateEntriesForKey(
 ) {
   const transactions = await ctx.db
     .query("transactions")
-    .withIndex("by_team_and_date", (q) =>
-      q.eq("teamId", key.teamId).eq("date", key.date),
-    )
+    .withIndex("by_team_and_date", (q) => q.eq("teamId", key.teamId).eq("date", key.date))
     .collect();
 
   return transactions.flatMap((transaction) =>
-    getTransactionTaxAggregateEntries(transaction, teamCountryCode).filter(
-      (entry) => matchesTransactionTaxAggregateKey(entry, key),
+    getTransactionTaxAggregateEntries(transaction, teamCountryCode).filter((entry) =>
+      matchesTransactionTaxAggregateKey(entry, key),
     ),
   );
 }
 
-async function syncTransactionTaxAggregateKey(
-  ctx: MutationCtx,
-  key: TransactionTaxAggregateKey,
-) {
+async function syncTransactionTaxAggregateKey(ctx: MutationCtx, key: TransactionTaxAggregateKey) {
   const existing = await getTransactionTaxAggregateRecord(ctx, key);
   const team = await ctx.db.get(key.teamId);
   const entries = await getTransactionTaxAggregateEntriesForKey(
@@ -959,12 +864,8 @@ function collectTransactionMetricAggregateKeys(
   teamCountryCode?: string | null,
 ) {
   for (const entry of [
-    ...(previous
-      ? getTransactionMetricAggregateEntries(previous, teamCountryCode)
-      : []),
-    ...(next
-      ? getTransactionMetricAggregateEntries(next, teamCountryCode)
-      : []),
+    ...(previous ? getTransactionMetricAggregateEntries(previous, teamCountryCode) : []),
+    ...(next ? getTransactionMetricAggregateEntries(next, teamCountryCode) : []),
   ]) {
     const { amount: _amount, netAmount: _netAmount, ...key } = entry;
     keys.set(serializeTransactionAggregateKey(key), key);
@@ -992,9 +893,7 @@ function collectTransactionTaxAggregateKeys(
   teamCountryCode?: string | null,
 ) {
   for (const entry of [
-    ...(previous
-      ? getTransactionTaxAggregateEntries(previous, teamCountryCode)
-      : []),
+    ...(previous ? getTransactionTaxAggregateEntries(previous, teamCountryCode) : []),
     ...(next ? getTransactionTaxAggregateEntries(next, teamCountryCode) : []),
   ]) {
     const {
@@ -1006,9 +905,7 @@ function collectTransactionTaxAggregateKeys(
   }
 }
 
-function serializeTransactionMetricAggregate(
-  record: TransactionMetricAggregateDoc,
-) {
+function serializeTransactionMetricAggregate(record: TransactionMetricAggregateDoc) {
   return {
     scope: record.scope,
     date: record.date,
@@ -1023,9 +920,7 @@ function serializeTransactionMetricAggregate(
   };
 }
 
-function serializeTransactionRecurringAggregate(
-  record: TransactionRecurringAggregateDoc,
-) {
+function serializeTransactionRecurringAggregate(record: TransactionRecurringAggregateDoc) {
   return {
     scope: record.scope,
     direction: record.direction,
@@ -1062,35 +957,22 @@ function buildTransactionAggregateBackfillMaps(
   team: Pick<TeamDoc, "_id" | "countryCode">,
   records: Doc<"transactions">[],
 ) {
-  const transactionMetricAggregateMap = new Map<
-    string,
-    TransactionMetricAggregateBackfillEntry
-  >();
+  const transactionMetricAggregateMap = new Map<string, TransactionMetricAggregateBackfillEntry>();
   const transactionRecurringAggregateMap = new Map<
     string,
     TransactionRecurringAggregateBackfillEntry
   >();
-  const transactionTaxAggregateMap = new Map<
-    string,
-    TransactionTaxAggregateBackfillEntry
-  >();
+  const transactionTaxAggregateMap = new Map<string, TransactionTaxAggregateBackfillEntry>();
 
   for (const record of records) {
-    for (const entry of getTransactionMetricAggregateEntries(
-      record,
-      team.countryCode ?? null,
-    )) {
+    for (const entry of getTransactionMetricAggregateEntries(record, team.countryCode ?? null)) {
       const { amount, netAmount, ...key } = entry;
       const serializedKey = serializeTransactionAggregateKey(key);
       const existing = transactionMetricAggregateMap.get(serializedKey);
 
       if (existing) {
-        existing.totalAmount = roundAggregateAmount(
-          existing.totalAmount + amount,
-        );
-        existing.totalNetAmount = roundAggregateAmount(
-          existing.totalNetAmount + netAmount,
-        );
+        existing.totalAmount = roundAggregateAmount(existing.totalAmount + amount);
+        existing.totalNetAmount = roundAggregateAmount(existing.totalNetAmount + netAmount);
         existing.transactionCount += 1;
         continue;
       }
@@ -1109,9 +991,7 @@ function buildTransactionAggregateBackfillMaps(
       const existing = transactionRecurringAggregateMap.get(serializedKey);
 
       if (existing) {
-        existing.totalAmount = roundAggregateAmount(
-          existing.totalAmount + amount,
-        );
+        existing.totalAmount = roundAggregateAmount(existing.totalAmount + amount);
         existing.transactionCount += 1;
 
         if (createdAt > existing.latestTransactionCreatedAt) {
@@ -1131,18 +1011,13 @@ function buildTransactionAggregateBackfillMaps(
       });
     }
 
-    for (const entry of getTransactionTaxAggregateEntries(
-      record,
-      team.countryCode ?? null,
-    )) {
+    for (const entry of getTransactionTaxAggregateEntries(record, team.countryCode ?? null)) {
       const { totalTaxAmount, totalTransactionAmount, ...key } = entry;
       const serializedKey = serializeTransactionTaxAggregateKey(key);
       const existing = transactionTaxAggregateMap.get(serializedKey);
 
       if (existing) {
-        existing.totalTaxAmount = roundAggregateAmount(
-          existing.totalTaxAmount + totalTaxAmount,
-        );
+        existing.totalTaxAmount = roundAggregateAmount(existing.totalTaxAmount + totalTaxAmount);
         existing.totalTransactionAmount = roundAggregateAmount(
           existing.totalTransactionAmount + totalTransactionAmount,
         );
@@ -1190,18 +1065,14 @@ async function rebuildTransactionReportAggregatesForTeam(
 
   for (const record of await ctx.db
     .query("transactionRecurringAggregates")
-    .withIndex("by_team_scope_direction_currency_date", (q) =>
-      q.eq("teamId", team._id),
-    )
+    .withIndex("by_team_scope_direction_currency_date", (q) => q.eq("teamId", team._id))
     .collect()) {
     await ctx.db.delete(record._id);
   }
 
   for (const record of await ctx.db
     .query("transactionTaxAggregates")
-    .withIndex("by_team_scope_direction_currency_date", (q) =>
-      q.eq("teamId", team._id),
-    )
+    .withIndex("by_team_scope_direction_currency_date", (q) => q.eq("teamId", team._id))
     .collect()) {
     await ctx.db.delete(record._id);
   }
@@ -1288,9 +1159,7 @@ async function getTransactionByPublicId(
 ) {
   const byLegacyId = await ctx.db
     .query("transactions")
-    .withIndex("by_public_transaction_id", (q) =>
-      q.eq("publicTransactionId", args.transactionId),
-    )
+    .withIndex("by_public_transaction_id", (q) => q.eq("publicTransactionId", args.transactionId))
     .unique();
 
   if (byLegacyId && byLegacyId.teamId === args.teamId) {
@@ -1325,9 +1194,7 @@ async function listTransactionTagAssignmentsForTransactionIds(
   );
 
   return [
-    ...new Map(
-      assignments.flat().map((assignment) => [assignment._id, assignment]),
-    ).values(),
+    ...new Map(assignments.flat().map((assignment) => [assignment._id, assignment])).values(),
   ];
 }
 
@@ -1335,20 +1202,14 @@ async function syncTransactionTagAssignmentsForTransaction(
   ctx: MutationCtx,
   args: {
     teamId: Id<"teams">;
-    transaction: Pick<
-      Doc<"transactions">,
-      "_id" | "publicTransactionId" | "date"
-    >;
+    transaction: Pick<Doc<"transactions">, "_id" | "publicTransactionId" | "date">;
   },
 ) {
   const canonicalTransactionId = publicTransactionId(args.transaction);
-  const assignments = await listTransactionTagAssignmentsForTransactionIds(
-    ctx,
-    {
-      teamId: args.teamId,
-      transactionIds: [canonicalTransactionId, args.transaction._id],
-    },
-  );
+  const assignments = await listTransactionTagAssignmentsForTransactionIds(ctx, {
+    teamId: args.teamId,
+    transactionIds: [canonicalTransactionId, args.transaction._id],
+  });
 
   if (assignments.length === 0) {
     return;
@@ -1379,31 +1240,20 @@ async function deleteTransactionTagAssignmentsForTransaction(
     transaction: Pick<Doc<"transactions">, "_id" | "publicTransactionId">;
   },
 ) {
-  const assignments = await listTransactionTagAssignmentsForTransactionIds(
-    ctx,
-    {
-      teamId: args.teamId,
-      transactionIds: [
-        publicTransactionId(args.transaction),
-        args.transaction._id,
-      ],
-    },
-  );
+  const assignments = await listTransactionTagAssignmentsForTransactionIds(ctx, {
+    teamId: args.teamId,
+    transactionIds: [publicTransactionId(args.transaction), args.transaction._id],
+  });
 
   for (const assignment of assignments) {
     await ctx.db.delete(assignment._id);
   }
 }
 
-async function getTransactionByPublicIdAnyTeam(
-  ctx: TransactionCtx,
-  transactionId: string,
-) {
+async function getTransactionByPublicIdAnyTeam(ctx: TransactionCtx, transactionId: string) {
   const byLegacyId = await ctx.db
     .query("transactions")
-    .withIndex("by_public_transaction_id", (q) =>
-      q.eq("publicTransactionId", transactionId),
-    )
+    .withIndex("by_public_transaction_id", (q) => q.eq("publicTransactionId", transactionId))
     .unique();
 
   if (byLegacyId) {
@@ -1413,10 +1263,7 @@ async function getTransactionByPublicIdAnyTeam(
   return ctx.db.get(transactionId as Id<"transactions">);
 }
 
-function sortTransactions(
-  left: Doc<"transactions">,
-  right: Doc<"transactions">,
-) {
+function sortTransactions(left: Doc<"transactions">, right: Doc<"transactions">) {
   const dateComparison = right.date.localeCompare(left.date);
 
   if (dateComparison !== 0) {
@@ -1461,22 +1308,15 @@ function filterTransactions(
 
   return transactions
     .filter((transaction) =>
-      excludedStatuses.size === 0
-        ? true
-        : !excludedStatuses.has(transaction.status),
+      excludedStatuses.size === 0 ? true : !excludedStatuses.has(transaction.status),
     )
     .filter((transaction) =>
       args.enrichmentCompleted === undefined
         ? true
-        : (transaction.enrichmentCompleted ?? false) ===
-          args.enrichmentCompleted,
+        : (transaction.enrichmentCompleted ?? false) === args.enrichmentCompleted,
     )
-    .filter((transaction) =>
-      args.dateGte === undefined ? true : transaction.date >= args.dateGte,
-    )
-    .filter((transaction) =>
-      args.dateLte === undefined ? true : transaction.date <= args.dateLte,
-    )
+    .filter((transaction) => (args.dateGte === undefined ? true : transaction.date >= args.dateGte))
+    .filter((transaction) => (args.dateLte === undefined ? true : transaction.date <= args.dateLte))
     .sort(sortTransactions);
 }
 
@@ -1501,19 +1341,14 @@ export const serviceUpsertTransactions = mutation({
       next: Doc<"transactions"> | null;
     }> = [];
     const aggregateKeys = new Map<string, TransactionAggregateKey>();
-    const recurringAggregateKeys = new Map<
-      string,
-      TransactionRecurringAggregateKey
-    >();
+    const recurringAggregateKeys = new Map<string, TransactionRecurringAggregateKey>();
     const taxAggregateKeys = new Map<string, TransactionTaxAggregateKey>();
 
     for (const transaction of args.transactions) {
       const existing =
         (await ctx.db
           .query("transactions")
-          .withIndex("by_public_transaction_id", (q) =>
-            q.eq("publicTransactionId", transaction.id),
-          )
+          .withIndex("by_public_transaction_id", (q) => q.eq("publicTransactionId", transaction.id))
           .unique()) ??
         (await ctx.db
           .query("transactions")
@@ -1552,12 +1387,9 @@ export const serviceUpsertTransactions = mutation({
         frequency: transaction.frequency ?? undefined,
         merchantName: transaction.merchantName ?? undefined,
         enrichmentCompleted: transaction.enrichmentCompleted ?? false,
-        hasAttachment:
-          transaction.hasAttachment ?? existing?.hasAttachment ?? false,
-        searchText:
-          buildTransactionProjectionSearchText(transaction) || undefined,
-        searchAmount:
-          buildAbsoluteAmountSearchValue(transaction.amount) ?? undefined,
+        hasAttachment: transaction.hasAttachment ?? existing?.hasAttachment ?? false,
+        searchText: buildTransactionProjectionSearchText(transaction) || undefined,
+        searchAmount: buildAbsoluteAmountSearchValue(transaction.amount) ?? undefined,
       };
 
       if (existing) {
@@ -1583,11 +1415,7 @@ export const serviceUpsertTransactions = mutation({
           updated,
           team.countryCode ?? null,
         );
-        collectTransactionRecurringAggregateKeys(
-          recurringAggregateKeys,
-          existing,
-          updated,
-        );
+        collectTransactionRecurringAggregateKeys(recurringAggregateKeys, existing, updated);
         collectTransactionTaxAggregateKeys(
           taxAggregateKeys,
           existing,
@@ -1623,11 +1451,7 @@ export const serviceUpsertTransactions = mutation({
         inserted,
         team.countryCode ?? null,
       );
-      collectTransactionRecurringAggregateKeys(
-        recurringAggregateKeys,
-        null,
-        inserted,
-      );
+      collectTransactionRecurringAggregateKeys(recurringAggregateKeys, null, inserted);
       collectTransactionTaxAggregateKeys(
         taxAggregateKeys,
         null,
@@ -1653,11 +1477,7 @@ export const serviceUpsertTransactions = mutation({
       await syncTransactionTaxAggregateKey(ctx, key);
     }
 
-    await syncTransactionComplianceJournalEntriesForChanges(
-      ctx,
-      team,
-      complianceJournalChanges,
-    );
+    await syncTransactionComplianceJournalEntriesForChanges(ctx, team, complianceJournalChanges);
 
     return results;
   },
@@ -1683,10 +1503,7 @@ export const serviceDeleteTransactions = mutation({
       next: Doc<"transactions"> | null;
     }> = [];
     const aggregateKeys = new Map<string, TransactionAggregateKey>();
-    const recurringAggregateKeys = new Map<
-      string,
-      TransactionRecurringAggregateKey
-    >();
+    const recurringAggregateKeys = new Map<string, TransactionRecurringAggregateKey>();
     const taxAggregateKeys = new Map<string, TransactionTaxAggregateKey>();
 
     for (const transactionId of [...new Set(args.transactionIds)]) {
@@ -1711,11 +1528,7 @@ export const serviceDeleteTransactions = mutation({
         null,
         team.countryCode ?? null,
       );
-      collectTransactionRecurringAggregateKeys(
-        recurringAggregateKeys,
-        transaction,
-        null,
-      );
+      collectTransactionRecurringAggregateKeys(recurringAggregateKeys, transaction, null);
       collectTransactionTaxAggregateKeys(
         taxAggregateKeys,
         transaction,
@@ -1740,11 +1553,7 @@ export const serviceDeleteTransactions = mutation({
       await syncTransactionTaxAggregateKey(ctx, key);
     }
 
-    await syncTransactionComplianceJournalEntriesForChanges(
-      ctx,
-      team,
-      complianceJournalChanges,
-    );
+    await syncTransactionComplianceJournalEntriesForChanges(ctx, team, complianceJournalChanges);
 
     return deletedIds;
   },
@@ -1770,9 +1579,7 @@ export const serviceGetTransactionById = query({
       teamId: team._id,
     });
 
-    return transaction
-      ? serializeTransaction(args.publicTeamId, transaction)
-      : null;
+    return transaction ? serializeTransaction(args.publicTeamId, transaction) : null;
   },
 });
 
@@ -1784,10 +1591,7 @@ export const serviceGetTransactionInfo = query({
   async handler(ctx, args) {
     requireServiceKey(args.serviceKey);
 
-    const transaction = await getTransactionByPublicIdAnyTeam(
-      ctx,
-      args.transactionId,
-    );
+    const transaction = await getTransactionByPublicIdAnyTeam(ctx, args.transactionId);
 
     if (!transaction) {
       return null;
@@ -1891,9 +1695,7 @@ export const serviceListUnnotifiedTransactions = query({
 
     const records = await ctx.db
       .query("transactions")
-      .withIndex("by_team_notified_date", (q) =>
-        q.eq("teamId", team._id).eq("notified", false),
-      )
+      .withIndex("by_team_notified_date", (q) => q.eq("teamId", team._id).eq("notified", false))
       .collect();
 
     return records
@@ -2024,32 +1826,22 @@ export const serviceListTransactionsPage = query({
         return range;
       });
 
-    const orderedTransactionsQuery = baseTransactionsQuery.order(
-      args.order ?? "desc",
-    );
+    const orderedTransactionsQuery = baseTransactionsQuery.order(args.order ?? "desc");
 
     const filteredTransactionsQuery =
       (args.statusesNotIn?.length ?? 0) > 0
         ? orderedTransactionsQuery.filter((q) => {
             const excludedStatuses = [...new Set(args.statusesNotIn)];
 
-            return q.and(
-              ...excludedStatuses.map((status) =>
-                q.neq(q.field("status"), status),
-              ),
-            );
+            return q.and(...excludedStatuses.map((status) => q.neq(q.field("status"), status)));
           })
         : orderedTransactionsQuery;
 
-    const result = await filteredTransactionsQuery.paginate(
-      args.paginationOpts,
-    );
+    const result = await filteredTransactionsQuery.paginate(args.paginationOpts);
 
     return {
       ...result,
-      page: result.page.map((record) =>
-        serializeTransaction(args.publicTeamId, record),
-      ),
+      page: result.page.map((record) => serializeTransaction(args.publicTeamId, record)),
     };
   },
 });
@@ -2083,9 +1875,7 @@ export const serviceListTransactionsByBankAccountPage = query({
     const baseTransactionsQuery = ctx.db
       .query("transactions")
       .withIndex("by_team_bank_account_date", (q) => {
-        const range = q
-          .eq("teamId", team._id)
-          .eq("bankAccountId", args.bankAccountId);
+        const range = q.eq("teamId", team._id).eq("bankAccountId", args.bankAccountId);
 
         if (args.dateGte && args.dateLte) {
           return range.gte("date", args.dateGte).lte("date", args.dateLte);
@@ -2102,32 +1892,22 @@ export const serviceListTransactionsByBankAccountPage = query({
         return range;
       });
 
-    const orderedTransactionsQuery = baseTransactionsQuery.order(
-      args.order ?? "desc",
-    );
+    const orderedTransactionsQuery = baseTransactionsQuery.order(args.order ?? "desc");
 
     const filteredTransactionsQuery =
       (args.statusesNotIn?.length ?? 0) > 0
         ? orderedTransactionsQuery.filter((q) => {
             const excludedStatuses = [...new Set(args.statusesNotIn)];
 
-            return q.and(
-              ...excludedStatuses.map((status) =>
-                q.neq(q.field("status"), status),
-              ),
-            );
+            return q.and(...excludedStatuses.map((status) => q.neq(q.field("status"), status)));
           })
         : orderedTransactionsQuery;
 
-    const result = await filteredTransactionsQuery.paginate(
-      args.paginationOpts,
-    );
+    const result = await filteredTransactionsQuery.paginate(args.paginationOpts);
 
     return {
       ...result,
-      page: result.page.map((record) =>
-        serializeTransaction(args.publicTeamId, record),
-      ),
+      page: result.page.map((record) => serializeTransaction(args.publicTeamId, record)),
     };
   },
 });
@@ -2177,13 +1957,9 @@ export const serviceListTaggedTransactionsPage = query({
         : (args.dateLte ?? null);
     let takeCount = Math.max(pageSize * 4, 50);
     let mayHaveMoreRows = false;
-    let lastScannedRow: Pick<
-      Doc<"transactionTags">,
-      "transactionDate" | "transactionId"
-    > | null = null;
-    let taggedRows: Array<
-      Pick<Doc<"transactionTags">, "transactionDate" | "transactionId">
-    > = [];
+    let lastScannedRow: Pick<Doc<"transactionTags">, "transactionDate" | "transactionId"> | null =
+      null;
+    let taggedRows: Array<Pick<Doc<"transactionTags">, "transactionDate" | "transactionId">> = [];
 
     while (true) {
       const rowsByTag = await Promise.all(
@@ -2206,10 +1982,7 @@ export const serviceListTaggedTransactionsPage = query({
           if (lowerBound) {
             return query
               .withIndex("by_team_tag_transaction_date", (range) =>
-                range
-                  .eq("teamId", team._id)
-                  .eq("tagId", tagId)
-                  .gte("transactionDate", lowerBound),
+                range.eq("teamId", team._id).eq("tagId", tagId).gte("transactionDate", lowerBound),
               )
               .order(order)
               .take(takeCount);
@@ -2218,10 +1991,7 @@ export const serviceListTaggedTransactionsPage = query({
           if (upperBound) {
             return query
               .withIndex("by_team_tag_transaction_date", (range) =>
-                range
-                  .eq("teamId", team._id)
-                  .eq("tagId", tagId)
-                  .lte("transactionDate", upperBound),
+                range.eq("teamId", team._id).eq("tagId", tagId).lte("transactionDate", upperBound),
               )
               .order(order)
               .take(takeCount);
@@ -2242,20 +2012,14 @@ export const serviceListTaggedTransactionsPage = query({
           rowsByTag
             .flat()
             .filter(
-              (row) =>
-                row.transactionDate &&
-                !isTaggedTransactionRowPastCursor(row, cursor, order),
+              (row) => row.transactionDate && !isTaggedTransactionRowPastCursor(row, cursor, order),
             )
             .map((row) => [row.transactionId, row]),
         ).values(),
       ].sort((left, right) => compareTaggedTransactionRows(left, right, order));
       lastScannedRow = taggedRows.at(-1) ?? null;
 
-      if (
-        taggedRows.length >= pageSize ||
-        !mayHaveMoreRows ||
-        takeCount >= 400
-      ) {
+      if (taggedRows.length >= pageSize || !mayHaveMoreRows || takeCount >= 400) {
         break;
       }
 
@@ -2274,10 +2038,7 @@ export const serviceListTaggedTransactionsPage = query({
         continue;
       }
 
-      if (
-        args.statusesNotIn?.length &&
-        args.statusesNotIn.includes(transaction.status)
-      ) {
+      if (args.statusesNotIn?.length && args.statusesNotIn.includes(transaction.status)) {
         continue;
       }
 
@@ -2290,9 +2051,7 @@ export const serviceListTaggedTransactionsPage = query({
 
     const hasMoreTaggedRows = taggedRows.length > records.length;
     const continueCursor =
-      records.length === pageSize &&
-      (hasMoreTaggedRows || mayHaveMoreRows) &&
-      lastScannedRow
+      records.length === pageSize && (hasMoreTaggedRows || mayHaveMoreRows) && lastScannedRow
         ? encodeTaggedTransactionCursor({
             date: lastScannedRow.transactionDate!,
             transactionId: lastScannedRow.transactionId,
@@ -2300,9 +2059,7 @@ export const serviceListTaggedTransactionsPage = query({
         : null;
 
     return {
-      page: records.map((record) =>
-        serializeTransaction(args.publicTeamId, record),
-      ),
+      page: records.map((record) => serializeTransaction(args.publicTeamId, record)),
       isDone: continueCursor === null,
       continueCursor,
     };
@@ -2464,9 +2221,7 @@ export const serviceRebuildTransactionReportAggregates = mutation({
 
     const teams = args.publicTeamId
       ? [await getTeamByPublicTeamId(ctx, args.publicTeamId)]
-      : (await ctx.db.query("teams").collect()).filter(
-          (team) => !!team.publicTeamId,
-        );
+      : (await ctx.db.query("teams").collect()).filter((team) => !!team.publicTeamId);
 
     const validTeams = teams.filter(
       (team): team is NonNullable<(typeof teams)[number]> => team !== null,
@@ -2505,27 +2260,23 @@ export const serviceCountTransactions = query({
     }
 
     const baseTransactionsQuery = args.bankAccountId
-      ? ctx.db
-          .query("transactions")
-          .withIndex("by_team_bank_account_date", (q) => {
-            const range = q
-              .eq("teamId", team._id)
-              .eq("bankAccountId", args.bankAccountId!);
+      ? ctx.db.query("transactions").withIndex("by_team_bank_account_date", (q) => {
+          const range = q.eq("teamId", team._id).eq("bankAccountId", args.bankAccountId!);
 
-            if (args.dateGte && args.dateLte) {
-              return range.gte("date", args.dateGte).lte("date", args.dateLte);
-            }
+          if (args.dateGte && args.dateLte) {
+            return range.gte("date", args.dateGte).lte("date", args.dateLte);
+          }
 
-            if (args.dateGte) {
-              return range.gte("date", args.dateGte);
-            }
+          if (args.dateGte) {
+            return range.gte("date", args.dateGte);
+          }
 
-            if (args.dateLte) {
-              return range.lte("date", args.dateLte);
-            }
+          if (args.dateLte) {
+            return range.lte("date", args.dateLte);
+          }
 
-            return range;
-          })
+          return range;
+        })
       : args.dateGte || args.dateLte
         ? ctx.db.query("transactions").withIndex("by_team_and_date", (q) => {
             const range = q.eq("teamId", team._id);
@@ -2544,20 +2295,14 @@ export const serviceCountTransactions = query({
 
             return range;
           })
-        : ctx.db
-            .query("transactions")
-            .withIndex("by_team_id", (q) => q.eq("teamId", team._id));
+        : ctx.db.query("transactions").withIndex("by_team_id", (q) => q.eq("teamId", team._id));
 
     const filteredTransactionsQuery =
       (args.statusesNotIn?.length ?? 0) > 0
         ? baseTransactionsQuery.filter((q) => {
             const excludedStatuses = [...new Set(args.statusesNotIn)];
 
-            return q.and(
-              ...excludedStatuses.map((status) =>
-                q.neq(q.field("status"), status),
-              ),
-            );
+            return q.and(...excludedStatuses.map((status) => q.neq(q.field("status"), status)));
           })
         : baseTransactionsQuery;
 

@@ -21,10 +21,7 @@ type GetSimilarTransactionsParams = {
   transactionId?: string;
 };
 
-export async function getSimilarTransactions(
-  _db: Database,
-  params: GetSimilarTransactionsParams,
-) {
+export async function getSimilarTransactions(_db: Database, params: GetSimilarTransactionsParams) {
   const { name, teamId, categorySlug, transactionId } = params;
 
   let sourceMerchantName: string | null = null;
@@ -54,24 +51,17 @@ export async function getSimilarTransactions(
     ).flat(),
   );
   const candidates = indexedCandidates
-    .filter((candidate) =>
-      transactionId ? candidate.id !== transactionId : true,
-    )
+    .filter((candidate) => (transactionId ? candidate.id !== transactionId : true))
     .filter((candidate) =>
       categorySlug
-        ? candidate.categorySlug === null ||
-          candidate.categorySlug !== categorySlug
+        ? candidate.categorySlug === null || candidate.categorySlug !== categorySlug
         : true,
     )
     .map((candidate) => {
       const score = Math.max(
         calculateNameScore(name, candidate.name, candidate.merchantName),
         sourceMerchantName
-          ? calculateNameScore(
-              sourceMerchantName,
-              candidate.name,
-              candidate.merchantName,
-            )
+          ? calculateNameScore(sourceMerchantName, candidate.name, candidate.merchantName)
           : 0,
       );
 
@@ -91,8 +81,7 @@ export async function getSimilarTransactions(
       if (
         sourceMerchantName &&
         candidate.merchantName &&
-        sourceMerchantName.toLowerCase() ===
-          candidate.merchantName.toLowerCase()
+        sourceMerchantName.toLowerCase() === candidate.merchantName.toLowerCase()
       ) {
         return true;
       }
@@ -107,24 +96,15 @@ export async function getSimilarTransactions(
       if (
         sourceMerchantName &&
         candidate.merchantName &&
-        sourceMerchantName.toLowerCase() ===
-          candidate.merchantName.toLowerCase()
+        sourceMerchantName.toLowerCase() === candidate.merchantName.toLowerCase()
       ) {
         return { ...candidate, score: EXACT_MERCHANT_SCORE };
       }
 
-      const scores: number[] = [
-        calculateNameScore(name, candidate.name, candidate.merchantName),
-      ];
+      const scores: number[] = [calculateNameScore(name, candidate.name, candidate.merchantName)];
 
       if (sourceMerchantName) {
-        scores.push(
-          calculateNameScore(
-            sourceMerchantName,
-            candidate.name,
-            candidate.merchantName,
-          ),
-        );
+        scores.push(calculateNameScore(sourceMerchantName, candidate.name, candidate.merchantName));
       }
 
       return { ...candidate, score: Math.max(...scores) };

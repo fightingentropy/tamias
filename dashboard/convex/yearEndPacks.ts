@@ -79,11 +79,7 @@ export const serviceUpsertYearEndPack = mutation({
     periodEnd: v.string(),
     accountsDueDate: v.string(),
     corporationTaxDueDate: v.string(),
-    status: v.union(
-      v.literal("draft"),
-      v.literal("ready"),
-      v.literal("exported"),
-    ),
+    status: v.union(v.literal("draft"), v.literal("ready"), v.literal("exported")),
     currency: v.string(),
     trialBalance: v.any(),
     profitAndLoss: v.any(),
@@ -128,8 +124,7 @@ export const serviceUpsertYearEndPack = mutation({
 
     if (existing) {
       await ctx.db.patch(existing._id, {
-        publicYearEndPackId:
-          existing.publicYearEndPackId ?? args.yearEndPackId ?? undefined,
+        publicYearEndPackId: existing.publicYearEndPackId ?? args.yearEndPackId ?? undefined,
         periodStart: args.periodStart,
         periodEnd: args.periodEnd,
         accountsDueDate: args.accountsDueDate,

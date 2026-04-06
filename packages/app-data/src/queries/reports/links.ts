@@ -2,11 +2,7 @@ import { UTCDate } from "@date-fns/utc";
 import { format, endOfMonth, startOfMonth, subMonths } from "date-fns";
 import type { Database } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
-import {
-  InvalidReportTypeError,
-  ReportExpiredError,
-  ReportNotFoundError,
-} from "../../errors";
+import { InvalidReportTypeError, ReportExpiredError, ReportNotFoundError } from "../../errors";
 import {
   createReportLinkInConvex,
   getReportLinkByLinkIdFromConvex,
@@ -37,8 +33,7 @@ export type CreateReportParams = {
 };
 
 export async function createReport(_db: Database, params: CreateReportParams) {
-  const { type, from, to, currency, teamId, createdByUserId, expireAt } =
-    params;
+  const { type, from, to, currency, teamId, createdByUserId, expireAt } = params;
   return createReportLinkInConvex({
     teamId,
     userId: createdByUserId,

@@ -14,8 +14,4 @@ export type ChatMessageMetadata = {
 
 export type MessageDataParts = Record<string, any>;
 
-export type UIChatMessage = UIMessage<
-  ChatMessageMetadata,
-  MessageDataParts,
-  UITools
->;
+export type UIChatMessage = UIMessage<ChatMessageMetadata, MessageDataParts, UITools>;

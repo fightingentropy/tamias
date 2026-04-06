@@ -3,9 +3,7 @@ import { mutation, query } from "./_generated/server";
 import { nowIso } from "../../packages/domain/src/identity";
 import { requireServiceKey } from "./lib/service";
 
-const excludedInstitutions = new Set([
-  "ins_56",
-]);
+const excludedInstitutions = new Set(["ins_56"]);
 
 const institutionProvider = v.union(
   v.literal("gocardless"),
@@ -60,9 +58,7 @@ function getSearchRank(name: string, queryText: string) {
   }
 
   const queryTokens = normalizedQuery.split(" ").filter(Boolean);
-  const containsAllTokens = queryTokens.every((token) =>
-    normalizedName.includes(token),
-  );
+  const containsAllTokens = queryTokens.every((token) => normalizedName.includes(token));
 
   if (containsAllTokens) {
     return 3;
@@ -200,9 +196,7 @@ export const serviceUpsertInstitutions = mutation({
     for (const institution of args.institutions) {
       const existing = await ctx.db
         .query("institutions")
-        .withIndex("by_institution_id", (q) =>
-          q.eq("institutionId", institution.id),
-        )
+        .withIndex("by_institution_id", (q) => q.eq("institutionId", institution.id))
         .unique();
 
       if (existing) {
@@ -213,8 +207,7 @@ export const serviceUpsertInstitutions = mutation({
           provider: institution.provider,
           countries: institution.countries,
           availableHistory: institution.availableHistory ?? null,
-          maximumConsentValidity:
-            institution.maximumConsentValidity ?? null,
+          maximumConsentValidity: institution.maximumConsentValidity ?? null,
           type: institution.type ?? null,
           status: "active",
           updatedAt: timestamp,
@@ -228,8 +221,7 @@ export const serviceUpsertInstitutions = mutation({
           provider: institution.provider,
           countries: institution.countries,
           availableHistory: institution.availableHistory ?? null,
-          maximumConsentValidity:
-            institution.maximumConsentValidity ?? null,
+          maximumConsentValidity: institution.maximumConsentValidity ?? null,
           popularity: institution.popularity,
           type: institution.type ?? null,
           status: "active",
@@ -261,9 +253,7 @@ export const serviceGetActiveInstitutionIds = query({
       .collect();
 
     return records
-      .filter((record) =>
-        allowedProviders.size === 0 || allowedProviders.has(record.provider),
-      )
+      .filter((record) => allowedProviders.size === 0 || allowedProviders.has(record.provider))
       .map((record) => record.institutionId);
   },
 });

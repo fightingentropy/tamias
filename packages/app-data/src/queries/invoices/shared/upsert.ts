@@ -34,10 +34,9 @@ async function getInvoiceRecurringSummary(
     return getEmptyRecurringSummary();
   }
 
-  const projectedRecurring =
-    await getInvoiceRecurringSeriesByLegacyIdFromConvex({
-      id: invoiceRecurringId,
-    });
+  const projectedRecurring = await getInvoiceRecurringSeriesByLegacyIdFromConvex({
+    id: invoiceRecurringId,
+  });
   const recurring = projectedRecurring?.payload as
     | Partial<InvoiceByIdResult["recurring"]>
     | undefined
@@ -52,24 +51,16 @@ async function getInvoiceRecurringSummary(
 
   return {
     id: invoiceRecurringId,
-    frequency:
-      (recurring.frequency as InvoiceRecurringFrequency | undefined) ??
-      "monthly_date",
+    frequency: (recurring.frequency as InvoiceRecurringFrequency | undefined) ?? "monthly_date",
     frequencyInterval:
-      typeof recurring.frequencyInterval === "number"
-        ? recurring.frequencyInterval
-        : 1,
+      typeof recurring.frequencyInterval === "number" ? recurring.frequencyInterval : 1,
     status: typeof recurring.status === "string" ? recurring.status : null,
     nextScheduledAt:
-      typeof recurring.nextScheduledAt === "string"
-        ? recurring.nextScheduledAt
-        : null,
+      typeof recurring.nextScheduledAt === "string" ? recurring.nextScheduledAt : null,
     endType: typeof recurring.endType === "string" ? recurring.endType : null,
     endCount: typeof recurring.endCount === "number" ? recurring.endCount : 0,
     invoicesGenerated:
-      typeof recurring.invoicesGenerated === "number"
-        ? recurring.invoicesGenerated
-        : 0,
+      typeof recurring.invoicesGenerated === "number" ? recurring.invoicesGenerated : 0,
   };
 }
 
@@ -136,8 +127,7 @@ async function hydrateInvoiceRecord(
     team: {
       name: team?.name ?? null,
       email: team?.email ?? null,
-      stripeConnected:
-        !!team?.stripeAccountId && team.stripeConnectStatus === "connected",
+      stripeConnected: !!team?.stripeAccountId && team.stripeConnectStatus === "connected",
     },
     recurring,
     template,

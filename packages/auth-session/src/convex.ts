@@ -14,9 +14,7 @@ let sharedConvexClientUrl: string | null = null;
 
 function requireConvexUrl() {
   const convexUrl =
-    process.env.CONVEX_URL ||
-    process.env.TAMIAS_CONVEX_URL ||
-    process.env.CONVEX_SITE_URL;
+    process.env.CONVEX_URL || process.env.TAMIAS_CONVEX_URL || process.env.CONVEX_SITE_URL;
 
   if (!convexUrl) {
     throw new Error("Missing CONVEX_URL");
@@ -89,9 +87,7 @@ async function getSessionFromConvex(accessToken?: string) {
   }
 }
 
-async function ensureCurrentAppUser(
-  accessToken?: string,
-): Promise<SessionUserRecord | null> {
+async function ensureCurrentAppUser(accessToken?: string): Promise<SessionUserRecord | null> {
   if (!accessToken) {
     return null;
   }
@@ -99,9 +95,7 @@ async function ensureCurrentAppUser(
   const client = createConvexClient(accessToken);
 
   try {
-    return (
-      (await client.mutation(api.identity.ensureCurrentAppUser, {})) ?? null
-    );
+    return (await client.mutation(api.identity.ensureCurrentAppUser, {})) ?? null;
   } catch {
     return null;
   } finally {
@@ -122,10 +116,7 @@ export async function getCurrentUserFromConvex(args: {
   );
 }
 
-async function getTeamMembershipIds(args: {
-  userId?: ConvexUserId;
-  email?: string | null;
-}) {
+async function getTeamMembershipIds(args: { userId?: ConvexUserId; email?: string | null }) {
   const teams = await getSharedConvexClient().query(
     api.identity.serviceListTeamsByUserId,
     serviceArgs({
@@ -144,6 +135,4 @@ const sessionResolverDependencies: SessionResolverDependencies = {
   getCurrentUser: getCurrentUserFromConvex,
 };
 
-export const resolveConvexUserSession = createUserSessionResolver(
-  sessionResolverDependencies,
-);
+export const resolveConvexUserSession = createUserSessionResolver(sessionResolverDependencies);

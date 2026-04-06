@@ -21,31 +21,19 @@ export type GetTaxParams = {
 };
 
 async function getTaxSummaryImpl(db: Database, params: GetTaxParams) {
-  const {
-    teamId,
-    type,
-    from,
-    to,
-    categorySlug,
-    taxType,
-    currency: inputCurrency,
-  } = params;
+  const { teamId, type, from, to, categorySlug, taxType, currency: inputCurrency } = params;
 
-  const fromDate = format(
-    startOfMonth(new UTCDate(parseISO(from))),
-    "yyyy-MM-dd",
-  );
+  const fromDate = format(startOfMonth(new UTCDate(parseISO(from))), "yyyy-MM-dd");
   const toDate = format(endOfMonth(new UTCDate(parseISO(to))), "yyyy-MM-dd");
   const excludedCategorySlugs = getExcludedCategorySlugs();
   const direction = type === "paid" ? "expense" : "income";
-  const { countryCode, targetCurrency, rows } =
-    await getReportTransactionTaxAggregateRows(db, {
-      teamId,
-      direction,
-      from: fromDate,
-      to: toDate,
-      inputCurrency,
-    });
+  const { countryCode, targetCurrency, rows } = await getReportTransactionTaxAggregateRows(db, {
+    teamId,
+    direction,
+    from: fromDate,
+    to: toDate,
+    inputCurrency,
+  });
   const grouped = new Map<
     string,
     {
@@ -129,22 +117,12 @@ async function getTaxSummaryImpl(db: Database, params: GetTaxParams) {
     .sort((left, right) => right.total_tax_amount - left.total_tax_amount);
 
   const totalTaxAmount = Number(
-    (
-      processedData.reduce((sum, item) => sum + item.total_tax_amount, 0) ?? 0
-    ).toFixed(2),
+    (processedData.reduce((sum, item) => sum + item.total_tax_amount, 0) ?? 0).toFixed(2),
   );
   const totalTransactionAmount = Number(
-    (
-      processedData.reduce(
-        (sum, item) => sum + item.total_transaction_amount,
-        0,
-      ) ?? 0
-    ).toFixed(2),
+    (processedData.reduce((sum, item) => sum + item.total_transaction_amount, 0) ?? 0).toFixed(2),
   );
-  const totalTransactions = processedData.reduce(
-    (sum, item) => sum + item.transaction_count,
-    0,
-  );
+  const totalTransactions = processedData.reduce((sum, item) => sum + item.transaction_count, 0);
 
   return {
     summary: {

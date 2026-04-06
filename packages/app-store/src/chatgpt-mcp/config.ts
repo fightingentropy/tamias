@@ -6,8 +6,7 @@ export default {
   category: "ai-automation",
   active: true,
   logo: Logo,
-  short_description:
-    "Connect ChatGPT to Tamias through MCP.",
+  short_description: "Connect ChatGPT to Tamias through MCP.",
   description: `Connect ChatGPT to your Tamias account using the Model Context Protocol (MCP).
 
 **What you can do:**

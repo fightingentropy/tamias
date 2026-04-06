@@ -17,10 +17,7 @@ import {
   shouldShowMetricsSkeleton,
   shouldShowSummarySkeleton,
 } from "@/components/canvas/utils";
-import {
-  PublicDonutChart,
-  publicChartGrayShades,
-} from "@/components/charts/public-report-charts";
+import { PublicDonutChart, publicChartGrayShades } from "@/components/charts/public-report-charts";
 import { useUserQuery } from "@/hooks/use-user";
 
 export function CategoryExpensesCanvas() {
@@ -65,9 +62,7 @@ export function CategoryExpensesCanvas() {
     id: `category-${index}`,
     title: index === 0 ? "Top Category" : category.category,
     value:
-      index === 0
-        ? category.category
-        : formatCurrencyAmount(category.amount, currency, locale),
+      index === 0 ? category.category : formatCurrencyAmount(category.amount, currency, locale),
     subtitle:
       index === 0
         ? `${formatCurrencyAmount(category.amount, currency, locale)} this month`

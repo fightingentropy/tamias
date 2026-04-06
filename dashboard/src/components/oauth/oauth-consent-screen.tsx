@@ -1,23 +1,11 @@
 "use client";
 
 import { Button } from "@tamias/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@tamias/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@tamias/ui/card";
 import { cn } from "@tamias/ui/cn";
 import { Icons } from "@tamias/ui/icons";
 import { Label } from "@tamias/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@tamias/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@tamias/ui/select";
 import { useToast } from "@tamias/ui/use-toast";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { AlertTriangle, Check, X } from "lucide-react";
@@ -132,12 +120,9 @@ export function OAuthConsentScreen() {
                 <X className="h-8 w-8 text-muted-foreground" />
               </div>
             </div>
-            <CardTitle className="text-lg mb-2 font-serif">
-              Authorization Error
-            </CardTitle>
+            <CardTitle className="text-lg mb-2 font-serif">Authorization Error</CardTitle>
             <CardDescription className="text-sm text-muted-foreground text-center">
-              Invalid authorization request. Please check the parameters and try
-              again.
+              Invalid authorization request. Please check the parameters and try again.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -177,8 +162,7 @@ export function OAuthConsentScreen() {
           </div>
 
           <CardTitle className="text-lg mb-2 font-serif">
-            {applicationInfo.name} is requesting API access <br /> to a team in
-            Tamias.
+            {applicationInfo.name} is requesting API access <br /> to a team in Tamias.
           </CardTitle>
 
           <CardDescription className="text-sm text-muted-foreground text-center">
@@ -191,13 +175,10 @@ export function OAuthConsentScreen() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 underline"
                 >
-                  {applicationInfo.developerName ||
-                    new URL(applicationInfo.website).hostname}
+                  {applicationInfo.developerName || new URL(applicationInfo.website).hostname}
                 </a>
               ) : (
-                <span className="underline">
-                  {applicationInfo.developerName || "Unknown"}
-                </span>
+                <span className="underline">{applicationInfo.developerName || "Unknown"}</span>
               )}
             </span>
           </CardDescription>
@@ -217,14 +198,11 @@ export function OAuthConsentScreen() {
         <CardContent className="space-y-6">
           <div className="space-y-4 border-t border-b border-border border-dashed py-6">
             <span className="text-sm">Grant permissions</span>
-            <div
-              className={`${applicationInfo.scopes.length > 3 ? "relative" : ""}`}
-            >
+            <div className={`${applicationInfo.scopes.length > 3 ? "relative" : ""}`}>
               <div
                 className={cn(
                   "space-y-4",
-                  applicationInfo.scopes.length > 3 &&
-                    "max-h-[92px] overflow-y-auto pr-2 pb-2",
+                  applicationInfo.scopes.length > 3 && "max-h-[92px] overflow-y-auto pr-2 pb-2",
                 )}
               >
                 {applicationInfo.scopes.map((scope) => {
@@ -234,9 +212,7 @@ export function OAuthConsentScreen() {
                       <div className="flex-shrink-0">
                         <Check className="size-3.5 text-[#878787]" />
                       </div>
-                      <span className="text-sm text-[#878787]">
-                        {description.label}
-                      </span>
+                      <span className="text-sm text-[#878787]">{description.label}</span>
                     </div>
                   );
                 })}

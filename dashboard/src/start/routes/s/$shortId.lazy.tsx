@@ -10,9 +10,7 @@ export const Route = createLazyFileRoute("/s/$shortId")({
 });
 
 function ShortLinkPage() {
-  const loaderData = Route.useLoaderData() as Awaited<
-    ReturnType<typeof loadShortLinkData>
-  >;
+  const loaderData = Route.useLoaderData() as Awaited<ReturnType<typeof loadShortLinkData>>;
 
   if (loaderData.status !== "ok") {
     return <NotFoundPage />;

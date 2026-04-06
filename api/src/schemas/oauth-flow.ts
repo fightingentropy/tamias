@@ -29,8 +29,7 @@ export const oauthAuthorizationRequestSchema = z.object({
       "State parameter must contain only alphanumeric characters, underscores, dots, and hyphens",
     )
     .openapi({
-      description:
-        "State parameter for CSRF protection (min 32 chars, alphanumeric + _.-)",
+      description: "State parameter for CSRF protection (min 32 chars, alphanumeric + _.-)",
       example: "abc123xyz789_secure-random-state-value-with-sufficient-entropy",
     }),
   code_challenge: z.string().optional().openapi({
@@ -43,8 +42,7 @@ export const oauthAuthorizationRequestSchema = z.object({
 export const oauthAuthorizationResponseSchema = z.object({
   authorize_url: z.string().url().openapi({
     description: "URL to redirect user for authorization",
-    example:
-      "https://tamias.xyz/oauth/authorize?client_id=mid_abcdef123456789&...",
+    example: "https://tamias.xyz/oauth/authorize?client_id=mid_abcdef123456789&...",
   }),
 });
 
@@ -68,13 +66,11 @@ export const oauthTokenRequestSchema = z
       example: "mid_client_abcdef123456789",
     }),
     client_secret: z.string().optional().openapi({
-      description:
-        "Client secret of the OAuth application (required for confidential clients)",
+      description: "Client secret of the OAuth application (required for confidential clients)",
       example: "mid_secret_abcdef123456789",
     }),
     code_verifier: z.string().optional().openapi({
-      description:
-        "Code verifier for PKCE (required for public clients using PKCE)",
+      description: "Code verifier for PKCE (required for public clients using PKCE)",
       example: "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk",
     }),
   })
@@ -97,8 +93,7 @@ export const oauthRefreshTokenRequestSchema = z.object({
     example: "mid_client_abcdef123456789",
   }),
   client_secret: z.string().optional().openapi({
-    description:
-      "Client secret of the OAuth application (required for confidential clients)",
+    description: "Client secret of the OAuth application (required for confidential clients)",
     example: "mid_secret_abcdef123456789",
   }),
   scope: z.string().optional().openapi({
@@ -137,20 +132,16 @@ export const oauthRevokeTokenRequestSchema = z.object({
     description: "Token to revoke (access token or refresh token)",
     example: "mid_access_token_abcdef123456789",
   }),
-  token_type_hint: z
-    .enum(["access_token", "refresh_token"])
-    .optional()
-    .openapi({
-      description: "Hint about the token type",
-      example: "access_token",
-    }),
+  token_type_hint: z.enum(["access_token", "refresh_token"]).optional().openapi({
+    description: "Hint about the token type",
+    example: "access_token",
+  }),
   client_id: z.string().openapi({
     description: "Client ID of the OAuth application",
     example: "mid_client_abcdef123456789",
   }),
   client_secret: z.string().optional().openapi({
-    description:
-      "Client secret of the OAuth application (required for confidential clients)",
+    description: "Client secret of the OAuth application (required for confidential clients)",
     example: "mid_secret_abcdef123456789",
   }),
 });
@@ -180,8 +171,7 @@ export const oauthErrorResponseSchema = z.object({
     )
     .optional()
     .openapi({
-      description:
-        "State parameter from the original request (min 32 chars, alphanumeric + _.-)",
+      description: "State parameter from the original request (min 32 chars, alphanumeric + _.-)",
       example: "abc123xyz789_secure-random-state-value-with-sufficient-entropy",
     }),
 });
@@ -214,8 +204,7 @@ export const oauthAuthorizationDecisionSchema = z.object({
       "State parameter must contain only alphanumeric characters, underscores, dots, and hyphens",
     )
     .openapi({
-      description:
-        "State parameter for CSRF protection (min 32 chars, alphanumeric + _.-)",
+      description: "State parameter for CSRF protection (min 32 chars, alphanumeric + _.-)",
       example: "abc123xyz789_secure-random-state-value-with-sufficient-entropy",
     }),
   code_challenge: z.string().optional().openapi({
@@ -265,10 +254,7 @@ export const oauthApplicationInfoSchema = z.object({
   }),
   screenshots: z.array(z.string().url()).openapi({
     description: "Up to 4 screenshots that will be displayed on the apps page",
-    example: [
-      "https://example.com/screenshot1.png",
-      "https://example.com/screenshot2.png",
-    ],
+    example: ["https://example.com/screenshot1.png", "https://example.com/screenshot2.png"],
   }),
   clientId: z.string().openapi({
     description: "Client ID",

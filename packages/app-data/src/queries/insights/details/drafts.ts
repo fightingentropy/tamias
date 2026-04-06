@@ -21,9 +21,7 @@ export async function getDraftInvoices(
       statuses: ["draft"],
       currency,
     })
-  ).sort(
-    (left, right) => (Number(right.amount) || 0) - (Number(left.amount) || 0),
-  );
+  ).sort((left, right) => (Number(right.amount) || 0) - (Number(left.amount) || 0));
 
   return result.map((invoice) => ({
     id: invoice.id,

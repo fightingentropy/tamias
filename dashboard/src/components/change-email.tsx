@@ -8,13 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@tamias/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@tamias/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@tamias/ui/form";
 import { Input } from "@tamias/ui/input";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { z } from "zod/v3";
@@ -74,13 +68,8 @@ export function ChangeEmail() {
           </CardContent>
 
           <CardFooter className="flex justify-between">
-            <div>
-              This is your primary email address for notifications and more.
-            </div>
-            <SubmitButton
-              type="submit"
-              isSubmitting={updateUserMutation.isPending}
-            >
+            <div>This is your primary email address for notifications and more.</div>
+            <SubmitButton type="submit" isSubmitting={updateUserMutation.isPending}>
               Save
             </SubmitButton>
           </CardFooter>

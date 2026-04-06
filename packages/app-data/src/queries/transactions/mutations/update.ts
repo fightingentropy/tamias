@@ -72,14 +72,9 @@ async function upsertUpdatedTransactions(args: {
   });
 }
 
-export async function updateTransaction(
-  db: Database,
-  params: UpdateTransactionData,
-) {
+export async function updateTransaction(db: Database, params: UpdateTransactionData) {
   const { id, teamId, userId, ...dataToUpdate } = params;
-  const normalizedDataToUpdate = normalizeTransactionMutationInput(
-    dataToUpdate,
-  );
+  const normalizedDataToUpdate = normalizeTransactionMutationInput(dataToUpdate);
   const current = await getTransactionsByIdsFromConvex({
     teamId,
     transactionIds: [id],
@@ -114,10 +109,7 @@ export async function updateTransaction(
   return getFullTransactionData(db, id, teamId);
 }
 
-export async function updateTransactions(
-  db: Database,
-  data: UpdateTransactionsData,
-) {
+export async function updateTransactions(db: Database, data: UpdateTransactionsData) {
   const { ids, tagId, teamId, userId, ...input } = data;
   const normalizedInput = normalizeTransactionMutationInput(input);
 

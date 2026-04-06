@@ -11,9 +11,7 @@ export function findCompaniesHouseSubmissionStatus(
   }
 
   return (
-    message.statuses.find(
-      (status) => status.submissionNumber === submissionNumber,
-    ) ??
+    message.statuses.find((status) => status.submissionNumber === submissionNumber) ??
     message.statuses[0] ??
     null
   );
@@ -52,9 +50,7 @@ export function buildCompaniesHouseAccountsSubmissionRequestSummary(args: {
     environment: args.provider.environment,
     companyName: args.profile.companyName,
     companyNumber: args.profile.companyNumber,
-    companyAuthenticationCodeConfigured: Boolean(
-      args.profile.companyAuthenticationCode,
-    ),
+    companyAuthenticationCodeConfigured: Boolean(args.profile.companyAuthenticationCode),
     presenterId: args.provider.presenterId,
     packageReference: args.provider.packageReference,
     submissionNumber: args.submissionNumber,

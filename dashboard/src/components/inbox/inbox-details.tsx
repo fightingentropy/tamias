@@ -14,12 +14,7 @@ import {
 import { Icons } from "@tamias/ui/icons";
 import { Separator } from "@tamias/ui/separator";
 import { Skeleton } from "@tamias/ui/skeleton";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { getApiUrl } from "@tamias/utils/envs";
 import { useToast } from "@tamias/ui/use-toast";
 import { formatDate, getInitials } from "@tamias/utils/format";
@@ -85,9 +80,7 @@ export function InboxDetails() {
     }),
   );
 
-  const retryMatchingMutation = useMutation(
-    trpc.inbox.retryMatching.mutationOptions(),
-  );
+  const retryMatchingMutation = useMutation(trpc.inbox.retryMatching.mutationOptions());
 
   const blockSenderMutation = useMutation(
     trpc.inbox.blocklist.create.mutationOptions({
@@ -97,8 +90,7 @@ export function InboxDetails() {
           const shouldDeselect =
             (variables.type === "email" &&
               data.senderEmail &&
-              data.senderEmail.toLowerCase() ===
-                variables.value.toLowerCase()) ||
+              data.senderEmail.toLowerCase() === variables.value.toLowerCase()) ||
             (variables.type === "domain" &&
               data.website &&
               data.website.toLowerCase() === variables.value.toLowerCase());
@@ -120,9 +112,7 @@ export function InboxDetails() {
               .flatMap(([, data]) => data?.pages ?? [])
               .flatMap((page) => page.data ?? []);
 
-            const currentIndex = allInboxes.findIndex(
-              (item) => item.id === data.id,
-            );
+            const currentIndex = allInboxes.findIndex((item) => item.id === data.id);
             let nextInboxId: string | null = null;
 
             if (allInboxes.length > 1) {
@@ -272,12 +262,7 @@ export function InboxDetails() {
     <div className="h-[calc(100vh-125px)] overflow-hidden flex-col border w-[614px] hidden md:flex shrink-0 -mt-[54px]">
       <div className="flex items-center p-2">
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            disabled={!data}
-            onClick={handleOnDelete}
-          >
+          <Button variant="ghost" size="icon" disabled={!data} onClick={handleOnDelete}>
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
@@ -343,10 +328,7 @@ export function InboxDetails() {
                   </DialogTrigger>
                 </DropdownMenuItem>
 
-                <DropdownMenuItem
-                  onClick={handleDownload}
-                  disabled={!downloadUrl}
-                >
+                <DropdownMenuItem onClick={handleDownload} disabled={!downloadUrl}>
                   <Icons.ProjectStatus className="mr-2 size-4" />
                   <span className="text-xs">Download</span>
                 </DropdownMenuItem>
@@ -429,10 +411,7 @@ export function InboxDetails() {
                         alt={data.website}
                         width={40}
                         height={40}
-                        className={cn(
-                          "rounded-full overflow-hidden",
-                          showFallback && "hidden",
-                        )}
+                        className={cn("rounded-full overflow-hidden", showFallback && "hidden")}
                         src={getWebsiteFaviconUrl(data.website)}
                         quality={100}
                         onLoad={() => {
@@ -446,9 +425,7 @@ export function InboxDetails() {
                     )}
 
                     {fallback && (
-                      <AvatarFallback>
-                        {getInitials(data?.displayName ?? "")}
-                      </AvatarFallback>
+                      <AvatarFallback>{getInitials(data?.displayName ?? "")}</AvatarFallback>
                     )}
                   </Avatar>
                 </div>
@@ -456,64 +433,44 @@ export function InboxDetails() {
 
               <div className="grid gap-1 select-text">
                 <div className="font-semibold">
-                  {isProcessing ? (
-                    <Skeleton className="h-3 w-[120px] mb-1" />
-                  ) : (
-                    data.displayName
-                  )}
+                  {isProcessing ? <Skeleton className="h-3 w-[120px] mb-1" /> : data.displayName}
                 </div>
                 <div className="line-clamp-1 text-xs">
-                  {isProcessing && !data.currency && (
-                    <Skeleton className="h-3 w-[50px]" />
-                  )}
+                  {isProcessing && !data.currency && <Skeleton className="h-3 w-[50px]" />}
                   {data.currency &&
                     data.amount != null &&
-                    (!isProcessing &&
-                    data?.taxAmount &&
-                    data.taxAmount > 0 &&
-                    data.currency ? (
+                    (!isProcessing && data?.taxAmount && data.taxAmount > 0 && data.currency ? (
                       <TooltipProvider delayDuration={100}>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <span className="cursor-help">
-                              <FormatAmount
-                                amount={data.amount}
-                                currency={data.currency}
-                              />
+                              <FormatAmount amount={data.amount} currency={data.currency} />
                             </span>
                           </TooltipTrigger>
                           <TooltipContent className="text-xs px-2 py-1">
                             <div className="flex flex-col gap-0.5">
                               <span>
-                                {data.taxType &&
-                                  `${getTaxTypeLabel(data.taxType)} `}
+                                {data.taxType && `${getTaxTypeLabel(data.taxType)} `}
                                 <FormatAmount
                                   amount={data.taxAmount}
                                   currency={data.currency}
                                   maximumFractionDigits={2}
                                 />
-                                {data.taxRate &&
-                                  data.taxRate > 0 &&
-                                  ` (${data.taxRate}%)`}
+                                {data.taxRate && data.taxRate > 0 && ` (${data.taxRate}%)`}
                               </span>
                             </div>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                     ) : (
-                      <FormatAmount
-                        amount={data.amount}
-                        currency={data.currency}
-                      />
+                      <FormatAmount amount={data.amount} currency={data.currency} />
                     ))}
                 </div>
               </div>
             </div>
             <div className="grid gap-1 ml-auto text-right">
               <div className="text-xs text-muted-foreground select-text">
-                {isProcessing && !data.date && (
-                  <Skeleton className="h-3 w-[50px]" />
-                )}
+                {isProcessing && !data.date && <Skeleton className="h-3 w-[50px]" />}
                 {data.date && formatDate(data.date, user?.dateFormat)}
               </div>
             </div>
@@ -534,11 +491,7 @@ export function InboxDetails() {
                 ) : (
                   <FileViewer
                     // Use jpeg mimetype if heic (file was converted, contentType not yet updated)
-                    mimeType={
-                      data.contentType === "image/heic"
-                        ? "image/jpeg"
-                        : data.contentType
-                    }
+                    mimeType={data.contentType === "image/heic" ? "image/jpeg" : data.contentType}
                     url={`${apiUrl}/files/proxy?filePath=vault/${data?.filePath.join("/")}`}
                     // Include contentType in key to remount after HEIC conversion (busts browser cache)
                     key={`${params.order}-${JSON.stringify(filterParams)}-${data.contentType}-primary`}
@@ -552,13 +505,9 @@ export function InboxDetails() {
               data.relatedItems.map(
                 (relatedItem) =>
                   relatedItem.filePath && (
-                    <div
-                      key={relatedItem.id}
-                      className="min-h-0 flex-shrink-0 h-full"
-                    >
+                    <div key={relatedItem.id} className="min-h-0 flex-shrink-0 h-full">
                       {/* Show skeleton while HEIC is being converted */}
-                      {relatedItem.contentType === "image/heic" &&
-                      isProcessing ? (
+                      {relatedItem.contentType === "image/heic" && isProcessing ? (
                         <Skeleton className="h-full w-full" />
                       ) : (
                         <FileViewer
@@ -579,9 +528,7 @@ export function InboxDetails() {
           </div>
         </div>
       ) : (
-        <div className="p-8 text-center text-muted-foreground">
-          No attachment selected
-        </div>
+        <div className="p-8 text-center text-muted-foreground">No attachment selected</div>
       )}
 
       {data?.id && (

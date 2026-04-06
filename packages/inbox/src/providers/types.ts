@@ -32,12 +32,8 @@ export interface GetAttachmentsOptions {
 
 export abstract class Connector {
   abstract connect(state?: string): Promise<string>;
-  abstract exchangeCodeForAccount(
-    params: ExchangeCodeForAccountParams,
-  ): Promise<Account | null>;
-  abstract getAttachments(
-    options?: GetAttachmentsOptions,
-  ): Promise<Attachment[]>;
+  abstract exchangeCodeForAccount(params: ExchangeCodeForAccountParams): Promise<Account | null>;
+  abstract getAttachments(options?: GetAttachmentsOptions): Promise<Attachment[]>;
 }
 
 export interface OAuthProviderCredentials {

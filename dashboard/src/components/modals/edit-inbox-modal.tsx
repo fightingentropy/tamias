@@ -1,20 +1,8 @@
 "use client";
 
 import { CurrencyInput } from "@tamias/ui/currency-input";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@tamias/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@tamias/ui/form";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@tamias/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@tamias/ui/form";
 import { Input } from "@tamias/ui/input";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -85,10 +73,7 @@ export function EditInboxModal({ children }: Props) {
 
   return (
     <Dialog>
-      <DialogContent
-        className="max-w-[455px]"
-        onOpenAutoFocus={(evt) => evt.preventDefault()}
-      >
+      <DialogContent className="max-w-[455px]" onOpenAutoFocus={(evt) => evt.preventDefault()}>
         <div className="p-4">
           <DialogHeader className="mb-4">
             <DialogTitle>Edit</DialogTitle>

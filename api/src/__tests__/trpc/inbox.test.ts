@@ -8,9 +8,7 @@ import { createTestContext } from "../helpers/test-context";
 import { mocks } from "../setup";
 
 // Create local mocks for inbox tests
-const mockGetInboxById = mock(
-  () => null as ReturnType<typeof createValidInboxResponse> | null,
-);
+const mockGetInboxById = mock(() => null as ReturnType<typeof createValidInboxResponse> | null);
 const mockUpdateInbox = mock(() => ({}));
 const mockDeleteInbox = mock(() => ({}));
 

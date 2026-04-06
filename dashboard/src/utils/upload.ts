@@ -92,11 +92,7 @@ function uploadFileWithProgress(
 
         resolve(response.storageId);
       } catch (error) {
-        reject(
-          error instanceof Error
-            ? error
-            : new Error("Failed to parse upload response"),
-        );
+        reject(error instanceof Error ? error : new Error("Failed to parse upload response"));
       }
     });
 

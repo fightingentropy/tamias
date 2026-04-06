@@ -8,13 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@tamias/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@tamias/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@tamias/ui/form";
 import { Input } from "@tamias/ui/input";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { z } from "zod/v3";
@@ -46,8 +40,8 @@ export function CompanyName() {
           <CardHeader>
             <CardTitle>Company name</CardTitle>
             <CardDescription>
-              This is your company's visible name within Tamias. For example,
-              the name of your company or department.
+              This is your company's visible name within Tamias. For example, the name of your
+              company or department.
             </CardDescription>
           </CardHeader>
 

@@ -9,18 +9,14 @@ type ChatStoreRouteSyncProps = {
   initialMessages: UIChatMessage[];
 };
 
-export function ChatStoreRouteSync({
-  chatId,
-  initialMessages,
-}: ChatStoreRouteSyncProps) {
+export function ChatStoreRouteSync({ chatId, initialMessages }: ChatStoreRouteSyncProps) {
   const currentChatId = useChatId();
   const currentMessages = useChatMessages();
   const { setId, setNewChat } = useChatActions();
 
   useEffect(() => {
     if (initialMessages.length > 0) {
-      const shouldHydrateFromRoute =
-        currentChatId !== chatId || currentMessages.length === 0;
+      const shouldHydrateFromRoute = currentChatId !== chatId || currentMessages.length === 0;
 
       if (shouldHydrateFromRoute) {
         setNewChat(chatId, initialMessages);
@@ -32,14 +28,7 @@ export function ChatStoreRouteSync({
     if (currentChatId !== chatId) {
       setId(chatId);
     }
-  }, [
-    chatId,
-    currentChatId,
-    currentMessages.length,
-    initialMessages,
-    setId,
-    setNewChat,
-  ]);
+  }, [chatId, currentChatId, currentMessages.length, initialMessages, setId, setNewChat]);
 
   return null;
 }

@@ -62,8 +62,7 @@ export const serviceUpsertEvidencePack = mutation({
 
     if (existing) {
       await ctx.db.patch(existing._id, {
-        publicEvidencePackId:
-          existing.publicEvidencePackId ?? args.evidencePackId ?? undefined,
+        publicEvidencePackId: existing.publicEvidencePackId ?? args.evidencePackId ?? undefined,
         filingProfileId: args.filingProfileId,
         checksum: args.checksum,
         payload: args.payload as EvidencePackPayload,

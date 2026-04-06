@@ -24,9 +24,7 @@ export function InvoiceTitle() {
     // Some browsers report one-line textarea scrollHeight > 24px because of font metrics.
     // Only grow when we're clearly beyond one line.
     const needsSecondLine = el.scrollHeight > GROW_THRESHOLD;
-    el.style.height = needsSecondLine
-      ? `${TWO_LINES_HEIGHT}px`
-      : `${SINGLE_LINE_HEIGHT}px`;
+    el.style.height = needsSecondLine ? `${TWO_LINES_HEIGHT}px` : `${SINGLE_LINE_HEIGHT}px`;
   };
 
   useEffect(() => {

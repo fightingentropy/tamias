@@ -12,23 +12,13 @@ import { TRPCError } from "@trpc/server";
 import { removeInvoiceJob } from "../../invoice/transport";
 import type { updateInvoiceRecurringSchema } from "../../schemas/invoice-recurring";
 
-export const invoiceRecurringLogger = createLoggerWithContext(
-  "trpc:invoice-recurring",
-);
+export const invoiceRecurringLogger = createLoggerWithContext("trpc:invoice-recurring");
 
 type UpdateInvoiceRecurringInput = z.infer<typeof updateInvoiceRecurringSchema>;
 
 const dayOfWeekFrequencies = ["weekly", "biweekly", "monthly_weekday"] as const;
-const dayOfMonthFrequencies = [
-  "monthly_date",
-  "quarterly",
-  "semi_annual",
-  "annual",
-] as const;
-const frequenciesRequiringDay = [
-  ...dayOfWeekFrequencies,
-  ...dayOfMonthFrequencies,
-] as const;
+const dayOfMonthFrequencies = ["monthly_date", "quarterly", "semi_annual", "annual"] as const;
+const frequenciesRequiringDay = [...dayOfWeekFrequencies, ...dayOfMonthFrequencies] as const;
 
 export function requireInvoiceRecurringTeamId(teamId?: string): string {
   if (!teamId) {
@@ -106,8 +96,7 @@ export async function validateInvoiceRecurringUpdateInput(
     (input.frequencyWeek !== undefined &&
       input.frequencyWeek !== null &&
       input.frequency === undefined) ||
-    (input.frequency === "monthly_weekday" &&
-      input.frequencyWeek === undefined) ||
+    (input.frequency === "monthly_weekday" && input.frequencyWeek === undefined) ||
     (input.frequencyWeek === null && input.frequency === undefined) ||
     (input.frequencyInterval === null && input.frequency === undefined) ||
     (input.endDate === null && input.endType === undefined) ||
@@ -128,13 +117,9 @@ export async function validateInvoiceRecurringUpdateInput(
 
     const effectiveFrequency = input.frequency ?? existing.frequency;
     const effectiveFrequencyDay =
-      input.frequencyDay === undefined
-        ? existing.frequencyDay
-        : input.frequencyDay;
+      input.frequencyDay === undefined ? existing.frequencyDay : input.frequencyDay;
     const effectiveFrequencyWeek =
-      input.frequencyWeek === undefined
-        ? existing.frequencyWeek
-        : input.frequencyWeek;
+      input.frequencyWeek === undefined ? existing.frequencyWeek : input.frequencyWeek;
 
     if (
       input.frequencyDay === null &&
@@ -148,14 +133,10 @@ export async function validateInvoiceRecurringUpdateInput(
       });
     }
 
-    if (
-      effectiveFrequency === "monthly_weekday" &&
-      effectiveFrequencyWeek === null
-    ) {
+    if (effectiveFrequency === "monthly_weekday" && effectiveFrequencyWeek === null) {
       throw new TRPCError({
         code: "BAD_REQUEST",
-        message:
-          "frequencyWeek is required for monthly_weekday frequency and cannot be null",
+        message: "frequencyWeek is required for monthly_weekday frequency and cannot be null",
       });
     }
 
@@ -201,8 +182,7 @@ export async function validateInvoiceRecurringUpdateInput(
     if (input.frequencyInterval === null && effectiveFrequency === "custom") {
       throw new TRPCError({
         code: "BAD_REQUEST",
-        message:
-          "frequencyInterval is required for custom frequency and cannot be null",
+        message: "frequencyInterval is required for custom frequency and cannot be null",
       });
     }
 
@@ -211,26 +191,20 @@ export async function validateInvoiceRecurringUpdateInput(
     if (input.endDate === null && effectiveEndType === "on_date") {
       throw new TRPCError({
         code: "BAD_REQUEST",
-        message:
-          "endDate is required when endType is 'on_date' and cannot be null",
+        message: "endDate is required when endType is 'on_date' and cannot be null",
       });
     }
 
     if (input.endCount === null && effectiveEndType === "after_count") {
       throw new TRPCError({
         code: "BAD_REQUEST",
-        message:
-          "endCount is required when endType is 'after_count' and cannot be null",
+        message: "endCount is required when endType is 'after_count' and cannot be null",
       });
     }
   }
 
   if (input.customerId !== undefined) {
-    await assertRecurringCustomerCanReceiveInvoices(
-      db,
-      teamId,
-      input.customerId,
-    );
+    await assertRecurringCustomerCanReceiveInvoices(db, teamId, input.customerId);
   }
 }
 
@@ -260,8 +234,6 @@ export async function clearScheduledRecurringInvoices(
   );
 
   await Promise.all(
-    scheduledRunIdsToRemove.map((scheduledRunId) =>
-      removeInvoiceJob(scheduledRunId),
-    ),
+    scheduledRunIdsToRemove.map((scheduledRunId) => removeInvoiceJob(scheduledRunId)),
   );
 }

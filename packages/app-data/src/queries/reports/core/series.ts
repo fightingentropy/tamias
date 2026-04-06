@@ -1,11 +1,5 @@
 import { UTCDate } from "@date-fns/utc";
-import {
-  eachMonthOfInterval,
-  endOfMonth,
-  format,
-  parseISO,
-  startOfMonth,
-} from "date-fns";
+import { eachMonthOfInterval, endOfMonth, format, parseISO, startOfMonth } from "date-fns";
 import type { Database } from "../../../client";
 import { dedupeByDb } from "../../../utils/dedupe";
 import { reuseQueryResult } from "../../../utils/request-cache";
@@ -34,26 +28,22 @@ async function getProfitImpl(db: Database, params: GetReportsParams) {
   const fromDate = exactDates
     ? new UTCDate(parseISO(from))
     : startOfMonth(new UTCDate(parseISO(from)));
-  const toDate = exactDates
-    ? new UTCDate(parseISO(to))
-    : endOfMonth(new UTCDate(parseISO(to)));
+  const toDate = exactDates ? new UTCDate(parseISO(to)) : endOfMonth(new UTCDate(parseISO(to)));
 
   const monthSeries = eachMonthOfInterval({ start: fromDate, end: toDate });
 
-  const [targetCurrency, netRevenueData, cogsCategorySlugs] = await Promise.all(
-    [
-      getTargetCurrency(db, teamId, inputCurrency),
-      getRevenue(db, {
-        teamId,
-        exactDates,
-        from,
-        to,
-        currency: inputCurrency,
-        revenueType: "net",
-      }),
-      getCogsCategorySlugs(db, teamId),
-    ],
-  );
+  const [targetCurrency, netRevenueData, cogsCategorySlugs] = await Promise.all([
+    getTargetCurrency(db, teamId, inputCurrency),
+    getRevenue(db, {
+      teamId,
+      exactDates,
+      from,
+      to,
+      currency: inputCurrency,
+      revenueType: "net",
+    }),
+    getCogsCategorySlugs(db, teamId),
+  ]);
   const excludedCategorySlugs = getExcludedCategorySlugs();
   const aggregateData = await getReportTransactionAggregateRows(db, {
     teamId,
@@ -61,9 +51,7 @@ async function getProfitImpl(db: Database, params: GetReportsParams) {
     to: format(toDate, "yyyy-MM-dd"),
     inputCurrency,
   });
-  const negativeTransactions = aggregateData.rows.filter(
-    (row) => row.direction === "expense",
-  );
+  const negativeTransactions = aggregateData.rows.filter((row) => row.direction === "expense");
 
   const cogsMap = buildMonthlyAggregateSeriesMap(
     negativeTransactions.filter(
@@ -139,9 +127,7 @@ async function getRevenueImpl(db: Database, params: GetReportsParams) {
   const fromDate = exactDates
     ? new UTCDate(parseISO(from))
     : startOfMonth(new UTCDate(parseISO(from)));
-  const toDate = exactDates
-    ? new UTCDate(parseISO(to))
-    : endOfMonth(new UTCDate(parseISO(to)));
+  const toDate = exactDates ? new UTCDate(parseISO(to)) : endOfMonth(new UTCDate(parseISO(to)));
 
   const aggregateData = await getReportTransactionAggregateRows(db, {
     teamId,
@@ -158,18 +144,12 @@ async function getRevenueImpl(db: Database, params: GetReportsParams) {
       return (
         row.direction === "income" &&
         Boolean(slug) &&
-        REVENUE_CATEGORIES.includes(
-          slug as (typeof REVENUE_CATEGORIES)[number],
-        ) &&
-        !CONTRA_REVENUE_CATEGORIES.includes(
-          slug as (typeof CONTRA_REVENUE_CATEGORIES)[number],
-        )
+        REVENUE_CATEGORIES.includes(slug as (typeof REVENUE_CATEGORIES)[number]) &&
+        !CONTRA_REVENUE_CATEGORIES.includes(slug as (typeof CONTRA_REVENUE_CATEGORIES)[number])
       );
     }),
     (row) =>
-      revenueType === "net"
-        ? Number(row.totalNetAmount ?? row.totalAmount)
-        : row.totalAmount,
+      revenueType === "net" ? Number(row.totalNetAmount ?? row.totalAmount) : row.totalAmount,
   );
 
   const currencyStr = targetCurrency || "USD";

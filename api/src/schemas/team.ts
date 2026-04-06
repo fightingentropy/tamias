@@ -61,8 +61,7 @@ export const getTeamByIdSchema = z.object({
 
 export const updateTeamByIdSchema = z.object({
   name: z.string().min(2).max(32).optional().openapi({
-    description:
-      "Name of the team or organization. Must be between 2 and 32 characters",
+    description: "Name of the team or organization. Must be between 2 and 32 characters",
     example: "Acme Corporation",
   }),
   email: z.string().email().optional().openapi({
@@ -77,31 +76,22 @@ export const updateTeamByIdSchema = z.object({
     })
     .optional()
     .openapi({
-      description:
-        "URL to the team's logo image. Must be hosted on tamias.xyz domain",
+      description: "URL to the team's logo image. Must be hosted on tamias.xyz domain",
       example: "https://cdn.tamias.xyz/logos/acme-corp.png",
     }),
   baseCurrency: z.string().optional().openapi({
-    description:
-      "Base currency for the team in ISO 4217 format (3-letter currency code)",
+    description: "Base currency for the team in ISO 4217 format (3-letter currency code)",
     example: "USD",
   }),
   countryCode: z.string().optional().openapi({
     description: "Country code for the team",
     example: "US",
   }),
-  fiscalYearStartMonth: z
-    .number()
-    .int()
-    .min(1)
-    .max(12)
-    .nullable()
-    .optional()
-    .openapi({
-      description:
-        "Month when the fiscal year starts (1-12). Null for trailing 12 months. Defaults based on country if not specified.",
-      example: 4,
-    }),
+  fiscalYearStartMonth: z.number().int().min(1).max(12).nullable().optional().openapi({
+    description:
+      "Month when the fiscal year starts (1-12). Null for trailing 12 months. Defaults based on country if not specified.",
+    example: 4,
+  }),
   exportSettings: z
     .object({
       csvDelimiter: z.string(),
@@ -134,16 +124,7 @@ export const updateTeamByIdSchema = z.object({
       example: "solo_founder",
     }),
   heardAbout: z
-    .enum([
-      "twitter",
-      "youtube",
-      "friend",
-      "google",
-      "blog",
-      "podcast",
-      "github",
-      "other",
-    ])
+    .enum(["twitter", "youtube", "friend", "google", "blog", "podcast", "github", "other"])
     .optional()
     .openapi({
       description: "How the user heard about the product",
@@ -157,26 +138,18 @@ export const createTeamSchema = z.object({
     example: "Acme Corporation",
   }),
   baseCurrency: z.string().openapi({
-    description:
-      "Base currency for the team in ISO 4217 format (3-letter currency code)",
+    description: "Base currency for the team in ISO 4217 format (3-letter currency code)",
     example: "USD",
   }),
   countryCode: z.string().optional().openapi({
     description: "Country code for the team",
     example: "US",
   }),
-  fiscalYearStartMonth: z
-    .number()
-    .int()
-    .min(1)
-    .max(12)
-    .nullable()
-    .optional()
-    .openapi({
-      description:
-        "Month when the fiscal year starts (1-12). Null for trailing 12 months. Will default based on country if not specified.",
-      example: 4,
-    }),
+  fiscalYearStartMonth: z.number().int().min(1).max(12).nullable().optional().openapi({
+    description:
+      "Month when the fiscal year starts (1-12). Null for trailing 12 months. Will default based on country if not specified.",
+    example: 4,
+  }),
   logoUrl: z.string().url().optional().openapi({
     description: "URL to the team's logo image",
     example: "https://cdn.tamias.xyz/logos/acme-corp.png",
@@ -199,23 +172,13 @@ export const createTeamSchema = z.object({
       example: "solo_founder",
     }),
   heardAbout: z
-    .enum([
-      "twitter",
-      "youtube",
-      "friend",
-      "google",
-      "blog",
-      "podcast",
-      "github",
-      "other",
-    ])
+    .enum(["twitter", "youtube", "friend", "google", "blog", "podcast", "github", "other"])
     .openapi({
       description: "How the user heard about the product",
       example: "twitter",
     }),
   switchTeam: z.boolean().optional().default(false).openapi({
-    description:
-      "Whether to automatically switch the user to the newly created team",
+    description: "Whether to automatically switch the user to the newly created team",
     example: true,
   }),
 });
@@ -313,8 +276,7 @@ export const deleteTeamInviteSchema = z.object({
 
 export const updateBaseCurrencySchema = z.object({
   baseCurrency: z.string().openapi({
-    description:
-      "New base currency for the team in ISO 4217 format (3-letter currency code)",
+    description: "New base currency for the team in ISO 4217 format (3-letter currency code)",
     example: "EUR",
   }),
 });

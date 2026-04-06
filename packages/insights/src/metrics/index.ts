@@ -1,11 +1,7 @@
 /**
  * Metrics module - metric analysis and selection
  */
-export {
-  detectAnomalies,
-  detectExpenseAnomalies,
-  selectTopMetrics,
-} from "./analyzer";
+export { detectAnomalies, detectExpenseAnomalies, selectTopMetrics } from "./analyzer";
 
 export {
   addActivityMetrics,

@@ -44,19 +44,11 @@ export function LineItems({
           marginBottom: 5,
         }}
       >
-        <Text style={{ flex: 3, fontSize: 9, fontWeight: 500 }}>
-          {descriptionLabel}
-        </Text>
-        <Text style={{ flex: 1, fontSize: 9, fontWeight: 500 }}>
-          {quantityLabel}
-        </Text>
-        <Text style={{ flex: 1, fontSize: 9, fontWeight: 500 }}>
-          {priceLabel}
-        </Text>
+        <Text style={{ flex: 3, fontSize: 9, fontWeight: 500 }}>{descriptionLabel}</Text>
+        <Text style={{ flex: 1, fontSize: 9, fontWeight: 500 }}>{quantityLabel}</Text>
+        <Text style={{ flex: 1, fontSize: 9, fontWeight: 500 }}>{priceLabel}</Text>
         {includeLineItemTax && (
-          <Text style={{ flex: 1, fontSize: 9, fontWeight: 500 }}>
-            {lineItemTaxLabel}
-          </Text>
+          <Text style={{ flex: 1, fontSize: 9, fontWeight: 500 }}>{lineItemTaxLabel}</Text>
         )}
         <Text
           style={{
@@ -83,9 +75,7 @@ export function LineItems({
             <Description content={item.name} />
           </View>
 
-          <Text style={{ flex: 1, fontSize: 9 }}>
-            {String(item.quantity ?? 0)}
-          </Text>
+          <Text style={{ flex: 1, fontSize: 9 }}>{String(item.quantity ?? 0)}</Text>
 
           <Text style={{ flex: 1, fontSize: 9 }}>
             {currency &&

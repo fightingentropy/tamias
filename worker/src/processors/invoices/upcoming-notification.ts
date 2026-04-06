@@ -1,7 +1,4 @@
-import {
-  getUpcomingDueRecurring,
-  markUpcomingNotificationSent,
-} from "@tamias/app-data/queries";
+import { getUpcomingDueRecurring, markUpcomingNotificationSent } from "@tamias/app-data/queries";
 import { Notifications } from "@tamias/notifications";
 import type { WorkerJob as Job } from "../../types/job";
 import type { InvoiceUpcomingNotificationPayload } from "../../schemas/invoices";
@@ -31,9 +28,7 @@ type ProcessResult = {
  * due on the same day, they receive a single summary notification.
  */
 export class InvoiceUpcomingNotificationProcessor extends BaseProcessor<InvoiceUpcomingNotificationPayload> {
-  async process(
-    _job: Job<InvoiceUpcomingNotificationPayload>,
-  ): Promise<ProcessResult> {
+  async process(_job: Job<InvoiceUpcomingNotificationPayload>): Promise<ProcessResult> {
     // Kill switch - can be toggled without deploy via environment variable
     if (process.env.DISABLE_UPCOMING_NOTIFICATIONS === "true") {
       this.logger.warn(
@@ -56,8 +51,7 @@ export class InvoiceUpcomingNotificationProcessor extends BaseProcessor<InvoiceU
         "[STAGING MODE] Upcoming invoice notification processor - logging only, no execution",
       );
 
-      const { data: upcomingRecurring, hasMore } =
-        await getUpcomingDueRecurring(db, 24);
+      const { data: upcomingRecurring, hasMore } = await getUpcomingDueRecurring(db, 24);
 
       if (upcomingRecurring.length === 0) {
         this.logger.info("[STAGING] No upcoming invoices to notify about");
@@ -84,19 +78,17 @@ export class InvoiceUpcomingNotificationProcessor extends BaseProcessor<InvoiceU
           teamCount: invoicesByTeam.size,
           invoiceCount: upcomingRecurring.length,
           hasMore,
-          teams: Array.from(invoicesByTeam.entries()).map(
-            ([teamId, invoices]) => ({
-              teamId,
-              invoiceCount: invoices.length,
-              invoices: invoices.map((inv) => ({
-                recurringId: inv.id,
-                customerName: inv.customerName,
-                amount: inv.amount,
-                currency: inv.currency,
-                scheduledAt: inv.nextScheduledAt,
-              })),
-            }),
-          ),
+          teams: Array.from(invoicesByTeam.entries()).map(([teamId, invoices]) => ({
+            teamId,
+            invoiceCount: invoices.length,
+            invoices: invoices.map((inv) => ({
+              recurringId: inv.id,
+              customerName: inv.customerName,
+              amount: inv.amount,
+              currency: inv.currency,
+              scheduledAt: inv.nextScheduledAt,
+            })),
+          })),
         },
       );
 
@@ -115,10 +107,7 @@ export class InvoiceUpcomingNotificationProcessor extends BaseProcessor<InvoiceU
     this.logger.info("Starting upcoming invoice notification processor");
 
     // Get recurring invoices due within 24 hours that haven't been notified (batched, default limit: 100)
-    const { data: upcomingRecurring, hasMore } = await getUpcomingDueRecurring(
-      db,
-      24,
-    );
+    const { data: upcomingRecurring, hasMore } = await getUpcomingDueRecurring(db, 24);
 
     if (upcomingRecurring.length === 0) {
       this.logger.info("No upcoming invoices to notify about");
@@ -139,23 +128,17 @@ export class InvoiceUpcomingNotificationProcessor extends BaseProcessor<InvoiceU
     // Filter out invoices that have already been notified for this cycle
     const eligibleInvoices = upcomingRecurring.filter((recurring) => {
       if (recurring.upcomingNotificationSentAt && recurring.nextScheduledAt) {
-        const notificationSentAt = new Date(
-          recurring.upcomingNotificationSentAt,
-        );
+        const notificationSentAt = new Date(recurring.upcomingNotificationSentAt);
         const nextScheduled = new Date(recurring.nextScheduledAt);
         // If notification was sent within 25 hours of nextScheduled, it's for this cycle
         const hoursDiff =
-          (nextScheduled.getTime() - notificationSentAt.getTime()) /
-          (1000 * 60 * 60);
+          (nextScheduled.getTime() - notificationSentAt.getTime()) / (1000 * 60 * 60);
         if (hoursDiff <= 25) {
-          this.logger.info(
-            "Notification already sent for this cycle, skipping",
-            {
-              recurringId: recurring.id,
-              upcomingNotificationSentAt: recurring.upcomingNotificationSentAt,
-              nextScheduledAt: recurring.nextScheduledAt,
-            },
-          );
+          this.logger.info("Notification already sent for this cycle, skipping", {
+            recurringId: recurring.id,
+            upcomingNotificationSentAt: recurring.upcomingNotificationSentAt,
+            nextScheduledAt: recurring.nextScheduledAt,
+          });
           return false;
         }
       }
@@ -224,23 +207,17 @@ export class InvoiceUpcomingNotificationProcessor extends BaseProcessor<InvoiceU
         this.logger.info("Sent batched upcoming invoice notification", {
           teamId,
           invoiceCount: teamInvoices.length,
-          customerNames: teamInvoices
-            .map((inv) => inv.customerName)
-            .filter(Boolean),
+          customerNames: teamInvoices.map((inv) => inv.customerName).filter(Boolean),
         });
 
         processed++;
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Unknown error";
-        this.logger.error(
-          "Failed to send batched upcoming invoice notification",
-          {
-            teamId,
-            invoiceCount: teamInvoices.length,
-            error: errorMessage,
-          },
-        );
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        this.logger.error("Failed to send batched upcoming invoice notification", {
+          teamId,
+          invoiceCount: teamInvoices.length,
+          error: errorMessage,
+        });
 
         errors.push({
           teamId,
@@ -259,9 +236,7 @@ export class InvoiceUpcomingNotificationProcessor extends BaseProcessor<InvoiceU
     });
 
     if (hasMore) {
-      this.logger.info(
-        "More upcoming invoices pending - will be processed in next scheduler run",
-      );
+      this.logger.info("More upcoming invoices pending - will be processed in next scheduler run");
     }
 
     return {

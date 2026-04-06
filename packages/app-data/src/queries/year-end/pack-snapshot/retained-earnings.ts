@@ -20,27 +20,17 @@ export function buildRetainedEarnings(
       .filter((row) => row.entryDate < periodStart)
       .reduce(
         (total, row) =>
-          total +
-          presentBalance(
-            "equity",
-            (row.line.debit ?? 0) - (row.line.credit ?? 0),
-          ),
+          total + presentBalance("equity", (row.line.debit ?? 0) - (row.line.credit ?? 0)),
         0,
       ),
   );
 
   const manualEquityAdjustments = roundCurrency(
     retainedEntries
-      .filter(
-        (row) => row.entryDate >= periodStart && row.entryDate <= periodEnd,
-      )
+      .filter((row) => row.entryDate >= periodStart && row.entryDate <= periodEnd)
       .reduce(
         (total, row) =>
-          total +
-          presentBalance(
-            "equity",
-            (row.line.debit ?? 0) - (row.line.credit ?? 0),
-          ),
+          total + presentBalance("equity", (row.line.debit ?? 0) - (row.line.credit ?? 0)),
         0,
       ),
   );
@@ -52,8 +42,6 @@ export function buildRetainedEarnings(
     openingBalance,
     currentPeriodProfit,
     manualEquityAdjustments,
-    closingBalance: roundCurrency(
-      openingBalance + currentPeriodProfit + manualEquityAdjustments,
-    ),
+    closingBalance: roundCurrency(openingBalance + currentPeriodProfit + manualEquityAdjustments),
   };
 }

@@ -3,11 +3,7 @@ import { z } from "zod";
 /**
  * Supported accounting providers
  */
-export const AccountingProviderIdSchema = z.enum([
-  "xero",
-  "quickbooks",
-  "fortnox",
-]);
+export const AccountingProviderIdSchema = z.enum(["xero", "quickbooks", "fortnox"]);
 
 export type AccountingProviderId = z.infer<typeof AccountingProviderIdSchema>;
 
@@ -86,21 +82,16 @@ export const ACCOUNTING_ERROR_MESSAGES: Record<AccountingErrorCode, string> = {
     "Please set up financial years in your accounting software first",
   [ACCOUNTING_ERROR_CODES.AUTH_EXPIRED]:
     "Connection expired — please reconnect your accounting software",
-  [ACCOUNTING_ERROR_CODES.RATE_LIMIT]:
-    "Too many requests — will retry automatically",
+  [ACCOUNTING_ERROR_CODES.RATE_LIMIT]: "Too many requests — will retry automatically",
   [ACCOUNTING_ERROR_CODES.VALIDATION]: "Invalid data format",
-  [ACCOUNTING_ERROR_CODES.NOT_FOUND]:
-    "Resource not found in accounting software",
+  [ACCOUNTING_ERROR_CODES.NOT_FOUND]: "Resource not found in accounting software",
   [ACCOUNTING_ERROR_CODES.INVALID_ACCOUNT]:
     "Invalid account code — check category report code mapping",
-  [ACCOUNTING_ERROR_CODES.SERVER_ERROR]:
-    "Accounting software is temporarily unavailable",
-  [ACCOUNTING_ERROR_CODES.ATTACHMENT_UNSUPPORTED_TYPE]:
-    "Attachment file type not supported",
+  [ACCOUNTING_ERROR_CODES.SERVER_ERROR]: "Accounting software is temporarily unavailable",
+  [ACCOUNTING_ERROR_CODES.ATTACHMENT_UNSUPPORTED_TYPE]: "Attachment file type not supported",
   [ACCOUNTING_ERROR_CODES.ATTACHMENT_TOO_LARGE]: "Attachment file is too large",
   [ACCOUNTING_ERROR_CODES.ATTACHMENT_TIMEOUT]: "Attachment upload timed out",
-  [ACCOUNTING_ERROR_CODES.ATTACHMENT_UPLOAD_FAILED]:
-    "Failed to upload attachment",
+  [ACCOUNTING_ERROR_CODES.ATTACHMENT_UPLOAD_FAILED]: "Failed to upload attachment",
   [ACCOUNTING_ERROR_CODES.ATTACHMENT_NOT_FOUND]: "Attachment file not found",
   [ACCOUNTING_ERROR_CODES.UNKNOWN]: "An unexpected error occurred",
 };
@@ -355,9 +346,7 @@ export function parseProviderConfig(config: unknown): AccountingProviderConfig {
 /**
  * Safely parse a provider config, returning null if invalid
  */
-export function safeParseProviderConfig(
-  config: unknown,
-): AccountingProviderConfig | null {
+export function safeParseProviderConfig(config: unknown): AccountingProviderConfig | null {
   const result = AccountingProviderConfigSchema.safeParse(config);
   return result.success ? result.data : null;
 }
@@ -365,9 +354,7 @@ export function safeParseProviderConfig(
 /**
  * Type guard to check if config is Xero
  */
-export function isXeroConfig(
-  config: AccountingProviderConfig,
-): config is XeroProviderConfig {
+export function isXeroConfig(config: AccountingProviderConfig): config is XeroProviderConfig {
   return config.provider === "xero";
 }
 
@@ -383,9 +370,7 @@ export function isQuickBooksConfig(
 /**
  * Type guard to check if config is Fortnox
  */
-export function isFortnoxConfig(
-  config: AccountingProviderConfig,
-): config is FortnoxProviderConfig {
+export function isFortnoxConfig(config: AccountingProviderConfig): config is FortnoxProviderConfig {
   return config.provider === "fortnox";
 }
 
@@ -404,9 +389,7 @@ export function getOrgId(config: AccountingProviderConfig): string {
       return config.companyId ?? "default";
     default: {
       const _exhaustive: never = config;
-      throw new Error(
-        `Unknown provider: ${(_exhaustive as { provider: string }).provider}`,
-      );
+      throw new Error(`Unknown provider: ${(_exhaustive as { provider: string }).provider}`);
     }
   }
 }
@@ -414,9 +397,7 @@ export function getOrgId(config: AccountingProviderConfig): string {
 /**
  * Get the organization/tenant name from any provider config
  */
-export function getOrgName(
-  config: AccountingProviderConfig,
-): string | undefined {
+export function getOrgName(config: AccountingProviderConfig): string | undefined {
   switch (config.provider) {
     case "xero":
       return config.tenantName;
@@ -426,9 +407,7 @@ export function getOrgName(
       return config.companyName;
     default: {
       const _exhaustive: never = config;
-      throw new Error(
-        `Unknown provider: ${(_exhaustive as { provider: string }).provider}`,
-      );
+      throw new Error(`Unknown provider: ${(_exhaustive as { provider: string }).provider}`);
     }
   }
 }
@@ -626,12 +605,7 @@ export interface DeleteAttachmentResult {
  * - failed: Transaction sync failed
  * - pending: Sync in progress
  */
-export const SyncStatusSchema = z.enum([
-  "synced",
-  "partial",
-  "failed",
-  "pending",
-]);
+export const SyncStatusSchema = z.enum(["synced", "partial", "failed", "pending"]);
 export type SyncStatus = z.infer<typeof SyncStatusSchema>;
 
 /**

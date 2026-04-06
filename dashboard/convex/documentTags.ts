@@ -58,9 +58,7 @@ function serializeDocumentTagAssignment(
 
 type DocumentTagContext = QueryCtx | MutationCtx;
 
-type SerializedDocumentTagAssignment = ReturnType<
-  typeof serializeDocumentTagAssignment
->;
+type SerializedDocumentTagAssignment = ReturnType<typeof serializeDocumentTagAssignment>;
 
 async function getDocumentTagByExternalId(
   ctx: DocumentTagContext,
@@ -74,9 +72,7 @@ async function getDocumentTagByExternalId(
 
   const tag = await ctx.db
     .query("documentTags")
-    .withIndex("by_public_document_tag_id", (q) =>
-      q.eq("publicDocumentTagId", args.tagId),
-    )
+    .withIndex("by_public_document_tag_id", (q) => q.eq("publicDocumentTagId", args.tagId))
     .unique();
 
   if (!tag || tag.teamId !== team._id) {
@@ -92,9 +88,7 @@ async function getDocumentForTeamByExternalId(
 ) {
   const byLegacyId = await ctx.db
     .query("documents")
-    .withIndex("by_public_document_id", (q) =>
-      q.eq("publicDocumentId", args.documentId),
-    )
+    .withIndex("by_public_document_id", (q) => q.eq("publicDocumentId", args.documentId))
     .unique();
 
   if (byLegacyId && byLegacyId.teamId === args.teamId) {
@@ -120,9 +114,7 @@ async function getDocumentForTeamByExternalId(
   return null;
 }
 
-function getDocumentAssignmentSortFields(
-  document: { createdAt: string; date?: string | null },
-) {
+function getDocumentAssignmentSortFields(document: { createdAt: string; date?: string | null }) {
   return {
     documentCreatedAt: document.createdAt,
     documentDate: document.date ?? undefined,
@@ -155,10 +147,7 @@ async function upsertDocumentTagAssignmentRecord(
   const existing = await ctx.db
     .query("documentTagAssignments")
     .withIndex("by_team_document_tag", (q) =>
-      q
-        .eq("teamId", team._id)
-        .eq("documentId", args.documentId)
-        .eq("tagId", args.tagId),
+      q.eq("teamId", team._id).eq("documentId", args.documentId).eq("tagId", args.tagId),
     )
     .unique();
 
@@ -246,9 +235,7 @@ export const serviceCreateDocumentTag = mutation({
 
     const existing = await ctx.db
       .query("documentTags")
-      .withIndex("by_team_and_slug", (q) =>
-        q.eq("teamId", team._id).eq("slug", args.slug),
-      )
+      .withIndex("by_team_and_slug", (q) => q.eq("teamId", team._id).eq("slug", args.slug))
       .unique();
 
     if (existing) {
@@ -295,9 +282,7 @@ export const serviceDeleteDocumentTag = mutation({
 
     const assignments = await ctx.db
       .query("documentTagAssignments")
-      .withIndex("by_team_and_tag", (q) =>
-        q.eq("teamId", team._id).eq("tagId", args.documentTagId),
-      )
+      .withIndex("by_team_and_tag", (q) => q.eq("teamId", team._id).eq("tagId", args.documentTagId))
       .collect();
 
     for (const assignment of assignments) {
@@ -341,9 +326,7 @@ export const serviceUpsertDocumentTags = mutation({
 
       const existing = await ctx.db
         .query("documentTags")
-        .withIndex("by_team_and_slug", (q) =>
-          q.eq("teamId", team._id).eq("slug", tagInput.slug),
-        )
+        .withIndex("by_team_and_slug", (q) => q.eq("teamId", team._id).eq("slug", tagInput.slug))
         .unique();
 
       if (existing) {
@@ -425,10 +408,7 @@ export const serviceDeleteDocumentTagAssignment = mutation({
     const existing = await ctx.db
       .query("documentTagAssignments")
       .withIndex("by_team_document_tag", (q) =>
-        q
-          .eq("teamId", team._id)
-          .eq("documentId", args.documentId)
-          .eq("tagId", args.tagId),
+        q.eq("teamId", team._id).eq("documentId", args.documentId).eq("tagId", args.tagId),
       )
       .unique();
 
@@ -436,11 +416,7 @@ export const serviceDeleteDocumentTagAssignment = mutation({
       return null;
     }
 
-    const serialized = serializeDocumentTagAssignment(
-      args.teamId,
-      existing,
-      tag,
-    );
+    const serialized = serializeDocumentTagAssignment(args.teamId, existing, tag);
 
     await ctx.db.delete(existing._id);
 
@@ -524,9 +500,7 @@ export const serviceGetDocumentTagAssignmentsForDocumentIds = query({
           continue;
         }
 
-        results.push(
-          serializeDocumentTagAssignment(args.teamId, assignment, tag),
-        );
+        results.push(serializeDocumentTagAssignment(args.teamId, assignment, tag));
       }
     }
 
@@ -544,9 +518,7 @@ export const serviceRebuildDocumentTagAssignmentSortFields = mutation({
 
     const teams = args.teamId
       ? [await getTeamByPublicTeamId(ctx, args.teamId)]
-      : (await ctx.db.query("teams").collect()).filter(
-          (team) => !!team.publicTeamId,
-        );
+      : (await ctx.db.query("teams").collect()).filter((team) => !!team.publicTeamId);
 
     const validTeams = teams.filter(
       (team): team is NonNullable<(typeof teams)[number]> => team !== null,

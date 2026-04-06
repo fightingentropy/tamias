@@ -8,14 +8,7 @@ import {
   scopesToName,
 } from "@tamias/auth-session/scopes";
 import { AnimatedSizeContainer } from "@tamias/ui/animated-size-container";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@tamias/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@tamias/ui/form";
 import { Input } from "@tamias/ui/input";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { Tabs, TabsList, TabsTrigger } from "@tamias/ui/tabs";
@@ -43,9 +36,7 @@ type Props = {
 export function ApiKeyForm({ onSuccess }: Props) {
   const { data } = useTokenModalStore();
   const [preset, setPreset] = useState<ScopePreset>(() =>
-    data?.scopes
-      ? (scopesToName(data.scopes).preset as ScopePreset)
-      : "all_access",
+    data?.scopes ? (scopesToName(data.scopes).preset as ScopePreset) : "all_access",
   );
 
   const trpc = useTRPC();
@@ -132,9 +123,7 @@ export function ApiKeyForm({ onSuccess }: Props) {
     );
 
     // Add the new scope if it's not empty
-    const newScopes = scope
-      ? [...filteredScopes, scope as Scope]
-      : filteredScopes;
+    const newScopes = scope ? [...filteredScopes, scope as Scope] : filteredScopes;
 
     form.setValue("scopes", newScopes, { shouldDirty: true });
   };
@@ -173,18 +162,10 @@ export function ApiKeyForm({ onSuccess }: Props) {
           )}
         />
 
-        <Tabs
-          value={preset}
-          className="mt-4 w-full"
-          onValueChange={handlePresetChange}
-        >
+        <Tabs value={preset} className="mt-4 w-full" onValueChange={handlePresetChange}>
           <TabsList className="w-full flex">
             {scopePresets.map((scope) => (
-              <TabsTrigger
-                value={scope.value}
-                className="flex-1"
-                key={scope.value}
-              >
+              <TabsTrigger value={scope.value} className="flex-1" key={scope.value}>
                 {scope.label}
               </TabsTrigger>
             ))}

@@ -19,9 +19,7 @@ describe("tRPC: bankAccounts.get", () => {
   });
 
   test("returns bank accounts list", async () => {
-    mocks.getBankAccounts.mockImplementation(() => [
-      createValidBankAccountResponse(),
-    ]);
+    mocks.getBankAccounts.mockImplementation(() => [createValidBankAccountResponse()]);
 
     const caller = createCaller(createTestContext());
     const result = await caller.get({});
@@ -30,9 +28,7 @@ describe("tRPC: bankAccounts.get", () => {
   });
 
   test("handles minimal bank account data", async () => {
-    mocks.getBankAccounts.mockImplementation(() => [
-      createMinimalBankAccountResponse(),
-    ]);
+    mocks.getBankAccounts.mockImplementation(() => [createMinimalBankAccountResponse()]);
 
     const caller = createCaller(createTestContext());
     const result = await caller.get({});
@@ -62,9 +58,7 @@ describe("tRPC: bankAccounts.get", () => {
 describe("tRPC: bankAccounts.create", () => {
   beforeEach(() => {
     mocks.createBankAccount.mockReset();
-    mocks.createBankAccount.mockImplementation(() =>
-      createValidBankAccountResponse(),
-    );
+    mocks.createBankAccount.mockImplementation(() => createValidBankAccountResponse());
   });
 
   test("creates bank account with valid data", async () => {
@@ -94,9 +88,7 @@ describe("tRPC: bankAccounts.create", () => {
 describe("tRPC: bankAccounts.update", () => {
   beforeEach(() => {
     mocks.updateBankAccount.mockReset();
-    mocks.updateBankAccount.mockImplementation(() =>
-      createValidBankAccountResponse(),
-    );
+    mocks.updateBankAccount.mockImplementation(() => createValidBankAccountResponse());
   });
 
   test("updates bank account successfully", async () => {

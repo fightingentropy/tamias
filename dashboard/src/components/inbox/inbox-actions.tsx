@@ -2,10 +2,7 @@
 
 import { AnimatePresence } from "framer-motion";
 import { MatchTransaction } from "./match-transaction";
-import {
-  SelectedInboxItemProvider,
-  type SelectedInboxItem,
-} from "./selected-inbox-item-context";
+import { SelectedInboxItemProvider, type SelectedInboxItem } from "./selected-inbox-item-context";
 import { SuggestedMatch } from "./suggested-match";
 
 type Props = {
@@ -20,9 +17,7 @@ export function InboxActions({ data }: Props) {
   }
 
   const hasSuggestion =
-    data?.status === "suggested_match" &&
-    !data?.transactionId &&
-    !!data?.suggestion;
+    data?.status === "suggested_match" && !data?.transactionId && !!data?.suggestion;
 
   return (
     <SelectedInboxItemProvider value={data}>

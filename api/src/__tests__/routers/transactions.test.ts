@@ -47,9 +47,7 @@ describe("REST: GET /transactions", () => {
 
   beforeEach(() => {
     mocks.getTransactions.mockReset();
-    mocks.getTransactions.mockImplementation(() =>
-      createTransactionsListResponse(),
-    );
+    mocks.getTransactions.mockImplementation(() => createTransactionsListResponse());
   });
 
   test("returns 200 with valid transaction data", async () => {
@@ -79,9 +77,7 @@ describe("REST: GET /transactions", () => {
   });
 
   test("handles empty transaction list", async () => {
-    mocks.getTransactions.mockImplementation(() =>
-      createTransactionsListResponse([]),
-    );
+    mocks.getTransactions.mockImplementation(() => createTransactionsListResponse([]));
 
     const res = await app.request("/transactions");
 
@@ -100,9 +96,7 @@ describe("REST: GET /transactions", () => {
     expect(res.status).toBe(200);
     const json = (await res.json()) as TransactionListResponse;
     expect(json.data[0]!.category).toBeDefined();
-    expect((json.data[0]!.category as { name: string }).name).toBe(
-      "Office Supplies",
-    );
+    expect((json.data[0]!.category as { name: string }).name).toBe("Office Supplies");
   });
 
   test("handles transactions with tags", async () => {
@@ -148,9 +142,7 @@ describe("REST: GET /transactions", () => {
 
   test("returns 500 when DB returns malformed data", async () => {
     mocks.getTransactions.mockImplementation(() =>
-      createTransactionsListResponse([
-        createMalformedTransactionResponse() as any,
-      ]),
+      createTransactionsListResponse([createMalformedTransactionResponse() as any]),
     );
 
     const res = await app.request("/transactions");
@@ -160,9 +152,7 @@ describe("REST: GET /transactions", () => {
   });
 
   test("passes query parameters to DB query", async () => {
-    mocks.getTransactions.mockImplementation(() =>
-      createTransactionsListResponse([]),
-    );
+    mocks.getTransactions.mockImplementation(() => createTransactionsListResponse([]));
 
     await app.request("/transactions?type=expense&pageSize=10");
 
@@ -186,13 +176,9 @@ describe("REST: GET /transactions/:id", () => {
   });
 
   test("returns 200 for existing transaction", async () => {
-    mocks.getTransactionById.mockImplementation(() =>
-      createValidTransactionResponse(),
-    );
+    mocks.getTransactionById.mockImplementation(() => createValidTransactionResponse());
 
-    const res = await app.request(
-      "/transactions/b3b7c8e2-1f2a-4c3d-9e4f-5a6b7c8d9e0f",
-    );
+    const res = await app.request("/transactions/b3b7c8e2-1f2a-4c3d-9e4f-5a6b7c8d9e0f");
 
     expect(res.status).toBe(200);
     const json = (await res.json()) as TransactionResponse;
@@ -214,13 +200,9 @@ describe("REST: GET /transactions/:id", () => {
   });
 
   test("handles transaction with nested category", async () => {
-    mocks.getTransactionById.mockImplementation(() =>
-      createTransactionWithCategory(),
-    );
+    mocks.getTransactionById.mockImplementation(() => createTransactionWithCategory());
 
-    const res = await app.request(
-      "/transactions/b3b7c8e2-1f2a-4c3d-9e4f-5a6b7c8d9e0f",
-    );
+    const res = await app.request("/transactions/b3b7c8e2-1f2a-4c3d-9e4f-5a6b7c8d9e0f");
 
     expect(res.status).toBe(200);
     const json = (await res.json()) as TransactionResponse;
@@ -228,13 +210,9 @@ describe("REST: GET /transactions/:id", () => {
   });
 
   test("returns 500 when DB returns malformed data", async () => {
-    mocks.getTransactionById.mockImplementation(() =>
-      createMalformedTransactionResponse(),
-    );
+    mocks.getTransactionById.mockImplementation(() => createMalformedTransactionResponse());
 
-    const res = await app.request(
-      "/transactions/b3b7c8e2-1f2a-4c3d-9e4f-5a6b7c8d9e0f",
-    );
+    const res = await app.request("/transactions/b3b7c8e2-1f2a-4c3d-9e4f-5a6b7c8d9e0f");
 
     expect(res.status).toBe(500);
   });
@@ -245,9 +223,7 @@ describe("REST: POST /transactions", () => {
 
   beforeEach(() => {
     mocks.createTransaction.mockReset();
-    mocks.createTransaction.mockImplementation(() =>
-      createValidTransactionResponse(),
-    );
+    mocks.createTransaction.mockImplementation(() => createValidTransactionResponse());
   });
 
   test("creates transaction with valid payload", async () => {
@@ -314,20 +290,15 @@ describe("REST: PATCH /transactions/:id", () => {
 
   beforeEach(() => {
     mocks.updateTransaction.mockReset();
-    mocks.updateTransaction.mockImplementation(() =>
-      createValidTransactionResponse(),
-    );
+    mocks.updateTransaction.mockImplementation(() => createValidTransactionResponse());
   });
 
   test("updates transaction successfully", async () => {
-    const res = await app.request(
-      "/transactions/b3b7c8e2-1f2a-4c3d-9e4f-5a6b7c8d9e0f",
-      {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: "Updated Name" }),
-      },
-    );
+    const res = await app.request("/transactions/b3b7c8e2-1f2a-4c3d-9e4f-5a6b7c8d9e0f", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: "Updated Name" }),
+    });
 
     expect(res.status).toBe(200);
   });
@@ -337,14 +308,11 @@ describe("REST: PATCH /transactions/:id", () => {
       createValidTransactionResponse({ status: "archived" }),
     );
 
-    const res = await app.request(
-      "/transactions/b3b7c8e2-1f2a-4c3d-9e4f-5a6b7c8d9e0f",
-      {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "archived" }),
-      },
-    );
+    const res = await app.request("/transactions/b3b7c8e2-1f2a-4c3d-9e4f-5a6b7c8d9e0f", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "archived" }),
+    });
 
     expect(res.status).toBe(200);
     const json = (await res.json()) as TransactionResponse;
@@ -379,12 +347,9 @@ describe("REST: DELETE /transactions/:id", () => {
   });
 
   test("deletes transaction successfully", async () => {
-    const res = await app.request(
-      "/transactions/b3b7c8e2-1f2a-4c3d-9e4f-5a6b7c8d9e0f",
-      {
-        method: "DELETE",
-      },
-    );
+    const res = await app.request("/transactions/b3b7c8e2-1f2a-4c3d-9e4f-5a6b7c8d9e0f", {
+      method: "DELETE",
+    });
 
     expect(res.status).toBe(200);
     const json = (await res.json()) as TransactionResponse;
@@ -397,19 +362,14 @@ describe("REST: POST /transactions/bulk", () => {
 
   beforeEach(() => {
     mocks.createTransactions.mockReset();
-    mocks.createTransactions.mockImplementation(() => [
-      createValidTransactionResponse(),
-    ]);
+    mocks.createTransactions.mockImplementation(() => [createValidTransactionResponse()]);
   });
 
   test("creates multiple transactions", async () => {
     const res = await app.request("/transactions/bulk", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify([
-        createTransactionInput(),
-        createTransactionInput(),
-      ]),
+      body: JSON.stringify([createTransactionInput(), createTransactionInput()]),
     });
 
     expect(res.status).toBe(200);

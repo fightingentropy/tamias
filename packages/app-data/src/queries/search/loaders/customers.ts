@@ -1,17 +1,7 @@
-import {
-  getCustomersPageFromConvex,
-  searchCustomersFromConvex,
-} from "@tamias/app-data-convex";
+import { getCustomersPageFromConvex, searchCustomersFromConvex } from "@tamias/app-data-convex";
 import { toCustomerCandidate } from "../candidates";
-import {
-  loadCandidatesForSource,
-  matchesSearchTerm,
-  matchesSemanticCandidate,
-} from "../helpers";
-import type {
-  RawSearchCandidateLoadParams,
-  SearchCandidateLoadParams,
-} from "../types";
+import { loadCandidatesForSource, matchesSearchTerm, matchesSemanticCandidate } from "../helpers";
+import type { RawSearchCandidateLoadParams, SearchCandidateLoadParams } from "../types";
 
 export async function loadCustomerCandidates(params: SearchCandidateLoadParams) {
   const itemsPerTableLimit = params.itemsPerTableLimit ?? 5;
@@ -35,15 +25,12 @@ export async function loadCustomerCandidates(params: SearchCandidateLoadParams) 
         pageSize,
         order: "desc",
       }),
-    toCandidate: (customer) =>
-      customer.isArchived ? null : toCustomerCandidate(customer),
+    toCandidate: (customer) => (customer.isArchived ? null : toCustomerCandidate(customer)),
     matchesCandidate: (candidate) => matchesSemanticCandidate(candidate, params),
   });
 }
 
-export async function loadRawCustomerCandidates(
-  params: RawSearchCandidateLoadParams,
-) {
+export async function loadRawCustomerCandidates(params: RawSearchCandidateLoadParams) {
   return loadCandidatesForSource({
     searchTerm: params.searchTerm,
     itemsPerTableLimit: params.itemsPerTableLimit,
@@ -62,9 +49,7 @@ export async function loadRawCustomerCandidates(
         pageSize,
         order: "desc",
       }),
-    toCandidate: (customer) =>
-      customer.isArchived ? null : toCustomerCandidate(customer),
-    matchesCandidate: (candidate) =>
-      matchesSearchTerm(candidate, params.searchTerm),
+    toCandidate: (customer) => (customer.isArchived ? null : toCustomerCandidate(customer)),
+    matchesCandidate: (candidate) => matchesSearchTerm(candidate, params.searchTerm),
   });
 }

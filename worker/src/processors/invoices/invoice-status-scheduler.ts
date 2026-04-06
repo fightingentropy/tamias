@@ -1,9 +1,5 @@
 import { TZDate } from "@date-fns/tz";
-import {
-  createAttachments,
-  getInvoiceById,
-  updateInvoice,
-} from "@tamias/app-data/queries";
+import { createAttachments, getInvoiceById, updateInvoice } from "@tamias/app-data/queries";
 import {
   getPublicInvoicesByStatusesFromConvex,
   getTransactionsByAmountRangeFromConvex,
@@ -36,13 +32,9 @@ const INVOICE_STATUS_CHECK_CONCURRENCY = 10;
 const INVOICE_MATCH_CANDIDATE_LIMIT = 100;
 
 export class InvoiceStatusSchedulerProcessor extends BaseProcessor<InvoiceStatusSchedulerPayload> {
-  async process(
-    job: Job<InvoiceStatusSchedulerPayload>,
-  ): Promise<ProcessResult> {
+  async process(job: Job<InvoiceStatusSchedulerPayload>): Promise<ProcessResult> {
     if (!isProduction()) {
-      this.logger.info(
-        "Skipping invoice status scheduler in non-production environment",
-      );
+      this.logger.info("Skipping invoice status scheduler in non-production environment");
       return {
         processed: 0,
         skipped: 0,
@@ -121,9 +113,7 @@ export class InvoiceStatusSchedulerProcessor extends BaseProcessor<InvoiceStatus
     return summary;
   }
 
-  private async checkInvoiceStatus(
-    invoiceId: string,
-  ): Promise<InvoiceStatusCheckResult> {
+  private async checkInvoiceStatus(invoiceId: string): Promise<InvoiceStatusCheckResult> {
     try {
       const db = getDb();
       const invoice = await getInvoiceById(db, { id: invoiceId });
@@ -154,8 +144,7 @@ export class InvoiceStatusSchedulerProcessor extends BaseProcessor<InvoiceStatus
           !invoice.invoiceNumber ||
           invoice.fileSize == null
         ) {
-          const error =
-            "Invoice attachment data missing for automatic payment match";
+          const error = "Invoice attachment data missing for automatic payment match";
           this.logger.warn(error, {
             invoiceId,
             transactionId,
@@ -189,11 +178,8 @@ export class InvoiceStatusSchedulerProcessor extends BaseProcessor<InvoiceStatus
         return { kind: "paid", invoiceId };
       }
 
-      const timezone =
-        (invoice.template as { timezone?: string } | null)?.timezone || "UTC";
-      const isOverdue =
-        new TZDate(invoice.dueDate, timezone) <
-        new TZDate(new Date(), timezone);
+      const timezone = (invoice.template as { timezone?: string } | null)?.timezone || "UTC";
+      const isOverdue = new TZDate(invoice.dueDate, timezone) < new TZDate(new Date(), timezone);
 
       if (isOverdue && invoice.status === "unpaid") {
         const updatedInvoice = await updateInvoice(db, {
@@ -230,16 +216,10 @@ export class InvoiceStatusSchedulerProcessor extends BaseProcessor<InvoiceStatus
     teamId: string;
     template?: unknown;
   }) {
-    const timezone =
-      (invoice.template as { timezone?: string } | null)?.timezone || "UTC";
-    const threeDaysAgo = format(
-      subDays(new TZDate(new Date(), timezone), 3),
-      "yyyy-MM-dd",
-    );
+    const timezone = (invoice.template as { timezone?: string } | null)?.timezone || "UTC";
+    const threeDaysAgo = format(subDays(new TZDate(new Date(), timezone), 3), "yyyy-MM-dd");
     const invoiceAmount =
-      typeof invoice.amount === "number" && Number.isFinite(invoice.amount)
-        ? invoice.amount
-        : null;
+      typeof invoice.amount === "number" && Number.isFinite(invoice.amount) ? invoice.amount : null;
     const invoiceCurrency = (invoice.currency ?? "").toUpperCase();
 
     if (invoiceAmount === null || !invoiceCurrency) {
@@ -269,13 +249,10 @@ export class InvoiceStatusSchedulerProcessor extends BaseProcessor<InvoiceStatus
     paidAt?: string,
   ) {
     if (!updatedInvoice?.teamId || !updatedInvoice.invoiceNumber) {
-      this.logger.warn(
-        "Skipping invoice status notification with missing data",
-        {
-          invoiceId: updatedInvoice?.id,
-          status,
-        },
-      );
+      this.logger.warn("Skipping invoice status notification with missing data", {
+        invoiceId: updatedInvoice?.id,
+        status,
+      });
       return;
     }
 

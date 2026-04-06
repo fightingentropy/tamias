@@ -27,11 +27,7 @@ export type ChatSessionRecord = {
 };
 
 function getConvexUrl() {
-  return (
-    process.env.CONVEX_URL ||
-    process.env.TAMIAS_CONVEX_URL ||
-    process.env.CONVEX_SITE_URL
-  );
+  return process.env.CONVEX_URL || process.env.TAMIAS_CONVEX_URL || process.env.CONVEX_SITE_URL;
 }
 
 function getServiceKey() {
@@ -43,10 +39,7 @@ function getServiceKey() {
 
   const convexUrl = getConvexUrl();
 
-  if (
-    convexUrl?.includes("127.0.0.1") ||
-    convexUrl?.includes("localhost")
-  ) {
+  if (convexUrl?.includes("127.0.0.1") || convexUrl?.includes("localhost")) {
     return "local-dev";
   }
 
@@ -128,10 +121,9 @@ export class ConvexChatMemoryProvider {
     userId?: string;
     limit?: number;
   }): Promise<T[]> {
-    return createClient().query(
-      api.chatMemory.serviceGetMessages,
-      serviceArgs(params),
-    ) as Promise<T[]>;
+    return createClient().query(api.chatMemory.serviceGetMessages, serviceArgs(params)) as Promise<
+      T[]
+    >;
   }
 
   async saveChat(chat: ChatSessionRecord): Promise<void> {
@@ -153,10 +145,10 @@ export class ConvexChatMemoryProvider {
     search?: string;
     limit?: number;
   }): Promise<ChatSessionRecord[]> {
-    const result = await createClient().query(
+    const result = (await createClient().query(
       api.chatMemory.serviceGetChats,
       serviceArgs(params),
-    ) as Array<{
+    )) as Array<{
       chatId: string;
       userId?: string | null;
       title?: string | null;
@@ -207,9 +199,6 @@ export class ConvexChatMemoryProvider {
   }
 
   async deleteChat(chatId: string): Promise<void> {
-    await createClient().mutation(
-      api.chatMemory.serviceDeleteChat,
-      serviceArgs({ chatId }),
-    );
+    await createClient().mutation(api.chatMemory.serviceDeleteChat, serviceArgs({ chatId }));
   }
 }

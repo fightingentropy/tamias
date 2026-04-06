@@ -148,18 +148,14 @@ export async function PdfTemplate(
         <View style={{ flexDirection: "row", marginTop: 20 }}>
           <View style={{ flex: 1, marginRight: 10 }}>
             <View style={{ marginBottom: 20 }}>
-              <Text style={{ fontSize: 9, fontWeight: 500 }}>
-                {template.fromLabel}
-              </Text>
+              <Text style={{ fontSize: 9, fontWeight: 500 }}>{template.fromLabel}</Text>
               <EditorContent content={fromDetails} />
             </View>
           </View>
 
           <View style={{ flex: 1, marginLeft: 10 }}>
             <View style={{ marginBottom: 20 }}>
-              <Text style={{ fontSize: 9, fontWeight: 500 }}>
-                {template.customerLabel}
-              </Text>
+              <Text style={{ fontSize: 9, fontWeight: 500 }}>{template.customerLabel}</Text>
               <EditorContent content={customerDetails} />
             </View>
           </View>
@@ -222,10 +218,7 @@ export async function PdfTemplate(
 
           <View wrap={false} style={{ flexDirection: "row", marginTop: 20 }}>
             <View style={{ flex: 1, marginRight: 10 }}>
-              <PaymentDetails
-                content={paymentDetails}
-                paymentLabel={template.paymentLabel}
-              />
+              <PaymentDetails content={paymentDetails} paymentLabel={template.paymentLabel} />
 
               {qrCode && <QRCode data={qrCode} />}
             </View>

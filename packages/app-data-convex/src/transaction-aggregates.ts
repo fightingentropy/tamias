@@ -104,9 +104,7 @@ export async function getTransactionTaxAggregateRowsFromConvex(args: {
   ) as Promise<TransactionTaxAggregateRowRecord[]>;
 }
 
-export async function rebuildTransactionReportAggregatesInConvex(args: {
-  teamId?: string | null;
-}) {
+export async function rebuildTransactionReportAggregatesInConvex(args: { teamId?: string | null }) {
   return createClient().mutation(
     convexApi.transactions.serviceRebuildTransactionReportAggregates,
     serviceArgs({

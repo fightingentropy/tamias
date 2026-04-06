@@ -1,13 +1,7 @@
 "use client";
 
 import { cn } from "@tamias/ui/cn";
-import {
-  type HTMLAttributes,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { type HTMLAttributes, useCallback, useEffect, useRef, useState } from "react";
 
 export type AudioWaveformProps = HTMLAttributes<HTMLDivElement> & {
   /** AnalyserNode for real-time frequency data */
@@ -198,10 +192,7 @@ export function AudioWaveform({
 
         for (let i = 0; i < halfCount; i++) {
           const dataIndex = Math.floor((i / halfCount) * relevantData.length);
-          const value = Math.max(
-            0.1,
-            ((relevantData[dataIndex] || 0) / 255) * sensitivity,
-          );
+          const value = Math.max(0.1, ((relevantData[dataIndex] || 0) / 255) * sensitivity);
           newFrequencyData.push(value);
         }
 
@@ -222,8 +213,7 @@ export function AudioWaveform({
       const primaryValue = getComputedStyle(document.documentElement)
         .getPropertyValue("--primary")
         .trim();
-      const computedBarColor =
-        barColor || (primaryValue ? `hsl(${primaryValue})` : "#000");
+      const computedBarColor = barColor || (primaryValue ? `hsl(${primaryValue})` : "#000");
 
       // Calculate smooth progress (0-1)
       const progress = duration > 0 ? currentTime / duration : 0;
@@ -268,14 +258,9 @@ export function AudioWaveform({
         const barProgress = i / barCount;
         const isPlayed = showProgress && barProgress <= progress;
         // Partial fill for the bar at the progress boundary
-        const isPartial =
-          showProgress &&
-          barProgress <= progress &&
-          (i + 1) / barCount > progress;
+        const isPartial = showProgress && barProgress <= progress && (i + 1) / barCount > progress;
 
-        ctx.fillStyle = isPlayed
-          ? progressColor || computedBarColor
-          : computedBarColor;
+        ctx.fillStyle = isPlayed ? progressColor || computedBarColor : computedBarColor;
 
         if (active) {
           ctx.globalAlpha = isPlayed ? 0.9 : 0.4 + (barH / canvasHeight) * 0.3;
@@ -285,12 +270,9 @@ export function AudioWaveform({
           // Smooth opacity transition at progress boundary
           if (isPartial) {
             const partialProgress = progress * barCount - i;
-            ctx.globalAlpha =
-              0.25 + partialProgress * 0.45 + (barH / canvasHeight) * 0.2;
+            ctx.globalAlpha = 0.25 + partialProgress * 0.45 + (barH / canvasHeight) * 0.2;
           } else {
-            ctx.globalAlpha = isPlayed
-              ? 0.7
-              : 0.25 + (barH / canvasHeight) * 0.2;
+            ctx.globalAlpha = isPlayed ? 0.7 : 0.25 + (barH / canvasHeight) * 0.2;
           }
         }
 
@@ -333,11 +315,7 @@ export function AudioWaveform({
   return (
     <div
       ref={containerRef}
-      className={cn(
-        "relative w-full",
-        onScrub && duration > 0 && "cursor-pointer",
-        className,
-      )}
+      className={cn("relative w-full", onScrub && duration > 0 && "cursor-pointer", className)}
       style={{ height }}
       onMouseDown={handleMouseDown}
       {...props}

@@ -1,12 +1,6 @@
-import type {
-  SearchCandidate,
-  SearchPageResult,
-} from "../types";
+import type { SearchCandidate, SearchPageResult } from "../types";
 
-export function getSearchPageSize(args: {
-  searchTerm?: string;
-  itemsPerTableLimit: number;
-}) {
+export function getSearchPageSize(args: { searchTerm?: string; itemsPerTableLimit: number }) {
   if (!args.searchTerm) {
     return args.itemsPerTableLimit;
   }
@@ -86,14 +80,8 @@ export async function collectSearchMatches<TRecord>(args: {
 export async function loadCandidatesForSource<TRecord>(args: {
   searchTerm?: string;
   itemsPerTableLimit: number;
-  loadSearch?:
-    | ((limit: number) => Promise<TRecord[]>)
-    | null
-    | undefined;
-  loadPage: (
-    cursor: string | null,
-    pageSize: number,
-  ) => Promise<SearchPageResult<TRecord>>;
+  loadSearch?: ((limit: number) => Promise<TRecord[]>) | null | undefined;
+  loadPage: (cursor: string | null, pageSize: number) => Promise<SearchPageResult<TRecord>>;
   toCandidate: (record: TRecord) => SearchCandidate | null;
   matchesCandidate: (candidate: SearchCandidate) => boolean;
 }) {

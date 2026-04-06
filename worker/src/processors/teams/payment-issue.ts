@@ -1,9 +1,6 @@
 import { PaymentIssueEmail } from "@tamias/email/emails/payment-issue";
 import { render } from "@tamias/email/render";
-import {
-  getSupportFromDisplay,
-  getSupportReplyToEmail,
-} from "@tamias/utils/envs";
+import { getSupportFromDisplay, getSupportReplyToEmail } from "@tamias/utils/envs";
 import type { WorkerJob as Job } from "../../types/job";
 import { Resend } from "resend";
 import type { PaymentIssuePayload } from "../../schemas/teams";

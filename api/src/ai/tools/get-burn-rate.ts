@@ -3,13 +3,7 @@ import { db } from "@tamias/app-data/client";
 import { getBurnRate, getRunway, getSpending } from "@tamias/app-data/queries";
 import { formatAmount } from "@tamias/utils/format";
 import { generateText, tool } from "ai";
-import {
-  eachMonthOfInterval,
-  endOfMonth,
-  format,
-  parseISO,
-  startOfMonth,
-} from "date-fns";
+import { eachMonthOfInterval, endOfMonth, format, parseISO, startOfMonth } from "date-fns";
 import { z } from "zod";
 import { getAssistantModel } from "../providers";
 import {
@@ -32,13 +26,9 @@ const getBurnRateSchema = z.object({
 });
 
 export const getBurnRateTool = tool({
-  description:
-    "Calculate monthly cash burn rate - spending per month with trends.",
+  description: "Calculate monthly cash burn rate - spending per month with trends.",
   inputSchema: getBurnRateSchema,
-  execute: async function* (
-    { period, from, to, currency, showCanvas },
-    executionOptions,
-  ) {
+  execute: async function* ({ period, from, to, currency, showCanvas }, executionOptions) {
     const appContext = getToolAppContext(executionOptions);
     const teamId = getToolTeamId(appContext);
 
@@ -57,12 +47,11 @@ export const getBurnRateTool = tool({
     throwIfBankAccountsRequired(appContext);
 
     try {
-      const { finalFrom, finalTo, finalCurrency, description, locale } =
-        resolveReportToolParams({
-          toolName: "getBurnRate",
-          appContext,
-          aiParams: { period, from, to, currency },
-        });
+      const { finalFrom, finalTo, finalCurrency, description, locale } = resolveReportToolParams({
+        toolName: "getBurnRate",
+        appContext,
+        aiParams: { period, from, to, currency },
+      });
       const analysis = startArtifactStream({
         enabled: showCanvas,
         executionOptions,
@@ -148,15 +137,12 @@ export const getBurnRateTool = tool({
 
       // Calculate metrics
       const currentMonthlyBurn =
-        burnRateData.length > 0
-          ? burnRateData[burnRateData.length - 1]?.value || 0
-          : 0;
+        burnRateData.length > 0 ? burnRateData[burnRateData.length - 1]?.value || 0 : 0;
 
       const averageBurnRate =
         burnRateData.length > 0
           ? Math.round(
-              burnRateData.reduce((sum, item) => sum + (item?.value || 0), 0) /
-                burnRateData.length,
+              burnRateData.reduce((sum, item) => sum + (item?.value || 0), 0) / burnRateData.length,
             )
           : 0;
 
@@ -175,15 +161,11 @@ export const getBurnRateTool = tool({
           };
 
       // Calculate burn rate change
-      const burnRateStartValue =
-        burnRateData.length > 0 ? burnRateData[0]?.value || 0 : 0;
+      const burnRateStartValue = burnRateData.length > 0 ? burnRateData[0]?.value || 0 : 0;
       const burnRateEndValue = currentMonthlyBurn;
       const burnRateChangePercentage =
         burnRateStartValue > 0
-          ? Math.round(
-              ((burnRateEndValue - burnRateStartValue) / burnRateStartValue) *
-                100,
-            )
+          ? Math.round(((burnRateEndValue - burnRateStartValue) / burnRateStartValue) * 100)
           : 0;
       const burnRateChangePeriod = `${burnRateData.length} months`;
 
@@ -196,9 +178,7 @@ export const getBurnRateTool = tool({
       });
 
       // Create a map of burnRateData by date for efficient lookup
-      const burnRateDataMap = new Map(
-        burnRateData.map((item) => [item.date, item.value]),
-      );
+      const burnRateDataMap = new Map(burnRateData.map((item) => [item.date, item.value]));
 
       const monthlyData = monthSeries.map((month) => {
         const monthKey = format(month, "yyyy-MM-dd");
@@ -230,9 +210,7 @@ export const getBurnRateTool = tool({
 
       // Determine runway status
       const runwayStatus =
-        runway >= 12
-          ? "Above recommended 12+ months"
-          : "Below recommended 12+ months";
+        runway >= 12 ? "Above recommended 12+ months" : "Below recommended 12+ months";
 
       // Update artifact with metrics
       if (showCanvas && analysis) {
@@ -295,9 +273,7 @@ Provide a concise 2-3 sentence summary analyzing the burn rate patterns and 2-3 
 
       // Parse AI response
       const aiResponseText = analysisResult.text;
-      const lines = aiResponseText
-        .split("\n")
-        .filter((line) => line.trim().length > 0);
+      const lines = aiResponseText.split("\n").filter((line) => line.trim().length > 0);
 
       // Extract summary (first 2-3 sentences)
       const summaryText =
@@ -372,19 +348,16 @@ Provide a concise 2-3 sentence summary analyzing the burn rate patterns and 2-3 
       responseText += `**Cash Runway:** ${runway} months (${runwayStatus})\n\n`;
 
       if (burnRateChangePercentage !== 0) {
-        const changeDirection =
-          burnRateChangePercentage > 0 ? "increased" : "decreased";
+        const changeDirection = burnRateChangePercentage > 0 ? "increased" : "decreased";
         responseText += `**Burn Rate Trend:** ${changeDirection} by ${Math.abs(burnRateChangePercentage)}% over ${burnRateChangePeriod}\n\n`;
       }
 
       if (topCategory.name !== "Uncategorized") {
-        responseText += `**Top Spending Category:** ${topCategory.name} - ${formatAmount(
-          {
-            amount: topCategory.amount,
-            currency: targetCurrency,
-            locale,
-          },
-        )} (${topCategory.percentage.toFixed(1)}% of total)\n\n`;
+        responseText += `**Top Spending Category:** ${topCategory.name} - ${formatAmount({
+          amount: topCategory.amount,
+          currency: targetCurrency,
+          locale,
+        })} (${topCategory.percentage.toFixed(1)}% of total)\n\n`;
       }
 
       responseText += `**Summary & Recommendations:**\n\n${summaryText}\n\n`;

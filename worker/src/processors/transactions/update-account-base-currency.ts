@@ -7,10 +7,7 @@ import {
 } from "@tamias/app-data/queries";
 import type { WorkerJob as Job } from "../../types/job";
 import type { UpdateAccountBaseCurrencyPayload } from "../../schemas/transactions";
-import {
-  getAccountBalance,
-  getTransactionAmount,
-} from "../../utils/base-currency";
+import { getAccountBalance, getTransactionAmount } from "../../utils/base-currency";
 import { getDb } from "../../utils/db";
 import { BaseProcessor } from "../base";
 

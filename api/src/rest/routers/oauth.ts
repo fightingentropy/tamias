@@ -56,8 +56,7 @@ app.openapi(
     path: "/authorize",
     summary: "OAuth Authorization Endpoint",
     operationId: "getOAuthAuthorization",
-    description:
-      "Initiate OAuth authorization flow and get consent screen information",
+    description: "Initiate OAuth authorization flow and get consent screen information",
     tags: ["OAuth"],
     request: {
       query: oauthAuthorizationRequestSchema,
@@ -86,8 +85,7 @@ app.openapi(
     const { client_id, redirect_uri, scope, state, code_challenge } = query;
 
     // Validate client_id
-    const application =
-      await getOAuthApplicationByClientIdFromConvex(client_id);
+    const application = await getOAuthApplicationByClientIdFromConvex(client_id);
     if (!application || !application.active) {
       throw new HTTPException(400, {
         message: "Invalid client_id",
@@ -110,9 +108,7 @@ app.openapi(
 
     // Validate scopes
     const requestedScopes = scope.split(" ").filter(Boolean);
-    const invalidScopes = requestedScopes.filter(
-      (s) => !application.scopes.includes(s),
-    );
+    const invalidScopes = requestedScopes.filter((s) => !application.scopes.includes(s));
 
     if (invalidScopes.length > 0) {
       throw new HTTPException(400, {
@@ -133,10 +129,7 @@ app.openapi(
       state,
     };
 
-    return c.json(
-      validateResponse(applicationInfo, oauthApplicationInfoSchema),
-      200,
-    );
+    return c.json(validateResponse(applicationInfo, oauthApplicationInfoSchema), 200);
   },
 );
 
@@ -195,15 +188,7 @@ app.openapi(
     const authHeader = c.req.header("Authorization");
     const body = c.req.valid("json");
 
-    const {
-      client_id,
-      decision,
-      scopes,
-      redirect_uri,
-      state,
-      code_challenge,
-      teamId,
-    } = body;
+    const { client_id, decision, scopes, redirect_uri, state, code_challenge, teamId } = body;
 
     // Verify user authentication
     const accessToken = authHeader?.split(" ")[1];
@@ -216,8 +201,7 @@ app.openapi(
     }
 
     // Validate client_id
-    const application =
-      await getOAuthApplicationByClientIdFromConvex(client_id);
+    const application = await getOAuthApplicationByClientIdFromConvex(client_id);
     if (!application || !application.active) {
       throw new HTTPException(400, {
         message: "Invalid client_id",
@@ -328,23 +312,16 @@ app.openapi(
     path: "/token",
     summary: "OAuth Token Exchange",
     operationId: "postOAuthToken",
-    description:
-      "Exchange authorization code for access token or refresh an access token",
+    description: "Exchange authorization code for access token or refresh an access token",
     tags: ["OAuth"],
     request: {
       body: {
         content: {
           "application/json": {
-            schema: z.union([
-              oauthTokenRequestSchema,
-              oauthRefreshTokenRequestSchema,
-            ]),
+            schema: z.union([oauthTokenRequestSchema, oauthRefreshTokenRequestSchema]),
           },
           "application/x-www-form-urlencoded": {
-            schema: z.union([
-              oauthTokenRequestSchema,
-              oauthRefreshTokenRequestSchema,
-            ]),
+            schema: z.union([oauthTokenRequestSchema, oauthRefreshTokenRequestSchema]),
           },
         },
       },
@@ -390,8 +367,7 @@ app.openapi(
     } = body;
 
     // Validate client credentials
-    const application =
-      await getOAuthApplicationByClientIdFromConvex(client_id);
+    const application = await getOAuthApplicationByClientIdFromConvex(client_id);
     if (!application || !application.active) {
       throw new HTTPException(400, {
         message: "Invalid client credentials",
@@ -417,8 +393,7 @@ app.openapi(
     if (grant_type === "authorization_code") {
       if (!code || !redirect_uri) {
         throw new HTTPException(400, {
-          message:
-            "Missing required parameters: code and redirect_uri are required",
+          message: "Missing required parameters: code and redirect_uri are required",
         });
       }
 
@@ -439,19 +414,14 @@ app.openapi(
           scope: tokenResponse.scopes.join(" "),
         };
 
-        return c.json(
-          validateResponse(response, oauthTokenResponseSchema),
-          200,
-        );
+        return c.json(validateResponse(response, oauthTokenResponseSchema), 200);
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Unknown error";
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
         // Handle specific OAuth errors with proper error codes
         if (errorMessage.includes("Authorization code expired")) {
           throw new HTTPException(400, {
-            message:
-              "The authorization code has expired. Please restart the OAuth flow.",
+            message: "The authorization code has expired. Please restart the OAuth flow.",
           });
         }
 
@@ -470,8 +440,7 @@ app.openapi(
 
         if (errorMessage.includes("redirect_uri")) {
           throw new HTTPException(400, {
-            message:
-              "The redirect_uri does not match the one used in the authorization request.",
+            message: "The redirect_uri does not match the one used in the authorization request.",
           });
         }
 
@@ -491,9 +460,7 @@ app.openapi(
 
       try {
         // Parse requested scopes
-        const requestedScopes = scope
-          ? scope.split(" ").filter(Boolean)
-          : undefined;
+        const requestedScopes = scope ? scope.split(" ").filter(Boolean) : undefined;
 
         // Refresh access token
         const tokenResponse = await refreshAccessTokenInConvex({
@@ -510,13 +477,9 @@ app.openapi(
           scope: tokenResponse.scopes.join(" "),
         };
 
-        return c.json(
-          validateResponse(response, oauthTokenResponseSchema),
-          200,
-        );
+        return c.json(validateResponse(response, oauthTokenResponseSchema), 200);
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Unknown error";
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
         if (errorMessage.includes("Invalid refresh token")) {
           throw new HTTPException(400, {
@@ -595,8 +558,7 @@ app.openapi(
     const { token, client_id, client_secret } = body;
 
     // Validate client credentials
-    const application =
-      await getOAuthApplicationByClientIdFromConvex(client_id);
+    const application = await getOAuthApplicationByClientIdFromConvex(client_id);
     if (!application || !application.active) {
       throw new HTTPException(400, {
         message: "Invalid client credentials",

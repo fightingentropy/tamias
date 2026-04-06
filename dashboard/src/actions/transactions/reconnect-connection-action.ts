@@ -8,6 +8,6 @@ export const reconnectConnectionActionSchema = z.object({
 
 export function reconnectConnectionAction(
   input: z.infer<typeof reconnectConnectionActionSchema>,
-) : Promise<{ runId?: string }> {
+): Promise<{ runId?: string }> {
   return postAction("/api/actions/transactions/reconnect", input);
 }

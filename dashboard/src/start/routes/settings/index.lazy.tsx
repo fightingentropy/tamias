@@ -15,15 +15,10 @@ export const Route = createLazyFileRoute("/settings/")({
 });
 
 function SettingsPage() {
-  const loaderData = Route.useLoaderData() as Awaited<
-    ReturnType<typeof loadSettingsData>
-  >;
+  const loaderData = Route.useLoaderData() as Awaited<ReturnType<typeof loadSettingsData>>;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <div className="space-y-12">
         <CompanyLogo />
         <CompanyName />

@@ -10,8 +10,7 @@ export type QueryStateOptions = {
 
 type EqualityComparator<T> = (a: T, b: T) => boolean;
 
-export interface QueryStateParser<T, HasDefault extends boolean = false>
-  extends QueryStateOptions {
+export interface QueryStateParser<T, HasDefault extends boolean = false> extends QueryStateOptions {
   defaultValue?: HasDefault extends true ? T : undefined;
   eq?: EqualityComparator<T>;
   parse: (value: unknown) => T | null;
@@ -53,8 +52,7 @@ function createParser<T>(definition: {
 }): QueryStateParser<T, false> {
   return createConfiguredParser<T, false>({
     eq: definition.eq,
-    parse: (value) =>
-      typeof value === "string" ? definition.parse(value) : null,
+    parse: (value) => (typeof value === "string" ? definition.parse(value) : null),
     serialize: definition.serialize,
     type: "single",
   });
@@ -79,7 +77,7 @@ function isParser(value: unknown): value is QueryStateParser<unknown, boolean> {
 }
 
 function serializeItem(value: string | string[]) {
-  return Array.isArray(value) ? value[0] ?? "" : value;
+  return Array.isArray(value) ? (value[0] ?? "") : value;
 }
 
 export const parseAsString = createParser<string>({
@@ -100,28 +98,19 @@ export const parseAsBoolean = createParser<boolean>({
   serialize: String,
 });
 
-export function parseAsStringLiteral<const TValues extends readonly string[]>(
-  values: TValues,
-) {
+export function parseAsStringLiteral<const TValues extends readonly string[]>(values: TValues) {
   return createParser<TValues[number]>({
     parse: (value) =>
-      values.includes(value as TValues[number])
-        ? (value as TValues[number])
-        : null,
+      values.includes(value as TValues[number]) ? (value as TValues[number]) : null,
     serialize: String,
   });
 }
 
-export function parseAsStringEnum<const TValues extends readonly string[]>(
-  values: TValues,
-) {
+export function parseAsStringEnum<const TValues extends readonly string[]>(values: TValues) {
   return parseAsStringLiteral(values);
 }
 
-export function parseAsArrayOf<T>(
-  itemParser: QueryStateParser<T, boolean>,
-  separator = ",",
-) {
+export function parseAsArrayOf<T>(itemParser: QueryStateParser<T, boolean>, separator = ",") {
   const encodedSeparator = encodeURIComponent(separator);
 
   return createConfiguredParser<T[], false>({
@@ -129,8 +118,7 @@ export function parseAsArrayOf<T>(
     eq: (left, right) =>
       left.length === right.length &&
       left.every((value, index) => {
-        const comparator =
-          itemParser.eq ?? ((a: T, b: T) => Object.is(a, b));
+        const comparator = itemParser.eq ?? ((a: T, b: T) => Object.is(a, b));
 
         return comparator(value, right[index] as T);
       }),
@@ -145,21 +133,13 @@ export function parseAsArrayOf<T>(
 
       return value
         .split(separator)
-        .map((item) =>
-          safeParse(
-            itemParser.parse,
-            item.replaceAll(encodedSeparator, separator),
-          ),
-        )
+        .map((item) => safeParse(itemParser.parse, item.replaceAll(encodedSeparator, separator)))
         .filter((item): item is T => item !== null);
     },
     serialize: (value) =>
       value
         .map((item) =>
-          serializeItem(itemParser.serialize(item)).replaceAll(
-            separator,
-            encodedSeparator,
-          ),
+          serializeItem(itemParser.serialize(item)).replaceAll(separator, encodedSeparator),
         )
         .join(separator),
     type: "single",
@@ -230,30 +210,27 @@ export function parseQueryValue<T, HasDefault extends boolean>(
   query: string | string[] | null,
 ): InferParserValue<QueryStateParser<T, HasDefault>> {
   if (isAbsentFromUrl(query)) {
-    return ((parser.defaultValue ?? null) as unknown) as InferParserValue<
+    return (parser.defaultValue ?? null) as unknown as InferParserValue<
       QueryStateParser<T, HasDefault>
     >;
   }
 
   const parsed = safeParse(parser.parse, query);
 
-  return ((parsed ?? parser.defaultValue ?? null) as unknown) as InferParserValue<
+  return (parsed ?? parser.defaultValue ?? null) as unknown as InferParserValue<
     QueryStateParser<T, HasDefault>
   >;
 }
 
-export function createLoader<
-  TParsers extends Record<string, QueryStateParser<any, any>>,
->(parsers: TParsers) {
+export function createLoader<TParsers extends Record<string, QueryStateParser<any, any>>>(
+  parsers: TParsers,
+) {
   return (input: unknown): InferParserMap<TParsers> => {
     const searchParams = extractSearchParams(input);
     const result = {} as InferParserMap<TParsers>;
 
     for (const [key, parser] of Object.entries(parsers)) {
-      const query =
-        parser.type === "multi"
-          ? searchParams.getAll(key)
-          : searchParams.get(key);
+      const query = parser.type === "multi" ? searchParams.getAll(key) : searchParams.get(key);
 
       (result as Record<string, unknown>)[key] = parseQueryValue(
         parser as QueryStateParser<unknown, boolean>,
@@ -296,8 +273,7 @@ export function normalizeParser<T>(
   let normalized = parseAsString as unknown as QueryStateParser<T, boolean>;
 
   if (parser && "defaultValue" in parser) {
-    const defaultValue = (parser as QueryStateOptions & { defaultValue?: T })
-      .defaultValue;
+    const defaultValue = (parser as QueryStateOptions & { defaultValue?: T }).defaultValue;
 
     if (defaultValue !== undefined) {
       normalized = normalized.withDefault(defaultValue);
@@ -311,17 +287,10 @@ export function normalizeParser<T>(
   return normalized;
 }
 
-export function updateQueryString<
-  TParsers extends Record<string, QueryStateParser<any, any>>,
->(
-  updates:
-    | Partial<{
-        [TKey in keyof TParsers]:
-          | InferParserValue<TParsers[TKey]>
-          | null
-          | undefined;
-      }>
-    | null,
+export function updateQueryString<TParsers extends Record<string, QueryStateParser<any, any>>>(
+  updates: Partial<{
+    [TKey in keyof TParsers]: InferParserValue<TParsers[TKey]> | null | undefined;
+  }> | null,
   parsers: TParsers,
   options?: QueryStateOptions,
 ) {
@@ -347,24 +316,18 @@ export function updateQueryString<
       const matchesDefault =
         hasDefault &&
         value !== null &&
-        (parser.eq ??
-          ((left: unknown, right: unknown) => Object.is(left, right)))(
+        (parser.eq ?? ((left: unknown, right: unknown) => Object.is(left, right)))(
           value,
           parser.defaultValue,
         );
-      const clearOnDefault =
-        parser.clearOnDefault ?? options?.clearOnDefault ?? true;
+      const clearOnDefault = parser.clearOnDefault ?? options?.clearOnDefault ?? true;
 
       if (value === null || (clearOnDefault && matchesDefault)) {
         searchParams.delete(key);
         continue;
       }
 
-      writeSearchParam(
-        searchParams,
-        key,
-        parser.serialize(value) as string | string[],
-      );
+      writeSearchParam(searchParams, key, parser.serialize(value) as string | string[]);
     }
   }
 
@@ -384,11 +347,7 @@ export function updateQueryString<
     "replace";
 
   const applyUpdate = () => {
-    window.history[historyMode === "push" ? "pushState" : "replaceState"](
-      {},
-      "",
-      nextUrl,
-    );
+    window.history[historyMode === "push" ? "pushState" : "replaceState"]({}, "", nextUrl);
   };
 
   if (options?.startTransition) {

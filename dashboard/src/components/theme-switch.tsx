@@ -45,19 +45,13 @@ export const ThemeSwitch = () => {
       <Select value={theme} onValueChange={(value: Theme) => setTheme(value)}>
         <SelectTrigger className="w-full pl-6 pr-3 py-1.5 bg-transparent outline-none capitalize h-[32px] text-xs">
           <SelectValue>
-            {theme
-              ? theme.charAt(0).toUpperCase() + theme.slice(1)
-              : "Select theme"}
+            {theme ? theme.charAt(0).toUpperCase() + theme.slice(1) : "Select theme"}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
             {themes.map((theme) => (
-              <SelectItem
-                key={theme}
-                value={theme}
-                className="capitalize text-xs"
-              >
+              <SelectItem key={theme} value={theme} className="capitalize text-xs">
                 {theme}
               </SelectItem>
             ))}

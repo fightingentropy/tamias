@@ -19,9 +19,7 @@ describe("formatAmountValue", () => {
   });
 
   it("should invert the amount when inverted is true", () => {
-    expect(formatAmountValue({ amount: "1234.56", inverted: true })).toBe(
-      -1234.56,
-    );
+    expect(formatAmountValue({ amount: "1234.56", inverted: true })).toBe(-1234.56);
   });
 
   it("should handle negative numbers", () => {
@@ -29,9 +27,7 @@ describe("formatAmountValue", () => {
   });
 
   it("should invert negative numbers when inverted is true", () => {
-    expect(formatAmountValue({ amount: "-1234.56", inverted: true })).toBe(
-      1234.56,
-    );
+    expect(formatAmountValue({ amount: "-1234.56", inverted: true })).toBe(1234.56);
   });
 
   it("should handle zero", () => {

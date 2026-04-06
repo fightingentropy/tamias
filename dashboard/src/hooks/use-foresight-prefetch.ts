@@ -36,21 +36,27 @@ function getConnectionInfo() {
   }
 
   const connection =
-    (navigator as Navigator & {
-      connection?: NetworkInformationLike;
-      mozConnection?: NetworkInformationLike;
-      webkitConnection?: NetworkInformationLike;
-    }).connection ??
-    (navigator as Navigator & {
-      connection?: NetworkInformationLike;
-      mozConnection?: NetworkInformationLike;
-      webkitConnection?: NetworkInformationLike;
-    }).mozConnection ??
-    (navigator as Navigator & {
-      connection?: NetworkInformationLike;
-      mozConnection?: NetworkInformationLike;
-      webkitConnection?: NetworkInformationLike;
-    }).webkitConnection ??
+    (
+      navigator as Navigator & {
+        connection?: NetworkInformationLike;
+        mozConnection?: NetworkInformationLike;
+        webkitConnection?: NetworkInformationLike;
+      }
+    ).connection ??
+    (
+      navigator as Navigator & {
+        connection?: NetworkInformationLike;
+        mozConnection?: NetworkInformationLike;
+        webkitConnection?: NetworkInformationLike;
+      }
+    ).mozConnection ??
+    (
+      navigator as Navigator & {
+        connection?: NetworkInformationLike;
+        mozConnection?: NetworkInformationLike;
+        webkitConnection?: NetworkInformationLike;
+      }
+    ).webkitConnection ??
     null;
 
   return connection;
@@ -118,10 +124,7 @@ export function useForesightMetricsPrefetch() {
               revenueType,
             }),
           ),
-        () =>
-          queryClient.prefetchQuery(
-            trpc.reports.expense.queryOptions({ from, to, currency }),
-          ),
+        () => queryClient.prefetchQuery(trpc.reports.expense.queryOptions({ from, to, currency })),
         () =>
           queryClient.prefetchQuery(
             trpc.reports.profit.queryOptions({
@@ -131,14 +134,8 @@ export function useForesightMetricsPrefetch() {
               revenueType,
             }),
           ),
-        () =>
-          queryClient.prefetchQuery(
-            trpc.reports.runway.queryOptions({ currency }),
-          ),
-        () =>
-          queryClient.prefetchQuery(
-            trpc.widgets.getAccountBalances.queryOptions({ currency }),
-          ),
+        () => queryClient.prefetchQuery(trpc.reports.runway.queryOptions({ currency })),
+        () => queryClient.prefetchQuery(trpc.widgets.getAccountBalances.queryOptions({ currency })),
       ];
 
       for (const prefetch of prefetchers) {

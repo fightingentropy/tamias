@@ -60,9 +60,7 @@ describe("Balance Sheet Calculation Logic", () => {
   const DEBT_ACCOUNT_TYPES = ["credit", "loan"];
 
   test("cash balance should include depository and other_asset accounts", () => {
-    const cashAccounts = mockBankAccounts.filter((acc) =>
-      CASH_ACCOUNT_TYPES.includes(acc.type),
-    );
+    const cashAccounts = mockBankAccounts.filter((acc) => CASH_ACCOUNT_TYPES.includes(acc.type));
 
     const totalCash = cashAccounts.reduce((sum, acc) => sum + acc.balance, 0);
 
@@ -71,10 +69,7 @@ describe("Balance Sheet Calculation Logic", () => {
   });
 
   test("accounts receivable should sum unpaid invoices", () => {
-    const accountsReceivable = mockUnpaidInvoices.reduce(
-      (sum, inv) => sum + inv.amount,
-      0,
-    );
+    const accountsReceivable = mockUnpaidInvoices.reduce((sum, inv) => sum + inv.amount, 0);
 
     // 5,000 + 3,000 = 8,000
     expect(accountsReceivable).toBe(8000);
@@ -82,9 +77,7 @@ describe("Balance Sheet Calculation Logic", () => {
 
   test("prepaid expenses should be treated as assets", () => {
     // Prepaid expenses are outflows that create future value
-    const prepaid = mockAssetTransactions.find(
-      (t) => t.categorySlug === "prepaid-expenses",
-    );
+    const prepaid = mockAssetTransactions.find((t) => t.categorySlug === "prepaid-expenses");
 
     // Amount is negative (money out) but creates asset
     const prepaidAssetValue = Math.abs(prepaid!.amount);
@@ -92,9 +85,7 @@ describe("Balance Sheet Calculation Logic", () => {
   });
 
   test("fixed assets should be calculated from purchase transactions", () => {
-    const fixedAssets = mockAssetTransactions.find(
-      (t) => t.categorySlug === "fixed-assets",
-    );
+    const fixedAssets = mockAssetTransactions.find((t) => t.categorySlug === "fixed-assets");
 
     const fixedAssetValue = Math.abs(fixedAssets!.amount);
     expect(fixedAssetValue).toBe(10000);
@@ -114,14 +105,9 @@ describe("Balance Sheet Calculation Logic", () => {
   });
 
   test("credit card debt should be included in liabilities", () => {
-    const creditAccounts = mockBankAccounts.filter(
-      (acc) => acc.type === "credit",
-    );
+    const creditAccounts = mockBankAccounts.filter((acc) => acc.type === "credit");
 
-    const creditDebt = creditAccounts.reduce(
-      (sum, acc) => sum + Math.abs(acc.balance),
-      0,
-    );
+    const creditDebt = creditAccounts.reduce((sum, acc) => sum + Math.abs(acc.balance), 0);
 
     expect(creditDebt).toBe(15000);
   });
@@ -129,13 +115,11 @@ describe("Balance Sheet Calculation Logic", () => {
   test("loan balance should be calculated from proceeds minus repayments", () => {
     // Loan proceeds (received) - repayments = outstanding balance
     const loanProceeds =
-      mockLiabilityTransactions.find((t) => t.categorySlug === "loan-proceeds")
-        ?.amount || 0;
+      mockLiabilityTransactions.find((t) => t.categorySlug === "loan-proceeds")?.amount || 0;
 
     const loanRepayments = Math.abs(
-      mockLiabilityTransactions.find(
-        (t) => t.categorySlug === "loan-principal-repayment",
-      )?.amount || 0,
+      mockLiabilityTransactions.find((t) => t.categorySlug === "loan-principal-repayment")
+        ?.amount || 0,
     );
 
     const outstandingLoan = loanProceeds - loanRepayments;
@@ -225,9 +209,7 @@ describe("Balance Sheet Calculation Logic", () => {
     expect(CASH_ACCOUNT_TYPES).not.toContain(loanAccount.type);
 
     // Should NOT add to cash/assets
-    const cashAccounts = mockBankAccounts.filter((acc) =>
-      CASH_ACCOUNT_TYPES.includes(acc.type),
-    );
+    const cashAccounts = mockBankAccounts.filter((acc) => CASH_ACCOUNT_TYPES.includes(acc.type));
 
     expect(cashAccounts.map((a) => a.name)).not.toContain("Business Loan");
   });
@@ -379,9 +361,7 @@ describe("Category Exclusion Logic", () => {
   ];
 
   test("excluded categories should be identified correctly", () => {
-    const excludedSlugs = exclusionCategories
-      .filter((c) => c.excluded === true)
-      .map((c) => c.slug);
+    const excludedSlugs = exclusionCategories.filter((c) => c.excluded === true).map((c) => c.slug);
 
     expect(excludedSlugs).toContain("credit-card-payment");
     expect(excludedSlugs).toContain("internal-transfer");
@@ -393,17 +373,13 @@ describe("Category Exclusion Logic", () => {
     // Simulate the exclusion logic
     const includedExpenses = exclusionTestTransactions.filter((tx) => {
       if (tx.amount >= 0) return false; // Not an expense
-      const category = exclusionCategories.find(
-        (c) => c.slug === tx.categorySlug,
-      );
+      const category = exclusionCategories.find((c) => c.slug === tx.categorySlug);
       if (category?.excluded) return false; // Excluded category
       return true;
     });
 
     // Should NOT include the credit card payment
-    expect(includedExpenses.map((t) => t.name)).not.toContain(
-      "Credit Card Payment",
-    );
+    expect(includedExpenses.map((t) => t.name)).not.toContain("Credit Card Payment");
 
     // Should include regular expenses
     expect(includedExpenses.map((t) => t.name)).toContain("Software Purchase");
@@ -413,32 +389,23 @@ describe("Category Exclusion Logic", () => {
   test("expense calculation should exclude internal-transfer transactions", () => {
     const includedExpenses = exclusionTestTransactions.filter((tx) => {
       if (tx.amount >= 0) return false;
-      const category = exclusionCategories.find(
-        (c) => c.slug === tx.categorySlug,
-      );
+      const category = exclusionCategories.find((c) => c.slug === tx.categorySlug);
       if (category?.excluded) return false;
       return true;
     });
 
-    expect(includedExpenses.map((t) => t.name)).not.toContain(
-      "Transfer to Savings",
-    );
+    expect(includedExpenses.map((t) => t.name)).not.toContain("Transfer to Savings");
   });
 
   test("total expenses should only include non-excluded categories", () => {
     const includedExpenses = exclusionTestTransactions.filter((tx) => {
       if (tx.amount >= 0) return false;
-      const category = exclusionCategories.find(
-        (c) => c.slug === tx.categorySlug,
-      );
+      const category = exclusionCategories.find((c) => c.slug === tx.categorySlug);
       if (category?.excluded) return false;
       return true;
     });
 
-    const totalExpenses = includedExpenses.reduce(
-      (sum, tx) => sum + Math.abs(tx.amount),
-      0,
-    );
+    const totalExpenses = includedExpenses.reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
 
     // Software (-500) + Office Supplies (-200) = 700
     // NOT including: Credit Card Payment (-500) + Transfer (-1000)
@@ -449,10 +416,7 @@ describe("Category Exclusion Logic", () => {
     // Simulate the BUG scenario - counting all expenses
     const allExpenses = exclusionTestTransactions.filter((tx) => tx.amount < 0);
 
-    const buggyTotal = allExpenses.reduce(
-      (sum, tx) => sum + Math.abs(tx.amount),
-      0,
-    );
+    const buggyTotal = allExpenses.reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
 
     // All expenses: 500 + 500 + 1000 + 200 = 2200
     expect(buggyTotal).toBe(2200);
@@ -466,20 +430,15 @@ describe("Category Exclusion Logic", () => {
 
   test("excluded flag must be explicitly true to exclude", () => {
     // Categories without excluded flag or with excluded: false should be included
-    const regularCategory = exclusionCategories.find(
-      (c) => c.slug === "software",
-    )!;
+    const regularCategory = exclusionCategories.find((c) => c.slug === "software")!;
 
     expect(regularCategory.excluded).toBe(false);
 
     // Transaction with this category should be counted
-    const softwareTx = exclusionTestTransactions.find(
-      (t) => t.categorySlug === "software",
-    )!;
+    const softwareTx = exclusionTestTransactions.find((t) => t.categorySlug === "software")!;
 
-    const shouldInclude = !exclusionCategories.find(
-      (c) => c.slug === softwareTx.categorySlug,
-    )?.excluded;
+    const shouldInclude = !exclusionCategories.find((c) => c.slug === softwareTx.categorySlug)
+      ?.excluded;
 
     expect(shouldInclude).toBe(true);
   });
@@ -491,9 +450,7 @@ describe("Category Exclusion Logic", () => {
     };
 
     // Uncategorized transactions should NOT be excluded
-    const category = exclusionCategories.find(
-      (c) => c.slug === uncategorizedTx.categorySlug,
-    );
+    const category = exclusionCategories.find((c) => c.slug === uncategorizedTx.categorySlug);
 
     // No category found = not excluded
     expect(category).toBeUndefined();
@@ -507,17 +464,12 @@ describe("Category Exclusion Logic", () => {
     // Burn rate = monthly expenses for runway calculation
     const validExpenses = exclusionTestTransactions.filter((tx) => {
       if (tx.amount >= 0) return false;
-      const category = exclusionCategories.find(
-        (c) => c.slug === tx.categorySlug,
-      );
+      const category = exclusionCategories.find((c) => c.slug === tx.categorySlug);
       if (category?.excluded) return false;
       return true;
     });
 
-    const burnRate = validExpenses.reduce(
-      (sum, tx) => sum + Math.abs(tx.amount),
-      0,
-    );
+    const burnRate = validExpenses.reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
 
     // Correct burn rate: 700 (software + office supplies)
     // NOT 2200 (all expenses)

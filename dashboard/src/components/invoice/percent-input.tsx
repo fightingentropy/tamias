@@ -31,9 +31,7 @@ export function PercentInput({ name, className, min = 0, max = 100 }: Props) {
         value={value}
         onValueChange={(values) => {
           onChange(
-            values.floatValue !== undefined && values.floatValue !== null
-              ? values.floatValue
-              : 0,
+            values.floatValue !== undefined && values.floatValue !== null ? values.floatValue : 0,
             { shouldValidate: true },
           );
         }}

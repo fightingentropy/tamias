@@ -9,9 +9,7 @@ export type StorageId = Id<"_storage">;
 
 function requireConvexUrl() {
   const convexUrl =
-    process.env.CONVEX_URL ||
-    process.env.TAMIAS_CONVEX_URL ||
-    process.env.CONVEX_SITE_URL;
+    process.env.CONVEX_URL || process.env.TAMIAS_CONVEX_URL || process.env.CONVEX_SITE_URL;
 
   if (!convexUrl) {
     throw new Error("Missing CONVEX_URL");

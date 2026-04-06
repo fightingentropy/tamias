@@ -48,9 +48,7 @@ export function BottomBar({ data }: Props) {
             transition={{ duration: 0.15 }}
           />
           <div className="relative h-12 justify-between items-center flex pl-4 pr-2">
-            <span className="text-sm">
-              {Object.keys(rowSelection).length} selected
-            </span>
+            <span className="text-sm">{Object.keys(rowSelection).length} selected</span>
 
             <div className="flex items-center space-x-2">
               <Button

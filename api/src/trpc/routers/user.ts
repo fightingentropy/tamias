@@ -51,9 +51,7 @@ export const userRouter = createTRPCRouter({
         timezone: input.timezone,
         timezoneAutoSync: input.timezoneAutoSync,
         timeFormat:
-          input.timeFormat === 12 || input.timeFormat === 24
-            ? input.timeFormat
-            : undefined,
+          input.timeFormat === 12 || input.timeFormat === 24 ? input.timeFormat : undefined,
         dateFormat: input.dateFormat,
         aiProvider: input.aiProvider,
       });

@@ -33,10 +33,12 @@ export const connectionStatusEnum = createEnum("connection_status", [
   "unknown",
 ] as const);
 
-export const documentProcessingStatusEnum = createEnum(
-  "document_processing_status",
-  ["pending", "processing", "completed", "failed"] as const,
-);
+export const documentProcessingStatusEnum = createEnum("document_processing_status", [
+  "pending",
+  "processing",
+  "completed",
+  "failed",
+] as const);
 
 export const inboxStatusEnum = createEnum("inbox_status", [
   "processing",
@@ -51,11 +53,7 @@ export const inboxStatusEnum = createEnum("inbox_status", [
   "other",
 ] as const);
 
-export const inboxTypeEnum = createEnum("inbox_type", [
-  "invoice",
-  "expense",
-  "other",
-] as const);
+export const inboxTypeEnum = createEnum("inbox_type", ["invoice", "expense", "other"] as const);
 
 export const invoiceDeliveryTypeEnum = createEnum("invoice_delivery_type", [
   "create",
@@ -63,10 +61,7 @@ export const invoiceDeliveryTypeEnum = createEnum("invoice_delivery_type", [
   "scheduled",
 ] as const);
 
-export const invoiceSizeEnum = createEnum("invoice_size", [
-  "a4",
-  "letter",
-] as const);
+export const invoiceSizeEnum = createEnum("invoice_size", ["a4", "letter"] as const);
 
 export const invoiceStatusEnum = createEnum("invoice_status", [
   "draft",
@@ -78,46 +73,39 @@ export const invoiceStatusEnum = createEnum("invoice_status", [
   "refunded",
 ] as const);
 
-export const invoiceRecurringFrequencyEnum = createEnum(
-  "invoice_recurring_frequency",
-  [
-    "weekly",
-    "biweekly",
-    "monthly_date",
-    "monthly_weekday",
-    "monthly_last_day",
-    "quarterly",
-    "semi_annual",
-    "annual",
-    "custom",
-  ] as const,
-);
-
-export const invoiceRecurringEndTypeEnum = createEnum(
-  "invoice_recurring_end_type",
-  ["never", "on_date", "after_count"] as const,
-);
-
-export const invoiceRecurringStatusEnum = createEnum(
-  "invoice_recurring_status",
-  ["active", "paused", "completed", "canceled"] as const,
-);
-
-export const plansEnum = createEnum("plans", [
-  "trial",
-  "starter",
-  "pro",
+export const invoiceRecurringFrequencyEnum = createEnum("invoice_recurring_frequency", [
+  "weekly",
+  "biweekly",
+  "monthly_date",
+  "monthly_weekday",
+  "monthly_last_day",
+  "quarterly",
+  "semi_annual",
+  "annual",
+  "custom",
 ] as const);
+
+export const invoiceRecurringEndTypeEnum = createEnum("invoice_recurring_end_type", [
+  "never",
+  "on_date",
+  "after_count",
+] as const);
+
+export const invoiceRecurringStatusEnum = createEnum("invoice_recurring_status", [
+  "active",
+  "paused",
+  "completed",
+  "canceled",
+] as const);
+
+export const plansEnum = createEnum("plans", ["trial", "starter", "pro"] as const);
 
 export const subscriptionStatusEnum = createEnum("subscription_status", [
   "active",
   "past_due",
 ] as const);
 
-export const teamRolesEnum = createEnum("teamRoles", [
-  "owner",
-  "member",
-] as const);
+export const teamRolesEnum = createEnum("teamRoles", ["owner", "member"] as const);
 
 export const transactionMethodsEnum = createEnum("transactionMethods", [
   "payment",

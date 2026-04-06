@@ -6,25 +6,16 @@ import {
 import type { Database } from "../../client";
 import { createActivity } from "../activities";
 import { getTrackerProjectById } from "./by-id";
-import type {
-  DeleteTrackerProjectParams,
-  UpsertTrackerProjectParams,
-} from "./types";
+import type { DeleteTrackerProjectParams, UpsertTrackerProjectParams } from "./types";
 
-export async function deleteTrackerProject(
-  _db: Database,
-  params: DeleteTrackerProjectParams,
-) {
+export async function deleteTrackerProject(_db: Database, params: DeleteTrackerProjectParams) {
   return deleteTrackerProjectInConvex({
     teamId: params.teamId,
     id: params.id,
   });
 }
 
-export async function upsertTrackerProject(
-  db: Database,
-  params: UpsertTrackerProjectParams,
-) {
+export async function upsertTrackerProject(db: Database, params: UpsertTrackerProjectParams) {
   const projectId = params.id ?? crypto.randomUUID();
 
   await upsertTrackerProjectInConvex({

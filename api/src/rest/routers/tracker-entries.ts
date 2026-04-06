@@ -119,12 +119,7 @@ app.openapi(
       project: item.trackerProject,
     }));
 
-    return c.json(
-      validateResponse(
-        { data: dataWithProject },
-        createTrackerEntriesResponseSchema,
-      ),
-    );
+    return c.json(validateResponse({ data: dataWithProject }, createTrackerEntriesResponseSchema));
   },
 );
 
@@ -178,12 +173,7 @@ app.openapi(
       project: item.trackerProject,
     }));
 
-    return c.json(
-      validateResponse(
-        { data: dataWithProject },
-        createTrackerEntriesResponseSchema,
-      ),
-    );
+    return c.json(validateResponse({ data: dataWithProject }, createTrackerEntriesResponseSchema));
   },
 );
 
@@ -241,12 +231,7 @@ app.openapi(
       project: item.trackerProject,
     }));
 
-    return c.json(
-      validateResponse(
-        { data: dataWithProject },
-        createTrackerEntriesResponseSchema,
-      ),
-    );
+    return c.json(validateResponse({ data: dataWithProject }, createTrackerEntriesResponseSchema));
   },
 );
 
@@ -329,10 +314,7 @@ app.openapi(
       ...rest,
     });
 
-    return c.json(
-      validateResponse({ data: result }, startTimerResponseSchema),
-      201,
-    );
+    return c.json(validateResponse({ data: result }, startTimerResponseSchema), 201);
   },
 );
 
@@ -419,9 +401,7 @@ app.openapi(
       assignedId: finalAssignedId,
     });
 
-    return c.json(
-      validateResponse({ data: result }, getCurrentTimerResponseSchema),
-    );
+    return c.json(validateResponse({ data: result }, getCurrentTimerResponseSchema));
   },
 );
 
@@ -432,8 +412,7 @@ app.openapi(
     summary: "Get timer status",
     operationId: "getTimerStatus",
     "x-speakeasy-name-override": "getTimerStatus",
-    description:
-      "Get timer status including elapsed time for the authenticated user.",
+    description: "Get timer status including elapsed time for the authenticated user.",
     tags: ["Tracker Timer"],
     request: {
       query: getCurrentTimerSchema,
@@ -462,9 +441,7 @@ app.openapi(
       assignedId: finalAssignedId,
     });
 
-    return c.json(
-      validateResponse({ data: result }, getTimerStatusResponseSchema),
-    );
+    return c.json(validateResponse({ data: result }, getTimerStatusResponseSchema));
   },
 );
 

@@ -89,13 +89,7 @@ function CopyButton({ path }: { path: string }) {
   );
 }
 
-function DownloadButton({
-  href,
-  filename,
-}: {
-  href: string;
-  filename?: string;
-}) {
+function DownloadButton({ href, filename }: { href: string; filename?: string }) {
   const [isDownloading, setIsDownloading] = useState(false);
 
   const isFileDownload = href.includes("/files/download/file");
@@ -139,9 +133,7 @@ function DownloadButton({
     <button
       type="button"
       onClick={handleDownload}
-      disabled={
-        isDownloading || (needsAuth && (!authenticatedUrl || isLoading))
-      }
+      disabled={isDownloading || (needsAuth && (!authenticatedUrl || isLoading))}
     >
       {isDownloading || isLoading ? (
         <Spinner size={16} />
@@ -218,10 +210,7 @@ const useSearchNavigation = () => {
     }) => {
       return navigateWithParams(params, setTrackerParams);
     },
-    navigateToTransaction: (params: {
-      transactionId?: string;
-      createTransaction?: boolean;
-    }) => {
+    navigateToTransaction: (params: { transactionId?: string; createTransaction?: boolean }) => {
       return navigateWithParams(params, setTransactionParams);
     },
     navigateToPath: (path: string) => {
@@ -235,10 +224,7 @@ const useSearchNavigation = () => {
       return navigateWithParams(params, setCustomerParams);
     },
     createTransaction: () => {
-      return navigateWithParams(
-        { createTransaction: true },
-        setTransactionParams,
-      );
+      return navigateWithParams({ createTransaction: true }, setTransactionParams);
     },
     createProject: () => {
       return navigateWithParams({ create: true }, setTrackerParams);
@@ -287,11 +273,7 @@ const SearchResultItemDisplay = ({
         resultDisplay = (
           <div className="flex items-center justify-between w-full">
             <span className="flex-grow truncate">
-              {
-                (item.data?.title ||
-                  (item.data?.name as string)?.split("/").at(-1) ||
-                  "") as string
-              }
+              {(item.data?.title || (item.data?.name as string)?.split("/").at(-1) || "") as string}
             </span>
             <div className="flex items-center gap-2 invisible group-hover/item:visible group-focus/item:visible group-aria-selected/item:visible">
               <CopyButton path={`?documentId=${item.id}`} />
@@ -316,16 +298,12 @@ const SearchResultItemDisplay = ({
       case "customer": {
         onSelect = () => nav.navigateToCustomer({ customerId: item.id });
 
-        icon = (
-          <Icons.Customers className="size-4 dark:text-[#666] text-primary" />
-        );
+        icon = <Icons.Customers className="size-4 dark:text-[#666] text-primary" />;
         resultDisplay = (
           <div className="flex items-center w-full">
             <div className="flex-grow truncate flex gap-2 items-center">
               <span>{item.data.name as string}</span>
-              <span className="text-xs text-muted-foreground">
-                {item.data.email as string}
-              </span>
+              <span className="text-xs text-muted-foreground">{item.data.email as string}</span>
             </div>
             <div className="flex items-center gap-2 invisible group-hover/item:visible group-focus/item:visible group-aria-selected/item:visible">
               <CopyButton path={`?customerId=${item.id}`} />
@@ -337,12 +315,9 @@ const SearchResultItemDisplay = ({
         break;
       }
       case "invoice": {
-        onSelect = () =>
-          nav.navigateToInvoice({ invoiceId: item.id, type: "details" });
+        onSelect = () => nav.navigateToInvoice({ invoiceId: item.id, type: "details" });
 
-        icon = (
-          <Icons.Invoice className="size-4 dark:text-[#666] text-primary" />
-        );
+        icon = <Icons.Invoice className="size-4 dark:text-[#666] text-primary" />;
         resultDisplay = (
           <div className="flex items-center w-full">
             <div className="flex-grow truncate flex gap-2 items-center">
@@ -365,9 +340,7 @@ const SearchResultItemDisplay = ({
       case "inbox": {
         onSelect = () => nav.navigateToPath(`/inbox?inboxId=${item.id}`);
 
-        icon = (
-          <Icons.Inbox2 size={14} className="dark:text-[#666] text-primary" />
-        );
+        icon = <Icons.Inbox2 size={14} className="dark:text-[#666] text-primary" />;
         resultDisplay = (
           <div className="flex items-center justify-between w-full">
             <div className="flex-grow truncate flex gap-2 items-center">
@@ -380,10 +353,7 @@ const SearchResultItemDisplay = ({
               </span>
               {item.data?.amount && item.data?.currency && (
                 <span className="text-xs text-muted-foreground">
-                  <FormatAmount
-                    currency={item.data.currency}
-                    amount={item.data.amount}
-                  />
+                  <FormatAmount currency={item.data.currency} amount={item.data.amount} />
                 </span>
               )}
               <span className="text-xs text-muted-foreground">
@@ -403,8 +373,7 @@ const SearchResultItemDisplay = ({
         break;
       }
       case "tracker_project": {
-        onSelect = () =>
-          nav.navigateToTracker({ projectId: item.id, update: true });
+        onSelect = () => nav.navigateToTracker({ projectId: item.id, update: true });
 
         icon = null; // TrackerTimer will handle its own icon
         resultDisplay = (
@@ -413,9 +382,7 @@ const SearchResultItemDisplay = ({
               <TrackerTimer
                 projectId={item.id}
                 projectName={item.data.name as string}
-                onClick={() =>
-                  nav.navigateToTracker({ projectId: item.id, update: true })
-                }
+                onClick={() => nav.navigateToTracker({ projectId: item.id, update: true })}
                 alwaysShowButton={true}
               />
             </div>
@@ -426,9 +393,7 @@ const SearchResultItemDisplay = ({
       case "transaction": {
         onSelect = () => nav.navigateToTransaction({ transactionId: item.id });
 
-        icon = (
-          <Icons.Transactions className="size-4 dark:text-[#666] text-primary" />
-        );
+        icon = <Icons.Transactions className="size-4 dark:text-[#666] text-primary" />;
         resultDisplay = (
           <div className="flex items-center justify-between w-full">
             <div className="flex-grow truncate flex gap-2 items-center">
@@ -440,9 +405,7 @@ const SearchResultItemDisplay = ({
                 />
               </span>
               <span className="text-xs text-muted-foreground">
-                {item.data?.date
-                  ? formatDate(item.data.date, dateFormat)
-                  : null}
+                {item.data?.date ? formatDate(item.data.date, dateFormat) : null}
               </span>
             </div>
             <div className="flex items-center gap-2 invisible group-hover/item:visible group-focus/item:visible group-aria-selected/item:visible">
@@ -522,10 +485,7 @@ export function Search() {
     refetchTimerStatus();
   }, [refetchTimerStatus]);
 
-  const [debouncedSearch, setDebouncedSearch] = useDebounceValue(
-    "",
-    debounceDelay,
-  );
+  const [debouncedSearch, setDebouncedSearch] = useDebounceValue("", debounceDelay);
 
   const sectionActions: SearchItem[] = [
     {
@@ -662,22 +622,8 @@ export function Search() {
 
     // Prioritize tracker projects when timer is running
     const definedGroupOrder = timerStatus?.isRunning
-      ? [
-          "tracker_project",
-          "vault",
-          "customer",
-          "invoice",
-          "transaction",
-          "inbox",
-        ]
-      : [
-          "vault",
-          "customer",
-          "invoice",
-          "transaction",
-          "tracker_project",
-          "inbox",
-        ];
+      ? ["tracker_project", "vault", "customer", "invoice", "transaction", "inbox"]
+      : ["vault", "customer", "invoice", "transaction", "tracker_project", "inbox"];
 
     const allGroupKeysInOrder: string[] = [];
     const addedKeys = new Set<string>();
@@ -705,12 +651,7 @@ export function Search() {
       }
     }
     return orderedGroups;
-  }, [
-    combinedData,
-    debouncedSearch,
-    timerStatus?.isRunning,
-    timerStatus?.currentEntry?.projectId,
-  ]);
+  }, [combinedData, debouncedSearch, timerStatus?.isRunning, timerStatus?.currentEntry?.projectId]);
 
   useEffect(() => {
     if (!height.current || !ref.current) {
@@ -765,16 +706,11 @@ export function Search() {
       <div className="px-2 global-search-list" ref={ref}>
         <CommandList ref={height} className="scrollbar-hide">
           {!isLoading && combinedData.length === 0 && debouncedSearch && (
-            <CommandEmpty>
-              No results found for "{debouncedSearch}".
-            </CommandEmpty>
+            <CommandEmpty>No results found for "{debouncedSearch}".</CommandEmpty>
           )}
           {!isLoading &&
             Object.entries(groupedData).map(([groupName, items]) => (
-              <CommandGroup
-                key={groupName}
-                heading={formatGroupName(groupName)}
-              >
+              <CommandGroup key={groupName} heading={formatGroupName(groupName)}>
                 {items.map((item: SearchItem) => (
                   <SearchResultItemDisplay
                     key={item.id}

@@ -123,26 +123,19 @@ export class ContentGenerator {
 
     try {
       // 1. Compute all slots (exact values for AI to use)
-      const slots = computeSlots(
-        selectedMetrics,
-        activity,
-        currency,
-        periodLabel,
-        periodType,
-        {
-          momentumContext: context.momentumContext,
-          yearOverYear: context.yearOverYear,
-          quarterPace: context.quarterPace,
-          runwayMonths: context.runwayMonths,
-          periodEnd: context.periodEnd,
-          weeksOfHistory: context.weeksOfHistory,
-          expenseAnomalies,
-          revenueConcentration: context.revenueConcentration,
-          anomalies,
-          allMetrics: context.allMetrics,
-          predictions: context.predictions,
-        },
-      );
+      const slots = computeSlots(selectedMetrics, activity, currency, periodLabel, periodType, {
+        momentumContext: context.momentumContext,
+        yearOverYear: context.yearOverYear,
+        quarterPace: context.quarterPace,
+        runwayMonths: context.runwayMonths,
+        periodEnd: context.periodEnd,
+        weeksOfHistory: context.weeksOfHistory,
+        expenseAnomalies,
+        revenueConcentration: context.revenueConcentration,
+        anomalies,
+        allMetrics: context.allMetrics,
+        predictions: context.predictions,
+      });
 
       logger.debug("Slots computed", {
         weekType: slots.weekType,
@@ -189,9 +182,7 @@ export class ContentGenerator {
   /**
    * Generate title using focused prompt
    */
-  private async generateTitle(
-    slots: ReturnType<typeof computeSlots>,
-  ): Promise<string> {
+  private async generateTitle(slots: ReturnType<typeof computeSlots>): Promise<string> {
     const prompt = buildTitlePrompt(slots);
 
     const { text } = await generateText({
@@ -206,9 +197,7 @@ export class ContentGenerator {
   /**
    * Generate summary using focused prompt
    */
-  private async generateSummary(
-    slots: ReturnType<typeof computeSlots>,
-  ): Promise<string> {
+  private async generateSummary(slots: ReturnType<typeof computeSlots>): Promise<string> {
     const prompt = buildSummaryPrompt(slots);
 
     const { text } = await generateText({
@@ -223,9 +212,7 @@ export class ContentGenerator {
   /**
    * Generate story using focused prompt
    */
-  private async generateStory(
-    slots: ReturnType<typeof computeSlots>,
-  ): Promise<string> {
+  private async generateStory(slots: ReturnType<typeof computeSlots>): Promise<string> {
     const prompt = buildStoryPrompt(slots);
 
     const { text } = await generateText({
@@ -237,14 +224,11 @@ export class ContentGenerator {
     // Strip quotes and clean up
     return text.trim().replace(/^["']|["']$/g, "");
   }
-
 }
 
 /**
  * Create a content generator instance
  */
-export function createContentGenerator(
-  options?: ContentGeneratorOptions,
-): ContentGenerator {
+export function createContentGenerator(options?: ContentGeneratorOptions): ContentGenerator {
   return new ContentGenerator(options);
 }

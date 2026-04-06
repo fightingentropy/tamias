@@ -48,13 +48,7 @@ export const employeeCountOptions = [
   "1000+",
 ] as const;
 
-export const revenueOptions = [
-  "<1M",
-  "1M-10M",
-  "10M-50M",
-  "50M-100M",
-  "100M+",
-] as const;
+export const revenueOptions = ["<1M", "1M-10M", "10M-50M", "50M-100M", "100M+"] as const;
 
 export const fundingStageOptions = [
   "Bootstrapped",
@@ -111,15 +105,9 @@ export const customerEnrichmentSchema = z.object({
     .nullable()
     .describe("Estimated revenue if publicly available."),
 
-  fundingStage: z
-    .enum(fundingStageOptions)
-    .nullable()
-    .describe("Funding stage if known."),
+  fundingStage: z.enum(fundingStageOptions).nullable().describe("Funding stage if known."),
 
-  totalFunding: z
-    .string()
-    .nullable()
-    .describe("Total funding raised if known (e.g. '$10M')."),
+  totalFunding: z.string().nullable().describe("Total funding raised if known (e.g. '$10M')."),
 
   headquartersLocation: z
     .string()
@@ -136,9 +124,7 @@ export const customerEnrichmentSchema = z.object({
   city: z
     .string()
     .nullable()
-    .describe(
-      "City where the company is headquartered (e.g. 'Stockholm', 'New York').",
-    ),
+    .describe("City where the company is headquartered (e.g. 'Stockholm', 'New York')."),
 
   state: z
     .string()
@@ -147,10 +133,7 @@ export const customerEnrichmentSchema = z.object({
       "State, province, or region (e.g. 'California', 'Stockholm County'). May not apply to all countries.",
     ),
 
-  zipCode: z
-    .string()
-    .nullable()
-    .describe("Postal/ZIP code (e.g. '11120', '94105')."),
+  zipCode: z.string().nullable().describe("Postal/ZIP code (e.g. '11120', '94105')."),
 
   country: z
     .string()

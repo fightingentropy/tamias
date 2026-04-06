@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
 
 export function useTeamQuery() {
@@ -25,9 +21,7 @@ export function useTeamMutation() {
         });
 
         // Get current data
-        const previousData = queryClient.getQueryData(
-          trpc.team.current.queryKey(),
-        );
+        const previousData = queryClient.getQueryData(trpc.team.current.queryKey());
 
         // Optimistically update
         queryClient.setQueryData(trpc.team.current.queryKey(), (old: any) => ({
@@ -39,10 +33,7 @@ export function useTeamMutation() {
       },
       onError: (_, __, context) => {
         // Rollback on error
-        queryClient.setQueryData(
-          trpc.team.current.queryKey(),
-          context?.previousData,
-        );
+        queryClient.setQueryData(trpc.team.current.queryKey(), context?.previousData);
       },
       onSettled: () => {
         // Refetch after error or success

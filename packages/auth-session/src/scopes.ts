@@ -83,9 +83,7 @@ export function expandScopes(scopes: string[]): string[] {
   }
 
   if (scopes.includes("apis.read")) {
-    return SCOPES.filter(
-      (scope) => scope.endsWith(".read") && !scope.startsWith("apis."),
-    );
+    return SCOPES.filter((scope) => scope.endsWith(".read") && !scope.startsWith("apis."));
   }
 
   return scopes.filter((scope) => !scope.startsWith("apis."));

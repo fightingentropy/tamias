@@ -1,8 +1,5 @@
 import { CompaniesHouseXmlGatewayProvider } from "@tamias/compliance";
-import type {
-  FilingProfileRecord,
-  YearEndPackRecord,
-} from "@tamias/app-data-convex";
+import type { FilingProfileRecord, YearEndPackRecord } from "@tamias/app-data-convex";
 import { buildCompaniesHousePreviewSubmissionIdentifiers } from "./companies-house-submissions";
 import type { CtSubmissionArtifacts } from "./types";
 
@@ -25,9 +22,7 @@ export function buildCompaniesHouseExportPreviewSubmissionXml(args: {
     return null;
   }
 
-  const identifiers = buildCompaniesHousePreviewSubmissionIdentifiers(
-    args.pack.periodKey,
-  );
+  const identifiers = buildCompaniesHousePreviewSubmissionIdentifiers(args.pack.periodKey);
 
   return provider.buildAccountsSubmissionXml({
     companyName: args.submissionArtifacts.statutoryAccountsDraft.companyName,

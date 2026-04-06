@@ -91,10 +91,7 @@ app.openapi(
       if (body.challenge) {
         logger.debug("Slack webhook challenge received");
         return c.json(
-          validateResponse(
-            { challenge: String(body.challenge) },
-            successResponseSchema,
-          ),
+          validateResponse({ challenge: String(body.challenge) }, successResponseSchema),
         );
       }
 
@@ -235,32 +232,23 @@ app.openapi(
                     errorMessage === "channel_not_found"
                   ) {
                     // Already in channel or channel doesn't exist - continue
-                    logger.debug(
-                      "Bot already in channel or channel not found",
-                      {
-                        channel: channelId,
-                        error: errorMessage,
-                      },
-                    );
+                    logger.debug("Bot already in channel or channel not found", {
+                      channel: channelId,
+                      error: errorMessage,
+                    });
                   } else {
                     // Log other errors but don't fail - we'll try to process anyway
-                    logger.warn(
-                      "Failed to join channel (will try to process anyway)",
-                      {
-                        channel: channelId,
-                        error: errorMessage,
-                      },
-                    );
+                    logger.warn("Failed to join channel (will try to process anyway)", {
+                      channel: channelId,
+                      error: errorMessage,
+                    });
                   }
                 }
               } else if (isPrivateChannel) {
                 // For private channels, bot must be explicitly invited
-                logger.debug(
-                  "Private channel detected - bot must be invited manually",
-                  {
-                    channel: channelId,
-                  },
-                );
+                logger.debug("Private channel detected - bot must be invited manually", {
+                  channel: channelId,
+                });
               }
 
               // Convert to FileShareMessageEvent format
@@ -284,15 +272,11 @@ app.openapi(
                 teamId: tamiasTeamId,
                 token,
               }).catch((error) => {
-                logger.error(
-                  "Failed to process file_share event asynchronously",
-                  {
-                    error:
-                      error instanceof Error ? error.message : String(error),
-                    fileCount: event.files?.length || 0,
-                    channel: channelId,
-                  },
-                );
+                logger.error("Failed to process file_share event asynchronously", {
+                  error: error instanceof Error ? error.message : String(error),
+                  fileCount: event.files?.length || 0,
+                  channel: channelId,
+                });
               });
 
               logger.info("Queued file_share event for processing", {

@@ -44,17 +44,11 @@ export function FeedbackForm() {
           Feedback
         </Button>
       </PopoverTrigger>
-      <PopoverContent
-        className="w-[320px] h-[200px]"
-        sideOffset={10}
-        align="end"
-      >
+      <PopoverContent className="w-[320px] h-[200px]" sideOffset={10} align="end">
         {submitted ? (
           <div className="flex items-center justify-center flex-col space-y-1 mt-10 text-center">
             <p className="font-medium text-sm">Thank you for your feedback!</p>
-            <p className="text-sm text-[#4C4C4C]">
-              We will be back with you as soon as possible
-            </p>
+            <p className="text-sm text-[#4C4C4C]">We will be back with you as soon as possible</p>
           </div>
         ) : (
           <form className="space-y-4">
@@ -74,11 +68,7 @@ export function FeedbackForm() {
                 onClick={() => sendFeedback.mutate({ feedback: value })}
                 disabled={value.length === 0 || sendFeedback.isPending}
               >
-                {sendFeedback.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  "Send"
-                )}
+                {sendFeedback.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send"}
               </Button>
             </div>
           </form>

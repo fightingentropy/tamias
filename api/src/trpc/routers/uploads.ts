@@ -1,9 +1,5 @@
 import { registerUploadSchema } from "../../schemas/uploads";
-import {
-  api,
-  type StorageId,
-  withUserConvexClient,
-} from "../../services/convex-user";
+import { api, type StorageId, withUserConvexClient } from "../../services/convex-user";
 import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const uploadsRouter = createTRPCRouter({

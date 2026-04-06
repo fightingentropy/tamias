@@ -55,16 +55,12 @@ export const columns: ColumnDef<RouterOutputs["team"]["list"][number]>[] = [
               height={32}
             />
             <AvatarFallback>
-              <span className="text-xs">
-                {row.original.name?.charAt(0)?.toUpperCase()}
-              </span>
+              <span className="text-xs">{row.original.name?.charAt(0)?.toUpperCase()}</span>
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
             <span className="font-medium text-sm">{row.original.name}</span>
-            <span className="text-sm text-[#606060]">
-              {t(`roles.${row.original.role}`)}
-            </span>
+            <span className="text-sm text-[#606060]">{t(`roles.${row.original.role}`)}</span>
           </div>
         </div>
       );
@@ -120,11 +116,11 @@ export const columns: ColumnDef<RouterOutputs["team"]["list"][number]>[] = [
                   {
                     teamId: row.original.id!,
                   },
-                    {
-                      onSuccess: () => {
-                        router.push("/dashboard");
-                      },
+                  {
+                    onSuccess: () => {
+                      router.push("/dashboard");
                     },
+                  },
                 )
               }
             >
@@ -159,10 +155,7 @@ export const columns: ColumnDef<RouterOutputs["team"]["list"][number]>[] = [
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <AlertDialog>
-                  <DropdownMenuItem
-                    className="text-destructive"
-                    asDialogTrigger
-                  >
+                  <DropdownMenuItem className="text-destructive" asDialogTrigger>
                     <AlertDialogTrigger>Leave Team</AlertDialogTrigger>
                   </DropdownMenuItem>
 
@@ -170,11 +163,9 @@ export const columns: ColumnDef<RouterOutputs["team"]["list"][number]>[] = [
                     <AlertDialogHeader>
                       <AlertDialogTitle>Leave Team</AlertDialogTitle>
                       <AlertDialogDescription>
-                        You are about to leave this team. In order to regain
-                        access at a later time, a Team Owner must invite you.
-                        <p className="mt-4">
-                          Are you sure you want to continue?
-                        </p>
+                        You are about to leave this team. In order to regain access at a later time,
+                        a Team Owner must invite you.
+                        <p className="mt-4">Are you sure you want to continue?</p>
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

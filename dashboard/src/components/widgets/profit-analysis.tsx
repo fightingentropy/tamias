@@ -104,9 +104,7 @@ export function ProfitAnalysisWidget() {
       description={
         <div className="flex flex-col gap-2">
           <p className="text-sm text-[#666666]">
-            <span className="text-primary">
-              {formatCurrency(data?.summary?.currentTotal ?? 0)}
-            </span>{" "}
+            <span className="text-primary">{formatCurrency(data?.summary?.currentTotal ?? 0)}</span>{" "}
             · {periodLabel} · {revenueTypeLabel}
           </p>
         </div>

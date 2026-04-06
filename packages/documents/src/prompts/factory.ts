@@ -9,10 +9,7 @@ import {
   fieldSpecificRules,
   validationRequirements,
 } from "./base";
-import {
-  chainOfThoughtInstructions,
-  receiptChainOfThoughtInstructions,
-} from "./chain-of-thought";
+import { chainOfThoughtInstructions, receiptChainOfThoughtInstructions } from "./chain-of-thought";
 import { invoiceFewShotExamples, receiptFewShotExamples } from "./examples";
 
 export interface PromptComponents {
@@ -107,9 +104,7 @@ export function composePrompt(components: PromptComponents): string {
   const parts: string[] = [];
 
   parts.push(components.base);
-  parts.push(
-    "Extract structured data with maximum accuracy. Follow these instructions precisely:",
-  );
+  parts.push("Extract structured data with maximum accuracy. Follow these instructions precisely:");
   parts.push("");
   parts.push(components.examples);
 
@@ -153,9 +148,7 @@ export function createInvoicePrompt(companyName?: string | null): string {
 /**
  * Create invoice prompt with chain-of-thought
  */
-export function createInvoicePromptWithChainOfThought(
-  companyName?: string | null,
-): string {
+export function createInvoicePromptWithChainOfThought(companyName?: string | null): string {
   const components = createInvoicePromptComponents(companyName, true);
   return composePrompt(components);
 }
@@ -171,9 +164,7 @@ export function createReceiptPrompt(companyName?: string | null): string {
 /**
  * Create receipt prompt with chain-of-thought
  */
-export function createReceiptPromptWithChainOfThought(
-  companyName?: string | null,
-): string {
+export function createReceiptPromptWithChainOfThought(companyName?: string | null): string {
   const components = createReceiptPromptComponents(companyName, true);
   return composePrompt(components);
 }

@@ -1,12 +1,4 @@
-import {
-  Body,
-  Container,
-  Heading,
-  Link,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
+import { Body, Container, Heading, Link, Preview, Section, Text } from "@react-email/components";
 import { getAppUrl } from "@tamias/utils/envs";
 import { Footer } from "../components/footer";
 import { Logo } from "../components/logo";
@@ -31,10 +23,7 @@ export const TrialExpiringEmail = ({ fullName = "" }: Props) => {
 
   return (
     <EmailThemeProvider preview={<Preview>{text}</Preview>}>
-      <Body
-        className={`my-auto mx-auto font-sans ${themeClasses.body}`}
-        style={lightStyles.body}
-      >
+      <Body className={`my-auto mx-auto font-sans ${themeClasses.body}`} style={lightStyles.body}>
         <Container
           className={`my-[40px] mx-auto p-[20px] max-w-[600px] ${themeClasses.container}`}
           style={{
@@ -59,19 +48,16 @@ export const TrialExpiringEmail = ({ fullName = "" }: Props) => {
           >
             {firstName ? `Hi ${firstName},` : "Hello,"}
           </span>
-          <Text
-            className={themeClasses.text}
-            style={{ color: lightStyles.text.color }}
-          >
+          <Text className={themeClasses.text} style={{ color: lightStyles.text.color }}>
             Just a quick reminder — your Tamias trial ends tomorrow.
           </Text>
           <Text
             className={`text-[14px] ${themeClasses.text}`}
             style={{ color: lightStyles.text.color }}
           >
-            To keep your bank connections, invoicing, receipt matching, and
-            financial reports running without interruption, choose a plan before
-            your trial expires. It only takes a minute.
+            To keep your bank connections, invoicing, receipt matching, and financial reports
+            running without interruption, choose a plan before your trial expires. It only takes a
+            minute.
           </Text>
           <Section className="text-center mt-[50px] mb-[50px]">
             <Button href={`${baseAppUrl}/upgrade`}>Choose a plan</Button>

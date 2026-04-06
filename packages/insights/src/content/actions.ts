@@ -17,9 +17,7 @@ function buildOverdueActions(slots: InsightSlots): InsightAction[] {
 function buildUrgentExtraActions(slots: InsightSlots): InsightAction[] {
   const actions: InsightAction[] = [];
 
-  const sortedDrafts = [...slots.drafts].sort(
-    (left, right) => right.rawAmount - left.rawAmount,
-  );
+  const sortedDrafts = [...slots.drafts].sort((left, right) => right.rawAmount - left.rawAmount);
 
   for (const draft of sortedDrafts) {
     if (actions.length >= 2) {
@@ -82,16 +80,10 @@ function buildProactiveActions(slots: InsightSlots): InsightAction[] {
 
 export function deriveActions(slots: InsightSlots): InsightAction[] {
   const hasUrgentActions =
-    slots.hasOverdue ||
-    slots.hasDrafts ||
-    slots.hasExpenseSpikes ||
-    !!slots.concentrationWarning;
+    slots.hasOverdue || slots.hasDrafts || slots.hasExpenseSpikes || !!slots.concentrationWarning;
 
   if (hasUrgentActions) {
-    return [
-      ...buildOverdueActions(slots),
-      ...buildUrgentExtraActions(slots),
-    ];
+    return [...buildOverdueActions(slots), ...buildUrgentExtraActions(slots)];
   }
 
   return buildProactiveActions(slots);

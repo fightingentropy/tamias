@@ -30,8 +30,7 @@ export const getTrackerRecordsByRangeSchema = z.object({
     .uuid()
     .optional()
     .openapi({
-      description:
-        "Optional project ID to filter tracker entries by specific project",
+      description: "Optional project ID to filter tracker entries by specific project",
       example: "b3b6e2c2-1f2a-4e3b-9c1d-2a4b6e2c21f2",
       param: {
         in: "query",
@@ -70,8 +69,7 @@ export const upsertTrackerEntriesSchema = z.object({
     example: "k57c9j9m4xw2n8h7p6q5r4s3t2u1v0w",
   }),
   projectId: z.string().openapi({
-    description:
-      "Unique identifier of the project associated with this tracker entry",
+    description: "Unique identifier of the project associated with this tracker entry",
     example: "b3b6e2c2-1f2a-4e3b-9c1d-2a4b6e2c21f2",
   }),
   description: z.string().optional().nullable().openapi({
@@ -90,8 +88,7 @@ export const bulkCreateTrackerEntriesSchema = z.object({
     .max(100)
     .min(1)
     .openapi({
-      description:
-        "Array of tracker entries to create (maximum 100 entries per request)",
+      description: "Array of tracker entries to create (maximum 100 entries per request)",
       example: [
         {
           start: "2024-04-15T09:00:00.000Z",
@@ -128,8 +125,7 @@ export const trackerEntryResponseSchema = z.object({
     example: "b3b6e2c2-1f2a-4e3b-9c1d-2a4b6e2c21f2",
   }),
   createdAt: z.string().openapi({
-    description:
-      "Date and time when the tracker entry was created in ISO 8601 format",
+    description: "Date and time when the tracker entry was created in ISO 8601 format",
     example: "2024-04-15T09:00:00.000Z",
   }),
   duration: z.number().openapi({
@@ -184,8 +180,7 @@ export const trackerEntryResponseSchema = z.object({
       }),
     })
     .openapi({
-      description:
-        "User information for the person who created this tracker entry",
+      description: "User information for the person who created this tracker entry",
     }),
   project: z
     .object({
@@ -194,8 +189,7 @@ export const trackerEntryResponseSchema = z.object({
         example: "b3b6e2c2-1f2a-4e3b-9c1d-2a4b6e2c21f2",
       }),
       createdAt: z.string().openapi({
-        description:
-          "Date and time when the project was created in ISO 8601 format",
+        description: "Date and time when the project was created in ISO 8601 format",
         example: "2024-03-01T10:00:00.000Z",
       }),
       rate: z.number().nullable().openapi({
@@ -251,13 +245,11 @@ export const trackerEntriesResponseSchema = z.object({
   meta: z
     .object({
       totalDuration: z.number().openapi({
-        description:
-          "Total duration of all tracker entries in the response in seconds",
+        description: "Total duration of all tracker entries in the response in seconds",
         example: 86400,
       }),
       totalAmount: z.number().openapi({
-        description:
-          "Total monetary amount for all tracker entries in the response",
+        description: "Total monetary amount for all tracker entries in the response",
         example: 1800.0,
       }),
       from: z.string().openapi({
@@ -270,8 +262,7 @@ export const trackerEntriesResponseSchema = z.object({
       }),
     })
     .openapi({
-      description:
-        "Metadata about the tracker entries response including totals and date range",
+      description: "Metadata about the tracker entries response including totals and date range",
     }),
   result: z.record(z.string(), z.array(trackerEntryResponseSchema)).openapi({
     description:
@@ -304,8 +295,7 @@ export const startTimerSchema = z.object({
     example: "Working on implementing timer feature",
   }),
   start: z.string().datetime().optional().openapi({
-    description:
-      "Start time in ISO 8601 format. If not provided, will use current time",
+    description: "Start time in ISO 8601 format. If not provided, will use current time",
     example: "2024-04-15T09:00:00.000Z",
   }),
   continueFromEntry: z.string().uuid().optional().openapi({
@@ -326,8 +316,7 @@ export const stopTimerSchema = z.object({
     example: "k57c9j9m4xw2n8h7p6q5r4s3t2u1v0w",
   }),
   stop: z.string().datetime().optional().openapi({
-    description:
-      "Stop time in ISO 8601 format. If not provided, will use current time",
+    description: "Stop time in ISO 8601 format. If not provided, will use current time",
     example: "2024-04-15T17:00:00.000Z",
   }),
 });
@@ -348,8 +337,7 @@ export const timerResponseSchema = trackerEntryResponseSchema.extend({
     example: -1,
   }),
   stop: z.string().nullable().openapi({
-    description:
-      "Stop time of the tracker entry in ISO 8601 format. Null for running timers.",
+    description: "Stop time of the tracker entry in ISO 8601 format. Null for running timers.",
     example: "2024-04-15T17:00:00.000Z",
   }),
 });

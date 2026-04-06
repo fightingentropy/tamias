@@ -126,19 +126,14 @@ export async function bulkUpdateTransactionsBaseCurrency(
     teamId,
     transactionIds: transactionsData.map((transaction) => transaction.id),
   });
-  const updatesById = new Map(
-    transactionsData.map((transaction) => [transaction.id, transaction]),
-  );
+  const updatesById = new Map(transactionsData.map((transaction) => [transaction.id, transaction]));
 
   await upsertTransactionsInConvex({
     teamId,
     transactions: currentTransactions.map((transaction) =>
       toConvexTransactionInput(transaction, {
-        baseAmount:
-          updatesById.get(transaction.id)?.baseAmount ?? transaction.baseAmount,
-        baseCurrency:
-          updatesById.get(transaction.id)?.baseCurrency ??
-          transaction.baseCurrency,
+        baseAmount: updatesById.get(transaction.id)?.baseAmount ?? transaction.baseAmount,
+        baseCurrency: updatesById.get(transaction.id)?.baseCurrency ?? transaction.baseCurrency,
       }),
     ),
   });

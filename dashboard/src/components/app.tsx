@@ -1,9 +1,4 @@
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@tamias/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@tamias/ui/accordion";
 import { Button } from "@tamias/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@tamias/ui/card";
 import { ScrollArea } from "@tamias/ui/scroll-area";
@@ -85,9 +80,7 @@ export function App({
 
         <CardHeader className="pb-0">
           <div className="flex items-center space-x-2 pb-4">
-            <CardTitle className="text-md font-medium leading-none p-0 m-0">
-              {name}
-            </CardTitle>
+            <CardTitle className="text-md font-medium leading-none p-0 m-0">{name}</CardTitle>
             {!active && (
               <span className="text-[#878787] bg-[#F2F1EF] text-[10px] dark:bg-[#1D1D1D] px-3 py-1 rounded-full font-mono">
                 Coming soon
@@ -95,9 +88,7 @@ export function App({
             )}
           </div>
         </CardHeader>
-        <CardContent className="text-xs text-[#878787] pb-4">
-          {short_description}
-        </CardContent>
+        <CardContent className="text-xs text-[#878787] pb-4">{short_description}</CardContent>
 
         <div className="px-6 pb-6 flex gap-2 mt-auto">
           <Button
@@ -110,14 +101,8 @@ export function App({
           </Button>
 
           {installed ? (
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={handleDisconnect}
-            >
-              {disconnectAppMutation.isPending
-                ? "Disconnecting..."
-                : "Disconnect"}
+            <Button variant="outline" className="w-full" onClick={handleDisconnect}>
+              {disconnectAppMutation.isPending ? "Disconnecting..." : "Disconnect"}
             </Button>
           ) : (
             <Button
@@ -134,13 +119,7 @@ export function App({
         <SheetContent>
           <SheetHeader>
             <div className="mb-4">
-              <Image
-                src={images[0] ?? ""}
-                alt={name}
-                width={465}
-                height={290}
-                quality={100}
-              />
+              <Image src={images[0] ?? ""} alt={name} width={465} height={290} quality={100} />
             </div>
 
             <div className="flex items-center justify-between border-b border-border pb-2">
@@ -154,22 +133,14 @@ export function App({
                     )}
                   </div>
 
-                  <span className="text-xs text-[#878787]">
-                    {category} • Published by Tamias
-                  </span>
+                  <span className="text-xs text-[#878787]">{category} • Published by Tamias</span>
                 </div>
               </div>
 
               <div>
                 {installed ? (
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={handleDisconnect}
-                  >
-                    {disconnectAppMutation.isPending
-                      ? "Disconnecting..."
-                      : "Disconnect"}
+                  <Button variant="outline" className="w-full" onClick={handleDisconnect}>
+                    {disconnectAppMutation.isPending ? "Disconnecting..." : "Disconnect"}
                   </Button>
                 ) : (
                   <Button
@@ -188,10 +159,7 @@ export function App({
           <ScrollArea className="h-[calc(100vh-530px)] pt-2" hideScrollbar>
             <Accordion
               type="multiple"
-              defaultValue={[
-                "description",
-                ...(params.settings ? ["settings"] : []),
-              ]}
+              defaultValue={["description", ...(params.settings ? ["settings"] : [])]}
               className="mt-4"
             >
               <AccordionItem value="description" className="border-none">
@@ -211,15 +179,16 @@ export function App({
                       settings={[
                         ...Object.values({
                           ...Object.fromEntries(
-                            (Array.isArray(settings) ? settings : []).map(
-                              (setting) => [setting.id, setting],
-                            ),
+                            (Array.isArray(settings) ? settings : []).map((setting) => [
+                              setting.id,
+                              setting,
+                            ]),
                           ),
                           ...Object.fromEntries(
-                            (Array.isArray(userSettings)
-                              ? userSettings
-                              : []
-                            ).map((setting) => [setting.id, setting]),
+                            (Array.isArray(userSettings) ? userSettings : []).map((setting) => [
+                              setting.id,
+                              setting,
+                            ]),
                           ),
                         }),
                       ]}
@@ -232,16 +201,12 @@ export function App({
 
           <div className="absolute bottom-4 pt-8 border-t border-border">
             <p className="text-[10px] text-[#878787]">
-              All apps on the Tamias App Store are open-source and
-              peer-reviewed. Tamias Labs AB maintains high standards but doesn't
-              endorse third-party apps. Apps published by Tamias are officially
-              certified. Report any concerns about app content or behavior.
+              All apps on the Tamias App Store are open-source and peer-reviewed. Tamias Labs AB
+              maintains high standards but doesn't endorse third-party apps. Apps published by
+              Tamias are officially certified. Report any concerns about app content or behavior.
             </p>
 
-            <a
-              href="mailto:support@tamias.dev"
-              className="text-[10px] text-red-500"
-            >
+            <a href="mailto:support@tamias.dev" className="text-[10px] text-red-500">
               Report app
             </a>
           </div>

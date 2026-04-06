@@ -43,10 +43,7 @@ function getTransactionRangeCacheBucket(db: Database, key: string) {
   return bucket;
 }
 
-function normalizeRangeBoundary(
-  value: string | null | undefined,
-  boundary: "start" | "end",
-) {
+function normalizeRangeBoundary(value: string | null | undefined, boundary: "start" | "end") {
   if (!value) {
     return null;
   }
@@ -65,11 +62,9 @@ function doesCachedRangeContainRequest(
   },
 ) {
   const lowerBoundMatches =
-    cached.dateGte === null ||
-    (requested.dateGte !== null && cached.dateGte <= requested.dateGte);
+    cached.dateGte === null || (requested.dateGte !== null && cached.dateGte <= requested.dateGte);
   const upperBoundMatches =
-    cached.dateLte === null ||
-    (requested.dateLte !== null && cached.dateLte >= requested.dateLte);
+    cached.dateLte === null || (requested.dateLte !== null && cached.dateLte >= requested.dateLte);
 
   return lowerBoundMatches && upperBoundMatches;
 }
@@ -134,8 +129,8 @@ export async function getTransactionsPaged(args: {
     statusesNotIn: args.statusesNotIn ?? null,
     pageSize: args.pageSize ?? DEFAULT_PAGE_SIZE,
   });
-  const cachedRange = getTransactionRangeCacheBucket(args.db, rangeBucketKey).find(
-    (entry) => doesCachedRangeContainRequest(entry, normalizedRange),
+  const cachedRange = getTransactionRangeCacheBucket(args.db, rangeBucketKey).find((entry) =>
+    doesCachedRangeContainRequest(entry, normalizedRange),
   );
 
   if (cachedRange) {

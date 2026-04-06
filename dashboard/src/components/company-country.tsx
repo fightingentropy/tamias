@@ -8,13 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@tamias/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@tamias/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@tamias/ui/form";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { z } from "zod/v3";
 import { useTeamMutation, useTeamQuery } from "@/hooks/use-team";
@@ -45,9 +39,7 @@ export function CompanyCountry() {
         <Card>
           <CardHeader>
             <CardTitle>Company country</CardTitle>
-            <CardDescription>
-              This is your company's country of origin.
-            </CardDescription>
+            <CardDescription>This is your company's country of origin.</CardDescription>
           </CardHeader>
 
           <CardContent>

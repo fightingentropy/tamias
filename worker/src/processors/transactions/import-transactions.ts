@@ -25,8 +25,7 @@ export class ImportTransactionsProcessor extends BaseProcessor<ImportTransaction
     skippedCount: number;
     invalidCount: number;
   }> {
-    const { teamId, filePath, bankAccountId, currency, mappings, inverted } =
-      job.data;
+    const { teamId, filePath, bankAccountId, currency, mappings, inverted } = job.data;
     const db = getDb();
 
     this.logger.info("Starting import-transactions job", {
@@ -98,8 +97,8 @@ export class ImportTransactionsProcessor extends BaseProcessor<ImportTransaction
             bankAccountId,
           );
 
-          const transformedTransactions = mappedTransactions.map(
-            (transaction) => transform({ transaction, inverted }),
+          const transformedTransactions = mappedTransactions.map((transaction) =>
+            transform({ transaction, inverted }),
           );
 
           await this.updateProgress(job, 35, undefined, "transforming");
@@ -126,79 +125,61 @@ export class ImportTransactionsProcessor extends BaseProcessor<ImportTransaction
             "importing",
           );
 
-          const totalImportBatches = Math.max(
-            1,
-            Math.ceil(validTransactions.length / BATCH_SIZE),
-          );
+          const totalImportBatches = Math.max(1, Math.ceil(validTransactions.length / BATCH_SIZE));
           let completedImportBatches = 0;
 
           // Upsert transactions using db query function
-          const results = await processBatch(
-            validTransactions,
-            BATCH_SIZE,
-            async (batch) => {
-              // Transform snake_case input into the application's camelCase shape
-              // Only include fields that exist in the validated transaction
-              const transformedBatch = batch.map((t) => ({
-                name: t.name,
-                date: t.date,
-                method: (t.method === "card"
-                  ? "card_purchase"
-                  : t.method === "bank"
-                    ? "transfer"
-                    : "other") as "other" | "card_purchase" | "transfer",
-                amount: t.amount,
-                currency: t.currency,
-                teamId: t.team_id,
-                bankAccountId: t.bank_account_id ?? null,
-                internalId: t.internal_id,
-                status: t.status as
-                  | "pending"
-                  | "completed"
-                  | "archived"
-                  | "posted"
-                  | "excluded",
-                manual: t.manual,
-                categorySlug: t.category_slug ?? null,
-                // Optional fields that may not exist in imported transactions
-                description: null,
-                balance: null,
-                note: null,
-                counterpartyName: t.counterparty_name ?? null,
-                merchantName: null,
-                assignedId: null,
-                internal: false,
-                notified: true,
-                baseAmount: null,
-                baseCurrency: null,
-                taxAmount: null,
-                taxRate: null,
-                taxType: null,
-                recurring: false,
-                frequency: null,
-                enrichmentCompleted: false,
-              }));
+          const results = await processBatch(validTransactions, BATCH_SIZE, async (batch) => {
+            // Transform snake_case input into the application's camelCase shape
+            // Only include fields that exist in the validated transaction
+            const transformedBatch = batch.map((t) => ({
+              name: t.name,
+              date: t.date,
+              method: (t.method === "card"
+                ? "card_purchase"
+                : t.method === "bank"
+                  ? "transfer"
+                  : "other") as "other" | "card_purchase" | "transfer",
+              amount: t.amount,
+              currency: t.currency,
+              teamId: t.team_id,
+              bankAccountId: t.bank_account_id ?? null,
+              internalId: t.internal_id,
+              status: t.status as "pending" | "completed" | "archived" | "posted" | "excluded",
+              manual: t.manual,
+              categorySlug: t.category_slug ?? null,
+              // Optional fields that may not exist in imported transactions
+              description: null,
+              balance: null,
+              note: null,
+              counterpartyName: t.counterparty_name ?? null,
+              merchantName: null,
+              assignedId: null,
+              internal: false,
+              notified: true,
+              baseAmount: null,
+              baseCurrency: null,
+              taxAmount: null,
+              taxRate: null,
+              taxType: null,
+              recurring: false,
+              frequency: null,
+              enrichmentCompleted: false,
+            }));
 
-              // Upsert transactions with conflict handling on internalId
-              const upserted = await upsertTransactions(db, {
-                transactions: transformedBatch,
-                teamId,
-              });
+            // Upsert transactions with conflict handling on internalId
+            const upserted = await upsertTransactions(db, {
+              transactions: transformedBatch,
+              teamId,
+            });
 
-              completedImportBatches += 1;
-              const importingProgress =
-                50 +
-                Math.round((completedImportBatches / totalImportBatches) * 25);
-              await this.updateProgress(
-                job,
-                Math.min(75, importingProgress),
-                undefined,
-                "importing",
-              );
+            completedImportBatches += 1;
+            const importingProgress =
+              50 + Math.round((completedImportBatches / totalImportBatches) * 25);
+            await this.updateProgress(job, Math.min(75, importingProgress), undefined, "importing");
 
-              return upserted;
-            },
-          );
+            return upserted;
+          });
 
           processedChunks += 1;
 

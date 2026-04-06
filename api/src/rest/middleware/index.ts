@@ -8,10 +8,7 @@ import { createRateLimitMiddleware } from "./rate-limit";
  * Public endpoint middleware.
  * No authentication required
  */
-export const publicMiddleware: MiddlewareHandler[] = [
-  withClientIp,
-  withDatabase,
-];
+export const publicMiddleware: MiddlewareHandler[] = [withClientIp, withDatabase];
 
 /**
  * Protected endpoint middleware - requires authentication
@@ -34,10 +31,6 @@ export const protectedMiddleware: MiddlewareHandler[] = [
   }),
 ];
 
-export const fileMiddleware: MiddlewareHandler[] = [
-  withClientIp,
-  withDatabase,
-  withAuth,
-];
+export const fileMiddleware: MiddlewareHandler[] = [withClientIp, withDatabase, withAuth];
 
 export { withRequiredScope } from "./scope";

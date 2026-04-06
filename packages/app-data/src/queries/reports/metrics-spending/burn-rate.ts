@@ -1,13 +1,8 @@
-import {
-  eachMonthOfInterval,
-  format,
-} from "date-fns";
+import { eachMonthOfInterval, format } from "date-fns";
 import type { Database } from "../../../client";
 import { reuseQueryResult } from "../../../utils/request-cache";
 import { serializeMetricRangeParams } from "../metrics-common";
-import {
-  buildMonthlyAggregateSeriesMap,
-} from "../shared";
+import { buildMonthlyAggregateSeriesMap } from "../shared";
 import { getMetricAggregateData } from "./common";
 
 export type GetBurnRateParams = {
@@ -29,8 +24,7 @@ async function getBurnRateImpl(db: Database, params: GetBurnRateParams) {
 
       return (
         row.direction === "expense" &&
-        (slug === null ||
-          !aggregateData.excludedCategorySlugs.includes(slug))
+        (slug === null || !aggregateData.excludedCategorySlugs.includes(slug))
       );
     }),
     (row) => Math.abs(row.totalAmount),

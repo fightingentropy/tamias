@@ -28,10 +28,7 @@ export function SavingBar({ isPending, isError = false }: SavingBarProps) {
       wasPending.current = false;
       setStatus(isError ? "failed" : "saved");
       if (timeout.current !== null) clearTimeout(timeout.current);
-      timeout.current = setTimeout(
-        () => setStatus("idle"),
-        isError ? 3000 : 1500,
-      );
+      timeout.current = setTimeout(() => setStatus("idle"), isError ? 3000 : 1500);
     }
 
     return () => {

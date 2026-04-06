@@ -23,18 +23,12 @@ export const validateTransactions = (transactions: Transaction[]) => {
     createTransactionSchema.safeParse(transaction),
   );
 
-  const validTransactions = processedTransactions.filter(
-    (transaction) => transaction.success,
-  );
+  const validTransactions = processedTransactions.filter((transaction) => transaction.success);
 
-  const invalidTransactions = processedTransactions.filter(
-    (transaction) => !transaction.success,
-  );
+  const invalidTransactions = processedTransactions.filter((transaction) => !transaction.success);
 
   return {
     validTransactions: validTransactions.map((transaction) => transaction.data),
-    invalidTransactions: invalidTransactions.map(
-      (transaction) => transaction.error,
-    ),
+    invalidTransactions: invalidTransactions.map((transaction) => transaction.error),
   };
 };

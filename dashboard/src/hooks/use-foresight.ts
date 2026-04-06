@@ -21,9 +21,7 @@ function ensureInitialized() {
  *
  * @see https://foresightjs.com/docs/react/hook/
  */
-export function useForesight<T extends HTMLElement>(
-  options: UseForesightOptions,
-) {
+export function useForesight<T extends HTMLElement>(options: UseForesightOptions) {
   const elementRef = useRef<T>(null);
 
   useEffect(() => {
@@ -40,13 +38,7 @@ export function useForesight<T extends HTMLElement>(
     return () => {
       unregister();
     };
-  }, [
-    options.callback,
-    options.hitSlop,
-    options.name,
-    options.meta,
-    options.reactivateAfter,
-  ]);
+  }, [options.callback, options.hitSlop, options.name, options.meta, options.reactivateAfter]);
 
   return { elementRef };
 }

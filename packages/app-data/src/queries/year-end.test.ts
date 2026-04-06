@@ -94,8 +94,7 @@ function makeProfile(
     dormant: overrides.dormant ?? null,
     auditExemptionClaimed: overrides.auditExemptionClaimed ?? null,
     membersDidNotRequireAudit: overrides.membersDidNotRequireAudit ?? null,
-    directorsAcknowledgeResponsibilities:
-      overrides.directorsAcknowledgeResponsibilities ?? null,
+    directorsAcknowledgeResponsibilities: overrides.directorsAcknowledgeResponsibilities ?? null,
     accountsPreparedUnderSmallCompaniesRegime:
       overrides.accountsPreparedUnderSmallCompaniesRegime ?? null,
     createdAt: "2026-01-15T00:00:00.000Z",
@@ -103,13 +102,10 @@ function makeProfile(
   };
 }
 
-function makeReadyProfile(
-  overrides: Partial<ReturnType<typeof makeProfile>> = {},
-) {
+function makeReadyProfile(overrides: Partial<ReturnType<typeof makeProfile>> = {}) {
   return {
     ...makeProfile({
-      principalActivity:
-        "Software development and bookkeeping platform services",
+      principalActivity: "Software development and bookkeeping platform services",
       directors: ["Erlin Hoxha"],
       signingDirectorName: "Erlin Hoxha",
       approvalDate: "2026-04-10",
@@ -155,9 +151,7 @@ function makeAdjustment(
   };
 }
 
-function buildBasicSnapshot(
-  adjustments: ReturnType<typeof makeAdjustment>[] = [makeAdjustment()],
-) {
+function buildBasicSnapshot(adjustments: ReturnType<typeof makeAdjustment>[] = [makeAdjustment()]) {
   return buildYearEndPackSnapshot({
     period: BASE_PERIOD,
     currency: "GBP",
@@ -204,9 +198,7 @@ function buildBasicSnapshot(
   });
 }
 
-function buildReadySnapshot(
-  adjustments: ReturnType<typeof makeAdjustment>[] = [],
-) {
+function buildReadySnapshot(adjustments: ReturnType<typeof makeAdjustment>[] = []) {
   return buildYearEndPackSnapshot({
     period: BASE_PERIOD,
     currency: "GBP",
@@ -254,9 +246,7 @@ function buildReadySnapshot(
   });
 }
 
-function buildHistoricReadySnapshot(
-  adjustments: ReturnType<typeof makeAdjustment>[] = [],
-) {
+function buildHistoricReadySnapshot(adjustments: ReturnType<typeof makeAdjustment>[] = []) {
   return buildYearEndPackSnapshot({
     period: HISTORIC_PERIOD,
     currency: "GBP",
@@ -354,10 +344,7 @@ function makePack(
   snapshot: ReturnType<typeof buildYearEndPackSnapshot>,
   overrides: Partial<{
     status: "draft" | "ready" | "exported";
-    period:
-      | typeof BASE_PERIOD
-      | typeof HISTORIC_PERIOD
-      | typeof STRADDLE_PERIOD;
+    period: typeof BASE_PERIOD | typeof HISTORIC_PERIOD | typeof STRADDLE_PERIOD;
   }> = {},
 ) {
   const period = overrides.period ?? BASE_PERIOD;
@@ -420,11 +407,8 @@ function makeCloseCompanyLoansSchedule(
     filingProfileId: "profile-1",
     periodKey: overrides.periodKey ?? BASE_PERIOD.periodKey,
     beforeEndPeriod: overrides.beforeEndPeriod ?? true,
-    loansMade: overrides.loansMade ?? [
-      { name: "Participator Ltd", amountOfLoan: 1000 },
-    ],
-    taxChargeable:
-      "taxChargeable" in overrides ? (overrides.taxChargeable ?? null) : 337.5,
+    loansMade: overrides.loansMade ?? [{ name: "Participator Ltd", amountOfLoan: 1000 }],
+    taxChargeable: "taxChargeable" in overrides ? (overrides.taxChargeable ?? null) : 337.5,
     reliefEarlierThan: overrides.reliefEarlierThan ?? [
       {
         name: "Participator Ltd",
@@ -433,10 +417,7 @@ function makeCloseCompanyLoansSchedule(
         date: "2025-12-30",
       },
     ],
-    reliefEarlierDue:
-      "reliefEarlierDue" in overrides
-        ? (overrides.reliefEarlierDue ?? null)
-        : 67.5,
+    reliefEarlierDue: "reliefEarlierDue" in overrides ? (overrides.reliefEarlierDue ?? null) : 67.5,
     loanLaterReliefNow: overrides.loanLaterReliefNow ?? [
       {
         name: "Participator Ltd",
@@ -445,14 +426,9 @@ function makeCloseCompanyLoansSchedule(
         date: "2026-01-15",
       },
     ],
-    reliefLaterDue:
-      "reliefLaterDue" in overrides
-        ? (overrides.reliefLaterDue ?? null)
-        : 33.75,
+    reliefLaterDue: "reliefLaterDue" in overrides ? (overrides.reliefLaterDue ?? null) : 33.75,
     totalLoansOutstanding:
-      "totalLoansOutstanding" in overrides
-        ? (overrides.totalLoansOutstanding ?? null)
-        : 700,
+      "totalLoansOutstanding" in overrides ? (overrides.totalLoansOutstanding ?? null) : 700,
     createdBy: null,
     createdAt: "2026-01-15T00:00:00.000Z",
     updatedAt: "2026-01-15T00:00:00.000Z",
@@ -474,9 +450,7 @@ function makeCorporationTaxRateSchedule(
     filingProfileId: "profile-1",
     periodKey: overrides.periodKey ?? BASE_PERIOD.periodKey,
     exemptDistributions:
-      "exemptDistributions" in overrides
-        ? (overrides.exemptDistributions ?? null)
-        : null,
+      "exemptDistributions" in overrides ? (overrides.exemptDistributions ?? null) : null,
     associatedCompaniesThisPeriod:
       "associatedCompaniesThisPeriod" in overrides
         ? (overrides.associatedCompaniesThisPeriod ?? null)
@@ -538,9 +512,7 @@ describe("year-end helpers", () => {
     });
 
     if (result.status !== 0) {
-      throw new Error(
-        result.stderr || "Failed to resolve annual period in subprocess",
-      );
+      throw new Error(result.stderr || "Failed to resolve annual period in subprocess");
     }
 
     expect(JSON.parse(result.stdout)).toEqual(BASE_PERIOD);
@@ -564,9 +536,7 @@ describe("year-end helpers", () => {
     });
 
     if (result.status !== 0) {
-      throw new Error(
-        result.stderr || "Failed to resolve explicit period key in subprocess",
-      );
+      throw new Error(result.stderr || "Failed to resolve explicit period key in subprocess");
     }
 
     expect(JSON.parse(result.stdout)).toEqual(BASE_PERIOD);
@@ -582,9 +552,7 @@ describe("year-end helpers", () => {
     ]);
 
     expect(snapshot.status).toBe("ready");
-    expect(
-      snapshot.trialBalance.find((line) => line.accountCode === "4000")?.credit,
-    ).toBe(1000);
+    expect(snapshot.trialBalance.find((line) => line.accountCode === "4000")?.credit).toBe(1000);
     expect(snapshot.retainedEarnings.openingBalance).toBe(500);
     expect(snapshot.retainedEarnings.currentPeriodProfit).toBe(700);
     expect(snapshot.retainedEarnings.closingBalance).toBe(1200);
@@ -643,9 +611,7 @@ describe("year-end helpers", () => {
     expect(draft.turnover).toBe(1000);
     expect(draft.chargeableProfits).toBe(750);
     expect(draft.corporationTax).toBe(142.5);
-    expect(draft.computationBreakdown.depreciationAmortisationAdjustments).toBe(
-      50,
-    );
+    expect(draft.computationBreakdown.depreciationAmortisationAdjustments).toBe(50);
     expect(draft.filingReadiness.isReady).toBe(false);
     expect(draft.filingReadiness.blockers).toContain(
       "Save the CT rate inputs to confirm associated companies and exempt distributions for the period.",
@@ -681,18 +647,12 @@ describe("year-end helpers", () => {
 
     const xml = renderCt600DraftXml(draft);
 
-    expect(xml).toContain(
-      "<SupplementaryPages><CT600A>yes</CT600A></SupplementaryPages>",
-    );
+    expect(xml).toContain("<SupplementaryPages><CT600A>yes</CT600A></SupplementaryPages>");
     expect(xml).toContain("<LoansByCloseCompanies>");
-    expect(xml).toContain(
-      "<LoansToParticipators>236.25</LoansToParticipators>",
-    );
+    expect(xml).toContain("<LoansToParticipators>236.25</LoansToParticipators>");
     expect(xml).toContain("<CT600AreliefDue>yes</CT600AreliefDue>");
     expect(xml).toContain("<BeforeEndPeriod>yes</BeforeEndPeriod>");
-    expect(xml).toContain(
-      "<TotalLoansOutstanding>700.00</TotalLoansOutstanding>",
-    );
+    expect(xml).toContain("<TotalLoansOutstanding>700.00</TotalLoansOutstanding>");
   });
 
   test("blocks the filing-ready path when CT600A Part 1 is incomplete", () => {
@@ -776,22 +736,15 @@ describe("year-end helpers", () => {
 
     expect(statutoryDraft.filingReadiness.isReady).toBe(true);
     expect(ct600Draft.filingReadiness.isReady).toBe(true);
-    expect(
-      ct600Draft.computationBreakdown.totalProfitsChargeableToCorporationTax,
-    ).toBe(655);
+    expect(ct600Draft.computationBreakdown.totalProfitsChargeableToCorporationTax).toBe(655);
     expect(ct600Draft.corporationTax).toBe(124.45);
 
     const accountsAttachment = renderAccountsAttachmentIxbrl(statutoryDraft);
-    const computationsAttachment =
-      renderComputationsAttachmentIxbrl(ct600Draft);
+    const computationsAttachment = renderComputationsAttachmentIxbrl(ct600Draft);
 
     expect(accountsAttachment).toContain("Filing-ready accounts attachment.");
-    expect(accountsAttachment).toContain(
-      'class="titlepage accountspage pagebreak"',
-    );
-    expect(accountsAttachment).toContain(
-      "div.pagebreak { page-break-after: always; }",
-    );
+    expect(accountsAttachment).toContain('class="titlepage accountspage pagebreak"');
+    expect(accountsAttachment).toContain("div.pagebreak { page-break-after: always; }");
     expect(accountsAttachment).toContain('class="accountspage pagebreak"');
     expect(accountsAttachment).toContain("Balance Sheet as at 31 March 2026");
     expect(accountsAttachment).toContain("Notes to the financial statements");
@@ -800,39 +753,23 @@ describe("year-end helpers", () => {
       "direp:StatementThatAccountsHaveBeenPreparedInAccordanceWithProvisionsSmallCompaniesRegime",
     );
     expect(accountsAttachment).toContain("bus:NameEntityOfficer");
-    expect(accountsAttachment).toContain(
-      "core:AverageNumberEmployeesDuringPeriod",
-    );
-    expect(accountsAttachment).toContain(
-      "core:NominalValueAllottedShareCapital",
-    );
-    expect(accountsAttachment).toContain(
-      "core:DescriptionBodyAuthorisingFinancialStatements",
-    );
-    expect(accountsAttachment).toContain(
-      "core:DirectorSigningFinancialStatements",
-    );
+    expect(accountsAttachment).toContain("core:AverageNumberEmployeesDuringPeriod");
+    expect(accountsAttachment).toContain("core:NominalValueAllottedShareCapital");
+    expect(accountsAttachment).toContain("core:DescriptionBodyAuthorisingFinancialStatements");
+    expect(accountsAttachment).toContain("core:DirectorSigningFinancialStatements");
     expect(accountsAttachment).toContain("bus:AccountingStandardsApplied");
-    expect(accountsAttachment).toContain(
-      "bus:AccountsStatusAuditedOrUnaudited",
-    );
+    expect(accountsAttachment).toContain("bus:AccountsStatusAuditedOrUnaudited");
     expect(accountsAttachment).toContain("bus:AccountsType");
     expect(accountsAttachment).toContain("bus:EntityTradingStatus");
-    expect(computationsAttachment).toContain(
-      "Filing-ready computation attachment.",
-    );
+    expect(computationsAttachment).toContain("Filing-ready computation attachment.");
     expect(computationsAttachment).toContain("ct-comp:ProfitLossPerAccounts");
     expect(computationsAttachment).toContain("ct-comp:AdjustmentsDepreciation");
     expect(computationsAttachment).toContain("ct-comp:QualifyingUKDonations");
     expect(computationsAttachment).toContain(
       "ct-comp:TradingLossesBroughtForwardValueClaimedAgainstTradingProfits",
     );
-    expect(computationsAttachment).toContain(
-      'context id="ct-context-trade-detail"',
-    );
-    expect(computationsAttachment).toContain(
-      'dimension="ct-comp:BusinessNameDimension"',
-    );
+    expect(computationsAttachment).toContain('context id="ct-context-trade-detail"');
+    expect(computationsAttachment).toContain('dimension="ct-comp:BusinessNameDimension"');
     expect(computationsAttachment).toContain(">ct-comp:Trade<");
     expect(computationsAttachment).toContain(">ct-comp:Post-lossReform<");
     expect(computationsAttachment).toContain(
@@ -861,8 +798,7 @@ describe("year-end helpers", () => {
     });
 
     const accountsAttachment = renderAccountsAttachmentIxbrl(statutoryDraft);
-    const computationsAttachment =
-      renderComputationsAttachmentIxbrl(ct600Draft);
+    const computationsAttachment = renderComputationsAttachmentIxbrl(ct600Draft);
     const xml = renderCt600DraftXml(ct600Draft, {
       accountsAttachmentXhtml: accountsAttachment,
       computationsAttachmentXhtml: computationsAttachment,
@@ -874,9 +810,7 @@ describe("year-end helpers", () => {
 
     expect(xml).toContain('<IRmark Type="generic">');
     expect(xml).toContain("<ThisPeriodAccounts>yes</ThisPeriodAccounts>");
-    expect(xml).toContain(
-      "<ThisPeriodComputations>yes</ThisPeriodComputations>",
-    );
+    expect(xml).toContain("<ThisPeriodComputations>yes</ThisPeriodComputations>");
     expect(xml).toContain(encodedAccounts);
     expect(xml).toContain("supported filing-ready path");
   });
@@ -996,9 +930,7 @@ describe("year-end helpers", () => {
     expect(xml).toContain(
       "<MarginalReliefForRingFenceTrades>2250.00</MarginalReliefForRingFenceTrades>",
     );
-    expect(xml).toContain(
-      "<StartingOrSmallCompaniesRate>yes</StartingOrSmallCompaniesRate>",
-    );
+    expect(xml).toContain("<StartingOrSmallCompaniesRate>yes</StartingOrSmallCompaniesRate>");
   });
 
   test("splits CT across financial years for an accounting period straddling 1 April 2023", () => {

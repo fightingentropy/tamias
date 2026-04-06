@@ -28,8 +28,7 @@ const getForecastSchema = z.object({
 });
 
 export const getForecastTool = tool({
-  description:
-    "Generate revenue forecast - shows projections, growth rates, and billable hours.",
+  description: "Generate revenue forecast - shows projections, growth rates, and billable hours.",
   inputSchema: getForecastSchema,
   execute: async function* (
     { period, from, to, currency, revenueType, forecastMonths, showCanvas },
@@ -53,18 +52,12 @@ export const getForecastTool = tool({
     throwIfBankAccountsRequired(appContext);
 
     try {
-      const {
-        finalFrom,
-        finalTo,
-        finalCurrency,
-        description,
-        locale,
-        resolved,
-      } = resolveReportToolParams({
-        toolName: "getForecast",
-        appContext,
-        aiParams: { period, from, to, currency, revenueType },
-      });
+      const { finalFrom, finalTo, finalCurrency, description, locale, resolved } =
+        resolveReportToolParams({
+          toolName: "getForecast",
+          appContext,
+          aiParams: { period, from, to, currency, revenueType },
+        });
       const finalRevenueType = resolved.revenueType ?? "net";
 
       const analysis = startArtifactStream({
@@ -118,17 +111,13 @@ export const getForecastTool = tool({
         ...forecastResult.historical.map((item) => item.date),
         ...forecastResult.forecast.map((item) => item.date),
       ];
-      const years = new Set(
-        allDates.map((date) => parseISO(date).getFullYear()),
-      );
+      const years = new Set(allDates.map((date) => parseISO(date).getFullYear()));
       const spansMultipleYears = years.size > 1;
 
       // Add historical months with actual values only
       for (const [index, item] of forecastResult.historical.entries()) {
         const date = parseISO(item.date);
-        const month = spansMultipleYears
-          ? format(date, "MMM ''yy")
-          : format(date, "MMM");
+        const month = spansMultipleYears ? format(date, "MMM ''yy") : format(date, "MMM");
         const isLastHistorical = index === forecastResult.historical.length - 1;
 
         monthlyData.push({
@@ -148,9 +137,7 @@ export const getForecastTool = tool({
       // Add forecast months with forecasted values only
       for (const item of forecastResult.forecast) {
         const date = parseISO(item.date);
-        const month = spansMultipleYears
-          ? format(date, "MMM ''yy")
-          : format(date, "MMM");
+        const month = spansMultipleYears ? format(date, "MMM ''yy") : format(date, "MMM");
         monthlyData.push({
           month,
           date: item.date,
@@ -158,13 +145,10 @@ export const getForecastTool = tool({
           forecasted: item.value,
           // Include enhanced forecast fields for bottom-up forecast (matching dashboard)
           optimistic: "optimistic" in item ? (item.optimistic as number) : null,
-          pessimistic:
-            "pessimistic" in item ? (item.pessimistic as number) : null,
+          pessimistic: "pessimistic" in item ? (item.pessimistic as number) : null,
           confidence: "confidence" in item ? (item.confidence as number) : null,
           breakdown:
-            "breakdown" in item
-              ? (item.breakdown as (typeof monthlyData)[0]["breakdown"])
-              : null,
+            "breakdown" in item ? (item.breakdown as (typeof monthlyData)[0]["breakdown"]) : null,
         });
       }
 
@@ -252,10 +236,7 @@ export const getForecastTool = tool({
             content: `Analyze this revenue forecast for ${appContext.companyName || "the business"}:
 
 Historical Revenue: ${formatAmount({
-              amount: forecastResult.historical.reduce(
-                (sum, item) => sum + item.value,
-                0,
-              ),
+              amount: forecastResult.historical.reduce((sum, item) => sum + item.value, 0),
               currency: targetCurrency,
               locale,
             })}
@@ -331,13 +312,11 @@ Provide a concise analysis (2-3 sentences) highlighting key insights about the r
         locale,
       })}\n\n`;
       responseText += `**Average Monthly Growth Rate:** ${summary.avgMonthlyGrowthRate}%\n\n`;
-      responseText += `**Peak Month:** ${metrics.peakMonth.month} - ${formatAmount(
-        {
-          amount: metrics.peakMonth.value,
-          currency: targetCurrency,
-          locale,
-        },
-      )}\n\n`;
+      responseText += `**Peak Month:** ${metrics.peakMonth.month} - ${formatAmount({
+        amount: metrics.peakMonth.value,
+        currency: targetCurrency,
+        locale,
+      })}\n\n`;
 
       if (!showCanvas) {
         responseText += `**Summary:**\n\n${summaryText}\n\n`;

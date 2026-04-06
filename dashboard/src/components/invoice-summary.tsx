@@ -4,12 +4,7 @@ import type { RouterOutputs } from "@tamias/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@tamias/ui/card";
 import { Icons } from "@tamias/ui/icons";
 import { Skeleton } from "@tamias/ui/skeleton";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { useTeamQuery } from "@/hooks/use-team";
 import { useI18n } from "@/locales/client";
 import { AnimatedNumber } from "./animated-number";

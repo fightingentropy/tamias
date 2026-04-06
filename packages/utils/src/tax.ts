@@ -175,13 +175,8 @@ export function calculateTaxAmount(amount: number, taxRate: number): number {
  * @example
  * calculateTaxAmountFromGross(33.84, 23) // Returns 6.33 (not 7.78)
  */
-export function calculateTaxAmountFromGross(
-  grossAmount: number,
-  taxRate: number,
-): number {
-  return Math.abs(
-    Math.round(grossAmount * (taxRate / (100 + taxRate)) * 100) / 100,
-  );
+export function calculateTaxAmountFromGross(grossAmount: number, taxRate: number): number {
+  return Math.abs(Math.round(grossAmount * (taxRate / (100 + taxRate)) * 100) / 100);
 }
 
 /**
@@ -199,8 +194,7 @@ export function calculateBaseTaxAmount(params: {
   baseCurrency: string | null | undefined;
   currency: string;
 }): number | null {
-  const { amount, taxAmount, taxRate, baseAmount, baseCurrency, currency } =
-    params;
+  const { amount, taxAmount, taxRate, baseAmount, baseCurrency, currency } = params;
 
   if (
     baseAmount == null ||
@@ -213,9 +207,7 @@ export function calculateBaseTaxAmount(params: {
   }
 
   if (taxRate != null) {
-    return Math.abs(
-      Math.round(baseAmount * (taxRate / (100 + taxRate)) * 100) / 100,
-    );
+    return Math.abs(Math.round(baseAmount * (taxRate / (100 + taxRate)) * 100) / 100);
   }
 
   return Math.abs(Math.round(taxAmount * (baseAmount / amount) * 100) / 100);
@@ -234,10 +226,7 @@ export function calculateBaseTaxAmount(params: {
  * calculateTaxRateFromGross(100, 20) // Returns 25 (not 20)
  * // Verification: 100 × (25/125) = 20 ✓
  */
-export function calculateTaxRateFromGross(
-  grossAmount: number,
-  taxAmount: number,
-): number {
+export function calculateTaxRateFromGross(grossAmount: number, taxAmount: number): number {
   if (grossAmount === 0 || taxAmount === 0) return 0;
   const netAmount = Math.abs(grossAmount) - taxAmount;
   if (netAmount <= 0) return 0; // Prevent division by zero or negative
@@ -302,10 +291,7 @@ export function resolveTaxValues(params: {
   } else if (transactionTaxRate !== null && transactionTaxRate !== undefined) {
     // Percentage mode - calculate from transaction's rate
     taxRate = transactionTaxRate;
-    taxAmount = calculateTaxAmountFromGross(
-      transactionAmount,
-      transactionTaxRate,
-    );
+    taxAmount = calculateTaxAmountFromGross(transactionAmount, transactionTaxRate);
   } else if (categoryTaxRate !== null && categoryTaxRate !== undefined) {
     // Inherited from category - calculate from category's rate
     taxRate = categoryTaxRate;

@@ -1,12 +1,6 @@
 export const Logo = () => {
   return (
-    <svg
-      width="41"
-      height="40"
-      viewBox="0 0 41 40"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width="41" height="40" viewBox="0 0 41 40" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         d="M20.5 40C31.5456 40 40.5 31.0456 40.5 20C40.5 8.95437 31.5456 0 20.5 0C9.45437 0 0.5 8.95437 0.5 20C0.5 31.0456 9.45437 40 20.5 40Z"
         fill="#F5F5F3"

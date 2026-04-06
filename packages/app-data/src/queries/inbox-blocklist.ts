@@ -19,9 +19,7 @@ export type InboxBlocklistEntry = {
   createdAt: string;
 };
 
-function toInboxBlocklistEntry(
-  record: InboxBlocklistRecord,
-): InboxBlocklistEntry {
+function toInboxBlocklistEntry(record: InboxBlocklistRecord): InboxBlocklistEntry {
   return {
     id: record.id,
     teamId: record.teamId,
@@ -31,10 +29,7 @@ function toInboxBlocklistEntry(
   };
 }
 
-async function getInboxBlocklistImpl(
-  _db: Database,
-  params: GetInboxBlocklistParams,
-) {
+async function getInboxBlocklistImpl(_db: Database, params: GetInboxBlocklistParams) {
   const results = await getInboxBlocklistFromConvex({
     teamId: params.teamId,
   });
@@ -54,10 +49,7 @@ export type CreateInboxBlocklistParams = {
   value: string;
 };
 
-export async function createInboxBlocklist(
-  _db: Database,
-  params: CreateInboxBlocklistParams,
-) {
+export async function createInboxBlocklist(_db: Database, params: CreateInboxBlocklistParams) {
   const result = await createInboxBlocklistInConvex({
     teamId: params.teamId,
     type: params.type,
@@ -72,10 +64,7 @@ export type DeleteInboxBlocklistParams = {
   teamId: string;
 };
 
-export async function deleteInboxBlocklist(
-  _db: Database,
-  params: DeleteInboxBlocklistParams,
-) {
+export async function deleteInboxBlocklist(_db: Database, params: DeleteInboxBlocklistParams) {
   const result = await deleteInboxBlocklistInConvex({
     id: params.id,
     teamId: params.teamId,

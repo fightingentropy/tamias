@@ -25,10 +25,7 @@ export type UpsertTrackerEntriesParams = {
   duration: number;
 };
 
-export async function upsertTrackerEntries(
-  db: Database,
-  params: UpsertTrackerEntriesParams,
-) {
+export async function upsertTrackerEntries(db: Database, params: UpsertTrackerEntriesParams) {
   const { dates, id, teamId, activityUserId, ...rest } = params;
   const entries = dates.map((date) => ({
     id: id ?? crypto.randomUUID(),
@@ -117,10 +114,7 @@ export type DeleteTrackerEntryParams = {
   id: string;
 };
 
-export async function deleteTrackerEntry(
-  _db: Database,
-  params: DeleteTrackerEntryParams,
-) {
+export async function deleteTrackerEntry(_db: Database, params: DeleteTrackerEntryParams) {
   return deleteTrackerEntryInConvex({
     teamId: params.teamId,
     id: params.id,

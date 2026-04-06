@@ -5,10 +5,7 @@
 
 export function generateCronTag(id: string): string {
   // Use id to generate a deterministic random minute and hour
-  const hash = Array.from(id).reduce(
-    (acc, char) => acc + char.charCodeAt(0),
-    0,
-  );
+  const hash = Array.from(id).reduce((acc, char) => acc + char.charCodeAt(0), 0);
 
   // Generate minute (0-59) and hour (0-23) based on hash
   const minute = hash % 60;
@@ -21,10 +18,7 @@ export function generateCronTag(id: string): string {
 
 export function generateQuarterDailyCronTag(id: string): string {
   // Use id to generate a deterministic random minute
-  const hash = Array.from(id).reduce(
-    (acc, char) => acc + char.charCodeAt(0),
-    0,
-  );
+  const hash = Array.from(id).reduce((acc, char) => acc + char.charCodeAt(0), 0);
 
   // Generate minute (0-59) for consistency across all quarter-daily intervals
   const minute = hash % 60;
@@ -47,10 +41,7 @@ export function generateQuarterDailyCronTag(id: string): string {
  * // generateOffsetCronTag(teamId, 6) returns "45 20 * * *" (8:45 PM)
  */
 export function generateOffsetCronTag(id: string, offsetHours: number): string {
-  const hash = Array.from(id).reduce(
-    (acc, char) => acc + char.charCodeAt(0),
-    0,
-  );
+  const hash = Array.from(id).reduce((acc, char) => acc + char.charCodeAt(0), 0);
 
   // Generate minute (0-59) and hour (0-23) based on hash
   const minute = hash % 60;

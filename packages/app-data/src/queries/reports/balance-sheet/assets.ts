@@ -17,17 +17,11 @@ const ASSET_CATEGORY_SLUGS = [
 ];
 
 export function getAssetCurrencyPairs(context: BalanceSheetContext) {
-  const bankAccountMapping = mapBankAccountsByType(
-    context.bankAccounts,
-    context.currency,
-  );
+  const bankAccountMapping = mapBankAccountsByType(context.bankAccounts, context.currency);
 
   return uniqueCurrencyPairs([
     ...context.accountsReceivableInvoices
-      .filter(
-        (invoice) =>
-          (invoice.currency || context.currency) !== context.currency,
-      )
+      .filter((invoice) => (invoice.currency || context.currency) !== context.currency)
       .map((invoice) => ({
         base: invoice.currency || context.currency,
         target: context.currency,
@@ -40,10 +34,7 @@ export async function buildBalanceSheetAssets(
   context: BalanceSheetContext,
   exchangeRateMap: Map<string, number>,
 ): Promise<BalanceSheetResult["assets"]> {
-  const assetTransactions = groupTransactionsByCategory(
-    context.transactions,
-    ASSET_CATEGORY_SLUGS,
-  );
+  const assetTransactions = groupTransactionsByCategory(context.transactions, ASSET_CATEGORY_SLUGS);
   const assetMap = new Map<string, number>();
   const assetNameMap = buildNameMap(assetTransactions, context.countryCode);
 
@@ -60,11 +51,7 @@ export async function buildBalanceSheetAssets(
   const inventory: number = assetMap.get("inventory") || 0;
 
   const fixedAssetTransactionsForDepreciation = context.transactions
-    .filter((row) =>
-      ["fixed-assets", "equipment", "software"].includes(
-        row.categorySlug ?? "",
-      ),
-    )
+    .filter((row) => ["fixed-assets", "equipment", "software"].includes(row.categorySlug ?? ""))
     .map((row) => ({
       categorySlug: row.categorySlug,
       amount: Math.abs(row.totalAmount),
@@ -106,8 +93,7 @@ export async function buildBalanceSheetAssets(
   const cash: number = context.accountBalanceData.totalBalance;
   const otherAssets = bankMapping.otherAssets;
 
-  const currentAssetsTotal =
-    cash + accountsReceivable + inventory + prepaidExpenses;
+  const currentAssetsTotal = cash + accountsReceivable + inventory + prepaidExpenses;
   const nonCurrentAssetsTotal =
     fixedAssets - accumulatedDepreciation + softwareTechnology + otherAssets;
 

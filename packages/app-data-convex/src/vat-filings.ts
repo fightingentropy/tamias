@@ -116,10 +116,7 @@ export async function listComplianceObligationsFromConvex(args: {
       return false;
     }
 
-    if (
-      args.obligationType &&
-      obligation.obligationType !== args.obligationType
-    ) {
+    if (args.obligationType && obligation.obligationType !== args.obligationType) {
       return false;
     }
 
@@ -136,9 +133,7 @@ export async function getVatObligationByIdFromConvex(args: { id: string }) {
   ) as Promise<ComplianceObligationRecord | null>;
 }
 
-export async function getComplianceObligationByIdFromConvex(args: {
-  id: string;
-}) {
+export async function getComplianceObligationByIdFromConvex(args: { id: string }) {
   return getVatObligationByIdFromConvex(args);
 }
 

@@ -8,9 +8,7 @@ import { ACCOUNTING_ERROR_CODES } from "@tamias/accounting";
  * Note: This is a copy of the function from export-transactions.ts for testing
  * Since the function is not exported, we test the logic directly here.
  */
-function deriveErrorCodeFromMessage(
-  errorMessage: string | undefined,
-): string | undefined {
+function deriveErrorCodeFromMessage(errorMessage: string | undefined): string | undefined {
   if (!errorMessage) return undefined;
 
   const messageLower = errorMessage.toLowerCase();
@@ -154,9 +152,9 @@ describe("deriveErrorCodeFromMessage", () => {
     });
 
     test("detects Fortnox error code 2000106", () => {
-      expect(
-        deriveErrorCodeFromMessage("Error 2000106: Value must be alphanumeric"),
-      ).toBe(ACCOUNTING_ERROR_CODES.INVALID_ACCOUNT);
+      expect(deriveErrorCodeFromMessage("Error 2000106: Value must be alphanumeric")).toBe(
+        ACCOUNTING_ERROR_CODES.INVALID_ACCOUNT,
+      );
     });
   });
 
@@ -216,9 +214,7 @@ describe("deriveErrorCodeFromMessage", () => {
     });
 
     test("returns UNKNOWN for generic error", () => {
-      expect(deriveErrorCodeFromMessage("An error occurred")).toBe(
-        ACCOUNTING_ERROR_CODES.UNKNOWN,
-      );
+      expect(deriveErrorCodeFromMessage("An error occurred")).toBe(ACCOUNTING_ERROR_CODES.UNKNOWN);
     });
   });
 

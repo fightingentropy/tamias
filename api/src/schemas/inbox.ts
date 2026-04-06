@@ -6,10 +6,7 @@ export const getInboxSchema = z.object({
   sort: z.string().nullable().optional(),
   pageSize: z.coerce.number().min(1).max(100).optional(),
   q: z.string().nullable().optional(),
-  status: z
-    .enum(["done", "pending", "suggested_match", "no_match", "other"])
-    .nullable()
-    .optional(),
+  status: z.enum(["done", "pending", "suggested_match", "no_match", "other"]).nullable().optional(),
   tab: z.enum(["all", "other"]).nullable().optional(),
 });
 
@@ -99,8 +96,7 @@ export const inboxResponseSchema = z.object({
   meta: z
     .object({
       cursor: z.string().nullable().optional().openapi({
-        description:
-          "A cursor for pagination, representing the last item from the previous page.",
+        description: "A cursor for pagination, representing the last item from the previous page.",
         example: "b3b7c1e2-4c2a-4e7a-9c1a-2b7c1e24c2a4",
       }),
       hasPreviousPage: z.boolean().openapi({
@@ -155,10 +151,7 @@ export const deleteInboxManySchema = z
   .min(1)
   .openapi({
     description: "Schema for bulk deleting inbox items by their IDs.",
-    example: [
-      "b3b7c1e2-4c2a-4e7a-9c1a-2b7c1e24c2a4",
-      "a1b2c3d4-5678-4e7a-9c1a-2b7c1e24c2a4",
-    ],
+    example: ["b3b7c1e2-4c2a-4e7a-9c1a-2b7c1e24c2a4", "a1b2c3d4-5678-4e7a-9c1a-2b7c1e24c2a4"],
   });
 
 export const createInboxItemSchema = z.object({
@@ -251,8 +244,7 @@ export const deleteInboxResponseSchema = z
 
 export const getInboxPreSignedUrlSchema = z.object({
   id: z.string().openapi({
-    description:
-      "Unique identifier of the inbox item to generate a pre-signed URL for",
+    description: "Unique identifier of the inbox item to generate a pre-signed URL for",
     example: "b3b7c1e2-4c2a-4e7a-9c1a-2b7c1e24c2a4",
     param: {
       in: "path",
@@ -275,8 +267,7 @@ export const getInboxPreSignedUrlSchema = z.object({
 
 export const inboxPreSignedUrlResponseSchema = z.object({
   url: z.string().url().openapi({
-    description:
-      "Pre-signed URL for accessing the inbox attachment, valid for 60 seconds",
+    description: "Pre-signed URL for accessing the inbox attachment, valid for 60 seconds",
     example:
       "https://service.tamias.xyz/storage/v1/object/sign/vault/inbox/document.pdf?token=abc123&expires=1640995200",
   }),
@@ -336,8 +327,7 @@ export const inboxBlocklistItemResponseSchema = z
       example: "netflix.com",
     }),
     createdAt: z.string().openapi({
-      description:
-        "Date and time when the blocklist entry was created (ISO 8601)",
+      description: "Date and time when the blocklist entry was created (ISO 8601)",
       example: "2024-05-01T12:34:56.789Z",
     }),
   })

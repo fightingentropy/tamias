@@ -53,27 +53,16 @@ export const oauthApplicationsRouter = createTRPCRouter({
     .input(authorizeOAuthApplicationSchema)
     .mutation(async ({ ctx, input }) => {
       const { session } = ctx;
-      const {
-        clientId,
-        decision,
-        scopes,
-        redirectUri,
-        state,
-        codeChallenge,
-        teamId,
-      } = input;
+      const { clientId, decision, scopes, redirectUri, state, codeChallenge, teamId } = input;
 
       // Validate client_id first (needed for both allow and deny)
-      const application =
-        await getOAuthApplicationByClientIdFromConvex(clientId);
+      const application = await getOAuthApplicationByClientIdFromConvex(clientId);
       if (!application || !application.active) {
         throw new Error("Invalid client_id");
       }
 
       // Validate scopes against application's registered scopes (prevent privilege escalation)
-      const invalidScopes = scopes.filter(
-        (scope) => !application.scopes.includes(scope),
-      );
+      const invalidScopes = scopes.filter((scope) => !application.scopes.includes(scope));
 
       if (invalidScopes.length > 0) {
         throw new Error(`Invalid scopes: ${invalidScopes.join(", ")}`);
@@ -185,22 +174,20 @@ export const oauthApplicationsRouter = createTRPCRouter({
       return application;
     }),
 
-  get: protectedProcedure
-    .input(getOAuthApplicationSchema)
-    .query(async ({ ctx, input }) => {
-      const { teamId } = ctx;
+  get: protectedProcedure.input(getOAuthApplicationSchema).query(async ({ ctx, input }) => {
+    const { teamId } = ctx;
 
-      const application = await getOAuthApplicationByIdFromConvex({
-        publicApplicationId: input.id,
-        publicTeamId: teamId!,
-      });
+    const application = await getOAuthApplicationByIdFromConvex({
+      publicApplicationId: input.id,
+      publicTeamId: teamId!,
+    });
 
-      if (!application) {
-        throw new Error("OAuth application not found");
-      }
+    if (!application) {
+      throw new Error("OAuth application not found");
+    }
 
-      return application;
-    }),
+    return application;
+  }),
 
   update: protectedProcedure
     .input(updateOAuthApplicationSchema)

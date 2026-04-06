@@ -92,10 +92,7 @@ export function RevenueSummaryWidget() {
       <div className="flex flex-col gap-2">
         {data?.result && (
           <h2 className="text-2xl font-normal">
-            <FormatAmount
-              amount={data.result.totalRevenue}
-              currency={currency || "USD"}
-            />
+            <FormatAmount amount={data.result.totalRevenue} currency={currency || "USD"} />
           </h2>
         )}
       </div>

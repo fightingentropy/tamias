@@ -7,9 +7,7 @@ import { useTRPC } from "@/trpc/client";
 
 export function InactiveClients() {
   const trpc = useTRPC();
-  const { data } = useSuspenseQuery(
-    trpc.invoice.inactiveClientsCount.queryOptions(),
-  );
+  const { data } = useSuspenseQuery(trpc.invoice.inactiveClientsCount.queryOptions());
 
   return (
     <Card className="hidden sm:block">

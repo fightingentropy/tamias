@@ -19,10 +19,7 @@ export function createDatabase(): Database {
   } as Database;
 }
 
-export function createQueryCacheKey(
-  namespace: string,
-  input: unknown,
-): string {
+export function createQueryCacheKey(namespace: string, input: unknown): string {
   return `${namespace}:${JSON.stringify(input)}`;
 }
 

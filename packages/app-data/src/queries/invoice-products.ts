@@ -149,10 +149,7 @@ export type GetInvoiceProductsParams = {
   currency?: string | null;
 };
 
-export async function incrementProductUsage(
-  id: string,
-  teamId: string,
-): Promise<void> {
+export async function incrementProductUsage(id: string, teamId: string): Promise<void> {
   await incrementInvoiceProductUsageInConvex({ id, teamId });
 }
 
@@ -199,10 +196,7 @@ export async function getInvoiceProducts(
   ).map(toInvoiceProduct);
 }
 
-export async function deleteInvoiceProduct(
-  id: string,
-  teamId: string,
-): Promise<boolean> {
+export async function deleteInvoiceProduct(id: string, teamId: string): Promise<boolean> {
   return deleteInvoiceProductInConvex({ id, teamId });
 }
 
@@ -220,23 +214,16 @@ export async function saveLineItemAsProduct(
 
   try {
     if (lineItem.productId) {
-      const existingProduct = await getInvoiceProductById(
-        lineItem.productId,
-        teamId,
-      );
+      const existingProduct = await getInvoiceProductById(lineItem.productId, teamId);
 
       if (existingProduct) {
         const updatedProduct = await updateInvoiceProduct({
           id: lineItem.productId,
           teamId,
           name: trimmedName,
-          price:
-            lineItem.price !== undefined
-              ? lineItem.price
-              : existingProduct.price,
+          price: lineItem.price !== undefined ? lineItem.price : existingProduct.price,
           currency: currency || existingProduct.currency,
-          unit:
-            lineItem.unit !== undefined ? lineItem.unit : existingProduct.unit,
+          unit: lineItem.unit !== undefined ? lineItem.unit : existingProduct.unit,
           lastUsedAt: new Date().toISOString(),
         });
 

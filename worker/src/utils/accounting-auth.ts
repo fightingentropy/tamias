@@ -1,11 +1,6 @@
-import type {
-  AccountingProvider,
-  AccountingProviderConfig,
-} from "@tamias/accounting";
+import type { AccountingProvider, AccountingProviderConfig } from "@tamias/accounting";
 import type { Database } from "@tamias/app-data/client";
-import {
-  updateAppTokens,
-} from "@tamias/app-data/queries";
+import { updateAppTokens } from "@tamias/app-data/queries";
 
 /**
  * Ensure the accounting provider has a valid (non-expired) token

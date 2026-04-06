@@ -13,15 +13,10 @@ import { getConvexAuthToken } from "@/start/auth/server";
 import { getRequestTraceHeaders } from "@/utils/request-trace";
 
 export const getServerRequestContext = cache(async () => {
-  const [token, headersList] = await Promise.all([
-    getConvexAuthToken(),
-    headers(),
-  ]);
+  const [token, headersList] = await Promise.all([getConvexAuthToken(), headers()]);
   const session =
     token && canResolveConvexSessionLocally()
-      ? await measureAuthResolution("resolve-session", () =>
-          resolveConvexUserSession(token),
-        )
+      ? await measureAuthResolution("resolve-session", () => resolveConvexUserSession(token))
       : null;
 
   return {

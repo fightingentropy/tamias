@@ -46,10 +46,7 @@ export async function listPayrollRunsFromConvex(args: { teamId: string }) {
   ) as Promise<PayrollRunRecord[]>;
 }
 
-export async function getPayrollRunByPeriodFromConvex(args: {
-  teamId: string;
-  periodKey: string;
-}) {
+export async function getPayrollRunByPeriodFromConvex(args: { teamId: string; periodKey: string }) {
   return createClient().query(
     apiWithPayrollRuns.payrollRuns.serviceGetPayrollRunByPeriod,
     serviceArgs({

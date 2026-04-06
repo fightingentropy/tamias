@@ -27,8 +27,7 @@ export function BulkEditBar() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { tab } = useTransactionTab();
-  const { rowSelectionByTab, setRowSelection, canDelete } =
-    useTransactionsStore();
+  const { rowSelectionByTab, setRowSelection, canDelete } = useTransactionsStore();
   const [isOpen, setOpen] = useState(false);
 
   const isReviewTab = tab === "review";
@@ -109,12 +108,10 @@ export function BulkEditBar() {
 
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>
-                            Are you absolutely sure?
-                          </AlertDialogTitle>
+                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                           <AlertDialogDescription>
-                            This action cannot be undone. This will permanently
-                            delete your transactions.
+                            This action cannot be undone. This will permanently delete your
+                            transactions.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>

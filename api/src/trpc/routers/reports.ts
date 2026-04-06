@@ -158,9 +158,7 @@ export const reportsRouter = createTRPCRouter({
 
   getByLinkId: publicProcedure
     .input(getReportByLinkIdSchema)
-    .query(async ({ ctx: { db }, input }) =>
-      getPublicReportByLinkId({ db, linkId: input.linkId }),
-    ),
+    .query(async ({ ctx: { db }, input }) => getPublicReportByLinkId({ db, linkId: input.linkId })),
 
   getChartDataByLinkId: publicProcedure
     .input(getChartDataByLinkIdSchema)

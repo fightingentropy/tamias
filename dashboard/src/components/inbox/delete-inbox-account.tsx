@@ -15,12 +15,7 @@ import { Button } from "@tamias/ui/button";
 import { Icons } from "@tamias/ui/icons";
 import { Input } from "@tamias/ui/input";
 import { Label } from "@tamias/ui/label";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
@@ -76,8 +71,8 @@ export function DeleteInboxAccount({ accountId }: Props) {
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Email Connection</AlertDialogTitle>
           <AlertDialogDescription>
-            You are about to delete an email connection. If you proceed you will
-            no longer receive new emails.
+            You are about to delete an email connection. If you proceed you will no longer receive
+            new emails.
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -85,19 +80,13 @@ export function DeleteInboxAccount({ accountId }: Props) {
           <Label htmlFor="confirm-delete">
             Type <span className="font-medium">DELETE</span> to confirm.
           </Label>
-          <Input
-            id="confirm-delete"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-          />
+          <Input id="confirm-delete" value={value} onChange={(e) => setValue(e.target.value)} />
         </div>
 
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            disabled={
-              value !== "DELETE" || deleteInboxAccountMutation.isPending
-            }
+            disabled={value !== "DELETE" || deleteInboxAccountMutation.isPending}
             onClick={() => deleteInboxAccountMutation.mutate({ id: accountId })}
           >
             {deleteInboxAccountMutation.isPending ? (

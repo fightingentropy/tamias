@@ -6,11 +6,7 @@ import {
 } from "@tamias/app-data/queries";
 import { separateBlocklistEntries } from "@tamias/app-data/utils/blocklist";
 import { InboxConnector } from "@tamias/inbox/connector";
-import {
-  assertInboxAuthError,
-  InboxSyncError,
-  isInboxAuthError,
-} from "@tamias/inbox/errors";
+import { assertInboxAuthError, InboxSyncError, isInboxAuthError } from "@tamias/inbox/errors";
 import { enqueue } from "@tamias/job-client";
 import { uploadVaultFile } from "@tamias/storage";
 import { ensureFileExtension } from "@tamias/utils";
@@ -74,9 +70,7 @@ export class SyncSchedulerProcessor extends BaseProcessor<InboxProviderSyncAccou
       });
 
       // Filter out attachments that are already processed
-      const referenceIds = attachments.map(
-        (attachment) => attachment.referenceId,
-      );
+      const referenceIds = attachments.map((attachment) => attachment.referenceId);
 
       this.logger.info("Checking for existing attachments by referenceIds", {
         accountId: inboxAccountId,
@@ -84,18 +78,15 @@ export class SyncSchedulerProcessor extends BaseProcessor<InboxProviderSyncAccou
         referenceIdsCount: referenceIds.length,
       });
 
-      const existingAttachmentsResults =
-        await getExistingInboxAttachmentsByReferenceIds(db, {
-          referenceIds,
-          teamId: accountRow.teamId,
-        });
+      const existingAttachmentsResults = await getExistingInboxAttachmentsByReferenceIds(db, {
+        referenceIds,
+        teamId: accountRow.teamId,
+      });
 
       this.logger.info("Found existing attachments in database", {
         accountId: inboxAccountId,
         existingCount: existingAttachmentsResults.length,
-        existingReferenceIds: existingAttachmentsResults.map(
-          (r) => r.referenceId,
-        ),
+        existingReferenceIds: existingAttachmentsResults.map((r) => r.referenceId),
       });
 
       const existingAttachments = {
@@ -109,8 +100,7 @@ export class SyncSchedulerProcessor extends BaseProcessor<InboxProviderSyncAccou
         teamId: accountRow.teamId,
       });
 
-      const { blockedDomains, blockedEmails } =
-        separateBlocklistEntries(blocklistEntries);
+      const { blockedDomains, blockedEmails } = separateBlocklistEntries(blocklistEntries);
 
       // Track filtering statistics
       let skippedAlreadyProcessed = 0;
@@ -198,10 +188,7 @@ export class SyncSchedulerProcessor extends BaseProcessor<InboxProviderSyncAccou
           const results = [];
           for (const item of batch) {
             // Ensure filename has proper extension as final safety check
-            const safeFilename = ensureFileExtension(
-              item.filename,
-              item.mimeType,
-            );
+            const safeFilename = ensureFileExtension(item.filename, item.mimeType);
 
             const { data: uploadData } = await uploadVaultFile({
               path: `${accountRow.teamId}/inbox/${safeFilename}`,
@@ -318,14 +305,11 @@ export class SyncSchedulerProcessor extends BaseProcessor<InboxProviderSyncAccou
             errorMessage: `Authentication failed (${error.code}): ${error.message}`,
           });
 
-          this.logger.error(
-            "Account marked as disconnected - requires reauth",
-            {
-              accountId: inboxAccountId,
-              errorCode: error.code,
-              provider: error.provider,
-            },
-          );
+          this.logger.error("Account marked as disconnected - requires reauth", {
+            accountId: inboxAccountId,
+            errorCode: error.code,
+            provider: error.provider,
+          });
         } else {
           // Transient auth error - don't change status, let retry handle it
           this.logger.warn("Transient auth error - will retry", {
@@ -353,8 +337,7 @@ export class SyncSchedulerProcessor extends BaseProcessor<InboxProviderSyncAccou
       }
 
       // Handle unknown errors (fallback)
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown sync error";
+      const errorMessage = error instanceof Error ? error.message : "Unknown sync error";
 
       this.logger.error("Inbox sync failed - unknown error", {
         accountId: inboxAccountId,

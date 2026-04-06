@@ -41,22 +41,15 @@ export function ScopeSelector({
 
       <ScrollArea className={`flex flex-col text-sm ${height}`}>
         {RESOURCES.map((resource) => (
-          <div
-            className="flex items-center justify-between py-4 border-b"
-            key={resource.key}
-          >
+          <div className="flex items-center justify-between py-4 border-b" key={resource.key}>
             <div className="flex items-center gap-1.5">
-              <span className="text-sm font-medium text-[#878787]">
-                {resource.name}
-              </span>
+              <span className="text-sm font-medium text-[#878787]">{resource.name}</span>
             </div>
             <div>
               <RadioGroup
                 value={getResourceScope(resource.key)}
                 className="flex gap-4"
-                onValueChange={(value) =>
-                  onResourceScopeChange(resource.key, value)
-                }
+                onValueChange={(value) => onResourceScopeChange(resource.key, value)}
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="" id={`${resource.key}-none`} />
@@ -65,14 +58,8 @@ export function ScopeSelector({
                   </label>
                 </div>
                 {resource.scopes.map((scope) => (
-                  <div
-                    className="flex items-center space-x-2"
-                    key={scope.scope}
-                  >
-                    <RadioGroupItem
-                      value={scope.scope}
-                      id={`${resource.key}-${scope.type}`}
-                    />
+                  <div className="flex items-center space-x-2" key={scope.scope}>
+                    <RadioGroupItem value={scope.scope} id={`${resource.key}-${scope.type}`} />
                     <label
                       htmlFor={`${resource.key}-${scope.type}`}
                       className="text-sm font-normal capitalize text-[#878787]"
@@ -87,11 +74,7 @@ export function ScopeSelector({
         ))}
       </ScrollArea>
 
-      {errorMessage && (
-        <p className="text-sm font-medium text-destructive mt-2">
-          {errorMessage}
-        </p>
-      )}
+      {errorMessage && <p className="text-sm font-medium text-destructive mt-2">{errorMessage}</p>}
     </div>
   );
 }

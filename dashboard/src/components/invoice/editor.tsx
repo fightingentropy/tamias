@@ -15,10 +15,9 @@ type Props = {
   tabIndex?: number;
 };
 
-const EditorCore = dynamic(
-  () => import("./editor-core").then((mod) => mod.EditorCore),
-  { ssr: false },
-);
+const EditorCore = dynamic(() => import("./editor-core").then((mod) => mod.EditorCore), {
+  ssr: false,
+});
 
 export function Editor({
   initialContent,

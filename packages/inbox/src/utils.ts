@@ -22,9 +22,7 @@ export function encryptOAuthState(payload: OAuthStatePayload): string {
  * Decrypts and validates OAuth state from callback.
  * Returns null if state is invalid or tampered with.
  */
-export function decryptOAuthState(
-  encryptedState: string,
-): OAuthStatePayload | null {
+export function decryptOAuthState(encryptedState: string): OAuthStatePayload | null {
   try {
     const decrypted = decrypt(encryptedState);
     const parsed = JSON.parse(decrypted);

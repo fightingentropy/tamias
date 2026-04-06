@@ -13,11 +13,7 @@ type TrialGuardProps = {
 export function TrialGuard({ plan, createdAt, children }: TrialGuardProps) {
   const pathname = usePathname();
 
-  const showUpgradeContent = shouldShowUpgradeContent(
-    plan,
-    createdAt,
-    pathname,
-  );
+  const showUpgradeContent = shouldShowUpgradeContent(plan, createdAt, pathname);
 
   if (showUpgradeContent) {
     return <UpgradeContent />;

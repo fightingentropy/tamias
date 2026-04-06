@@ -1,8 +1,5 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import {
-  encryptAccountingOAuthState,
-  getAccountingProvider,
-} from "@tamias/accounting";
+import { encryptAccountingOAuthState, getAccountingProvider } from "@tamias/accounting";
 import { HTTPException } from "hono/http-exception";
 import { protectedMiddleware } from "../../../middleware";
 import type { Context } from "../../../types";
@@ -21,8 +18,7 @@ app.openapi(
     path: "/",
     summary: "Get Xero install URL",
     operationId: "getXeroInstallUrl",
-    description:
-      "Generates OAuth install URL for Xero integration. Requires authentication.",
+    description: "Generates OAuth install URL for Xero integration. Requires authentication.",
     tags: ["Integrations"],
     responses: {
       200: {
@@ -76,10 +72,7 @@ app.openapi(
       return c.json({ url });
     } catch (error) {
       throw new HTTPException(500, {
-        message:
-          error instanceof Error
-            ? error.message
-            : "Xero OAuth configuration missing",
+        message: error instanceof Error ? error.message : "Xero OAuth configuration missing",
       });
     }
   },

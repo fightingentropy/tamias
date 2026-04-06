@@ -12,15 +12,10 @@ export const Route = createLazyFileRoute("/account/teams")({
 });
 
 function AccountTeamsPage() {
-  const loaderData = Route.useLoaderData() as Awaited<
-    ReturnType<typeof loadAccountTeamsData>
-  >;
+  const loaderData = Route.useLoaderData() as Awaited<ReturnType<typeof loadAccountTeamsData>>;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <ErrorBoundary errorComponent={ErrorFallback}>
         <Suspense fallback={<TeamsSkeleton />}>
           <TeamsTable />

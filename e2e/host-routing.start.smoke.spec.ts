@@ -1,26 +1,18 @@
 import { expect, test } from "@playwright/test";
-import {
-  getAppBaseUrl,
-  getWebsiteBaseUrl,
-  resolveTestUrl,
-} from "./helpers/hosts";
+import { getAppBaseUrl, getWebsiteBaseUrl, resolveTestUrl } from "./helpers/hosts";
 
 const appBaseUrl = getAppBaseUrl();
 const websiteBaseUrl = getWebsiteBaseUrl();
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
-test("legacy website host redirects to the canonical app host", async ({
-  page,
-}) => {
+test("legacy website host redirects to the canonical app host", async ({ page }) => {
   await page.goto(resolveTestUrl(websiteBaseUrl, "/"));
   await expect(page).toHaveURL(resolveTestUrl(appBaseUrl, "/login"));
 
   await page.goto(resolveTestUrl(websiteBaseUrl, "/login"));
   await expect(page).toHaveURL(resolveTestUrl(appBaseUrl, "/login"));
-  await expect(
-    page.getByRole("heading", { name: "Welcome to Tamias" }),
-  ).toBeVisible({
+  await expect(page.getByRole("heading", { name: "Welcome to Tamias" })).toBeVisible({
     timeout: 30_000,
   });
 

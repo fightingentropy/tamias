@@ -1,7 +1,4 @@
-import type {
-  CurrentUserIdentityRecord,
-  InboxItemRecord,
-} from "@tamias/app-data-convex";
+import type { CurrentUserIdentityRecord, InboxItemRecord } from "@tamias/app-data-convex";
 import type { MatchType } from "../utils/transaction-matching";
 
 type ConvexUserId = CurrentUserIdentityRecord["convexId"];

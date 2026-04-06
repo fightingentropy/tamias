@@ -15,16 +15,12 @@ export function Meta({ template, invoiceNumber, issueDate, dueDate }: Props) {
     return null;
   }
 
-  const dateFormat =
-    template.dateFormat || DEFAULT_TEMPLATE_SETTINGS.dateFormat;
+  const dateFormat = template.dateFormat || DEFAULT_TEMPLATE_SETTINGS.dateFormat;
 
   return (
     <div tw="flex justify-between items-center mt-14 mb-2">
       <div tw="flex items-center">
-        <span
-          tw="text-[22px] text-[#878787] mr-2"
-          style={{ fontFamily: "hedvig-sans" }}
-        >
+        <span tw="text-[22px] text-[#878787] mr-2" style={{ fontFamily: "hedvig-sans" }}>
           {template.invoiceNoLabel}:
         </span>
         <span tw="text-[22px] text-white" style={{ fontFamily: "hedvig-sans" }}>
@@ -33,10 +29,7 @@ export function Meta({ template, invoiceNumber, issueDate, dueDate }: Props) {
       </div>
 
       <div tw="flex items-center">
-        <span
-          tw="text-[22px] text-[#878787] mr-2"
-          style={{ fontFamily: "hedvig-sans" }}
-        >
+        <span tw="text-[22px] text-[#878787] mr-2" style={{ fontFamily: "hedvig-sans" }}>
           {template.issueDateLabel}:
         </span>
         <span tw="text-[22px] text-white" style={{ fontFamily: "hedvig-sans" }}>
@@ -45,10 +38,7 @@ export function Meta({ template, invoiceNumber, issueDate, dueDate }: Props) {
       </div>
 
       <div tw="flex items-center">
-        <span
-          tw="text-[22px] text-[#878787] mr-2"
-          style={{ fontFamily: "hedvig-sans" }}
-        >
+        <span tw="text-[22px] text-[#878787] mr-2" style={{ fontFamily: "hedvig-sans" }}>
           {template.dueDateLabel}:
         </span>
         <span tw="text-[22px] text-white" style={{ fontFamily: "hedvig-sans" }}>

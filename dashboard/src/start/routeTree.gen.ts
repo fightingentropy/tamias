@@ -8,1184 +8,1135 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as VaultRouteImport } from './routes/vault'
-import { Route as UpgradeRouteImport } from './routes/upgrade'
-import { Route as TransactionsRouteImport } from './routes/transactions'
-import { Route as TrackerRouteImport } from './routes/tracker'
-import { Route as TeamsRouteImport } from './routes/teams'
-import { Route as OnboardingRouteImport } from './routes/onboarding'
-import { Route as OauthCallbackRouteImport } from './routes/oauth-callback'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as InvoicesRouteImport } from './routes/invoices'
-import { Route as InboxRouteImport } from './routes/inbox'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as CustomersRouteImport } from './routes/customers'
-import { Route as AppsRouteImport } from './routes/apps'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as SettingsIndexRouteImport } from './routes/settings/index'
-import { Route as ComplianceIndexRouteImport } from './routes/compliance/index'
-import { Route as AccountIndexRouteImport } from './routes/account/index'
-import { Route as TransactionsCategoriesRouteImport } from './routes/transactions/categories'
-import { Route as SettingsNotificationsRouteImport } from './routes/settings/notifications'
-import { Route as SettingsMembersRouteImport } from './routes/settings/members'
-import { Route as SettingsDeveloperRouteImport } from './routes/settings/developer'
-import { Route as SettingsBillingRouteImport } from './routes/settings/billing'
-import { Route as SettingsAccountsRouteImport } from './routes/settings/accounts'
-import { Route as SShortIdRouteImport } from './routes/s/$shortId'
-import { Route as RLinkIdRouteImport } from './routes/r/$linkId'
-import { Route as PPortalIdRouteImport } from './routes/p/$portalId'
-import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
-import { Route as MfaVerifyRouteImport } from './routes/mfa/verify'
-import { Route as MfaSetupRouteImport } from './routes/mfa/setup'
-import { Route as InvoicesProductsRouteImport } from './routes/invoices/products'
-import { Route as InboxSettingsRouteImport } from './routes/inbox/settings'
-import { Route as ITokenRouteImport } from './routes/i/$token'
-import { Route as ComplianceYearEndRouteImport } from './routes/compliance/year-end'
-import { Route as ComplianceVatRouteImport } from './routes/compliance/vat'
-import { Route as ComplianceSettingsRouteImport } from './routes/compliance/settings'
-import { Route as CompliancePayrollRouteImport } from './routes/compliance/payroll'
-import { Route as ChatIdRouteImport } from './routes/chat/$id'
-import { Route as ApiHealthRouteImport } from './routes/api/health'
-import { Route as ApiAuthRouteImport } from './routes/api/auth'
-import { Route as AccountTeamsRouteImport } from './routes/account/teams'
-import { Route as AccountSupportRouteImport } from './routes/account/support'
-import { Route as AccountSecurityRouteImport } from './routes/account/security'
-import { Route as AccountDateAndLocaleRouteImport } from './routes/account/date-and-locale'
-import { Route as RLinkIdOpengraphImageRouteImport } from './routes/r/$linkId/opengraph-image'
-import { Route as PPortalIdOpengraphImageRouteImport } from './routes/p/$portalId/opengraph-image'
-import { Route as ITokenOpengraphImageRouteImport } from './routes/i/$token/opengraph-image'
-import { Route as ApiWebhookRegisteredRouteImport } from './routes/api/webhook/registered'
-import { Route as ApiGocardlessReconnectRouteImport } from './routes/api/gocardless/reconnect'
-import { Route as ApiAuthCallbackRouteImport } from './routes/api/auth/callback'
-import { Route as ApiActionsTransactionsReconnectRouteImport } from './routes/api/actions/transactions/reconnect'
-import { Route as ApiActionsTransactionsManualSyncRouteImport } from './routes/api/actions/transactions/manual-sync'
-import { Route as ApiActionsAiTaxRateRouteImport } from './routes/api/actions/ai/tax-rate'
+import { Route as rootRouteImport } from "./routes/__root";
+import { Route as VaultRouteImport } from "./routes/vault";
+import { Route as UpgradeRouteImport } from "./routes/upgrade";
+import { Route as TransactionsRouteImport } from "./routes/transactions";
+import { Route as TrackerRouteImport } from "./routes/tracker";
+import { Route as TeamsRouteImport } from "./routes/teams";
+import { Route as OnboardingRouteImport } from "./routes/onboarding";
+import { Route as OauthCallbackRouteImport } from "./routes/oauth-callback";
+import { Route as LoginRouteImport } from "./routes/login";
+import { Route as InvoicesRouteImport } from "./routes/invoices";
+import { Route as InboxRouteImport } from "./routes/inbox";
+import { Route as DashboardRouteImport } from "./routes/dashboard";
+import { Route as CustomersRouteImport } from "./routes/customers";
+import { Route as AppsRouteImport } from "./routes/apps";
+import { Route as IndexRouteImport } from "./routes/index";
+import { Route as SettingsIndexRouteImport } from "./routes/settings/index";
+import { Route as ComplianceIndexRouteImport } from "./routes/compliance/index";
+import { Route as AccountIndexRouteImport } from "./routes/account/index";
+import { Route as TransactionsCategoriesRouteImport } from "./routes/transactions/categories";
+import { Route as SettingsNotificationsRouteImport } from "./routes/settings/notifications";
+import { Route as SettingsMembersRouteImport } from "./routes/settings/members";
+import { Route as SettingsDeveloperRouteImport } from "./routes/settings/developer";
+import { Route as SettingsBillingRouteImport } from "./routes/settings/billing";
+import { Route as SettingsAccountsRouteImport } from "./routes/settings/accounts";
+import { Route as SShortIdRouteImport } from "./routes/s/$shortId";
+import { Route as RLinkIdRouteImport } from "./routes/r/$linkId";
+import { Route as PPortalIdRouteImport } from "./routes/p/$portalId";
+import { Route as OauthAuthorizeRouteImport } from "./routes/oauth/authorize";
+import { Route as MfaVerifyRouteImport } from "./routes/mfa/verify";
+import { Route as MfaSetupRouteImport } from "./routes/mfa/setup";
+import { Route as InvoicesProductsRouteImport } from "./routes/invoices/products";
+import { Route as InboxSettingsRouteImport } from "./routes/inbox/settings";
+import { Route as ITokenRouteImport } from "./routes/i/$token";
+import { Route as ComplianceYearEndRouteImport } from "./routes/compliance/year-end";
+import { Route as ComplianceVatRouteImport } from "./routes/compliance/vat";
+import { Route as ComplianceSettingsRouteImport } from "./routes/compliance/settings";
+import { Route as CompliancePayrollRouteImport } from "./routes/compliance/payroll";
+import { Route as ChatIdRouteImport } from "./routes/chat/$id";
+import { Route as ApiHealthRouteImport } from "./routes/api/health";
+import { Route as ApiAuthRouteImport } from "./routes/api/auth";
+import { Route as AccountTeamsRouteImport } from "./routes/account/teams";
+import { Route as AccountSupportRouteImport } from "./routes/account/support";
+import { Route as AccountSecurityRouteImport } from "./routes/account/security";
+import { Route as AccountDateAndLocaleRouteImport } from "./routes/account/date-and-locale";
+import { Route as RLinkIdOpengraphImageRouteImport } from "./routes/r/$linkId/opengraph-image";
+import { Route as PPortalIdOpengraphImageRouteImport } from "./routes/p/$portalId/opengraph-image";
+import { Route as ITokenOpengraphImageRouteImport } from "./routes/i/$token/opengraph-image";
+import { Route as ApiWebhookRegisteredRouteImport } from "./routes/api/webhook/registered";
+import { Route as ApiGocardlessReconnectRouteImport } from "./routes/api/gocardless/reconnect";
+import { Route as ApiAuthCallbackRouteImport } from "./routes/api/auth/callback";
+import { Route as ApiActionsTransactionsReconnectRouteImport } from "./routes/api/actions/transactions/reconnect";
+import { Route as ApiActionsTransactionsManualSyncRouteImport } from "./routes/api/actions/transactions/manual-sync";
+import { Route as ApiActionsAiTaxRateRouteImport } from "./routes/api/actions/ai/tax-rate";
 
 const VaultRoute = VaultRouteImport.update({
-  id: '/vault',
-  path: '/vault',
+  id: "/vault",
+  path: "/vault",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/vault.lazy').then((d) => d.Route))
+} as any).lazy(() => import("./routes/vault.lazy").then((d) => d.Route));
 const UpgradeRoute = UpgradeRouteImport.update({
-  id: '/upgrade',
-  path: '/upgrade',
+  id: "/upgrade",
+  path: "/upgrade",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/upgrade.lazy').then((d) => d.Route))
+} as any).lazy(() => import("./routes/upgrade.lazy").then((d) => d.Route));
 const TransactionsRoute = TransactionsRouteImport.update({
-  id: '/transactions',
-  path: '/transactions',
+  id: "/transactions",
+  path: "/transactions",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/transactions.lazy').then((d) => d.Route))
+} as any).lazy(() => import("./routes/transactions.lazy").then((d) => d.Route));
 const TrackerRoute = TrackerRouteImport.update({
-  id: '/tracker',
-  path: '/tracker',
+  id: "/tracker",
+  path: "/tracker",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/tracker.lazy').then((d) => d.Route))
+} as any).lazy(() => import("./routes/tracker.lazy").then((d) => d.Route));
 const TeamsRoute = TeamsRouteImport.update({
-  id: '/teams',
-  path: '/teams',
+  id: "/teams",
+  path: "/teams",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/teams.lazy').then((d) => d.Route))
+} as any).lazy(() => import("./routes/teams.lazy").then((d) => d.Route));
 const OnboardingRoute = OnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
+  id: "/onboarding",
+  path: "/onboarding",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/onboarding.lazy').then((d) => d.Route))
+} as any).lazy(() => import("./routes/onboarding.lazy").then((d) => d.Route));
 const OauthCallbackRoute = OauthCallbackRouteImport.update({
-  id: '/oauth-callback',
-  path: '/oauth-callback',
+  id: "/oauth-callback",
+  path: "/oauth-callback",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() =>
-  import('./routes/oauth-callback.lazy').then((d) => d.Route),
-)
+} as any).lazy(() => import("./routes/oauth-callback.lazy").then((d) => d.Route));
 const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
+  id: "/login",
+  path: "/login",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/login.lazy').then((d) => d.Route))
+} as any).lazy(() => import("./routes/login.lazy").then((d) => d.Route));
 const InvoicesRoute = InvoicesRouteImport.update({
-  id: '/invoices',
-  path: '/invoices',
+  id: "/invoices",
+  path: "/invoices",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/invoices.lazy').then((d) => d.Route))
+} as any).lazy(() => import("./routes/invoices.lazy").then((d) => d.Route));
 const InboxRoute = InboxRouteImport.update({
-  id: '/inbox',
-  path: '/inbox',
+  id: "/inbox",
+  path: "/inbox",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/inbox.lazy').then((d) => d.Route))
+} as any).lazy(() => import("./routes/inbox.lazy").then((d) => d.Route));
 const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+  id: "/dashboard",
+  path: "/dashboard",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/dashboard.lazy').then((d) => d.Route))
+} as any).lazy(() => import("./routes/dashboard.lazy").then((d) => d.Route));
 const CustomersRoute = CustomersRouteImport.update({
-  id: '/customers',
-  path: '/customers',
+  id: "/customers",
+  path: "/customers",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/customers.lazy').then((d) => d.Route))
+} as any).lazy(() => import("./routes/customers.lazy").then((d) => d.Route));
 const AppsRoute = AppsRouteImport.update({
-  id: '/apps',
-  path: '/apps',
+  id: "/apps",
+  path: "/apps",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/apps.lazy').then((d) => d.Route))
+} as any).lazy(() => import("./routes/apps.lazy").then((d) => d.Route));
 const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const SettingsIndexRoute = SettingsIndexRouteImport.update({
-  id: '/settings/',
-  path: '/settings/',
+  id: "/settings/",
+  path: "/settings/",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() =>
-  import('./routes/settings/index.lazy').then((d) => d.Route),
-)
+} as any).lazy(() => import("./routes/settings/index.lazy").then((d) => d.Route));
 const ComplianceIndexRoute = ComplianceIndexRouteImport.update({
-  id: '/compliance/',
-  path: '/compliance/',
+  id: "/compliance/",
+  path: "/compliance/",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() =>
-  import('./routes/compliance/index.lazy').then((d) => d.Route),
-)
+} as any).lazy(() => import("./routes/compliance/index.lazy").then((d) => d.Route));
 const AccountIndexRoute = AccountIndexRouteImport.update({
-  id: '/account/',
-  path: '/account/',
+  id: "/account/",
+  path: "/account/",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/account/index.lazy').then((d) => d.Route))
+} as any).lazy(() => import("./routes/account/index.lazy").then((d) => d.Route));
 const TransactionsCategoriesRoute = TransactionsCategoriesRouteImport.update({
-  id: '/categories',
-  path: '/categories',
+  id: "/categories",
+  path: "/categories",
   getParentRoute: () => TransactionsRoute,
-} as any).lazy(() =>
-  import('./routes/transactions/categories.lazy').then((d) => d.Route),
-)
+} as any).lazy(() => import("./routes/transactions/categories.lazy").then((d) => d.Route));
 const SettingsNotificationsRoute = SettingsNotificationsRouteImport.update({
-  id: '/settings/notifications',
-  path: '/settings/notifications',
+  id: "/settings/notifications",
+  path: "/settings/notifications",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() =>
-  import('./routes/settings/notifications.lazy').then((d) => d.Route),
-)
+} as any).lazy(() => import("./routes/settings/notifications.lazy").then((d) => d.Route));
 const SettingsMembersRoute = SettingsMembersRouteImport.update({
-  id: '/settings/members',
-  path: '/settings/members',
+  id: "/settings/members",
+  path: "/settings/members",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() =>
-  import('./routes/settings/members.lazy').then((d) => d.Route),
-)
+} as any).lazy(() => import("./routes/settings/members.lazy").then((d) => d.Route));
 const SettingsDeveloperRoute = SettingsDeveloperRouteImport.update({
-  id: '/settings/developer',
-  path: '/settings/developer',
+  id: "/settings/developer",
+  path: "/settings/developer",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() =>
-  import('./routes/settings/developer.lazy').then((d) => d.Route),
-)
+} as any).lazy(() => import("./routes/settings/developer.lazy").then((d) => d.Route));
 const SettingsBillingRoute = SettingsBillingRouteImport.update({
-  id: '/settings/billing',
-  path: '/settings/billing',
+  id: "/settings/billing",
+  path: "/settings/billing",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() =>
-  import('./routes/settings/billing.lazy').then((d) => d.Route),
-)
+} as any).lazy(() => import("./routes/settings/billing.lazy").then((d) => d.Route));
 const SettingsAccountsRoute = SettingsAccountsRouteImport.update({
-  id: '/settings/accounts',
-  path: '/settings/accounts',
+  id: "/settings/accounts",
+  path: "/settings/accounts",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() =>
-  import('./routes/settings/accounts.lazy').then((d) => d.Route),
-)
+} as any).lazy(() => import("./routes/settings/accounts.lazy").then((d) => d.Route));
 const SShortIdRoute = SShortIdRouteImport.update({
-  id: '/s/$shortId',
-  path: '/s/$shortId',
+  id: "/s/$shortId",
+  path: "/s/$shortId",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/s/$shortId.lazy').then((d) => d.Route))
+} as any).lazy(() => import("./routes/s/$shortId.lazy").then((d) => d.Route));
 const RLinkIdRoute = RLinkIdRouteImport.update({
-  id: '/r/$linkId',
-  path: '/r/$linkId',
+  id: "/r/$linkId",
+  path: "/r/$linkId",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/r/$linkId.lazy').then((d) => d.Route))
+} as any).lazy(() => import("./routes/r/$linkId.lazy").then((d) => d.Route));
 const PPortalIdRoute = PPortalIdRouteImport.update({
-  id: '/p/$portalId',
-  path: '/p/$portalId',
+  id: "/p/$portalId",
+  path: "/p/$portalId",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/p/$portalId.lazy').then((d) => d.Route))
+} as any).lazy(() => import("./routes/p/$portalId.lazy").then((d) => d.Route));
 const OauthAuthorizeRoute = OauthAuthorizeRouteImport.update({
-  id: '/oauth/authorize',
-  path: '/oauth/authorize',
+  id: "/oauth/authorize",
+  path: "/oauth/authorize",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() =>
-  import('./routes/oauth/authorize.lazy').then((d) => d.Route),
-)
+} as any).lazy(() => import("./routes/oauth/authorize.lazy").then((d) => d.Route));
 const MfaVerifyRoute = MfaVerifyRouteImport.update({
-  id: '/mfa/verify',
-  path: '/mfa/verify',
+  id: "/mfa/verify",
+  path: "/mfa/verify",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const MfaSetupRoute = MfaSetupRouteImport.update({
-  id: '/mfa/setup',
-  path: '/mfa/setup',
+  id: "/mfa/setup",
+  path: "/mfa/setup",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const InvoicesProductsRoute = InvoicesProductsRouteImport.update({
-  id: '/products',
-  path: '/products',
+  id: "/products",
+  path: "/products",
   getParentRoute: () => InvoicesRoute,
-} as any).lazy(() =>
-  import('./routes/invoices/products.lazy').then((d) => d.Route),
-)
+} as any).lazy(() => import("./routes/invoices/products.lazy").then((d) => d.Route));
 const InboxSettingsRoute = InboxSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
+  id: "/settings",
+  path: "/settings",
   getParentRoute: () => InboxRoute,
-} as any).lazy(() =>
-  import('./routes/inbox/settings.lazy').then((d) => d.Route),
-)
+} as any).lazy(() => import("./routes/inbox/settings.lazy").then((d) => d.Route));
 const ITokenRoute = ITokenRouteImport.update({
-  id: '/i/$token',
-  path: '/i/$token',
+  id: "/i/$token",
+  path: "/i/$token",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/i/$token.lazy').then((d) => d.Route))
+} as any).lazy(() => import("./routes/i/$token.lazy").then((d) => d.Route));
 const ComplianceYearEndRoute = ComplianceYearEndRouteImport.update({
-  id: '/compliance/year-end',
-  path: '/compliance/year-end',
+  id: "/compliance/year-end",
+  path: "/compliance/year-end",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() =>
-  import('./routes/compliance/year-end.lazy').then((d) => d.Route),
-)
+} as any).lazy(() => import("./routes/compliance/year-end.lazy").then((d) => d.Route));
 const ComplianceVatRoute = ComplianceVatRouteImport.update({
-  id: '/compliance/vat',
-  path: '/compliance/vat',
+  id: "/compliance/vat",
+  path: "/compliance/vat",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() =>
-  import('./routes/compliance/vat.lazy').then((d) => d.Route),
-)
+} as any).lazy(() => import("./routes/compliance/vat.lazy").then((d) => d.Route));
 const ComplianceSettingsRoute = ComplianceSettingsRouteImport.update({
-  id: '/compliance/settings',
-  path: '/compliance/settings',
+  id: "/compliance/settings",
+  path: "/compliance/settings",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() =>
-  import('./routes/compliance/settings.lazy').then((d) => d.Route),
-)
+} as any).lazy(() => import("./routes/compliance/settings.lazy").then((d) => d.Route));
 const CompliancePayrollRoute = CompliancePayrollRouteImport.update({
-  id: '/compliance/payroll',
-  path: '/compliance/payroll',
+  id: "/compliance/payroll",
+  path: "/compliance/payroll",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() =>
-  import('./routes/compliance/payroll.lazy').then((d) => d.Route),
-)
+} as any).lazy(() => import("./routes/compliance/payroll.lazy").then((d) => d.Route));
 const ChatIdRoute = ChatIdRouteImport.update({
-  id: '/chat/$id',
-  path: '/chat/$id',
+  id: "/chat/$id",
+  path: "/chat/$id",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/chat/$id.lazy').then((d) => d.Route))
+} as any).lazy(() => import("./routes/chat/$id.lazy").then((d) => d.Route));
 const ApiHealthRoute = ApiHealthRouteImport.update({
-  id: '/api/health',
-  path: '/api/health',
+  id: "/api/health",
+  path: "/api/health",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiAuthRoute = ApiAuthRouteImport.update({
-  id: '/api/auth',
-  path: '/api/auth',
+  id: "/api/auth",
+  path: "/api/auth",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const AccountTeamsRoute = AccountTeamsRouteImport.update({
-  id: '/account/teams',
-  path: '/account/teams',
+  id: "/account/teams",
+  path: "/account/teams",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/account/teams.lazy').then((d) => d.Route))
+} as any).lazy(() => import("./routes/account/teams.lazy").then((d) => d.Route));
 const AccountSupportRoute = AccountSupportRouteImport.update({
-  id: '/account/support',
-  path: '/account/support',
+  id: "/account/support",
+  path: "/account/support",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() =>
-  import('./routes/account/support.lazy').then((d) => d.Route),
-)
+} as any).lazy(() => import("./routes/account/support.lazy").then((d) => d.Route));
 const AccountSecurityRoute = AccountSecurityRouteImport.update({
-  id: '/account/security',
-  path: '/account/security',
+  id: "/account/security",
+  path: "/account/security",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() =>
-  import('./routes/account/security.lazy').then((d) => d.Route),
-)
+} as any).lazy(() => import("./routes/account/security.lazy").then((d) => d.Route));
 const AccountDateAndLocaleRoute = AccountDateAndLocaleRouteImport.update({
-  id: '/account/date-and-locale',
-  path: '/account/date-and-locale',
+  id: "/account/date-and-locale",
+  path: "/account/date-and-locale",
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() =>
-  import('./routes/account/date-and-locale.lazy').then((d) => d.Route),
-)
+} as any).lazy(() => import("./routes/account/date-and-locale.lazy").then((d) => d.Route));
 const RLinkIdOpengraphImageRoute = RLinkIdOpengraphImageRouteImport.update({
-  id: '/opengraph-image',
-  path: '/opengraph-image',
+  id: "/opengraph-image",
+  path: "/opengraph-image",
   getParentRoute: () => RLinkIdRoute,
-} as any)
+} as any);
 const PPortalIdOpengraphImageRoute = PPortalIdOpengraphImageRouteImport.update({
-  id: '/opengraph-image',
-  path: '/opengraph-image',
+  id: "/opengraph-image",
+  path: "/opengraph-image",
   getParentRoute: () => PPortalIdRoute,
-} as any)
+} as any);
 const ITokenOpengraphImageRoute = ITokenOpengraphImageRouteImport.update({
-  id: '/opengraph-image',
-  path: '/opengraph-image',
+  id: "/opengraph-image",
+  path: "/opengraph-image",
   getParentRoute: () => ITokenRoute,
-} as any)
+} as any);
 const ApiWebhookRegisteredRoute = ApiWebhookRegisteredRouteImport.update({
-  id: '/api/webhook/registered',
-  path: '/api/webhook/registered',
+  id: "/api/webhook/registered",
+  path: "/api/webhook/registered",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiGocardlessReconnectRoute = ApiGocardlessReconnectRouteImport.update({
-  id: '/api/gocardless/reconnect',
-  path: '/api/gocardless/reconnect',
+  id: "/api/gocardless/reconnect",
+  path: "/api/gocardless/reconnect",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ApiAuthCallbackRoute = ApiAuthCallbackRouteImport.update({
-  id: '/callback',
-  path: '/callback',
+  id: "/callback",
+  path: "/callback",
   getParentRoute: () => ApiAuthRoute,
-} as any)
-const ApiActionsTransactionsReconnectRoute =
-  ApiActionsTransactionsReconnectRouteImport.update({
-    id: '/api/actions/transactions/reconnect',
-    path: '/api/actions/transactions/reconnect',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiActionsTransactionsManualSyncRoute =
-  ApiActionsTransactionsManualSyncRouteImport.update({
-    id: '/api/actions/transactions/manual-sync',
-    path: '/api/actions/transactions/manual-sync',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiActionsAiTaxRateRoute = ApiActionsAiTaxRateRouteImport.update({
-  id: '/api/actions/ai/tax-rate',
-  path: '/api/actions/ai/tax-rate',
+} as any);
+const ApiActionsTransactionsReconnectRoute = ApiActionsTransactionsReconnectRouteImport.update({
+  id: "/api/actions/transactions/reconnect",
+  path: "/api/actions/transactions/reconnect",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
+const ApiActionsTransactionsManualSyncRoute = ApiActionsTransactionsManualSyncRouteImport.update({
+  id: "/api/actions/transactions/manual-sync",
+  path: "/api/actions/transactions/manual-sync",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const ApiActionsAiTaxRateRoute = ApiActionsAiTaxRateRouteImport.update({
+  id: "/api/actions/ai/tax-rate",
+  path: "/api/actions/ai/tax-rate",
+  getParentRoute: () => rootRouteImport,
+} as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/apps': typeof AppsRoute
-  '/customers': typeof CustomersRoute
-  '/dashboard': typeof DashboardRoute
-  '/inbox': typeof InboxRouteWithChildren
-  '/invoices': typeof InvoicesRouteWithChildren
-  '/login': typeof LoginRoute
-  '/oauth-callback': typeof OauthCallbackRoute
-  '/onboarding': typeof OnboardingRoute
-  '/teams': typeof TeamsRoute
-  '/tracker': typeof TrackerRoute
-  '/transactions': typeof TransactionsRouteWithChildren
-  '/upgrade': typeof UpgradeRoute
-  '/vault': typeof VaultRoute
-  '/account/date-and-locale': typeof AccountDateAndLocaleRoute
-  '/account/security': typeof AccountSecurityRoute
-  '/account/support': typeof AccountSupportRoute
-  '/account/teams': typeof AccountTeamsRoute
-  '/api/auth': typeof ApiAuthRouteWithChildren
-  '/api/health': typeof ApiHealthRoute
-  '/chat/$id': typeof ChatIdRoute
-  '/compliance/payroll': typeof CompliancePayrollRoute
-  '/compliance/settings': typeof ComplianceSettingsRoute
-  '/compliance/vat': typeof ComplianceVatRoute
-  '/compliance/year-end': typeof ComplianceYearEndRoute
-  '/i/$token': typeof ITokenRouteWithChildren
-  '/inbox/settings': typeof InboxSettingsRoute
-  '/invoices/products': typeof InvoicesProductsRoute
-  '/mfa/setup': typeof MfaSetupRoute
-  '/mfa/verify': typeof MfaVerifyRoute
-  '/oauth/authorize': typeof OauthAuthorizeRoute
-  '/p/$portalId': typeof PPortalIdRouteWithChildren
-  '/r/$linkId': typeof RLinkIdRouteWithChildren
-  '/s/$shortId': typeof SShortIdRoute
-  '/settings/accounts': typeof SettingsAccountsRoute
-  '/settings/billing': typeof SettingsBillingRoute
-  '/settings/developer': typeof SettingsDeveloperRoute
-  '/settings/members': typeof SettingsMembersRoute
-  '/settings/notifications': typeof SettingsNotificationsRoute
-  '/transactions/categories': typeof TransactionsCategoriesRoute
-  '/account/': typeof AccountIndexRoute
-  '/compliance/': typeof ComplianceIndexRoute
-  '/settings/': typeof SettingsIndexRoute
-  '/api/auth/callback': typeof ApiAuthCallbackRoute
-  '/api/gocardless/reconnect': typeof ApiGocardlessReconnectRoute
-  '/api/webhook/registered': typeof ApiWebhookRegisteredRoute
-  '/i/$token/opengraph-image': typeof ITokenOpengraphImageRoute
-  '/p/$portalId/opengraph-image': typeof PPortalIdOpengraphImageRoute
-  '/r/$linkId/opengraph-image': typeof RLinkIdOpengraphImageRoute
-  '/api/actions/ai/tax-rate': typeof ApiActionsAiTaxRateRoute
-  '/api/actions/transactions/manual-sync': typeof ApiActionsTransactionsManualSyncRoute
-  '/api/actions/transactions/reconnect': typeof ApiActionsTransactionsReconnectRoute
+  "/": typeof IndexRoute;
+  "/apps": typeof AppsRoute;
+  "/customers": typeof CustomersRoute;
+  "/dashboard": typeof DashboardRoute;
+  "/inbox": typeof InboxRouteWithChildren;
+  "/invoices": typeof InvoicesRouteWithChildren;
+  "/login": typeof LoginRoute;
+  "/oauth-callback": typeof OauthCallbackRoute;
+  "/onboarding": typeof OnboardingRoute;
+  "/teams": typeof TeamsRoute;
+  "/tracker": typeof TrackerRoute;
+  "/transactions": typeof TransactionsRouteWithChildren;
+  "/upgrade": typeof UpgradeRoute;
+  "/vault": typeof VaultRoute;
+  "/account/date-and-locale": typeof AccountDateAndLocaleRoute;
+  "/account/security": typeof AccountSecurityRoute;
+  "/account/support": typeof AccountSupportRoute;
+  "/account/teams": typeof AccountTeamsRoute;
+  "/api/auth": typeof ApiAuthRouteWithChildren;
+  "/api/health": typeof ApiHealthRoute;
+  "/chat/$id": typeof ChatIdRoute;
+  "/compliance/payroll": typeof CompliancePayrollRoute;
+  "/compliance/settings": typeof ComplianceSettingsRoute;
+  "/compliance/vat": typeof ComplianceVatRoute;
+  "/compliance/year-end": typeof ComplianceYearEndRoute;
+  "/i/$token": typeof ITokenRouteWithChildren;
+  "/inbox/settings": typeof InboxSettingsRoute;
+  "/invoices/products": typeof InvoicesProductsRoute;
+  "/mfa/setup": typeof MfaSetupRoute;
+  "/mfa/verify": typeof MfaVerifyRoute;
+  "/oauth/authorize": typeof OauthAuthorizeRoute;
+  "/p/$portalId": typeof PPortalIdRouteWithChildren;
+  "/r/$linkId": typeof RLinkIdRouteWithChildren;
+  "/s/$shortId": typeof SShortIdRoute;
+  "/settings/accounts": typeof SettingsAccountsRoute;
+  "/settings/billing": typeof SettingsBillingRoute;
+  "/settings/developer": typeof SettingsDeveloperRoute;
+  "/settings/members": typeof SettingsMembersRoute;
+  "/settings/notifications": typeof SettingsNotificationsRoute;
+  "/transactions/categories": typeof TransactionsCategoriesRoute;
+  "/account/": typeof AccountIndexRoute;
+  "/compliance/": typeof ComplianceIndexRoute;
+  "/settings/": typeof SettingsIndexRoute;
+  "/api/auth/callback": typeof ApiAuthCallbackRoute;
+  "/api/gocardless/reconnect": typeof ApiGocardlessReconnectRoute;
+  "/api/webhook/registered": typeof ApiWebhookRegisteredRoute;
+  "/i/$token/opengraph-image": typeof ITokenOpengraphImageRoute;
+  "/p/$portalId/opengraph-image": typeof PPortalIdOpengraphImageRoute;
+  "/r/$linkId/opengraph-image": typeof RLinkIdOpengraphImageRoute;
+  "/api/actions/ai/tax-rate": typeof ApiActionsAiTaxRateRoute;
+  "/api/actions/transactions/manual-sync": typeof ApiActionsTransactionsManualSyncRoute;
+  "/api/actions/transactions/reconnect": typeof ApiActionsTransactionsReconnectRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/apps': typeof AppsRoute
-  '/customers': typeof CustomersRoute
-  '/dashboard': typeof DashboardRoute
-  '/inbox': typeof InboxRouteWithChildren
-  '/invoices': typeof InvoicesRouteWithChildren
-  '/login': typeof LoginRoute
-  '/oauth-callback': typeof OauthCallbackRoute
-  '/onboarding': typeof OnboardingRoute
-  '/teams': typeof TeamsRoute
-  '/tracker': typeof TrackerRoute
-  '/transactions': typeof TransactionsRouteWithChildren
-  '/upgrade': typeof UpgradeRoute
-  '/vault': typeof VaultRoute
-  '/account/date-and-locale': typeof AccountDateAndLocaleRoute
-  '/account/security': typeof AccountSecurityRoute
-  '/account/support': typeof AccountSupportRoute
-  '/account/teams': typeof AccountTeamsRoute
-  '/api/auth': typeof ApiAuthRouteWithChildren
-  '/api/health': typeof ApiHealthRoute
-  '/chat/$id': typeof ChatIdRoute
-  '/compliance/payroll': typeof CompliancePayrollRoute
-  '/compliance/settings': typeof ComplianceSettingsRoute
-  '/compliance/vat': typeof ComplianceVatRoute
-  '/compliance/year-end': typeof ComplianceYearEndRoute
-  '/i/$token': typeof ITokenRouteWithChildren
-  '/inbox/settings': typeof InboxSettingsRoute
-  '/invoices/products': typeof InvoicesProductsRoute
-  '/mfa/setup': typeof MfaSetupRoute
-  '/mfa/verify': typeof MfaVerifyRoute
-  '/oauth/authorize': typeof OauthAuthorizeRoute
-  '/p/$portalId': typeof PPortalIdRouteWithChildren
-  '/r/$linkId': typeof RLinkIdRouteWithChildren
-  '/s/$shortId': typeof SShortIdRoute
-  '/settings/accounts': typeof SettingsAccountsRoute
-  '/settings/billing': typeof SettingsBillingRoute
-  '/settings/developer': typeof SettingsDeveloperRoute
-  '/settings/members': typeof SettingsMembersRoute
-  '/settings/notifications': typeof SettingsNotificationsRoute
-  '/transactions/categories': typeof TransactionsCategoriesRoute
-  '/account': typeof AccountIndexRoute
-  '/compliance': typeof ComplianceIndexRoute
-  '/settings': typeof SettingsIndexRoute
-  '/api/auth/callback': typeof ApiAuthCallbackRoute
-  '/api/gocardless/reconnect': typeof ApiGocardlessReconnectRoute
-  '/api/webhook/registered': typeof ApiWebhookRegisteredRoute
-  '/i/$token/opengraph-image': typeof ITokenOpengraphImageRoute
-  '/p/$portalId/opengraph-image': typeof PPortalIdOpengraphImageRoute
-  '/r/$linkId/opengraph-image': typeof RLinkIdOpengraphImageRoute
-  '/api/actions/ai/tax-rate': typeof ApiActionsAiTaxRateRoute
-  '/api/actions/transactions/manual-sync': typeof ApiActionsTransactionsManualSyncRoute
-  '/api/actions/transactions/reconnect': typeof ApiActionsTransactionsReconnectRoute
+  "/": typeof IndexRoute;
+  "/apps": typeof AppsRoute;
+  "/customers": typeof CustomersRoute;
+  "/dashboard": typeof DashboardRoute;
+  "/inbox": typeof InboxRouteWithChildren;
+  "/invoices": typeof InvoicesRouteWithChildren;
+  "/login": typeof LoginRoute;
+  "/oauth-callback": typeof OauthCallbackRoute;
+  "/onboarding": typeof OnboardingRoute;
+  "/teams": typeof TeamsRoute;
+  "/tracker": typeof TrackerRoute;
+  "/transactions": typeof TransactionsRouteWithChildren;
+  "/upgrade": typeof UpgradeRoute;
+  "/vault": typeof VaultRoute;
+  "/account/date-and-locale": typeof AccountDateAndLocaleRoute;
+  "/account/security": typeof AccountSecurityRoute;
+  "/account/support": typeof AccountSupportRoute;
+  "/account/teams": typeof AccountTeamsRoute;
+  "/api/auth": typeof ApiAuthRouteWithChildren;
+  "/api/health": typeof ApiHealthRoute;
+  "/chat/$id": typeof ChatIdRoute;
+  "/compliance/payroll": typeof CompliancePayrollRoute;
+  "/compliance/settings": typeof ComplianceSettingsRoute;
+  "/compliance/vat": typeof ComplianceVatRoute;
+  "/compliance/year-end": typeof ComplianceYearEndRoute;
+  "/i/$token": typeof ITokenRouteWithChildren;
+  "/inbox/settings": typeof InboxSettingsRoute;
+  "/invoices/products": typeof InvoicesProductsRoute;
+  "/mfa/setup": typeof MfaSetupRoute;
+  "/mfa/verify": typeof MfaVerifyRoute;
+  "/oauth/authorize": typeof OauthAuthorizeRoute;
+  "/p/$portalId": typeof PPortalIdRouteWithChildren;
+  "/r/$linkId": typeof RLinkIdRouteWithChildren;
+  "/s/$shortId": typeof SShortIdRoute;
+  "/settings/accounts": typeof SettingsAccountsRoute;
+  "/settings/billing": typeof SettingsBillingRoute;
+  "/settings/developer": typeof SettingsDeveloperRoute;
+  "/settings/members": typeof SettingsMembersRoute;
+  "/settings/notifications": typeof SettingsNotificationsRoute;
+  "/transactions/categories": typeof TransactionsCategoriesRoute;
+  "/account": typeof AccountIndexRoute;
+  "/compliance": typeof ComplianceIndexRoute;
+  "/settings": typeof SettingsIndexRoute;
+  "/api/auth/callback": typeof ApiAuthCallbackRoute;
+  "/api/gocardless/reconnect": typeof ApiGocardlessReconnectRoute;
+  "/api/webhook/registered": typeof ApiWebhookRegisteredRoute;
+  "/i/$token/opengraph-image": typeof ITokenOpengraphImageRoute;
+  "/p/$portalId/opengraph-image": typeof PPortalIdOpengraphImageRoute;
+  "/r/$linkId/opengraph-image": typeof RLinkIdOpengraphImageRoute;
+  "/api/actions/ai/tax-rate": typeof ApiActionsAiTaxRateRoute;
+  "/api/actions/transactions/manual-sync": typeof ApiActionsTransactionsManualSyncRoute;
+  "/api/actions/transactions/reconnect": typeof ApiActionsTransactionsReconnectRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/apps': typeof AppsRoute
-  '/customers': typeof CustomersRoute
-  '/dashboard': typeof DashboardRoute
-  '/inbox': typeof InboxRouteWithChildren
-  '/invoices': typeof InvoicesRouteWithChildren
-  '/login': typeof LoginRoute
-  '/oauth-callback': typeof OauthCallbackRoute
-  '/onboarding': typeof OnboardingRoute
-  '/teams': typeof TeamsRoute
-  '/tracker': typeof TrackerRoute
-  '/transactions': typeof TransactionsRouteWithChildren
-  '/upgrade': typeof UpgradeRoute
-  '/vault': typeof VaultRoute
-  '/account/date-and-locale': typeof AccountDateAndLocaleRoute
-  '/account/security': typeof AccountSecurityRoute
-  '/account/support': typeof AccountSupportRoute
-  '/account/teams': typeof AccountTeamsRoute
-  '/api/auth': typeof ApiAuthRouteWithChildren
-  '/api/health': typeof ApiHealthRoute
-  '/chat/$id': typeof ChatIdRoute
-  '/compliance/payroll': typeof CompliancePayrollRoute
-  '/compliance/settings': typeof ComplianceSettingsRoute
-  '/compliance/vat': typeof ComplianceVatRoute
-  '/compliance/year-end': typeof ComplianceYearEndRoute
-  '/i/$token': typeof ITokenRouteWithChildren
-  '/inbox/settings': typeof InboxSettingsRoute
-  '/invoices/products': typeof InvoicesProductsRoute
-  '/mfa/setup': typeof MfaSetupRoute
-  '/mfa/verify': typeof MfaVerifyRoute
-  '/oauth/authorize': typeof OauthAuthorizeRoute
-  '/p/$portalId': typeof PPortalIdRouteWithChildren
-  '/r/$linkId': typeof RLinkIdRouteWithChildren
-  '/s/$shortId': typeof SShortIdRoute
-  '/settings/accounts': typeof SettingsAccountsRoute
-  '/settings/billing': typeof SettingsBillingRoute
-  '/settings/developer': typeof SettingsDeveloperRoute
-  '/settings/members': typeof SettingsMembersRoute
-  '/settings/notifications': typeof SettingsNotificationsRoute
-  '/transactions/categories': typeof TransactionsCategoriesRoute
-  '/account/': typeof AccountIndexRoute
-  '/compliance/': typeof ComplianceIndexRoute
-  '/settings/': typeof SettingsIndexRoute
-  '/api/auth/callback': typeof ApiAuthCallbackRoute
-  '/api/gocardless/reconnect': typeof ApiGocardlessReconnectRoute
-  '/api/webhook/registered': typeof ApiWebhookRegisteredRoute
-  '/i/$token/opengraph-image': typeof ITokenOpengraphImageRoute
-  '/p/$portalId/opengraph-image': typeof PPortalIdOpengraphImageRoute
-  '/r/$linkId/opengraph-image': typeof RLinkIdOpengraphImageRoute
-  '/api/actions/ai/tax-rate': typeof ApiActionsAiTaxRateRoute
-  '/api/actions/transactions/manual-sync': typeof ApiActionsTransactionsManualSyncRoute
-  '/api/actions/transactions/reconnect': typeof ApiActionsTransactionsReconnectRoute
+  __root__: typeof rootRouteImport;
+  "/": typeof IndexRoute;
+  "/apps": typeof AppsRoute;
+  "/customers": typeof CustomersRoute;
+  "/dashboard": typeof DashboardRoute;
+  "/inbox": typeof InboxRouteWithChildren;
+  "/invoices": typeof InvoicesRouteWithChildren;
+  "/login": typeof LoginRoute;
+  "/oauth-callback": typeof OauthCallbackRoute;
+  "/onboarding": typeof OnboardingRoute;
+  "/teams": typeof TeamsRoute;
+  "/tracker": typeof TrackerRoute;
+  "/transactions": typeof TransactionsRouteWithChildren;
+  "/upgrade": typeof UpgradeRoute;
+  "/vault": typeof VaultRoute;
+  "/account/date-and-locale": typeof AccountDateAndLocaleRoute;
+  "/account/security": typeof AccountSecurityRoute;
+  "/account/support": typeof AccountSupportRoute;
+  "/account/teams": typeof AccountTeamsRoute;
+  "/api/auth": typeof ApiAuthRouteWithChildren;
+  "/api/health": typeof ApiHealthRoute;
+  "/chat/$id": typeof ChatIdRoute;
+  "/compliance/payroll": typeof CompliancePayrollRoute;
+  "/compliance/settings": typeof ComplianceSettingsRoute;
+  "/compliance/vat": typeof ComplianceVatRoute;
+  "/compliance/year-end": typeof ComplianceYearEndRoute;
+  "/i/$token": typeof ITokenRouteWithChildren;
+  "/inbox/settings": typeof InboxSettingsRoute;
+  "/invoices/products": typeof InvoicesProductsRoute;
+  "/mfa/setup": typeof MfaSetupRoute;
+  "/mfa/verify": typeof MfaVerifyRoute;
+  "/oauth/authorize": typeof OauthAuthorizeRoute;
+  "/p/$portalId": typeof PPortalIdRouteWithChildren;
+  "/r/$linkId": typeof RLinkIdRouteWithChildren;
+  "/s/$shortId": typeof SShortIdRoute;
+  "/settings/accounts": typeof SettingsAccountsRoute;
+  "/settings/billing": typeof SettingsBillingRoute;
+  "/settings/developer": typeof SettingsDeveloperRoute;
+  "/settings/members": typeof SettingsMembersRoute;
+  "/settings/notifications": typeof SettingsNotificationsRoute;
+  "/transactions/categories": typeof TransactionsCategoriesRoute;
+  "/account/": typeof AccountIndexRoute;
+  "/compliance/": typeof ComplianceIndexRoute;
+  "/settings/": typeof SettingsIndexRoute;
+  "/api/auth/callback": typeof ApiAuthCallbackRoute;
+  "/api/gocardless/reconnect": typeof ApiGocardlessReconnectRoute;
+  "/api/webhook/registered": typeof ApiWebhookRegisteredRoute;
+  "/i/$token/opengraph-image": typeof ITokenOpengraphImageRoute;
+  "/p/$portalId/opengraph-image": typeof PPortalIdOpengraphImageRoute;
+  "/r/$linkId/opengraph-image": typeof RLinkIdOpengraphImageRoute;
+  "/api/actions/ai/tax-rate": typeof ApiActionsAiTaxRateRoute;
+  "/api/actions/transactions/manual-sync": typeof ApiActionsTransactionsManualSyncRoute;
+  "/api/actions/transactions/reconnect": typeof ApiActionsTransactionsReconnectRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
+  fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
-    | '/'
-    | '/apps'
-    | '/customers'
-    | '/dashboard'
-    | '/inbox'
-    | '/invoices'
-    | '/login'
-    | '/oauth-callback'
-    | '/onboarding'
-    | '/teams'
-    | '/tracker'
-    | '/transactions'
-    | '/upgrade'
-    | '/vault'
-    | '/account/date-and-locale'
-    | '/account/security'
-    | '/account/support'
-    | '/account/teams'
-    | '/api/auth'
-    | '/api/health'
-    | '/chat/$id'
-    | '/compliance/payroll'
-    | '/compliance/settings'
-    | '/compliance/vat'
-    | '/compliance/year-end'
-    | '/i/$token'
-    | '/inbox/settings'
-    | '/invoices/products'
-    | '/mfa/setup'
-    | '/mfa/verify'
-    | '/oauth/authorize'
-    | '/p/$portalId'
-    | '/r/$linkId'
-    | '/s/$shortId'
-    | '/settings/accounts'
-    | '/settings/billing'
-    | '/settings/developer'
-    | '/settings/members'
-    | '/settings/notifications'
-    | '/transactions/categories'
-    | '/account/'
-    | '/compliance/'
-    | '/settings/'
-    | '/api/auth/callback'
-    | '/api/gocardless/reconnect'
-    | '/api/webhook/registered'
-    | '/i/$token/opengraph-image'
-    | '/p/$portalId/opengraph-image'
-    | '/r/$linkId/opengraph-image'
-    | '/api/actions/ai/tax-rate'
-    | '/api/actions/transactions/manual-sync'
-    | '/api/actions/transactions/reconnect'
-  fileRoutesByTo: FileRoutesByTo
+    | "/"
+    | "/apps"
+    | "/customers"
+    | "/dashboard"
+    | "/inbox"
+    | "/invoices"
+    | "/login"
+    | "/oauth-callback"
+    | "/onboarding"
+    | "/teams"
+    | "/tracker"
+    | "/transactions"
+    | "/upgrade"
+    | "/vault"
+    | "/account/date-and-locale"
+    | "/account/security"
+    | "/account/support"
+    | "/account/teams"
+    | "/api/auth"
+    | "/api/health"
+    | "/chat/$id"
+    | "/compliance/payroll"
+    | "/compliance/settings"
+    | "/compliance/vat"
+    | "/compliance/year-end"
+    | "/i/$token"
+    | "/inbox/settings"
+    | "/invoices/products"
+    | "/mfa/setup"
+    | "/mfa/verify"
+    | "/oauth/authorize"
+    | "/p/$portalId"
+    | "/r/$linkId"
+    | "/s/$shortId"
+    | "/settings/accounts"
+    | "/settings/billing"
+    | "/settings/developer"
+    | "/settings/members"
+    | "/settings/notifications"
+    | "/transactions/categories"
+    | "/account/"
+    | "/compliance/"
+    | "/settings/"
+    | "/api/auth/callback"
+    | "/api/gocardless/reconnect"
+    | "/api/webhook/registered"
+    | "/i/$token/opengraph-image"
+    | "/p/$portalId/opengraph-image"
+    | "/r/$linkId/opengraph-image"
+    | "/api/actions/ai/tax-rate"
+    | "/api/actions/transactions/manual-sync"
+    | "/api/actions/transactions/reconnect";
+  fileRoutesByTo: FileRoutesByTo;
   to:
-    | '/'
-    | '/apps'
-    | '/customers'
-    | '/dashboard'
-    | '/inbox'
-    | '/invoices'
-    | '/login'
-    | '/oauth-callback'
-    | '/onboarding'
-    | '/teams'
-    | '/tracker'
-    | '/transactions'
-    | '/upgrade'
-    | '/vault'
-    | '/account/date-and-locale'
-    | '/account/security'
-    | '/account/support'
-    | '/account/teams'
-    | '/api/auth'
-    | '/api/health'
-    | '/chat/$id'
-    | '/compliance/payroll'
-    | '/compliance/settings'
-    | '/compliance/vat'
-    | '/compliance/year-end'
-    | '/i/$token'
-    | '/inbox/settings'
-    | '/invoices/products'
-    | '/mfa/setup'
-    | '/mfa/verify'
-    | '/oauth/authorize'
-    | '/p/$portalId'
-    | '/r/$linkId'
-    | '/s/$shortId'
-    | '/settings/accounts'
-    | '/settings/billing'
-    | '/settings/developer'
-    | '/settings/members'
-    | '/settings/notifications'
-    | '/transactions/categories'
-    | '/account'
-    | '/compliance'
-    | '/settings'
-    | '/api/auth/callback'
-    | '/api/gocardless/reconnect'
-    | '/api/webhook/registered'
-    | '/i/$token/opengraph-image'
-    | '/p/$portalId/opengraph-image'
-    | '/r/$linkId/opengraph-image'
-    | '/api/actions/ai/tax-rate'
-    | '/api/actions/transactions/manual-sync'
-    | '/api/actions/transactions/reconnect'
+    | "/"
+    | "/apps"
+    | "/customers"
+    | "/dashboard"
+    | "/inbox"
+    | "/invoices"
+    | "/login"
+    | "/oauth-callback"
+    | "/onboarding"
+    | "/teams"
+    | "/tracker"
+    | "/transactions"
+    | "/upgrade"
+    | "/vault"
+    | "/account/date-and-locale"
+    | "/account/security"
+    | "/account/support"
+    | "/account/teams"
+    | "/api/auth"
+    | "/api/health"
+    | "/chat/$id"
+    | "/compliance/payroll"
+    | "/compliance/settings"
+    | "/compliance/vat"
+    | "/compliance/year-end"
+    | "/i/$token"
+    | "/inbox/settings"
+    | "/invoices/products"
+    | "/mfa/setup"
+    | "/mfa/verify"
+    | "/oauth/authorize"
+    | "/p/$portalId"
+    | "/r/$linkId"
+    | "/s/$shortId"
+    | "/settings/accounts"
+    | "/settings/billing"
+    | "/settings/developer"
+    | "/settings/members"
+    | "/settings/notifications"
+    | "/transactions/categories"
+    | "/account"
+    | "/compliance"
+    | "/settings"
+    | "/api/auth/callback"
+    | "/api/gocardless/reconnect"
+    | "/api/webhook/registered"
+    | "/i/$token/opengraph-image"
+    | "/p/$portalId/opengraph-image"
+    | "/r/$linkId/opengraph-image"
+    | "/api/actions/ai/tax-rate"
+    | "/api/actions/transactions/manual-sync"
+    | "/api/actions/transactions/reconnect";
   id:
-    | '__root__'
-    | '/'
-    | '/apps'
-    | '/customers'
-    | '/dashboard'
-    | '/inbox'
-    | '/invoices'
-    | '/login'
-    | '/oauth-callback'
-    | '/onboarding'
-    | '/teams'
-    | '/tracker'
-    | '/transactions'
-    | '/upgrade'
-    | '/vault'
-    | '/account/date-and-locale'
-    | '/account/security'
-    | '/account/support'
-    | '/account/teams'
-    | '/api/auth'
-    | '/api/health'
-    | '/chat/$id'
-    | '/compliance/payroll'
-    | '/compliance/settings'
-    | '/compliance/vat'
-    | '/compliance/year-end'
-    | '/i/$token'
-    | '/inbox/settings'
-    | '/invoices/products'
-    | '/mfa/setup'
-    | '/mfa/verify'
-    | '/oauth/authorize'
-    | '/p/$portalId'
-    | '/r/$linkId'
-    | '/s/$shortId'
-    | '/settings/accounts'
-    | '/settings/billing'
-    | '/settings/developer'
-    | '/settings/members'
-    | '/settings/notifications'
-    | '/transactions/categories'
-    | '/account/'
-    | '/compliance/'
-    | '/settings/'
-    | '/api/auth/callback'
-    | '/api/gocardless/reconnect'
-    | '/api/webhook/registered'
-    | '/i/$token/opengraph-image'
-    | '/p/$portalId/opengraph-image'
-    | '/r/$linkId/opengraph-image'
-    | '/api/actions/ai/tax-rate'
-    | '/api/actions/transactions/manual-sync'
-    | '/api/actions/transactions/reconnect'
-  fileRoutesById: FileRoutesById
+    | "__root__"
+    | "/"
+    | "/apps"
+    | "/customers"
+    | "/dashboard"
+    | "/inbox"
+    | "/invoices"
+    | "/login"
+    | "/oauth-callback"
+    | "/onboarding"
+    | "/teams"
+    | "/tracker"
+    | "/transactions"
+    | "/upgrade"
+    | "/vault"
+    | "/account/date-and-locale"
+    | "/account/security"
+    | "/account/support"
+    | "/account/teams"
+    | "/api/auth"
+    | "/api/health"
+    | "/chat/$id"
+    | "/compliance/payroll"
+    | "/compliance/settings"
+    | "/compliance/vat"
+    | "/compliance/year-end"
+    | "/i/$token"
+    | "/inbox/settings"
+    | "/invoices/products"
+    | "/mfa/setup"
+    | "/mfa/verify"
+    | "/oauth/authorize"
+    | "/p/$portalId"
+    | "/r/$linkId"
+    | "/s/$shortId"
+    | "/settings/accounts"
+    | "/settings/billing"
+    | "/settings/developer"
+    | "/settings/members"
+    | "/settings/notifications"
+    | "/transactions/categories"
+    | "/account/"
+    | "/compliance/"
+    | "/settings/"
+    | "/api/auth/callback"
+    | "/api/gocardless/reconnect"
+    | "/api/webhook/registered"
+    | "/i/$token/opengraph-image"
+    | "/p/$portalId/opengraph-image"
+    | "/r/$linkId/opengraph-image"
+    | "/api/actions/ai/tax-rate"
+    | "/api/actions/transactions/manual-sync"
+    | "/api/actions/transactions/reconnect";
+  fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  AppsRoute: typeof AppsRoute
-  CustomersRoute: typeof CustomersRoute
-  DashboardRoute: typeof DashboardRoute
-  InboxRoute: typeof InboxRouteWithChildren
-  InvoicesRoute: typeof InvoicesRouteWithChildren
-  LoginRoute: typeof LoginRoute
-  OauthCallbackRoute: typeof OauthCallbackRoute
-  OnboardingRoute: typeof OnboardingRoute
-  TeamsRoute: typeof TeamsRoute
-  TrackerRoute: typeof TrackerRoute
-  TransactionsRoute: typeof TransactionsRouteWithChildren
-  UpgradeRoute: typeof UpgradeRoute
-  VaultRoute: typeof VaultRoute
-  AccountDateAndLocaleRoute: typeof AccountDateAndLocaleRoute
-  AccountSecurityRoute: typeof AccountSecurityRoute
-  AccountSupportRoute: typeof AccountSupportRoute
-  AccountTeamsRoute: typeof AccountTeamsRoute
-  ApiAuthRoute: typeof ApiAuthRouteWithChildren
-  ApiHealthRoute: typeof ApiHealthRoute
-  ChatIdRoute: typeof ChatIdRoute
-  CompliancePayrollRoute: typeof CompliancePayrollRoute
-  ComplianceSettingsRoute: typeof ComplianceSettingsRoute
-  ComplianceVatRoute: typeof ComplianceVatRoute
-  ComplianceYearEndRoute: typeof ComplianceYearEndRoute
-  ITokenRoute: typeof ITokenRouteWithChildren
-  MfaSetupRoute: typeof MfaSetupRoute
-  MfaVerifyRoute: typeof MfaVerifyRoute
-  OauthAuthorizeRoute: typeof OauthAuthorizeRoute
-  PPortalIdRoute: typeof PPortalIdRouteWithChildren
-  RLinkIdRoute: typeof RLinkIdRouteWithChildren
-  SShortIdRoute: typeof SShortIdRoute
-  SettingsAccountsRoute: typeof SettingsAccountsRoute
-  SettingsBillingRoute: typeof SettingsBillingRoute
-  SettingsDeveloperRoute: typeof SettingsDeveloperRoute
-  SettingsMembersRoute: typeof SettingsMembersRoute
-  SettingsNotificationsRoute: typeof SettingsNotificationsRoute
-  AccountIndexRoute: typeof AccountIndexRoute
-  ComplianceIndexRoute: typeof ComplianceIndexRoute
-  SettingsIndexRoute: typeof SettingsIndexRoute
-  ApiGocardlessReconnectRoute: typeof ApiGocardlessReconnectRoute
-  ApiWebhookRegisteredRoute: typeof ApiWebhookRegisteredRoute
-  ApiActionsAiTaxRateRoute: typeof ApiActionsAiTaxRateRoute
-  ApiActionsTransactionsManualSyncRoute: typeof ApiActionsTransactionsManualSyncRoute
-  ApiActionsTransactionsReconnectRoute: typeof ApiActionsTransactionsReconnectRoute
+  IndexRoute: typeof IndexRoute;
+  AppsRoute: typeof AppsRoute;
+  CustomersRoute: typeof CustomersRoute;
+  DashboardRoute: typeof DashboardRoute;
+  InboxRoute: typeof InboxRouteWithChildren;
+  InvoicesRoute: typeof InvoicesRouteWithChildren;
+  LoginRoute: typeof LoginRoute;
+  OauthCallbackRoute: typeof OauthCallbackRoute;
+  OnboardingRoute: typeof OnboardingRoute;
+  TeamsRoute: typeof TeamsRoute;
+  TrackerRoute: typeof TrackerRoute;
+  TransactionsRoute: typeof TransactionsRouteWithChildren;
+  UpgradeRoute: typeof UpgradeRoute;
+  VaultRoute: typeof VaultRoute;
+  AccountDateAndLocaleRoute: typeof AccountDateAndLocaleRoute;
+  AccountSecurityRoute: typeof AccountSecurityRoute;
+  AccountSupportRoute: typeof AccountSupportRoute;
+  AccountTeamsRoute: typeof AccountTeamsRoute;
+  ApiAuthRoute: typeof ApiAuthRouteWithChildren;
+  ApiHealthRoute: typeof ApiHealthRoute;
+  ChatIdRoute: typeof ChatIdRoute;
+  CompliancePayrollRoute: typeof CompliancePayrollRoute;
+  ComplianceSettingsRoute: typeof ComplianceSettingsRoute;
+  ComplianceVatRoute: typeof ComplianceVatRoute;
+  ComplianceYearEndRoute: typeof ComplianceYearEndRoute;
+  ITokenRoute: typeof ITokenRouteWithChildren;
+  MfaSetupRoute: typeof MfaSetupRoute;
+  MfaVerifyRoute: typeof MfaVerifyRoute;
+  OauthAuthorizeRoute: typeof OauthAuthorizeRoute;
+  PPortalIdRoute: typeof PPortalIdRouteWithChildren;
+  RLinkIdRoute: typeof RLinkIdRouteWithChildren;
+  SShortIdRoute: typeof SShortIdRoute;
+  SettingsAccountsRoute: typeof SettingsAccountsRoute;
+  SettingsBillingRoute: typeof SettingsBillingRoute;
+  SettingsDeveloperRoute: typeof SettingsDeveloperRoute;
+  SettingsMembersRoute: typeof SettingsMembersRoute;
+  SettingsNotificationsRoute: typeof SettingsNotificationsRoute;
+  AccountIndexRoute: typeof AccountIndexRoute;
+  ComplianceIndexRoute: typeof ComplianceIndexRoute;
+  SettingsIndexRoute: typeof SettingsIndexRoute;
+  ApiGocardlessReconnectRoute: typeof ApiGocardlessReconnectRoute;
+  ApiWebhookRegisteredRoute: typeof ApiWebhookRegisteredRoute;
+  ApiActionsAiTaxRateRoute: typeof ApiActionsAiTaxRateRoute;
+  ApiActionsTransactionsManualSyncRoute: typeof ApiActionsTransactionsManualSyncRoute;
+  ApiActionsTransactionsReconnectRoute: typeof ApiActionsTransactionsReconnectRoute;
 }
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/vault': {
-      id: '/vault'
-      path: '/vault'
-      fullPath: '/vault'
-      preLoaderRoute: typeof VaultRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/upgrade': {
-      id: '/upgrade'
-      path: '/upgrade'
-      fullPath: '/upgrade'
-      preLoaderRoute: typeof UpgradeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/transactions': {
-      id: '/transactions'
-      path: '/transactions'
-      fullPath: '/transactions'
-      preLoaderRoute: typeof TransactionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/tracker': {
-      id: '/tracker'
-      path: '/tracker'
-      fullPath: '/tracker'
-      preLoaderRoute: typeof TrackerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/teams': {
-      id: '/teams'
-      path: '/teams'
-      fullPath: '/teams'
-      preLoaderRoute: typeof TeamsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/onboarding': {
-      id: '/onboarding'
-      path: '/onboarding'
-      fullPath: '/onboarding'
-      preLoaderRoute: typeof OnboardingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/oauth-callback': {
-      id: '/oauth-callback'
-      path: '/oauth-callback'
-      fullPath: '/oauth-callback'
-      preLoaderRoute: typeof OauthCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/invoices': {
-      id: '/invoices'
-      path: '/invoices'
-      fullPath: '/invoices'
-      preLoaderRoute: typeof InvoicesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inbox': {
-      id: '/inbox'
-      path: '/inbox'
-      fullPath: '/inbox'
-      preLoaderRoute: typeof InboxRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/customers': {
-      id: '/customers'
-      path: '/customers'
-      fullPath: '/customers'
-      preLoaderRoute: typeof CustomersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/apps': {
-      id: '/apps'
-      path: '/apps'
-      fullPath: '/apps'
-      preLoaderRoute: typeof AppsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings/': {
-      id: '/settings/'
-      path: '/settings'
-      fullPath: '/settings/'
-      preLoaderRoute: typeof SettingsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/compliance/': {
-      id: '/compliance/'
-      path: '/compliance'
-      fullPath: '/compliance/'
-      preLoaderRoute: typeof ComplianceIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/account/': {
-      id: '/account/'
-      path: '/account'
-      fullPath: '/account/'
-      preLoaderRoute: typeof AccountIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/transactions/categories': {
-      id: '/transactions/categories'
-      path: '/categories'
-      fullPath: '/transactions/categories'
-      preLoaderRoute: typeof TransactionsCategoriesRouteImport
-      parentRoute: typeof TransactionsRoute
-    }
-    '/settings/notifications': {
-      id: '/settings/notifications'
-      path: '/settings/notifications'
-      fullPath: '/settings/notifications'
-      preLoaderRoute: typeof SettingsNotificationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings/members': {
-      id: '/settings/members'
-      path: '/settings/members'
-      fullPath: '/settings/members'
-      preLoaderRoute: typeof SettingsMembersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings/developer': {
-      id: '/settings/developer'
-      path: '/settings/developer'
-      fullPath: '/settings/developer'
-      preLoaderRoute: typeof SettingsDeveloperRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings/billing': {
-      id: '/settings/billing'
-      path: '/settings/billing'
-      fullPath: '/settings/billing'
-      preLoaderRoute: typeof SettingsBillingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings/accounts': {
-      id: '/settings/accounts'
-      path: '/settings/accounts'
-      fullPath: '/settings/accounts'
-      preLoaderRoute: typeof SettingsAccountsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/s/$shortId': {
-      id: '/s/$shortId'
-      path: '/s/$shortId'
-      fullPath: '/s/$shortId'
-      preLoaderRoute: typeof SShortIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/r/$linkId': {
-      id: '/r/$linkId'
-      path: '/r/$linkId'
-      fullPath: '/r/$linkId'
-      preLoaderRoute: typeof RLinkIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/p/$portalId': {
-      id: '/p/$portalId'
-      path: '/p/$portalId'
-      fullPath: '/p/$portalId'
-      preLoaderRoute: typeof PPortalIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/oauth/authorize': {
-      id: '/oauth/authorize'
-      path: '/oauth/authorize'
-      fullPath: '/oauth/authorize'
-      preLoaderRoute: typeof OauthAuthorizeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mfa/verify': {
-      id: '/mfa/verify'
-      path: '/mfa/verify'
-      fullPath: '/mfa/verify'
-      preLoaderRoute: typeof MfaVerifyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mfa/setup': {
-      id: '/mfa/setup'
-      path: '/mfa/setup'
-      fullPath: '/mfa/setup'
-      preLoaderRoute: typeof MfaSetupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/invoices/products': {
-      id: '/invoices/products'
-      path: '/products'
-      fullPath: '/invoices/products'
-      preLoaderRoute: typeof InvoicesProductsRouteImport
-      parentRoute: typeof InvoicesRoute
-    }
-    '/inbox/settings': {
-      id: '/inbox/settings'
-      path: '/settings'
-      fullPath: '/inbox/settings'
-      preLoaderRoute: typeof InboxSettingsRouteImport
-      parentRoute: typeof InboxRoute
-    }
-    '/i/$token': {
-      id: '/i/$token'
-      path: '/i/$token'
-      fullPath: '/i/$token'
-      preLoaderRoute: typeof ITokenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/compliance/year-end': {
-      id: '/compliance/year-end'
-      path: '/compliance/year-end'
-      fullPath: '/compliance/year-end'
-      preLoaderRoute: typeof ComplianceYearEndRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/compliance/vat': {
-      id: '/compliance/vat'
-      path: '/compliance/vat'
-      fullPath: '/compliance/vat'
-      preLoaderRoute: typeof ComplianceVatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/compliance/settings': {
-      id: '/compliance/settings'
-      path: '/compliance/settings'
-      fullPath: '/compliance/settings'
-      preLoaderRoute: typeof ComplianceSettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/compliance/payroll': {
-      id: '/compliance/payroll'
-      path: '/compliance/payroll'
-      fullPath: '/compliance/payroll'
-      preLoaderRoute: typeof CompliancePayrollRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/chat/$id': {
-      id: '/chat/$id'
-      path: '/chat/$id'
-      fullPath: '/chat/$id'
-      preLoaderRoute: typeof ChatIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/health': {
-      id: '/api/health'
-      path: '/api/health'
-      fullPath: '/api/health'
-      preLoaderRoute: typeof ApiHealthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth': {
-      id: '/api/auth'
-      path: '/api/auth'
-      fullPath: '/api/auth'
-      preLoaderRoute: typeof ApiAuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/account/teams': {
-      id: '/account/teams'
-      path: '/account/teams'
-      fullPath: '/account/teams'
-      preLoaderRoute: typeof AccountTeamsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/account/support': {
-      id: '/account/support'
-      path: '/account/support'
-      fullPath: '/account/support'
-      preLoaderRoute: typeof AccountSupportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/account/security': {
-      id: '/account/security'
-      path: '/account/security'
-      fullPath: '/account/security'
-      preLoaderRoute: typeof AccountSecurityRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/account/date-and-locale': {
-      id: '/account/date-and-locale'
-      path: '/account/date-and-locale'
-      fullPath: '/account/date-and-locale'
-      preLoaderRoute: typeof AccountDateAndLocaleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/r/$linkId/opengraph-image': {
-      id: '/r/$linkId/opengraph-image'
-      path: '/opengraph-image'
-      fullPath: '/r/$linkId/opengraph-image'
-      preLoaderRoute: typeof RLinkIdOpengraphImageRouteImport
-      parentRoute: typeof RLinkIdRoute
-    }
-    '/p/$portalId/opengraph-image': {
-      id: '/p/$portalId/opengraph-image'
-      path: '/opengraph-image'
-      fullPath: '/p/$portalId/opengraph-image'
-      preLoaderRoute: typeof PPortalIdOpengraphImageRouteImport
-      parentRoute: typeof PPortalIdRoute
-    }
-    '/i/$token/opengraph-image': {
-      id: '/i/$token/opengraph-image'
-      path: '/opengraph-image'
-      fullPath: '/i/$token/opengraph-image'
-      preLoaderRoute: typeof ITokenOpengraphImageRouteImport
-      parentRoute: typeof ITokenRoute
-    }
-    '/api/webhook/registered': {
-      id: '/api/webhook/registered'
-      path: '/api/webhook/registered'
-      fullPath: '/api/webhook/registered'
-      preLoaderRoute: typeof ApiWebhookRegisteredRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/gocardless/reconnect': {
-      id: '/api/gocardless/reconnect'
-      path: '/api/gocardless/reconnect'
-      fullPath: '/api/gocardless/reconnect'
-      preLoaderRoute: typeof ApiGocardlessReconnectRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/callback': {
-      id: '/api/auth/callback'
-      path: '/callback'
-      fullPath: '/api/auth/callback'
-      preLoaderRoute: typeof ApiAuthCallbackRouteImport
-      parentRoute: typeof ApiAuthRoute
-    }
-    '/api/actions/transactions/reconnect': {
-      id: '/api/actions/transactions/reconnect'
-      path: '/api/actions/transactions/reconnect'
-      fullPath: '/api/actions/transactions/reconnect'
-      preLoaderRoute: typeof ApiActionsTransactionsReconnectRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/actions/transactions/manual-sync': {
-      id: '/api/actions/transactions/manual-sync'
-      path: '/api/actions/transactions/manual-sync'
-      fullPath: '/api/actions/transactions/manual-sync'
-      preLoaderRoute: typeof ApiActionsTransactionsManualSyncRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/actions/ai/tax-rate': {
-      id: '/api/actions/ai/tax-rate'
-      path: '/api/actions/ai/tax-rate'
-      fullPath: '/api/actions/ai/tax-rate'
-      preLoaderRoute: typeof ApiActionsAiTaxRateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+    "/vault": {
+      id: "/vault";
+      path: "/vault";
+      fullPath: "/vault";
+      preLoaderRoute: typeof VaultRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/upgrade": {
+      id: "/upgrade";
+      path: "/upgrade";
+      fullPath: "/upgrade";
+      preLoaderRoute: typeof UpgradeRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/transactions": {
+      id: "/transactions";
+      path: "/transactions";
+      fullPath: "/transactions";
+      preLoaderRoute: typeof TransactionsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/tracker": {
+      id: "/tracker";
+      path: "/tracker";
+      fullPath: "/tracker";
+      preLoaderRoute: typeof TrackerRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/teams": {
+      id: "/teams";
+      path: "/teams";
+      fullPath: "/teams";
+      preLoaderRoute: typeof TeamsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/onboarding": {
+      id: "/onboarding";
+      path: "/onboarding";
+      fullPath: "/onboarding";
+      preLoaderRoute: typeof OnboardingRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/oauth-callback": {
+      id: "/oauth-callback";
+      path: "/oauth-callback";
+      fullPath: "/oauth-callback";
+      preLoaderRoute: typeof OauthCallbackRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/login": {
+      id: "/login";
+      path: "/login";
+      fullPath: "/login";
+      preLoaderRoute: typeof LoginRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/invoices": {
+      id: "/invoices";
+      path: "/invoices";
+      fullPath: "/invoices";
+      preLoaderRoute: typeof InvoicesRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/inbox": {
+      id: "/inbox";
+      path: "/inbox";
+      fullPath: "/inbox";
+      preLoaderRoute: typeof InboxRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/dashboard": {
+      id: "/dashboard";
+      path: "/dashboard";
+      fullPath: "/dashboard";
+      preLoaderRoute: typeof DashboardRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/customers": {
+      id: "/customers";
+      path: "/customers";
+      fullPath: "/customers";
+      preLoaderRoute: typeof CustomersRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/apps": {
+      id: "/apps";
+      path: "/apps";
+      fullPath: "/apps";
+      preLoaderRoute: typeof AppsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/": {
+      id: "/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof IndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/settings/": {
+      id: "/settings/";
+      path: "/settings";
+      fullPath: "/settings/";
+      preLoaderRoute: typeof SettingsIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/compliance/": {
+      id: "/compliance/";
+      path: "/compliance";
+      fullPath: "/compliance/";
+      preLoaderRoute: typeof ComplianceIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/account/": {
+      id: "/account/";
+      path: "/account";
+      fullPath: "/account/";
+      preLoaderRoute: typeof AccountIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/transactions/categories": {
+      id: "/transactions/categories";
+      path: "/categories";
+      fullPath: "/transactions/categories";
+      preLoaderRoute: typeof TransactionsCategoriesRouteImport;
+      parentRoute: typeof TransactionsRoute;
+    };
+    "/settings/notifications": {
+      id: "/settings/notifications";
+      path: "/settings/notifications";
+      fullPath: "/settings/notifications";
+      preLoaderRoute: typeof SettingsNotificationsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/settings/members": {
+      id: "/settings/members";
+      path: "/settings/members";
+      fullPath: "/settings/members";
+      preLoaderRoute: typeof SettingsMembersRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/settings/developer": {
+      id: "/settings/developer";
+      path: "/settings/developer";
+      fullPath: "/settings/developer";
+      preLoaderRoute: typeof SettingsDeveloperRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/settings/billing": {
+      id: "/settings/billing";
+      path: "/settings/billing";
+      fullPath: "/settings/billing";
+      preLoaderRoute: typeof SettingsBillingRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/settings/accounts": {
+      id: "/settings/accounts";
+      path: "/settings/accounts";
+      fullPath: "/settings/accounts";
+      preLoaderRoute: typeof SettingsAccountsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/s/$shortId": {
+      id: "/s/$shortId";
+      path: "/s/$shortId";
+      fullPath: "/s/$shortId";
+      preLoaderRoute: typeof SShortIdRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/r/$linkId": {
+      id: "/r/$linkId";
+      path: "/r/$linkId";
+      fullPath: "/r/$linkId";
+      preLoaderRoute: typeof RLinkIdRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/p/$portalId": {
+      id: "/p/$portalId";
+      path: "/p/$portalId";
+      fullPath: "/p/$portalId";
+      preLoaderRoute: typeof PPortalIdRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/oauth/authorize": {
+      id: "/oauth/authorize";
+      path: "/oauth/authorize";
+      fullPath: "/oauth/authorize";
+      preLoaderRoute: typeof OauthAuthorizeRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/mfa/verify": {
+      id: "/mfa/verify";
+      path: "/mfa/verify";
+      fullPath: "/mfa/verify";
+      preLoaderRoute: typeof MfaVerifyRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/mfa/setup": {
+      id: "/mfa/setup";
+      path: "/mfa/setup";
+      fullPath: "/mfa/setup";
+      preLoaderRoute: typeof MfaSetupRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/invoices/products": {
+      id: "/invoices/products";
+      path: "/products";
+      fullPath: "/invoices/products";
+      preLoaderRoute: typeof InvoicesProductsRouteImport;
+      parentRoute: typeof InvoicesRoute;
+    };
+    "/inbox/settings": {
+      id: "/inbox/settings";
+      path: "/settings";
+      fullPath: "/inbox/settings";
+      preLoaderRoute: typeof InboxSettingsRouteImport;
+      parentRoute: typeof InboxRoute;
+    };
+    "/i/$token": {
+      id: "/i/$token";
+      path: "/i/$token";
+      fullPath: "/i/$token";
+      preLoaderRoute: typeof ITokenRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/compliance/year-end": {
+      id: "/compliance/year-end";
+      path: "/compliance/year-end";
+      fullPath: "/compliance/year-end";
+      preLoaderRoute: typeof ComplianceYearEndRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/compliance/vat": {
+      id: "/compliance/vat";
+      path: "/compliance/vat";
+      fullPath: "/compliance/vat";
+      preLoaderRoute: typeof ComplianceVatRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/compliance/settings": {
+      id: "/compliance/settings";
+      path: "/compliance/settings";
+      fullPath: "/compliance/settings";
+      preLoaderRoute: typeof ComplianceSettingsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/compliance/payroll": {
+      id: "/compliance/payroll";
+      path: "/compliance/payroll";
+      fullPath: "/compliance/payroll";
+      preLoaderRoute: typeof CompliancePayrollRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/chat/$id": {
+      id: "/chat/$id";
+      path: "/chat/$id";
+      fullPath: "/chat/$id";
+      preLoaderRoute: typeof ChatIdRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/health": {
+      id: "/api/health";
+      path: "/api/health";
+      fullPath: "/api/health";
+      preLoaderRoute: typeof ApiHealthRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/auth": {
+      id: "/api/auth";
+      path: "/api/auth";
+      fullPath: "/api/auth";
+      preLoaderRoute: typeof ApiAuthRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/account/teams": {
+      id: "/account/teams";
+      path: "/account/teams";
+      fullPath: "/account/teams";
+      preLoaderRoute: typeof AccountTeamsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/account/support": {
+      id: "/account/support";
+      path: "/account/support";
+      fullPath: "/account/support";
+      preLoaderRoute: typeof AccountSupportRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/account/security": {
+      id: "/account/security";
+      path: "/account/security";
+      fullPath: "/account/security";
+      preLoaderRoute: typeof AccountSecurityRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/account/date-and-locale": {
+      id: "/account/date-and-locale";
+      path: "/account/date-and-locale";
+      fullPath: "/account/date-and-locale";
+      preLoaderRoute: typeof AccountDateAndLocaleRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/r/$linkId/opengraph-image": {
+      id: "/r/$linkId/opengraph-image";
+      path: "/opengraph-image";
+      fullPath: "/r/$linkId/opengraph-image";
+      preLoaderRoute: typeof RLinkIdOpengraphImageRouteImport;
+      parentRoute: typeof RLinkIdRoute;
+    };
+    "/p/$portalId/opengraph-image": {
+      id: "/p/$portalId/opengraph-image";
+      path: "/opengraph-image";
+      fullPath: "/p/$portalId/opengraph-image";
+      preLoaderRoute: typeof PPortalIdOpengraphImageRouteImport;
+      parentRoute: typeof PPortalIdRoute;
+    };
+    "/i/$token/opengraph-image": {
+      id: "/i/$token/opengraph-image";
+      path: "/opengraph-image";
+      fullPath: "/i/$token/opengraph-image";
+      preLoaderRoute: typeof ITokenOpengraphImageRouteImport;
+      parentRoute: typeof ITokenRoute;
+    };
+    "/api/webhook/registered": {
+      id: "/api/webhook/registered";
+      path: "/api/webhook/registered";
+      fullPath: "/api/webhook/registered";
+      preLoaderRoute: typeof ApiWebhookRegisteredRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/gocardless/reconnect": {
+      id: "/api/gocardless/reconnect";
+      path: "/api/gocardless/reconnect";
+      fullPath: "/api/gocardless/reconnect";
+      preLoaderRoute: typeof ApiGocardlessReconnectRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/auth/callback": {
+      id: "/api/auth/callback";
+      path: "/callback";
+      fullPath: "/api/auth/callback";
+      preLoaderRoute: typeof ApiAuthCallbackRouteImport;
+      parentRoute: typeof ApiAuthRoute;
+    };
+    "/api/actions/transactions/reconnect": {
+      id: "/api/actions/transactions/reconnect";
+      path: "/api/actions/transactions/reconnect";
+      fullPath: "/api/actions/transactions/reconnect";
+      preLoaderRoute: typeof ApiActionsTransactionsReconnectRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/actions/transactions/manual-sync": {
+      id: "/api/actions/transactions/manual-sync";
+      path: "/api/actions/transactions/manual-sync";
+      fullPath: "/api/actions/transactions/manual-sync";
+      preLoaderRoute: typeof ApiActionsTransactionsManualSyncRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/api/actions/ai/tax-rate": {
+      id: "/api/actions/ai/tax-rate";
+      path: "/api/actions/ai/tax-rate";
+      fullPath: "/api/actions/ai/tax-rate";
+      preLoaderRoute: typeof ApiActionsAiTaxRateRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
   }
 }
 
 interface InboxRouteChildren {
-  InboxSettingsRoute: typeof InboxSettingsRoute
+  InboxSettingsRoute: typeof InboxSettingsRoute;
 }
 
 const InboxRouteChildren: InboxRouteChildren = {
   InboxSettingsRoute: InboxSettingsRoute,
-}
+};
 
-const InboxRouteWithChildren = InboxRoute._addFileChildren(InboxRouteChildren)
+const InboxRouteWithChildren = InboxRoute._addFileChildren(InboxRouteChildren);
 
 interface InvoicesRouteChildren {
-  InvoicesProductsRoute: typeof InvoicesProductsRoute
+  InvoicesProductsRoute: typeof InvoicesProductsRoute;
 }
 
 const InvoicesRouteChildren: InvoicesRouteChildren = {
   InvoicesProductsRoute: InvoicesProductsRoute,
-}
+};
 
-const InvoicesRouteWithChildren = InvoicesRoute._addFileChildren(
-  InvoicesRouteChildren,
-)
+const InvoicesRouteWithChildren = InvoicesRoute._addFileChildren(InvoicesRouteChildren);
 
 interface TransactionsRouteChildren {
-  TransactionsCategoriesRoute: typeof TransactionsCategoriesRoute
+  TransactionsCategoriesRoute: typeof TransactionsCategoriesRoute;
 }
 
 const TransactionsRouteChildren: TransactionsRouteChildren = {
   TransactionsCategoriesRoute: TransactionsCategoriesRoute,
-}
+};
 
-const TransactionsRouteWithChildren = TransactionsRoute._addFileChildren(
-  TransactionsRouteChildren,
-)
+const TransactionsRouteWithChildren = TransactionsRoute._addFileChildren(TransactionsRouteChildren);
 
 interface ApiAuthRouteChildren {
-  ApiAuthCallbackRoute: typeof ApiAuthCallbackRoute
+  ApiAuthCallbackRoute: typeof ApiAuthCallbackRoute;
 }
 
 const ApiAuthRouteChildren: ApiAuthRouteChildren = {
   ApiAuthCallbackRoute: ApiAuthCallbackRoute,
-}
+};
 
-const ApiAuthRouteWithChildren =
-  ApiAuthRoute._addFileChildren(ApiAuthRouteChildren)
+const ApiAuthRouteWithChildren = ApiAuthRoute._addFileChildren(ApiAuthRouteChildren);
 
 interface ITokenRouteChildren {
-  ITokenOpengraphImageRoute: typeof ITokenOpengraphImageRoute
+  ITokenOpengraphImageRoute: typeof ITokenOpengraphImageRoute;
 }
 
 const ITokenRouteChildren: ITokenRouteChildren = {
   ITokenOpengraphImageRoute: ITokenOpengraphImageRoute,
-}
+};
 
-const ITokenRouteWithChildren =
-  ITokenRoute._addFileChildren(ITokenRouteChildren)
+const ITokenRouteWithChildren = ITokenRoute._addFileChildren(ITokenRouteChildren);
 
 interface PPortalIdRouteChildren {
-  PPortalIdOpengraphImageRoute: typeof PPortalIdOpengraphImageRoute
+  PPortalIdOpengraphImageRoute: typeof PPortalIdOpengraphImageRoute;
 }
 
 const PPortalIdRouteChildren: PPortalIdRouteChildren = {
   PPortalIdOpengraphImageRoute: PPortalIdOpengraphImageRoute,
-}
+};
 
-const PPortalIdRouteWithChildren = PPortalIdRoute._addFileChildren(
-  PPortalIdRouteChildren,
-)
+const PPortalIdRouteWithChildren = PPortalIdRoute._addFileChildren(PPortalIdRouteChildren);
 
 interface RLinkIdRouteChildren {
-  RLinkIdOpengraphImageRoute: typeof RLinkIdOpengraphImageRoute
+  RLinkIdOpengraphImageRoute: typeof RLinkIdOpengraphImageRoute;
 }
 
 const RLinkIdRouteChildren: RLinkIdRouteChildren = {
   RLinkIdOpengraphImageRoute: RLinkIdOpengraphImageRoute,
-}
+};
 
-const RLinkIdRouteWithChildren =
-  RLinkIdRoute._addFileChildren(RLinkIdRouteChildren)
+const RLinkIdRouteWithChildren = RLinkIdRoute._addFileChildren(RLinkIdRouteChildren);
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -1233,17 +1184,17 @@ const rootRouteChildren: RootRouteChildren = {
   ApiActionsAiTaxRateRoute: ApiActionsAiTaxRateRoute,
   ApiActionsTransactionsManualSyncRoute: ApiActionsTransactionsManualSyncRoute,
   ApiActionsTransactionsReconnectRoute: ApiActionsTransactionsReconnectRoute,
-}
+};
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();
 
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
+import type { getRouter } from "./router.tsx";
+import type { startInstance } from "./start.ts";
+declare module "@tanstack/react-start" {
   interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+    ssr: true;
+    router: Awaited<ReturnType<typeof getRouter>>;
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>;
   }
 }

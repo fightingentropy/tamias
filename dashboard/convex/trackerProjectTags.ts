@@ -27,9 +27,7 @@ async function getTrackerProjectForTeamByExternalId(
   }
 
   try {
-    const byDocId = await ctx.db.get(
-      args.trackerProjectId as Id<"trackerProjects">,
-    );
+    const byDocId = await ctx.db.get(args.trackerProjectId as Id<"trackerProjects">);
 
     if (byDocId && byDocId.teamId === args.teamId) {
       return byDocId;
@@ -134,9 +132,7 @@ export const serviceGetTrackerProjectTagAssignmentsForProjectIds = query({
 
     return assignments
       .flat()
-      .map((assignment) =>
-        serializeTrackerProjectTagAssignment(args.teamId, assignment),
-      );
+      .map((assignment) => serializeTrackerProjectTagAssignment(args.teamId, assignment));
   },
 });
 
@@ -150,9 +146,7 @@ export const serviceRebuildTrackerProjectTagSortFields = mutation({
 
     const teams = args.teamId
       ? [await getTeamByPublicTeamId(ctx, args.teamId)]
-      : (await ctx.db.query("teams").collect()).filter(
-          (team) => !!team.publicTeamId,
-        );
+      : (await ctx.db.query("teams").collect()).filter((team) => !!team.publicTeamId);
 
     const validTeams = teams.filter(
       (team): team is NonNullable<(typeof teams)[number]> => team !== null,
@@ -297,9 +291,7 @@ export const serviceDeleteTrackerProjectTagsForTag = mutation({
 
     const assignments = await ctx.db
       .query("trackerProjectTags")
-      .withIndex("by_team_and_tag", (q) =>
-        q.eq("teamId", team._id).eq("tagId", args.tagId),
-      )
+      .withIndex("by_team_and_tag", (q) => q.eq("teamId", team._id).eq("tagId", args.tagId))
       .collect();
 
     for (const assignment of assignments) {

@@ -129,8 +129,7 @@ export const mapTransactionCategory = ({
 
 export const transformDescription = (transaction: Transaction) => {
   const description =
-    transaction?.details?.counterparty?.name &&
-    capitalCase(transaction.details.counterparty.name);
+    transaction?.details?.counterparty?.name && capitalCase(transaction.details.counterparty.name);
 
   if (transaction.description !== description && description) {
     return capitalCase(description);
@@ -247,8 +246,7 @@ export const transformAccountBalance = ({
   const rawAmount = +balance.amount;
 
   // Normalize credit card balances to positive (amount owed) for consistency
-  const amount =
-    accountType === "credit" && rawAmount < 0 ? Math.abs(rawAmount) : rawAmount;
+  const amount = accountType === "credit" && rawAmount < 0 ? Math.abs(rawAmount) : rawAmount;
 
   return {
     currency: balance.currency.toUpperCase(),

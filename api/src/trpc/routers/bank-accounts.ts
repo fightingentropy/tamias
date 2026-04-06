@@ -60,13 +60,11 @@ export const bankAccountsRouter = createTRPCRouter({
    * Used for invoice payment details slash command.
    * Only returns accounts that have at least one payment field populated.
    */
-  getWithPaymentInfo: protectedProcedure.query(
-    async ({ ctx: { db, teamId } }) => {
-      return getBankAccountsWithPaymentInfo(db, {
-        teamId: teamId!,
-      });
-    },
-  ),
+  getWithPaymentInfo: protectedProcedure.query(async ({ ctx: { db, teamId } }) => {
+    return getBankAccountsWithPaymentInfo(db, {
+      teamId: teamId!,
+    });
+  }),
 
   currencies: protectedProcedure.query(async ({ ctx: { db, teamId } }) => {
     return getBankAccountsCurrencies(db, teamId!);

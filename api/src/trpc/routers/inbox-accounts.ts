@@ -1,7 +1,4 @@
-import {
-  deleteInboxAccount,
-  getInboxAccountById,
-} from "@tamias/app-data/queries";
+import { deleteInboxAccount, getInboxAccountById } from "@tamias/app-data/queries";
 import { getInboxAccountsForTeam } from "@tamias/app-services/inbox";
 import { InboxConnector } from "@tamias/inbox/connector";
 import { encryptOAuthState } from "@tamias/inbox/utils";

@@ -1,19 +1,7 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@tamias/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@tamias/ui/select";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@tamias/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@tamias/ui/select";
 import { useUserMutation, useUserQuery } from "@/hooks/use-user";
 
 export function DateFormatSettings() {
@@ -34,11 +22,7 @@ export function DateFormatSettings() {
           defaultValue={user?.dateFormat ?? undefined}
           onValueChange={(value) => {
             updateUserMutation.mutate({
-              dateFormat: value as
-                | "dd/MM/yyyy"
-                | "MM/dd/yyyy"
-                | "yyyy-MM-dd"
-                | "dd.MM.yyyy",
+              dateFormat: value as "dd/MM/yyyy" | "MM/dd/yyyy" | "yyyy-MM-dd" | "dd.MM.yyyy",
             });
           }}
         >

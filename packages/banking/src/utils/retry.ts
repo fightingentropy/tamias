@@ -49,8 +49,7 @@ export async function withRetry<TResult>(
  */
 function getRateLimitDelay(error: unknown, attempt: number): number {
   // Try to extract headers from common HTTP error shapes (xior, axios, fetch)
-  const headers =
-    (error as any)?.response?.headers ?? (error as any)?.headers ?? null;
+  const headers = (error as any)?.response?.headers ?? (error as any)?.headers ?? null;
 
   if (headers) {
     // GoCardless: HTTP_X_RATELIMIT_ACCOUNT_SUCCESS_RESET (seconds)
@@ -82,15 +81,12 @@ function getRateLimitDelay(error: unknown, attempt: number): number {
  */
 function isRateLimitError(error: unknown): boolean {
   const status =
-    (error as any)?.response?.status ??
-    (error as any)?.status ??
-    (error as any)?.statusCode;
+    (error as any)?.response?.status ?? (error as any)?.status ?? (error as any)?.statusCode;
 
   if (status === 429) return true;
 
   // Plaid uses error_type instead of HTTP status in some cases
-  const errorType =
-    (error as any)?.response?.data?.error_type ?? (error as any)?.error_type;
+  const errorType = (error as any)?.response?.data?.error_type ?? (error as any)?.error_type;
 
   return errorType === "RATE_LIMIT_EXCEEDED";
 }

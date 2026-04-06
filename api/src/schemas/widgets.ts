@@ -24,10 +24,7 @@ export const getGrowthRateSchema = z.object({
   currency: z.string().optional(),
   type: z.enum(["revenue", "profit"]).optional().default("revenue"),
   revenueType: z.enum(["gross", "net"]).optional().default("net"),
-  period: z
-    .enum(["quarterly", "monthly", "yearly"])
-    .optional()
-    .default("quarterly"),
+  period: z.enum(["quarterly", "monthly", "yearly"]).optional().default("quarterly"),
 });
 
 export const getProfitMarginSchema = z.object({

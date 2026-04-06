@@ -1,10 +1,6 @@
 import { createTag, deleteTag, updateTag } from "@tamias/app-data/queries";
 import { getTags } from "@tamias/app-data/queries/tags";
-import {
-  createTagSchema,
-  deleteTagSchema,
-  updateTagSchema,
-} from "../../schemas/tags";
+import { createTagSchema, deleteTagSchema, updateTagSchema } from "../../schemas/tags";
 import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const tagsRouter = createTRPCRouter({

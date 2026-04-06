@@ -2,12 +2,7 @@
 
 import { Badge } from "@tamias/ui/badge";
 import { Icons } from "@tamias/ui/icons";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { formatDate } from "@tamias/utils/format";
 import { FormatAmount } from "../format-amount";
 
@@ -40,9 +35,7 @@ export function TransactionMatchItem({
     <div className="flex min-w-0 flex-1 items-center justify-between gap-2 text-sm">
       <div className="flex gap-2 items-center min-w-0 flex-1">
         <span className="truncate max-w-[70%]">{name}</span>
-        <span className="text-muted-foreground flex-shrink-0">
-          {formatDate(date, dateFormat)}
-        </span>
+        <span className="text-muted-foreground flex-shrink-0">{formatDate(date, dateFormat)}</span>
         {isAlreadyMatched && (
           <TooltipProvider delayDuration={100}>
             <Tooltip>
@@ -51,9 +44,7 @@ export function TransactionMatchItem({
                   <Icons.Link className="size-3.5" />
                 </div>
               </TooltipTrigger>
-              <TooltipContent className="text-xs px-3 py-1.5">
-                {tooltipContent}
-              </TooltipContent>
+              <TooltipContent className="text-xs px-3 py-1.5">{tooltipContent}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         )}

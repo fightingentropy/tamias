@@ -5,11 +5,7 @@ import type { EditorDoc } from "../../types";
 type PDFTextStyle = Style & {
   fontFamily?: string;
   fontStyle?: "normal" | "italic" | "oblique";
-  textDecoration?:
-    | "none"
-    | "underline"
-    | "line-through"
-    | "underline line-through";
+  textDecoration?: "none" | "underline" | "line-through" | "underline line-through";
 };
 
 export function formatEditorContent(doc?: EditorDoc) {
@@ -22,10 +18,7 @@ export function formatEditorContent(doc?: EditorDoc) {
       {doc.content.map((node, nodeIndex) => {
         if (node.type === "paragraph") {
           return (
-            <View
-              key={`paragraph-${nodeIndex.toString()}`}
-              style={{ alignItems: "flex-start" }}
-            >
+            <View key={`paragraph-${nodeIndex.toString()}`} style={{ alignItems: "flex-start" }}>
               <Text>
                 {node.content?.map((inlineContent, inlineIndex) => {
                   if (inlineContent.type === "text") {
@@ -68,8 +61,7 @@ export function formatEditorContent(doc?: EditorDoc) {
                     const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(content);
 
                     if (href || isEmail) {
-                      const linkHref =
-                        href || (isEmail ? `mailto:${content}` : content);
+                      const linkHref = href || (isEmail ? `mailto:${content}` : content);
 
                       return (
                         <Link

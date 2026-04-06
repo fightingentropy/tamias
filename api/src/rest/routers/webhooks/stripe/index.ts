@@ -65,11 +65,7 @@ app.openapi(
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
       const rawBody = await c.req.text();
 
-      event = await stripe.webhooks.constructEventAsync(
-        rawBody,
-        signature,
-        webhookSecret,
-      );
+      event = await stripe.webhooks.constructEventAsync(rawBody, signature, webhookSecret);
     } catch (err) {
       logger.error("Stripe webhook signature verification failed", {
         error: err instanceof Error ? err.message : String(err),
@@ -138,13 +134,10 @@ app.openapi(
               });
             }
           } else {
-            logger.warn(
-              "Failed to update invoice - not found or unauthorized",
-              {
-                invoiceId,
-                teamId,
-              },
-            );
+            logger.warn("Failed to update invoice - not found or unauthorized", {
+              invoiceId,
+              teamId,
+            });
           }
 
           break;

@@ -26,15 +26,9 @@ function ErrorPreview() {
   );
 }
 
-export function FilePreview({
-  mimeType,
-  filePath,
-  lazy = false,
-  fixedSize,
-}: Props) {
+export function FilePreview({ mimeType, filePath, lazy = false, fixedSize }: Props) {
   const isPdf =
-    mimeType.startsWith("application/pdf") ||
-    mimeType.startsWith("application/octet-stream");
+    mimeType.startsWith("application/pdf") || mimeType.startsWith("application/octet-stream");
   const isImage = mimeType.startsWith("image/");
 
   const [imageError, setImageError] = useState(false);
@@ -69,9 +63,7 @@ export function FilePreview({
 
   return (
     <div className="relative w-full h-full flex items-center justify-center">
-      {imageLoading && !imageError && (
-        <Skeleton className="absolute inset-0 w-full h-full" />
-      )}
+      {imageLoading && !imageError && <Skeleton className="absolute inset-0 w-full h-full" />}
 
       {imageError && <ErrorPreview />}
 

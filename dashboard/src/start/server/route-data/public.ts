@@ -74,16 +74,11 @@ export async function buildPublicReportPageData(linkId: string) {
     };
   }
 
-  const chartName = report.type
-    ? getChartDisplayName(report.type as any)
-    : "Shared Report";
+  const chartName = report.type ? getChartDisplayName(report.type as any) : "Shared Report";
   const teamName = report.teamName || "Company";
   const dateRangeDisplay =
     report.from && report.to
-      ? `${format(parseISO(report.from), "MMM d")} - ${format(
-          parseISO(report.to),
-          "MMM d, yyyy",
-        )}`
+      ? `${format(parseISO(report.from), "MMM d")} - ${format(parseISO(report.to), "MMM d, yyyy")}`
       : "";
   const chartDataQuery = trpc.reports.getChartDataByLinkId.queryOptions({
     linkId,
@@ -145,13 +140,9 @@ export async function buildShortLinkPageData(shortId: string) {
 export async function buildOAuthAuthorizePageData(href?: string) {
   const requestUrl = getRequestUrl(href);
   const queryClient = getQueryClient();
-  const {
-    response_type,
-    client_id,
-    redirect_uri,
-    scope,
-    state,
-  } = loadOAuthParams(Object.fromEntries(requestUrl.searchParams.entries()));
+  const { response_type, client_id, redirect_uri, scope, state } = loadOAuthParams(
+    Object.fromEntries(requestUrl.searchParams.entries()),
+  );
   const validation = validateOAuthParams({
     response_type: response_type || undefined,
     client_id: client_id || undefined,
@@ -167,15 +158,13 @@ export async function buildOAuthAuthorizePageData(href?: string) {
   }
 
   const currentUserQuery = trpc.user.me.queryOptions();
-  const currentUser = await queryClient.fetchQuery(currentUserQuery).catch(
-    (error) => {
-      if (isUnauthorizedQueryError(error)) {
-        return null;
-      }
+  const currentUser = await queryClient.fetchQuery(currentUserQuery).catch((error) => {
+    if (isUnauthorizedQueryError(error)) {
+      return null;
+    }
 
-      throw error;
-    },
-  );
+    throw error;
+  });
 
   if (!currentUser) {
     return {
@@ -185,13 +174,12 @@ export async function buildOAuthAuthorizePageData(href?: string) {
   }
 
   try {
-    const applicationInfoQuery =
-      trpc.oauthApplications.getApplicationInfo.queryOptions({
-        clientId: client_id!,
-        redirectUri: redirect_uri!,
-        scope: scope!,
-        state: state || undefined,
-      });
+    const applicationInfoQuery = trpc.oauthApplications.getApplicationInfo.queryOptions({
+      clientId: client_id!,
+      redirectUri: redirect_uri!,
+      scope: scope!,
+      state: state || undefined,
+    });
     await Promise.all([
       queryClient.fetchQuery(applicationInfoQuery),
       queryClient.fetchQuery(trpc.team.list.queryOptions()),
@@ -214,10 +202,7 @@ export async function buildOAuthAuthorizePageData(href?: string) {
   }
 }
 
-export async function buildPublicInvoicePageData(params: {
-  token: string;
-  viewer?: string;
-}) {
+export async function buildPublicInvoicePageData(params: { token: string; viewer?: string }) {
   const authToken = await getConvexAuthToken();
   const client = await getTRPCClient();
   const invoice = await client.invoice.getInvoiceByToken
@@ -260,8 +245,7 @@ export async function buildPublicInvoicePageData(params: {
 
   const width = invoice.template.size === "letter" ? 750 : 595;
   const height = invoice.template.size === "letter" ? 1056 : 842;
-  const paymentEnabled =
-    invoice.template.paymentEnabled && invoice.team?.stripeConnected === true;
+  const paymentEnabled = invoice.template.paymentEnabled && invoice.team?.stripeConnected === true;
 
   return {
     status: "ok" as const,

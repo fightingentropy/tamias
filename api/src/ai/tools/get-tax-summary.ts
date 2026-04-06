@@ -4,13 +4,7 @@ import { db } from "@tamias/app-data/client";
 import { getTaxSummary } from "@tamias/app-data/queries";
 import { formatAmount } from "@tamias/utils/format";
 import { tool } from "ai";
-import {
-  endOfMonth,
-  format,
-  parseISO,
-  startOfMonth,
-  subMonths,
-} from "date-fns";
+import { endOfMonth, format, parseISO, startOfMonth, subMonths } from "date-fns";
 import { z } from "zod";
 import {
   getToolAppContext,
@@ -32,13 +26,9 @@ const getTaxSummarySchema = z.object({
 });
 
 export const getTaxSummaryTool = tool({
-  description:
-    "Generate tax summary - tax liability, taxable income, and tax rates.",
+  description: "Generate tax summary - tax liability, taxable income, and tax rates.",
   inputSchema: getTaxSummarySchema,
-  execute: async function* (
-    { period, from, to, currency, showCanvas },
-    executionOptions,
-  ) {
+  execute: async function* ({ period, from, to, currency, showCanvas }, executionOptions) {
     const appContext = getToolAppContext(executionOptions);
     const teamId = getToolTeamId(appContext);
 
@@ -58,12 +48,11 @@ export const getTaxSummaryTool = tool({
     throwIfBankAccountsRequired(appContext);
 
     try {
-      const { finalFrom, finalTo, finalCurrency, description, locale } =
-        resolveReportToolParams({
-          toolName: "getTaxSummary",
-          appContext,
-          aiParams: { period, from, to, currency },
-        });
+      const { finalFrom, finalTo, finalCurrency, description, locale } = resolveReportToolParams({
+        toolName: "getTaxSummary",
+        appContext,
+        aiParams: { period, from, to, currency },
+      });
       const analysis = startArtifactStream({
         enabled: showCanvas,
         executionOptions,
@@ -91,41 +80,37 @@ export const getTaxSummaryTool = tool({
       const prevTo = format(prevToDate, "yyyy-MM-dd");
 
       // Fetch paid and collected tax data for current and previous period
-      const [
-        paidTaxData,
-        collectedTaxData,
-        prevPaidTaxData,
-        prevCollectedTaxData,
-      ] = await Promise.all([
-        getTaxSummary(db, {
-          teamId,
-          type: "paid",
-          from: finalFrom,
-          to: finalTo,
-          currency: targetCurrency,
-        }),
-        getTaxSummary(db, {
-          teamId,
-          type: "collected",
-          from: finalFrom,
-          to: finalTo,
-          currency: targetCurrency,
-        }),
-        getTaxSummary(db, {
-          teamId,
-          type: "paid",
-          from: prevFrom,
-          to: prevTo,
-          currency: targetCurrency,
-        }),
-        getTaxSummary(db, {
-          teamId,
-          type: "collected",
-          from: prevFrom,
-          to: prevTo,
-          currency: targetCurrency,
-        }),
-      ]);
+      const [paidTaxData, collectedTaxData, prevPaidTaxData, prevCollectedTaxData] =
+        await Promise.all([
+          getTaxSummary(db, {
+            teamId,
+            type: "paid",
+            from: finalFrom,
+            to: finalTo,
+            currency: targetCurrency,
+          }),
+          getTaxSummary(db, {
+            teamId,
+            type: "collected",
+            from: finalFrom,
+            to: finalTo,
+            currency: targetCurrency,
+          }),
+          getTaxSummary(db, {
+            teamId,
+            type: "paid",
+            from: prevFrom,
+            to: prevTo,
+            currency: targetCurrency,
+          }),
+          getTaxSummary(db, {
+            teamId,
+            type: "collected",
+            from: prevFrom,
+            to: prevTo,
+            currency: targetCurrency,
+          }),
+        ]);
 
       // Tax paid on expenses (outgoing)
       const currentPaidTax = paidTaxData.summary.totalTaxAmount;
@@ -135,38 +120,27 @@ export const getTaxSummaryTool = tool({
       const currentNetTax = currentCollectedTax - currentPaidTax;
 
       const currentTotalTax = currentPaidTax;
-      const currentTotalTaxableIncome =
-        paidTaxData.summary.totalTransactionAmount;
+      const currentTotalTaxableIncome = paidTaxData.summary.totalTransactionAmount;
 
       const prevPaidTax = prevPaidTaxData.summary.totalTaxAmount;
       const prevCollectedTax = prevCollectedTaxData.summary.totalTaxAmount;
       const prevNetTax = prevCollectedTax - prevPaidTax;
 
       const prevTotalTax = prevPaidTax;
-      const prevTotalTaxableIncome =
-        prevPaidTaxData.summary.totalTransactionAmount;
+      const prevTotalTaxableIncome = prevPaidTaxData.summary.totalTransactionAmount;
 
       // Calculate effective tax rate
       const effectiveTaxRate =
-        currentTotalTaxableIncome > 0
-          ? (currentTotalTax / currentTotalTaxableIncome) * 100
-          : 0;
+        currentTotalTaxableIncome > 0 ? (currentTotalTax / currentTotalTaxableIncome) * 100 : 0;
       const prevEffectiveTaxRate =
-        prevTotalTaxableIncome > 0
-          ? (prevTotalTax / prevTotalTaxableIncome) * 100
-          : 0;
+        prevTotalTaxableIncome > 0 ? (prevTotalTax / prevTotalTaxableIncome) * 100 : 0;
 
       // Prepare category breakdown (top categories by tax amount)
-      const categoryData = (paidTaxData.result || [])
-        .slice(0, 10)
-        .map((item) => ({
-          category: item.category_name,
-          taxAmount: item.total_tax_amount,
-          percentage:
-            currentTotalTax > 0
-              ? (item.total_tax_amount / currentTotalTax) * 100
-              : 0,
-        }));
+      const categoryData = (paidTaxData.result || []).slice(0, 10).map((item) => ({
+        category: item.category_name,
+        taxAmount: item.total_tax_amount,
+        percentage: currentTotalTax > 0 ? (item.total_tax_amount / currentTotalTax) * 100 : 0,
+      }));
 
       // Prepare tax type breakdown (if multiple tax types exist)
       const taxTypeMap = new Map<string, number>();
@@ -179,8 +153,7 @@ export const getTaxSummaryTool = tool({
         .map(([taxType, taxAmount]) => ({
           taxType,
           taxAmount,
-          percentage:
-            currentTotalTax > 0 ? (taxAmount / currentTotalTax) * 100 : 0,
+          percentage: currentTotalTax > 0 ? (taxAmount / currentTotalTax) * 100 : 0,
         }))
         .sort((a, b) => b.taxAmount - a.taxAmount);
 

@@ -7,10 +7,7 @@ interface PaymentScoreVisualizerProps {
   count?: number;
 }
 
-export function PaymentScoreVisualizer({
-  score,
-  count = 27,
-}: PaymentScoreVisualizerProps) {
+export function PaymentScoreVisualizer({ score, count = 27 }: PaymentScoreVisualizerProps) {
   // Calculate how many bars should be filled based on the score
   const filledBars = Math.round((score / 100) * count);
 

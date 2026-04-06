@@ -15,10 +15,7 @@ import { enqueue } from "@tamias/job-client";
 import type { WorkerJob as Job } from "../../types/job";
 import { addDays } from "date-fns";
 import { v4 as uuidv4 } from "uuid";
-import {
-  RecurringInvoiceError,
-  RecurringInvoiceErrors,
-} from "../../errors/invoice-errors";
+import { RecurringInvoiceError, RecurringInvoiceErrors } from "../../errors/invoice-errors";
 import type { InvoiceRecurringSchedulerPayload } from "../../schemas/invoices";
 import { getDb } from "../../utils/db";
 import { withDbConnectionRetry } from "../../utils/db-retry";
@@ -48,9 +45,7 @@ type ProcessResult = {
   hasMore: boolean;
 };
 
-type DueRecurringItem = Awaited<
-  ReturnType<typeof getDueInvoiceRecurring>
->["data"][number];
+type DueRecurringItem = Awaited<ReturnType<typeof getDueInvoiceRecurring>>["data"][number];
 type ProcessSummary = Omit<ProcessResult, "hasMore">;
 type SeriesProcessResult =
   | { kind: "processed"; result: GeneratedInvoiceResult }
@@ -70,14 +65,10 @@ const TEAM_PROCESSING_CONCURRENCY = 4;
  * Kill switch: Set DISABLE_RECURRING_INVOICES=true to disable processing
  */
 export class InvoiceRecurringSchedulerProcessor extends BaseProcessor<InvoiceRecurringSchedulerPayload> {
-  async process(
-    _job: Job<InvoiceRecurringSchedulerPayload>,
-  ): Promise<ProcessResult> {
+  async process(_job: Job<InvoiceRecurringSchedulerPayload>): Promise<ProcessResult> {
     // Kill switch - can be toggled without deploy via environment variable
     if (process.env.DISABLE_RECURRING_INVOICES === "true") {
-      this.logger.warn(
-        "Recurring invoice scheduler disabled via DISABLE_RECURRING_INVOICES",
-      );
+      this.logger.warn("Recurring invoice scheduler disabled via DISABLE_RECURRING_INVOICES");
       return {
         processed: 0,
         skipped: 0,
@@ -92,9 +83,7 @@ export class InvoiceRecurringSchedulerProcessor extends BaseProcessor<InvoiceRec
 
     // In staging, log what would happen but don't execute
     if (isStaging()) {
-      this.logger.info(
-        "[STAGING MODE] Recurring invoice scheduler - logging only, no execution",
-      );
+      this.logger.info("[STAGING MODE] Recurring invoice scheduler - logging only, no execution");
 
       const { data: dueRecurring, hasMore } = await withDbConnectionRetry(
         () => getDueInvoiceRecurring(db),
@@ -213,9 +202,7 @@ export class InvoiceRecurringSchedulerProcessor extends BaseProcessor<InvoiceRec
     });
 
     if (hasMore) {
-      this.logger.info(
-        "More recurring invoices pending - will be processed in next scheduler run",
-      );
+      this.logger.info("More recurring invoices pending - will be processed in next scheduler run");
     }
 
     return {
@@ -273,10 +260,7 @@ export class InvoiceRecurringSchedulerProcessor extends BaseProcessor<InvoiceRec
       });
 
       if (existingInvoice) {
-        if (
-          existingInvoice.status === "draft" ||
-          existingInvoice.status === "scheduled"
-        ) {
+        if (existingInvoice.status === "draft" || existingInvoice.status === "scheduled") {
           this.logger.info("Found existing invoice for sequence, sending it", {
             recurringId: recurring.id,
             sequence: nextSequence,
@@ -305,8 +289,7 @@ export class InvoiceRecurringSchedulerProcessor extends BaseProcessor<InvoiceRec
             },
           );
 
-          const invoiceNumber =
-            existingInvoice.invoiceNumber ?? `REC-${nextSequence}`;
+          const invoiceNumber = existingInvoice.invoiceNumber ?? `REC-${nextSequence}`;
           await enqueue(
             "notification",
             {
@@ -340,14 +323,11 @@ export class InvoiceRecurringSchedulerProcessor extends BaseProcessor<InvoiceRec
           };
         }
 
-        this.logger.info(
-          "Invoice already exists and was already sent, updating series",
-          {
-            recurringId: recurring.id,
-            sequence: nextSequence,
-            status: existingInvoice.status,
-          },
-        );
+        this.logger.info("Invoice already exists and was already sent, updating series", {
+          recurringId: recurring.id,
+          sequence: nextSequence,
+          status: existingInvoice.status,
+        });
 
         await markInvoiceGenerated(db, {
           id: recurring.id,
@@ -384,9 +364,7 @@ export class InvoiceRecurringSchedulerProcessor extends BaseProcessor<InvoiceRec
         }
 
         const customerContent = transformCustomerToContent(customer);
-        customerDetails = customerContent
-          ? JSON.stringify(customerContent)
-          : null;
+        customerDetails = customerContent ? JSON.stringify(customerContent) : null;
         customerEmail = customer.billingEmail || customer.email;
 
         if (!customerEmail) {
@@ -405,20 +383,14 @@ export class InvoiceRecurringSchedulerProcessor extends BaseProcessor<InvoiceRec
       }
 
       const invoiceId = uuidv4();
-      const invoiceNumber = await allocateNextInvoiceNumber(
-        db,
-        recurring.teamId,
-      );
+      const invoiceNumber = await allocateNextInvoiceNumber(db, recurring.teamId);
       const token = await generateToken(invoiceId);
       const scheduledDate = recurring.nextScheduledAt
         ? new Date(recurring.nextScheduledAt)
         : new Date();
       const issueDateUTC = getStartOfDayUTC(scheduledDate);
       const issueDate = issueDateUTC.toISOString();
-      const dueDate = addDays(
-        issueDateUTC,
-        recurring.dueDateOffset,
-      ).toISOString();
+      const dueDate = addDays(issueDateUTC, recurring.dueDateOffset).toISOString();
       const template = buildInvoiceTemplateFromRecurring(recurring);
 
       await draftInvoice(db, {
@@ -561,17 +533,14 @@ export class InvoiceRecurringSchedulerProcessor extends BaseProcessor<InvoiceRec
       };
     } catch (error) {
       const isRecurringError = error instanceof RecurringInvoiceError;
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       const errorCode = isRecurringError ? error.code : "UNKNOWN";
 
       this.logger.error("Failed to generate recurring invoice", {
         recurringId: recurring.id,
         errorCode,
         error: errorMessage,
-        requiresUserAction: isRecurringError
-          ? error.requiresUserAction
-          : undefined,
+        requiresUserAction: isRecurringError ? error.requiresUserAction : undefined,
       });
 
       const { autoPaused } = await recordInvoiceGenerationFailure(db, {
@@ -580,14 +549,11 @@ export class InvoiceRecurringSchedulerProcessor extends BaseProcessor<InvoiceRec
       });
 
       if (autoPaused) {
-        this.logger.warn(
-          "Auto-paused recurring invoice due to repeated failures",
-          {
-            recurringId: recurring.id,
-            teamId: recurring.teamId,
-            errorCode,
-          },
-        );
+        this.logger.warn("Auto-paused recurring invoice due to repeated failures", {
+          recurringId: recurring.id,
+          teamId: recurring.teamId,
+          errorCode,
+        });
 
         await enqueue(
           "notification",

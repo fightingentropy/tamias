@@ -5,20 +5,10 @@ import { getAppUrl } from "@tamias/utils/envs";
 import { Table, TableBody } from "@tamias/ui/table";
 import { Tooltip, TooltipProvider } from "@tamias/ui/tooltip";
 import { toast } from "@tamias/ui/use-toast";
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseInfiniteQuery,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient, useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { useVirtualizer, type VirtualItem } from "@tanstack/react-virtual";
-import {
-  useCallback,
-  useDeferredValue,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useDebounceCallback } from "usehooks-ts";
 import { VirtualRow } from "@/components/tables/core";
@@ -36,10 +26,7 @@ import { useUpdateTransactionCategory } from "@/hooks/use-update-transaction-cat
 import { useUploadProcessingToast } from "@/hooks/use-upload-processing-toast";
 import { useUserQuery } from "@/hooks/use-user";
 import { useExportStore } from "@/store/export";
-import {
-  type TransactionTab,
-  useTransactionsStore,
-} from "@/store/transactions";
+import { type TransactionTab, useTransactionsStore } from "@/store/transactions";
 import { useTRPC } from "@/trpc/client";
 import { STICKY_COLUMNS } from "@/utils/table-configs";
 import { getColumnIds, type TableSettings } from "@/utils/table-settings";
@@ -52,13 +39,7 @@ import { ExportBar } from "./export-bar";
 import { TransactionTableProvider } from "./transaction-table-context";
 
 // Stable reference for non-clickable columns (avoids recreation on each render)
-const NON_CLICKABLE_COLUMNS = new Set([
-  "select",
-  "actions",
-  "category",
-  "assigned",
-  "tags",
-]);
+const NON_CLICKABLE_COLUMNS = new Set(["select", "actions", "category", "assigned", "tags"]);
 
 const COLUMN_IDS = getColumnIds(columns);
 
@@ -132,12 +113,9 @@ export function DataTable({ initialSettings, initialTab }: Props) {
     [activeTab, deferredSearch, filter, params.sort],
   );
 
-  const infiniteQueryOptions = trpc.transactions.get.infiniteQueryOptions(
-    queryFilter,
-    {
-      getNextPageParam: ({ meta }) => meta?.cursor,
-    },
-  );
+  const infiniteQueryOptions = trpc.transactions.get.infiniteQueryOptions(queryFilter, {
+    getNextPageParam: ({ meta }) => meta?.cursor,
+  });
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } =
     useSuspenseInfiniteQuery({
@@ -235,9 +213,7 @@ export function DataTable({ initialSettings, initialTab }: Props) {
 
   // Handle shift-click range selection
   // Note: This function will be updated after table creation to use table.getRowModel().rows
-  const handleShiftClickRangeRef = useRef<
-    (startIndex: number, endIndex: number) => void
-  >(() => {});
+  const handleShiftClickRangeRef = useRef<(startIndex: number, endIndex: number) => void>(() => {});
 
   // Memoized table meta callbacks for stable references (prevents unnecessary re-renders)
   const setOpen = useCallback(
@@ -247,23 +223,24 @@ export function DataTable({ initialSettings, initialTab }: Props) {
     [setParams],
   );
 
-  const copyUrl = useCallback((id: string) => {
-    try {
-      window.navigator.clipboard.writeText(
-        `${dashboardUrl}/transactions/?transactionId=${id}`,
-      );
+  const copyUrl = useCallback(
+    (id: string) => {
+      try {
+        window.navigator.clipboard.writeText(`${dashboardUrl}/transactions/?transactionId=${id}`);
 
-      toast({
-        title: "Transaction URL copied to clipboard",
-        variant: "success",
-      });
-    } catch {
-      toast({
-        title: "Failed to copy transaction URL to clipboard",
-        variant: "error",
-      });
-    }
-  }, [dashboardUrl]);
+        toast({
+          title: "Transaction URL copied to clipboard",
+          variant: "success",
+        });
+      } catch {
+        toast({
+          title: "Failed to copy transaction URL to clipboard",
+          variant: "error",
+        });
+      }
+    },
+    [dashboardUrl],
+  );
 
   const updateTransaction = useCallback(
     (data: {
@@ -274,11 +251,7 @@ export function DataTable({ initialSettings, initialTab }: Props) {
       assignedId?: string | null;
     }) => {
       // If updating category, use the hook that checks for similar transactions
-      if (
-        data.categorySlug !== undefined &&
-        data.categorySlug !== null &&
-        data.categoryName
-      ) {
+      if (data.categorySlug !== undefined && data.categorySlug !== null && data.categoryName) {
         const transaction = tableData.find((t) => t.id === data.id);
         if (transaction) {
           updateCategory(transaction.id, transaction.name, {
@@ -302,12 +275,7 @@ export function DataTable({ initialSettings, initialTab }: Props) {
       updateTransactionMutation.mutate({
         id: data.id,
         ...(data.status && {
-          status: data.status as
-            | "pending"
-            | "archived"
-            | "completed"
-            | "posted"
-            | "excluded",
+          status: data.status as "pending" | "archived" | "completed" | "posted" | "excluded",
         }),
         ...(data.assignedId !== undefined && {
           assignedId: data.assignedId,
@@ -559,9 +527,7 @@ export function DataTable({ initialSettings, initialTab }: Props) {
                 ref={(el) => {
                   // Combine refs for both scroll container and virtualizer
                   if (parentRef) {
-                    (
-                      parentRef as React.MutableRefObject<HTMLDivElement | null>
-                    ).current = el;
+                    (parentRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
                   }
                   if (tableScroll.containerRef) {
                     (
@@ -608,9 +574,7 @@ export function DataTable({ initialSettings, initialTab }: Props) {
                             columnOrder={columnOrder}
                             columnVisibility={columnVisibility}
                             isSelected={rowSelection[row.id] ?? false}
-                            isExporting={exportingTransactionIds.includes(
-                              row.id,
-                            )}
+                            isExporting={exportingTransactionIds.includes(row.id)}
                           />
                         );
                       })}
@@ -618,10 +582,7 @@ export function DataTable({ initialSettings, initialTab }: Props) {
                   </Table>
                 </DndContext>
                 {/* Spacer ensures scrolling works when content barely overflows */}
-                <div
-                  style={{ height: "var(--header-offset, 0px)", flexShrink: 0 }}
-                  aria-hidden
-                />
+                <div style={{ height: "var(--header-offset, 0px)", flexShrink: 0 }} aria-hidden />
               </div>
             </div>
           </Tooltip>

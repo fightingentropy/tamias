@@ -1,12 +1,7 @@
 "use client";
 
 import { Icons } from "@tamias/ui/icons";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { useToast } from "@tamias/ui/use-toast";
 import NumberFlow from "@number-flow/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -36,8 +31,7 @@ export function TrackerTimer({
   const setTimerStatus = useTimerStore((state) => state.setTimerStatus);
 
   // Use global timer status to avoid duplicate intervals
-  const { isRunning: globalIsRunning, elapsedTime: globalElapsedTime } =
-    useGlobalTimerStatus();
+  const { isRunning: globalIsRunning, elapsedTime: globalElapsedTime } = useGlobalTimerStatus();
 
   // Hold-to-stop state
   const [isHolding, setIsHolding] = useState(false);
@@ -59,17 +53,13 @@ export function TrackerTimer({
 
   // Check if this specific project is the one running
   const isThisProjectRunning = useMemo(
-    () =>
-      timerStatus?.isRunning &&
-      timerStatus?.currentEntry?.projectId === projectId,
+    () => timerStatus?.isRunning && timerStatus?.currentEntry?.projectId === projectId,
     [timerStatus?.isRunning, timerStatus?.currentEntry?.projectId, projectId],
   );
 
   // Check if there's a different timer running
   const isDifferentTimerRunning = useMemo(
-    () =>
-      timerStatus?.isRunning &&
-      timerStatus?.currentEntry?.projectId !== projectId,
+    () => timerStatus?.isRunning && timerStatus?.currentEntry?.projectId !== projectId,
     [timerStatus?.isRunning, timerStatus?.currentEntry?.projectId, projectId],
   );
 
@@ -91,22 +81,19 @@ export function TrackerTimer({
         });
 
         // Optimistically update React Query cache (include project name for GlobalTimerProvider)
-        queryClient.setQueryData(
-          trpc.trackerEntries.getTimerStatus.queryKey(),
-          (old: any) => ({
-            ...old,
-            isRunning: true,
-            currentEntry: {
-              ...old?.currentEntry,
-              projectId: variables.projectId,
-              trackerProject: {
-                ...old?.currentEntry?.trackerProject,
-                name: projectName,
-              },
+        queryClient.setQueryData(trpc.trackerEntries.getTimerStatus.queryKey(), (old: any) => ({
+          ...old,
+          isRunning: true,
+          currentEntry: {
+            ...old?.currentEntry,
+            projectId: variables.projectId,
+            trackerProject: {
+              ...old?.currentEntry?.trackerProject,
+              name: projectName,
             },
-            elapsedTime: 0,
-          }),
-        );
+          },
+          elapsedTime: 0,
+        }));
 
         // Immediately update Zustand store for instant UI feedback
         setTimerStatus({
@@ -142,15 +129,12 @@ export function TrackerTimer({
         const currentProjectName = projectName;
 
         // Optimistically update React Query cache
-        queryClient.setQueryData(
-          trpc.trackerEntries.getTimerStatus.queryKey(),
-          (old: any) => ({
-            ...old,
-            isRunning: false,
-            currentEntry: null,
-            elapsedTime: 0,
-          }),
-        );
+        queryClient.setQueryData(trpc.trackerEntries.getTimerStatus.queryKey(), (old: any) => ({
+          ...old,
+          isRunning: false,
+          currentEntry: null,
+          elapsedTime: 0,
+        }));
 
         // Immediately update Zustand store to stop interval and reset UI
         setTimerStatus({
@@ -398,9 +382,7 @@ export function TrackerTimer({
           <span>{projectName}</span>
           <div
             className={`flex items-center gap-px text-xs text-[#666] ml-auto transition-all duration-300 ease-in-out ${
-              isThisProjectRunning
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-2"
+              isThisProjectRunning ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
             }`}
           >
             {isThisProjectRunning && formattedTime && (
@@ -411,20 +393,11 @@ export function TrackerTimer({
                     <span className="relative inline-flex rounded-full h-[5px] w-[5px] bg-[#00C969]" />
                   </span>
                 </div>
-                <NumberFlow
-                  value={formattedTime.hours ?? 0}
-                  format={{ minimumIntegerDigits: 2 }}
-                />
+                <NumberFlow value={formattedTime.hours ?? 0} format={{ minimumIntegerDigits: 2 }} />
                 <span>:</span>
-                <NumberFlow
-                  value={formattedTime.minutes}
-                  format={{ minimumIntegerDigits: 2 }}
-                />
+                <NumberFlow value={formattedTime.minutes} format={{ minimumIntegerDigits: 2 }} />
                 <span>:</span>
-                <NumberFlow
-                  value={formattedTime.seconds}
-                  format={{ minimumIntegerDigits: 2 }}
-                />
+                <NumberFlow value={formattedTime.seconds} format={{ minimumIntegerDigits: 2 }} />
               </>
             )}
           </div>

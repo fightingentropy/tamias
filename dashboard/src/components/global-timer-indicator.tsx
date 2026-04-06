@@ -25,10 +25,7 @@ export function GlobalTimerIndicator({ className }: GlobalTimerIndicatorProps) {
     >
       <div className="flex items-center gap-1.5">
         <div className="relative">
-          <Icons.PlayOutline
-            size={14}
-            className="text-green-600 dark:text-green-400"
-          />
+          <Icons.PlayOutline size={14} className="text-green-600 dark:text-green-400" />
           <span className="absolute -top-0.5 -right-0.5 h-2 w-2 bg-green-500 rounded-full animate-pulse" />
         </div>
         <span className="text-green-700 dark:text-green-300">

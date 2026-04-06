@@ -198,8 +198,7 @@ const REAL_WORLD_SCENARIOS = {
   duplicatePrevention: [
     {
       name: "Already Matched Transaction",
-      description:
-        "Should not suggest matches for already matched transactions",
+      description: "Should not suggest matches for already matched transactions",
       inbox: {
         id: "inbox-duplicate-1",
         displayName: "Duplicate Test",
@@ -249,34 +248,24 @@ describe("Integration Tests - Real-World Scenarios", () => {
 
         // Test individual scoring components
         const amountScore = calculateAmountScore(inbox, transaction);
-        const currencyScore = calculateCurrencyScore(
-          inbox.currency,
-          transaction.currency,
-        );
+        const currencyScore = calculateCurrencyScore(inbox.currency, transaction.currency);
         const dateScore = calculateDateScore(inbox.date, transaction.date);
 
         const nameScore = 0.8;
         const overallConfidence =
-          amountScore * 0.3 +
-          currencyScore * 0.2 +
-          dateScore * 0.2 +
-          nameScore * 0.3;
+          amountScore * 0.3 + currencyScore * 0.2 + dateScore * 0.2 + nameScore * 0.3;
 
         console.log(
           `Scores: Amount=${amountScore.toFixed(3)}, Currency=${currencyScore.toFixed(3)}, Date=${dateScore.toFixed(3)}, Overall=${overallConfidence.toFixed(3)}`,
         );
 
-        expect(overallConfidence).toBeGreaterThanOrEqual(
-          expected.minConfidence,
-        );
+        expect(overallConfidence).toBeGreaterThanOrEqual(expected.minConfidence);
 
         if (expected.shouldAutoMatch) {
           expect(overallConfidence).toBeGreaterThanOrEqual(0.9); // Auto-match threshold
         }
 
-        console.log(
-          `${scenario.name} passed with confidence ${overallConfidence.toFixed(3)}`,
-        );
+        console.log(`${scenario.name} passed with confidence ${overallConfidence.toFixed(3)}`);
       });
     }
   });
@@ -301,10 +290,7 @@ describe("Integration Tests - Real-World Scenarios", () => {
 
         // Test scoring
         const amountScore = calculateAmountScore(inbox, transaction);
-        const currencyScore = calculateCurrencyScore(
-          inbox.currency,
-          transaction.currency,
-        );
+        const currencyScore = calculateCurrencyScore(inbox.currency, transaction.currency);
 
         console.log(
           `Cross-currency scores: Amount=${amountScore.toFixed(3)}, Currency=${currencyScore.toFixed(3)}`,
@@ -325,18 +311,12 @@ describe("Integration Tests - Real-World Scenarios", () => {
 
         // These should NOT match
         const amountScore = calculateAmountScore(inbox, transaction);
-        const currencyScore = calculateCurrencyScore(
-          inbox.currency,
-          transaction.currency,
-        );
+        const currencyScore = calculateCurrencyScore(inbox.currency, transaction.currency);
         const dateScore = calculateDateScore(inbox.date, transaction.date);
 
         const nameScore = 0.3;
         const overallConfidence =
-          amountScore * 0.3 +
-          currencyScore * 0.2 +
-          dateScore * 0.2 +
-          nameScore * 0.3;
+          amountScore * 0.3 + currencyScore * 0.2 + dateScore * 0.2 + nameScore * 0.3;
 
         console.log(
           `Low scores: Amount=${amountScore.toFixed(3)}, Currency=${currencyScore.toFixed(3)}, Overall=${overallConfidence.toFixed(3)}`,

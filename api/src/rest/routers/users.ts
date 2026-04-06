@@ -1,8 +1,5 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
-import {
-  getCurrentUserFromConvex,
-  updateCurrentUserInConvex,
-} from "@tamias/app-services/identity";
+import { getCurrentUserFromConvex, updateCurrentUserInConvex } from "@tamias/app-services/identity";
 import { generateOptionalFileKey } from "@tamias/encryption";
 import { updateUserSchema, userSchema } from "../../schemas/users";
 import { validateResponse } from "../../utils/validate-response";
@@ -96,10 +93,7 @@ app.openapi(
       weekStartsOnMonday: body.weekStartsOnMonday,
       timezone: body.timezone,
       timezoneAutoSync: body.timezoneAutoSync,
-      timeFormat:
-        body.timeFormat === 12 || body.timeFormat === 24
-          ? body.timeFormat
-          : undefined,
+      timeFormat: body.timeFormat === 12 || body.timeFormat === 24 ? body.timeFormat : undefined,
       dateFormat: body.dateFormat,
       aiProvider: body.aiProvider,
     });

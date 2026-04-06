@@ -15,9 +15,7 @@ export function DashboardAnimation({
   const [showChart, setShowChart] = useState(false);
   const [showMetrics, setShowMetrics] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
-  const [segmentProgress, setSegmentProgress] = useState<number[]>([
-    0, 0, 0, 0, 0,
-  ]);
+  const [segmentProgress, setSegmentProgress] = useState<number[]>([0, 0, 0, 0, 0]);
 
   useEffect(() => {
     if (!shouldPlay) return;
@@ -184,9 +182,7 @@ export function DashboardAnimation({
                 maximumFractionDigits: 0,
               })}
             </div>
-            <div className="text-[8px] md:text-[10px] text-muted-foreground">
-              Total
-            </div>
+            <div className="text-[8px] md:text-[10px] text-muted-foreground">Total</div>
           </div>
         </div>
       </div>
@@ -196,9 +192,7 @@ export function DashboardAnimation({
   return (
     <div ref={containerRef} className="w-full h-full flex flex-col relative">
       <div className="px-2 md:px-3 pt-2 md:pt-3 pb-1.5 md:pb-2 border-b border-border">
-        <h3 className="text-[13px] md:text-[14px] text-foreground">
-          Category Expenses
-        </h3>
+        <h3 className="text-[13px] md:text-[14px] text-foreground">Category Expenses</h3>
       </div>
 
       <div className="flex-1 p-2 md:p-3 overflow-hidden">
@@ -215,10 +209,7 @@ export function DashboardAnimation({
               </h3>
               <div className="flex items-center justify-center gap-2 md:gap-4 flex-wrap">
                 {categoryData.slice(0, 3).map((item) => (
-                  <div
-                    key={item.name}
-                    className="flex items-center gap-1 md:gap-1.5"
-                  >
+                  <div key={item.name} className="flex items-center gap-1 md:gap-1.5">
                     <div
                       className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full"
                       style={{
@@ -260,9 +251,7 @@ export function DashboardAnimation({
                 <div className="text-[8px] md:text-[9px] text-muted-foreground mb-1">
                   SaaS Subscriptions
                 </div>
-                <div className="text-[14px] md:text-[16px] font-normal text-foreground">
-                  $1,300
-                </div>
+                <div className="text-[14px] md:text-[16px] font-normal text-foreground">$1,300</div>
                 <div className="text-[7px] md:text-[8px] text-muted-foreground mt-1">
                   +12% vs avg
                 </div>
@@ -271,9 +260,7 @@ export function DashboardAnimation({
                 <div className="text-[8px] md:text-[9px] text-muted-foreground mb-1">
                   Category Coverage
                 </div>
-                <div className="text-[14px] md:text-[16px] font-normal text-foreground">
-                  85%
-                </div>
+                <div className="text-[14px] md:text-[16px] font-normal text-foreground">85%</div>
                 <div className="text-[7px] md:text-[8px] text-muted-foreground mt-1">
                   Tagged transactions
                 </div>
@@ -282,9 +269,7 @@ export function DashboardAnimation({
                 <div className="text-[8px] md:text-[9px] text-muted-foreground mb-1">
                   Optimization
                 </div>
-                <div className="text-[14px] md:text-[16px] font-normal text-foreground">
-                  $350
-                </div>
+                <div className="text-[14px] md:text-[16px] font-normal text-foreground">$350</div>
                 <div className="text-[7px] md:text-[8px] text-muted-foreground mt-1">
                   Quick wins
                 </div>
@@ -304,15 +289,14 @@ export function DashboardAnimation({
               </h3>
               <p className="text-[9px] md:text-[10px] leading-[13px] md:leading-[14px] text-foreground">
                 <span className="lg:hidden">
-                  Marketing and SaaS account for most spending. Reduce
-                  low-performing ads and consolidate tools to lower costs.
+                  Marketing and SaaS account for most spending. Reduce low-performing ads and
+                  consolidate tools to lower costs.
                 </span>
                 <span className="hidden lg:inline">
-                  Marketing and SaaS account for the majority of spending.
-                  Reduce low-performing ad sets and consolidate overlapping
-                  tools to lower recurring costs. Focus on high-performing
-                  channels and eliminate redundant subscriptions to optimize
-                  your expense structure.
+                  Marketing and SaaS account for the majority of spending. Reduce low-performing ad
+                  sets and consolidate overlapping tools to lower recurring costs. Focus on
+                  high-performing channels and eliminate redundant subscriptions to optimize your
+                  expense structure.
                 </span>
               </p>
             </motion.div>

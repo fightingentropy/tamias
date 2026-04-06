@@ -8,9 +8,7 @@ import { useTRPC } from "@/trpc/client";
 
 function ReviewCount() {
   const trpc = useTRPC();
-  const { data: reviewCount } = useQuery(
-    trpc.transactions.getReviewCount.queryOptions(),
-  );
+  const { data: reviewCount } = useQuery(trpc.transactions.getReviewCount.queryOptions());
 
   if (!reviewCount) {
     return null;

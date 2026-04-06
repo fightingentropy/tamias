@@ -18,9 +18,7 @@ const ImportModal = dynamic(
 
 const SelectBankAccountsModal = dynamic(
   () =>
-    import("@/components/modals/select-bank-accounts").then(
-      (mod) => mod.SelectBankAccountsModal,
-    ),
+    import("@/components/modals/select-bank-accounts").then((mod) => mod.SelectBankAccountsModal),
   { ssr: false },
 );
 

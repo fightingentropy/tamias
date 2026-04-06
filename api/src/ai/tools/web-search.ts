@@ -1,14 +1,10 @@
 import { tool } from "ai";
 import { z } from "zod";
-import {
-  type OpenAIWebSearchSource,
-  runOpenAIWebSearch,
-} from "../utils/openai-web-search";
+import { type OpenAIWebSearchSource, runOpenAIWebSearch } from "../utils/openai-web-search";
 import { getToolAppContext } from "../utils/tool-runtime";
 
 export const webSearchTool = tool({
-  description:
-    "Search the web for current information, prices, news, and external data.",
+  description: "Search the web for current information, prices, news, and external data.",
   inputSchema: z.object({
     query: z.string().describe("Search query"),
   }),

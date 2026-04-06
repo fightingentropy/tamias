@@ -88,9 +88,7 @@ describe("computeChangeDescription", () => {
 
   it("should return 'turned negative' for profit to loss with extreme swing", () => {
     // Went from +4000 to -19500 = -587.5% change
-    expect(computeChangeDescription(-19500, 4000, -587.5)).toBe(
-      "turned negative",
-    );
+    expect(computeChangeDescription(-19500, 4000, -587.5)).toBe("turned negative");
   });
 
   it("should return 'turned positive' for loss to profit with extreme swing", () => {

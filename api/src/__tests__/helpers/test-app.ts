@@ -63,12 +63,7 @@ export function createTestApp(options: TestAppOptions = {}) {
 
   const originalRequest = app.request.bind(app);
   app.request = ((input, requestInit, env, executionCtx) =>
-    originalRequest(
-      input,
-      requestInit,
-      env ?? testEnv,
-      executionCtx,
-    )) as typeof app.request;
+    originalRequest(input, requestInit, env ?? testEnv, executionCtx)) as typeof app.request;
 
   return app;
 }

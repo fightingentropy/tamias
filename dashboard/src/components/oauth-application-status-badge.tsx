@@ -1,11 +1,6 @@
 import { cn } from "@tamias/ui/cn";
 
-type OAuthApplicationStatus =
-  | "approved"
-  | "rejected"
-  | "pending"
-  | "draft"
-  | null;
+type OAuthApplicationStatus = "approved" | "rejected" | "pending" | "draft" | null;
 
 type Props = {
   status: OAuthApplicationStatus;

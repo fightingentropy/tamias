@@ -1,8 +1,4 @@
-import type {
-  InsightHistoryData,
-  MomentumType,
-  RecoveryInfo,
-} from "../types";
+import type { InsightHistoryData, MomentumType, RecoveryInfo } from "../types";
 
 export function detectMomentum(
   currentGrowthRate: number,
@@ -40,10 +36,8 @@ export function computeMomentum(
     return null;
   }
 
-  const currentGrowthRate =
-    ((currentRevenue - previousRevenue) / previousRevenue) * 100;
-  const previousGrowthRate =
-    ((previousRevenue - weekBeforeRevenue) / weekBeforeRevenue) * 100;
+  const currentGrowthRate = ((currentRevenue - previousRevenue) / previousRevenue) * 100;
+  const previousGrowthRate = ((previousRevenue - weekBeforeRevenue) / weekBeforeRevenue) * 100;
 
   return {
     momentum: detectMomentum(currentGrowthRate, previousGrowthRate),
@@ -52,17 +46,12 @@ export function computeMomentum(
   };
 }
 
-export function computeRecovery(
-  history: InsightHistoryData,
-  currentRevenue: number,
-): RecoveryInfo {
+export function computeRecovery(history: InsightHistoryData, currentRevenue: number): RecoveryInfo {
   if (history.weeks.length < 2) {
     return { isRecovery: false, downWeeksBefore: 0 };
   }
 
-  const revenues = history.weeks
-    .filter((week) => week.revenue > 0)
-    .map((week) => week.revenue);
+  const revenues = history.weeks.filter((week) => week.revenue > 0).map((week) => week.revenue);
 
   if (revenues.length < 2) {
     return { isRecovery: false, downWeeksBefore: 0 };
@@ -87,14 +76,8 @@ export function computeRecovery(
     return { isRecovery: false, downWeeksBefore: 0 };
   }
 
-  const recoveryPercent =
-    ((currentRevenue - previousRevenue) / previousRevenue) * 100;
-  const strength =
-    recoveryPercent >= 20
-      ? "strong"
-      : recoveryPercent >= 10
-        ? "moderate"
-        : "mild";
+  const recoveryPercent = ((currentRevenue - previousRevenue) / previousRevenue) * 100;
+  const strength = recoveryPercent >= 20 ? "strong" : recoveryPercent >= 10 ? "moderate" : "mild";
 
   return {
     isRecovery: true,

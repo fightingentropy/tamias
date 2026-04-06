@@ -1,25 +1,11 @@
 import type { DatabaseOrTransaction } from "../../../client";
-import {
-  logActivity,
-  type InvoiceActivityType,
-} from "../../../utils/log-activity";
+import { logActivity, type InvoiceActivityType } from "../../../utils/log-activity";
 import { getInvoiceById } from "../reads";
-import {
-  type InvoiceConvexUserId,
-  hasOwnKey,
-  upsertProjectedInvoiceRecord,
-} from "../shared";
+import { type InvoiceConvexUserId, hasOwnKey, upsertProjectedInvoiceRecord } from "../shared";
 
 export type UpdateInvoiceParams = {
   id: string;
-  status?:
-    | "paid"
-    | "canceled"
-    | "unpaid"
-    | "overdue"
-    | "scheduled"
-    | "draft"
-    | "refunded";
+  status?: "paid" | "canceled" | "unpaid" | "overdue" | "scheduled" | "draft" | "refunded";
   paidAt?: string | null;
   internalNote?: string | null;
   reminderSentAt?: string | null;
@@ -37,10 +23,7 @@ export type UpdateInvoiceParams = {
   userId?: InvoiceConvexUserId;
 };
 
-export async function updateInvoice(
-  db: DatabaseOrTransaction,
-  params: UpdateInvoiceParams,
-) {
+export async function updateInvoice(db: DatabaseOrTransaction, params: UpdateInvoiceParams) {
   const { id, teamId, userId, ...rest } = params;
   const existing = await getInvoiceById(db, { id, teamId });
 
@@ -54,12 +37,8 @@ export async function updateInvoice(
     {
       ...existing,
       updatedAt: timestamp,
-      status: hasOwnKey(rest, "status")
-        ? (rest.status ?? existing.status)
-        : existing.status,
-      paidAt: hasOwnKey(rest, "paidAt")
-        ? (rest.paidAt ?? null)
-        : existing.paidAt,
+      status: hasOwnKey(rest, "status") ? (rest.status ?? existing.status) : existing.status,
+      paidAt: hasOwnKey(rest, "paidAt") ? (rest.paidAt ?? null) : existing.paidAt,
       internalNote: hasOwnKey(rest, "internalNote")
         ? (rest.internalNote ?? null)
         : existing.internalNote,
@@ -75,21 +54,11 @@ export async function updateInvoice(
       paymentIntentId: hasOwnKey(rest, "paymentIntentId")
         ? (rest.paymentIntentId ?? null)
         : existing.paymentIntentId,
-      refundedAt: hasOwnKey(rest, "refundedAt")
-        ? (rest.refundedAt ?? null)
-        : existing.refundedAt,
-      sentTo: hasOwnKey(rest, "sentTo")
-        ? (rest.sentTo ?? null)
-        : existing.sentTo,
-      sentAt: hasOwnKey(rest, "sentAt")
-        ? (rest.sentAt ?? null)
-        : existing.sentAt,
-      filePath: hasOwnKey(rest, "filePath")
-        ? (rest.filePath ?? null)
-        : existing.filePath,
-      fileSize: hasOwnKey(rest, "fileSize")
-        ? (rest.fileSize ?? null)
-        : existing.fileSize,
+      refundedAt: hasOwnKey(rest, "refundedAt") ? (rest.refundedAt ?? null) : existing.refundedAt,
+      sentTo: hasOwnKey(rest, "sentTo") ? (rest.sentTo ?? null) : existing.sentTo,
+      sentAt: hasOwnKey(rest, "sentAt") ? (rest.sentAt ?? null) : existing.sentAt,
+      filePath: hasOwnKey(rest, "filePath") ? (rest.filePath ?? null) : existing.filePath,
+      fileSize: hasOwnKey(rest, "fileSize") ? (rest.fileSize ?? null) : existing.fileSize,
       invoiceRecurringId: hasOwnKey(rest, "invoiceRecurringId")
         ? (rest.invoiceRecurringId ?? null)
         : existing.invoiceRecurringId,

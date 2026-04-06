@@ -44,31 +44,19 @@ export function RevenueCanvas() {
         {
           id: "total-revenue",
           title: "Total Revenue",
-          value: formatCurrencyAmount(
-            data.metrics.totalRevenue || 0,
-            currency,
-            locale,
-          ),
+          value: formatCurrencyAmount(data.metrics.totalRevenue || 0, currency, locale),
           subtitle: "All periods combined",
         },
         {
           id: "average-monthly-revenue",
           title: "Average Monthly Revenue",
-          value: formatCurrencyAmount(
-            data.metrics.averageMonthlyRevenue || 0,
-            currency,
-            locale,
-          ),
+          value: formatCurrencyAmount(data.metrics.averageMonthlyRevenue || 0, currency, locale),
           subtitle: "Over last 12 months",
         },
         {
           id: "current-month-revenue",
           title: "Current Month Revenue",
-          value: formatCurrencyAmount(
-            data.metrics.currentMonthRevenue || 0,
-            currency,
-            locale,
-          ),
+          value: formatCurrencyAmount(data.metrics.currentMonthRevenue || 0, currency, locale),
           subtitle: "Latest month",
         },
         {

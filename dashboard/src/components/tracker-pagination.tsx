@@ -2,13 +2,7 @@
 
 import { Button } from "@tamias/ui/button";
 import { Icons } from "@tamias/ui/icons";
-import {
-  addMonths,
-  format,
-  formatISO,
-  startOfMonth,
-  subMonths,
-} from "date-fns";
+import { addMonths, format, formatISO, startOfMonth, subMonths } from "date-fns";
 
 type Props = {
   numberOfMonths: number;
@@ -16,11 +10,7 @@ type Props = {
   startDate: Date;
 };
 
-export function TrackerPagination({
-  numberOfMonths,
-  onChange,
-  startDate,
-}: Props) {
+export function TrackerPagination({ numberOfMonths, onChange, startDate }: Props) {
   const selectPrevPeriod = () => {
     onChange(
       formatISO(startOfMonth(subMonths(startDate, numberOfMonths)), {
@@ -48,8 +38,7 @@ export function TrackerPagination({
         <Icons.ChevronLeft className="w-6 h-6" />
       </Button>
       <span className="w-full text-center">
-        {format(subMonths(startDate, numberOfMonths), "MMM")} -{" "}
-        {format(startDate, "MMM")}
+        {format(subMonths(startDate, numberOfMonths), "MMM")} - {format(startDate, "MMM")}
       </span>
       <Button
         variant="ghost"

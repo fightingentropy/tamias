@@ -52,9 +52,7 @@ export const serviceAllocateFilingSequence = mutation({
       updatedAt: timestamp,
     });
 
-    await Promise.all(
-      duplicateRecords.map((record) => ctx.db.delete(record._id)),
-    );
+    await Promise.all(duplicateRecords.map((record) => ctx.db.delete(record._id)));
 
     return nextValue;
   },

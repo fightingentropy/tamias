@@ -20,12 +20,5 @@ export type GetInvoiceByIdParams = {
 
 export type GetInvoiceSummaryParams = {
   teamId: string;
-  statuses?: (
-    | "paid"
-    | "canceled"
-    | "overdue"
-    | "unpaid"
-    | "draft"
-    | "scheduled"
-  )[];
+  statuses?: ("paid" | "canceled" | "overdue" | "unpaid" | "draft" | "scheduled")[];
 };

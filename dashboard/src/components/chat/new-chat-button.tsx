@@ -15,13 +15,7 @@ export function NewChatButton() {
   };
 
   return (
-    <Button
-      type="button"
-      onClick={handleNewChat}
-      variant="outline"
-      size="icon"
-      title="New chat"
-    >
+    <Button type="button" onClick={handleNewChat} variant="outline" size="icon" title="New chat">
       <Icons.Add size={16} />
     </Button>
   );

@@ -8,15 +8,10 @@ export const Route = createLazyFileRoute("/account/support")({
 });
 
 function AccountSupportPage() {
-  const loaderData = Route.useLoaderData() as Awaited<
-    ReturnType<typeof loadAccountSupportData>
-  >;
+  const loaderData = Route.useLoaderData() as Awaited<ReturnType<typeof loadAccountSupportData>>;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <div className="space-y-12">
         <div className="max-w-[450px]">
           <SupportForm />

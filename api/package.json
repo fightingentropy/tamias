@@ -2,9 +2,6 @@
   "name": "@tamias/api",
   "scripts": {
     "prompts:generate": "bun run scripts/generate-agent-prompts.ts",
-    "lint": "biome check .",
-    "lint:fix": "biome check --write .",
-    "format": "biome format --write .",
     "predev": "bun run prompts:generate",
     "pretypecheck": "bun run prompts:generate",
     "typecheck": "tsc --noEmit",

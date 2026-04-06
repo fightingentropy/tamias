@@ -66,9 +66,7 @@ export async function getProjectedInvoicesByIdsInOrder(args: {
     records.flatMap((record) => {
       const payload = getProjectedInvoicePayload(record);
 
-      return payload && payload.teamId === args.teamId
-        ? [[record.id, payload]]
-        : [];
+      return payload && payload.teamId === args.teamId ? [[record.id, payload]] : [];
     }),
   );
 

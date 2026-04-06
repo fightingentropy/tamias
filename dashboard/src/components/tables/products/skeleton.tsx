@@ -1,12 +1,5 @@
 import { Skeleton } from "@tamias/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@tamias/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@tamias/ui/table";
 
 export function ProductsSkeleton() {
   return (
@@ -26,10 +19,7 @@ export function ProductsSkeleton() {
 
         <TableBody>
           {[1, 2, 3, 4, 5, 6, 7, 8].map((id) => (
-            <TableRow
-              key={`skeleton-product-${id}`}
-              className="hover:bg-transparent h-[65px]"
-            >
+            <TableRow key={`skeleton-product-${id}`} className="hover:bg-transparent h-[65px]">
               {/* Name column - matches the flex flex-col structure */}
               <TableCell>
                 <div className="flex flex-col">

@@ -9,13 +9,6 @@ export type {
   UpsertCustomerParams,
 } from "./customers/types";
 export { getCustomerById, getCustomers } from "./customers/reads";
-export {
-  deleteCustomer,
-  toggleCustomerPortal,
-  upsertCustomer,
-} from "./customers/mutations";
+export { deleteCustomer, toggleCustomerPortal, upsertCustomer } from "./customers/mutations";
 export { getCustomerInvoiceSummary } from "./customers/summary";
-export {
-  getCustomerByPortalId,
-  getCustomerPortalInvoices,
-} from "./customers/portal";
+export { getCustomerByPortalId, getCustomerPortalInvoices } from "./customers/portal";

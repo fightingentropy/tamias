@@ -36,12 +36,8 @@ export const createOAuthApplicationSchema = z.object({
     .max(4)
     .optional()
     .openapi({
-      description:
-        "Up to 4 screenshots that will be displayed on the apps page",
-      example: [
-        "https://example.com/screenshot1.png",
-        "https://example.com/screenshot2.png",
-      ],
+      description: "Up to 4 screenshots that will be displayed on the apps page",
+      example: ["https://example.com/screenshot1.png", "https://example.com/screenshot2.png"],
     }),
   redirectUris: z
     .array(z.string().url())
@@ -79,8 +75,7 @@ export const updateOAuthApplicationSchema = z.object({
   }),
   overview: z.string().optional().openapi({
     description: "Detailed overview of the OAuth application",
-    example:
-      "This updated application now includes:\n- Enhanced security\n- Better performance",
+    example: "This updated application now includes:\n- Enhanced security\n- Better performance",
   }),
   developerName: z.string().optional().openapi({
     description: "The person or company developing this application",
@@ -103,12 +98,8 @@ export const updateOAuthApplicationSchema = z.object({
     .max(4)
     .optional()
     .openapi({
-      description:
-        "Up to 4 screenshots that will be displayed on the apps page",
-      example: [
-        "https://example.com/screenshot1.png",
-        "https://example.com/screenshot2.png",
-      ],
+      description: "Up to 4 screenshots that will be displayed on the apps page",
+      example: ["https://example.com/screenshot1.png", "https://example.com/screenshot2.png"],
     }),
   redirectUris: z
     .array(z.string().url())
@@ -204,10 +195,7 @@ export const oauthApplicationResponseSchema = z.object({
   }),
   screenshots: z.array(z.string().url()).openapi({
     description: "Up to 4 screenshots that will be displayed on the apps page",
-    example: [
-      "https://example.com/screenshot1.png",
-      "https://example.com/screenshot2.png",
-    ],
+    example: ["https://example.com/screenshot1.png", "https://example.com/screenshot2.png"],
   }),
   redirectUris: z.array(z.string()).openapi({
     description: "Array of redirect URIs for OAuth callbacks",

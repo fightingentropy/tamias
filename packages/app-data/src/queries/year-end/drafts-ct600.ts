@@ -29,10 +29,7 @@ export function buildCt600Draft(args: {
     0,
   );
   const chargeableProfits = roundCurrency(
-    Math.max(
-      derived.evaluation.computationBreakdown.totalProfitsChargeableToCorporationTax,
-      0,
-    ),
+    Math.max(derived.evaluation.computationBreakdown.totalProfitsChargeableToCorporationTax, 0),
   );
   const rateSummary = buildCorporationTaxRateSummary({
     periodStart: args.pack.periodStart,
@@ -44,13 +41,9 @@ export function buildCt600Draft(args: {
   const grossCorporationTax = rateSummary.grossCorporationTaxDue;
   const marginalRelief = rateSummary.marginalRelief;
   const netCorporationTaxChargeable = rateSummary.netCorporationTaxDue;
-  const ct600aSupplement = buildCt600aSupplement(
-    args.closeCompanyLoansSchedule,
-  );
+  const ct600aSupplement = buildCt600aSupplement(args.closeCompanyLoansSchedule);
   const loansToParticipatorsTax = ct600aSupplement?.taxPayable ?? 0;
-  const totalTaxPayable = roundCurrency(
-    netCorporationTaxChargeable + loansToParticipatorsTax,
-  );
+  const totalTaxPayable = roundCurrency(netCorporationTaxChargeable + loansToParticipatorsTax);
   const reviewItems = [
     "The draft XML includes an HMRC-style GovTalk envelope, a computed IRmark, and structured iXBRL attachments for the supported small-company path.",
     ct600aSupplement
@@ -71,8 +64,7 @@ export function buildCt600Draft(args: {
 
   return {
     generatedAt,
-    companyName:
-      args.profile.companyName ?? args.team.name ?? "Unnamed company",
+    companyName: args.profile.companyName ?? args.team.name ?? "Unnamed company",
     companyNumber: args.profile.companyNumber,
     utr: args.profile.utr,
     periodStart: args.pack.periodStart,

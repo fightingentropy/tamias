@@ -1,8 +1,7 @@
 import type { SVGProps } from "react";
 import { cn } from "../utils/cn";
 
-interface SpinnerProps
-  extends Omit<SVGProps<SVGSVGElement>, "width" | "height"> {
+interface SpinnerProps extends Omit<SVGProps<SVGSVGElement>, "width" | "height"> {
   /**
    * The size of the spinner in pixels.
    * @default 20
@@ -10,12 +9,7 @@ interface SpinnerProps
   size?: number;
 }
 
-export const Spinner = ({
-  className,
-  size = 20,
-  style,
-  ...props
-}: SpinnerProps) => {
+export const Spinner = ({ className, size = 20, style, ...props }: SpinnerProps) => {
   return (
     <svg
       fill="none"

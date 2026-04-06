@@ -2,11 +2,7 @@
 
 import { Button } from "@tamias/ui/button";
 import { useMediaQuery } from "@tamias/ui/hooks";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@tamias/ui/hover-card";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@tamias/ui/hover-card";
 import { useQuery } from "@tanstack/react-query";
 import Link from "@/framework/link";
 import { useEffect, useMemo, useState } from "react";
@@ -134,9 +130,7 @@ export function ConnectionStatus() {
       </HoverCardTrigger>
       <HoverCardContent className="w-[320px] p-0" align="end" sideOffset={10}>
         <div className="px-4 py-2.5 border-b">
-          <p className="text-[11px] font-medium text-muted-foreground">
-            Connection Issues
-          </p>
+          <p className="text-[11px] font-medium text-muted-foreground">Connection Issues</p>
         </div>
         <div className="max-h-[280px] overflow-y-auto">
           {issues.map((issue) => (

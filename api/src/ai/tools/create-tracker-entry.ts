@@ -1,10 +1,7 @@
 import { tz } from "@date-fns/tz";
 import { db } from "@tamias/app-data/client";
 import type { CurrentUserIdentityRecord } from "@tamias/app-data-convex";
-import {
-  getTrackerProjects,
-  upsertTrackerEntries,
-} from "@tamias/app-data/queries";
+import { getTrackerProjects, upsertTrackerEntries } from "@tamias/app-data/queries";
 import { getAppUrl } from "@tamias/utils/envs";
 import { formatDate } from "@tamias/utils/format";
 import { tool } from "ai";
@@ -59,8 +56,7 @@ export const createTrackerEntryTool = tool({
   ) {
     const appContext = getToolAppContext(executionOptions);
     const teamId = getToolTeamId(appContext);
-    const userId =
-      (appContext.convexUserId as ConvexUserId | undefined) || null;
+    const userId = (appContext.convexUserId as ConvexUserId | undefined) || null;
     const searchProjectName = projectName;
 
     if (!teamId) {
@@ -94,9 +90,7 @@ export const createTrackerEntryTool = tool({
 
         // If multiple matches, mention it but use the first one
         if (projectsResult.data.length > 1 && projectsResult.data[0]) {
-          const projectNames = projectsResult.data
-            .map((p) => p.name)
-            .join(", ");
+          const projectNames = projectsResult.data.map((p) => p.name).join(", ");
           yield {
             text: `Multiple projects found matching "${searchProjectName}". Using "${projectsResult.data[0].name}". Other matches: ${projectNames}`,
           };
@@ -116,8 +110,7 @@ export const createTrackerEntryTool = tool({
         durationSeconds = parseDurationToSeconds(duration);
       } catch (error) {
         yield {
-          text:
-            error instanceof Error ? error.message : "Invalid duration format.",
+          text: error instanceof Error ? error.message : "Invalid duration format.",
         };
         return;
       }

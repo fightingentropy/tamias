@@ -6,10 +6,7 @@ import {
   getBankAccountsFromConvex,
 } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
-import type {
-  GetBankAccountsParams,
-  GetBankAccountTeamIdParams,
-} from "./types";
+import type { GetBankAccountsParams, GetBankAccountTeamIdParams } from "./types";
 
 type GetBankAccountByIdParams = {
   id: string;
@@ -28,10 +25,7 @@ type GetBankAccountsCurrenciesResponse = {
   currency: string;
 };
 
-export async function getBankAccounts(
-  _db: Database,
-  params: GetBankAccountsParams,
-) {
+export async function getBankAccounts(_db: Database, params: GetBankAccountsParams) {
   return getBankAccountsFromConvex({
     teamId: params.teamId,
     enabled: params.enabled,
@@ -39,10 +33,7 @@ export async function getBankAccounts(
   });
 }
 
-export async function getBankAccountById(
-  _db: Database,
-  params: GetBankAccountByIdParams,
-) {
+export async function getBankAccountById(_db: Database, params: GetBankAccountByIdParams) {
   return getBankAccountByIdFromConvex({
     id: params.id,
     teamId: params.teamId,

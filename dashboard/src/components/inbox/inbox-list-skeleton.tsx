@@ -6,10 +6,7 @@ type InboxSkeletonProps = {
   className?: string;
 };
 
-export function InboxListSkeleton({
-  numberOfItems,
-  className,
-}: InboxSkeletonProps) {
+export function InboxListSkeleton({ numberOfItems, className }: InboxSkeletonProps) {
   return (
     <div className={cn("flex flex-col gap-4", className)}>
       {[...Array(numberOfItems)].map((_, index) => (

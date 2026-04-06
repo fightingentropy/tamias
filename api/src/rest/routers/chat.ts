@@ -1,15 +1,9 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { smoothStream } from "ai";
-import type {
-  ForcedToolCall,
-  MetricsFilter,
-} from "../../ai/agents/config/shared";
+import type { ForcedToolCall, MetricsFilter } from "../../ai/agents/config/shared";
 import { buildAppContext } from "../../ai/agents/config/shared";
 import { getMainAgent } from "../../ai/agents/main";
-import {
-  getAIProviderConfigurationError,
-  normalizeAIProvider,
-} from "../../ai/providers";
+import { getAIProviderConfigurationError, normalizeAIProvider } from "../../ai/providers";
 import { getUserContext } from "../../ai/utils/get-user-context";
 import { chatRequestSchema } from "../../schemas/chat";
 import { withRequiredScope } from "../middleware";
@@ -56,8 +50,7 @@ app.post("/", withRequiredScope("chat.write"), async (c) => {
   });
 
   const aiProvider = normalizeAIProvider(requestedAIProvider);
-  const providerConfigurationError =
-    getAIProviderConfigurationError(aiProvider);
+  const providerConfigurationError = getAIProviderConfigurationError(aiProvider);
 
   if (providerConfigurationError) {
     return c.json(

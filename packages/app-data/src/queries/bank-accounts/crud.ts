@@ -5,20 +5,14 @@ import {
 } from "@tamias/app-data-convex";
 import { nanoid } from "nanoid";
 import type { Database } from "../../client";
-import type {
-  CreateBankAccountParams,
-  UpdateBankAccountParams,
-} from "./types";
+import type { CreateBankAccountParams, UpdateBankAccountParams } from "./types";
 
 type DeleteBankAccountParams = {
   id: string;
   teamId: string;
 };
 
-export async function createBankAccount(
-  _db: Database,
-  params: CreateBankAccountParams,
-) {
+export async function createBankAccount(_db: Database, params: CreateBankAccountParams) {
   return createBankAccountInConvex({
     teamId: params.teamId,
     userId: params.userId,
@@ -30,20 +24,14 @@ export async function createBankAccount(
   });
 }
 
-export async function deleteBankAccount(
-  _db: Database,
-  params: DeleteBankAccountParams,
-) {
+export async function deleteBankAccount(_db: Database, params: DeleteBankAccountParams) {
   return deleteBankAccountInConvex({
     id: params.id,
     teamId: params.teamId,
   });
 }
 
-export async function updateBankAccount(
-  _db: Database,
-  params: UpdateBankAccountParams,
-) {
+export async function updateBankAccount(_db: Database, params: UpdateBankAccountParams) {
   const { id, teamId, ...data } = params;
 
   return updateBankAccountInConvex({

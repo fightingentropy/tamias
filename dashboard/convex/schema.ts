@@ -85,11 +85,7 @@ export default defineSchema({
     publicSyncRecordId: v.optional(v.string()),
     transactionId: v.string(),
     teamId: v.id("teams"),
-    provider: v.union(
-      v.literal("xero"),
-      v.literal("quickbooks"),
-      v.literal("fortnox"),
-    ),
+    provider: v.union(v.literal("xero"), v.literal("quickbooks"), v.literal("fortnox")),
     providerTenantId: v.string(),
     providerTransactionId: v.optional(v.string()),
     syncedAttachmentMapping: v.optional(v.any()),
@@ -110,11 +106,7 @@ export default defineSchema({
     .index("by_team_id", ["teamId"])
     .index("by_team_transaction", ["teamId", "transactionId"])
     .index("by_team_provider_status", ["teamId", "provider", "status"])
-    .index("by_team_provider_transaction", [
-      "teamId",
-      "provider",
-      "transactionId",
-    ]),
+    .index("by_team_provider_transaction", ["teamId", "provider", "transactionId"]),
   teamInvites: defineTable({
     publicInviteId: v.optional(v.string()),
     teamId: v.id("teams"),
@@ -318,11 +310,7 @@ export default defineSchema({
     messageId: v.string(),
     appUserId: v.id("appUsers"),
     teamId: v.id("teams"),
-    type: v.union(
-      v.literal("positive"),
-      v.literal("negative"),
-      v.literal("other"),
-    ),
+    type: v.union(v.literal("positive"), v.literal("negative"), v.literal("other")),
     comment: v.optional(v.string()),
     createdAt: v.string(),
     updatedAt: v.string(),
@@ -344,11 +332,7 @@ export default defineSchema({
   aiConversationMessages: defineTable({
     chatId: v.string(),
     userId: v.optional(v.string()),
-    role: v.union(
-      v.literal("user"),
-      v.literal("assistant"),
-      v.literal("system"),
-    ),
+    role: v.union(v.literal("user"), v.literal("assistant"), v.literal("system")),
     content: v.string(),
     timestamp: v.string(),
   }).index("by_chat_id", ["chatId"]),
@@ -427,9 +411,7 @@ export default defineSchema({
     website: v.optional(v.string()),
     senderEmail: v.optional(v.string()),
     displayName: v.optional(v.string()),
-    type: v.optional(
-      v.union(v.literal("invoice"), v.literal("expense"), v.literal("other")),
-    ),
+    type: v.optional(v.union(v.literal("invoice"), v.literal("expense"), v.literal("other"))),
     description: v.optional(v.string()),
     baseAmount: v.optional(v.number()),
     baseCurrency: v.optional(v.string()),
@@ -457,11 +439,7 @@ export default defineSchema({
     .index("by_team_and_grouped_inbox", ["teamId", "groupedInboxId"])
     .index("by_team_and_file_path_key", ["teamId", "filePathKey"])
     .index("by_team_and_date", ["teamId", "date"])
-    .index("by_team_search_eligible_amount", [
-      "teamId",
-      "searchEligible",
-      "searchAmount",
-    ])
+    .index("by_team_search_eligible_amount", ["teamId", "searchEligible", "searchAmount"])
     .searchIndex("search_by_team_and_search_eligible", {
       searchField: "searchText",
       filterFields: ["teamId", "searchEligible"],
@@ -497,11 +475,7 @@ export default defineSchema({
     updatedAt: v.string(),
   })
     .index("by_team_and_created_at_day", ["teamId", "createdAtDay"])
-    .index("by_team_status_created_at_day", [
-      "teamId",
-      "status",
-      "createdAtDay",
-    ]),
+    .index("by_team_status_created_at_day", ["teamId", "status", "createdAtDay"]),
   transactionMatchSuggestions: defineTable({
     publicSuggestionId: v.optional(v.string()),
     teamId: v.id("teams"),
@@ -569,11 +543,7 @@ export default defineSchema({
     name: v.string(),
     normalizedName: v.string(),
     logo: v.optional(v.string()),
-    provider: v.union(
-      v.literal("gocardless"),
-      v.literal("plaid"),
-      v.literal("teller"),
-    ),
+    provider: v.union(v.literal("gocardless"), v.literal("plaid"), v.literal("teller")),
     countries: v.array(v.string()),
     availableHistory: v.optional(v.union(v.number(), v.null())),
     maximumConsentValidity: v.optional(v.union(v.number(), v.null())),
@@ -594,19 +564,11 @@ export default defineSchema({
     logoUrl: v.optional(v.string()),
     accessToken: v.optional(v.string()),
     enrollmentId: v.optional(v.string()),
-    provider: v.union(
-      v.literal("gocardless"),
-      v.literal("plaid"),
-      v.literal("teller"),
-    ),
+    provider: v.union(v.literal("gocardless"), v.literal("plaid"), v.literal("teller")),
     expiresAt: v.optional(v.string()),
     lastAccessed: v.optional(v.string()),
     referenceId: v.optional(v.string()),
-    status: v.union(
-      v.literal("connected"),
-      v.literal("disconnected"),
-      v.literal("unknown"),
-    ),
+    status: v.union(v.literal("connected"), v.literal("disconnected"), v.literal("unknown")),
     errorDetails: v.optional(v.string()),
     errorRetries: v.optional(v.number()),
     createdAt: v.string(),
@@ -751,12 +713,7 @@ export default defineSchema({
     .index("by_public_invoice_product_id", ["publicInvoiceProductId"])
     .index("by_team_id", ["teamId"])
     .index("by_team_active", ["teamId", "isActive"])
-    .index("by_team_name_currency_price", [
-      "teamId",
-      "nameKey",
-      "currencyKey",
-      "priceKey",
-    ]),
+    .index("by_team_name_currency_price", ["teamId", "nameKey", "currencyKey", "priceKey"]),
   invoiceTemplates: defineTable({
     publicInvoiceTemplateId: v.optional(v.string()),
     teamId: v.id("teams"),
@@ -835,12 +792,7 @@ export default defineSchema({
   })
     .index("by_team_scope", ["teamId", "scopeKey"])
     .index("by_team_scope_status", ["teamId", "scopeKey", "status"])
-    .index("by_team_scope_status_currency", [
-      "teamId",
-      "scopeKey",
-      "status",
-      "currency",
-    ]),
+    .index("by_team_scope_status_currency", ["teamId", "scopeKey", "status", "currency"]),
   invoiceDateAggregates: defineTable({
     teamId: v.id("teams"),
     status: v.string(),
@@ -856,12 +808,7 @@ export default defineSchema({
     createdAt: v.string(),
     updatedAt: v.string(),
   })
-    .index("by_team_status_date_field_date", [
-      "teamId",
-      "status",
-      "dateField",
-      "date",
-    ])
+    .index("by_team_status_date_field_date", ["teamId", "status", "dateField", "date"])
     .index("by_team_status_date_field_currency_recurring_date", [
       "teamId",
       "status",
@@ -882,12 +829,7 @@ export default defineSchema({
     createdAt: v.string(),
     updatedAt: v.string(),
   })
-    .index("by_team_status_date_field_date", [
-      "teamId",
-      "status",
-      "dateField",
-      "date",
-    ])
+    .index("by_team_status_date_field_date", ["teamId", "status", "dateField", "date"])
     .index("by_team_customer_status_date_field_currency_date", [
       "teamId",
       "customerId",
@@ -898,11 +840,7 @@ export default defineSchema({
     ]),
   invoiceAnalyticsAggregates: defineTable({
     teamId: v.id("teams"),
-    dateField: v.union(
-      v.literal("createdAt"),
-      v.literal("sentAt"),
-      v.literal("paidAt"),
-    ),
+    dateField: v.union(v.literal("createdAt"), v.literal("sentAt"), v.literal("paidAt")),
     date: v.string(),
     status: v.string(),
     currency: v.string(),
@@ -917,12 +855,7 @@ export default defineSchema({
     updatedAt: v.string(),
   })
     .index("by_team_date_field_date", ["teamId", "dateField", "date"])
-    .index("by_team_date_field_status_date", [
-      "teamId",
-      "dateField",
-      "status",
-      "date",
-    ]),
+    .index("by_team_date_field_status_date", ["teamId", "dateField", "status", "date"]),
   invoiceAgingAggregates: defineTable({
     teamId: v.id("teams"),
     status: v.string(),
@@ -956,10 +889,7 @@ export default defineSchema({
   })
     .index("by_public_invoice_recurring_id", ["publicInvoiceRecurringId"])
     .index("by_team_id", ["teamId"])
-    .index("by_team_and_public_invoice_recurring_id", [
-      "teamId",
-      "publicInvoiceRecurringId",
-    ])
+    .index("by_team_and_public_invoice_recurring_id", ["teamId", "publicInvoiceRecurringId"])
     .index("by_team_status", ["teamId", "status"])
     .index("by_status_and_next_scheduled_at", ["status", "nextScheduledAt"])
     .index("by_team_customer", ["teamId", "customerId"]),
@@ -1063,12 +993,7 @@ export default defineSchema({
     .index("by_team_and_transaction", ["teamId", "transactionId"])
     .index("by_team_and_tag", ["teamId", "tagId"])
     .index("by_team_transaction_tag", ["teamId", "transactionId", "tagId"])
-    .index("by_team_tag_transaction_date", [
-      "teamId",
-      "tagId",
-      "transactionDate",
-      "transactionId",
-    ]),
+    .index("by_team_tag_transaction_date", ["teamId", "tagId", "transactionDate", "transactionId"]),
   transactionAttachments: defineTable({
     publicTransactionAttachmentId: v.optional(v.string()),
     teamId: v.id("teams"),
@@ -1080,9 +1005,7 @@ export default defineSchema({
     pathKey: v.string(),
     createdAt: v.string(),
   })
-    .index("by_public_transaction_attachment_id", [
-      "publicTransactionAttachmentId",
-    ])
+    .index("by_public_transaction_attachment_id", ["publicTransactionAttachmentId"])
     .index("by_team_id", ["teamId"])
     .index("by_team_and_transaction", ["teamId", "transactionId"])
     .index("by_team_and_path_key", ["teamId", "pathKey"]),
@@ -1155,10 +1078,7 @@ export default defineSchema({
     .index("by_team_and_date", ["teamId", "date"])
     .index("by_team_and_bank_account", ["teamId", "bankAccountId"])
     .index("by_team_bank_account_date", ["teamId", "bankAccountId", "date"])
-    .index("by_team_and_enrichment_completed", [
-      "teamId",
-      "enrichmentCompleted",
-    ])
+    .index("by_team_and_enrichment_completed", ["teamId", "enrichmentCompleted"])
     .index("by_team_notified_date", ["teamId", "notified", "date"])
     .index("by_team_and_internal_id", ["teamId", "internalId"])
     .index("by_team_and_search_amount", ["teamId", "searchAmount"])
@@ -1180,12 +1100,7 @@ export default defineSchema({
     createdAt: v.string(),
     updatedAt: v.string(),
   })
-    .index("by_team_scope_currency_date", [
-      "teamId",
-      "scope",
-      "currency",
-      "date",
-    ])
+    .index("by_team_scope_currency_date", ["teamId", "scope", "currency", "date"])
     .index("by_team_scope_currency_date_direction_category_recurring", [
       "teamId",
       "scope",
@@ -1423,12 +1338,7 @@ export default defineSchema({
   })
     .index("by_public_insight_id", ["publicInsightId"])
     .index("by_team_id", ["teamId"])
-    .index("by_team_and_period", [
-      "teamId",
-      "periodType",
-      "periodYear",
-      "periodNumber",
-    ]),
+    .index("by_team_and_period", ["teamId", "periodType", "periodYear", "periodNumber"]),
   reportLinks: defineTable({
     publicReportId: v.optional(v.string()),
     linkId: v.string(),
@@ -1469,10 +1379,7 @@ export default defineSchema({
     .index("by_public_evidence_pack_id", ["publicEvidencePackId"])
     .index("by_team_id", ["teamId"])
     .index("by_team_and_vat_return_id", ["teamId", "vatReturnId"])
-    .index("by_team_and_public_evidence_pack_id", [
-      "teamId",
-      "publicEvidencePackId",
-    ]),
+    .index("by_team_and_public_evidence_pack_id", ["teamId", "publicEvidencePackId"]),
   filingSequences: defineTable({
     scope: v.string(),
     nextValue: v.number(),
@@ -1515,11 +1422,7 @@ export default defineSchema({
     .index("by_public_source_link_id", ["publicSourceLinkId"])
     .index("by_team_id", ["teamId"])
     .index("by_team_and_source_type", ["teamId", "sourceType"])
-    .index("by_team_source_type_source_id", [
-      "teamId",
-      "sourceType",
-      "sourceId",
-    ]),
+    .index("by_team_source_type_source_id", ["teamId", "sourceType", "sourceId"]),
   complianceJournalEntries: defineTable({
     publicJournalEntryId: v.optional(v.string()),
     teamId: v.id("teams"),
@@ -1580,9 +1483,7 @@ export default defineSchema({
     meta: v.optional(v.any()),
     createdAt: v.string(),
   })
-    .index("by_public_compliance_adjustment_id", [
-      "publicComplianceAdjustmentId",
-    ])
+    .index("by_public_compliance_adjustment_id", ["publicComplianceAdjustmentId"])
     .index("by_team_and_filing_profile_id", ["teamId", "filingProfileId"])
     .index("by_team_and_vat_return_id", ["teamId", "vatReturnId"]),
   filingProfiles: defineTable({
@@ -1638,9 +1539,7 @@ export default defineSchema({
     createdAt: v.string(),
     updatedAt: v.string(),
   })
-    .index("by_public_compliance_obligation_id", [
-      "publicComplianceObligationId",
-    ])
+    .index("by_public_compliance_obligation_id", ["publicComplianceObligationId"])
     .index("by_team_id", ["teamId"])
     .index("by_team_and_filing_profile_period_key", [
       "teamId",
@@ -1658,11 +1557,7 @@ export default defineSchema({
     periodEnd: v.string(),
     accountsDueDate: v.string(),
     corporationTaxDueDate: v.string(),
-    status: v.union(
-      v.literal("draft"),
-      v.literal("ready"),
-      v.literal("exported"),
-    ),
+    status: v.union(v.literal("draft"), v.literal("ready"), v.literal("exported")),
     currency: v.string(),
     trialBalance: v.any(),
     profitAndLoss: v.any(),
@@ -1689,11 +1584,7 @@ export default defineSchema({
   })
     .index("by_public_year_end_pack_id", ["publicYearEndPackId"])
     .index("by_team_id", ["teamId"])
-    .index("by_team_and_filing_profile_period_key", [
-      "teamId",
-      "filingProfileId",
-      "periodKey",
-    ]),
+    .index("by_team_and_filing_profile_period_key", ["teamId", "filingProfileId", "periodKey"]),
   corporationTaxAdjustments: defineTable({
     publicCorporationTaxAdjustmentId: v.optional(v.string()),
     teamId: v.id("teams"),
@@ -1707,14 +1598,8 @@ export default defineSchema({
     createdAt: v.string(),
     updatedAt: v.string(),
   })
-    .index("by_public_corporation_tax_adjustment_id", [
-      "publicCorporationTaxAdjustmentId",
-    ])
-    .index("by_team_and_filing_profile_period_key", [
-      "teamId",
-      "filingProfileId",
-      "periodKey",
-    ]),
+    .index("by_public_corporation_tax_adjustment_id", ["publicCorporationTaxAdjustmentId"])
+    .index("by_team_and_filing_profile_period_key", ["teamId", "filingProfileId", "periodKey"]),
   closeCompanyLoansSchedules: defineTable({
     publicCloseCompanyLoansScheduleId: v.optional(v.string()),
     teamId: v.id("teams"),
@@ -1751,14 +1636,8 @@ export default defineSchema({
     createdAt: v.string(),
     updatedAt: v.string(),
   })
-    .index("by_public_close_company_loans_schedule_id", [
-      "publicCloseCompanyLoansScheduleId",
-    ])
-    .index("by_team_and_filing_profile_period_key", [
-      "teamId",
-      "filingProfileId",
-      "periodKey",
-    ]),
+    .index("by_public_close_company_loans_schedule_id", ["publicCloseCompanyLoansScheduleId"])
+    .index("by_team_and_filing_profile_period_key", ["teamId", "filingProfileId", "periodKey"]),
   corporationTaxRateSchedules: defineTable({
     publicCorporationTaxRateScheduleId: v.optional(v.string()),
     teamId: v.id("teams"),
@@ -1772,14 +1651,8 @@ export default defineSchema({
     createdAt: v.string(),
     updatedAt: v.string(),
   })
-    .index("by_public_corporation_tax_rate_schedule_id", [
-      "publicCorporationTaxRateScheduleId",
-    ])
-    .index("by_team_and_filing_profile_period_key", [
-      "teamId",
-      "filingProfileId",
-      "periodKey",
-    ]),
+    .index("by_public_corporation_tax_rate_schedule_id", ["publicCorporationTaxRateScheduleId"])
+    .index("by_team_and_filing_profile_period_key", ["teamId", "filingProfileId", "periodKey"]),
   payrollRuns: defineTable({
     publicPayrollRunId: v.optional(v.string()),
     teamId: v.id("teams"),
@@ -1846,11 +1719,7 @@ export default defineSchema({
     .index("by_public_vat_return_id", ["publicVatReturnId"])
     .index("by_team_id", ["teamId"])
     .index("by_team_and_obligation_id", ["teamId", "obligationId"])
-    .index("by_team_and_filing_profile_period_key", [
-      "teamId",
-      "filingProfileId",
-      "periodKey",
-    ]),
+    .index("by_team_and_filing_profile_period_key", ["teamId", "filingProfileId", "periodKey"]),
   files: defineTable({
     path: v.string(),
     pathTokens: v.array(v.string()),

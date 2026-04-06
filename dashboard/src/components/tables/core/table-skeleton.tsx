@@ -2,19 +2,8 @@
 
 import { cn } from "@tamias/ui/cn";
 import { Skeleton } from "@tamias/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@tamias/ui/table";
-import type {
-  ColumnDef,
-  ColumnSizingState,
-  VisibilityState,
-} from "@tanstack/react-table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@tamias/ui/table";
+import type { ColumnDef, ColumnSizingState, VisibilityState } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { useStickyColumns } from "@/hooks/use-sticky-columns";
 import { SkeletonCell } from "./skeleton-cell";
@@ -104,9 +93,7 @@ export function TableSkeleton<TData>({
           !isEmpty && "md:border-l md:border-r md:border-b md:border-border",
         )}
       >
-        <Table
-          className={cn(isEmpty && "opacity-20 pointer-events-none blur-[7px]")}
-        >
+        <Table className={cn(isEmpty && "opacity-20 pointer-events-none blur-[7px]")}>
           <TableHeader className="border-0 block sticky top-0 z-20 bg-background">
             <TableRow className="h-[45px] hover:bg-transparent flex items-center !border-b-0">
               {visibleColumns.map((col) => {
@@ -152,20 +139,15 @@ export function TableSkeleton<TData>({
                   >
                     {columnId === "select" ? (
                       <Skeleton className="h-4 w-4" />
-                    ) : meta?.skeleton?.type === "text" &&
-                      columnId === "description" ? (
+                    ) : meta?.skeleton?.type === "text" && columnId === "description" ? (
                       // Special case for description column to match actual header structure
                       <div className="flex items-center justify-between w-full overflow-hidden">
                         <div className="min-w-0 overflow-hidden">
-                          <span className="text-muted-foreground">
-                            {getHeaderLabel(col)}
-                          </span>
+                          <span className="text-muted-foreground">{getHeaderLabel(col)}</span>
                         </div>
                       </div>
                     ) : (
-                      <span className="text-muted-foreground">
-                        {getHeaderLabel(col)}
-                      </span>
+                      <span className="text-muted-foreground">{getHeaderLabel(col)}</span>
                     )}
                   </TableHead>
                 );
@@ -193,8 +175,7 @@ export function TableSkeleton<TData>({
                   const cellClassName = cn(
                     "h-full flex items-center",
                     getStickyClassName(columnId, meta?.className),
-                    isActions &&
-                      "md:sticky md:right-0 bg-background z-10 justify-center",
+                    isActions && "md:sticky md:right-0 bg-background z-10 justify-center",
                   );
 
                   return (
@@ -213,10 +194,7 @@ export function TableSkeleton<TData>({
                       }}
                     >
                       {meta?.skeleton ? (
-                        <SkeletonCell
-                          type={meta.skeleton.type}
-                          width={meta.skeleton.width}
-                        />
+                        <SkeletonCell type={meta.skeleton.type} width={meta.skeleton.width} />
                       ) : (
                         // Default fallback skeleton
                         <Skeleton className="h-3.5 w-24" />

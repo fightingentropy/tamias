@@ -106,8 +106,7 @@ export const registerInsightTools: RegisterTools = (server, ctx) => {
     "insights_by_period",
     {
       title: "Get Insight by Period",
-      description:
-        "Get an insight for a specific period (e.g., week 3 of 2024, Q2 2024).",
+      description: "Get an insight for a specific period (e.g., week 3 of 2024, Q2 2024).",
       inputSchema: insightByPeriodSchema.shape,
       annotations: READ_ONLY_ANNOTATIONS,
     },

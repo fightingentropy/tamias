@@ -8,16 +8,11 @@ import {
 
 describe("normalizeColumns", () => {
   it("trims, dedupes, and removes empty columns", () => {
-    expect(
-      normalizeColumns([
-        " Date ",
-        "Amount",
-        "Amount",
-        "",
-        "   ",
-        "Description",
-      ]),
-    ).toEqual(["Date", "Amount", "Description"]);
+    expect(normalizeColumns([" Date ", "Amount", "Amount", "", "   ", "Description"])).toEqual([
+      "Date",
+      "Amount",
+      "Description",
+    ]);
   });
 });
 

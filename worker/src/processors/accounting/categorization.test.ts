@@ -60,9 +60,7 @@ function categorizeTransactions(
     const syncedIds = new Set(Object.keys(syncedMapping));
 
     // Find new attachments (in current, not in synced)
-    const newAttachmentIds = [...currentAttachmentIds].filter(
-      (id) => !syncedIds.has(id),
-    );
+    const newAttachmentIds = [...currentAttachmentIds].filter((id) => !syncedIds.has(id));
 
     // Find removed attachments (in synced, not in current)
     const removedAttachments = [...syncedIds]
@@ -102,9 +100,7 @@ function categorizeTransactions(
 describe("categorizeTransactions", () => {
   describe("toExport categorization", () => {
     test("puts new transactions (no sync record) in toExport", () => {
-      const transactions = [
-        { id: "tx-new", attachments: [{ id: "att-1", name: "receipt.pdf" }] },
-      ];
+      const transactions = [{ id: "tx-new", attachments: [{ id: "att-1", name: "receipt.pdf" }] }];
       const syncRecordMap = new Map();
 
       const result = categorizeTransactions(transactions, syncRecordMap);
@@ -188,9 +184,7 @@ describe("categorizeTransactions", () => {
 
       expect(result.toSyncAttachments.length).toBe(1);
       expect(result.toSyncAttachments[0]?.transactionId).toBe("tx-synced");
-      expect(result.toSyncAttachments[0]?.newAttachmentIds).toContain(
-        "att-new",
-      );
+      expect(result.toSyncAttachments[0]?.newAttachmentIds).toContain("att-new");
     });
 
     test("puts synced transactions with removed attachments in toSyncAttachments", () => {
@@ -339,9 +333,7 @@ describe("categorizeTransactions", () => {
       const result = categorizeTransactions(transactions, syncRecordMap);
 
       expect(result.toSyncAttachments.length).toBe(1);
-      expect(result.toSyncAttachments[0]?.newAttachmentIds).toContain(
-        "att-new",
-      );
+      expect(result.toSyncAttachments[0]?.newAttachmentIds).toContain("att-new");
     });
 
     test("handles null syncedAttachmentMapping", () => {
@@ -365,9 +357,7 @@ describe("categorizeTransactions", () => {
       const result = categorizeTransactions(transactions, syncRecordMap);
 
       expect(result.toSyncAttachments.length).toBe(1);
-      expect(result.toSyncAttachments[0]?.newAttachmentIds).toContain(
-        "att-new",
-      );
+      expect(result.toSyncAttachments[0]?.newAttachmentIds).toContain("att-new");
     });
   });
 });
@@ -391,8 +381,7 @@ describe("status update logic", () => {
     if (failedCount > 0) {
       return {
         errorCode: errorCodes[0] ?? null,
-        errorMessage:
-          errorMessages[0] ?? `${failedCount} attachment(s) failed to upload`,
+        errorMessage: errorMessages[0] ?? `${failedCount} attachment(s) failed to upload`,
       };
     }
     // Explicitly clear on success

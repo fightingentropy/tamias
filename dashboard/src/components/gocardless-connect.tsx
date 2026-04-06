@@ -22,13 +22,9 @@ export function GoCardLessConnect({
   const { toast } = useToast();
   const trpc = useTRPC();
 
-  const createAgreement = useMutation(
-    trpc.banking.gocardlessAgreement.mutationOptions({}),
-  );
+  const createAgreement = useMutation(trpc.banking.gocardlessAgreement.mutationOptions({}));
 
-  const createLink = useMutation(
-    trpc.banking.gocardlessLink.mutationOptions({}),
-  );
+  const createLink = useMutation(trpc.banking.gocardlessLink.mutationOptions({}));
 
   const handleOnSelect = async () => {
     onSelect();

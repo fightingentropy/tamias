@@ -153,11 +153,7 @@ export const bankConnectionsRouter = createTRPCRouter({
   manualSync: protectedProcedure
     .input(manualSyncBankConnectionSchema)
     .mutation(async ({ input, ctx: { db, teamId } }) => {
-      const connection = await getTeamBankConnectionById(
-        db,
-        teamId!,
-        input.connectionId,
-      );
+      const connection = await getTeamBankConnectionById(db, teamId!, input.connectionId);
 
       return enqueue(
         "sync-connection",
@@ -175,11 +171,7 @@ export const bankConnectionsRouter = createTRPCRouter({
   queueReconnect: protectedProcedure
     .input(queueReconnectBankConnectionSchema)
     .mutation(async ({ input, ctx: { db, teamId } }) => {
-      const connection = await getTeamBankConnectionById(
-        db,
-        teamId!,
-        input.connectionId,
-      );
+      const connection = await getTeamBankConnectionById(db, teamId!, input.connectionId);
 
       if (!connection.provider) {
         throw new TRPCError({

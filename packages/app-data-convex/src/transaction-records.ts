@@ -135,9 +135,7 @@ export async function getTransactionByIdFromConvex(args: {
   ) as Promise<TransactionRecord | null>;
 }
 
-export async function getTransactionInfoFromConvex(args: {
-  transactionId: string;
-}) {
+export async function getTransactionInfoFromConvex(args: { transactionId: string }) {
   return createClient().query(
     convexApi.transactions.serviceGetTransactionInfo,
     serviceArgs({
@@ -216,9 +214,7 @@ export async function getTransactionsByInternalIdsFromConvex(args: {
   ) as Promise<TransactionRecord[]>;
 }
 
-export async function getUnnotifiedTransactionsFromConvex(args: {
-  teamId: string;
-}) {
+export async function getUnnotifiedTransactionsFromConvex(args: { teamId: string }) {
   return createClient().query(
     convexApi.transactions.serviceListUnnotifiedTransactions,
     serviceArgs({

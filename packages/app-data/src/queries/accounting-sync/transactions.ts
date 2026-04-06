@@ -71,13 +71,7 @@ export const getTransactionsForAccountingSync = async (
   db: Database,
   params: GetTransactionsForAccountingSyncParams,
 ): Promise<TransactionForSync[]> => {
-  const {
-    teamId,
-    provider,
-    transactionIds,
-    sinceDaysAgo = 30,
-    limit = 500,
-  } = params;
+  const { teamId, provider, transactionIds, sinceDaysAgo = 30, limit = 500 } = params;
   const sinceDate = new Date();
   sinceDate.setDate(sinceDate.getDate() - sinceDaysAgo);
   const sinceDateStr = sinceDate.toISOString().split("T")[0]!;
@@ -94,10 +88,7 @@ export const getTransactionsForAccountingSync = async (
             transactionIds,
           })
         )
-          .filter(
-            (transaction) =>
-              !ACCOUNTING_SYNC_EXCLUDED_STATUS_SET.has(transaction.status),
-          )
+          .filter((transaction) => !ACCOUNTING_SYNC_EXCLUDED_STATUS_SET.has(transaction.status))
           .sort(compareTransactionsByDateDesc)
           .slice(0, limit)
       : await getRecentUnsyncedTransactions({
@@ -116,25 +107,18 @@ export const getTransactionsForAccountingSync = async (
   return results
     .map((result) => ({
       ...result,
-      categoryReportingCode:
-        result.categorySlug
-          ? categoryContext.bySlug.get(result.categorySlug)?.taxReportingCode ??
-            null
-          : null,
-      categoryTaxRate:
-        result.categorySlug
-          ? categoryContext.bySlug.get(result.categorySlug)?.taxRate ?? null
-          : null,
-      categoryTaxType:
-        result.categorySlug
-          ? categoryContext.bySlug.get(result.categorySlug)?.taxType ?? null
-          : null,
+      categoryReportingCode: result.categorySlug
+        ? (categoryContext.bySlug.get(result.categorySlug)?.taxReportingCode ?? null)
+        : null,
+      categoryTaxRate: result.categorySlug
+        ? (categoryContext.bySlug.get(result.categorySlug)?.taxRate ?? null)
+        : null,
+      categoryTaxType: result.categorySlug
+        ? (categoryContext.bySlug.get(result.categorySlug)?.taxType ?? null)
+        : null,
       attachments: attachmentsByTransactionId.get(result.id) ?? [],
     }))
-    .filter(
-      (result) =>
-        result.attachments.length > 0 || result.status === "completed",
-    );
+    .filter((result) => result.attachments.length > 0 || result.status === "completed");
 };
 
 export type GetTransactionAttachmentsParams = {

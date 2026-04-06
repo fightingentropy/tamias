@@ -1,13 +1,7 @@
 "use client";
 
 import { Button } from "@tamias/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@tamias/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@tamias/ui/card";
 import { Icons } from "@tamias/ui/icons";
 import { useAppRouter } from "@/framework/navigation";
 
@@ -42,11 +36,7 @@ interface OAuthErrorMessageProps {
   details?: string;
 }
 
-export function OAuthErrorMessage({
-  errorType,
-  customMessage,
-  details,
-}: OAuthErrorMessageProps) {
+export function OAuthErrorMessage({ errorType, customMessage, details }: OAuthErrorMessageProps) {
   const router = useAppRouter();
 
   const getErrorContent = () => {
@@ -54,8 +44,7 @@ export function OAuthErrorMessage({
       case "missing_params":
         return {
           title: "Invalid OAuth Request",
-          message:
-            "Could not find OAuth application. Make sure you have the correct client_id.",
+          message: "Could not find OAuth application. Make sure you have the correct client_id.",
         };
       case "invalid_response_type":
         return {
@@ -65,8 +54,7 @@ export function OAuthErrorMessage({
       case "invalid_client_id":
         return {
           title: "Invalid OAuth Request",
-          message:
-            "Could not find OAuth application. Make sure you have the correct client_id.",
+          message: "Could not find OAuth application. Make sure you have the correct client_id.",
         };
       case "invalid_redirect_uri":
         return {
@@ -105,14 +93,12 @@ export function OAuthErrorMessage({
       case "authorization_code_expired":
         return {
           title: "Authorization Code Expired",
-          message:
-            "The authorization code has expired. Please restart the OAuth flow.",
+          message: "The authorization code has expired. Please restart the OAuth flow.",
         };
       case "authorization_code_used":
         return {
           title: "Authorization Code Already Used",
-          message:
-            "This authorization code has already been used. Please restart the OAuth flow.",
+          message: "This authorization code has already been used. Please restart the OAuth flow.",
         };
       case "invalid_code_verifier":
         return {
@@ -122,26 +108,22 @@ export function OAuthErrorMessage({
       case "invalid_code_challenge_method":
         return {
           title: "Invalid OAuth Request",
-          message:
-            "Invalid code challenge method. Supported methods are 'S256' and 'plain'.",
+          message: "Invalid code challenge method. Supported methods are 'S256' and 'plain'.",
         };
       case "refresh_token_expired":
         return {
           title: "Refresh Token Expired",
-          message:
-            "The refresh token has expired. Please restart the OAuth flow.",
+          message: "The refresh token has expired. Please restart the OAuth flow.",
         };
       case "refresh_token_revoked":
         return {
           title: "Refresh Token Revoked",
-          message:
-            "The refresh token has been revoked. Please restart the OAuth flow.",
+          message: "The refresh token has been revoked. Please restart the OAuth flow.",
         };
       case "invalid_refresh_token":
         return {
           title: "Invalid Refresh Token",
-          message:
-            "The provided refresh token is invalid. Please restart the OAuth flow.",
+          message: "The provided refresh token is invalid. Please restart the OAuth flow.",
         };
       case "grant_type_not_supported":
         return {
@@ -152,14 +134,12 @@ export function OAuthErrorMessage({
       case "failed_to_create_authorization_code":
         return {
           title: "Server Error",
-          message:
-            "Failed to create authorization code. Please try again later.",
+          message: "Failed to create authorization code. Please try again later.",
         };
       case "invalid_authorization_code":
         return {
           title: "Invalid Authorization Code",
-          message:
-            "The provided authorization code is invalid or does not exist.",
+          message: "The provided authorization code is invalid or does not exist.",
         };
 
       case "invalid_url_format":
@@ -170,8 +150,7 @@ export function OAuthErrorMessage({
       case "empty_scopes":
         return {
           title: "Invalid OAuth Request",
-          message:
-            "No scopes provided. Please specify the required scopes for your application.",
+          message: "No scopes provided. Please specify the required scopes for your application.",
         };
       case "unauthorized_team_access":
         return {
@@ -181,15 +160,12 @@ export function OAuthErrorMessage({
       case "server_error":
         return {
           title: "Server Error",
-          message:
-            "An unexpected server error occurred. Please try again later.",
+          message: "An unexpected server error occurred. Please try again later.",
         };
       default:
         return {
           title: "Invalid OAuth Request",
-          message:
-            customMessage ||
-            "An error occurred while processing your OAuth request.",
+          message: customMessage || "An error occurred while processing your OAuth request.",
         };
     }
   };

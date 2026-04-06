@@ -27,8 +27,7 @@ export function useAction<TInput, TData>(
         options?.onSuccess?.(data);
         return data;
       } catch (error) {
-        const normalizedError =
-          error instanceof Error ? error : new Error("Action failed");
+        const normalizedError = error instanceof Error ? error : new Error("Action failed");
         setResult({ error: normalizedError });
         options?.onError?.(normalizedError);
         throw normalizedError;

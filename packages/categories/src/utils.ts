@@ -20,9 +20,7 @@ export function getFlatCategories(): ChildCategory[] {
 }
 
 // Get category by slug
-export function getCategoryBySlug(
-  slug: string,
-): ChildCategory | ParentCategory | null {
+export function getCategoryBySlug(slug: string): ChildCategory | ParentCategory | null {
   const parent = CATEGORIES.find((cat) => cat.slug === slug);
 
   if (parent) return parent;

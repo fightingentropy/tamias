@@ -68,9 +68,7 @@ describe("CompaniesHouseProvider", () => {
       "https://identity-sandbox.company-information.service.gov.uk/oauth2/authorise",
     );
     expect(url).toContain("state=state-123");
-    expect(url).toContain(
-      encodeURIComponent(COMPANIES_HOUSE_PROFILE_SCOPE).replaceAll("%20", "+"),
-    );
+    expect(url).toContain(encodeURIComponent(COMPANIES_HOUSE_PROFILE_SCOPE).replaceAll("%20", "+"));
   });
 
   test("adds company-specific scopes when requested", () => {
@@ -84,9 +82,7 @@ describe("CompaniesHouseProvider", () => {
       scopes: [COMPANIES_HOUSE_PROFILE_SCOPE, companyScope],
     });
 
-    expect(url).toContain(
-      encodeURIComponent(companyScope).replaceAll("%20", "+"),
-    );
+    expect(url).toContain(encodeURIComponent(companyScope).replaceAll("%20", "+"));
   });
 
   test("parses granted company scopes from stored scope strings", () => {
@@ -176,9 +172,7 @@ describe("CompaniesHouseProvider", () => {
     expect(transaction.status).toBe("open");
 
     const [url, init] = mockFetchFn.mock.calls[0]!;
-    expect(url).toBe(
-      "https://api-sandbox.company-information.service.gov.uk/transactions",
-    );
+    expect(url).toBe("https://api-sandbox.company-information.service.gov.uk/transactions");
     expect(init?.method).toBe("POST");
   });
 
@@ -216,9 +210,7 @@ describe("CompaniesHouseProvider", () => {
     );
     expect(xml).toContain("<CompanyType>SC</CompanyType>");
     expect(xml).toContain("<CompanyNumber>123456</CompanyNumber>");
-    expect(xml).toContain(
-      "<CompanyAuthenticationCode>ABC123</CompanyAuthenticationCode>",
-    );
+    expect(xml).toContain("<CompanyAuthenticationCode>ABC123</CompanyAuthenticationCode>");
     expect(xml).toContain("<SubmissionNumber>AA1234</SubmissionNumber>");
     expect(xml).toContain(
       Buffer.from(
@@ -293,9 +285,7 @@ describe("CompaniesHouseProvider", () => {
     expect(message.statuses[0]?.statusCode).toBe("REJECT");
     expect(message.statuses[0]?.companyNumber).toBe("12345678");
     expect(message.statuses[0]?.examinerComment).toBe("See reject reason");
-    expect(message.statuses[0]?.rejections[0]?.description).toBe(
-      "Invalid accounts document",
-    );
+    expect(message.statuses[0]?.rejections[0]?.description).toBe("Invalid accounts document");
   });
 
   test("fetches the public company profile with API-key auth", async () => {
@@ -331,9 +321,7 @@ describe("CompaniesHouseProvider", () => {
     expect(profile.accounts?.lastAccounts?.madeUpTo).toBe("2025-03-31");
 
     const [url, init] = mockFetchFn.mock.calls[0]!;
-    expect(url).toBe(
-      "https://api-sandbox.company-information.service.gov.uk/company/12345678",
-    );
+    expect(url).toBe("https://api-sandbox.company-information.service.gov.uk/company/12345678");
     expect(init?.headers).toMatchObject({
       Authorization: `Basic ${Buffer.from("test-api-key:").toString("base64")}`,
     });
@@ -442,8 +430,7 @@ describe("CompaniesHouseProvider", () => {
     });
 
     const provider = createProvider();
-    const eligibility =
-      await provider.getRegisteredEmailAddressEligibility("12345678");
+    const eligibility = await provider.getRegisteredEmailAddressEligibility("12345678");
 
     expect(eligibility.eligible).toBe(true);
 

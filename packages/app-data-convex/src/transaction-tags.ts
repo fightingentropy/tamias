@@ -29,10 +29,7 @@ export async function getTagsFromConvex(args: { teamId: string }) {
   ) as Promise<TagRecord[]>;
 }
 
-export async function getTagsByIdsFromConvex(args: {
-  teamId: string;
-  tagIds: string[];
-}) {
+export async function getTagsByIdsFromConvex(args: { teamId: string; tagIds: string[] }) {
   return createClient().query(
     api.tags.serviceGetTagsByIds,
     serviceArgs({
@@ -42,10 +39,7 @@ export async function getTagsByIdsFromConvex(args: {
   ) as Promise<TagRecord[]>;
 }
 
-export async function getTagByIdFromConvex(args: {
-  teamId: string;
-  tagId: string;
-}) {
+export async function getTagByIdFromConvex(args: { teamId: string; tagId: string }) {
   return createClient().query(
     api.tags.serviceGetTagById,
     serviceArgs({
@@ -55,10 +49,7 @@ export async function getTagByIdFromConvex(args: {
   ) as Promise<TagRecord | null>;
 }
 
-export async function createTagInConvex(args: {
-  teamId: string;
-  name: string;
-}) {
+export async function createTagInConvex(args: { teamId: string; name: string }) {
   return createClient().mutation(
     api.tags.serviceCreateTag,
     serviceArgs({
@@ -68,11 +59,7 @@ export async function createTagInConvex(args: {
   ) as Promise<TagRecord>;
 }
 
-export async function updateTagInConvex(args: {
-  teamId: string;
-  tagId: string;
-  name: string;
-}) {
+export async function updateTagInConvex(args: { teamId: string; tagId: string; name: string }) {
   return createClient().mutation(
     api.tags.serviceUpdateTag,
     serviceArgs({
@@ -83,10 +70,7 @@ export async function updateTagInConvex(args: {
   ) as Promise<TagRecord>;
 }
 
-export async function deleteTagInConvex(args: {
-  teamId: string;
-  tagId: string;
-}) {
+export async function deleteTagInConvex(args: { teamId: string; tagId: string }) {
   return createClient().mutation(
     api.tags.serviceDeleteTag,
     serviceArgs({
@@ -109,9 +93,7 @@ export async function getTransactionTagAssignmentsForTransactionIdsFromConvex(ar
   ) as Promise<TransactionTagAssignmentRecord[]>;
 }
 
-export async function getTaggedTransactionIdsFromConvex(args: {
-  teamId: string;
-}) {
+export async function getTaggedTransactionIdsFromConvex(args: { teamId: string }) {
   return createClient().query(
     api.transactionTags.serviceGetTaggedTransactionIds,
     serviceArgs({
@@ -120,9 +102,7 @@ export async function getTaggedTransactionIdsFromConvex(args: {
   ) as Promise<string[]>;
 }
 
-export async function rebuildTransactionTagSortFieldsInConvex(args: {
-  teamId?: string | null;
-}) {
+export async function rebuildTransactionTagSortFieldsInConvex(args: { teamId?: string | null }) {
   return createClient().mutation(
     api.transactionTags.serviceRebuildTransactionTagSortFields,
     serviceArgs({
@@ -183,10 +163,7 @@ export async function addTransactionTagToTransactionsInConvex(args: {
   ) as Promise<TransactionTagAssignmentRecord[]>;
 }
 
-export async function deleteTransactionTagsForTagInConvex(args: {
-  teamId: string;
-  tagId: string;
-}) {
+export async function deleteTransactionTagsForTagInConvex(args: { teamId: string; tagId: string }) {
   return createClient().mutation(
     api.transactionTags.serviceDeleteTransactionTagsForTag,
     serviceArgs({

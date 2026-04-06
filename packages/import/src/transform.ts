@@ -29,10 +29,7 @@ function buildDeterministicInternalId({
     normalizeFingerprintValue(normalizedCounterparty),
   ].join("|");
 
-  const hash = createHash("sha256")
-    .update(fingerprint)
-    .digest("hex")
-    .slice(0, 24);
+  const hash = createHash("sha256").update(fingerprint).digest("hex").slice(0, 24);
 
   return `${transaction.teamId}_${hash}`;
 }
@@ -65,17 +62,11 @@ export function transform({
     method: "other",
     date: formattedDate,
     amount: formattedAmount,
-    name: capitalCase(
-      normalizedDescription || normalizedCounterparty || "Transaction",
-    ),
-    counterparty_name: normalizedCounterparty
-      ? capitalCase(normalizedCounterparty)
-      : null,
+    name: capitalCase(normalizedDescription || normalizedCounterparty || "Transaction"),
+    counterparty_name: normalizedCounterparty ? capitalCase(normalizedCounterparty) : null,
     manual: true,
     category_slug:
-      formatAmountValue({ amount: transaction.amount, inverted }) > 0
-        ? "income"
-        : null,
+      formatAmountValue({ amount: transaction.amount, inverted }) > 0 ? "income" : null,
     bank_account_id: transaction.bankAccountId,
     currency: transaction.currency.toUpperCase(),
     notified: true,

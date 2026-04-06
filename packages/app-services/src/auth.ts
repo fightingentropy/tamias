@@ -24,13 +24,9 @@ export const sessionResolverDependencies: SessionResolverDependencies = {
   getCurrentUser: getCurrentUserFromConvex,
 };
 
-export const resolveTamiasUserSession = createUserSessionResolver(
-  sessionResolverDependencies,
-);
+export const resolveTamiasUserSession = createUserSessionResolver(sessionResolverDependencies);
 
-export async function createTamiasTrustedSessionSnapshot(
-  accessToken?: string | null,
-) {
+export async function createTamiasTrustedSessionSnapshot(accessToken?: string | null) {
   return createTrustedSessionSnapshot(accessToken, resolveTamiasUserSession);
 }
 

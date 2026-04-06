@@ -1,13 +1,9 @@
-import type {
-  CurrentUserIdentityRecord,
-  TransactionCategoryRecord,
-} from "@tamias/app-data-convex";
+import type { CurrentUserIdentityRecord, TransactionCategoryRecord } from "@tamias/app-data-convex";
 import type { transactionFrequencyEnum } from "../../../schema";
 
 export type TransactionConvexUserId = CurrentUserIdentityRecord["convexId"];
 
-export type TransactionFrequency =
-  (typeof transactionFrequencyEnum.enumValues)[number];
+export type TransactionFrequency = (typeof transactionFrequencyEnum.enumValues)[number];
 
 export type TransactionTag = {
   id: string;

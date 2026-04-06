@@ -94,10 +94,7 @@ export type PatchBankConnectionInConvexInput = {
   errorRetries?: number | null;
 };
 
-export async function getBankConnectionsFromConvex(args: {
-  teamId: string;
-  enabled?: boolean;
-}) {
+export async function getBankConnectionsFromConvex(args: { teamId: string; enabled?: boolean }) {
   return createClient().query(
     api.bankConnections.serviceGetBankConnections,
     serviceArgs({
@@ -116,9 +113,7 @@ export async function getBankConnectionByIdFromConvex(args: { id: string }) {
   ) as Promise<BankConnectionRecord | null>;
 }
 
-export async function createBankConnectionInConvex(
-  args: CreateBankConnectionInConvexInput,
-) {
+export async function createBankConnectionInConvex(args: CreateBankConnectionInConvexInput) {
   return createClient().mutation(
     api.bankConnections.serviceCreateBankConnection,
     serviceArgs({
@@ -134,9 +129,7 @@ export async function createBankConnectionInConvex(
   ) as Promise<BankConnectionRecord | null>;
 }
 
-export async function addProviderAccountsInConvex(
-  args: AddProviderAccountsInConvexInput,
-) {
+export async function addProviderAccountsInConvex(args: AddProviderAccountsInConvexInput) {
   return createClient().mutation(
     api.bankConnections.serviceAddProviderAccounts,
     serviceArgs({
@@ -148,10 +141,7 @@ export async function addProviderAccountsInConvex(
   ) as Promise<BankAccountRecord[]>;
 }
 
-export async function deleteBankConnectionInConvex(args: {
-  id: string;
-  teamId: string;
-}) {
+export async function deleteBankConnectionInConvex(args: { id: string; teamId: string }) {
   return createClient().mutation(
     api.bankConnections.serviceDeleteBankConnection,
     serviceArgs({
@@ -182,9 +172,7 @@ export async function reconnectBankConnectionInConvex(args: {
   ) as Promise<{ id: string } | null>;
 }
 
-export async function getBankConnectionByEnrollmentIdFromConvex(args: {
-  enrollmentId: string;
-}) {
+export async function getBankConnectionByEnrollmentIdFromConvex(args: { enrollmentId: string }) {
   return createClient().query(
     api.bankConnections.serviceGetBankConnectionByEnrollmentId,
     serviceArgs({
@@ -193,9 +181,7 @@ export async function getBankConnectionByEnrollmentIdFromConvex(args: {
   ) as Promise<BankConnectionLookupRecord | null>;
 }
 
-export async function getBankConnectionByReferenceIdFromConvex(args: {
-  referenceId: string;
-}) {
+export async function getBankConnectionByReferenceIdFromConvex(args: { referenceId: string }) {
   return createClient().query(
     api.bankConnections.serviceGetBankConnectionByReferenceId,
     serviceArgs({
@@ -234,9 +220,7 @@ export async function updateBankConnectionReconnectByIdInConvex(args: {
   ) as Promise<{ id: string } | null>;
 }
 
-export async function patchBankConnectionInConvex(
-  args: PatchBankConnectionInConvexInput,
-) {
+export async function patchBankConnectionInConvex(args: PatchBankConnectionInConvexInput) {
   return createClient().mutation(
     api.bankConnections.servicePatchBankConnection,
     serviceArgs({

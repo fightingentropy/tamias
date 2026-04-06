@@ -44,12 +44,9 @@ export function useOnboardingTracking(step: number) {
     [step],
   );
 
-  const trackEvent = useCallback(
-    (event: EventConfig, props?: Record<string, unknown>) => {
-      track({ event: event.name, channel: event.channel, ...props });
-    },
-    [],
-  );
+  const trackEvent = useCallback((event: EventConfig, props?: Record<string, unknown>) => {
+    track({ event: event.name, channel: event.channel, ...props });
+  }, []);
 
   return { trackNavigation, trackEvent };
 }

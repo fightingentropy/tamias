@@ -27,9 +27,7 @@ export function validateCorporationTaxRateSchedule(args: {
         schedule.associatedCompaniesFirstYear != null ||
         schedule.associatedCompaniesSecondYear != null)
     ) {
-      warnings.push(
-        "Saved CT rate inputs are ignored for periods ending before 1 April 2023.",
-      );
+      warnings.push("Saved CT rate inputs are ignored for periods ending before 1 April 2023.");
     }
 
     return { blockers, warnings };

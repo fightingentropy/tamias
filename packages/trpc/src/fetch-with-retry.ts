@@ -1,9 +1,4 @@
-const RETRYABLE_CODES = new Set([
-  "ECONNRESET",
-  "ECONNREFUSED",
-  "ETIMEDOUT",
-  "UND_ERR_SOCKET",
-]);
+const RETRYABLE_CODES = new Set(["ECONNRESET", "ECONNREFUSED", "ETIMEDOUT", "UND_ERR_SOCKET"]);
 
 const RETRYABLE_NAMES = new Set(["TimeoutError"]);
 
@@ -35,9 +30,7 @@ export async function fetchWithRetry(
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
       const timeout = AbortSignal.timeout(TIMEOUT_MS);
-      const signal = init?.signal
-        ? AbortSignal.any([init.signal, timeout])
-        : timeout;
+      const signal = init?.signal ? AbortSignal.any([init.signal, timeout]) : timeout;
 
       const headers = new Headers(init?.headers);
 

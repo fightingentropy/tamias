@@ -1,11 +1,4 @@
-import {
-  Body,
-  Container,
-  Heading,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
+import { Body, Container, Heading, Preview, Section, Text } from "@react-email/components";
 import { getAppUrl } from "@tamias/utils/envs";
 import { Footer } from "../components/footer";
 import { Logo } from "../components/logo";
@@ -40,10 +33,7 @@ export const UpcomingInvoicesEmail = ({
 
   return (
     <EmailThemeProvider preview={<Preview>{text}</Preview>}>
-      <Body
-        className={`my-auto mx-auto font-sans ${themeClasses.body}`}
-        style={lightStyles.body}
-      >
+      <Body className={`my-auto mx-auto font-sans ${themeClasses.body}`} style={lightStyles.body}>
         <Container
           className={`my-[40px] mx-auto p-[20px] max-w-[600px] ${themeClasses.container}`}
           style={{
@@ -72,17 +62,14 @@ export const UpcomingInvoicesEmail = ({
 
           <br />
 
-          <Text
-            className={themeClasses.text}
-            style={{ color: lightStyles.text.color }}
-          >
+          <Text className={themeClasses.text} style={{ color: lightStyles.text.color }}>
             {count === 1
               ? "A recurring invoice is scheduled to be generated and sent tomorrow."
               : `${count} recurring invoices are scheduled to be generated and sent tomorrow.`}
             <br />
             <br />
-            You can review the recurring series settings or pause any series if
-            needed before the invoices are sent.
+            You can review the recurring series settings or pause any series if needed before the
+            invoices are sent.
             <br />
             <br />
           </Text>

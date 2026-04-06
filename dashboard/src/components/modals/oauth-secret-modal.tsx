@@ -14,8 +14,7 @@ import { useOAuthSecretModalStore } from "@/store/oauth-secret-modal";
 import { CopyInput } from "../copy-input";
 
 export function OAuthSecretModal() {
-  const { isOpen, clientSecret, applicationName, close } =
-    useOAuthSecretModalStore();
+  const { isOpen, clientSecret, applicationName, close } = useOAuthSecretModalStore();
 
   return (
     <Dialog open={isOpen} onOpenChange={() => close()}>
@@ -24,17 +23,15 @@ export function OAuthSecretModal() {
           <DialogHeader>
             <DialogTitle>OAuth Application Created</DialogTitle>
             <DialogDescription>
-              Your OAuth application "{applicationName}" has been created
-              successfully. For security reasons, the client secret will only be
-              shown once. Please copy and store it in a secure location.
+              Your OAuth application "{applicationName}" has been created successfully. For security
+              reasons, the client secret will only be shown once. Please copy and store it in a
+              secure location.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-3">
             <div>
-              <Label className="text-sm font-medium mb-1 block">
-                Client Secret
-              </Label>
+              <Label className="text-sm font-medium mb-1 block">Client Secret</Label>
               <CopyInput value={clientSecret || ""} />
             </div>
           </div>

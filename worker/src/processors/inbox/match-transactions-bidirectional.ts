@@ -125,10 +125,7 @@ export class MatchTransactionsBidirectionalProcessor extends BaseProcessor<Match
                   currency: transaction.currency,
                   date: transaction.date,
                   confidenceScore: inboxMatch.confidenceScore,
-                  matchType:
-                    action === "auto_matched"
-                      ? "auto_matched"
-                      : inboxMatch.matchType,
+                  matchType: action === "auto_matched" ? "auto_matched" : inboxMatch.matchType,
                   amountScore: inboxMatch.amountScore,
                   currencyScore: inboxMatch.currencyScore,
                   dateScore: inboxMatch.dateScore,
@@ -175,18 +172,12 @@ export class MatchTransactionsBidirectionalProcessor extends BaseProcessor<Match
               });
             }
           } catch (rollbackError) {
-            this.logger.error(
-              "Failed to reset inbox status after forward match error",
-              {
-                teamId,
-                transactionId,
-                inboxId: processingInboxId,
-                error:
-                  rollbackError instanceof Error
-                    ? rollbackError.message
-                    : "Unknown error",
-              },
-            );
+            this.logger.error("Failed to reset inbox status after forward match error", {
+              teamId,
+              transactionId,
+              inboxId: processingInboxId,
+              error: rollbackError instanceof Error ? rollbackError.message : "Unknown error",
+            });
           }
         }
 
@@ -207,9 +198,7 @@ export class MatchTransactionsBidirectionalProcessor extends BaseProcessor<Match
 
     // Filter out inbox items that were already matched in Phase 1
     const matchedInboxIds = new Set(forwardMatches.values());
-    const unmatchedInboxItems = pendingInboxItems.filter(
-      (item) => !matchedInboxIds.has(item.id),
-    );
+    const unmatchedInboxItems = pendingInboxItems.filter((item) => !matchedInboxIds.has(item.id));
 
     this.logger.info("Processing reverse matching for unmatched inbox items", {
       teamId,
@@ -277,8 +266,7 @@ export class MatchTransactionsBidirectionalProcessor extends BaseProcessor<Match
     }
 
     // Final summary
-    const totalProcessed =
-      newTransactionIds.length + unmatchedInboxItems.length;
+    const totalProcessed = newTransactionIds.length + unmatchedInboxItems.length;
     const totalMatched = forwardMatchCount + reverseMatchCount;
     const totalSuggestions = forwardSuggestionCount + reverseSuggestionCount;
 

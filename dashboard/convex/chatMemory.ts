@@ -2,11 +2,7 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireServiceKey } from "./lib/service";
 
-function getMemoryKey(args: {
-  scope: "chat" | "user";
-  chatId?: string;
-  userId?: string;
-}) {
+function getMemoryKey(args: { scope: "chat" | "user"; chatId?: string; userId?: string }) {
   const value = args.scope === "chat" ? args.chatId : args.userId;
 
   if (!value) {
@@ -116,11 +112,7 @@ export const serviceSaveMessage = mutation({
     serviceKey: v.string(),
     chatId: v.string(),
     userId: v.optional(v.string()),
-    role: v.union(
-      v.literal("user"),
-      v.literal("assistant"),
-      v.literal("system"),
-    ),
+    role: v.union(v.literal("user"), v.literal("assistant"), v.literal("system")),
     content: v.string(),
     timestamp: v.string(),
   },
@@ -153,8 +145,7 @@ export const serviceGetMessages = query({
       .collect();
 
     const filtered = messages.filter(
-      (message) =>
-        !args.userId || !message.userId || message.userId === args.userId,
+      (message) => !args.userId || !message.userId || message.userId === args.userId,
     );
 
     filtered.sort(compareMessages);

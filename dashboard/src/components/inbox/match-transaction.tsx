@@ -4,12 +4,7 @@ import { Button } from "@tamias/ui/button";
 import { cn } from "@tamias/ui/cn";
 import { Combobox } from "@tamias/ui/combobox";
 import { Icons } from "@tamias/ui/icons";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
@@ -68,9 +63,7 @@ export function MatchTransaction() {
         currency={transaction.transaction_currency}
         isAlreadyMatched={transaction.is_already_matched}
         matchedAttachmentFilename={transaction.matched_attachment_filename}
-        showBestMatch={
-          index === 0 && transactionMatch?.length > 1 && !debouncedValue.length
-        }
+        showBestMatch={index === 0 && transactionMatch?.length > 1 && !debouncedValue.length}
       />
     ),
   }));

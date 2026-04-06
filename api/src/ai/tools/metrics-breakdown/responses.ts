@@ -1,10 +1,6 @@
 import { formatAmount } from "@tamias/utils/format";
 import { format, parseISO } from "date-fns";
-import type {
-  BreakdownCategory,
-  BreakdownSummary,
-  BreakdownTransaction,
-} from "./types";
+import type { BreakdownCategory, BreakdownSummary, BreakdownTransaction } from "./types";
 
 export function buildMultiMonthBreakdownResponse(options: {
   from: string;

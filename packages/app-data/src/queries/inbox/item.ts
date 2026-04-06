@@ -1,7 +1,4 @@
-import {
-  getInboxItemByIdFromConvex,
-  getInboxItemsFromConvex,
-} from "@tamias/app-data-convex";
+import { getInboxItemByIdFromConvex, getInboxItemsFromConvex } from "@tamias/app-data-convex";
 import { createLoggerWithContext } from "@tamias/logger";
 import type { Database } from "../../client";
 import { getInboxItemsPaged } from "../paged-records";
@@ -44,9 +41,7 @@ export async function getInboxById(_db: Database, params: GetInboxByIdParams) {
     getInboxItemsFromConvex({
       teamId,
       groupedInboxIds: [primaryItemId],
-    }).then((items) =>
-      items.filter((candidate) => candidate.status !== "deleted"),
-    ),
+    }).then((items) => items.filter((candidate) => candidate.status !== "deleted")),
   ]);
   const [hydratedPrimary] = await hydrateInboxItems(teamId, [primaryItem]);
 
@@ -55,9 +50,7 @@ export async function getInboxById(_db: Database, params: GetInboxByIdParams) {
   }
 
   if (suggestion?.transactionId) {
-    const suggestionTransactionMap = await loadSuggestionMaps(teamId, [
-      suggestion,
-    ]);
+    const suggestionTransactionMap = await loadSuggestionMaps(teamId, [suggestion]);
 
     return {
       ...hydratedPrimary,
@@ -68,8 +61,7 @@ export async function getInboxById(_db: Database, params: GetInboxByIdParams) {
         confidenceScore: suggestion.confidenceScore,
         matchType: suggestion.matchType,
         status: suggestion.status,
-        suggestedTransaction:
-          suggestionTransactionMap.get(suggestion.transactionId) ?? null,
+        suggestedTransaction: suggestionTransactionMap.get(suggestion.transactionId) ?? null,
       },
       relatedItems: relatedItems.length > 0 ? relatedItems : undefined,
     };
@@ -82,10 +74,7 @@ export async function getInboxById(_db: Database, params: GetInboxByIdParams) {
   };
 }
 
-export async function checkInboxAttachments(
-  _db: Database,
-  params: CheckInboxAttachmentsParams,
-) {
+export async function checkInboxAttachments(_db: Database, params: CheckInboxAttachmentsParams) {
   const inboxItem = await getInboxItemByIdFromConvex({
     teamId: params.teamId,
     inboxId: params.id,
@@ -115,10 +104,7 @@ export async function checkInboxAttachments(
   };
 }
 
-export async function getInboxByFilePath(
-  _db: Database,
-  params: GetInboxByFilePathParams,
-) {
+export async function getInboxByFilePath(_db: Database, params: GetInboxByFilePathParams) {
   const { filePath, teamId } = params;
   const items = await getInboxItemsFromConvex({
     teamId,
@@ -148,10 +134,7 @@ export async function getInboxByFilePath(
   };
 }
 
-export async function getStuckInboxItems(
-  _db: Database,
-  params: GetStuckInboxItemsParams,
-) {
+export async function getStuckInboxItems(_db: Database, params: GetStuckInboxItemsParams) {
   const { teamId, thresholdMinutes = 5 } = params;
   const thresholdMs = thresholdMinutes * 60 * 1000;
   const thresholdDate = new Date(Date.now() - thresholdMs).toISOString();

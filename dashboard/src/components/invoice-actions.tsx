@@ -59,13 +59,11 @@ export function InvoiceActions({
   const [refundOpen, setRefundOpen] = useState(false);
 
   const canCancelSeries =
-    invoiceRecurringId &&
-    (recurringStatus === "active" || recurringStatus === "paused");
+    invoiceRecurringId && (recurringStatus === "active" || recurringStatus === "paused");
   const canPauseSeries = invoiceRecurringId && recurringStatus === "active";
   const canResumeSeries = invoiceRecurringId && recurringStatus === "paused";
   const canEditSeries =
-    invoiceRecurringId &&
-    (recurringStatus === "active" || recurringStatus === "paused");
+    invoiceRecurringId && (recurringStatus === "active" || recurringStatus === "paused");
   const canRefund = status === "paid" && paymentIntentId;
   const canDownloadReceipt = status === "paid";
 
@@ -235,8 +233,8 @@ export function InvoiceActions({
         <AlertDialogHeader>
           <AlertDialogTitle>Cancel recurring series</AlertDialogTitle>
           <AlertDialogDescription>
-            This will stop all future invoices in this recurring series.
-            Invoices that have already been sent will not be affected.
+            This will stop all future invoices in this recurring series. Invoices that have already
+            been sent will not be affected.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -261,15 +259,13 @@ export function InvoiceActions({
         <AlertDialogHeader>
           <AlertDialogTitle>Refund payment</AlertDialogTitle>
           <AlertDialogDescription>
-            This will issue a full refund for this invoice. The invoice status
-            will be changed to refunded. This action cannot be undone.
+            This will issue a full refund for this invoice. The invoice status will be changed to
+            refunded. This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={() => refundMutation.mutate({ invoiceId: id })}
-          >
+          <AlertDialogAction onClick={() => refundMutation.mutate({ invoiceId: id })}>
             Refund
           </AlertDialogAction>
         </AlertDialogFooter>
@@ -285,11 +281,7 @@ export function InvoiceActions({
           <div className="absolute right-4 mt-7">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  size="icon"
-                  variant="secondary"
-                  className="hover:bg-secondary"
-                >
+                <Button size="icon" variant="secondary" className="hover:bg-secondary">
                   <Icons.MoreHoriz className="size-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -298,10 +290,7 @@ export function InvoiceActions({
                   <>
                     <DropdownMenuItem
                       onClick={() => {
-                        downloadFile(
-                          receiptUrl,
-                          `receipt-${invoiceNumber || "invoice"}.pdf`,
-                        );
+                        downloadFile(receiptUrl, `receipt-${invoiceNumber || "invoice"}.pdf`);
                       }}
                     >
                       Download receipt
@@ -325,23 +314,15 @@ export function InvoiceActions({
                     Refund payment
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem
-                  className="text-destructive"
-                  onClick={handleDeleteInvoice}
-                >
+                <DropdownMenuItem className="text-destructive" onClick={handleDeleteInvoice}>
                   Delete
                 </DropdownMenuItem>
-                {(canEditSeries ||
-                  canPauseSeries ||
-                  canResumeSeries ||
-                  canCancelSeries) && (
+                {(canEditSeries || canPauseSeries || canResumeSeries || canCancelSeries) && (
                   <>
                     <DropdownMenuSeparator />
                     {canEditSeries && (
                       <DropdownMenuItem
-                        onClick={() =>
-                          setParams({ editRecurringId: invoiceRecurringId })
-                        }
+                        onClick={() => setParams({ editRecurringId: invoiceRecurringId })}
                       >
                         Edit series
                       </DropdownMenuItem>
@@ -442,11 +423,7 @@ export function InvoiceActions({
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="hover:bg-secondary"
-                >
+                <Button size="sm" variant="secondary" className="hover:bg-secondary">
                   <Icons.MoreHoriz className="size-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -480,10 +457,7 @@ export function InvoiceActions({
                     />
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
-                <DropdownMenuItem
-                  className="text-destructive"
-                  onClick={handleDeleteInvoice}
-                >
+                <DropdownMenuItem className="text-destructive" onClick={handleDeleteInvoice}>
                   Delete
                 </DropdownMenuItem>
                 <DropdownMenuItem
@@ -497,17 +471,12 @@ export function InvoiceActions({
                 >
                   Cancel
                 </DropdownMenuItem>
-                {(canEditSeries ||
-                  canPauseSeries ||
-                  canResumeSeries ||
-                  canCancelSeries) && (
+                {(canEditSeries || canPauseSeries || canResumeSeries || canCancelSeries) && (
                   <>
                     <DropdownMenuSeparator />
                     {canEditSeries && (
                       <DropdownMenuItem
-                        onClick={() =>
-                          setParams({ editRecurringId: invoiceRecurringId })
-                        }
+                        onClick={() => setParams({ editRecurringId: invoiceRecurringId })}
                       >
                         Edit series
                       </DropdownMenuItem>
@@ -570,32 +539,20 @@ export function InvoiceActions({
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="hover:bg-secondary"
-                >
+                <Button size="sm" variant="secondary" className="hover:bg-secondary">
                   <Icons.MoreHoriz className="size-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent sideOffset={10} align="end">
-                <DropdownMenuItem
-                  className="text-destructive"
-                  onClick={handleDeleteInvoice}
-                >
+                <DropdownMenuItem className="text-destructive" onClick={handleDeleteInvoice}>
                   Delete draft
                 </DropdownMenuItem>
-                {(canEditSeries ||
-                  canPauseSeries ||
-                  canResumeSeries ||
-                  canCancelSeries) && (
+                {(canEditSeries || canPauseSeries || canResumeSeries || canCancelSeries) && (
                   <>
                     <DropdownMenuSeparator />
                     {canEditSeries && (
                       <DropdownMenuItem
-                        onClick={() =>
-                          setParams({ editRecurringId: invoiceRecurringId })
-                        }
+                        onClick={() => setParams({ editRecurringId: invoiceRecurringId })}
                       >
                         Edit series
                       </DropdownMenuItem>

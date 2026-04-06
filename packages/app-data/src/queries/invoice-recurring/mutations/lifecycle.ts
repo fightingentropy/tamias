@@ -24,13 +24,8 @@ export async function markInvoiceGenerated(
 
   const now = new Date();
   const newInvoicesGenerated = current.invoicesGenerated + 1;
-  const baseDate = current.nextScheduledAt
-    ? new Date(current.nextScheduledAt)
-    : now;
-  const initialNextDate = calculateNextScheduledDate(
-    buildRecurringParams(current),
-    baseDate,
-  );
+  const baseDate = current.nextScheduledAt ? new Date(current.nextScheduledAt) : now;
+  const initialNextDate = calculateNextScheduledDate(buildRecurringParams(current), baseDate);
   const { date: nextScheduledAt } = advanceToFutureDate(
     buildRecurringParams(current),
     initialNextDate,
@@ -97,10 +92,7 @@ export async function pauseInvoiceRecurring(
   });
 }
 
-export async function resumeInvoiceRecurring(
-  db: Database,
-  params: { id: string; teamId: string },
-) {
+export async function resumeInvoiceRecurring(db: Database, params: { id: string; teamId: string }) {
   const current = await getInvoiceRecurringById(db, params);
 
   if (!current || current.status !== "paused") {
@@ -108,10 +100,7 @@ export async function resumeInvoiceRecurring(
   }
 
   const now = new Date();
-  const nextScheduledAt = calculateNextScheduledDate(
-    buildRecurringParams(current),
-    now,
-  );
+  const nextScheduledAt = calculateNextScheduledDate(buildRecurringParams(current), now);
   const isCompleted = shouldMarkCompleted(
     current.endType,
     current.endDate ? new Date(current.endDate) : null,

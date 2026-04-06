@@ -8,15 +8,10 @@ export const Route = createLazyFileRoute("/compliance/year-end")({
 });
 
 function ComplianceYearEndPage() {
-  const loaderData = Route.useLoaderData() as Awaited<
-    ReturnType<typeof loadComplianceYearEndData>
-  >;
+  const loaderData = Route.useLoaderData() as Awaited<ReturnType<typeof loadComplianceYearEndData>>;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <YearEndDashboardClient />
     </AppLayoutShell>
   );

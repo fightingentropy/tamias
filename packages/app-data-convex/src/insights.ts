@@ -76,9 +76,7 @@ export type InsightRecord = {
   updatedAt: string;
 };
 
-export async function getInsightUserStatusesFromConvex(args: {
-  userId: ConvexUserId;
-}) {
+export async function getInsightUserStatusesFromConvex(args: { userId: ConvexUserId }) {
   return createClient().query(
     api.insights.serviceGetInsightUserStatuses,
     serviceArgs({
@@ -87,10 +85,7 @@ export async function getInsightUserStatusesFromConvex(args: {
   ) as Promise<InsightUserStatusRecord[]>;
 }
 
-export async function markInsightAsReadInConvex(args: {
-  userId: ConvexUserId;
-  insightId: string;
-}) {
+export async function markInsightAsReadInConvex(args: { userId: ConvexUserId; insightId: string }) {
   return createClient().mutation(
     api.insights.serviceMarkInsightAsRead,
     serviceArgs({
@@ -100,10 +95,7 @@ export async function markInsightAsReadInConvex(args: {
   ) as Promise<InsightUserStatusRecord>;
 }
 
-export async function dismissInsightInConvex(args: {
-  userId: ConvexUserId;
-  insightId: string;
-}) {
+export async function dismissInsightInConvex(args: { userId: ConvexUserId; insightId: string }) {
   return createClient().mutation(
     api.insights.serviceDismissInsight,
     serviceArgs({
@@ -149,9 +141,7 @@ export async function createReportLinkInConvex(args: {
   ) as Promise<ReportLinkRecord>;
 }
 
-export async function getReportLinkByLinkIdFromConvex(args: {
-  linkId: string;
-}) {
+export async function getReportLinkByLinkIdFromConvex(args: { linkId: string }) {
   return createClient().query(
     api.reportLinks.serviceGetReportLinkByLinkId,
     serviceArgs({
@@ -242,10 +232,7 @@ export async function listInsightsFromConvex(args: { teamId: string }) {
   ) as Promise<InsightRecord[]>;
 }
 
-export async function getInsightByIdFromConvex(args: {
-  teamId: string;
-  id: string;
-}) {
+export async function getInsightByIdFromConvex(args: { teamId: string; id: string }) {
   return createClient().query(
     apiWithInsightsStore.insightsStore.serviceGetInsightById,
     serviceArgs({

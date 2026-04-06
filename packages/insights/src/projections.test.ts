@@ -8,16 +8,12 @@ import { describe, expect, it } from "bun:test";
 
 // Test 1: Runway exhaustion date calculation
 describe("runway exhaustion date", () => {
-  function calculateRunwayExhaustionDate(
-    runwayMonths: number,
-  ): string | undefined {
+  function calculateRunwayExhaustionDate(runwayMonths: number): string | undefined {
     if (runwayMonths <= 0 || runwayMonths >= 24) {
       return undefined;
     }
     const exhaustionDate = new Date();
-    exhaustionDate.setDate(
-      exhaustionDate.getDate() + Math.round(runwayMonths * 30),
-    );
+    exhaustionDate.setDate(exhaustionDate.getDate() + Math.round(runwayMonths * 30));
     return exhaustionDate.toLocaleDateString("en-US", {
       month: "long",
       day: "numeric",
@@ -72,17 +68,11 @@ describe("quarter pace projection", () => {
       return null;
     }
 
-    const projectedRevenue = Math.round(
-      (qtdRevenue / daysElapsed) * totalQuarterDays,
-    );
+    const projectedRevenue = Math.round((qtdRevenue / daysElapsed) * totalQuarterDays);
 
     const vsLastYearPercent =
       lastYearQuarterRevenue > 0
-        ? Math.round(
-            ((projectedRevenue - lastYearQuarterRevenue) /
-              lastYearQuarterRevenue) *
-              100,
-          )
+        ? Math.round(((projectedRevenue - lastYearQuarterRevenue) / lastYearQuarterRevenue) * 100)
         : 0;
 
     return {
@@ -148,9 +138,7 @@ describe("customer payment anomaly detection", () => {
 
     return {
       isUnusual,
-      unusualReason: isUnusual
-        ? `usually pays within ${typicalPayDays} days`
-        : undefined,
+      unusualReason: isUnusual ? `usually pays within ${typicalPayDays} days` : undefined,
     };
   }
 
@@ -215,9 +203,7 @@ describe("projection format strings", () => {
     const quarter = 1;
     const vsLastYear = 18;
     const formatted = `On pace for ${projected} this Q${quarter} — ${vsLastYear}% ahead of Q${quarter} last year`;
-    expect(formatted).toBe(
-      "On pace for 450,000 kr this Q1 — 18% ahead of Q1 last year",
-    );
+    expect(formatted).toBe("On pace for 450,000 kr this Q1 — 18% ahead of Q1 last year");
   });
 
   it("should format quarter pace correctly without comparison", () => {
@@ -233,8 +219,6 @@ describe("projection format strings", () => {
     const days = 14;
     const reason = "usually pays within 5 days";
     const formatted = `${company}: ${amount} (${days} days) ⚠️ UNUSUAL - ${reason}`;
-    expect(formatted).toBe(
-      "Acme Corp: 7,500 kr (14 days) ⚠️ UNUSUAL - usually pays within 5 days",
-    );
+    expect(formatted).toBe("Acme Corp: 7,500 kr (14 days) ⚠️ UNUSUAL - usually pays within 5 days");
   });
 });

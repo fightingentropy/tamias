@@ -37,28 +37,16 @@ export function TrackerCalendar({ weeklyCalendar }: Props) {
 
   const weekStartsOnMonday = user?.weekStartsOnMonday ?? false;
 
-  const {
-    date: currentDate,
-    range,
-    setParams,
-    selectedDate,
-    view,
-  } = useTrackerParams();
+  const { date: currentDate, range, setParams, selectedDate, view } = useTrackerParams();
 
   const selectedView = view ?? (weeklyCalendar ? "week" : "month");
 
   const [isDragging, setIsDragging] = useState(false);
-  const [localRange, setLocalRange] = useState<[string | null, string | null]>([
-    null,
-    null,
-  ]);
+  const [localRange, setLocalRange] = useState<[string | null, string | null]>([null, null]);
 
   const currentTZDate = new TZDate(currentDate, "UTC");
 
-  const { calendarDays, firstWeek } = useCalendarDates(
-    currentTZDate,
-    weekStartsOnMonday,
-  );
+  const { calendarDays, firstWeek } = useCalendarDates(currentTZDate, weekStartsOnMonday);
 
   // Calculate current week days for week view
   const currentWeekDays = React.useMemo(() => {
@@ -107,9 +95,7 @@ export function TrackerCalendar({ weeklyCalendar }: Props) {
     };
   };
 
-  const { data } = useQuery(
-    trpc.trackerEntries.byRange.queryOptions(getDateRange()),
-  );
+  const { data } = useQuery(trpc.trackerEntries.byRange.queryOptions(getDateRange()));
 
   // Single source of truth for billable hours calculations
   const { data: billableHoursData } = useBillableHours({
@@ -120,19 +106,14 @@ export function TrackerCalendar({ weeklyCalendar }: Props) {
 
   function handlePeriodChange(direction: number) {
     if (selectedView === "week") {
-      const newDate =
-        direction > 0 ? addWeeks(currentTZDate, 1) : subWeeks(currentTZDate, 1);
+      const newDate = direction > 0 ? addWeeks(currentTZDate, 1) : subWeeks(currentTZDate, 1);
       setParams({
-        date: formatISO(
-          startOfWeek(newDate, { weekStartsOn: weekStartsOnMonday ? 1 : 0 }),
-          { representation: "date" },
-        ),
+        date: formatISO(startOfWeek(newDate, { weekStartsOn: weekStartsOnMonday ? 1 : 0 }), {
+          representation: "date",
+        }),
       });
     } else {
-      const newDate =
-        direction > 0
-          ? addMonths(currentTZDate, 1)
-          : subMonths(currentTZDate, 1);
+      const newDate = direction > 0 ? addMonths(currentTZDate, 1) : subMonths(currentTZDate, 1);
       setParams({
         date: formatISO(newDate, { representation: "date" }),
       });
@@ -161,10 +142,7 @@ export function TrackerCalendar({ weeklyCalendar }: Props) {
 
   const handleMouseEnter = (date: TZDate) => {
     if (isDragging && localRange[0]) {
-      setLocalRange((prev) => [
-        prev[0],
-        formatISO(date, { representation: "date" }),
-      ]);
+      setLocalRange((prev) => [prev[0], formatISO(date, { representation: "date" })]);
     }
   };
 

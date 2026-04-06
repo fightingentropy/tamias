@@ -31,12 +31,7 @@ export function SkeletonLine({
   width?: string;
   className?: string;
 }) {
-  return (
-    <UISkeleton
-      className={cn("mb-2 h-3 w-full rounded-none", className)}
-      style={{ width }}
-    />
-  );
+  return <UISkeleton className={cn("mb-2 h-3 w-full rounded-none", className)} style={{ width }} />;
 }
 
 export function SkeletonCard({
@@ -83,10 +78,7 @@ export function SkeletonChart({
       </div>
 
       {/* Chart Area Skeleton */}
-      <UISkeleton
-        className="opacity-20 w-full rounded-none"
-        style={{ height }}
-      />
+      <UISkeleton className="opacity-20 w-full rounded-none" style={{ height }} />
     </div>
   );
 }
@@ -116,9 +108,5 @@ export function SkeletonGrid({
     );
   });
 
-  return (
-    <div className={cn("grid gap-3", gridCols[columns], className)}>
-      {skeletonItems}
-    </div>
-  );
+  return <div className={cn("grid gap-3", gridCols[columns], className)}>{skeletonItems}</div>;
 }

@@ -1,8 +1,5 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import {
-  validateEvent,
-  WebhookVerificationError,
-} from "@polar-sh/sdk/webhooks";
+import { validateEvent, WebhookVerificationError } from "@polar-sh/sdk/webhooks";
 import {
   getTeamById,
   getTeamOwnerContact,

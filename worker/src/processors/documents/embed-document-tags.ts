@@ -47,9 +47,7 @@ export class EmbedDocumentTagsProcessor extends BaseProcessor<EmbedDocumentTagsP
     );
 
     // 3. Identify tags needing new embeddings
-    const tagsToEmbed = tagsWithSlugs.filter(
-      (tag) => !existingEmbeddingSlugs.has(tag.slug),
-    );
+    const tagsToEmbed = tagsWithSlugs.filter((tag) => !existingEmbeddingSlugs.has(tag.slug));
     const newTagNames = tagsToEmbed.map((t) => t.name);
 
     // 4. Generate and insert new embeddings if any
@@ -110,9 +108,7 @@ export class EmbedDocumentTagsProcessor extends BaseProcessor<EmbedDocumentTagsP
       throw new Error("Failed to get IDs from upserted document tags.");
     }
 
-    const allTagIds = upsertedTagsData.map(
-      (t: { id: string; slug: string }) => t.id,
-    );
+    const allTagIds = upsertedTagsData.map((t: { id: string; slug: string }) => t.id);
 
     // 6. Create document-tag assignments using upsert
     if (allTagIds.length > 0) {
@@ -129,12 +125,9 @@ export class EmbedDocumentTagsProcessor extends BaseProcessor<EmbedDocumentTagsP
         tagsAssigned: allTagIds.length,
       });
     } else {
-      this.logger.warn(
-        "No tags resulted from the upsert process, cannot assign",
-        {
-          documentId,
-        },
-      );
+      this.logger.warn("No tags resulted from the upsert process, cannot assign", {
+        documentId,
+      });
     }
   }
 }

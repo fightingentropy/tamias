@@ -11,9 +11,7 @@ import {
  * Get initial table settings from the unified cookie
  * Falls back to defaults if cookie doesn't exist or is invalid
  */
-export async function getInitialTableSettings(
-  tableId: TableId,
-): Promise<TableSettings> {
+export async function getInitialTableSettings(tableId: TableId): Promise<TableSettings> {
   const cookieStore = await cookies();
   const saved = cookieStore.get(TABLE_SETTINGS_COOKIE)?.value;
 

@@ -20,10 +20,7 @@ const getGrowthRateSchema = z.object({
   from: z.string().optional().describe("Start date (yyyy-MM-dd)"),
   to: z.string().optional().describe("End date (yyyy-MM-dd)"),
   currency: z.string().nullable().optional().describe("Currency code"),
-  type: z
-    .enum(["revenue", "profit"])
-    .default("revenue")
-    .describe("Growth type: revenue or profit"),
+  type: z.enum(["revenue", "profit"]).default("revenue").describe("Growth type: revenue or profit"),
   revenueType: z.enum(["gross", "net"]).optional().describe("Revenue type"),
   period: z
     .enum(["monthly", "quarterly", "yearly"])
@@ -33,8 +30,7 @@ const getGrowthRateSchema = z.object({
 });
 
 export const getGrowthRateTool = tool({
-  description:
-    "Calculate growth rate - shows period-over-period comparisons and trends.",
+  description: "Calculate growth rate - shows period-over-period comparisons and trends.",
   inputSchema: getGrowthRateSchema,
   execute: async function* (
     { dateRange, from, to, currency, type, revenueType, period, showCanvas },
@@ -60,28 +56,22 @@ export const getGrowthRateTool = tool({
     throwIfBankAccountsRequired(appContext);
 
     try {
-      const {
-        finalFrom,
-        finalTo,
-        finalCurrency,
-        description,
-        locale,
-        resolved,
-      } = resolveReportToolParams({
-        toolName: "getGrowthRate",
-        appContext,
-        aiParams: {
-          dateRange,
-          from,
-          to,
-          currency,
-          revenueType,
-          // Pass through other params
-          type,
-          period,
-          showCanvas,
-        },
-      });
+      const { finalFrom, finalTo, finalCurrency, description, locale, resolved } =
+        resolveReportToolParams({
+          toolName: "getGrowthRate",
+          appContext,
+          aiParams: {
+            dateRange,
+            from,
+            to,
+            currency,
+            revenueType,
+            // Pass through other params
+            type,
+            period,
+            showCanvas,
+          },
+        });
       const finalRevenueType = resolved.revenueType ?? "net";
 
       const analysis = startArtifactStream({
@@ -113,8 +103,7 @@ export const getGrowthRateTool = tool({
       const growthRate = result.summary.periodGrowthRate;
       const currentTotal = result.summary.currentTotal;
       const prevTotal = result.summary.previousTotal;
-      const targetCurrency =
-        result.summary.currency || appContext.baseCurrency || "USD";
+      const targetCurrency = result.summary.currency || appContext.baseCurrency || "USD";
       const trend = result.summary.trend;
 
       // Format totals
@@ -134,17 +123,9 @@ export const getGrowthRateTool = tool({
       const typeLabel = type === "profit" ? "Profit" : "Revenue";
       const revenueTypeLabel = finalRevenueType === "gross" ? "Gross" : "Net";
       const periodLabelLower =
-        period === "monthly"
-          ? "month"
-          : period === "quarterly"
-            ? "quarter"
-            : "year";
+        period === "monthly" ? "month" : period === "quarterly" ? "quarter" : "year";
       const periodLabelUpper =
-        period === "monthly"
-          ? "Month"
-          : period === "quarterly"
-            ? "Quarter"
-            : "Year";
+        period === "monthly" ? "Month" : period === "quarterly" ? "Quarter" : "Year";
 
       let responseText = `**${revenueTypeLabel} ${typeLabel} Growth Rate:** ${growthRate > 0 ? "+" : ""}${growthRate.toFixed(1)}%\n\n`;
 
@@ -160,11 +141,9 @@ export const getGrowthRateTool = tool({
           responseText +=
             "This is a strong growth rate, suggesting excellent business performance.";
         } else if (growthRate > 5) {
-          responseText +=
-            "This is a healthy growth rate, indicating steady business expansion.";
+          responseText += "This is a healthy growth rate, indicating steady business expansion.";
         } else {
-          responseText +=
-            "This moderate growth rate shows consistent business progress.";
+          responseText += "This moderate growth rate shows consistent business progress.";
         }
       } else if (trend === "negative") {
         responseText += `Your ${typeLabel.toLowerCase()} has decreased ${Math.abs(growthRate).toFixed(1)}% compared to the previous ${periodLabelLower}. `;
@@ -172,8 +151,7 @@ export const getGrowthRateTool = tool({
           "Consider reviewing your business strategies, market conditions, or operational efficiency to address this decline.";
       } else {
         responseText += `Your ${typeLabel.toLowerCase()} has remained relatively stable compared to the previous ${periodLabelLower}. `;
-        responseText +=
-          "While stability is positive, consider strategies to accelerate growth.";
+        responseText += "While stability is positive, consider strategies to accelerate growth.";
       }
 
       // Prepare chart data for artifact
@@ -238,14 +216,11 @@ export const getGrowthRateTool = tool({
       if (trend === "positive") {
         summaryText = `Your ${typeLabel.toLowerCase()} has grown ${Math.abs(growthRate).toFixed(1)}% compared to the previous ${periodLabelLower} (${formattedPrevTotal} to ${formattedCurrentTotal}). `;
         if (growthRate > 10) {
-          summaryText +=
-            "This is a strong growth rate, suggesting excellent business performance.";
+          summaryText += "This is a strong growth rate, suggesting excellent business performance.";
         } else if (growthRate > 5) {
-          summaryText +=
-            "This is a healthy growth rate, indicating steady business expansion.";
+          summaryText += "This is a healthy growth rate, indicating steady business expansion.";
         } else {
-          summaryText +=
-            "This moderate growth rate shows consistent business progress.";
+          summaryText += "This moderate growth rate shows consistent business progress.";
         }
       } else if (trend === "negative") {
         summaryText = `Your ${typeLabel.toLowerCase()} has decreased ${Math.abs(growthRate).toFixed(1)}% compared to the previous ${periodLabelLower}. `;
@@ -253,8 +228,7 @@ export const getGrowthRateTool = tool({
           "Consider reviewing your business strategies, market conditions, or operational efficiency to address this decline.";
       } else {
         summaryText = `Your ${typeLabel.toLowerCase()} has remained relatively stable compared to the previous ${periodLabelLower}. `;
-        summaryText +=
-          "While stability is positive, consider strategies to accelerate growth.";
+        summaryText += "While stability is positive, consider strategies to accelerate growth.";
       }
 
       // Update artifact with analysis if showCanvas is true

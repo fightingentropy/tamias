@@ -1,8 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  getPostAuthRedirectPath,
-  hasCompletedOnboarding,
-} from "./auth-routing";
+import { getPostAuthRedirectPath, hasCompletedOnboarding } from "./auth-routing";
 
 describe("auth routing", () => {
   test("treats fully onboarded users as dashboard-ready", () => {

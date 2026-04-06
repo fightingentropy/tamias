@@ -124,10 +124,7 @@ export function InboxMatchAnimation({
               type="button"
               className="w-6 h-6 flex items-center justify-center hover:bg-muted transition-colors"
             >
-              <MdOutlineFilterList
-                className="text-sm text-muted-foreground"
-                size={16}
-              />
+              <MdOutlineFilterList className="text-sm text-muted-foreground" size={16} />
             </button>
           </div>
         </div>
@@ -175,9 +172,7 @@ export function InboxMatchAnimation({
                     </span>
                   </div>
                   <div className="flex items-center justify-between mt-0.5 md:mt-1">
-                    <span className="text-[9px] md:text-[10px] text-muted-foreground">
-                      Inbox
-                    </span>
+                    <span className="text-[9px] md:text-[10px] text-muted-foreground">Inbox</span>
                     <span className="text-[9px] md:text-[10px] text-muted-foreground">
                       {item.date}
                     </span>
@@ -244,10 +239,7 @@ export function InboxMatchAnimation({
       >
         <div className="w-full bg-secondary border border-border px-2 md:px-3 py-2 md:py-3 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
-            <MdOutlineLink
-              className="text-sm text-muted-foreground flex-shrink-0"
-              size={14}
-            />
+            <MdOutlineLink className="text-sm text-muted-foreground flex-shrink-0" size={14} />
             <div className="min-w-0 flex-1">
               <div className="text-[11px] md:text-[12px] text-foreground truncate">
                 Suggested match

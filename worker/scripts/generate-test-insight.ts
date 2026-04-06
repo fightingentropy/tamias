@@ -40,15 +40,9 @@ async function main() {
     );
     console.error("\nExamples:");
     console.error("  bun run scripts/generate-test-insight.ts abc123-team-id");
-    console.error(
-      "  bun run scripts/generate-test-insight.ts abc123-team-id weekly 2026 2",
-    );
-    console.error(
-      "  bun run scripts/generate-test-insight.ts abc123-team-id monthly 2026 1",
-    );
-    console.error(
-      "  bun run scripts/generate-test-insight.ts abc123-team-id --force",
-    );
+    console.error("  bun run scripts/generate-test-insight.ts abc123-team-id weekly 2026 2");
+    console.error("  bun run scripts/generate-test-insight.ts abc123-team-id monthly 2026 1");
+    console.error("  bun run scripts/generate-test-insight.ts abc123-team-id --force");
     process.exit(1);
   }
 
@@ -90,10 +84,7 @@ async function main() {
   console.log();
 
   try {
-    if (
-      !process.env.CLOUDFLARE_ASYNC_BRIDGE_URL ||
-      !process.env.CLOUDFLARE_ASYNC_BRIDGE_TOKEN
-    ) {
+    if (!process.env.CLOUDFLARE_ASYNC_BRIDGE_URL || !process.env.CLOUDFLARE_ASYNC_BRIDGE_TOKEN) {
       console.error(
         "❌ CLOUDFLARE_ASYNC_BRIDGE_URL and CLOUDFLARE_ASYNC_BRIDGE_TOKEN are required",
       );
@@ -129,13 +120,9 @@ async function main() {
     console.log(`   Requested Job ID: ${requestedJobId}`);
     console.log();
     console.log("💡 The job will be processed by the Cloudflare async worker.");
-    console.log(
-      "   Make sure the worker is running: bun run dev (in worker)",
-    );
+    console.log("   Make sure the worker is running: bun run dev (in worker)");
     console.log();
-    console.log(
-      "   To monitor progress, check the async worker logs or the insights table.",
-    );
+    console.log("   To monitor progress, check the async worker logs or the insights table.");
   } catch (error) {
     console.error("❌ Error:", error);
     process.exit(1);

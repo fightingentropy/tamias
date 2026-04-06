@@ -20,13 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@tamias/ui/card";
 import { Checkbox } from "@tamias/ui/checkbox";
 import { Input } from "@tamias/ui/input";
 import { Label } from "@tamias/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@tamias/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@tamias/ui/select";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { Textarea } from "@tamias/ui/textarea";
 import { useToast } from "@tamias/ui/use-toast";
@@ -203,9 +197,7 @@ function getValidationSummary(status?: CompaniesHouseValidationStatus | null) {
   return humanizeToken(status.validationStatus ?? status.status);
 }
 
-function getValidationMessages(
-  status?: CompaniesHouseValidationStatus | null,
-): string[] {
+function getValidationMessages(status?: CompaniesHouseValidationStatus | null): string[] {
   return (status?.errors ?? [])
     .map((error) => {
       const message = error.message;
@@ -273,19 +265,13 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const connectionQuery = useQuery(
-    trpc.companiesHouse.getConnection.queryOptions(),
-  );
-  const accountsStatusQuery = useQuery(
-    trpc.companiesHouse.getAccountsStatus.queryOptions(),
-  );
+  const connectionQuery = useQuery(trpc.companiesHouse.getConnection.queryOptions());
+  const accountsStatusQuery = useQuery(trpc.companiesHouse.getAccountsStatus.queryOptions());
 
   const connection = connectionQuery.data;
   const accountsStatus = accountsStatusQuery.data;
   const companyNumber =
-    connection?.profileCompanyNumber ??
-    accountsStatus?.profileCompanyNumber ??
-    "";
+    connection?.profileCompanyNumber ?? accountsStatus?.profileCompanyNumber ?? "";
 
   const registeredOfficeScopeGranted = companyNumber
     ? getRegisteredOfficeScopeGranted(connection?.companyScopes, companyNumber)
@@ -294,8 +280,7 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
     ? getRegisteredEmailScopeGranted(connection?.companyScopes, companyNumber)
     : false;
   const pscDiscrepancyScopeGranted =
-    connection?.scopes?.includes(COMPANIES_HOUSE_PSC_DISCREPANCY_SCOPE) ??
-    false;
+    connection?.scopes?.includes(COMPANIES_HOUSE_PSC_DISCREPANCY_SCOPE) ?? false;
   const officeAddressCheckboxId = getCheckboxId(baseId, "office-address");
   const registeredEmailCheckboxId = getCheckboxId(baseId, "registered-email");
 
@@ -372,8 +357,7 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
     useState<CompaniesHousePscDiscrepancyObligedEntityType>(
       "auditor-external-accountant-or-tax-advisor",
     );
-  const [obligedEntityOrganisationName, setObligedEntityOrganisationName] =
-    useState("Tamias");
+  const [obligedEntityOrganisationName, setObligedEntityOrganisationName] = useState("Tamias");
   const [obligedEntityContactName, setObligedEntityContactName] = useState("");
   const [obligedEntityEmail, setObligedEntityEmail] = useState("");
   const [materialDiscrepancies, setMaterialDiscrepancies] = useState<
@@ -512,10 +496,7 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
     );
   };
 
-  const togglePscDiscrepancyType = (
-    value: CompaniesHousePscDiscrepancyType,
-    checked: boolean,
-  ) => {
+  const togglePscDiscrepancyType = (value: CompaniesHousePscDiscrepancyType, checked: boolean) => {
     setPscDiscrepancyTypes((current) =>
       checked ? [...current, value] : current.filter((item) => item !== value),
     );
@@ -535,20 +516,15 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
             {companyNumber ? (
               <Badge variant="outline">Company {companyNumber}</Badge>
             ) : (
-              <Badge variant="secondary">
-                No filing-profile company number
-              </Badge>
+              <Badge variant="secondary">No filing-profile company number</Badge>
             )}
             {accountsStatus?.environment ? (
-              <Badge variant="outline">
-                {humanizeToken(accountsStatus.environment)}
-              </Badge>
+              <Badge variant="outline">{humanizeToken(accountsStatus.environment)}</Badge>
             ) : null}
           </div>
           <p>
-            Request the exact Companies House scopes you need, then create draft
-            filings for registered office and registered email changes or submit
-            a PSC discrepancy report.
+            Request the exact Companies House scopes you need, then create draft filings for
+            registered office and registered email changes or submit a PSC discrepancy report.
           </p>
         </CardContent>
       </Card>
@@ -562,11 +538,7 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
             <div className="rounded-md border p-3 space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <span className="font-medium">Registered office</span>
-                <Badge
-                  variant={
-                    registeredOfficeScopeGranted ? "default" : "secondary"
-                  }
-                >
+                <Badge variant={registeredOfficeScopeGranted ? "default" : "secondary"}>
                   {registeredOfficeScopeGranted ? "Granted" : "Missing"}
                 </Badge>
               </div>
@@ -584,11 +556,7 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
             <div className="rounded-md border p-3 space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <span className="font-medium">Registered email</span>
-                <Badge
-                  variant={
-                    registeredEmailScopeGranted ? "default" : "secondary"
-                  }
-                >
+                <Badge variant={registeredEmailScopeGranted ? "default" : "secondary"}>
                   {registeredEmailScopeGranted ? "Granted" : "Missing"}
                 </Badge>
               </div>
@@ -606,9 +574,7 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
             <div className="rounded-md border p-3 space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <span className="font-medium">PSC discrepancy</span>
-                <Badge
-                  variant={pscDiscrepancyScopeGranted ? "default" : "secondary"}
-                >
+                <Badge variant={pscDiscrepancyScopeGranted ? "default" : "secondary"}>
                   {pscDiscrepancyScopeGranted ? "Granted" : "Missing"}
                 </Badge>
               </div>
@@ -693,26 +659,21 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
             <Checkbox
               id={officeAddressCheckboxId}
               checked={acceptOfficeAddress}
-              onCheckedChange={(checked) =>
-                setAcceptOfficeAddress(Boolean(checked))
-              }
+              onCheckedChange={(checked) => setAcceptOfficeAddress(Boolean(checked))}
               className="mt-0.5"
             />
             <Label
               htmlFor={officeAddressCheckboxId}
               className="text-sm font-normal leading-relaxed text-[#878787]"
             >
-              Confirm this is an appropriate office address under the Companies
-              Act.
+              Confirm this is an appropriate office address under the Companies Act.
             </Label>
           </div>
 
           <SubmitButton
             className="w-full"
             isSubmitting={createRegisteredOfficeDraftMutation.isPending}
-            disabled={
-              !installed || !registeredOfficeScopeGranted || !companyNumber
-            }
+            disabled={!installed || !registeredOfficeScopeGranted || !companyNumber}
             onClick={() =>
               createRegisteredOfficeDraftMutation.mutate({
                 acceptAppropriateOfficeAddressStatement: acceptOfficeAddress,
@@ -732,9 +693,7 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
           {registeredOfficeDraft ? (
             <div className="rounded-md border p-3 space-y-3">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline">
-                  Transaction {registeredOfficeDraft.transaction.id}
-                </Badge>
+                <Badge variant="outline">Transaction {registeredOfficeDraft.transaction.id}</Badge>
                 <Badge variant="outline">
                   {humanizeToken(registeredOfficeDraft.transaction.status)}
                 </Badge>
@@ -756,12 +715,9 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
                   .filter(Boolean)
                   .join(", ")}
               </p>
-              {getValidationMessages(registeredOfficeDraft.validationStatus)
-                .length ? (
+              {getValidationMessages(registeredOfficeDraft.validationStatus).length ? (
                 <div className="space-y-1 text-[#878787]">
-                  {getValidationMessages(
-                    registeredOfficeDraft.validationStatus,
-                  ).map((message) => (
+                  {getValidationMessages(registeredOfficeDraft.validationStatus).map((message) => (
                     <p key={message}>• {message}</p>
                   ))}
                 </div>
@@ -769,11 +725,7 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
               <div className="flex flex-wrap gap-2">
                 <Button
                   variant="outline"
-                  onClick={() =>
-                    refreshRegisteredOfficeDraft(
-                      registeredOfficeDraft.transaction.id,
-                    )
-                  }
+                  onClick={() => refreshRegisteredOfficeDraft(registeredOfficeDraft.transaction.id)}
                 >
                   Refresh
                 </Button>
@@ -787,9 +739,7 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
                       },
                       {
                         onSuccess: async () => {
-                          await refreshRegisteredOfficeDraft(
-                            registeredOfficeDraft.transaction.id,
-                          );
+                          await refreshRegisteredOfficeDraft(registeredOfficeDraft.transaction.id);
                         },
                       },
                     )
@@ -830,9 +780,7 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
             <Label>Registered email address</Label>
             <Input
               value={registeredEmailAddress}
-              onChange={(event) =>
-                setRegisteredEmailAddress(event.target.value)
-              }
+              onChange={(event) => setRegisteredEmailAddress(event.target.value)}
               placeholder="company@example.com"
             />
           </div>
@@ -841,26 +789,21 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
             <Checkbox
               id={registeredEmailCheckboxId}
               checked={acceptRegisteredEmail}
-              onCheckedChange={(checked) =>
-                setAcceptRegisteredEmail(Boolean(checked))
-              }
+              onCheckedChange={(checked) => setAcceptRegisteredEmail(Boolean(checked))}
               className="mt-0.5"
             />
             <Label
               htmlFor={registeredEmailCheckboxId}
               className="text-sm font-normal leading-relaxed text-[#878787]"
             >
-              Confirm this is an appropriate registered email address under the
-              Companies Act.
+              Confirm this is an appropriate registered email address under the Companies Act.
             </Label>
           </div>
 
           <SubmitButton
             className="w-full"
             isSubmitting={createRegisteredEmailDraftMutation.isPending}
-            disabled={
-              !installed || !registeredEmailScopeGranted || !companyNumber
-            }
+            disabled={!installed || !registeredEmailScopeGranted || !companyNumber}
             onClick={() =>
               createRegisteredEmailDraftMutation.mutate({
                 registeredEmailAddress,
@@ -874,9 +817,7 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
           {registeredEmailDraft ? (
             <div className="rounded-md border p-3 space-y-3">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline">
-                  Transaction {registeredEmailDraft.transaction.id}
-                </Badge>
+                <Badge variant="outline">Transaction {registeredEmailDraft.transaction.id}</Badge>
                 <Badge variant="outline">
                   {humanizeToken(registeredEmailDraft.transaction.status)}
                 </Badge>
@@ -885,23 +826,17 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
                 </Badge>
               </div>
               <p className="text-[#878787]">
-                Draft email:{" "}
-                {registeredEmailDraft.filing.registeredEmailAddress ??
-                  "Unknown"}
+                Draft email: {registeredEmailDraft.filing.registeredEmailAddress ?? "Unknown"}
               </p>
               {registeredEmailDraft.eligibility?.eligible === false ? (
                 <p className="text-[#878787]">
                   Eligibility:{" "}
-                  {registeredEmailDraft.eligibility?.reasons?.join(", ") ??
-                    "Not eligible"}
+                  {registeredEmailDraft.eligibility?.reasons?.join(", ") ?? "Not eligible"}
                 </p>
               ) : null}
-              {getValidationMessages(registeredEmailDraft.validationStatus)
-                .length ? (
+              {getValidationMessages(registeredEmailDraft.validationStatus).length ? (
                 <div className="space-y-1 text-[#878787]">
-                  {getValidationMessages(
-                    registeredEmailDraft.validationStatus,
-                  ).map((message) => (
+                  {getValidationMessages(registeredEmailDraft.validationStatus).map((message) => (
                     <p key={message}>• {message}</p>
                   ))}
                 </div>
@@ -909,11 +844,7 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
               <div className="flex flex-wrap gap-2">
                 <Button
                   variant="outline"
-                  onClick={() =>
-                    refreshRegisteredEmailDraft(
-                      registeredEmailDraft.transaction.id,
-                    )
-                  }
+                  onClick={() => refreshRegisteredEmailDraft(registeredEmailDraft.transaction.id)}
                 >
                   Refresh
                 </Button>
@@ -927,9 +858,7 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
                       },
                       {
                         onSuccess: async () => {
-                          await refreshRegisteredEmailDraft(
-                            registeredEmailDraft.transaction.id,
-                          );
+                          await refreshRegisteredEmailDraft(registeredEmailDraft.transaction.id);
                         },
                       },
                     )
@@ -972,9 +901,7 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
               <Select
                 value={obligedEntityType}
                 onValueChange={(value) =>
-                  setObligedEntityType(
-                    value as CompaniesHousePscDiscrepancyObligedEntityType,
-                  )
+                  setObligedEntityType(value as CompaniesHousePscDiscrepancyObligedEntityType)
                 }
               >
                 <SelectTrigger>
@@ -994,9 +921,7 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
               <Label>Organisation name</Label>
               <Input
                 value={obligedEntityOrganisationName}
-                onChange={(event) =>
-                  setObligedEntityOrganisationName(event.target.value)
-                }
+                onChange={(event) => setObligedEntityOrganisationName(event.target.value)}
               />
             </div>
 
@@ -1004,9 +929,7 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
               <Label>Contact name</Label>
               <Input
                 value={obligedEntityContactName}
-                onChange={(event) =>
-                  setObligedEntityContactName(event.target.value)
-                }
+                onChange={(event) => setObligedEntityContactName(event.target.value)}
               />
             </div>
 
@@ -1024,11 +947,7 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
             <Label>Material discrepancies</Label>
             <div className="grid gap-2 md:grid-cols-3">
               {materialDiscrepancyOptions.map((option) => {
-                const checkboxId = getCheckboxId(
-                  baseId,
-                  "material-discrepancy",
-                  option.value,
-                );
+                const checkboxId = getCheckboxId(baseId, "material-discrepancy", option.value);
 
                 return (
                   <div key={option.value} className="flex items-center gap-2">
@@ -1036,10 +955,7 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
                       id={checkboxId}
                       checked={materialDiscrepancies.includes(option.value)}
                       onCheckedChange={(checked) =>
-                        toggleMaterialDiscrepancy(
-                          option.value,
-                          Boolean(checked),
-                        )
+                        toggleMaterialDiscrepancy(option.value, Boolean(checked))
                       }
                     />
                     <Label
@@ -1059,9 +975,7 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
               <Label>PSC type</Label>
               <Select
                 value={pscType}
-                onValueChange={(value) =>
-                  setPscType(value as CompaniesHousePscType)
-                }
+                onValueChange={(value) => setPscType(value as CompaniesHousePscType)}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -1099,11 +1013,7 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
             <Label>Discrepancy types</Label>
             <div className="grid gap-2 md:grid-cols-2">
               {pscDiscrepancyTypeOptions.map((option) => {
-                const checkboxId = getCheckboxId(
-                  baseId,
-                  "psc-discrepancy-type",
-                  option.value,
-                );
+                const checkboxId = getCheckboxId(baseId, "psc-discrepancy-type", option.value);
 
                 return (
                   <div key={option.value} className="flex items-center gap-2">
@@ -1139,9 +1049,7 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
           <SubmitButton
             className="w-full"
             isSubmitting={submitPscReportMutation.isPending}
-            disabled={
-              !installed || !pscDiscrepancyScopeGranted || !companyNumber
-            }
+            disabled={!installed || !pscDiscrepancyScopeGranted || !companyNumber}
             onClick={() =>
               submitPscReportMutation.mutate({
                 materialDiscrepancies,
@@ -1167,13 +1075,9 @@ export function CompaniesHouseAppPanel({ installed }: { installed: boolean }) {
           {pscResult ? (
             <div className="rounded-md border p-3 space-y-3">
               <div className="flex flex-wrap gap-2">
-                <Badge variant="outline">
-                  {humanizeToken(pscResult.finalReport.status)}
-                </Badge>
+                <Badge variant="outline">{humanizeToken(pscResult.finalReport.status)}</Badge>
                 {pscResult.finalReport.links?.self ? (
-                  <Badge variant="outline">
-                    {pscResult.finalReport.links.self}
-                  </Badge>
+                  <Badge variant="outline">{pscResult.finalReport.links.self}</Badge>
                 ) : null}
               </div>
               <p className="text-[#878787]">

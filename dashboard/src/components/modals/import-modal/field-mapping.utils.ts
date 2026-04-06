@@ -11,12 +11,7 @@ export function getBalanceFromLatestDate(
   dateColumn: string,
   balanceColumn: string,
 ): string | undefined {
-  if (
-    !rows.length ||
-    !dateColumn ||
-    !balanceColumn ||
-    balanceColumn === "None"
-  ) {
+  if (!rows.length || !dateColumn || !balanceColumn || balanceColumn === "None") {
     return undefined;
   }
 
@@ -25,23 +20,16 @@ export function getBalanceFromLatestDate(
       row,
       parsed: formatDate(row[dateColumn] ?? ""),
     }))
-    .filter((r): r is { row: Record<string, string>; parsed: string } =>
-      Boolean(r.parsed),
-    );
+    .filter((r): r is { row: Record<string, string>; parsed: string } => Boolean(r.parsed));
 
   if (rowsWithDates.length === 0) return undefined;
 
-  const latest = rowsWithDates.sort((a, b) =>
-    b.parsed.localeCompare(a.parsed),
-  )[0];
+  const latest = rowsWithDates.sort((a, b) => b.parsed.localeCompare(a.parsed))[0];
 
   return latest?.row[balanceColumn]?.trim() || undefined;
 }
 
-export function isActiveRequest(
-  requestId: number,
-  activeRequestRef: { current: number },
-) {
+export function isActiveRequest(requestId: number, activeRequestRef: { current: number }) {
   return requestId === activeRequestRef.current;
 }
 

@@ -55,12 +55,7 @@ export const registerTrackerTools: RegisterTools = (server, ctx) => {
   const hasEntryWriteScope = hasScope(ctx, "tracker-entries.write");
 
   // Skip if user has no tracker scopes
-  if (
-    !hasProjectReadScope &&
-    !hasProjectWriteScope &&
-    !hasEntryReadScope &&
-    !hasEntryWriteScope
-  ) {
+  if (!hasProjectReadScope && !hasProjectWriteScope && !hasEntryReadScope && !hasEntryWriteScope) {
     return;
   }
 
@@ -241,9 +236,7 @@ export const registerTrackerTools: RegisterTools = (server, ctx) => {
 
         if (!result) {
           return {
-            content: [
-              { type: "text", text: "Project not found or already deleted" },
-            ],
+            content: [{ type: "text", text: "Project not found or already deleted" }],
             isError: true,
           };
         }
@@ -252,11 +245,7 @@ export const registerTrackerTools: RegisterTools = (server, ctx) => {
           content: [
             {
               type: "text",
-              text: JSON.stringify(
-                { success: true, deletedId: result.id },
-                null,
-                2,
-              ),
+              text: JSON.stringify({ success: true, deletedId: result.id }, null, 2),
             },
           ],
         };
@@ -274,16 +263,11 @@ export const registerTrackerTools: RegisterTools = (server, ctx) => {
       "tracker_entries_list",
       {
         title: "List Tracker Entries",
-        description:
-          "List time tracking entries with filtering by project and date range",
+        description: "List time tracking entries with filtering by project and date range",
         inputSchema: {
           from: z.string().describe("Start date (YYYY-MM-DD) - required"),
           to: z.string().describe("End date (YYYY-MM-DD) - required"),
-          projectId: z
-            .string()
-            .uuid()
-            .optional()
-            .describe("Filter by project ID"),
+          projectId: z.string().uuid().optional().describe("Filter by project ID"),
         },
         annotations: READ_ONLY_ANNOTATIONS,
       },
@@ -425,9 +409,7 @@ export const registerTrackerTools: RegisterTools = (server, ctx) => {
           stop,
           duration: params.duration ?? existing.duration ?? 0,
           description: params.description ?? existing.description,
-          assignedId:
-            (params.assignedId as ConvexUserId | null | undefined) ??
-            existing.assignedId,
+          assignedId: (params.assignedId as ConvexUserId | null | undefined) ?? existing.assignedId,
         });
 
         return {
@@ -451,9 +433,7 @@ export const registerTrackerTools: RegisterTools = (server, ctx) => {
 
         if (!result) {
           return {
-            content: [
-              { type: "text", text: "Entry not found or already deleted" },
-            ],
+            content: [{ type: "text", text: "Entry not found or already deleted" }],
             isError: true,
           };
         }
@@ -462,11 +442,7 @@ export const registerTrackerTools: RegisterTools = (server, ctx) => {
           content: [
             {
               type: "text",
-              text: JSON.stringify(
-                { success: true, deletedId: result.id },
-                null,
-                2,
-              ),
+              text: JSON.stringify({ success: true, deletedId: result.id }, null, 2),
             },
           ],
         };
@@ -533,10 +509,7 @@ export const registerTrackerTools: RegisterTools = (server, ctx) => {
             content: [
               {
                 type: "text",
-                text:
-                  error instanceof Error
-                    ? error.message
-                    : "Failed to stop timer",
+                text: error instanceof Error ? error.message : "Failed to stop timer",
               },
             ],
             isError: true,

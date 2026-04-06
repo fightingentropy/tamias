@@ -28,9 +28,7 @@ export function HorizontalPagination({
         className="size-6 p-0"
         onClick={onScrollLeft}
       >
-        <Icons.ArrowBack
-          className={cn("size-3.5", canScrollLeft && "text-primary")}
-        />
+        <Icons.ArrowBack className={cn("size-3.5", canScrollLeft && "text-primary")} />
       </Button>
       <Button
         variant="outline"
@@ -39,9 +37,7 @@ export function HorizontalPagination({
         className="size-6 p-0"
         onClick={onScrollRight}
       >
-        <Icons.ArrowForward
-          className={cn("size-3.5", canScrollRight && "text-primary")}
-        />
+        <Icons.ArrowForward className={cn("size-3.5", canScrollRight && "text-primary")} />
       </Button>
     </div>
   );

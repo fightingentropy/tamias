@@ -11,12 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@tamias/ui/dropdown-menu";
 import { Spinner } from "@tamias/ui/spinner";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import type { ColumnDef } from "@tanstack/react-table";
 import { formatDistanceToNowStrict } from "date-fns";
@@ -28,53 +23,47 @@ import { getWebsiteFaviconUrl } from "@/utils/logos";
 
 export type Customer = RouterOutputs["customers"]["get"]["data"][number];
 
-const NameCell = memo(
-  ({ name, website }: { name: string | null; website: string | null }) => {
-    if (!name) return "-";
+const NameCell = memo(({ name, website }: { name: string | null; website: string | null }) => {
+  if (!name) return "-";
 
-    // Logo from logo.dev based on website domain
-    const imageSrc = website ? getWebsiteFaviconUrl(website) : null;
+  // Logo from logo.dev based on website domain
+  const imageSrc = website ? getWebsiteFaviconUrl(website) : null;
 
-    return (
-      <div className="flex items-center space-x-2">
-        <Avatar className="size-5">
-          {imageSrc && (
-            <AvatarImageNext
-              src={imageSrc}
-              alt={`${name} logo`}
-              width={20}
-              height={20}
-              quality={100}
-            />
-          )}
-          <AvatarFallback className="text-[9px] font-medium">
-            {name?.[0]}
-          </AvatarFallback>
-        </Avatar>
-        <span className="truncate">{name}</span>
-      </div>
-    );
-  },
-);
+  return (
+    <div className="flex items-center space-x-2">
+      <Avatar className="size-5">
+        {imageSrc && (
+          <AvatarImageNext
+            src={imageSrc}
+            alt={`${name} logo`}
+            width={20}
+            height={20}
+            quality={100}
+          />
+        )}
+        <AvatarFallback className="text-[9px] font-medium">{name?.[0]}</AvatarFallback>
+      </Avatar>
+      <span className="truncate">{name}</span>
+    </div>
+  );
+});
 
 NameCell.displayName = "NameCell";
 
-const TagsCell = memo(
-  ({ tags }: { tags?: { id: string; name: string | null }[] }) => (
-    <div className="relative w-full">
-      <div className="flex items-center space-x-2 overflow-x-auto scrollbar-hide">
-        {tags?.map((tag) => (
-          <Link href={`/transactions?tags=${tag.id}`} key={tag.id}>
-            <Badge variant="tag" className="whitespace-nowrap flex-shrink-0">
-              {tag.name}
-            </Badge>
-          </Link>
-        ))}
-      </div>
-      <div className="absolute group-hover:hidden right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none z-10" />
+const TagsCell = memo(({ tags }: { tags?: { id: string; name: string | null }[] }) => (
+  <div className="relative w-full">
+    <div className="flex items-center space-x-2 overflow-x-auto scrollbar-hide">
+      {tags?.map((tag) => (
+        <Link href={`/transactions?tags=${tag.id}`} key={tag.id}>
+          <Badge variant="tag" className="whitespace-nowrap flex-shrink-0">
+            {tag.name}
+          </Badge>
+        </Link>
+      ))}
     </div>
-  ),
-);
+    <div className="absolute group-hover:hidden right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none z-10" />
+  </div>
+));
 
 TagsCell.displayName = "TagsCell";
 
@@ -106,8 +95,7 @@ const ActionsCell = memo(
       onEnrich?.(customerId);
     }, [customerId, onEnrich]);
 
-    const isEnriching =
-      enrichmentStatus === "pending" || enrichmentStatus === "processing";
+    const isEnriching = enrichmentStatus === "pending" || enrichmentStatus === "processing";
 
     return (
       <div className="flex items-center justify-center w-full">
@@ -119,14 +107,10 @@ const ActionsCell = memo(
           </DropdownMenuTrigger>
 
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={handleEdit}>
-              Edit customer
-            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleEdit}>Edit customer</DropdownMenuItem>
 
             {hasWebsite && !isEnriching && (
-              <DropdownMenuItem onClick={handleEnrich}>
-                Enrich company
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleEnrich}>Enrich company</DropdownMenuItem>
             )}
 
             <DropdownMenuItem onClick={handleDelete} className="text-[#FF3638]">
@@ -154,11 +138,7 @@ const EnrichingCell = memo(() => (
           <span className="text-[#878787] text-sm">Enriching</span>
         </div>
       </TooltipTrigger>
-      <TooltipContent
-        className="px-3 py-1.5 text-xs max-w-[280px]"
-        side="top"
-        sideOffset={5}
-      >
+      <TooltipContent className="px-3 py-1.5 text-xs max-w-[280px]" side="top" sideOffset={5}>
         Analyzing company details to enrich customer data.
       </TooltipContent>
     </Tooltip>
@@ -205,9 +185,7 @@ export const columns: ColumnDef<Customer>[] = [
       className:
         "w-[320px] min-w-[240px] md:sticky md:left-0 bg-background group-hover:bg-[#F2F1EF] group-hover:dark:bg-[#0f0f0f] z-20",
     },
-    cell: ({ row }) => (
-      <NameCell name={row.original.name} website={row.original.website} />
-    ),
+    cell: ({ row }) => <NameCell name={row.original.name} website={row.original.website} />,
   },
   {
     id: "contact",
@@ -255,9 +233,7 @@ export const columns: ColumnDef<Customer>[] = [
     cell: ({ row }) => {
       if (row.original.invoiceCount > 0) {
         return (
-          <Link href={`/invoices?customers=${row.original.id}`}>
-            {row.original.invoiceCount}
-          </Link>
+          <Link href={`/invoices?customers=${row.original.id}`}>{row.original.invoiceCount}</Link>
         );
       }
 
@@ -280,9 +256,7 @@ export const columns: ColumnDef<Customer>[] = [
     cell: ({ row }) => {
       if (row.original.projectCount > 0) {
         return (
-          <Link href={`/tracker?customers=${row.original.id}`}>
-            {row.original.projectCount}
-          </Link>
+          <Link href={`/tracker?customers=${row.original.id}`}>{row.original.projectCount}</Link>
         );
       }
 

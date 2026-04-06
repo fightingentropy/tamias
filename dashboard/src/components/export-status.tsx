@@ -160,15 +160,7 @@ export function ExportStatus() {
       setToastId(null);
       setExportData(undefined);
     }
-  }, [
-    status,
-    queryError,
-    toast,
-    setExportData,
-    toastId,
-    dismiss,
-    exportData?.exportType,
-  ]);
+  }, [status, queryError, toast, setExportData, toastId, dismiss, exportData?.exportType]);
 
   // Create toast when export starts (only for file exports - accounting uses the export bar)
   useEffect(() => {
@@ -197,11 +189,7 @@ export function ExportStatus() {
     if (!toastId || exportData?.exportType === "accounting") return;
 
     const currentProgress =
-      status === "completed"
-        ? 100
-        : progress !== undefined
-          ? Number(progress)
-          : undefined;
+      status === "completed" ? 100 : progress !== undefined ? Number(progress) : undefined;
 
     if (
       currentProgress !== undefined &&
@@ -253,11 +241,7 @@ export function ExportStatus() {
               <div className="mt-4 flex space-x-4">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="border space-x-2"
-                    >
+                    <Button size="sm" variant="secondary" className="border space-x-2">
                       <span>Share URL</span>
                       <Icons.ChevronDown />
                     </Button>

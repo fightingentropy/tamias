@@ -30,10 +30,7 @@ export function getTransactionSearchText(transaction: TransactionRecord) {
     .toLowerCase();
 }
 
-export function matchesTransactionSearchQuery(
-  transaction: TransactionRecord,
-  query: string,
-) {
+export function matchesTransactionSearchQuery(transaction: TransactionRecord, query: string) {
   const numericQuery = Number(query);
 
   if (!Number.isNaN(numericQuery) && query.trim() !== "") {
@@ -48,16 +45,10 @@ export function getComparableTransactionAmount(transaction: TransactionRecord) {
 }
 
 function dedupeTransactionsById(transactions: TransactionRecord[]) {
-  return [
-    ...new Map(
-      transactions.map((transaction) => [transaction.id, transaction]),
-    ).values(),
-  ];
+  return [...new Map(transactions.map((transaction) => [transaction.id, transaction])).values()];
 }
 
-function buildIndexedTransactionMatchQueries(
-  searchTerms: Array<string | null | undefined>,
-) {
+function buildIndexedTransactionMatchQueries(searchTerms: Array<string | null | undefined>) {
   const queries = new Set<string>();
 
   for (const searchTerm of searchTerms) {
@@ -71,9 +62,7 @@ function buildIndexedTransactionMatchQueries(
 
     const significantTokens = [...new Set(trimmed.match(/[a-z0-9]+/gi) ?? [])]
       .map((token) => token.toLowerCase())
-      .filter(
-        (token) => token.length >= 3 && !MATCHING_SEARCH_STOP_WORDS.has(token),
-      )
+      .filter((token) => token.length >= 3 && !MATCHING_SEARCH_STOP_WORDS.has(token))
       .sort((left, right) => right.length - left.length);
 
     for (const token of significantTokens.slice(0, 2)) {
@@ -99,13 +88,9 @@ export async function getIndexedTransactionMatchCandidates(args: {
 }) {
   const searchQueries = buildIndexedTransactionMatchQueries(args.searchTerms);
   const absoluteAmount =
-    typeof args.amount === "number" && Number.isFinite(args.amount)
-      ? Math.abs(args.amount)
-      : null;
+    typeof args.amount === "number" && Number.isFinite(args.amount) ? Math.abs(args.amount) : null;
   const amountTolerance =
-    absoluteAmount === null || absoluteAmount < 0.01
-      ? null
-      : Math.max(1, absoluteAmount * 0.25);
+    absoluteAmount === null || absoluteAmount < 0.01 ? null : Math.max(1, absoluteAmount * 0.25);
   const candidateLimit = Math.max(1, Math.min(args.limit ?? 120, 200));
 
   if (searchQueries.length === 0 && amountTolerance === null) {
@@ -127,10 +112,7 @@ export async function getIndexedTransactionMatchCandidates(args: {
       ? [
           getTransactionsByAmountRangeFromConvex({
             teamId: args.teamId,
-            minAmount: Math.max(
-              0,
-              Math.round((absoluteAmount - amountTolerance) * 100),
-            ),
+            minAmount: Math.max(0, Math.round((absoluteAmount - amountTolerance) * 100)),
             maxAmount: Math.round((absoluteAmount + amountTolerance) * 100),
             dateGte: args.dateGte ?? undefined,
             dateLte: args.dateLte ?? undefined,

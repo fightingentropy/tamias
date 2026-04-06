@@ -6,8 +6,7 @@ export default {
   category: "ai-automation",
   active: true,
   logo: Logo,
-  short_description:
-    "Connect Tamias to 7,000+ apps. Automate reports, alerts, and workflows.",
+  short_description: "Connect Tamias to 7,000+ apps. Automate reports, alerts, and workflows.",
   description: `Connect Tamias to Zapier using the Model Context Protocol (MCP).
 
 **What you can do:**

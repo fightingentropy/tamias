@@ -6,12 +6,7 @@ import { Icons } from "@tamias/ui/icons";
 import { useToast } from "@tamias/ui/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import {
-  AnimatePresence,
-  motion,
-  useMotionValue,
-  useTransform,
-} from "framer-motion";
+import { AnimatePresence, motion, useMotionValue, useTransform } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useChatInterface } from "@/hooks/use-chat-interface";
 import { useAudioPlayerStore } from "@/store/audio-player";
@@ -21,11 +16,7 @@ import { WidgetSkeleton } from "./widget-skeleton";
 /**
  * Derive period label from period type, year, and number
  */
-function getPeriodLabel(
-  periodType: string,
-  periodYear: number,
-  periodNumber: number,
-): string {
+function getPeriodLabel(periodType: string, periodYear: number, periodNumber: number): string {
   switch (periodType) {
     case "weekly":
       return `Week ${periodNumber}, ${periodYear}`;
@@ -286,9 +277,7 @@ export function InsightsWidget() {
   );
 
   // Mutation to mark insight as read
-  const { mutate: markAsRead } = useMutation(
-    trpc.insights.markAsRead.mutationOptions(),
-  );
+  const { mutate: markAsRead } = useMutation(trpc.insights.markAsRead.mutationOptions());
 
   // Mutation to dismiss insight
   const { mutate: dismissInsight } = useMutation(
@@ -305,11 +294,7 @@ export function InsightsWidget() {
   const insightsData: InsightCard[] =
     data?.data?.map((insight) => ({
       id: insight.id,
-      periodLabel: getPeriodLabel(
-        insight.periodType,
-        insight.periodYear,
-        insight.periodNumber,
-      ),
+      periodLabel: getPeriodLabel(insight.periodType, insight.periodYear, insight.periodNumber),
       periodType: insight.periodType,
       periodNumber: insight.periodNumber,
       periodYear: insight.periodYear,
@@ -337,12 +322,8 @@ export function InsightsWidget() {
       !currentIds.every((id) => cardOrder.includes(id))
     ) {
       // Put new insights at the front
-      const newIds = currentIds.filter(
-        (id) => !knownInsightIdsRef.current.has(id),
-      );
-      const existingIds = currentIds.filter((id) =>
-        knownInsightIdsRef.current.has(id),
-      );
+      const newIds = currentIds.filter((id) => !knownInsightIdsRef.current.has(id));
+      const existingIds = currentIds.filter((id) => knownInsightIdsRef.current.has(id));
 
       // Add new IDs to known set and trigger animation
       if (newIds.length > 0) {
@@ -366,22 +347,19 @@ export function InsightsWidget() {
     .map((id) => insightsData.find((i) => i.id === id))
     .filter((i): i is InsightCard => i !== undefined);
 
-  const handleDragEnd = useCallback(
-    (cycleDirection: "left" | "right" | null) => {
-      if (cycleDirection) {
-        setCardOrder((prev) => {
-          if (prev.length <= 1) return prev;
-          const first = prev[0] as string;
-          const last = prev[prev.length - 1] as string;
-          if (cycleDirection === "left") {
-            return [...prev.slice(1), first];
-          }
-          return [last, ...prev.slice(0, -1)];
-        });
-      }
-    },
-    [],
-  );
+  const handleDragEnd = useCallback((cycleDirection: "left" | "right" | null) => {
+    if (cycleDirection) {
+      setCardOrder((prev) => {
+        if (prev.length <= 1) return prev;
+        const first = prev[0] as string;
+        const last = prev[prev.length - 1] as string;
+        if (cycleDirection === "left") {
+          return [...prev.slice(1), first];
+        }
+        return [last, ...prev.slice(0, -1)];
+      });
+    }
+  }, []);
 
   const handleListenClick = useCallback(
     async (insight: InsightCard) => {
@@ -497,8 +475,8 @@ export function InsightsWidget() {
             </h4>
           </div>
           <p className="text-[14px] leading-[19px] dark:text-[#666666] text-[#707070]">
-            No new insights available. Every Monday you'll receive a summary of
-            the previous week's performance.
+            No new insights available. Every Monday you'll receive a summary of the previous week's
+            performance.
           </p>
         </div>
       </div>

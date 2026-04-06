@@ -22,10 +22,7 @@ type InsightOutput = {
 /**
  * Title must contain "your" or "you" — makes it personal
  */
-export const titleHasPersonalPronoun = createScorer<
-  InsightSlots,
-  InsightOutput
->({
+export const titleHasPersonalPronoun = createScorer<InsightSlots, InsightOutput>({
   name: "Title: has your/you",
   description: "Title should address the user directly with 'your' or 'you'",
   scorer: ({ output }) => {
@@ -127,26 +124,17 @@ function extractNumbers(text: string): number[] {
 /**
  * Check if a number appears in text (with tolerance for formatting differences)
  */
-function numberAppearsInText(
-  num: number,
-  text: string,
-  tolerance = 0.01,
-): boolean {
+function numberAppearsInText(num: number, text: string, tolerance = 0.01): boolean {
   const extracted = extractNumbers(text);
   const absNum = Math.abs(num);
-  return extracted.some(
-    (n) => Math.abs(n - absNum) / Math.max(absNum, 1) < tolerance,
-  );
+  return extracted.some((n) => Math.abs(n - absNum) / Math.max(absNum, 1) < tolerance);
 }
 
 /**
  * Profit value should appear in the summary
  * CRITICAL: Users must see accurate numbers
  */
-export const summaryHasCorrectProfit = createScorer<
-  InsightSlots,
-  InsightOutput
->({
+export const summaryHasCorrectProfit = createScorer<InsightSlots, InsightOutput>({
   name: "Accuracy: profit value in summary",
   description: "Summary should mention the correct profit amount",
   scorer: ({ input, output }) => {
@@ -185,10 +173,7 @@ export const hasRunwayMentioned = createScorer<InsightSlots, InsightOutput>({
     }
 
     // Also accept "X months runway" pattern
-    const altPattern = new RegExp(
-      `${runway}\\s*months?\\s*(of\\s+)?runway`,
-      "i",
-    );
+    const altPattern = new RegExp(`${runway}\\s*months?\\s*(of\\s+)?runway`, "i");
     if (altPattern.test(fullText)) {
       return 1;
     }
@@ -201,10 +186,7 @@ export const hasRunwayMentioned = createScorer<InsightSlots, InsightOutput>({
  * CRITICAL: If profit is negative, should NOT say "no expenses" or similar
  * This catches the exact bug the user reported
  */
-export const noContradictoryExpenseStatement = createScorer<
-  InsightSlots,
-  InsightOutput
->({
+export const noContradictoryExpenseStatement = createScorer<InsightSlots, InsightOutput>({
   name: "Accuracy: no contradictory expense claims",
   description: "Should not claim 'no expenses' when profit is negative",
   scorer: ({ input, output }) => {
@@ -234,10 +216,7 @@ export const noContradictoryExpenseStatement = createScorer<
 /**
  * If there are overdue invoices, they should be mentioned
  */
-export const overdueInvoicesMentioned = createScorer<
-  InsightSlots,
-  InsightOutput
->({
+export const overdueInvoicesMentioned = createScorer<InsightSlots, InsightOutput>({
   name: "Accuracy: overdue invoices mentioned",
   description: "Overdue invoices should be mentioned when they exist",
   scorer: ({ input, output }) => {
@@ -275,8 +254,7 @@ export const noFalseGrowthInLoss = createScorer<InsightSlots, InsightOutput>({
       return 1;
     }
 
-    const fullText =
-      `${output.title} ${output.summary} ${output.story}`.toLowerCase();
+    const fullText = `${output.title} ${output.summary} ${output.story}`.toLowerCase();
 
     // Bad phrases that suggest growth when we're actually in loss
     const badPhrases = [
@@ -324,8 +302,7 @@ export const toneAppropriate = createScorer<InsightSlots, InsightOutput>({
     const weekType = input.weekType;
 
     const toneExpectations: Record<string, string> = {
-      great:
-        "Confident and acknowledging the achievement, but not over-the-top or cheesy",
+      great: "Confident and acknowledging the achievement, but not over-the-top or cheesy",
       good: "Warm and professional, matter-of-fact with positive undercurrent",
       quiet: "Brief and reassuring, no drama about low activity",
       challenging:
@@ -393,8 +370,7 @@ VERDICT: [PASS or FAIL]`;
  */
 export const runwayDateMentioned = createScorer<InsightSlots, InsightOutput>({
   name: "Projection: runway date mentioned",
-  description:
-    "When runway exhaustion date is provided, it should be mentioned",
+  description: "When runway exhaustion date is provided, it should be mentioned",
   scorer: ({ input, output }) => {
     // Only check if we have a runway exhaustion date
     if (!input.runwayExhaustionDate) {
@@ -451,10 +427,7 @@ export const quarterPaceMentioned = createScorer<InsightSlots, InsightOutput>({
 /**
  * If there are unusual payment delays, they should be flagged
  */
-export const paymentAnomalyHighlighted = createScorer<
-  InsightSlots,
-  InsightOutput
->({
+export const paymentAnomalyHighlighted = createScorer<InsightSlots, InsightOutput>({
   name: "Anomaly: payment delay highlighted",
   description: "Unusual payment delays should be highlighted",
   scorer: ({ input, output }) => {
@@ -487,8 +460,7 @@ export const paymentAnomalyHighlighted = createScorer<
  */
 export const shortRunwayUrgency = createScorer<InsightSlots, InsightOutput>({
   name: "Tone: short runway urgency",
-  description:
-    "When runway is < 4 months, tone should convey appropriate urgency",
+  description: "When runway is < 4 months, tone should convey appropriate urgency",
   scorer: ({ input, output }) => {
     // Only check for short runway
     if (input.runway >= 4) {
@@ -558,11 +530,7 @@ export const projectionScorers = [
 /**
  * All deterministic scorers (cheap, always run)
  */
-export const deterministicScorers = [
-  ...qualityScorers,
-  ...accuracyScorers,
-  ...projectionScorers,
-];
+export const deterministicScorers = [...qualityScorers, ...accuracyScorers, ...projectionScorers];
 
 /**
  * All scorers including LLM-as-judge

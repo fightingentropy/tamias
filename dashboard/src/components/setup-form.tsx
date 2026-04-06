@@ -77,9 +77,7 @@ export function SetupForm() {
               <FormControl>
                 <Input placeholder="John Doe" {...field} />
               </FormControl>
-              <FormDescription>
-                This is your first and last name.
-              </FormDescription>
+              <FormDescription>This is your first and last name.</FormDescription>
               <FormMessage />
             </FormItem>
           )}

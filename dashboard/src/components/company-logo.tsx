@@ -1,13 +1,7 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@tamias/ui/avatar";
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@tamias/ui/card";
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@tamias/ui/card";
 import { Spinner } from "@tamias/ui/spinner";
 import { stripSpecialCharacters } from "@tamias/utils";
 import { useRef } from "react";
@@ -43,8 +37,7 @@ export function CompanyLogo() {
         <CardHeader>
           <CardTitle>Company logo</CardTitle>
           <CardDescription>
-            This is your company's logo. Click on the logo to upload a custom
-            one from your files.
+            This is your company's logo. Click on the logo to upload a custom one from your files.
           </CardDescription>
         </CardHeader>
 

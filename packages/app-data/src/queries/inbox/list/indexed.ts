@@ -45,15 +45,11 @@ async function getIndexedInboxQueryCandidates(args: {
           minAmount: Math.max(
             0,
             Math.round(
-              (Math.abs(numericAmount) -
-                getInboxQueryAmountTolerance(numericAmount)) *
-                100,
+              (Math.abs(numericAmount) - getInboxQueryAmountTolerance(numericAmount)) * 100,
             ),
           ),
           maxAmount: Math.round(
-            (Math.abs(numericAmount) +
-              getInboxQueryAmountTolerance(numericAmount)) *
-              100,
+            (Math.abs(numericAmount) + getInboxQueryAmountTolerance(numericAmount)) * 100,
           ),
           limit: args.limit,
         })
@@ -61,16 +57,11 @@ async function getIndexedInboxQueryCandidates(args: {
   ]);
 
   return [
-    ...new Map(
-      [...textCandidates, ...amountCandidates].map((item) => [item.id, item]),
-    ).values(),
+    ...new Map([...textCandidates, ...amountCandidates].map((item) => [item.id, item])).values(),
   ];
 }
 
-async function getInboxItemsByIdsInOrder(args: {
-  teamId: string;
-  inboxIds: string[];
-}) {
+async function getInboxItemsByIdsInOrder(args: { teamId: string; inboxIds: string[] }) {
   if (args.inboxIds.length === 0) {
     return [];
   }
@@ -91,8 +82,7 @@ async function getInboxItemsByIdsInOrder(args: {
 async function getIndexedInboxPage(db: Database, params: GetInboxParams) {
   const { teamId, cursor, order, pageSize = 20, status, tab } = params;
   const blocklistEntries = await getInboxBlocklist(db, { teamId });
-  const { blockedDomains, blockedEmails } =
-    separateBlocklistEntries(blocklistEntries);
+  const { blockedDomains, blockedEmails } = separateBlocklistEntries(blocklistEntries);
   const cursorState = decodeIndexedInboxCursor(cursor);
   let sourceCursor = cursorState.sourceCursor;
   let sourceExhausted = cursorState.sourceExhausted;
@@ -183,10 +173,7 @@ async function getIndexedInboxPage(db: Database, params: GetInboxParams) {
   }
 
   const pagedItems = eligibleItems.slice(0, pageSize);
-  const nextBufferedIds = [
-    ...eligibleItems.slice(pageSize).map((item) => item.id),
-    ...bufferedIds,
-  ];
+  const nextBufferedIds = [...eligibleItems.slice(pageSize).map((item) => item.id), ...bufferedIds];
   const hasNextPage = nextBufferedIds.length > 0;
   const nextCursor = hasNextPage
     ? encodeIndexedInboxCursor({

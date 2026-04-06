@@ -86,10 +86,7 @@ type VatReturnRecord = {
 
 type ComplianceStateCtx = QueryCtx | MutationCtx;
 
-function serializeFilingProfile(
-  publicTeamId: string,
-  record: FilingProfileRecord,
-) {
+function serializeFilingProfile(publicTeamId: string, record: FilingProfileRecord) {
   return {
     id: record.publicFilingProfileId ?? record._id,
     teamId: publicTeamId,
@@ -119,8 +116,7 @@ function serializeFilingProfile(
     dormant: record.dormant ?? null,
     auditExemptionClaimed: record.auditExemptionClaimed ?? null,
     membersDidNotRequireAudit: record.membersDidNotRequireAudit ?? null,
-    directorsAcknowledgeResponsibilities:
-      record.directorsAcknowledgeResponsibilities ?? null,
+    directorsAcknowledgeResponsibilities: record.directorsAcknowledgeResponsibilities ?? null,
     accountsPreparedUnderSmallCompaniesRegime:
       record.accountsPreparedUnderSmallCompaniesRegime ?? null,
     createdAt: record.createdAt,
@@ -128,10 +124,7 @@ function serializeFilingProfile(
   };
 }
 
-function serializeComplianceObligation(
-  publicTeamId: string,
-  record: ComplianceObligationRecord,
-) {
+function serializeComplianceObligation(publicTeamId: string, record: ComplianceObligationRecord) {
   return {
     id: record.publicComplianceObligationId ?? record._id,
     teamId: publicTeamId,
@@ -241,10 +234,8 @@ export const serviceGetFilingProfile = query({
       dormant: record.dormant,
       auditExemptionClaimed: record.auditExemptionClaimed,
       membersDidNotRequireAudit: record.membersDidNotRequireAudit,
-      directorsAcknowledgeResponsibilities:
-        record.directorsAcknowledgeResponsibilities,
-      accountsPreparedUnderSmallCompaniesRegime:
-        record.accountsPreparedUnderSmallCompaniesRegime,
+      directorsAcknowledgeResponsibilities: record.directorsAcknowledgeResponsibilities,
+      accountsPreparedUnderSmallCompaniesRegime: record.accountsPreparedUnderSmallCompaniesRegime,
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,
     });
@@ -282,12 +273,8 @@ export const serviceUpsertFilingProfile = mutation({
     dormant: v.optional(v.union(v.boolean(), v.null())),
     auditExemptionClaimed: v.optional(v.union(v.boolean(), v.null())),
     membersDidNotRequireAudit: v.optional(v.union(v.boolean(), v.null())),
-    directorsAcknowledgeResponsibilities: v.optional(
-      v.union(v.boolean(), v.null()),
-    ),
-    accountsPreparedUnderSmallCompaniesRegime: v.optional(
-      v.union(v.boolean(), v.null()),
-    ),
+    directorsAcknowledgeResponsibilities: v.optional(v.union(v.boolean(), v.null())),
+    accountsPreparedUnderSmallCompaniesRegime: v.optional(v.union(v.boolean(), v.null())),
   },
   async handler(ctx, args) {
     requireServiceKey(args.serviceKey);
@@ -303,8 +290,7 @@ export const serviceUpsertFilingProfile = mutation({
 
     if (existing) {
       await ctx.db.patch(existing._id, {
-        publicFilingProfileId:
-          existing.publicFilingProfileId ?? args.filingProfileId ?? undefined,
+        publicFilingProfileId: existing.publicFilingProfileId ?? args.filingProfileId ?? undefined,
         legalEntityType: args.legalEntityType,
         enabled: args.enabled,
         countryCode: args.countryCode,
@@ -374,8 +360,7 @@ export const serviceUpsertFilingProfile = mutation({
         dormant: updated.dormant,
         auditExemptionClaimed: updated.auditExemptionClaimed,
         membersDidNotRequireAudit: updated.membersDidNotRequireAudit,
-        directorsAcknowledgeResponsibilities:
-          updated.directorsAcknowledgeResponsibilities,
+        directorsAcknowledgeResponsibilities: updated.directorsAcknowledgeResponsibilities,
         accountsPreparedUnderSmallCompaniesRegime:
           updated.accountsPreparedUnderSmallCompaniesRegime,
         createdAt: updated.createdAt,
@@ -412,8 +397,7 @@ export const serviceUpsertFilingProfile = mutation({
       dormant: args.dormant ?? undefined,
       auditExemptionClaimed: args.auditExemptionClaimed ?? undefined,
       membersDidNotRequireAudit: args.membersDidNotRequireAudit ?? undefined,
-      directorsAcknowledgeResponsibilities:
-        args.directorsAcknowledgeResponsibilities ?? undefined,
+      directorsAcknowledgeResponsibilities: args.directorsAcknowledgeResponsibilities ?? undefined,
       accountsPreparedUnderSmallCompaniesRegime:
         args.accountsPreparedUnderSmallCompaniesRegime ?? undefined,
       createdAt: timestamp,
@@ -457,10 +441,8 @@ export const serviceUpsertFilingProfile = mutation({
       dormant: inserted.dormant,
       auditExemptionClaimed: inserted.auditExemptionClaimed,
       membersDidNotRequireAudit: inserted.membersDidNotRequireAudit,
-      directorsAcknowledgeResponsibilities:
-        inserted.directorsAcknowledgeResponsibilities,
-      accountsPreparedUnderSmallCompaniesRegime:
-        inserted.accountsPreparedUnderSmallCompaniesRegime,
+      directorsAcknowledgeResponsibilities: inserted.directorsAcknowledgeResponsibilities,
+      accountsPreparedUnderSmallCompaniesRegime: inserted.accountsPreparedUnderSmallCompaniesRegime,
       createdAt: inserted.createdAt,
       updatedAt: inserted.updatedAt,
     });
@@ -503,9 +485,7 @@ export const serviceUpsertVatObligation = mutation({
     if (existing) {
       await ctx.db.patch(existing._id, {
         publicComplianceObligationId:
-          existing.publicComplianceObligationId ??
-          args.obligationId ??
-          undefined,
+          existing.publicComplianceObligationId ?? args.obligationId ?? undefined,
         periodStart: args.periodStart,
         periodEnd: args.periodEnd,
         dueDate: args.dueDate,
@@ -677,9 +657,7 @@ export const serviceGetVatReturnById = query({
 
     const record = await ctx.db
       .query("vatReturns")
-      .withIndex("by_public_vat_return_id", (q) =>
-        q.eq("publicVatReturnId", args.vatReturnId),
-      )
+      .withIndex("by_public_vat_return_id", (q) => q.eq("publicVatReturnId", args.vatReturnId))
       .unique();
 
     if (!record) {
@@ -778,9 +756,7 @@ export const serviceGetLatestVatReturn = query({
       .query("vatReturns")
       .withIndex("by_team_id", (q) => q.eq("teamId", team._id))
       .collect();
-    const latest = records.sort((a, b) =>
-      b.updatedAt.localeCompare(a.updatedAt),
-    )[0];
+    const latest = records.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
 
     if (!latest) {
       return null;
@@ -849,8 +825,7 @@ export const serviceUpsertVatReturn = mutation({
 
     if (existing) {
       await ctx.db.patch(existing._id, {
-        publicVatReturnId:
-          existing.publicVatReturnId ?? args.vatReturnId ?? undefined,
+        publicVatReturnId: existing.publicVatReturnId ?? args.vatReturnId ?? undefined,
         obligationId: args.obligationId ?? undefined,
         periodStart: args.periodStart,
         periodEnd: args.periodEnd,
@@ -948,9 +923,7 @@ export const serviceMarkVatReturnAccepted = mutation({
 
     const record = await ctx.db
       .query("vatReturns")
-      .withIndex("by_public_vat_return_id", (q) =>
-        q.eq("publicVatReturnId", args.vatReturnId),
-      )
+      .withIndex("by_public_vat_return_id", (q) => q.eq("publicVatReturnId", args.vatReturnId))
       .unique();
 
     if (!record) {

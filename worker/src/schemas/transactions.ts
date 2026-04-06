@@ -32,9 +32,7 @@ export const exportTransactionsSchema = z.object({
     .optional(),
 });
 
-export type ExportTransactionsPayload = z.infer<
-  typeof exportTransactionsSchema
->;
+export type ExportTransactionsPayload = z.infer<typeof exportTransactionsSchema>;
 
 export const processExportSchema = z.object({
   ids: z.array(z.string().uuid()),
@@ -61,9 +59,7 @@ export const enrichTransactionsSchema = z.object({
   teamId: z.string().uuid(),
 });
 
-export type EnrichTransactionsPayload = z.infer<
-  typeof enrichTransactionsSchema
->;
+export type EnrichTransactionsPayload = z.infer<typeof enrichTransactionsSchema>;
 
 export const initialBankSetupSchema = z.object({
   teamId: z.string().uuid(),
@@ -83,9 +79,7 @@ export const transactionNotificationsSchema = z.object({
   teamId: z.string().uuid(),
 });
 
-export type TransactionNotificationsPayload = z.infer<
-  typeof transactionNotificationsSchema
->;
+export type TransactionNotificationsPayload = z.infer<typeof transactionNotificationsSchema>;
 
 export const deleteConnectionSchema = z.object({
   referenceId: z.string().optional().nullable(),
@@ -116,18 +110,14 @@ export const importTransactionsSchema = z.object({
     }),
 });
 
-export type ImportTransactionsPayload = z.infer<
-  typeof importTransactionsSchema
->;
+export type ImportTransactionsPayload = z.infer<typeof importTransactionsSchema>;
 
 export const updateBaseCurrencySchema = z.object({
   teamId: z.string().uuid(),
   baseCurrency: z.string(),
 });
 
-export type UpdateBaseCurrencyPayload = z.infer<
-  typeof updateBaseCurrencySchema
->;
+export type UpdateBaseCurrencyPayload = z.infer<typeof updateBaseCurrencySchema>;
 
 export const updateAccountBaseCurrencySchema = z.object({
   accountId: z.string().uuid(),
@@ -136,9 +126,7 @@ export const updateAccountBaseCurrencySchema = z.object({
   baseCurrency: z.string(),
 });
 
-export type UpdateAccountBaseCurrencyPayload = z.infer<
-  typeof updateAccountBaseCurrencySchema
->;
+export type UpdateAccountBaseCurrencyPayload = z.infer<typeof updateAccountBaseCurrencySchema>;
 
 export const reconnectConnectionSchema = z.object({
   teamId: z.string().uuid(),
@@ -146,9 +134,7 @@ export const reconnectConnectionSchema = z.object({
   provider: bankProviderSchema,
 });
 
-export type ReconnectConnectionPayload = z.infer<
-  typeof reconnectConnectionSchema
->;
+export type ReconnectConnectionPayload = z.infer<typeof reconnectConnectionSchema>;
 
 export type BankProvider = z.infer<typeof bankProviderSchema>;
 export type BankAccountType = z.infer<typeof bankAccountTypeSchema>;

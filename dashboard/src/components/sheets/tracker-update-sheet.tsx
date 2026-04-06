@@ -32,10 +32,7 @@ type TrackerUpdateSheetBodyProps = {
   projectId: string;
 };
 
-function TrackerUpdateSheetBody({
-  defaultCurrency,
-  projectId,
-}: TrackerUpdateSheetBodyProps) {
+function TrackerUpdateSheetBody({ defaultCurrency, projectId }: TrackerUpdateSheetBodyProps) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
@@ -90,10 +87,7 @@ export function TrackerUpdateSheet() {
 
   return (
     <AlertDialog>
-      <Sheet
-        open={isOpen}
-        onOpenChange={() => setParams({ update: null, projectId: null })}
-      >
+      <Sheet open={isOpen} onOpenChange={() => setParams({ update: null, projectId: null })}>
         <SheetContent>
           <SheetHeader className="mb-8 flex justify-between items-center flex-row">
             <h2 className="text-xl">Edit Project</h2>
@@ -105,9 +99,7 @@ export function TrackerUpdateSheet() {
 
               <DropdownMenuContent className="w-42" sideOffset={10} align="end">
                 <AlertDialogTrigger asChild>
-                  <DropdownMenuItem className="text-destructive">
-                    Delete
-                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
                 </AlertDialogTrigger>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -115,10 +107,7 @@ export function TrackerUpdateSheet() {
 
           <ScrollArea className="h-full p-0 pb-28" hideScrollbar>
             {projectId ? (
-              <TrackerUpdateSheetBody
-                defaultCurrency={defaultCurrency}
-                projectId={projectId}
-              />
+              <TrackerUpdateSheetBody defaultCurrency={defaultCurrency} projectId={projectId} />
             ) : null}
           </ScrollArea>
         </SheetContent>
@@ -128,8 +117,7 @@ export function TrackerUpdateSheet() {
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete this
-            project.
+            This action cannot be undone. This will permanently delete this project.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

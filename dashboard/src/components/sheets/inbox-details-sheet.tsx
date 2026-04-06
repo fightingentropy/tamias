@@ -10,10 +10,7 @@ export function InboxDetailsSheet() {
   const isOpen = Boolean(params.inboxId && params.type === "details");
 
   return (
-    <Sheet
-      open={isOpen}
-      onOpenChange={() => setParams({ type: null, inboxId: null })}
-    >
+    <Sheet open={isOpen} onOpenChange={() => setParams({ type: null, inboxId: null })}>
       <SheetContent style={{ maxWidth: 647 }}>
         <InboxSheetDetails />
       </SheetContent>

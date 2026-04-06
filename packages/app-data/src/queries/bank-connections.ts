@@ -22,20 +22,14 @@ export type GetBankConnectionsParams = {
   enabled?: boolean;
 };
 
-export const getBankConnections = async (
-  _db: Database,
-  params: GetBankConnectionsParams,
-) => {
+export const getBankConnections = async (_db: Database, params: GetBankConnectionsParams) => {
   return getBankConnectionsFromConvex({
     teamId: params.teamId,
     enabled: params.enabled,
   });
 };
 
-export const getBankConnectionById = async (
-  _db: Database,
-  params: { id: string },
-) => {
+export const getBankConnectionById = async (_db: Database, params: { id: string }) => {
   return getBankConnectionByIdFromConvex({
     id: params.id,
   });
@@ -46,10 +40,7 @@ type DeleteBankConnectionParams = {
   teamId: string;
 };
 
-export const deleteBankConnection = async (
-  _db: Database,
-  params: DeleteBankConnectionParams,
-) => {
+export const deleteBankConnection = async (_db: Database, params: DeleteBankConnectionParams) => {
   return deleteBankConnectionInConvex({
     id: params.id,
     teamId: params.teamId,
@@ -90,19 +81,8 @@ export type CreateBankConnectionPayload = {
   provider: "gocardless" | "teller" | "plaid";
 };
 
-export const createBankConnection = async (
-  _db: Database,
-  payload: CreateBankConnectionPayload,
-) => {
-  const {
-    accounts,
-    accessToken,
-    enrollmentId,
-    referenceId,
-    teamId,
-    userId,
-    provider,
-  } = payload;
+export const createBankConnection = async (_db: Database, payload: CreateBankConnectionPayload) => {
+  const { accounts, accessToken, enrollmentId, referenceId, teamId, userId, provider } = payload;
 
   if (accounts.length === 0) {
     return;
@@ -142,10 +122,7 @@ export type AddProviderAccountsParams = {
   }[];
 };
 
-export const addProviderAccounts = async (
-  _db: Database,
-  params: AddProviderAccountsParams,
-) => {
+export const addProviderAccounts = async (_db: Database, params: AddProviderAccountsParams) => {
   if (params.accounts.length === 0) {
     return [];
   }
@@ -186,10 +163,7 @@ export type GetBankAccountDetailsParams = {
  * Get bank account details including decrypted sensitive fields.
  * Only call this when user explicitly requests to reveal account details.
  */
-export const getBankAccountDetails = async (
-  _db: Database,
-  params: GetBankAccountDetailsParams,
-) => {
+export const getBankAccountDetails = async (_db: Database, params: GetBankAccountDetailsParams) => {
   return getBankAccountDetailsFromConvex({
     accountId: params.accountId,
     teamId: params.teamId,

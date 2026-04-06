@@ -20,10 +20,7 @@ function SettingsNotificationsPage() {
   >;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <Card>
         <CardHeader>
           <CardTitle>Notifications</CardTitle>

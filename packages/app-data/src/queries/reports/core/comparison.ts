@@ -7,14 +7,7 @@ import { getProfit, getRevenue } from "./series";
 import type { GetReportsParams } from "./shared";
 
 async function getReportsImpl(db: Database, params: GetReportsParams) {
-  const {
-    teamId,
-    from,
-    to,
-    type = "profit",
-    currency: inputCurrency,
-    revenueType,
-  } = params;
+  const { teamId, from, to, type = "profit", currency: inputCurrency, revenueType } = params;
 
   const prevFromDate = subYears(startOfMonth(new UTCDate(parseISO(from))), 1);
   const prevToDate = subYears(endOfMonth(new UTCDate(parseISO(to))), 1);
@@ -53,9 +46,7 @@ async function getReportsImpl(db: Database, params: GetReportsParams) {
   );
 
   const currentTotal = Number(
-    (currentData?.reduce((value, item) => item.value + value, 0) ?? 0).toFixed(
-      2,
-    ),
+    (currentData?.reduce((value, item) => item.value + value, 0) ?? 0).toFixed(2),
   );
 
   const baseCurrency = currentData?.at(0)?.currency ?? inputCurrency;
@@ -78,10 +69,7 @@ async function getReportsImpl(db: Database, params: GetReportsParams) {
       return {
         date: record.date,
         percentage: {
-          value: Number(
-            getPercentageIncrease(Math.abs(prevValue), Math.abs(recordValue)) ||
-              0,
-          ),
+          value: Number(getPercentageIncrease(Math.abs(prevValue), Math.abs(recordValue)) || 0),
           status: recordValue > prevValue ? "positive" : "negative",
         },
         current: {
@@ -103,8 +91,7 @@ export const getReports = reuseQueryResult({
   keyPrefix: "reports",
   keyFn: (params: GetReportsParams) => {
     const type = params.type ?? "profit";
-    const revenueType =
-      params.revenueType ?? (type === "profit" ? "net" : "gross");
+    const revenueType = params.revenueType ?? (type === "profit" ? "net" : "gross");
 
     return [
       params.teamId,

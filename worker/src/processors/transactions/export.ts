@@ -7,10 +7,7 @@ import {
   updateDocumentByPath,
 } from "@tamias/app-data/queries";
 import { enqueue } from "@tamias/job-client";
-import {
-  getVaultSignedUrl,
-  uploadVaultFile,
-} from "@tamias/storage";
+import { getVaultSignedUrl, uploadVaultFile } from "@tamias/storage";
 import { getAppUrl } from "@tamias/utils/envs";
 import archiver from "archiver";
 import type { WorkerJob as Job } from "../../types/job";
@@ -60,15 +57,8 @@ export class ExportTransactionsProcessor extends BaseProcessor<ExportTransaction
     fileName: string;
     totalItems: number;
   }> {
-    const {
-      teamId,
-      userId,
-      userEmail,
-      locale,
-      transactionIds,
-      dateFormat,
-      exportSettings,
-    } = job.data;
+    const { teamId, userId, userEmail, locale, transactionIds, dateFormat, exportSettings } =
+      job.data;
 
     const filePath = `export-${format(new Date(), `${dateFormat ?? "yyyy-MM-dd"}-HHmm`)}`;
     const path = `${teamId}/exports`;
@@ -102,8 +92,7 @@ export class ExportTransactionsProcessor extends BaseProcessor<ExportTransaction
         locale,
         dateFormat,
         onProgress: async (progress: number) => {
-          const batchProgress =
-            currentProgress + (progress / 100) * progressPerBatch;
+          const batchProgress = currentProgress + (progress / 100) * progressPerBatch;
           await this.updateProgress(job, Math.round(batchProgress));
         },
       });
@@ -172,8 +161,7 @@ export class ExportTransactionsProcessor extends BaseProcessor<ExportTransaction
       if (attachment.blob) {
         try {
           const arrayBuffer = await attachment.blob.arrayBuffer();
-          const transactionType =
-            transactionTypeMap.get(attachment.id) ?? "expense";
+          const transactionType = transactionTypeMap.get(attachment.id) ?? "expense";
           const attachmentPath = `attachments/${transactionType}/${attachment.name}`;
           files.push({
             name: attachmentPath,

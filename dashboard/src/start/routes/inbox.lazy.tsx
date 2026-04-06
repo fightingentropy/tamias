@@ -18,10 +18,7 @@ function InboxPage() {
   const loaderData = Route.useLoaderData() as InboxLoaderData;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       {loaderData.view === "get-started" ? (
         <InboxGetStarted />
       ) : loaderData.view === "connected-empty" ? (

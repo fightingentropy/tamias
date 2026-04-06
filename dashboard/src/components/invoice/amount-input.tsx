@@ -31,9 +31,7 @@ export function AmountInput({
           // Preserve the exact floatValue, including 0 and decimals like 1.20
           // Only use 0 as fallback if floatValue is explicitly undefined/null
           onChange(
-            values.floatValue !== undefined && values.floatValue !== null
-              ? values.floatValue
-              : 0,
+            values.floatValue !== undefined && values.floatValue !== null ? values.floatValue : 0,
             { shouldValidate: true },
           );
         }}

@@ -1,7 +1,5 @@
 import { createHash } from "node:crypto";
-import {
-  allocateFilingSequenceInConvex,
-} from "@tamias/app-data-convex";
+import { allocateFilingSequenceInConvex } from "@tamias/app-data-convex";
 import {
   COMPANIES_HOUSE_SUBMISSION_NUMBER_MAX,
   COMPANIES_HOUSE_SUBMISSION_NUMBER_WIDTH,
@@ -19,17 +17,11 @@ export function formatCompaniesHouseSubmissionNumber(sequence: number) {
     );
   }
 
-  return sequence
-    .toString()
-    .padStart(COMPANIES_HOUSE_SUBMISSION_NUMBER_WIDTH, "0");
+  return sequence.toString().padStart(COMPANIES_HOUSE_SUBMISSION_NUMBER_WIDTH, "0");
 }
 
 export function buildCompaniesHouseTransactionId(seed: string) {
-  return createHash("sha1")
-    .update(seed)
-    .digest("hex")
-    .toUpperCase()
-    .slice(0, 16);
+  return createHash("sha1").update(seed).digest("hex").toUpperCase().slice(0, 16);
 }
 
 export function buildCompaniesHouseSubmissionSequenceScope(
@@ -67,9 +59,7 @@ export async function allocateCompaniesHouseSubmissionIdentifiers(
   };
 }
 
-export function buildCompaniesHousePreviewSubmissionIdentifiers(
-  periodKey: string,
-) {
+export function buildCompaniesHousePreviewSubmissionIdentifiers(periodKey: string) {
   return {
     submissionNumber: "000000",
     transactionId: buildCompaniesHouseTransactionId(`preview:${periodKey}`),

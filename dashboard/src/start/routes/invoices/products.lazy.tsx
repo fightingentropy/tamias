@@ -12,15 +12,10 @@ export const Route = createLazyFileRoute("/invoices/products")({
 });
 
 function InvoiceProductsPage() {
-  const loaderData = Route.useLoaderData() as Awaited<
-    ReturnType<typeof loadInvoiceProductsData>
-  >;
+  const loaderData = Route.useLoaderData() as Awaited<ReturnType<typeof loadInvoiceProductsData>>;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <div className="max-w-screen-lg">
         <ErrorBoundary errorComponent={ErrorFallback}>
           <Suspense fallback={<ProductsSkeleton />}>

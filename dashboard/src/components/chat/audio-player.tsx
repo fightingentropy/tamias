@@ -16,8 +16,7 @@ function formatTime(seconds: number): string {
 }
 
 export function AudioPlayer() {
-  const { isVisible, audioUrl, autoPlay, isLoading, close } =
-    useAudioPlayerStore();
+  const { isVisible, audioUrl, autoPlay, isLoading, close } = useAudioPlayerStore();
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -107,10 +106,7 @@ export function AudioPlayer() {
     const setupAudioContext = async () => {
       try {
         // Reuse or create audio context
-        if (
-          !audioContextRef.current ||
-          audioContextRef.current.state === "closed"
-        ) {
+        if (!audioContextRef.current || audioContextRef.current.state === "closed") {
           const AudioContextClass =
             window.AudioContext ||
             (
@@ -249,12 +245,7 @@ export function AudioPlayer() {
           className="absolute bottom-full left-0 right-0 mb-2 z-50"
         >
           {audioUrl && (
-            <audio
-              ref={audioRef}
-              src={audioUrl}
-              preload="metadata"
-              crossOrigin="anonymous"
-            >
+            <audio ref={audioRef} src={audioUrl} preload="metadata" crossOrigin="anonymous">
               <track kind="captions" />
             </audio>
           )}
@@ -277,9 +268,7 @@ export function AudioPlayer() {
                 "hover:bg-[rgba(0,0,0,0.05)] dark:hover:bg-[rgba(255,255,255,0.05)]",
                 (!audioUrl || isLoading) && "opacity-50 cursor-not-allowed",
               )}
-              aria-label={
-                isLoading ? "Generating audio..." : isPlaying ? "Pause" : "Play"
-              }
+              aria-label={isLoading ? "Generating audio..." : isPlaying ? "Pause" : "Play"}
             >
               {isLoading ? (
                 <Spinner size={16} />
@@ -292,9 +281,7 @@ export function AudioPlayer() {
 
             {/* Duration Display */}
             <div className="text-xs whitespace-nowrap text-muted-foreground min-w-[70px]">
-              {isLoading
-                ? "Generating..."
-                : `${formatTime(currentTime)} / ${formatTime(duration)}`}
+              {isLoading ? "Generating..." : `${formatTime(currentTime)} / ${formatTime(duration)}`}
             </div>
 
             {/* Waveform with integrated scrubbing */}

@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-} from "@tamias/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem } from "@tamias/ui/accordion";
 import { useState } from "react";
 
 type Props = {

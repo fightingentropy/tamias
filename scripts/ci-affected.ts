@@ -119,7 +119,7 @@ function classify(files: string[]): {
   };
 
   const rootDepPattern =
-    /^(package\.json|bun\.lock|biome\.json|bunfig\.toml|tsconfig\.json|wrangler\.jsonc)/;
+    /^(package\.json|bun\.lock|eslint\.config\.mjs|\.prettierignore|\.prettierrc|bunfig\.toml|tsconfig\.json|wrangler\.jsonc)/;
 
   let sharedSurfaceTouched = false;
   for (const f of nonIgnorable) {
@@ -140,19 +140,19 @@ function classify(files: string[]): {
   if (sharedSurfaceTouched) {
     markAllDeployTargets();
   } else {
-  for (const f of nonIgnorable) {
-    if (f === "api" || f.startsWith("api/")) {
-      api = true;
-      dashboard = true;
+    for (const f of nonIgnorable) {
+      if (f === "api" || f.startsWith("api/")) {
+        api = true;
+        dashboard = true;
+      }
+      if (f === "dashboard" || f.startsWith("dashboard/")) {
+        dashboard = true;
+      }
+      if (f === "worker" || f.startsWith("worker/")) {
+        worker = true;
+        dashboard = true;
+      }
     }
-    if (f === "dashboard" || f.startsWith("dashboard/")) {
-      dashboard = true;
-    }
-    if (f === "worker" || f.startsWith("worker/")) {
-      worker = true;
-      dashboard = true;
-    }
-  }
   }
 
   return {

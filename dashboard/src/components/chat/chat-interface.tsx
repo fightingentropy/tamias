@@ -16,10 +16,9 @@ import { ChatHeader, ChatInput, ChatMessages, ChatStatusIndicators } from "./";
 import { SuggestedPrompts } from "./suggested-prompts";
 
 // Dynamically load Canvas (15 chart components) - only loads when user opens an artifact
-const Canvas = dynamic(
-  () => import("@/components/canvas").then((mod) => mod.Canvas),
-  { ssr: false },
-);
+const Canvas = dynamic(() => import("@/components/canvas").then((mod) => mod.Canvas), {
+  ssr: false,
+});
 
 export function ChatInterface() {
   const { isHome } = useChatInterface();
@@ -94,9 +93,7 @@ export function ChatInterface() {
                   <div className="max-w-2xl mx-auto w-full">
                     <ChatMessages
                       messages={messages}
-                      isStreaming={
-                        status === "streaming" || status === "submitted"
-                      }
+                      isStreaming={status === "streaming" || status === "submitted"}
                     />
                     <ChatStatusIndicators
                       agentStatus={agentStatus}

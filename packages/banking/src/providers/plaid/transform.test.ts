@@ -7,11 +7,7 @@ import {
   TransactionPaymentChannelEnum,
   TransactionTransactionTypeEnum,
 } from "plaid";
-import {
-  transformAccount,
-  transformAccountBalance,
-  transformTransaction,
-} from "./transform";
+import { transformAccount, transformAccountBalance, transformTransaction } from "./transform";
 
 test("Transform pending transaction", () => {
   expect(
@@ -100,8 +96,7 @@ test("Transform income transaction", () => {
           {
             confidence_level: "VERY_HIGH",
             entity_id: "NKDjqyAdQQzpyeD8qpLnX0D6yvLe2KYKYYzQ4",
-            logo_url:
-              "https://plaid-merchant-logos.plaid.com/united_airlines_1065.png",
+            logo_url: "https://plaid-merchant-logos.plaid.com/united_airlines_1065.png",
             name: "United Airlines",
             type: CounterpartyType.Merchant,
             website: "united.com",
@@ -120,8 +115,7 @@ test("Transform income transaction", () => {
           region: null,
           store_number: null,
         },
-        logo_url:
-          "https://plaid-merchant-logos.plaid.com/united_airlines_1065.png",
+        logo_url: "https://plaid-merchant-logos.plaid.com/united_airlines_1065.png",
         merchant_entity_id: "NKDjqyAdQQzpyeD8qpLnX0D6yvLe2KYKYYzQ4",
         merchant_name: "United Airlines",
         name: "United Airlines",
@@ -143,8 +137,7 @@ test("Transform income transaction", () => {
           detailed: "TRAVEL_FLIGHTS",
           primary: "TRAVEL",
         },
-        personal_finance_category_icon_url:
-          "https://plaid-category-icons.plaid.com/PFC_TRAVEL.png",
+        personal_finance_category_icon_url: "https://plaid-category-icons.plaid.com/PFC_TRAVEL.png",
         transaction_code: null,
         transaction_id: "5QKmMdaKWgtzkvKEPmqriLZR1mV3kMF5X9EeX",
         transaction_type: TransactionTransactionTypeEnum.Special,

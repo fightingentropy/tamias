@@ -9,10 +9,7 @@ import {
 } from "date-fns";
 import type { MonthlyPeriod } from "./types";
 
-export function splitDateRangeByMonth(
-  from: string,
-  to: string,
-): MonthlyPeriod[] {
+export function splitDateRangeByMonth(from: string, to: string): MonthlyPeriod[] {
   const fromDate = parseISO(from);
   const toDate = parseISO(to);
   const months = eachMonthOfInterval({ start: fromDate, end: toDate });

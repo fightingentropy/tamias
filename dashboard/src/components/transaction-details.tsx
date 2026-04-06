@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@tamias/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@tamias/ui/accordion";
 import { cn } from "@tamias/ui/cn";
 import { Label } from "@tamias/ui/label";
 import {
@@ -21,12 +16,7 @@ import { Switch } from "@tamias/ui/switch";
 import { ToastAction } from "@tamias/ui/toast";
 import { toast } from "@tamias/ui/use-toast";
 import { getTaxTypeLabel } from "@tamias/utils/tax";
-import {
-  skipToken,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { skipToken, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import { useInvalidateTransactionQueries } from "@/hooks/use-invalidate-transaction-queries";
 import { useTransactionParams } from "@/hooks/use-transaction-params";
@@ -67,8 +57,7 @@ export function TransactionDetails() {
     : null;
 
   const { data, isLoading } = useQuery({
-    queryKey:
-      transactionDetailsQuery?.queryKey ?? trpc.transactions.getById.queryKey(),
+    queryKey: transactionDetailsQuery?.queryKey ?? trpc.transactions.getById.queryKey(),
     queryFn: transactionDetailsQuery?.queryFn ?? skipToken,
     staleTime: 30 * 1000, // 30 seconds - prevents excessive refetches when reopening
     // Use placeholderData instead of initialData to show cached list data while fetching
@@ -120,9 +109,7 @@ export function TransactionDetails() {
           details: queryClient.getQueryData(
             trpc.transactions.getById.queryKey({ id: transactionId! }),
           ),
-          list: queryClient.getQueryData(
-            trpc.transactions.get.infiniteQueryKey(),
-          ),
+          list: queryClient.getQueryData(trpc.transactions.get.infiniteQueryKey()),
         };
 
         // Optimistically update details view
@@ -133,9 +120,7 @@ export function TransactionDetails() {
               const categories = queryClient.getQueryData(
                 trpc.transactionCategories.get.queryKey(),
               );
-              const category = categories?.find(
-                (c) => c.slug === variables.categorySlug,
-              );
+              const category = categories?.find((c) => c.slug === variables.categorySlug);
 
               if (category) {
                 return {
@@ -154,34 +139,29 @@ export function TransactionDetails() {
         );
 
         // Optimistically update list view
-        queryClient.setQueryData(
-          trpc.transactions.get.infiniteQueryKey(),
-          (old: any) => {
-            if (!old?.pages) return old;
+        queryClient.setQueryData(trpc.transactions.get.infiniteQueryKey(), (old: any) => {
+          if (!old?.pages) return old;
 
-            return {
-              ...old,
-              pages: old.pages.map((page: any) => ({
-                ...page,
-                data: page.data.map((transaction: any) =>
-                  transaction.id === transactionId
-                    ? {
-                        ...transaction,
-                        ...variables,
-                        ...(variables.categorySlug && {
-                          category: queryClient
-                            .getQueryData(
-                              trpc.transactionCategories.get.queryKey(),
-                            )
-                            ?.find((c) => c.slug === variables.categorySlug),
-                        }),
-                      }
-                    : transaction,
-                ),
-              })),
-            };
-          },
-        );
+          return {
+            ...old,
+            pages: old.pages.map((page: any) => ({
+              ...page,
+              data: page.data.map((transaction: any) =>
+                transaction.id === transactionId
+                  ? {
+                      ...transaction,
+                      ...variables,
+                      ...(variables.categorySlug && {
+                        category: queryClient
+                          .getQueryData(trpc.transactionCategories.get.queryKey())
+                          ?.find((c) => c.slug === variables.categorySlug),
+                      }),
+                    }
+                  : transaction,
+              ),
+            })),
+          };
+        });
 
         return { previousData };
       },
@@ -288,11 +268,7 @@ export function TransactionDetails() {
           )}
 
           <h2 className="mt-6 mb-3 select-text">
-            {isLoading ? (
-              <Skeleton className="w-[35%] h-[22px] rounded-md mb-2" />
-            ) : (
-              data?.name
-            )}
+            {isLoading ? <Skeleton className="w-[35%] h-[22px] rounded-md mb-2" /> : data?.name}
           </h2>
           <div className="flex justify-between items-center">
             <div className="flex flex-col w-full space-y-1">
@@ -305,10 +281,7 @@ export function TransactionDetails() {
                     data?.amount > 0 && "text-[#00C969]",
                   )}
                 >
-                  <FormatAmount
-                    amount={data?.amount}
-                    currency={data?.currency}
-                  />
+                  <FormatAmount amount={data?.amount} currency={data?.currency} />
                 </span>
               )}
               <div className="h-3">
@@ -415,9 +388,7 @@ export function TransactionDetails() {
           <SuggestedMatch
             suggestion={data?.suggestion}
             transactionId={transactionId!}
-            isLoading={
-              data?.hasPendingSuggestion && !data?.suggestion?.suggestionId
-            }
+            isLoading={data?.hasPendingSuggestion && !data?.suggestion?.suggestionId}
           />
         </div>
       )}
@@ -434,15 +405,12 @@ export function TransactionDetails() {
           <AccordionTrigger>General</AccordionTrigger>
           <AccordionContent className="select-text">
             <div className="mb-4 border-b pb-4">
-              <Label className="mb-2 block font-medium text-md">
-                Exclude from reports
-              </Label>
+              <Label className="mb-2 block font-medium text-md">Exclude from reports</Label>
               <div className="flex flex-row items-center justify-between">
                 <div className="space-y-0.5 pr-4">
                   <p className="text-xs text-muted-foreground">
-                    Exclude this transaction from reports like profit, expense
-                    and revenue. This is useful for internal transfers between
-                    accounts to avoid double-counting.
+                    Exclude this transaction from reports like profit, expense and revenue. This is
+                    useful for internal transfers between accounts to avoid double-counting.
                   </p>
                 </div>
 
@@ -469,12 +437,10 @@ export function TransactionDetails() {
 
             <div className="flex flex-row items-center justify-between">
               <div className="space-y-0.5">
-                <Label className="mb-2 block font-medium text-md">
-                  Mark as recurring
-                </Label>
+                <Label className="mb-2 block font-medium text-md">Mark as recurring</Label>
                 <p className="text-xs text-muted-foreground">
-                  Mark as recurring. Similar future transactions will be
-                  automatically categorized and flagged as recurring.
+                  Mark as recurring. Similar future transactions will be automatically categorized
+                  and flagged as recurring.
                 </p>
               </div>
               <Switch
@@ -494,29 +460,18 @@ export function TransactionDetails() {
                 onValueChange={async (value) => {
                   updateTransactionMutation.mutate({
                     id: data?.id,
-                    frequency: value as
-                      | "weekly"
-                      | "monthly"
-                      | "annually"
-                      | "irregular",
+                    frequency: value as "weekly" | "monthly" | "annually" | "irregular",
                   });
 
                   const similarTransactions = await queryClient.fetchQuery(
                     trpc.transactions.getSimilarTransactions.queryOptions({
                       transactionId: data?.id,
                       name: data.name,
-                      frequency: value as
-                        | "weekly"
-                        | "monthly"
-                        | "annually"
-                        | "irregular",
+                      frequency: value as "weekly" | "monthly" | "annually" | "irregular",
                     }),
                   );
 
-                  if (
-                    similarTransactions?.length &&
-                    similarTransactions.length > 1
-                  ) {
+                  if (similarTransactions?.length && similarTransactions.length > 1) {
                     toast({
                       duration: 6000,
                       variant: "ai",
@@ -531,16 +486,11 @@ export function TransactionDetails() {
                             altText="Yes"
                             onClick={() => {
                               // Use bulk update with the similar transaction IDs
-                              const similarTransactionIds =
-                                similarTransactions.map((t) => t.id);
+                              const similarTransactionIds = similarTransactions.map((t) => t.id);
                               updateTransactionsMutation.mutate({
                                 ids: similarTransactionIds,
                                 recurring: true,
-                                frequency: value as
-                                  | "weekly"
-                                  | "monthly"
-                                  | "annually"
-                                  | "irregular",
+                                frequency: value as "weekly" | "monthly" | "annually" | "irregular",
                               });
                             }}
                             className="pl-5 pr-5 bg-primary text-primary-foreground hover:bg-primary/90"
@@ -590,10 +540,7 @@ export function TransactionDetails() {
         </AccordionItem>
       </Accordion>
 
-      <TransactionShortcuts
-        isFulfilled={data?.isFulfilled ?? false}
-        status={data?.status ?? ""}
-      />
+      <TransactionShortcuts isFulfilled={data?.isFulfilled ?? false} status={data?.status ?? ""} />
     </div>
   );
 }

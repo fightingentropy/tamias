@@ -29,10 +29,7 @@ export class DeleteTeamProcessor extends BaseProcessor<DeleteTeamPayload> {
     });
 
     // Delete bank connections
-    const connectionsDeleted = await this.deleteBankConnections(
-      teamId,
-      connections,
-    );
+    const connectionsDeleted = await this.deleteBankConnections(teamId, connections);
 
     this.logger.info("Team deletion cleanup completed", {
       teamId,
@@ -67,10 +64,7 @@ export class DeleteTeamProcessor extends BaseProcessor<DeleteTeamPayload> {
       try {
         await trpc.banking.deleteConnection.mutate({
           id: connection.referenceId,
-          provider: connection.provider as
-            | "gocardless"
-            | "teller"
-            | "plaid",
+          provider: connection.provider as "gocardless" | "teller" | "plaid",
           accessToken: connection.accessToken ?? undefined,
         });
         return true;

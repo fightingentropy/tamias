@@ -23,10 +23,7 @@ export type AddressDetails = {
 };
 
 const SearchAddressInputCore = dynamic(
-  () =>
-    import("./search-address-input-core").then(
-      (mod) => mod.SearchAddressInputCore,
-    ),
+  () => import("./search-address-input-core").then((mod) => mod.SearchAddressInputCore),
   {
     ssr: false,
   },

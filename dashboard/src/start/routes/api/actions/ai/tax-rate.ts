@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router";
 import { createAppPublicFileRoute } from "@/start/route-hosts";
 import { openai } from "@ai-sdk/openai";
 import { generateObject } from "ai";

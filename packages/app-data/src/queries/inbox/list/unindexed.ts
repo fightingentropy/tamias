@@ -1,6 +1,4 @@
-import {
-  type InboxItemRecord,
-} from "@tamias/app-data-convex";
+import { type InboxItemRecord } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import { separateBlocklistEntries } from "../../../utils/blocklist";
 import { getInboxBlocklist } from "../../inbox-blocklist";
@@ -43,8 +41,7 @@ export async function getInbox(db: Database, params: GetInboxParams) {
   ]);
   const relatedCountByGroupedInboxId = new Map<string, number>();
 
-  const { blockedDomains, blockedEmails } =
-    separateBlocklistEntries(blocklistEntries);
+  const { blockedDomains, blockedEmails } = separateBlocklistEntries(blocklistEntries);
 
   for (const item of items) {
     if (!item.groupedInboxId) {
@@ -79,8 +76,7 @@ export async function getInbox(db: Database, params: GetInboxParams) {
   const offset = cursor ? Number.parseInt(cursor, 10) : 0;
   const paged: InboxListItem[] = filtered.slice(offset, offset + pageSize);
   const hydrated = await hydrateInboxItems(teamId, paged);
-  const nextCursor =
-    paged.length === pageSize ? (offset + pageSize).toString() : undefined;
+  const nextCursor = paged.length === pageSize ? (offset + pageSize).toString() : undefined;
 
   return {
     meta: {
@@ -90,8 +86,7 @@ export async function getInbox(db: Database, params: GetInboxParams) {
     },
     data: hydrated.map((item) => ({
       ...item,
-      relatedCount:
-        paged.find((candidate) => candidate.id === item.id)?.relatedCount ?? 0,
+      relatedCount: paged.find((candidate) => candidate.id === item.id)?.relatedCount ?? 0,
     })),
   };
 }

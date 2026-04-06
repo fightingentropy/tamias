@@ -15,13 +15,7 @@ import {
 } from "@tamias/ui/form";
 import { Input } from "@tamias/ui/input";
 import { Label } from "@tamias/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@tamias/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@tamias/ui/select";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { Switch } from "@tamias/ui/switch";
 import { Textarea } from "@tamias/ui/textarea";
@@ -168,9 +162,7 @@ export function TrackerProjectForm({ data, defaultCurrency }: Props) {
                   autoFocus
                 />
               </FormControl>
-              <FormDescription>
-                This is the project display name.
-              </FormDescription>
+              <FormDescription>This is the project display name.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -204,9 +196,7 @@ export function TrackerProjectForm({ data, defaultCurrency }: Props) {
                   }}
                 />
               </FormControl>
-              <FormDescription>
-                Link a customer to enable direct invoicing.
-              </FormDescription>
+              <FormDescription>Link a customer to enable direct invoicing.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -265,9 +255,7 @@ export function TrackerProjectForm({ data, defaultCurrency }: Props) {
               <FormControl>
                 <Textarea className="resize-none" {...field} />
               </FormControl>
-              <FormDescription>
-                Add a short description about the project.
-              </FormDescription>
+              <FormDescription>Add a short description about the project.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -294,8 +282,7 @@ export function TrackerProjectForm({ data, defaultCurrency }: Props) {
                   />
                 </FormControl>
                 <FormDescription>
-                  Set a goal for how long your project should take to complete
-                  in hours.
+                  Set a goal for how long your project should take to complete in hours.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -308,10 +295,7 @@ export function TrackerProjectForm({ data, defaultCurrency }: Props) {
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormLabel>Status</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue />
@@ -339,10 +323,7 @@ export function TrackerProjectForm({ data, defaultCurrency }: Props) {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
                 </FormItem>
               )}
@@ -377,10 +358,7 @@ export function TrackerProjectForm({ data, defaultCurrency }: Props) {
                 render={({ field }) => (
                   <FormItem className="w-full">
                     <FormLabel>Currency</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue />
@@ -406,9 +384,7 @@ export function TrackerProjectForm({ data, defaultCurrency }: Props) {
         <div className="fixed bottom-8 w-full sm:max-w-[455px] right-8">
           <SubmitButton
             className="w-full"
-            disabled={
-              upsertTrackerProjectMutation.isPending || !form.formState.isDirty
-            }
+            disabled={upsertTrackerProjectMutation.isPending || !form.formState.isDirty}
             isSubmitting={upsertTrackerProjectMutation.isPending}
           >
             {isEdit ? "Update" : "Create"}

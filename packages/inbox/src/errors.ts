@@ -241,9 +241,7 @@ export function isInboxSyncError(error: unknown): error is InboxSyncError {
  * }
  * ```
  */
-export function assertInboxAuthError(
-  error: unknown,
-): asserts error is InboxAuthError {
+export function assertInboxAuthError(error: unknown): asserts error is InboxAuthError {
   if (!isInboxAuthError(error)) {
     throw new TypeError(`Expected InboxAuthError, got ${typeof error}`);
   }
@@ -266,9 +264,7 @@ export function assertInboxAuthError(
  * }
  * ```
  */
-export function assertInboxSyncError(
-  error: unknown,
-): asserts error is InboxSyncError {
+export function assertInboxSyncError(error: unknown): asserts error is InboxSyncError {
   if (!isInboxSyncError(error)) {
     throw new TypeError(`Expected InboxSyncError, got ${typeof error}`);
   }

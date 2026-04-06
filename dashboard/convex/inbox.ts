@@ -1,12 +1,7 @@
 import { paginationOptsValidator } from "convex/server";
 import { ConvexError, v } from "convex/values";
 import type { Doc, Id } from "./_generated/dataModel";
-import {
-  mutation,
-  query,
-  type MutationCtx,
-  type QueryCtx,
-} from "./_generated/server";
+import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
 import { nowIso } from "../../packages/domain/src/identity";
 import {
   buildAbsoluteAmountSearchValue,
@@ -37,11 +32,7 @@ const inboxItemStatus = v.union(
   v.literal("deleted"),
 );
 
-const inboxItemType = v.union(
-  v.literal("invoice"),
-  v.literal("expense"),
-  v.literal("other"),
-);
+const inboxItemType = v.union(v.literal("invoice"), v.literal("expense"), v.literal("other"));
 
 const matchType = v.union(
   v.literal("auto_matched"),
@@ -114,25 +105,17 @@ function inboxFilePathKey(filePath: string[]) {
   return filePath.join("\u0000");
 }
 
-function publicInboxId(
-  inboxItem: Pick<Doc<"inboxItems">, "_id" | "publicInboxId">,
-) {
+function publicInboxId(inboxItem: Pick<Doc<"inboxItems">, "_id" | "publicInboxId">) {
   return inboxItem.publicInboxId ?? inboxItem._id;
 }
 
 function publicSuggestionId(
-  suggestion: Pick<
-    Doc<"transactionMatchSuggestions">,
-    "_id" | "publicSuggestionId"
-  >,
+  suggestion: Pick<Doc<"transactionMatchSuggestions">, "_id" | "publicSuggestionId">,
 ) {
   return suggestion.publicSuggestionId ?? suggestion._id;
 }
 
-function serializeInboxItem(
-  publicTeamId: string,
-  inboxItem: Doc<"inboxItems">,
-) {
+function serializeInboxItem(publicTeamId: string, inboxItem: Doc<"inboxItems">) {
   return {
     id: publicInboxId(inboxItem),
     teamId: publicTeamId,
@@ -149,8 +132,7 @@ function serializeInboxItem(
     date: inboxItem.date ?? null,
     forwardedTo: inboxItem.forwardedTo ?? null,
     referenceId: inboxItem.referenceId ?? null,
-    meta:
-      (inboxItem.meta as Record<string, unknown> | null | undefined) ?? null,
+    meta: (inboxItem.meta as Record<string, unknown> | null | undefined) ?? null,
     status: inboxItem.status,
     website: inboxItem.website ?? null,
     senderEmail: inboxItem.senderEmail ?? null,
@@ -168,10 +150,7 @@ function serializeInboxItem(
   };
 }
 
-function serializeSuggestion(
-  publicTeamId: string,
-  suggestion: Doc<"transactionMatchSuggestions">,
-) {
+function serializeSuggestion(publicTeamId: string, suggestion: Doc<"transactionMatchSuggestions">) {
   return {
     id: publicSuggestionId(suggestion),
     teamId: publicTeamId,
@@ -185,9 +164,7 @@ function serializeSuggestion(
     dateScore: suggestion.dateScore ?? null,
     nameScore: suggestion.nameScore ?? null,
     matchType: suggestion.matchType,
-    matchDetails:
-      (suggestion.matchDetails as Record<string, unknown> | null | undefined) ??
-      null,
+    matchDetails: (suggestion.matchDetails as Record<string, unknown> | null | undefined) ?? null,
     status: suggestion.status,
     userActionAt: suggestion.userActionAt ?? null,
     userId: suggestion.userId ?? null,
@@ -282,16 +259,12 @@ function getInboxLiabilityAggregateEntry(
   }
 
   const hasBaseAmount =
-    item.baseAmount !== undefined &&
-    item.baseAmount !== null &&
-    item.baseCurrency !== undefined;
+    item.baseAmount !== undefined && item.baseAmount !== null && item.baseCurrency !== undefined;
 
   return {
     teamId: item.teamId,
     date: item.date!,
-    currency: hasBaseAmount
-      ? (item.baseCurrency ?? null)
-      : (item.currency ?? null),
+    currency: hasBaseAmount ? (item.baseCurrency ?? null) : (item.currency ?? null),
     amount: Math.abs(hasBaseAmount ? item.baseAmount! : item.amount!),
   };
 }
@@ -300,17 +273,11 @@ function serializeInboxLiabilityAggregateKey(key: InboxLiabilityAggregateKey) {
   return JSON.stringify([key.teamId, key.date, key.currency]);
 }
 
-async function getInboxLiabilityAggregateRecord(
-  ctx: InboxCtx,
-  key: InboxLiabilityAggregateKey,
-) {
+async function getInboxLiabilityAggregateRecord(ctx: InboxCtx, key: InboxLiabilityAggregateKey) {
   return ctx.db
     .query("inboxLiabilityAggregates")
     .withIndex("by_team_date_currency", (q) =>
-      q
-        .eq("teamId", key.teamId)
-        .eq("date", key.date)
-        .eq("currency", key.currency),
+      q.eq("teamId", key.teamId).eq("date", key.date).eq("currency", key.currency),
     )
     .unique();
 }
@@ -321,9 +288,7 @@ async function getInboxLiabilityAggregateEntriesForKey(
 ) {
   const records = await ctx.db
     .query("inboxItems")
-    .withIndex("by_team_and_date", (q) =>
-      q.eq("teamId", key.teamId).eq("date", key.date),
-    )
+    .withIndex("by_team_and_date", (q) => q.eq("teamId", key.teamId).eq("date", key.date))
     .collect();
 
   return records.flatMap((record) => {
@@ -338,10 +303,7 @@ async function getInboxLiabilityAggregateEntriesForKey(
   });
 }
 
-async function syncInboxLiabilityAggregateKey(
-  ctx: MutationCtx,
-  key: InboxLiabilityAggregateKey,
-) {
+async function syncInboxLiabilityAggregateKey(ctx: MutationCtx, key: InboxLiabilityAggregateKey) {
   const existing = await getInboxLiabilityAggregateRecord(ctx, key);
   const entries = await getInboxLiabilityAggregateEntriesForKey(ctx, key);
 
@@ -354,9 +316,7 @@ async function syncInboxLiabilityAggregateKey(
   }
 
   const timestamp = nowIso();
-  const totalAmount =
-    Math.round(entries.reduce((sum, entry) => sum + entry.amount, 0) * 100) /
-    100;
+  const totalAmount = Math.round(entries.reduce((sum, entry) => sum + entry.amount, 0) * 100) / 100;
 
   if (existing) {
     await ctx.db.patch(existing._id, {
@@ -425,8 +385,7 @@ function buildInboxLiabilityAggregateBackfillMap(records: Doc<"inboxItems">[]) {
     const existing = aggregateMap.get(serializedKey);
 
     if (existing) {
-      existing.totalAmount =
-        Math.round((existing.totalAmount + amount) * 100) / 100;
+      existing.totalAmount = Math.round((existing.totalAmount + amount) * 100) / 100;
       existing.itemCount += 1;
       continue;
     }
@@ -478,9 +437,7 @@ async function rebuildInboxLiabilityAggregatesForTeam(
   };
 }
 
-function getInboxStatusAggregateKey(
-  item: Doc<"inboxItems">,
-): InboxStatusAggregateKey {
+function getInboxStatusAggregateKey(item: Doc<"inboxItems">): InboxStatusAggregateKey {
   return {
     teamId: item.teamId,
     status: item.status,
@@ -492,25 +449,16 @@ function serializeInboxStatusAggregateKey(key: InboxStatusAggregateKey) {
   return JSON.stringify([key.teamId, key.status, key.createdAtDay]);
 }
 
-async function getInboxStatusAggregateRecord(
-  ctx: InboxCtx,
-  key: InboxStatusAggregateKey,
-) {
+async function getInboxStatusAggregateRecord(ctx: InboxCtx, key: InboxStatusAggregateKey) {
   return ctx.db
     .query("inboxStatusAggregates")
     .withIndex("by_team_status_created_at_day", (q) =>
-      q
-        .eq("teamId", key.teamId)
-        .eq("status", key.status)
-        .eq("createdAtDay", key.createdAtDay),
+      q.eq("teamId", key.teamId).eq("status", key.status).eq("createdAtDay", key.createdAtDay),
     )
     .unique();
 }
 
-async function getInboxStatusAggregateItemCountForKey(
-  ctx: InboxCtx,
-  key: InboxStatusAggregateKey,
-) {
+async function getInboxStatusAggregateItemCountForKey(ctx: InboxCtx, key: InboxStatusAggregateKey) {
   const createdAtFrom = `${key.createdAtDay}T00:00:00.000Z`;
   const createdAtTo = `${key.createdAtDay}T23:59:59.999Z`;
   const records = await ctx.db
@@ -527,10 +475,7 @@ async function getInboxStatusAggregateItemCountForKey(
   return records.length;
 }
 
-async function syncInboxStatusAggregateKey(
-  ctx: MutationCtx,
-  key: InboxStatusAggregateKey,
-) {
+async function syncInboxStatusAggregateKey(ctx: MutationCtx, key: InboxStatusAggregateKey) {
   const existing = await getInboxStatusAggregateRecord(ctx, key);
   const itemCount = await getInboxStatusAggregateItemCountForKey(ctx, key);
 
@@ -594,10 +539,7 @@ function createEmptyInboxStatusCounts() {
 }
 
 function buildInboxStatusAggregateBackfillMap(records: Doc<"inboxItems">[]) {
-  const aggregateMap = new Map<
-    string,
-    InboxStatusAggregateKey & { itemCount: number }
-  >();
+  const aggregateMap = new Map<string, InboxStatusAggregateKey & { itemCount: number }>();
 
   for (const record of records) {
     const key = getInboxStatusAggregateKey(record);
@@ -698,9 +640,7 @@ async function getInboxStatusRangeCountFromAggregates(
     if (includesFullFromDay && includesFullToDay) {
       return args.aggregateRows.reduce(
         (sum, row) =>
-          row.status === args.status && row.createdAtDay === fromDay
-            ? sum + row.itemCount
-            : sum,
+          row.status === args.status && row.createdAtDay === fromDay ? sum + row.itemCount : sum,
         0,
       );
     }
@@ -830,9 +770,7 @@ async function getTransactionByPublicId(
 ) {
   const byLegacyId = await ctx.db
     .query("transactions")
-    .withIndex("by_public_transaction_id", (q) =>
-      q.eq("publicTransactionId", args.transactionId),
-    )
+    .withIndex("by_public_transaction_id", (q) => q.eq("publicTransactionId", args.transactionId))
     .unique();
 
   if (byLegacyId && byLegacyId.teamId === args.teamId) {
@@ -894,13 +832,8 @@ async function getSuggestionLearningFields(
     args.cache?.transactions.set(args.transactionId, transactionPromise);
   }
 
-  const [inboxItem, transaction] = await Promise.all([
-    inboxPromise,
-    transactionPromise,
-  ]);
-  const normalizedInboxName = normalizeSuggestionLearningName(
-    inboxItem?.displayName,
-  );
+  const [inboxItem, transaction] = await Promise.all([inboxPromise, transactionPromise]);
+  const normalizedInboxName = normalizeSuggestionLearningName(inboxItem?.displayName);
   const normalizedTransactionName = normalizeSuggestionLearningName(
     transaction?.merchantName || transaction?.name,
   );
@@ -921,9 +854,7 @@ async function getSuggestionLearningFields(
 async function getSuggestionByPublicId(ctx: InboxCtx, suggestionId: string) {
   const byLegacyId = await ctx.db
     .query("transactionMatchSuggestions")
-    .withIndex("by_public_suggestion_id", (q) =>
-      q.eq("publicSuggestionId", suggestionId),
-    )
+    .withIndex("by_public_suggestion_id", (q) => q.eq("publicSuggestionId", suggestionId))
     .unique();
 
   if (byLegacyId) {
@@ -979,9 +910,7 @@ export const serviceGetInboxItems = query({
         ),
       );
 
-      records = resolved.filter(
-        (record): record is Doc<"inboxItems"> => record !== null,
-      );
+      records = resolved.filter((record): record is Doc<"inboxItems"> => record !== null);
     } else if (args.referenceIds && args.referenceIds.length > 0) {
       const resolved = await Promise.all(
         [...new Set(args.referenceIds)].map((referenceId) =>
@@ -994,9 +923,7 @@ export const serviceGetInboxItems = query({
         ),
       );
 
-      records = resolved.filter(
-        (record): record is Doc<"inboxItems"> => record !== null,
-      );
+      records = resolved.filter((record): record is Doc<"inboxItems"> => record !== null);
     } else if (args.transactionIds && args.transactionIds.length > 0) {
       const collected = await Promise.all(
         [...new Set(args.transactionIds)].map((transactionId) =>
@@ -1034,17 +961,13 @@ export const serviceGetInboxItems = query({
       records = await ctx.db
         .query("inboxItems")
         .withIndex("by_team_and_file_path_key", (q) =>
-          q
-            .eq("teamId", team._id)
-            .eq("filePathKey", inboxFilePathKey(args.filePath!)),
+          q.eq("teamId", team._id).eq("filePathKey", inboxFilePathKey(args.filePath!)),
         )
         .collect();
     } else if (args.date) {
       records = await ctx.db
         .query("inboxItems")
-        .withIndex("by_team_and_date", (q) =>
-          q.eq("teamId", team._id).eq("date", args.date!),
-        )
+        .withIndex("by_team_and_date", (q) => q.eq("teamId", team._id).eq("date", args.date!))
         .collect();
     } else if (args.statuses && args.statuses.length === 1) {
       records = await ctx.db
@@ -1093,35 +1016,29 @@ export const serviceListInboxItemsByDatePage = query({
       };
     }
 
-    const baseQuery = ctx.db
-      .query("inboxItems")
-      .withIndex("by_team_and_date", (q) => {
-        const range = q.eq("teamId", team._id);
+    const baseQuery = ctx.db.query("inboxItems").withIndex("by_team_and_date", (q) => {
+      const range = q.eq("teamId", team._id);
 
-        if (args.dateGte && args.dateLte) {
-          return range.gte("date", args.dateGte).lte("date", args.dateLte);
-        }
+      if (args.dateGte && args.dateLte) {
+        return range.gte("date", args.dateGte).lte("date", args.dateLte);
+      }
 
-        if (args.dateGte) {
-          return range.gte("date", args.dateGte);
-        }
+      if (args.dateGte) {
+        return range.gte("date", args.dateGte);
+      }
 
-        if (args.dateLte) {
-          return range.lte("date", args.dateLte);
-        }
+      if (args.dateLte) {
+        return range.lte("date", args.dateLte);
+      }
 
-        return range;
-      });
+      return range;
+    });
 
-    const result = await baseQuery
-      .order(args.order ?? "desc")
-      .paginate(args.paginationOpts);
+    const result = await baseQuery.order(args.order ?? "desc").paginate(args.paginationOpts);
 
     return {
       ...result,
-      page: result.page.map((record) =>
-        serializeInboxItem(args.publicTeamId, record),
-      ),
+      page: result.page.map((record) => serializeInboxItem(args.publicTeamId, record)),
     };
   },
 });
@@ -1152,34 +1069,28 @@ export const serviceListInboxItemsPage = query({
     }
 
     const baseQuery = args.status
-      ? ctx.db
-          .query("inboxItems")
-          .withIndex("by_team_status_created_at", (q) => {
-            const range = q.eq("teamId", team._id).eq("status", args.status!);
+      ? ctx.db.query("inboxItems").withIndex("by_team_status_created_at", (q) => {
+          const range = q.eq("teamId", team._id).eq("status", args.status!);
 
-            if (args.createdAtFrom && args.createdAtTo) {
-              return range
-                .gte("createdAt", args.createdAtFrom)
-                .lte("createdAt", args.createdAtTo);
-            }
+          if (args.createdAtFrom && args.createdAtTo) {
+            return range.gte("createdAt", args.createdAtFrom).lte("createdAt", args.createdAtTo);
+          }
 
-            if (args.createdAtFrom) {
-              return range.gte("createdAt", args.createdAtFrom);
-            }
+          if (args.createdAtFrom) {
+            return range.gte("createdAt", args.createdAtFrom);
+          }
 
-            if (args.createdAtTo) {
-              return range.lte("createdAt", args.createdAtTo);
-            }
+          if (args.createdAtTo) {
+            return range.lte("createdAt", args.createdAtTo);
+          }
 
-            return range;
-          })
+          return range;
+        })
       : ctx.db.query("inboxItems").withIndex("by_team_and_created_at", (q) => {
           const range = q.eq("teamId", team._id);
 
           if (args.createdAtFrom && args.createdAtTo) {
-            return range
-              .gte("createdAt", args.createdAtFrom)
-              .lte("createdAt", args.createdAtTo);
+            return range.gte("createdAt", args.createdAtFrom).lte("createdAt", args.createdAtTo);
           }
 
           if (args.createdAtFrom) {
@@ -1198,9 +1109,7 @@ export const serviceListInboxItemsPage = query({
 
     return {
       ...result,
-      page: result.page.map((record) =>
-        serializeInboxItem(args.publicTeamId, record),
-      ),
+      page: result.page.map((record) => serializeInboxItem(args.publicTeamId, record)),
     };
   },
 });
@@ -1225,16 +1134,11 @@ export const serviceSearchInboxItems = query({
     const records = await ctx.db
       .query("inboxItems")
       .withSearchIndex("search_by_team_and_search_eligible", (q) =>
-        q
-          .search("searchText", searchQuery)
-          .eq("teamId", team._id)
-          .eq("searchEligible", true),
+        q.search("searchText", searchQuery).eq("teamId", team._id).eq("searchEligible", true),
       )
       .take(Math.max(1, Math.min(args.limit ?? 100, 400)));
 
-    return records.map((record) =>
-      serializeInboxItem(args.publicTeamId, record),
-    );
+    return records.map((record) => serializeInboxItem(args.publicTeamId, record));
   },
 });
 
@@ -1336,9 +1240,7 @@ export const serviceListPendingInboxItemsToNoMatch = query({
       )
       .order("desc")
       .paginate(args.paginationOpts);
-    const records = result.page.filter(
-      (record) => record.transactionId == null,
-    );
+    const records = result.page.filter((record) => record.transactionId == null);
     const teamIds = [...new Set(records.map((record) => record.teamId))];
     const teams = new Map<Id<"teams">, string | null>();
 
@@ -1370,15 +1272,9 @@ export const serviceUpsertInboxItems = mutation({
       return [];
     }
 
-    const teamCache = new Map<
-      string,
-      Awaited<ReturnType<typeof getInboxTeamOrThrow>>
-    >();
+    const teamCache = new Map<string, Awaited<ReturnType<typeof getInboxTeamOrThrow>>>();
     const results = [];
-    const liabilityAggregateKeys = new Map<
-      string,
-      InboxLiabilityAggregateKey
-    >();
+    const liabilityAggregateKeys = new Map<string, InboxLiabilityAggregateKey>();
     const statusAggregateKeys = new Map<string, InboxStatusAggregateKey>();
 
     for (const item of args.items) {
@@ -1444,8 +1340,7 @@ export const serviceUpsertInboxItems = mutation({
 
       if (existing) {
         await ctx.db.patch(existing._id, {
-          publicInboxId:
-            existing.publicInboxId ?? item.id ?? crypto.randomUUID(),
+          publicInboxId: existing.publicInboxId ?? item.id ?? crypto.randomUUID(),
           ...payload,
         });
 
@@ -1455,11 +1350,7 @@ export const serviceUpsertInboxItems = mutation({
           throw new ConvexError("Failed to update inbox item");
         }
 
-        collectInboxLiabilityAggregateKeys(
-          liabilityAggregateKeys,
-          existing,
-          updated,
-        );
+        collectInboxLiabilityAggregateKeys(liabilityAggregateKeys, existing, updated);
         collectInboxStatusAggregateKeys(statusAggregateKeys, existing, updated);
         results.push(serializeInboxItem(item.publicTeamId, updated));
         continue;
@@ -1475,11 +1366,7 @@ export const serviceUpsertInboxItems = mutation({
         throw new ConvexError("Failed to create inbox item");
       }
 
-      collectInboxLiabilityAggregateKeys(
-        liabilityAggregateKeys,
-        null,
-        inserted,
-      );
+      collectInboxLiabilityAggregateKeys(liabilityAggregateKeys, null, inserted);
       collectInboxStatusAggregateKeys(statusAggregateKeys, null, inserted);
       results.push(serializeInboxItem(item.publicTeamId, inserted));
     }
@@ -1597,9 +1484,7 @@ export const serviceListTransactionMatchSuggestionsPage = query({
         const range = q.eq("teamId", team._id).eq("status", args.status);
 
         if (args.createdAtFrom && args.createdAtTo) {
-          return range
-            .gte("createdAt", args.createdAtFrom)
-            .lte("createdAt", args.createdAtTo);
+          return range.gte("createdAt", args.createdAtFrom).lte("createdAt", args.createdAtTo);
         }
 
         if (args.createdAtFrom) {
@@ -1617,9 +1502,7 @@ export const serviceListTransactionMatchSuggestionsPage = query({
 
     return {
       ...result,
-      page: result.page.map((record) =>
-        serializeSuggestion(args.publicTeamId, record),
-      ),
+      page: result.page.map((record) => serializeSuggestion(args.publicTeamId, record)),
     };
   },
 });
@@ -1636,10 +1519,7 @@ export const serviceUpsertTransactionMatchSuggestions = mutation({
       return [];
     }
 
-    const teamCache = new Map<
-      string,
-      Awaited<ReturnType<typeof getInboxTeamOrThrow>>
-    >();
+    const teamCache = new Map<string, Awaited<ReturnType<typeof getInboxTeamOrThrow>>>();
     const suggestionLookupCache: SuggestionLookupCache = {
       inboxItems: new Map(),
       transactions: new Map(),
@@ -1655,9 +1535,7 @@ export const serviceUpsertTransactionMatchSuggestions = mutation({
       }
 
       const existing =
-        (suggestion.id
-          ? await getSuggestionByPublicId(ctx, suggestion.id)
-          : null) ??
+        (suggestion.id ? await getSuggestionByPublicId(ctx, suggestion.id) : null) ??
         (await ctx.db
           .query("transactionMatchSuggestions")
           .withIndex("by_team_inbox_transaction", (q) =>
@@ -1696,17 +1574,14 @@ export const serviceUpsertTransactionMatchSuggestions = mutation({
 
       if (existing) {
         await ctx.db.patch(existing._id, {
-          publicSuggestionId:
-            existing.publicSuggestionId ?? suggestion.id ?? crypto.randomUUID(),
+          publicSuggestionId: existing.publicSuggestionId ?? suggestion.id ?? crypto.randomUUID(),
           ...payload,
         });
 
         const updated = await ctx.db.get(existing._id);
 
         if (!updated) {
-          throw new ConvexError(
-            "Failed to update transaction match suggestion",
-          );
+          throw new ConvexError("Failed to update transaction match suggestion");
         }
 
         results.push(serializeSuggestion(suggestion.publicTeamId, updated));
@@ -1740,9 +1615,7 @@ export const serviceRebuildTransactionMatchSuggestionLearningFields = mutation({
 
     const teams = args.publicTeamId
       ? [await getTeamByPublicTeamId(ctx, args.publicTeamId)]
-      : (await ctx.db.query("teams").collect()).filter(
-          (team) => !!team.publicTeamId,
-        );
+      : (await ctx.db.query("teams").collect()).filter((team) => !!team.publicTeamId);
 
     const validTeams = teams.filter(
       (team): team is NonNullable<(typeof teams)[number]> => team !== null,
@@ -1774,10 +1647,8 @@ export const serviceRebuildTransactionMatchSuggestionLearningFields = mutation({
         });
 
         if (
-          suggestion.normalizedInboxName ===
-            learningFields.normalizedInboxName &&
-          suggestion.normalizedTransactionName ===
-            learningFields.normalizedTransactionName
+          suggestion.normalizedInboxName === learningFields.normalizedInboxName &&
+          suggestion.normalizedTransactionName === learningFields.normalizedTransactionName
         ) {
           continue;
         }
@@ -1897,9 +1768,7 @@ export const serviceRebuildInboxLiabilityAggregates = mutation({
 
     const teams = args.publicTeamId
       ? [await getTeamByPublicTeamId(ctx, args.publicTeamId)]
-      : (await ctx.db.query("teams").collect()).filter(
-          (team) => !!team.publicTeamId,
-        );
+      : (await ctx.db.query("teams").collect()).filter((team) => !!team.publicTeamId);
 
     const validTeams = teams.filter(
       (team): team is NonNullable<(typeof teams)[number]> => team !== null,
@@ -1929,9 +1798,7 @@ export const serviceRebuildInboxStatusAggregates = mutation({
 
     const teams = args.publicTeamId
       ? [await getTeamByPublicTeamId(ctx, args.publicTeamId)]
-      : (await ctx.db.query("teams").collect()).filter(
-          (team) => !!team.publicTeamId,
-        );
+      : (await ctx.db.query("teams").collect()).filter((team) => !!team.publicTeamId);
 
     const validTeams = teams.filter(
       (team): team is NonNullable<(typeof teams)[number]> => team !== null,
@@ -1982,8 +1849,7 @@ export const serviceDeleteTransactionMatchSuggestions = mutation({
 
     for (const record of records) {
       if (
-        (suggestionIds.size > 0 &&
-          suggestionIds.has(publicSuggestionId(record))) ||
+        (suggestionIds.size > 0 && suggestionIds.has(publicSuggestionId(record))) ||
         (inboxIds.size > 0 && inboxIds.has(record.inboxId))
       ) {
         deletedIds.push(publicSuggestionId(record));

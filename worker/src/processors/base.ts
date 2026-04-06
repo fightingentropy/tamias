@@ -90,11 +90,7 @@ export abstract class BaseProcessor<TData = unknown> {
 
       // Update progress if job has progress tracking
       if (job.opts.removeOnComplete !== false) {
-        await this.updateProgress(
-          job,
-          this.ProgressMilestones.STARTED,
-          "Job started",
-        );
+        await this.updateProgress(job, this.ProgressMilestones.STARTED, "Job started");
       }
 
       // Process with the job (now contains validated/transformed data, preserves prototype methods)
@@ -137,10 +133,7 @@ export abstract class BaseProcessor<TData = unknown> {
             jobName: job.name,
             error: error instanceof Error ? error.message : "Unknown error",
             resultType: typeof result,
-            resultKeys:
-              result && typeof result === "object"
-                ? Object.keys(result)
-                : undefined,
+            resultKeys: result && typeof result === "object" ? Object.keys(result) : undefined,
           });
           throw new Error(
             `Job result is not JSON-serializable: ${error instanceof Error ? error.message : "Unknown error"}`,
@@ -151,8 +144,7 @@ export abstract class BaseProcessor<TData = unknown> {
       return result;
     } catch (error) {
       const duration = Date.now() - startTime;
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       const errorStack = error instanceof Error ? error.stack : undefined;
       const errorDetails = extractErrorDetails(error);
       const classified = classifyError(error);
@@ -160,8 +152,7 @@ export abstract class BaseProcessor<TData = unknown> {
       // Check if this is a non-retryable error
       const isNonRetryable = isNonRetryableError(error);
       const shouldRetry = classified.retryable && !isNonRetryable;
-      const remainingAttempts =
-        (job.opts.attempts ?? 3) - (job.attemptsMade + 1);
+      const remainingAttempts = (job.opts.attempts ?? 3) - (job.attemptsMade + 1);
 
       this.logger.error("Job failed", {
         jobId: job.id,
@@ -184,32 +175,22 @@ export abstract class BaseProcessor<TData = unknown> {
       // For non-retryable errors, stop retrying immediately.
       if (isNonRetryable && remainingAttempts > 0) {
         try {
-          this.logger.info(
-            "Marking job as non-retryable, skipping remaining attempts",
-            {
-              jobId: job.id,
-              jobName: job.name,
-              category: classified.category,
-            },
-          );
+          this.logger.info("Marking job as non-retryable, skipping remaining attempts", {
+            jobId: job.id,
+            jobName: job.name,
+            category: classified.category,
+          });
         } catch (removeError) {
           this.logger.warn("Failed to remove non-retryable job from queue", {
             jobId: job.id,
-            error:
-              removeError instanceof Error
-                ? removeError.message
-                : "Unknown error",
+            error: removeError instanceof Error ? removeError.message : "Unknown error",
           });
         }
       }
 
       // Wrap non-retryable errors so the runtime can classify them consistently.
       if (!shouldRetry && !isNonRetryable) {
-        const wrappedError = new NonRetryableError(
-          errorMessage,
-          error,
-          classified.category,
-        );
+        const wrappedError = new NonRetryableError(errorMessage, error, classified.category);
         throw wrappedError;
       }
 

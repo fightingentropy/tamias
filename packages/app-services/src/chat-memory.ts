@@ -55,11 +55,7 @@ export async function getChatMessages<T = unknown>(args: {
   });
 }
 
-export async function deleteChatSession(args: {
-  chatId: string;
-  userId: string;
-  teamId: string;
-}) {
+export async function deleteChatSession(args: { chatId: string; userId: string; teamId: string }) {
   await getChatMessages({
     chatId: args.chatId,
     userId: args.userId,

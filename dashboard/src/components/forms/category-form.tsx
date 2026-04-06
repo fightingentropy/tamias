@@ -1,14 +1,7 @@
 "use client";
 
 import type { RouterOutputs } from "@tamias/trpc";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@tamias/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@tamias/ui/form";
 import { Input } from "@tamias/ui/input";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { Switch } from "@tamias/ui/switch";
@@ -63,9 +56,7 @@ export function CategoryForm({ data }: Props) {
     name: data?.name || "",
     description: data?.description || "",
     color: data?.color || undefined,
-    taxType:
-      data?.taxType ||
-      getTaxTypeForCountry(user?.team?.countryCode ?? "").value,
+    taxType: data?.taxType || getTaxTypeForCountry(user?.team?.countryCode ?? "").value,
     taxRate: data?.taxRate || undefined,
     taxReportingCode: data?.taxReportingCode || "",
     excluded: data?.excluded || false,
@@ -97,9 +88,7 @@ export function CategoryForm({ data }: Props) {
               name="name"
               render={({ field }) => (
                 <FormItem className="space-y-1">
-                  <FormLabel className="text-xs text-[#878787] font-normal">
-                    Name
-                  </FormLabel>
+                  <FormLabel className="text-xs text-[#878787] font-normal">Name</FormLabel>
                   <FormControl>
                     <InputColor
                       autoFocus
@@ -143,15 +132,9 @@ export function CategoryForm({ data }: Props) {
               name="description"
               render={({ field }) => (
                 <FormItem className="space-y-1">
-                  <FormLabel className="text-xs text-[#878787] font-normal">
-                    Description
-                  </FormLabel>
+                  <FormLabel className="text-xs text-[#878787] font-normal">Description</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      autoFocus={false}
-                      placeholder="Description"
-                    />
+                    <Input {...field} autoFocus={false} placeholder="Description" />
                   </FormControl>
                 </FormItem>
               )}
@@ -162,15 +145,9 @@ export function CategoryForm({ data }: Props) {
               name="taxReportingCode"
               render={({ field }) => (
                 <FormItem className="space-y-1">
-                  <FormLabel className="text-xs text-[#878787] font-normal">
-                    Report Code
-                  </FormLabel>
+                  <FormLabel className="text-xs text-[#878787] font-normal">Report Code</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      autoFocus={false}
-                      placeholder="Report Code"
-                    />
+                    <Input {...field} autoFocus={false} placeholder="Report Code" />
                   </FormControl>
                   <p className="text-xs text-muted-foreground pt-1">
                     Maps to account codes when exporting to accounting software
@@ -187,9 +164,7 @@ export function CategoryForm({ data }: Props) {
                 name="taxType"
                 render={({ field }) => (
                   <FormItem className="w-[300px] space-y-1">
-                    <FormLabel className="text-xs text-[#878787] font-normal">
-                      Tax Type
-                    </FormLabel>
+                    <FormLabel className="text-xs text-[#878787] font-normal">Tax Type</FormLabel>
                     <FormControl>
                       <SelectTaxType
                         value={field.value ?? ""}
@@ -207,9 +182,7 @@ export function CategoryForm({ data }: Props) {
                 name="taxRate"
                 render={({ field }) => (
                   <FormItem className="flex-1 space-y-1">
-                    <FormLabel className="text-xs text-[#878787] font-normal">
-                      Tax Rate
-                    </FormLabel>
+                    <FormLabel className="text-xs text-[#878787] font-normal">Tax Rate</FormLabel>
                     <FormControl>
                       <TaxRateInput
                         value={field.value}
@@ -232,11 +205,7 @@ export function CategoryForm({ data }: Props) {
 
             <div className="flex relative gap-2 mt-2">
               <span className="text-xs text-muted-foreground flex-1">
-                {
-                  taxTypes.find(
-                    (taxType) => taxType.value === form.watch("taxType"),
-                  )?.description
-                }
+                {taxTypes.find((taxType) => taxType.value === form.watch("taxType"))?.description}
               </span>
             </div>
           </div>
@@ -253,15 +222,11 @@ export function CategoryForm({ data }: Props) {
                         Exclude from reports
                       </FormLabel>
                       <div className="text-xs text-muted-foreground">
-                        Transactions in this category won't appear in financial
-                        reports
+                        Transactions in this category won't appear in financial reports
                       </div>
                     </div>
                     <FormControl>
-                      <Switch
-                        checked={field.value ?? false}
-                        onCheckedChange={field.onChange}
-                      />
+                      <Switch checked={field.value ?? false} onCheckedChange={field.onChange} />
                     </FormControl>
                   </div>
                 </div>
@@ -272,10 +237,7 @@ export function CategoryForm({ data }: Props) {
 
         <div className="flex-1" />
         <div className="pt-6 border-t mt-auto">
-          <SubmitButton
-            isSubmitting={categoriesMutation.isPending}
-            className="w-full"
-          >
+          <SubmitButton isSubmitting={categoriesMutation.isPending} className="w-full">
             Create
           </SubmitButton>
         </div>

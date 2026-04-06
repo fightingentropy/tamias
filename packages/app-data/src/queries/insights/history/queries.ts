@@ -8,12 +8,7 @@ import {
   getPredictionsFromHistory,
 } from "./analytics";
 import { getInsightHistory } from "./data";
-import type {
-  HistoricalContext,
-  RecoveryInfo,
-  RollingAverages,
-  StreakInfo,
-} from "./types";
+import type { HistoricalContext, RecoveryInfo, RollingAverages, StreakInfo } from "./types";
 
 function buildExcludedCurrentPeriod(params: {
   currentPeriodYear?: number;
@@ -103,15 +98,12 @@ export async function getHistoricalContext(
       number: params.currentPeriodNumber,
     },
   });
-  const { quarterPace: _quarterPace, ...context } = computeHistoricalContext(
-    history,
-    {
-      revenue: params.currentRevenue,
-      profit: params.currentProfit,
-      periodYear: params.currentPeriodYear,
-      periodNumber: params.currentPeriodNumber,
-    },
-  );
+  const { quarterPace: _quarterPace, ...context } = computeHistoricalContext(history, {
+    revenue: params.currentRevenue,
+    profit: params.currentProfit,
+    periodYear: params.currentPeriodYear,
+    periodNumber: params.currentPeriodNumber,
+  });
 
   return context;
 }

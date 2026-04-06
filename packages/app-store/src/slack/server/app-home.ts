@@ -204,13 +204,10 @@ export async function publishAppHome({
 
     // App Home is optional - if it's not enabled in Slack app config, log as debug
     if (isNotEnabled) {
-      logger.debug(
-        "App Home not enabled for this Slack app (this is optional)",
-        {
-          userId,
-          teamId,
-        },
-      );
+      logger.debug("App Home not enabled for this Slack app (this is optional)", {
+        userId,
+        teamId,
+      });
       return; // Don't throw - App Home is non-critical
     }
 

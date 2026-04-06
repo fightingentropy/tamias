@@ -11,19 +11,14 @@ const routeMatcher = createRouter({
   isServer: true,
 });
 
-function isStartRouteStaticData(
-  value: unknown,
-): value is StartRouteStaticData {
+function isStartRouteStaticData(value: unknown): value is StartRouteStaticData {
   if (!value || typeof value !== "object") {
     return false;
   }
 
   const candidate = value as Partial<StartRouteStaticData>;
 
-  return (
-    (candidate.appHostAccess === "public" ||
-      candidate.appHostAccess === "protected")
-  );
+  return candidate.appHostAccess === "public" || candidate.appHostAccess === "protected";
 }
 
 export function getRouteHostPolicy(url: URL): RouteAppHostAccess | null {

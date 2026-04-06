@@ -6,53 +6,47 @@
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "directory": "./dashboard/dist/client",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
   },
   "observability": {
-    "enabled": true
+    "enabled": true,
   },
   "images": {
     "binding": "IMAGES",
-    "remote": true
+    "remote": true,
   },
   "triggers": {
-    "crons": [
-      "0 2 * * *",
-      "0 3 * * *",
-      "*/30 * * * *",
-      "0 0,12 * * *",
-      "*/30 * * * 1"
-    ]
+    "crons": ["0 2 * * *", "0 3 * * *", "*/30 * * * *", "0 0,12 * * *", "*/30 * * * 1"],
   },
   "durable_objects": {
     "bindings": [
       {
         "name": "RATE_LIMIT_COORDINATOR",
-        "class_name": "RateLimitCoordinator"
+        "class_name": "RateLimitCoordinator",
       },
       {
         "name": "RUN_COORDINATOR",
-        "class_name": "RunCoordinator"
-      }
-    ]
+        "class_name": "RunCoordinator",
+      },
+    ],
   },
   "workflows": [
     {
       "binding": "ASYNC_WORKFLOW",
       "name": "tamias-workflow-local",
-      "class_name": "AsyncWorkflow"
-    }
+      "class_name": "AsyncWorkflow",
+    },
   ],
   "queues": {
     "producers": [
       {
         "binding": "CAPTURE_QUEUE",
-        "queue": "tamias-capture-local"
+        "queue": "tamias-capture-local",
       },
       {
         "binding": "LEDGER_QUEUE",
-        "queue": "tamias-ledger-local"
-      }
+        "queue": "tamias-ledger-local",
+      },
     ],
     "consumers": [
       {
@@ -60,22 +54,22 @@
         "max_batch_size": 10,
         "max_batch_timeout": 5,
         "max_retries": 3,
-        "dead_letter_queue": "tamias-capture-dlq-local"
+        "dead_letter_queue": "tamias-capture-dlq-local",
       },
       {
         "queue": "tamias-ledger-local",
         "max_batch_size": 10,
         "max_batch_timeout": 5,
         "max_retries": 3,
-        "dead_letter_queue": "tamias-ledger-dlq-local"
-      }
-    ]
+        "dead_letter_queue": "tamias-ledger-dlq-local",
+      },
+    ],
   },
   "migrations": [
     {
       "tag": "v1",
-      "new_sqlite_classes": ["RateLimitCoordinator", "RunCoordinator"]
-    }
+      "new_sqlite_classes": ["RateLimitCoordinator", "RunCoordinator"],
+    },
   ],
   "vars": {
     "TAMIAS_ENVIRONMENT": "development",
@@ -83,53 +77,47 @@
     "WEBSITE_URL": "http://127.0.0.1:8787",
     "API_URL": "http://127.0.0.1:8787",
     "CONVEX_URL": "https://fleet-chameleon-251.eu-west-1.convex.cloud",
-    "CONVEX_SITE_URL": "https://fleet-chameleon-251.eu-west-1.convex.site"
+    "CONVEX_SITE_URL": "https://fleet-chameleon-251.eu-west-1.convex.site",
   },
   "env": {
     "staging": {
       "name": "tamias-staging",
       "images": {
         "binding": "IMAGES",
-        "remote": true
+        "remote": true,
       },
       "triggers": {
-        "crons": [
-          "0 2 * * *",
-          "0 3 * * *",
-          "*/30 * * * *",
-          "0 0,12 * * *",
-          "*/30 * * * 1"
-        ]
+        "crons": ["0 2 * * *", "0 3 * * *", "*/30 * * * *", "0 0,12 * * *", "*/30 * * * 1"],
       },
       "durable_objects": {
         "bindings": [
           {
             "name": "RATE_LIMIT_COORDINATOR",
-            "class_name": "RateLimitCoordinator"
+            "class_name": "RateLimitCoordinator",
           },
           {
             "name": "RUN_COORDINATOR",
-            "class_name": "RunCoordinator"
-          }
-        ]
+            "class_name": "RunCoordinator",
+          },
+        ],
       },
       "workflows": [
         {
           "binding": "ASYNC_WORKFLOW",
           "name": "tamias-workflow-staging",
-          "class_name": "AsyncWorkflow"
-        }
+          "class_name": "AsyncWorkflow",
+        },
       ],
       "queues": {
         "producers": [
           {
             "binding": "CAPTURE_QUEUE",
-            "queue": "tamias-capture-staging"
+            "queue": "tamias-capture-staging",
           },
           {
             "binding": "LEDGER_QUEUE",
-            "queue": "tamias-ledger-staging"
-          }
+            "queue": "tamias-ledger-staging",
+          },
         ],
         "consumers": [
           {
@@ -137,16 +125,16 @@
             "max_batch_size": 10,
             "max_batch_timeout": 5,
             "max_retries": 3,
-            "dead_letter_queue": "tamias-capture-dlq-staging"
+            "dead_letter_queue": "tamias-capture-dlq-staging",
           },
           {
             "queue": "tamias-ledger-staging",
             "max_batch_size": 10,
             "max_batch_timeout": 5,
             "max_retries": 3,
-            "dead_letter_queue": "tamias-ledger-dlq-staging"
-          }
-        ]
+            "dead_letter_queue": "tamias-ledger-dlq-staging",
+          },
+        ],
       },
       "vars": {
         "TAMIAS_ENVIRONMENT": "staging",
@@ -154,67 +142,61 @@
         "WEBSITE_URL": "https://staging.tamias.xyz",
         "API_URL": "https://api-staging.tamias.xyz",
         "CONVEX_URL": "https://fleet-chameleon-251.eu-west-1.convex.cloud",
-        "CONVEX_SITE_URL": "https://fleet-chameleon-251.eu-west-1.convex.site"
-      }
+        "CONVEX_SITE_URL": "https://fleet-chameleon-251.eu-west-1.convex.site",
+      },
     },
     "production": {
       "name": "tamias",
       "routes": [
         {
           "pattern": "api.tamias.xyz",
-          "custom_domain": true
+          "custom_domain": true,
         },
         {
           "pattern": "app.tamias.xyz",
-          "custom_domain": true
+          "custom_domain": true,
         },
         {
           "pattern": "tamias.xyz",
-          "custom_domain": true
-        }
+          "custom_domain": true,
+        },
       ],
       "images": {
         "binding": "IMAGES",
-        "remote": true
+        "remote": true,
       },
       "triggers": {
-        "crons": [
-          "0 2 * * *",
-          "0 3 * * *",
-          "*/30 * * * *",
-          "0 0,12 * * *",
-          "*/30 * * * 1"
-        ]
+        "crons": ["0 2 * * *", "0 3 * * *", "*/30 * * * *", "0 0,12 * * *", "*/30 * * * 1"],
       },
       "durable_objects": {
         "bindings": [
           {
             "name": "RATE_LIMIT_COORDINATOR",
-            "class_name": "RateLimitCoordinator"
+            "class_name": "RateLimitCoordinator",
           },
           {
             "name": "RUN_COORDINATOR",
-            "class_name": "RunCoordinator"
-          }
-        ]
+            "class_name": "RunCoordinator",
+          },
+        ],
       },
       "workflows": [
         {
           "binding": "ASYNC_WORKFLOW",
           "name": "tamias-workflow",
-          "class_name": "AsyncWorkflow"
-        }
+          "class_name": "AsyncWorkflow",
+        },
       ],
       "queues": {
         "producers": [
           {
             "binding": "CAPTURE_QUEUE",
-            "queue": "tamias-capture"
+            "queue": "tamias-capture",
           },
           {
             "binding": "LEDGER_QUEUE",
-            "queue": "tamias-ledger"
-          }
+            "queue": "tamias-ledger",
+          },
         ],
         "consumers": [
           {
@@ -222,16 +204,16 @@
             "max_batch_size": 10,
             "max_batch_timeout": 5,
             "max_retries": 3,
-            "dead_letter_queue": "tamias-capture-dlq"
+            "dead_letter_queue": "tamias-capture-dlq",
           },
           {
             "queue": "tamias-ledger",
             "max_batch_size": 10,
             "max_batch_timeout": 5,
             "max_retries": 3,
-            "dead_letter_queue": "tamias-ledger-dlq"
-          }
-        ]
+            "dead_letter_queue": "tamias-ledger-dlq",
+          },
+        ],
       },
       "vars": {
         "TAMIAS_ENVIRONMENT": "production",
@@ -239,8 +221,8 @@
         "WEBSITE_URL": "https://tamias.xyz",
         "API_URL": "https://api.tamias.xyz",
         "CONVEX_URL": "https://fleet-chameleon-251.eu-west-1.convex.cloud",
-        "CONVEX_SITE_URL": "https://fleet-chameleon-251.eu-west-1.convex.site"
-      }
-    }
-  }
+        "CONVEX_SITE_URL": "https://fleet-chameleon-251.eu-west-1.convex.site",
+      },
+    },
+  },
 }

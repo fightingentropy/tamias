@@ -107,9 +107,7 @@ export function WidgetsAnimation({
   const containerRef = useRef<HTMLDivElement>(null);
   const [showWidgets, setShowWidgets] = useState(false);
   const [isWiggling, setIsWiggling] = useState(false);
-  const [cardOrder, setCardOrder] = useState<string[]>(
-    widgets.map((w) => w.id),
-  );
+  const [cardOrder, setCardOrder] = useState<string[]>(widgets.map((w) => w.id));
 
   const timeoutRefs = useRef<NodeJS.Timeout[]>([]);
   const _intervalRef = useRef<NodeJS.Timeout | undefined>(undefined);
@@ -345,28 +343,19 @@ export function WidgetsAnimation({
 
                 {widget.content && (
                   <p className="text-[10px] md:text-[12px] lg:text-[14px] text-muted-foreground leading-tight mb-2 md:mb-3">
-                    {widget.content
-                      .split(/(\d+|\d+ [\d,]+ kr)/)
-                      .map((part, idx) => {
-                        if (
-                          part.match(/^\d+/) ||
-                          part.match(/^\d+ [\d,]+ kr/)
-                        ) {
-                          return (
-                            <span
-                              key={`${widget.id}-part-${part}-${idx}`}
-                              className="text-foreground"
-                            >
-                              {part}
-                            </span>
-                          );
-                        }
+                    {widget.content.split(/(\d+|\d+ [\d,]+ kr)/).map((part, idx) => {
+                      if (part.match(/^\d+/) || part.match(/^\d+ [\d,]+ kr/)) {
                         return (
-                          <span key={`${widget.id}-part-${part}-${idx}`}>
+                          <span
+                            key={`${widget.id}-part-${part}-${idx}`}
+                            className="text-foreground"
+                          >
                             {part}
                           </span>
                         );
-                      })}
+                      }
+                      return <span key={`${widget.id}-part-${part}-${idx}`}>{part}</span>;
+                    })}
                   </p>
                 )}
 

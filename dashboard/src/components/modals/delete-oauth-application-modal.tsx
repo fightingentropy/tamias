@@ -60,9 +60,8 @@ export function DeleteOAuthApplicationModal({
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete the OAuth
-            application <strong>&quot;{applicationName}&quot;</strong> and all
-            associated data.
+            This action cannot be undone. This will permanently delete the OAuth application{" "}
+            <strong>&quot;{applicationName}&quot;</strong> and all associated data.
           </AlertDialogDescription>
         </AlertDialogHeader>
 

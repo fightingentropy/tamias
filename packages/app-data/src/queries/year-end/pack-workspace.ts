@@ -23,15 +23,8 @@ import { listDerivedLedgerEntries } from "../compliance/ledger";
 import { buildCt600Draft, buildStatutoryAccountsDraft } from "./drafts";
 import { getTeamContext, getYearEndContext } from "./pack-core";
 import { buildYearEndPackSnapshot } from "./pack-snapshot";
-import {
-  buildEmptyYearEndDashboard,
-  getHmrcCtRuntimeStatus,
-} from "./runtime";
-import type {
-  AnnualPeriod,
-  TeamContext,
-  YearEndPeriodContext,
-} from "./types";
+import { buildEmptyYearEndDashboard, getHmrcCtRuntimeStatus } from "./runtime";
+import type { AnnualPeriod, TeamContext, YearEndPeriodContext } from "./types";
 
 async function loadLedgerEntries(db: Database, teamId: string) {
   const [derivedEntries, otherEntries] = await Promise.all([
@@ -59,14 +52,9 @@ function filterManualJournalsForPeriod(
   );
 }
 
-function filterPayrollRunsForPeriod(
-  runs: PayrollRunRecord[],
-  period: AnnualPeriod,
-) {
+function filterPayrollRunsForPeriod(runs: PayrollRunRecord[], period: AnnualPeriod) {
   return runs.filter(
-    (run) =>
-      run.payPeriodEnd >= period.periodStart &&
-      run.payPeriodEnd <= period.periodEnd,
+    (run) => run.payPeriodEnd >= period.periodStart && run.payPeriodEnd <= period.periodEnd,
   );
 }
 
@@ -128,28 +116,24 @@ async function getYearEndDashboardImpl(
   }
 
   const context = await getYearEndContext(db, params.teamId, params.periodKey);
-  const [existingPack, manualEntries, corporationTaxAdjustments] =
-    await Promise.all([
-      getYearEndPackByPeriodFromConvex({
-        teamId: params.teamId,
-        filingProfileId: context.profile.id,
-        periodKey: context.period.periodKey,
-      }),
-      listComplianceJournalEntriesFromConvex({
-        teamId: params.teamId,
-        sourceTypes: ["manual_adjustment"],
-      }),
-      listCorporationTaxAdjustmentsForPeriodFromConvex({
-        teamId: params.teamId,
-        filingProfileId: context.profile.id,
-        periodKey: context.period.periodKey,
-      }),
-    ]);
+  const [existingPack, manualEntries, corporationTaxAdjustments] = await Promise.all([
+    getYearEndPackByPeriodFromConvex({
+      teamId: params.teamId,
+      filingProfileId: context.profile.id,
+      periodKey: context.period.periodKey,
+    }),
+    listComplianceJournalEntriesFromConvex({
+      teamId: params.teamId,
+      sourceTypes: ["manual_adjustment"],
+    }),
+    listCorporationTaxAdjustmentsForPeriodFromConvex({
+      teamId: params.teamId,
+      filingProfileId: context.profile.id,
+      periodKey: context.period.periodKey,
+    }),
+  ]);
 
-  const manualJournals = filterManualJournalsForPeriod(
-    manualEntries,
-    context.period,
-  );
+  const manualJournals = filterManualJournalsForPeriod(manualEntries, context.period);
 
   return {
     enabled: true,
@@ -158,19 +142,14 @@ async function getYearEndDashboardImpl(
     period: context.period,
     pack: existingPack,
     ctRuntime: getHmrcCtRuntimeStatus(context.profile),
-    manualJournalCount:
-      existingPack?.manualJournalCount ?? manualJournals.length,
+    manualJournalCount: existingPack?.manualJournalCount ?? manualJournals.length,
     corporationTaxAdjustmentCount:
       existingPack?.corporationTax &&
       typeof existingPack.corporationTax === "object" &&
       existingPack.corporationTax !== null &&
       "adjustments" in existingPack.corporationTax &&
-      Array.isArray(
-        (existingPack.corporationTax as { adjustments?: unknown[] })
-          .adjustments,
-      )
-        ? (existingPack.corporationTax as { adjustments: unknown[] })
-            .adjustments.length
+      Array.isArray((existingPack.corporationTax as { adjustments?: unknown[] }).adjustments)
+        ? (existingPack.corporationTax as { adjustments: unknown[] }).adjustments.length
         : corporationTaxAdjustments.length,
     latestExportedAt: existingPack?.latestExportedAt ?? null,
   };
@@ -183,10 +162,7 @@ export const getYearEndDashboard = reuseQueryResult({
   load: getYearEndDashboardImpl,
 });
 
-export async function getYearEndPack(
-  db: Database,
-  params: { teamId: string; periodKey?: string },
-) {
+export async function getYearEndPack(db: Database, params: { teamId: string; periodKey?: string }) {
   const context = await getYearEndContext(db, params.teamId, params.periodKey);
   const [
     pack,
@@ -226,10 +202,7 @@ export async function getYearEndPack(
     profile: context.profile,
     period: context.period,
     pack,
-    manualJournals: filterManualJournalsForPeriod(
-      manualEntries,
-      context.period,
-    ),
+    manualJournals: filterManualJournalsForPeriod(manualEntries, context.period),
     corporationTaxAdjustments,
     closeCompanyLoansSchedule,
     corporationTaxRateSchedule,
@@ -275,10 +248,7 @@ export async function rebuildYearEndPack(
 
   const entries = await loadLedgerEntries(db, params.teamId);
   const manualJournals = filterManualJournalsForPeriod(entries, context.period);
-  const payrollRunsInPeriod = filterPayrollRunsForPeriod(
-    payrollRuns,
-    context.period,
-  );
+  const payrollRunsInPeriod = filterPayrollRunsForPeriod(payrollRuns, context.period);
   const snapshot = buildYearEndPackSnapshot({
     entries,
     period: context.period,
@@ -286,8 +256,7 @@ export async function rebuildYearEndPack(
     rateSchedule: corporationTaxRateSchedule,
     exportBundles: existingPack?.exportBundles,
     latestExportedAt: existingPack?.latestExportedAt,
-    currency:
-      context.profile.baseCurrency ?? context.team.baseCurrency ?? "GBP",
+    currency: context.profile.baseCurrency ?? context.team.baseCurrency ?? "GBP",
   });
 
   const pack = await upsertYearEndPackInConvex({

@@ -27,9 +27,7 @@ export function ConnectBankProvider({
 }: Props) {
   const { setParams } = useConnectParams();
   const trpc = useTRPC();
-  const updateUsageMutation = useMutation(
-    trpc.institutions.updateUsage.mutationOptions(),
-  );
+  const updateUsageMutation = useMutation(trpc.institutions.updateUsage.mutationOptions());
 
   const updateUsage = () => {
     updateUsageMutation.mutate({ id });

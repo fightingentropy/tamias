@@ -8,9 +8,7 @@ type ReceiptData = z.infer<typeof receiptSchema>;
 /**
  * Validates currency code format (ISO 4217)
  */
-export function isValidCurrencyCode(
-  currency: string | null | undefined,
-): boolean {
+export function isValidCurrencyCode(currency: string | null | undefined): boolean {
   if (!currency) return false;
   // ISO 4217 currency codes are 3 uppercase letters
   return /^[A-Z]{3}$/.test(currency);
@@ -32,23 +30,13 @@ export function isValidDateFormat(date: string | null | undefined): boolean {
 /**
  * Validates date is within reasonable range (not too far in past/future)
  */
-export function isDateInReasonableRange(
-  date: string | null | undefined,
-): boolean {
+export function isDateInReasonableRange(date: string | null | undefined): boolean {
   if (!date || !isValidDateFormat(date)) return false;
 
   const parsed = parseISO(date);
   const now = new Date();
-  const tenYearsAgo = new Date(
-    now.getFullYear() - 10,
-    now.getMonth(),
-    now.getDate(),
-  );
-  const twoYearsAhead = new Date(
-    now.getFullYear() + 2,
-    now.getMonth(),
-    now.getDate(),
-  );
+  const tenYearsAgo = new Date(now.getFullYear() - 10, now.getMonth(), now.getDate());
+  const twoYearsAhead = new Date(now.getFullYear() + 2, now.getMonth(), now.getDate());
 
   return parsed >= tenYearsAgo && parsed <= twoYearsAhead;
 }
@@ -89,22 +77,12 @@ export function validateAmountConsistency(
   let subtotal = 0;
   if (lineItems && lineItems.length > 0) {
     subtotal = lineItems.reduce((sum, item) => {
-      return (
-        sum +
-        (item.total_price && isValidAmount(item.total_price)
-          ? item.total_price
-          : 0)
-      );
+      return sum + (item.total_price && isValidAmount(item.total_price) ? item.total_price : 0);
     }, 0);
   }
 
   // If we have both tax and subtotal, validate consistency
-  if (
-    taxAmount !== null &&
-    taxAmount !== undefined &&
-    isValidAmount(taxAmount) &&
-    subtotal > 0
-  ) {
+  if (taxAmount !== null && taxAmount !== undefined && isValidAmount(taxAmount) && subtotal > 0) {
     const calculatedTotal = subtotal + taxAmount;
     const difference = Math.abs(totalAmount - calculatedTotal);
     // Allow 0.01 difference for rounding
@@ -112,11 +90,7 @@ export function validateAmountConsistency(
   }
 
   // If we only have tax amount, check it's not greater than total
-  if (
-    taxAmount !== null &&
-    taxAmount !== undefined &&
-    isValidAmount(taxAmount)
-  ) {
+  if (taxAmount !== null && taxAmount !== undefined && isValidAmount(taxAmount)) {
     return taxAmount <= totalAmount;
   }
 
@@ -168,10 +142,7 @@ export function calculateQualityScore(result: InvoiceData): QualityScore {
     if (result.invoice_date && !isValidDateFormat(result.invoice_date)) {
       invalidFields.push("invoice_date");
       score -= 5;
-    } else if (
-      result.invoice_date &&
-      !isDateInReasonableRange(result.invoice_date)
-    ) {
+    } else if (result.invoice_date && !isDateInReasonableRange(result.invoice_date)) {
       invalidFields.push("invoice_date");
       issues.push("invoice_date out of reasonable range");
       score -= 5;
@@ -205,11 +176,7 @@ export function calculateQualityScore(result: InvoiceData): QualityScore {
   // Cross-field validation
   if (
     result.total_amount &&
-    !validateAmountConsistency(
-      result.total_amount,
-      result.tax_amount,
-      result.line_items,
-    )
+    !validateAmountConsistency(result.total_amount, result.tax_amount, result.line_items)
   ) {
     issues.push("Amount consistency check failed (tax + subtotal ≠ total)");
     score -= 10;
@@ -237,17 +204,11 @@ export function calculateQualityScore(result: InvoiceData): QualityScore {
  * @param result - The extraction result to check
  * @param threshold - Quality score threshold (default: 70)
  */
-export function isDataQualityPoor(
-  result: InvoiceData,
-  threshold = 70,
-): boolean {
+export function isDataQualityPoor(result: InvoiceData, threshold = 70): boolean {
   const qualityScore = calculateQualityScore(result);
 
   // Quality is poor if score is below threshold or critical fields are missing
-  return (
-    qualityScore.score < threshold ||
-    qualityScore.missingCriticalFields.length > 0
-  );
+  return qualityScore.score < threshold || qualityScore.missingCriticalFields.length > 0;
 }
 
 /**
@@ -275,8 +236,7 @@ export function mergeExtractionResults(
   secondary: Partial<InvoiceData>,
 ): InvoiceData {
   return {
-    document_type:
-      primary.document_type || secondary.document_type || "invoice",
+    document_type: primary.document_type || secondary.document_type || "invoice",
     invoice_number: primary.invoice_number || secondary.invoice_number || null,
     invoice_date: primary.invoice_date || secondary.invoice_date || null,
     due_date: primary.due_date || secondary.due_date || null,
@@ -284,8 +244,7 @@ export function mergeExtractionResults(
     total_amount:
       primary.total_amount !== null && primary.total_amount !== undefined
         ? primary.total_amount
-        : secondary.total_amount !== null &&
-            secondary.total_amount !== undefined
+        : secondary.total_amount !== null && secondary.total_amount !== undefined
           ? secondary.total_amount
           : null,
     tax_amount: primary.tax_amount || secondary.tax_amount || null,
@@ -294,8 +253,7 @@ export function mergeExtractionResults(
     vendor_name: primary.vendor_name || secondary.vendor_name || null,
     vendor_address: primary.vendor_address || secondary.vendor_address || null,
     customer_name: primary.customer_name || secondary.customer_name || null,
-    customer_address:
-      primary.customer_address || secondary.customer_address || null,
+    customer_address: primary.customer_address || secondary.customer_address || null,
     website: primary.website || secondary.website || null,
     email: primary.email || secondary.email || null,
     line_items:
@@ -304,8 +262,7 @@ export function mergeExtractionResults(
         : secondary.line_items && secondary.line_items.length > 0
           ? secondary.line_items
           : [],
-    payment_instructions:
-      primary.payment_instructions || secondary.payment_instructions || null,
+    payment_instructions: primary.payment_instructions || secondary.payment_instructions || null,
     notes: primary.notes || secondary.notes || null,
     language: primary.language || secondary.language || null,
   };
@@ -321,9 +278,7 @@ export interface ReceiptQualityScore {
   invalidFields: string[];
 }
 
-export function calculateReceiptQualityScore(
-  result: ReceiptData,
-): ReceiptQualityScore {
+export function calculateReceiptQualityScore(result: ReceiptData): ReceiptQualityScore {
   const issues: string[] = [];
   const missingCriticalFields: string[] = [];
   const invalidFields: string[] = [];
@@ -415,23 +370,15 @@ export function calculateReceiptQualityScore(
  * @param result - The extraction result to check
  * @param threshold - Quality score threshold (default: 70)
  */
-export function isReceiptDataQualityPoor(
-  result: ReceiptData,
-  threshold = 70,
-): boolean {
+export function isReceiptDataQualityPoor(result: ReceiptData, threshold = 70): boolean {
   const qualityScore = calculateReceiptQualityScore(result);
-  return (
-    qualityScore.score < threshold ||
-    qualityScore.missingCriticalFields.length > 0
-  );
+  return qualityScore.score < threshold || qualityScore.missingCriticalFields.length > 0;
 }
 
 /**
  * Get list of receipt fields that need re-extraction
  */
-export function getReceiptFieldsNeedingReExtraction(
-  result: ReceiptData,
-): string[] {
+export function getReceiptFieldsNeedingReExtraction(result: ReceiptData): string[] {
   const qualityScore = calculateReceiptQualityScore(result);
   const fieldsToReExtract: string[] = [];
 
@@ -449,19 +396,16 @@ export function mergeReceiptExtractionResults(
   secondary: Partial<ReceiptData>,
 ): ReceiptData {
   return {
-    document_type:
-      primary.document_type || secondary.document_type || "receipt",
+    document_type: primary.document_type || secondary.document_type || "receipt",
     date: primary.date || secondary.date || null,
     currency: primary.currency || secondary.currency || null,
     total_amount:
       primary.total_amount !== null && primary.total_amount !== undefined
         ? primary.total_amount
-        : secondary.total_amount !== null &&
-            secondary.total_amount !== undefined
+        : secondary.total_amount !== null && secondary.total_amount !== undefined
           ? secondary.total_amount
           : null,
-    subtotal_amount:
-      primary.subtotal_amount || secondary.subtotal_amount || null,
+    subtotal_amount: primary.subtotal_amount || secondary.subtotal_amount || null,
     tax_amount:
       primary.tax_amount !== null && primary.tax_amount !== undefined
         ? primary.tax_amount
@@ -481,8 +425,7 @@ export function mergeReceiptExtractionResults(
           : [],
     cashier_name: primary.cashier_name || secondary.cashier_name || null,
     email: primary.email || secondary.email || null,
-    register_number:
-      primary.register_number || secondary.register_number || null,
+    register_number: primary.register_number || secondary.register_number || null,
     language: primary.language || secondary.language || null,
   };
 }

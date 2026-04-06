@@ -1,11 +1,4 @@
-import {
-  Body,
-  Container,
-  Heading,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
+import { Body, Container, Heading, Preview, Section, Text } from "@react-email/components";
 import { getAppUrl } from "@tamias/utils/envs";
 import { Footer } from "../components/footer";
 import { Logo } from "../components/logo";
@@ -33,10 +26,7 @@ export const InvoicePaidEmail = ({
 
   return (
     <EmailThemeProvider preview={<Preview>{text}</Preview>}>
-      <Body
-        className={`my-auto mx-auto font-sans ${themeClasses.body}`}
-        style={lightStyles.body}
-      >
+      <Body className={`my-auto mx-auto font-sans ${themeClasses.body}`} style={lightStyles.body}>
         <Container
           className={`my-[40px] mx-auto p-[20px] max-w-[600px] ${themeClasses.container}`}
           style={{
@@ -55,16 +45,13 @@ export const InvoicePaidEmail = ({
 
           <br />
 
-          <Text
-            className={themeClasses.text}
-            style={{ color: lightStyles.text.color }}
-          >
-            Great news! We found a matching transaction for this invoice in your
-            account and have marked it accordingly.
+          <Text className={themeClasses.text} style={{ color: lightStyles.text.color }}>
+            Great news! We found a matching transaction for this invoice in your account and have
+            marked it accordingly.
             <br />
             <br />
-            The invoice has been linked to the transaction in your records.
-            Please take a moment to check that everything looks right.
+            The invoice has been linked to the transaction in your records. Please take a moment to
+            check that everything looks right.
           </Text>
 
           <Section className="text-center mt-[50px] mb-[50px]">

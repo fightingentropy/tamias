@@ -110,9 +110,7 @@ function walkPackageJsonFiles(rootDir: string, currentDir = rootDir): string[] {
         continue;
       }
 
-      files.push(
-        ...walkPackageJsonFiles(rootDir, join(currentDir, entry.name)),
-      );
+      files.push(...walkPackageJsonFiles(rootDir, join(currentDir, entry.name)));
       continue;
     }
 
@@ -168,10 +166,7 @@ function listWorkspacePackages(rootDir: string): WorkspacePackage[] {
   return walkPackageJsonFiles(rootDir)
     .map((manifestPath) => {
       const relativePath = normalizePath(rootDir, manifestPath);
-      if (
-        relativePath === "package.json" ||
-        !isInside(relativePath, "packages")
-      ) {
+      if (relativePath === "package.json" || !isInside(relativePath, "packages")) {
         return null;
       }
 
@@ -191,10 +186,7 @@ function listWorkspacePackages(rootDir: string): WorkspacePackage[] {
     .sort((left, right) => right.name.length - left.name.length);
 }
 
-function getDependencyVersion(
-  packageJson: PackageJson,
-  dependencyName: string,
-): string | null {
+function getDependencyVersion(packageJson: PackageJson, dependencyName: string): string | null {
   return (
     packageJson.dependencies?.[dependencyName] ??
     packageJson.devDependencies?.[dependencyName] ??
@@ -234,22 +226,12 @@ function getWorkspacePackageForFile(
   pathname: string,
 ) {
   const relativePath = normalizePath(rootDir, pathname);
-  return (
-    workspaces.find((workspace) =>
-      isInside(relativePath, workspace.directory),
-    ) ?? null
-  );
+  return workspaces.find((workspace) => isInside(relativePath, workspace.directory)) ?? null;
 }
 
-function resolveWorkspacePackageName(
-  specifier: string,
-  workspaces: WorkspacePackage[],
-) {
+function resolveWorkspacePackageName(specifier: string, workspaces: WorkspacePackage[]) {
   for (const workspace of workspaces) {
-    if (
-      specifier === workspace.name ||
-      specifier.startsWith(`${workspace.name}/`)
-    ) {
+    if (specifier === workspace.name || specifier.startsWith(`${workspace.name}/`)) {
       return workspace.name;
     }
   }
@@ -266,9 +248,7 @@ export function findForbiddenApiAliasReferences(rootDir: string): string[] {
       }
 
       const content = readFileSync(pathname, "utf8");
-      return fileContainsAny(content, FORBIDDEN_API_ALIAS_PATTERNS)
-        ? relativePath
-        : null;
+      return fileContainsAny(content, FORBIDDEN_API_ALIAS_PATTERNS) ? relativePath : null;
     })
     .filter((value): value is string => value !== null)
     .sort();
@@ -287,9 +267,7 @@ export function findForbiddenApiPackageImports(rootDir: string): string[] {
       }
 
       const content = readFileSync(pathname, "utf8");
-      return fileContainsAny(content, FORBIDDEN_API_PACKAGE_IMPORT_PATTERNS)
-        ? relativePath
-        : null;
+      return fileContainsAny(content, FORBIDDEN_API_PACKAGE_IMPORT_PATTERNS) ? relativePath : null;
     })
     .filter((value): value is string => value !== null)
     .sort();
@@ -302,10 +280,7 @@ export function findForbiddenConvexGeneratedImports(rootDir: string): string[] {
       if (
         isInside(relativePath, "packages/convex-model") ||
         isInside(relativePath, "packages/app-data-convex") ||
-        !fileContainsAny(
-          readFileSync(pathname, "utf8"),
-          FORBIDDEN_CONVEX_GENERATED_PATTERNS,
-        )
+        !fileContainsAny(readFileSync(pathname, "utf8"), FORBIDDEN_CONVEX_GENERATED_PATTERNS)
       ) {
         return null;
       }
@@ -347,18 +322,13 @@ export function findForbiddenAppDataRootImports(rootDir: string): string[] {
     .sort();
 }
 
-export function findForbiddenAppDataConvexCompatImports(
-  rootDir: string,
-): string[] {
+export function findForbiddenAppDataConvexCompatImports(rootDir: string): string[] {
   return walkSourceFiles(rootDir)
     .map((pathname) => {
       const relativePath = normalizePath(rootDir, pathname);
       const content = readFileSync(pathname, "utf8");
 
-      return fileContainsAny(
-        content,
-        FORBIDDEN_APP_DATA_CONVEX_COMPAT_IMPORT_PATTERNS,
-      )
+      return fileContainsAny(content, FORBIDDEN_APP_DATA_CONVEX_COMPAT_IMPORT_PATTERNS)
         ? relativePath
         : null;
     })
@@ -366,9 +336,7 @@ export function findForbiddenAppDataConvexCompatImports(
     .sort();
 }
 
-export function findMissingInternalWorkspaceDependencies(
-  rootDir: string,
-): string[] {
+export function findMissingInternalWorkspaceDependencies(rootDir: string): string[] {
   const workspaces = listWorkspacePackages(rootDir);
 
   return walkSourceFiles(rootDir)
@@ -386,13 +354,9 @@ export function findMissingInternalWorkspaceDependencies(
             dependencyName !== null && dependencyName !== owner.name,
         )
         .filter(
-          (dependencyName) =>
-            getDependencyVersion(owner.packageJson, dependencyName) === null,
+          (dependencyName) => getDependencyVersion(owner.packageJson, dependencyName) === null,
         )
-        .map(
-          (dependencyName) =>
-            `${normalizePath(rootDir, pathname)} -> ${dependencyName}`,
-        );
+        .map((dependencyName) => `${normalizePath(rootDir, pathname)} -> ${dependencyName}`);
 
       return missingDependencies;
     })
@@ -418,11 +382,7 @@ function collectExportTargets(
 
   if (exportsValue && typeof exportsValue === "object") {
     for (const [nestedKey, nestedValue] of Object.entries(exportsValue)) {
-      collectExportTargets(
-        nestedValue,
-        `${exportKey} (${nestedKey})`,
-        onTarget,
-      );
+      collectExportTargets(nestedValue, `${exportKey} (${nestedKey})`, onTarget);
     }
   }
 }
@@ -438,31 +398,20 @@ export function findBrokenWorkspaceExports(rootDir: string): string[] {
     }
 
     for (const [exportKey, targetValue] of Object.entries(exportsValue)) {
-      collectExportTargets(
-        targetValue,
-        exportKey,
-        (resolvedExportKey, target) => {
-          if (
-            typeof target !== "string" ||
-            target.includes("*") ||
-            target.startsWith("./dist/")
-          ) {
-            return;
-          }
+      collectExportTargets(targetValue, exportKey, (resolvedExportKey, target) => {
+        if (typeof target !== "string" || target.includes("*") || target.startsWith("./dist/")) {
+          return;
+        }
 
-          const resolvedTarget = resolve(
-            dirname(workspace.manifestPath),
-            target,
-          );
-          if (existsSync(resolvedTarget)) {
-            return;
-          }
+        const resolvedTarget = resolve(dirname(workspace.manifestPath), target);
+        if (existsSync(resolvedTarget)) {
+          return;
+        }
 
-          violations.add(
-            `${normalizePath(rootDir, workspace.manifestPath)}: export "${resolvedExportKey}" points to missing file ${normalizePath(rootDir, resolvedTarget)}`,
-          );
-        },
-      );
+        violations.add(
+          `${normalizePath(rootDir, workspace.manifestPath)}: export "${resolvedExportKey}" points to missing file ${normalizePath(rootDir, resolvedTarget)}`,
+        );
+      });
     }
   }
 
@@ -490,23 +439,17 @@ export function findAiSdkMajorVersionViolations(rootDir: string): string[] {
 
         const actualMajor = parseMajor(actualVersion);
         if (expectedMajor === null || actualMajor === null) {
-          return [
-            `${dependencyName} has an unreadable version specifier "${actualVersion}"`,
-          ];
+          return [`${dependencyName} has an unreadable version specifier "${actualVersion}"`];
         }
 
         if (actualMajor === expectedMajor) {
           return [];
         }
 
-        return [
-          `${dependencyName} uses major ${actualMajor} (expected ${expectedMajor})`,
-        ];
+        return [`${dependencyName} uses major ${actualMajor} (expected ${expectedMajor})`];
       });
 
-      return violations.length === 0
-        ? null
-        : `${relativePath}: ${violations.join(", ")}`;
+      return violations.length === 0 ? null : `${relativePath}: ${violations.join(", ")}`;
     })
     .filter((value): value is string => value !== null)
     .sort();
@@ -534,14 +477,10 @@ export function findAiSdkNonCatalogReferences(rootDir: string): string[] {
           return [];
         }
 
-        return [
-          `${dependencyName} should use catalog: (found "${actualVersion}")`,
-        ];
+        return [`${dependencyName} should use catalog: (found "${actualVersion}")`];
       });
 
-      return violations.length === 0
-        ? null
-        : `${relativePath}: ${violations.join(", ")}`;
+      return violations.length === 0 ? null : `${relativePath}: ${violations.join(", ")}`;
     })
     .filter((value): value is string => value !== null)
     .sort();
@@ -559,22 +498,16 @@ function main() {
   const rootDir = process.cwd();
   const apiAliasViolations = findForbiddenApiAliasReferences(rootDir);
   const apiPackageViolations = findForbiddenApiPackageImports(rootDir);
-  const convexGeneratedViolations =
-    findForbiddenConvexGeneratedImports(rootDir);
+  const convexGeneratedViolations = findForbiddenConvexGeneratedImports(rootDir);
   const appDataSelfImportViolations = findForbiddenAppDataSelfImports(rootDir);
   const appDataRootImportViolations = findForbiddenAppDataRootImports(rootDir);
-  const appDataConvexCompatImportViolations =
-    findForbiddenAppDataConvexCompatImports(rootDir);
-  const missingDependencyViolations =
-    findMissingInternalWorkspaceDependencies(rootDir);
+  const appDataConvexCompatImportViolations = findForbiddenAppDataConvexCompatImports(rootDir);
+  const missingDependencyViolations = findMissingInternalWorkspaceDependencies(rootDir);
   const brokenExportViolations = findBrokenWorkspaceExports(rootDir);
   const aiSdkMajorViolations = findAiSdkMajorVersionViolations(rootDir);
   const aiSdkCatalogViolations = findAiSdkNonCatalogReferences(rootDir);
   const sections = [
-    formatViolations(
-      "Forbidden @api/* references found outside api:",
-      apiAliasViolations,
-    ),
+    formatViolations("Forbidden @api/* references found outside api:", apiAliasViolations),
     formatViolations(
       "Forbidden direct @tamias/api imports found outside api, dashboard, and packages/trpc:",
       apiPackageViolations,
@@ -599,10 +532,7 @@ function main() {
       "Missing internal workspace dependency declarations found:",
       missingDependencyViolations,
     ),
-    formatViolations(
-      "Broken workspace source exports found:",
-      brokenExportViolations,
-    ),
+    formatViolations("Broken workspace source exports found:", brokenExportViolations),
     formatViolations(
       "AI SDK major version drift found against the root catalog:",
       aiSdkMajorViolations,

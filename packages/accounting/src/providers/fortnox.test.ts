@@ -169,12 +169,8 @@ describe("FortnoxProvider", () => {
       expect(body.Voucher.VoucherRows).toHaveLength(2);
 
       // Expense: Debit expense account (5400), Credit bank account (1930)
-      const debitRow = body.Voucher.VoucherRows.find(
-        (r: { Debit: number }) => r.Debit > 0,
-      );
-      const creditRow = body.Voucher.VoucherRows.find(
-        (r: { Credit: number }) => r.Credit > 0,
-      );
+      const debitRow = body.Voucher.VoucherRows.find((r: { Debit: number }) => r.Debit > 0);
+      const creditRow = body.Voucher.VoucherRows.find((r: { Credit: number }) => r.Credit > 0);
       expect(debitRow.Account).toBe(5400); // Expense account
       expect(debitRow.Debit).toBe(100);
       expect(creditRow.Account).toBe(1930); // Bank account
@@ -190,9 +186,7 @@ describe("FortnoxProvider", () => {
             ok: true,
             json: () =>
               Promise.resolve({
-                FinancialYears: [
-                  { Id: 1, FromDate: "2024-01-01", ToDate: "2024-12-31" },
-                ],
+                FinancialYears: [{ Id: 1, FromDate: "2024-01-01", ToDate: "2024-12-31" }],
               }),
           };
         }
@@ -230,12 +224,8 @@ describe("FortnoxProvider", () => {
       const body = JSON.parse(voucherCall![1]!.body as string);
 
       // Income: Debit bank account (1930), Credit income account (3010)
-      const debitRow = body.Voucher.VoucherRows.find(
-        (r: { Debit: number }) => r.Debit > 0,
-      );
-      const creditRow = body.Voucher.VoucherRows.find(
-        (r: { Credit: number }) => r.Credit > 0,
-      );
+      const debitRow = body.Voucher.VoucherRows.find((r: { Debit: number }) => r.Debit > 0);
+      const creditRow = body.Voucher.VoucherRows.find((r: { Credit: number }) => r.Credit > 0);
       expect(debitRow.Account).toBe(1930); // Bank account
       expect(debitRow.Debit).toBe(500);
       expect(creditRow.Account).toBe(3010); // Income account
@@ -251,9 +241,7 @@ describe("FortnoxProvider", () => {
             ok: true,
             json: () =>
               Promise.resolve({
-                FinancialYears: [
-                  { Id: 1, FromDate: "2024-01-01", ToDate: "2024-12-31" },
-                ],
+                FinancialYears: [{ Id: 1, FromDate: "2024-01-01", ToDate: "2024-12-31" }],
               }),
           };
         }
@@ -299,9 +287,7 @@ describe("FortnoxProvider", () => {
             ok: true,
             json: () =>
               Promise.resolve({
-                FinancialYears: [
-                  { Id: 1, FromDate: "2024-01-01", ToDate: "2024-12-31" },
-                ],
+                FinancialYears: [{ Id: 1, FromDate: "2024-01-01", ToDate: "2024-12-31" }],
               }),
           };
         }
@@ -335,9 +321,7 @@ describe("FortnoxProvider", () => {
       );
       const body = JSON.parse(voucherCall![1]!.body as string);
 
-      const creditRow = body.Voucher.VoucherRows.find(
-        (r: { Credit: number }) => r.Credit > 0,
-      );
+      const creditRow = body.Voucher.VoucherRows.find((r: { Credit: number }) => r.Credit > 0);
       expect(creditRow.Account).toBe(3000); // Default income account
     });
 
@@ -351,9 +335,7 @@ describe("FortnoxProvider", () => {
             ok: true,
             json: () =>
               Promise.resolve({
-                FinancialYears: [
-                  { Id: 1, FromDate: "2024-01-01", ToDate: "2024-12-31" },
-                ],
+                FinancialYears: [{ Id: 1, FromDate: "2024-01-01", ToDate: "2024-12-31" }],
               }),
           };
         }
@@ -424,9 +406,7 @@ describe("FortnoxProvider", () => {
             ok: true,
             json: () =>
               Promise.resolve({
-                FinancialYears: [
-                  { Id: 1, FromDate: "2024-01-01", ToDate: "2024-12-31" },
-                ],
+                FinancialYears: [{ Id: 1, FromDate: "2024-01-01", ToDate: "2024-12-31" }],
               }),
           };
         }
@@ -505,8 +485,8 @@ describe("FortnoxProvider", () => {
       expect(inboxCall).toBeDefined();
 
       // Verify file connection was created
-      const connectionCall = (mockFetchFn.mock.calls as FetchCall[]).find(
-        (call) => call[0].includes("/voucherfileconnections"),
+      const connectionCall = (mockFetchFn.mock.calls as FetchCall[]).find((call) =>
+        call[0].includes("/voucherfileconnections"),
       );
       expect(connectionCall).toBeDefined();
     });
@@ -598,9 +578,7 @@ describe("FortnoxProvider", () => {
         ok: true,
         json: () =>
           Promise.resolve({
-            Accounts: [
-              { Number: 4000, Description: "Purchase of Goods", Active: true },
-            ],
+            Accounts: [{ Number: 4000, Description: "Purchase of Goods", Active: true }],
           }),
       }));
 
@@ -619,59 +597,55 @@ describe("FortnoxProvider", () => {
       const provider = createProvider();
       const createYearCalls: string[] = [];
 
-      mockFetchFn.mockImplementation(
-        async (url: string, options?: RequestInit) => {
-          // Check financial year for specific date - returns empty for 2024
-          if (url.includes("/financialyears/") && url.includes("date=")) {
-            return {
-              ok: true,
-              json: () => Promise.resolve({ FinancialYears: [] }),
-            };
-          }
+      mockFetchFn.mockImplementation(async (url: string, options?: RequestInit) => {
+        // Check financial year for specific date - returns empty for 2024
+        if (url.includes("/financialyears/") && url.includes("date=")) {
+          return {
+            ok: true,
+            json: () => Promise.resolve({ FinancialYears: [] }),
+          };
+        }
 
-          // List all financial years (for pattern detection)
-          if (url.includes("/financialyears") && !options?.method) {
-            return {
-              ok: true,
-              json: () =>
-                Promise.resolve({
-                  FinancialYears: [
-                    { Id: 1, FromDate: "2023-01-01", ToDate: "2023-12-31" },
-                  ],
-                }),
-            };
-          }
+        // List all financial years (for pattern detection)
+        if (url.includes("/financialyears") && !options?.method) {
+          return {
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                FinancialYears: [{ Id: 1, FromDate: "2023-01-01", ToDate: "2023-12-31" }],
+              }),
+          };
+        }
 
-          // Create financial year
-          if (url.includes("/financialyears") && options?.method === "POST") {
-            createYearCalls.push(options.body as string);
-            return {
-              ok: true,
-              json: () =>
-                Promise.resolve({
-                  FinancialYear: {
-                    Id: 2,
-                    FromDate: "2024-01-01",
-                    ToDate: "2024-12-31",
-                  },
-                }),
-            };
-          }
+        // Create financial year
+        if (url.includes("/financialyears") && options?.method === "POST") {
+          createYearCalls.push(options.body as string);
+          return {
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                FinancialYear: {
+                  Id: 2,
+                  FromDate: "2024-01-01",
+                  ToDate: "2024-12-31",
+                },
+              }),
+          };
+        }
 
-          // Voucher creation
-          if (url.includes("/vouchers") && options?.method === "POST") {
-            return {
-              ok: true,
-              json: () =>
-                Promise.resolve({
-                  Voucher: { VoucherSeries: "A", VoucherNumber: 1, Year: 2 },
-                }),
-            };
-          }
+        // Voucher creation
+        if (url.includes("/vouchers") && options?.method === "POST") {
+          return {
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                Voucher: { VoucherSeries: "A", VoucherNumber: 1, Year: 2 },
+              }),
+          };
+        }
 
-          return { ok: true, json: () => Promise.resolve({}) };
-        },
-      );
+        return { ok: true, json: () => Promise.resolve({}) };
+      });
 
       const tx: MappedTransaction = {
         id: "tx-2024",
@@ -699,59 +673,57 @@ describe("FortnoxProvider", () => {
       const provider = createProvider();
       const createYearCalls: string[] = [];
 
-      mockFetchFn.mockImplementation(
-        async (url: string, options?: RequestInit) => {
-          // Check for specific date - not found
-          if (url.includes("/financialyears/") && url.includes("date=")) {
-            return {
-              ok: true,
-              json: () => Promise.resolve({ FinancialYears: [] }),
-            };
-          }
+      mockFetchFn.mockImplementation(async (url: string, options?: RequestInit) => {
+        // Check for specific date - not found
+        if (url.includes("/financialyears/") && url.includes("date=")) {
+          return {
+            ok: true,
+            json: () => Promise.resolve({ FinancialYears: [] }),
+          };
+        }
 
-          // List all years - has broken fiscal year pattern
-          if (url.includes("/financialyears") && !options?.method) {
-            return {
-              ok: true,
-              json: () =>
-                Promise.resolve({
-                  FinancialYears: [
-                    // Broken fiscal year: July to June
-                    { Id: 1, FromDate: "2023-07-01", ToDate: "2024-06-30" },
-                  ],
-                }),
-            };
-          }
+        // List all years - has broken fiscal year pattern
+        if (url.includes("/financialyears") && !options?.method) {
+          return {
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                FinancialYears: [
+                  // Broken fiscal year: July to June
+                  { Id: 1, FromDate: "2023-07-01", ToDate: "2024-06-30" },
+                ],
+              }),
+          };
+        }
 
-          // Create financial year
-          if (url.includes("/financialyears") && options?.method === "POST") {
-            createYearCalls.push(options.body as string);
-            return {
-              ok: true,
-              json: () =>
-                Promise.resolve({
-                  FinancialYear: {
-                    Id: 2,
-                    FromDate: "2024-07-01",
-                    ToDate: "2025-06-30",
-                  },
-                }),
-            };
-          }
+        // Create financial year
+        if (url.includes("/financialyears") && options?.method === "POST") {
+          createYearCalls.push(options.body as string);
+          return {
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                FinancialYear: {
+                  Id: 2,
+                  FromDate: "2024-07-01",
+                  ToDate: "2025-06-30",
+                },
+              }),
+          };
+        }
 
-          if (url.includes("/vouchers")) {
-            return {
-              ok: true,
-              json: () =>
-                Promise.resolve({
-                  Voucher: { VoucherSeries: "A", VoucherNumber: 1, Year: 2 },
-                }),
-            };
-          }
+        if (url.includes("/vouchers")) {
+          return {
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                Voucher: { VoucherSeries: "A", VoucherNumber: 1, Year: 2 },
+              }),
+          };
+        }
 
-          return { ok: true, json: () => Promise.resolve({}) };
-        },
-      );
+        return { ok: true, json: () => Promise.resolve({}) };
+      });
 
       const tx: MappedTransaction = {
         id: "tx-broken-fy",
@@ -780,39 +752,35 @@ describe("FortnoxProvider", () => {
       const provider = createProvider();
       const createYearCalls: string[] = [];
 
-      mockFetchFn.mockImplementation(
-        async (url: string, options?: RequestInit) => {
-          // Check for specific date - year exists
-          if (url.includes("/financialyears/") && url.includes("date=")) {
-            return {
-              ok: true,
-              json: () =>
-                Promise.resolve({
-                  FinancialYears: [
-                    { Id: 1, FromDate: "2024-01-01", ToDate: "2024-12-31" },
-                  ],
-                }),
-            };
-          }
+      mockFetchFn.mockImplementation(async (url: string, options?: RequestInit) => {
+        // Check for specific date - year exists
+        if (url.includes("/financialyears/") && url.includes("date=")) {
+          return {
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                FinancialYears: [{ Id: 1, FromDate: "2024-01-01", ToDate: "2024-12-31" }],
+              }),
+          };
+        }
 
-          if (url.includes("/financialyears") && options?.method === "POST") {
-            createYearCalls.push(options.body as string);
-            return { ok: true, json: () => Promise.resolve({}) };
-          }
-
-          if (url.includes("/vouchers")) {
-            return {
-              ok: true,
-              json: () =>
-                Promise.resolve({
-                  Voucher: { VoucherSeries: "A", VoucherNumber: 1, Year: 1 },
-                }),
-            };
-          }
-
+        if (url.includes("/financialyears") && options?.method === "POST") {
+          createYearCalls.push(options.body as string);
           return { ok: true, json: () => Promise.resolve({}) };
-        },
-      );
+        }
+
+        if (url.includes("/vouchers")) {
+          return {
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                Voucher: { VoucherSeries: "A", VoucherNumber: 1, Year: 1 },
+              }),
+          };
+        }
+
+        return { ok: true, json: () => Promise.resolve({}) };
+      });
 
       const tx: MappedTransaction = {
         id: "tx-existing-fy",
@@ -847,29 +815,25 @@ describe("FortnoxProvider", () => {
       let connectionBody: VoucherConnectionBody | null = null;
       let connectionUrl = "";
 
-      mockFetchFn.mockImplementation(
-        async (url: string, options: RequestInit) => {
-          if (url.includes("/inbox")) {
-            return {
-              ok: true,
-              json: () =>
-                Promise.resolve({
-                  File: { Id: "file-abc", Name: "receipt.pdf", Path: "inbox" },
-                }),
-            };
-          }
+      mockFetchFn.mockImplementation(async (url: string, options: RequestInit) => {
+        if (url.includes("/inbox")) {
+          return {
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                File: { Id: "file-abc", Name: "receipt.pdf", Path: "inbox" },
+              }),
+          };
+        }
 
-          if (url.includes("/voucherfileconnections")) {
-            connectionUrl = url;
-            connectionBody = JSON.parse(
-              options?.body as string,
-            ) as VoucherConnectionBody;
-            return { ok: true, json: () => Promise.resolve({}) };
-          }
-
+        if (url.includes("/voucherfileconnections")) {
+          connectionUrl = url;
+          connectionBody = JSON.parse(options?.body as string) as VoucherConnectionBody;
           return { ok: true, json: () => Promise.resolve({}) };
-        },
-      );
+        }
+
+        return { ok: true, json: () => Promise.resolve({}) };
+      });
 
       await provider.uploadAttachment({
         tenantId: "tenant-1",

@@ -4,9 +4,7 @@ import { logger } from "./logger";
  * Extract useful error details from provider HTTP errors (xior/axios).
  * Includes status code and response body when available.
  */
-export function getProviderErrorDetails(
-  error: unknown,
-): Record<string, unknown> {
+export function getProviderErrorDetails(error: unknown): Record<string, unknown> {
   const details: Record<string, unknown> = {
     error: error instanceof Error ? error.message : String(error),
   };

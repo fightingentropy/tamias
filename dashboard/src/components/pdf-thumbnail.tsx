@@ -17,9 +17,7 @@ export function PdfThumbnail({ className }: Props) {
     >
       <div className="flex flex-col items-center gap-2 text-muted-foreground">
         <FilePreviewIcon mimetype="application/pdf" className="size-10" />
-        <span className="text-[10px] font-medium uppercase tracking-[0.2em]">
-          PDF
-        </span>
+        <span className="text-[10px] font-medium uppercase tracking-[0.2em]">PDF</span>
       </div>
     </div>
   );

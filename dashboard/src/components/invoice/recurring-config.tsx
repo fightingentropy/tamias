@@ -17,13 +17,7 @@ import { Input } from "@tamias/ui/input";
 import { Label } from "@tamias/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@tamias/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@tamias/ui/radio-group";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@tamias/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@tamias/ui/select";
 import { format } from "date-fns";
 import * as React from "react";
 import { FormatAmount } from "@/components/format-amount";
@@ -32,15 +26,7 @@ import { useUserQuery } from "@/hooks/use-user";
 // Re-export canonical types for consumers
 export type { RecurringConfig };
 
-const DAY_NAMES = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
+const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 const ORDINALS = ["1st", "2nd", "3rd", "4th", "5th"];
 
@@ -145,10 +131,7 @@ export function RecurringConfigPanel({
   onSelect,
 }: RecurringConfigProps) {
   const { data: user } = useUserQuery();
-  const smartOptions = React.useMemo(
-    () => getSmartOptions(issueDate),
-    [issueDate],
-  );
+  const smartOptions = React.useMemo(() => getSmartOptions(issueDate), [issueDate]);
 
   // Find current selected option value
   const currentOptionValue = React.useMemo(() => {
@@ -178,12 +161,8 @@ export function RecurringConfigPanel({
   // Check if we need to show more invoices indicator
   const hasMoreInvoices =
     config.endType === "never" ||
-    (config.endType === "after_count" &&
-      config.endCount !== null &&
-      config.endCount > 3) ||
-    (config.endType === "on_date" &&
-      summary.totalCount !== null &&
-      summary.totalCount > 3);
+    (config.endType === "after_count" && config.endCount !== null && config.endCount > 3) ||
+    (config.endType === "on_date" && summary.totalCount !== null && summary.totalCount > 3);
 
   const handleFrequencyChange = (value: string) => {
     const option = smartOptions.find((o) => o.value === value);
@@ -202,8 +181,7 @@ export function RecurringConfigPanel({
     onChange({
       ...config,
       endType: value,
-      endDate:
-        value === "on_date" ? getDefaultEndDate(issueDate).toISOString() : null,
+      endDate: value === "on_date" ? getDefaultEndDate(issueDate).toISOString() : null,
       endCount: value === "after_count" ? 12 : null,
     });
     // Confirm the recurring selection when user selects an end type
@@ -239,10 +217,7 @@ export function RecurringConfigPanel({
       {/* Repeat Section */}
       <div className="space-y-2">
         <Label className="text-xs text-muted-foreground">Repeat</Label>
-        <Select
-          value={currentOptionValue}
-          onValueChange={handleFrequencyChange}
-        >
+        <Select value={currentOptionValue} onValueChange={handleFrequencyChange}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
@@ -265,11 +240,7 @@ export function RecurringConfigPanel({
               type="number"
               min={1}
               value={config.frequencyInterval ?? 1}
-              onChange={(e) =>
-                handleCustomIntervalChange(
-                  Number.parseInt(e.target.value, 10) || 1,
-                )
-              }
+              onChange={(e) => handleCustomIntervalChange(Number.parseInt(e.target.value, 10) || 1)}
               className="w-20"
             />
             <span className="text-sm">days</span>
@@ -282,17 +253,12 @@ export function RecurringConfigPanel({
         <Label className="text-xs text-muted-foreground">Ends</Label>
         <RadioGroup
           value={config.endType ?? undefined}
-          onValueChange={(value) =>
-            handleEndTypeChange(value as InvoiceRecurringEndType)
-          }
+          onValueChange={(value) => handleEndTypeChange(value as InvoiceRecurringEndType)}
           className="space-y-3"
         >
           <div className="flex items-center gap-2">
             <RadioGroupItem value="on_date" id="on_date" />
-            <Label
-              htmlFor="on_date"
-              className="font-normal text-sm text-primary"
-            >
+            <Label htmlFor="on_date" className="font-normal text-sm text-primary">
               On
             </Label>
             <Popover>
@@ -311,11 +277,7 @@ export function RecurringConfigPanel({
                 <Calendar
                   mode="single"
                   weekStartsOn={user?.weekStartsOnMonday ? 1 : 0}
-                  selected={
-                    config.endDate
-                      ? new TZDate(config.endDate, "UTC")
-                      : undefined
-                  }
+                  selected={config.endDate ? new TZDate(config.endDate, "UTC") : undefined}
                   defaultMonth={
                     config.endDate
                       ? new TZDate(config.endDate, "UTC")
@@ -329,19 +291,14 @@ export function RecurringConfigPanel({
           </div>
           <div className="flex items-center gap-2">
             <RadioGroupItem value="after_count" id="after_count" />
-            <Label
-              htmlFor="after_count"
-              className="font-normal text-sm text-primary"
-            >
+            <Label htmlFor="after_count" className="font-normal text-sm text-primary">
               After
             </Label>
             <Input
               type="number"
               min={1}
               value={config.endCount ?? 12}
-              onChange={(e) =>
-                handleEndCountChange(Number.parseInt(e.target.value, 10) || 12)
-              }
+              onChange={(e) => handleEndCountChange(Number.parseInt(e.target.value, 10) || 12)}
               disabled={config.endType !== "after_count"}
               className="w-16"
             />
@@ -360,22 +317,15 @@ export function RecurringConfigPanel({
         <div className="border-t border-border pt-3 space-y-3">
           <div className="space-y-2">
             {previewInvoices.map((invoice, index) => (
-              <div
-                key={index.toString()}
-                className="flex items-center justify-between text-sm"
-              >
+              <div key={index.toString()} className="flex items-center justify-between text-sm">
                 <div className="flex gap-3">
                   <span>{formatShortDate(invoice.date)}</span>
-                  <span className="text-muted-foreground">
-                    {formatDayOfWeek(invoice.date)}
-                  </span>
+                  <span className="text-muted-foreground">{formatDayOfWeek(invoice.date)}</span>
                 </div>
                 <FormatAmount amount={invoice.amount} currency={currency} />
               </div>
             ))}
-            {hasMoreInvoices && (
-              <div className="text-center text-muted-foreground">...</div>
-            )}
+            {hasMoreInvoices && <div className="text-center text-muted-foreground">...</div>}
           </div>
 
           <div className="border-t border-border pt-3 flex items-center justify-between text-sm">

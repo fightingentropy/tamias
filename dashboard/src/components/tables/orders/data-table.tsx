@@ -48,17 +48,10 @@ export function OrdersDataTable() {
             tableData.map((order) => (
               <TableRow key={order.id} className="h-[45px]">
                 <TableCell className="w-[120px] text-sm text-muted-foreground">
-                  {formatDate(
-                    order.createdAt.toISOString(),
-                    user?.dateFormat ?? "MMM, yyyy",
-                  )}
+                  {formatDate(order.createdAt.toISOString(), user?.dateFormat ?? "MMM, yyyy")}
                 </TableCell>
                 <TableCell className="w-[100px] font-medium">
-                  <span
-                    className={
-                      order.status === "refunded" ? "line-through" : ""
-                    }
-                  >
+                  <span className={order.status === "refunded" ? "line-through" : ""}>
                     <FormatAmount
                       amount={order.amount.amount / 100}
                       currency={order.amount.currency}
@@ -68,9 +61,7 @@ export function OrdersDataTable() {
                 <TableCell className="w-[120px]">
                   <OrderStatus status={order.status} />
                 </TableCell>
-                <TableCell className="w-[140px] text-sm">
-                  {order.product?.name || "N/A"}
-                </TableCell>
+                <TableCell className="w-[140px] text-sm">{order.product?.name || "N/A"}</TableCell>
                 <TableCell className="w-[100px] text-right">
                   <ActionsMenu order={order} />
                 </TableCell>
@@ -82,11 +73,7 @@ export function OrdersDataTable() {
 
       {hasNextPage && (
         <div className="flex items-center justify-center mt-6">
-          <Button
-            onClick={() => fetchNextPage()}
-            variant="outline"
-            className="w-full"
-          >
+          <Button onClick={() => fetchNextPage()} variant="outline" className="w-full">
             {isFetching ? <Spinner /> : "Load more"}
           </Button>
         </div>

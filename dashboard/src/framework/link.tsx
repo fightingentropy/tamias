@@ -68,14 +68,7 @@ const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(
       return;
     }
 
-    if (
-      !shouldHandleClientNavigation(
-        event,
-        hrefString,
-        props.target,
-        props.download,
-      )
-    ) {
+    if (!shouldHandleClientNavigation(event, hrefString, props.target, props.download)) {
       return;
     }
 

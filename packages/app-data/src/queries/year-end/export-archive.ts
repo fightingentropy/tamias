@@ -72,11 +72,8 @@ export async function buildYearEndExportArchive(args: {
     closeCompanyLoansSchedule: args.closeCompanyLoansSchedule,
     corporationTaxRateSchedule: args.corporationTaxRateSchedule,
   });
-  const workingPapers = parsePackArray<WorkingPaperSection>(
-    args.pack.workingPapers,
-  );
-  const corporationTax =
-    (args.pack.corporationTax as CorporationTaxSummary | null) ?? null;
+  const workingPapers = parsePackArray<WorkingPaperSection>(args.pack.workingPapers);
+  const corporationTax = (args.pack.corporationTax as CorporationTaxSummary | null) ?? null;
   const trialBalanceCsv = await writeToString(trialBalance, {
     headers: true,
   });
@@ -117,12 +114,11 @@ export async function buildYearEndExportArchive(args: {
       headers: true,
     },
   );
-  const companiesHouseAccountsSubmissionXml =
-    buildCompaniesHouseExportPreviewSubmissionXml({
-      profile: args.profile,
-      pack: args.pack,
-      submissionArtifacts,
-    });
+  const companiesHouseAccountsSubmissionXml = buildCompaniesHouseExportPreviewSubmissionXml({
+    profile: args.profile,
+    pack: args.pack,
+    submissionArtifacts,
+  });
   const files: ArchiveFile[] = [
     {
       name: "trial-balance.csv",
@@ -139,20 +135,11 @@ export async function buildYearEndExportArchive(args: {
       data: Buffer.from(ctSummaryCsv, "utf8"),
       checksum: buildCsvChecksum(ctSummaryCsv),
     },
-    buildTextFile(
-      "statutory-accounts-draft.html",
-      submissionArtifacts.statutoryAccountsDraftHtml,
-    ),
-    buildTextFile(
-      "statutory-accounts-draft.json",
-      submissionArtifacts.statutoryAccountsDraftJson,
-    ),
+    buildTextFile("statutory-accounts-draft.html", submissionArtifacts.statutoryAccountsDraftHtml),
+    buildTextFile("statutory-accounts-draft.json", submissionArtifacts.statutoryAccountsDraftJson),
     buildTextFile("ct600-draft.xml", submissionArtifacts.ct600DraftXml),
     buildTextFile("ct600-draft.json", submissionArtifacts.ct600DraftJson),
-    buildTextFile(
-      "accounts-attachment.ixbrl.xhtml",
-      submissionArtifacts.accountsAttachmentIxbrl,
-    ),
+    buildTextFile("accounts-attachment.ixbrl.xhtml", submissionArtifacts.accountsAttachmentIxbrl),
     buildTextFile(
       "computations-attachment.ixbrl.xhtml",
       submissionArtifacts.computationsAttachmentIxbrl,
@@ -166,20 +153,10 @@ export async function buildYearEndExportArchive(args: {
         ]
       : []),
     ...(args.closeCompanyLoansSchedule
-      ? [
-          buildJsonFile(
-            "ct600a-close-company-loans.json",
-            args.closeCompanyLoansSchedule,
-          ),
-        ]
+      ? [buildJsonFile("ct600a-close-company-loans.json", args.closeCompanyLoansSchedule)]
       : []),
     ...(args.corporationTaxRateSchedule
-      ? [
-          buildJsonFile(
-            "corporation-tax-rate-inputs.json",
-            args.corporationTaxRateSchedule,
-          ),
-        ]
+      ? [buildJsonFile("corporation-tax-rate-inputs.json", args.corporationTaxRateSchedule)]
       : []),
   ];
   const manifest = {

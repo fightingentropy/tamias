@@ -64,18 +64,14 @@ describe("selectTopMetrics", () => {
 
     // Count metrics from the "financial" category (revenue, expenses, cash_flow)
     const financialTypes = ["revenue", "expenses", "cash_flow"];
-    const financialCount = result.filter((m) =>
-      financialTypes.includes(m.type),
-    ).length;
+    const financialCount = result.filter((m) => financialTypes.includes(m.type)).length;
 
     // Should have max 2 from financial category
     expect(financialCount).toBeLessThanOrEqual(2);
 
     // Count metrics from the "profitability" category (net_profit, profit_margin)
     const profitabilityTypes = ["net_profit", "profit_margin"];
-    const profitabilityCount = result.filter((m) =>
-      profitabilityTypes.includes(m.type),
-    ).length;
+    const profitabilityCount = result.filter((m) => profitabilityTypes.includes(m.type)).length;
 
     // Should have max 2 from profitability category
     expect(profitabilityCount).toBeLessThanOrEqual(2);
@@ -147,9 +143,7 @@ describe("selectTopMetrics", () => {
 
 describe("detectAnomalies", () => {
   it("should detect significant increase", () => {
-    const metrics: InsightMetric[] = [
-      createTestMetric("revenue", 15000, 10000, 50, "up"),
-    ];
+    const metrics: InsightMetric[] = [createTestMetric("revenue", 15000, 10000, 50, "up")];
 
     const anomalies = detectAnomalies(metrics);
 
@@ -159,9 +153,7 @@ describe("detectAnomalies", () => {
   });
 
   it("should detect significant expense increase as warning", () => {
-    const metrics: InsightMetric[] = [
-      createTestMetric("expenses", 15000, 10000, 50, "up"),
-    ];
+    const metrics: InsightMetric[] = [createTestMetric("expenses", 15000, 10000, 50, "up")];
 
     const anomalies = detectAnomalies(metrics);
 
@@ -171,9 +163,7 @@ describe("detectAnomalies", () => {
   });
 
   it("should detect significant decrease", () => {
-    const metrics: InsightMetric[] = [
-      createTestMetric("revenue", 5000, 10000, -50, "down"),
-    ];
+    const metrics: InsightMetric[] = [createTestMetric("revenue", 5000, 10000, -50, "down")];
 
     const anomalies = detectAnomalies(metrics);
 
@@ -183,9 +173,7 @@ describe("detectAnomalies", () => {
   });
 
   it("should detect low runway warning", () => {
-    const metrics: InsightMetric[] = [
-      createTestMetric("runway_months", 5, 8, -37.5, "down"),
-    ];
+    const metrics: InsightMetric[] = [createTestMetric("runway_months", 5, 8, -37.5, "down")];
 
     const anomalies = detectAnomalies(metrics);
 
@@ -195,9 +183,7 @@ describe("detectAnomalies", () => {
   });
 
   it("should detect critical runway as alert", () => {
-    const metrics: InsightMetric[] = [
-      createTestMetric("runway_months", 2, 5, -60, "down"),
-    ];
+    const metrics: InsightMetric[] = [createTestMetric("runway_months", 2, 5, -60, "down")];
 
     const anomalies = detectAnomalies(metrics);
 
@@ -207,9 +193,7 @@ describe("detectAnomalies", () => {
   });
 
   it("should detect negative profit", () => {
-    const metrics: InsightMetric[] = [
-      createTestMetric("net_profit", -1000, 2000, -150, "down"),
-    ];
+    const metrics: InsightMetric[] = [createTestMetric("net_profit", -1000, 2000, -150, "down")];
 
     const anomalies = detectAnomalies(metrics);
 
@@ -219,9 +203,7 @@ describe("detectAnomalies", () => {
   });
 
   it("should detect overdue invoices", () => {
-    const metrics: InsightMetric[] = [
-      createTestMetric("invoices_overdue", 3, 1, 200, "up"),
-    ];
+    const metrics: InsightMetric[] = [createTestMetric("invoices_overdue", 3, 1, 200, "up")];
 
     const anomalies = detectAnomalies(metrics);
 

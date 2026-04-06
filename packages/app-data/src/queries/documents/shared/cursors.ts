@@ -19,20 +19,15 @@ export function decodeIndexedDocumentCursor(
 
   try {
     const parsed = JSON.parse(
-      Buffer.from(
-        cursor.slice(DOCUMENT_PAGE_CURSOR_PREFIX.length),
-        "base64url",
-      ).toString("utf8"),
+      Buffer.from(cursor.slice(DOCUMENT_PAGE_CURSOR_PREFIX.length), "base64url").toString("utf8"),
     ) as Partial<IndexedDocumentCursorState>;
 
     return {
-      sourceCursor:
-        typeof parsed.sourceCursor === "string" ? parsed.sourceCursor : null,
+      sourceCursor: typeof parsed.sourceCursor === "string" ? parsed.sourceCursor : null,
       sourceExhausted: parsed.sourceExhausted === true,
       bufferedIds: Array.isArray(parsed.bufferedIds)
         ? parsed.bufferedIds.filter(
-            (bufferedId): bufferedId is string =>
-              typeof bufferedId === "string",
+            (bufferedId): bufferedId is string => typeof bufferedId === "string",
           )
         : [],
     };
@@ -46,10 +41,9 @@ export function decodeIndexedDocumentCursor(
 }
 
 export function encodeIndexedDocumentCursor(state: IndexedDocumentCursorState) {
-  return `${DOCUMENT_PAGE_CURSOR_PREFIX}${Buffer.from(
-    JSON.stringify(state),
-    "utf8",
-  ).toString("base64url")}`;
+  return `${DOCUMENT_PAGE_CURSOR_PREFIX}${Buffer.from(JSON.stringify(state), "utf8").toString(
+    "base64url",
+  )}`;
 }
 
 export function getIndexedDocumentBatchSize(pageSize: number) {

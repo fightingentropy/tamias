@@ -39,12 +39,9 @@ type OverviewWidgetDataContextValue = {
   isError: boolean;
 };
 
-const OverviewWidgetDataContext =
-  createContext<OverviewWidgetDataContextValue | null>(null);
+const OverviewWidgetDataContext = createContext<OverviewWidgetDataContextValue | null>(null);
 
-function isSupportedOverviewWidget(
-  widget: string,
-): widget is SupportedOverviewWidget {
+function isSupportedOverviewWidget(widget: string): widget is SupportedOverviewWidget {
   return (SUPPORTED_OVERVIEW_WIDGETS as readonly string[]).includes(widget);
 }
 
@@ -87,12 +84,7 @@ export function OverviewWidgetDataProvider({
       isLoading: overviewQuery.isLoading,
       isError: overviewQuery.isError,
     }),
-    [
-      overviewQuery.data,
-      overviewQuery.isError,
-      overviewQuery.isLoading,
-      requestedWidgets,
-    ],
+    [overviewQuery.data, overviewQuery.isError, overviewQuery.isLoading, requestedWidgets],
   );
 
   return (
@@ -109,21 +101,17 @@ export function useOverviewWidgetQuery<TKey extends SupportedOverviewWidget>(
   const overviewContext = useContext(OverviewWidgetDataContext);
   const shouldWaitForOverview =
     !!overviewContext?.requestedWidgets.has(widget) && !overviewContext?.isError;
-  const overviewData = overviewContext?.data?.[
-    widget
-  ] as OverviewWidgetResultMap[TKey] | undefined;
+  const overviewData = overviewContext?.data?.[widget] as OverviewWidgetResultMap[TKey] | undefined;
 
   const fallbackQuery = useQuery({
     ...queryOptions,
     enabled:
-      (queryOptions.enabled ?? true) &&
-      (!shouldWaitForOverview || overviewData === undefined),
+      (queryOptions.enabled ?? true) && (!shouldWaitForOverview || overviewData === undefined),
   });
 
   return {
     ...fallbackQuery,
-    data: (overviewData ??
-      fallbackQuery.data) as OverviewWidgetResultMap[TKey] | undefined,
+    data: (overviewData ?? fallbackQuery.data) as OverviewWidgetResultMap[TKey] | undefined,
     isLoading:
       shouldWaitForOverview && overviewData === undefined
         ? (overviewContext?.isLoading ?? false)

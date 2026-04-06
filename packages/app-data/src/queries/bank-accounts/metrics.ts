@@ -1,20 +1,12 @@
-import {
-  CASH_ACCOUNT_TYPES,
-  CREDIT_ACCOUNT_TYPE,
-} from "@tamias/banking/account";
+import { CASH_ACCOUNT_TYPES, CREDIT_ACCOUNT_TYPE } from "@tamias/banking/account";
 import { getBankAccountsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { createQueryCacheKey, getOrSetQueryCacheValue } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
 import { getTeamById } from "../teams";
-import type {
-  GetCashBalanceParams,
-  GetNetPositionParams,
-} from "./types";
+import type { GetCashBalanceParams, GetNetPositionParams } from "./types";
 
-type EnabledBankAccount = Awaited<
-  ReturnType<typeof getBankAccountsFromConvex>
->[number];
+type EnabledBankAccount = Awaited<ReturnType<typeof getBankAccountsFromConvex>>[number];
 
 type CashBalanceAccountBreakdownItem = {
   id: string;
@@ -31,11 +23,7 @@ function roundMoney(value: number) {
   return Math.round(value * 100) / 100;
 }
 
-async function getResolvedBaseCurrency(
-  db: Database,
-  teamId: string,
-  targetCurrency?: string,
-) {
+async function getResolvedBaseCurrency(db: Database, teamId: string, targetCurrency?: string) {
   if (targetCurrency) {
     return targetCurrency;
   }
@@ -44,10 +32,7 @@ async function getResolvedBaseCurrency(
   return team?.baseCurrency || "USD";
 }
 
-function getAccountCurrency(
-  account: EnabledBankAccount,
-  baseCurrency: string,
-) {
+function getAccountCurrency(account: EnabledBankAccount, baseCurrency: string) {
   return account.currency || baseCurrency;
 }
 
@@ -61,8 +46,7 @@ function getConvertedAccountBalance(
   const balance = Number(account.balance) || 0;
   const accountCurrency = getAccountCurrency(account, baseCurrency);
 
-  let convertedBalance =
-    options?.absolute === true ? Math.abs(balance) : balance;
+  let convertedBalance = options?.absolute === true ? Math.abs(balance) : balance;
 
   if (
     accountCurrency !== baseCurrency &&
@@ -93,9 +77,7 @@ function getCashAccounts(accounts: EnabledBankAccount[]) {
   return accounts.filter(
     (account) =>
       !!account.type &&
-      CASH_ACCOUNT_TYPES.includes(
-        account.type as (typeof CASH_ACCOUNT_TYPES)[number],
-      ),
+      CASH_ACCOUNT_TYPES.includes(account.type as (typeof CASH_ACCOUNT_TYPES)[number]),
   );
 }
 
@@ -103,16 +85,15 @@ function getCreditAccounts(accounts: EnabledBankAccount[]) {
   return accounts.filter((account) => account.type === CREDIT_ACCOUNT_TYPE);
 }
 
-function buildCashBalanceBreakdown(args: {
-  accounts: EnabledBankAccount[];
-  baseCurrency: string;
-}) {
+function buildCashBalanceBreakdown(args: { accounts: EnabledBankAccount[]; baseCurrency: string }) {
   let totalBalance = 0;
   const accountBreakdown: CashBalanceAccountBreakdownItem[] = [];
 
   for (const account of args.accounts) {
-    const { balance, accountCurrency, convertedBalance } =
-      getConvertedAccountBalance(account, args.baseCurrency);
+    const { balance, accountCurrency, convertedBalance } = getConvertedAccountBalance(
+      account,
+      args.baseCurrency,
+    );
 
     totalBalance += convertedBalance;
     accountBreakdown.push({
@@ -143,8 +124,7 @@ function sumConvertedBalances(
   let total = 0;
 
   for (const account of accounts) {
-    total += getConvertedAccountBalance(account, baseCurrency, options)
-      .convertedBalance;
+    total += getConvertedAccountBalance(account, baseCurrency, options).convertedBalance;
   }
 
   return roundMoney(total);
@@ -154,10 +134,7 @@ function sumConvertedBalances(
  * Get total cash balance across all cash accounts (depository + other_asset).
  * Credit cards, loans, and other liabilities are excluded.
  */
-export async function getCashBalance(
-  db: Database,
-  params: GetCashBalanceParams,
-) {
+export async function getCashBalance(db: Database, params: GetCashBalanceParams) {
   return getOrSetQueryCacheValue(
     db,
     createQueryCacheKey("bank-accounts:cash-balance", {
@@ -165,14 +142,8 @@ export async function getCashBalance(
       currency: params.currency ?? null,
     }),
     async () => {
-      const baseCurrency = await getResolvedBaseCurrency(
-        db,
-        params.teamId,
-        params.currency,
-      );
-      const cashAccounts = getCashAccounts(
-        await getEnabledBankAccounts(params.teamId),
-      );
+      const baseCurrency = await getResolvedBaseCurrency(db, params.teamId, params.currency);
+      const cashAccounts = getCashAccounts(await getEnabledBankAccounts(params.teamId));
       const { totalBalance, accountBreakdown } = buildCashBalanceBreakdown({
         accounts: cashAccounts,
         baseCurrency,
@@ -210,15 +181,8 @@ export async function getCashBalance(
  * @see getBalanceSheet - For complete assets/liabilities including loans
  * @see getCashBalance - For cash-only calculation
  */
-async function getNetPositionImpl(
-  db: Database,
-  params: GetNetPositionParams,
-) {
-  const baseCurrency = await getResolvedBaseCurrency(
-    db,
-    params.teamId,
-    params.currency,
-  );
+async function getNetPositionImpl(db: Database, params: GetNetPositionParams) {
+  const baseCurrency = await getResolvedBaseCurrency(db, params.teamId, params.currency);
   const accounts = await getEnabledBankAccounts(params.teamId);
   const cashAccounts = getCashAccounts(accounts);
   const creditAccounts = getCreditAccounts(accounts);
@@ -240,7 +204,6 @@ async function getNetPositionImpl(
 
 export const getNetPosition = reuseQueryResult({
   keyPrefix: "net-position",
-  keyFn: (params: GetNetPositionParams) =>
-    [params.teamId, params.currency ?? ""].join(":"),
+  keyFn: (params: GetNetPositionParams) => [params.teamId, params.currency ?? ""].join(":"),
   load: getNetPositionImpl,
 });

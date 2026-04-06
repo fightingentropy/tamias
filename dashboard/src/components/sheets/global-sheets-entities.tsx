@@ -12,9 +12,7 @@ import { useDeferredSheetMount } from "./global-sheet-mount";
 
 const CustomerDetailsSheet = dynamic(
   () =>
-    import("@/components/sheets/customer-details-sheet").then(
-      (mod) => mod.CustomerDetailsSheet,
-    ),
+    import("@/components/sheets/customer-details-sheet").then((mod) => mod.CustomerDetailsSheet),
   { ssr: false },
 );
 

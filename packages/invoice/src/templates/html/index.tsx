@@ -46,10 +46,7 @@ export function HtmlTemplate({ data, width, height }: Props) {
       }}
       hideScrollbar
     >
-      <div
-        className="p-4 sm:p-6 md:p-8 h-full flex flex-col"
-        style={{ minHeight: height - 5 }}
-      >
+      <div className="p-4 sm:p-6 md:p-8 h-full flex flex-col" style={{ minHeight: height - 5 }}>
         <div className="flex justify-between items-start">
           <div className="flex-1 min-w-0 mr-5">
             <Meta
@@ -69,15 +66,11 @@ export function HtmlTemplate({ data, width, height }: Props) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mt-6 mb-4">
           <div>
-            <p className="text-[11px] text-[#878787] mb-2 block">
-              {template.fromLabel}
-            </p>
+            <p className="text-[11px] text-[#878787] mb-2 block">{template.fromLabel}</p>
             <EditorContent content={fromDetails} />
           </div>
           <div className="mt-4 md:mt-0">
-            <p className="text-[11px] text-[#878787] mb-2 block">
-              {template.customerLabel}
-            </p>
+            <p className="text-[11px] text-[#878787] mb-2 block">{template.customerLabel}</p>
             <EditorContent content={customerDetails} />
           </div>
         </div>
@@ -122,16 +115,12 @@ export function HtmlTemplate({ data, width, height }: Props) {
         <div className="flex flex-col space-y-6 md:space-y-8 mt-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <div>
-              <p className="text-[11px] text-[#878787] mb-2 block">
-                {template.paymentLabel}
-              </p>
+              <p className="text-[11px] text-[#878787] mb-2 block">{template.paymentLabel}</p>
               <EditorContent content={paymentDetails} />
             </div>
             {noteDetails && (
               <div className="mt-4 md:mt-0">
-                <p className="text-[11px] text-[#878787] mb-2 block">
-                  {template.noteLabel}
-                </p>
+                <p className="text-[11px] text-[#878787] mb-2 block">{template.noteLabel}</p>
                 <EditorContent content={noteDetails} />
               </div>
             )}

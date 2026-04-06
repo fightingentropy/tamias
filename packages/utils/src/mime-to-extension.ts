@@ -6,13 +6,10 @@ export function getExtensionFromMimeType(mimeType: string): string {
     "application/pdf": ".pdf",
     "text/csv": ".csv",
     "application/vnd.ms-excel": ".xls",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-      ".xlsx",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": ".xlsx",
     "application/msword": ".doc",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-      ".docx",
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation":
-      ".pptx",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ".docx",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation": ".pptx",
     "image/jpeg": ".jpg",
     "image/jpg": ".jpg",
     "image/png": ".png",
@@ -27,18 +24,13 @@ export function getExtensionFromMimeType(mimeType: string): string {
     "text/xml": ".xml",
   };
 
-  return (
-    mimeToExt[mimeType] || (mimeType.startsWith("image/") ? ".jpg" : ".bin")
-  );
+  return mimeToExt[mimeType] || (mimeType.startsWith("image/") ? ".jpg" : ".bin");
 }
 
 /**
  * Ensures a filename has the correct extension based on MIME type
  */
-export function ensureFileExtension(
-  fileName: string,
-  mimeType: string,
-): string {
+export function ensureFileExtension(fileName: string, mimeType: string): string {
   const hasExtension = /\.[^.]+$/.test(fileName);
 
   if (hasExtension) {

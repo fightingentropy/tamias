@@ -4,14 +4,7 @@ import { dirname, join } from "node:path";
 const apiDir = join(import.meta.dir, "..");
 const repoRoot = join(apiDir, "..");
 const promptsDir = join(repoRoot, "agent-prompts");
-const outputPath = join(
-  apiDir,
-  "src",
-  "ai",
-  "agents",
-  "config",
-  "generated-prompts.ts",
-);
+const outputPath = join(apiDir, "src", "ai", "agents", "config", "generated-prompts.ts");
 
 const files = {
   memoryTemplate: "memory-template.md",

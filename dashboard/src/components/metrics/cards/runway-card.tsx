@@ -86,8 +86,7 @@ export function RunwayCard({ currency, locale }: RunwayCardProps) {
 
     const burnRateAvg =
       burnRateData && burnRateData.length > 0
-        ? burnRateData.reduce((sum, item) => sum + item.value, 0) /
-          burnRateData.length
+        ? burnRateData.reduce((sum, item) => sum + item.value, 0) / burnRateData.length
         : 0;
 
     // Return empty array if burn rate is 0 or invalid
@@ -96,8 +95,7 @@ export function RunwayCard({ currency, locale }: RunwayCardProps) {
     }
 
     // Get current cash balance from account balances or estimate from runway
-    const currentCashBalance =
-      cashBalanceData?.result?.totalBalance ?? runwayData * burnRateAvg;
+    const currentCashBalance = cashBalanceData?.result?.totalBalance ?? runwayData * burnRateAvg;
 
     // Return empty array if cash balance is invalid (but allow 0 for edge cases)
     if (!Number.isFinite(currentCashBalance)) {
@@ -115,12 +113,8 @@ export function RunwayCard({ currency, locale }: RunwayCardProps) {
 
     for (let i = 0; i <= 8; i++) {
       const monthsFromNow = i;
-      const remainingCash = Math.max(
-        0,
-        currentCashBalance - burnRateAvg * monthsFromNow,
-      );
-      const projectedRunwayMonths =
-        burnRateAvg > 0 ? remainingCash / burnRateAvg : 0;
+      const remainingCash = Math.max(0, currentCashBalance - burnRateAvg * monthsFromNow);
+      const projectedRunwayMonths = burnRateAvg > 0 ? remainingCash / burnRateAvg : 0;
 
       // Skip if runwayMonths is invalid
       if (!Number.isFinite(projectedRunwayMonths)) continue;
@@ -145,11 +139,7 @@ export function RunwayCard({ currency, locale }: RunwayCardProps) {
   // Update display value when runway data changes
   // Note: 0 is a legitimate value (zero runway means no months of cash remaining)
   useEffect(() => {
-    if (
-      currentRunway !== undefined &&
-      currentRunway !== null &&
-      !Number.isNaN(currentRunway)
-    ) {
+    if (currentRunway !== undefined && currentRunway !== null && !Number.isNaN(currentRunway)) {
       if (!hasInitializedRef.current) {
         displayRunwayRef.current = currentRunway;
         setDisplayRunway(currentRunway);
@@ -199,9 +189,7 @@ export function RunwayCard({ currency, locale }: RunwayCardProps) {
           />{" "}
           months
         </p>
-        <p className="text-xs mt-1 text-muted-foreground">
-          Based on last 6 months
-        </p>
+        <p className="text-xs mt-1 text-muted-foreground">Based on last 6 months</p>
       </div>
       <div className="h-80">
         {hasNoData ? (
@@ -218,11 +206,7 @@ export function RunwayCard({ currency, locale }: RunwayCardProps) {
             enableSelection={true}
             onSelectionStateChange={setIsSelecting}
             onSelectionComplete={(startDate, endDate) => {
-              const message = generateChartSelectionMessage(
-                startDate,
-                endDate,
-                "runway",
-              );
+              const message = generateChartSelectionMessage(startDate, endDate, "runway");
               setInput(message);
             }}
           >

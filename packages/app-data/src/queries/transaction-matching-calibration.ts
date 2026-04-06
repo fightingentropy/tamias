@@ -61,9 +61,7 @@ function optimizeThresholdFromFeedback(
   const labeled = performanceData.filter(
     (row) =>
       row.confidenceScore !== null &&
-      (row.status === "confirmed" ||
-        row.status === "declined" ||
-        row.status === "unmatched"),
+      (row.status === "confirmed" || row.status === "declined" || row.status === "unmatched"),
   );
 
   const positives = labeled.filter((row) => row.status === "confirmed").length;
@@ -94,15 +92,9 @@ function optimizeThresholdFromFeedback(
 
     const precision = tp + fp > 0 ? tp / (tp + fp) : 0;
     const recall = tp + fn > 0 ? tp / (tp + fn) : 0;
-    const f1 =
-      precision + recall > 0
-        ? (2 * precision * recall) / (precision + recall)
-        : 0;
+    const f1 = precision + recall > 0 ? (2 * precision * recall) / (precision + recall) : 0;
 
-    if (
-      f1 > bestF1 ||
-      (Math.abs(f1 - bestF1) < 1e-9 && precision > bestPrecision)
-    ) {
+    if (f1 > bestF1 || (Math.abs(f1 - bestF1) < 1e-9 && precision > bestPrecision)) {
       bestF1 = f1;
       bestPrecision = precision;
       bestThreshold = threshold;
@@ -112,10 +104,7 @@ function optimizeThresholdFromFeedback(
   return { threshold: bestThreshold, sampleSize: labeled.length };
 }
 
-async function loadTeamCalibration(
-  _db: Database,
-  teamId: string,
-): Promise<TeamCalibrationData> {
+async function loadTeamCalibration(_db: Database, teamId: string): Promise<TeamCalibrationData> {
   const defaultSuggestedThreshold = 0.6;
   const defaultAutoThreshold = 0.9;
   const cutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
@@ -153,25 +142,20 @@ async function loadTeamCalibration(
 
   const avgConfidenceConfirmed =
     confirmed.length > 0
-      ? confirmed.reduce((sum, row) => sum + Number(row.confidenceScore), 0) /
-        confirmed.length
+      ? confirmed.reduce((sum, row) => sum + Number(row.confidenceScore), 0) / confirmed.length
       : 0;
   const avgConfidenceDeclined =
     declined.length > 0
-      ? declined.reduce((sum, row) => sum + Number(row.confidenceScore), 0) /
-        declined.length
+      ? declined.reduce((sum, row) => sum + Number(row.confidenceScore), 0) / declined.length
       : 0;
   const avgConfidenceUnmatched =
     unmatched.length > 0
-      ? unmatched.reduce((sum, row) => sum + Number(row.confidenceScore), 0) /
-        unmatched.length
+      ? unmatched.reduce((sum, row) => sum + Number(row.confidenceScore), 0) / unmatched.length
       : 0;
   const avgConfidenceNegative =
     negativeOutcomes.length > 0
-      ? negativeOutcomes.reduce(
-          (sum, row) => sum + Number(row.confidenceScore),
-          0,
-        ) / negativeOutcomes.length
+      ? negativeOutcomes.reduce((sum, row) => sum + Number(row.confidenceScore), 0) /
+        negativeOutcomes.length
       : avgConfidenceDeclined;
   const suggestedMatchAccuracy = confirmed.length / performanceData.length;
 
@@ -183,8 +167,7 @@ async function loadTeamCalibration(
   ) {
     calibratedSuggestedThreshold = Math.max(
       0.65,
-      defaultSuggestedThreshold -
-        Math.min(CALIBRATION_LIMITS.MAX_ADJUSTMENT, 0.03),
+      defaultSuggestedThreshold - Math.min(CALIBRATION_LIMITS.MAX_ADJUSTMENT, 0.03),
     );
   } else if (
     suggestedMatchAccuracy > 0.8 &&
@@ -192,8 +175,7 @@ async function loadTeamCalibration(
   ) {
     calibratedSuggestedThreshold = Math.max(
       0.67,
-      defaultSuggestedThreshold -
-        Math.min(CALIBRATION_LIMITS.MAX_ADJUSTMENT, 0.02),
+      defaultSuggestedThreshold - Math.min(CALIBRATION_LIMITS.MAX_ADJUSTMENT, 0.02),
     );
   } else if (
     suggestedMatchAccuracy < 0.3 &&
@@ -201,8 +183,7 @@ async function loadTeamCalibration(
   ) {
     calibratedSuggestedThreshold = Math.min(
       0.85,
-      defaultSuggestedThreshold +
-        Math.min(CALIBRATION_LIMITS.MAX_ADJUSTMENT, 0.03),
+      defaultSuggestedThreshold + Math.min(CALIBRATION_LIMITS.MAX_ADJUSTMENT, 0.03),
     );
   }
 
@@ -216,14 +197,12 @@ async function loadTeamCalibration(
     if (confidenceGap > 0.2) {
       calibratedSuggestedThreshold = Math.max(
         0.65,
-        calibratedSuggestedThreshold -
-          Math.min(CALIBRATION_LIMITS.MAX_ADJUSTMENT, 0.025),
+        calibratedSuggestedThreshold - Math.min(CALIBRATION_LIMITS.MAX_ADJUSTMENT, 0.025),
       );
     } else if (confidenceGap < 0.08) {
       calibratedSuggestedThreshold = Math.min(
         0.82,
-        calibratedSuggestedThreshold +
-          Math.min(CALIBRATION_LIMITS.MAX_ADJUSTMENT, 0.02),
+        calibratedSuggestedThreshold + Math.min(CALIBRATION_LIMITS.MAX_ADJUSTMENT, 0.02),
       );
     }
   }
@@ -250,11 +229,7 @@ async function loadTeamCalibration(
     avgConfidenceUnmatched,
     suggestedMatchAccuracy,
     calibratedSuggestedThreshold,
-    calibratedAutoThreshold: clamp(
-      calibratedSuggestedThreshold + 0.24,
-      0.88,
-      0.95,
-    ),
+    calibratedAutoThreshold: clamp(calibratedSuggestedThreshold + 0.24, 0.88, 0.95),
     thresholdOptimizationSampleSize: optimizedThreshold?.sampleSize ?? 0,
     lastUpdated: new Date().toISOString(),
   };

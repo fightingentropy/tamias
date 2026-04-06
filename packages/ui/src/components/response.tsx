@@ -55,11 +55,7 @@ const CustomListItem = ({
   children?: React.ReactNode;
   className?: string;
 }) => (
-  <li
-    className={cn("leading-relaxed", className)}
-    {...props}
-    data-streamdown="list-item"
-  >
+  <li className={cn("leading-relaxed", className)} {...props} data-streamdown="list-item">
     {children}
   </li>
 );
@@ -103,10 +99,7 @@ export const Response = memo(
             const { children, className, ...anchorProps } = props;
 
             return (
-              <a
-                {...anchorProps}
-                className={cn(className, "underline")}
-              >
+              <a {...anchorProps} className={cn(className, "underline")}>
                 {children}
               </a>
             );

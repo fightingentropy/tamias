@@ -18,13 +18,7 @@ import { Label } from "@tamias/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@tamias/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@tamias/ui/radio-group";
 import { ScrollArea } from "@tamias/ui/scroll-area";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@tamias/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@tamias/ui/select";
 import { Sheet, SheetContent } from "@tamias/ui/sheet";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -35,15 +29,7 @@ import { useInvoiceParams } from "@/hooks/use-invoice-params";
 import { useUserQuery } from "@/hooks/use-user";
 import { useTRPC } from "@/trpc/client";
 
-const DAY_NAMES = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
+const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 const ORDINALS = ["1st", "2nd", "3rd", "4th", "5th"];
 
@@ -154,8 +140,7 @@ export function EditRecurringSheet() {
   React.useEffect(() => {
     if (recurring) {
       setConfig({
-        frequency:
-          (recurring.frequency as InvoiceRecurringFrequency) || "monthly_date",
+        frequency: (recurring.frequency as InvoiceRecurringFrequency) || "monthly_date",
         frequencyDay: recurring.frequencyDay ?? null,
         frequencyWeek: recurring.frequencyWeek ?? null,
         frequencyInterval: recurring.frequencyInterval ?? null,
@@ -167,10 +152,7 @@ export function EditRecurringSheet() {
   }, [recurring]);
 
   // Validation errors
-  const validationErrors = React.useMemo(
-    () => validateRecurringConfig(config),
-    [config],
-  );
+  const validationErrors = React.useMemo(() => validateRecurringConfig(config), [config]);
   const isValid = validationErrors.length === 0;
 
   const updateMutation = useMutation(
@@ -222,10 +204,7 @@ export function EditRecurringSheet() {
     return new Date();
   }, [recurring?.nextScheduledAt]);
 
-  const smartOptions = React.useMemo(
-    () => getSmartOptions(referenceDate),
-    [referenceDate],
-  );
+  const smartOptions = React.useMemo(() => getSmartOptions(referenceDate), [referenceDate]);
 
   const currentOptionValue = React.useMemo(() => {
     if (config.frequency === "custom") return "custom";
@@ -250,8 +229,7 @@ export function EditRecurringSheet() {
         ? Math.max(0, config.endCount - (recurring.invoicesGenerated ?? 0))
         : null;
 
-    const limit =
-      remainingInvoices !== null ? Math.min(remainingInvoices, 5) : 3;
+    const limit = remainingInvoices !== null ? Math.min(remainingInvoices, 5) : 3;
 
     return calculatePreviewDates(
       config,
@@ -269,8 +247,7 @@ export function EditRecurringSheet() {
         frequency: option.frequency,
         frequencyDay: option.frequencyDay,
         frequencyWeek: option.frequencyWeek,
-        frequencyInterval:
-          option.frequency === "custom" ? prev.frequencyInterval || 14 : null,
+        frequencyInterval: option.frequency === "custom" ? prev.frequencyInterval || 14 : null,
       }));
     }
   };
@@ -310,10 +287,7 @@ export function EditRecurringSheet() {
                 {/* Frequency Select */}
                 <div className="space-y-2">
                   <Label>Frequency</Label>
-                  <Select
-                    value={currentOptionValue}
-                    onValueChange={handleFrequencyChange}
-                  >
+                  <Select value={currentOptionValue} onValueChange={handleFrequencyChange}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select frequency" />
                     </SelectTrigger>
@@ -338,8 +312,7 @@ export function EditRecurringSheet() {
                       onChange={(e) =>
                         setConfig((prev) => ({
                           ...prev,
-                          frequencyInterval:
-                            Number.parseInt(e.target.value, 10) || 1,
+                          frequencyInterval: Number.parseInt(e.target.value, 10) || 1,
                         }))
                       }
                       placeholder="14"
@@ -350,41 +323,25 @@ export function EditRecurringSheet() {
                 {/* End Conditions */}
                 <div className="space-y-3">
                   <Label>Ends</Label>
-                  <RadioGroup
-                    value={config.endType}
-                    onValueChange={handleEndTypeChange}
-                  >
+                  <RadioGroup value={config.endType} onValueChange={handleEndTypeChange}>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="never" id="never" />
-                      <Label
-                        htmlFor="never"
-                        className="font-normal cursor-pointer"
-                      >
+                      <Label htmlFor="never" className="font-normal cursor-pointer">
                         Never
                       </Label>
                     </div>
 
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="on_date" id="on_date" />
-                      <Label
-                        htmlFor="on_date"
-                        className="font-normal cursor-pointer"
-                      >
+                      <Label htmlFor="on_date" className="font-normal cursor-pointer">
                         On date
                       </Label>
                       {config.endType === "on_date" && (
                         <Popover>
                           <PopoverTrigger asChild>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="ml-2"
-                            >
+                            <Button variant="outline" size="sm" className="ml-2">
                               {config.endDate
-                                ? format(
-                                    new TZDate(config.endDate, "UTC"),
-                                    "MMM d, yyyy",
-                                  )
+                                ? format(new TZDate(config.endDate, "UTC"), "MMM d, yyyy")
                                 : "Select date"}
                             </Button>
                           </PopoverTrigger>
@@ -393,16 +350,12 @@ export function EditRecurringSheet() {
                               mode="single"
                               weekStartsOn={user?.weekStartsOnMonday ? 1 : 0}
                               selected={
-                                config.endDate
-                                  ? new TZDate(config.endDate, "UTC")
-                                  : undefined
+                                config.endDate ? new TZDate(config.endDate, "UTC") : undefined
                               }
                               onSelect={(date) => {
                                 setConfig((prev) => ({
                                   ...prev,
-                                  endDate: date
-                                    ? localDateToUTCMidnight(date)
-                                    : null,
+                                  endDate: date ? localDateToUTCMidnight(date) : null,
                                 }));
                               }}
                               disabled={(date) => date < new Date()}
@@ -415,10 +368,7 @@ export function EditRecurringSheet() {
 
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="after_count" id="after_count" />
-                      <Label
-                        htmlFor="after_count"
-                        className="font-normal cursor-pointer"
-                      >
+                      <Label htmlFor="after_count" className="font-normal cursor-pointer">
                         After
                       </Label>
                       {config.endType === "after_count" && (
@@ -430,15 +380,12 @@ export function EditRecurringSheet() {
                             onChange={(e) =>
                               setConfig((prev) => ({
                                 ...prev,
-                                endCount:
-                                  Number.parseInt(e.target.value, 10) || 1,
+                                endCount: Number.parseInt(e.target.value, 10) || 1,
                               }))
                             }
                             className="w-20"
                           />
-                          <span className="text-sm text-muted-foreground">
-                            invoices
-                          </span>
+                          <span className="text-sm text-muted-foreground">invoices</span>
                         </div>
                       )}
                     </div>
@@ -448,33 +395,23 @@ export function EditRecurringSheet() {
                 {/* Stats */}
                 <div className="pt-4 border-t border-border space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      Invoices generated
-                    </span>
+                    <span className="text-muted-foreground">Invoices generated</span>
                     <span>{recurring?.invoicesGenerated ?? 0}</span>
                   </div>
-                  {recurring?.nextScheduledAt &&
-                    recurring.status === "active" && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          Next invoice
-                        </span>
-                        <span>
-                          {format(
-                            new TZDate(recurring.nextScheduledAt, "UTC"),
-                            "MMM d, yyyy",
-                          )}
-                        </span>
-                      </div>
-                    )}
+                  {recurring?.nextScheduledAt && recurring.status === "active" && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Next invoice</span>
+                      <span>
+                        {format(new TZDate(recurring.nextScheduledAt, "UTC"), "MMM d, yyyy")}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Preview */}
                 {previewDates.length > 0 && (
                   <div className="pt-4 border-t border-border space-y-3">
-                    <span className="text-sm font-medium">
-                      Upcoming invoices
-                    </span>
+                    <span className="text-sm font-medium">Upcoming invoices</span>
                     {previewDates.map((invoice, index) => (
                       <div
                         key={index.toString()}
@@ -482,10 +419,7 @@ export function EditRecurringSheet() {
                       >
                         <div className="flex">
                           <span className="w-[100px]">
-                            {format(
-                              new TZDate(invoice.date, "UTC"),
-                              "MMM d, yyyy",
-                            )}
+                            {format(new TZDate(invoice.date, "UTC"), "MMM d, yyyy")}
                           </span>
                           <span className="text-muted-foreground">
                             {format(new TZDate(invoice.date, "UTC"), "EEE")}
@@ -498,9 +432,7 @@ export function EditRecurringSheet() {
                       </div>
                     ))}
                     {config.endType === "never" && (
-                      <div className="text-center text-muted-foreground">
-                        ...
-                      </div>
+                      <div className="text-center text-muted-foreground">...</div>
                     )}
                   </div>
                 )}
@@ -509,9 +441,7 @@ export function EditRecurringSheet() {
 
             <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-background">
               {validationErrors.length > 0 && (
-                <div className="mb-3 text-sm text-destructive">
-                  {validationErrors[0]?.message}
-                </div>
+                <div className="mb-3 text-sm text-destructive">{validationErrors[0]?.message}</div>
               )}
               <div className="flex justify-end space-x-4">
                 <Button variant="outline" onClick={handleClose}>

@@ -16,12 +16,9 @@ import { OverviewWidgetDataProvider } from "./overview-widget-data";
 import { useIsCustomizing, WidgetProvider } from "./widget-provider";
 import { WidgetsGrid } from "./widgets-grid";
 
-const MetricsView = dynamic(
-  () => import("../metrics/metrics-view").then((m) => m.MetricsView),
-  {
-    loading: () => <div className="min-h-[480px]" />,
-  },
-);
+const MetricsView = dynamic(() => import("../metrics/metrics-view").then((m) => m.MetricsView), {
+  loading: () => <div className="min-h-[480px]" />,
+});
 
 type RouterOutputs = inferRouterOutputs<AppRouter>;
 type WidgetPreferences = RouterOutputs["widgets"]["getWidgetPreferences"];
@@ -57,12 +54,7 @@ function WidgetsContent() {
 
   return (
     <Tabs value={tab} onValueChange={setTab}>
-      <div
-        className={cn(
-          "flex flex-col mt-6",
-          isHome && "widgets-container-spacing",
-        )}
-      >
+      <div className={cn("flex flex-col mt-6", isHome && "widgets-container-spacing")}>
         <WidgetsHeader />
         <TabsContent value="overview">
           <OverviewWidgetDataProvider>

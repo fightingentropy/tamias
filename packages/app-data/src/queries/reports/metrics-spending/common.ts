@@ -1,15 +1,7 @@
 import { UTCDate } from "@date-fns/utc";
-import {
-  endOfMonth,
-  format,
-  parseISO,
-  startOfMonth,
-} from "date-fns";
+import { endOfMonth, format, parseISO, startOfMonth } from "date-fns";
 import type { Database } from "../../../client";
-import {
-  getExcludedCategorySlugs,
-  getReportTransactionAggregateRows,
-} from "../shared";
+import { getExcludedCategorySlugs, getReportTransactionAggregateRows } from "../shared";
 
 type MetricAggregateParams = {
   teamId: string;
@@ -19,11 +11,7 @@ type MetricAggregateParams = {
   exactDates?: boolean;
 };
 
-export function resolveMetricDateRange(params: {
-  from: string;
-  to: string;
-  exactDates?: boolean;
-}) {
+export function resolveMetricDateRange(params: { from: string; to: string; exactDates?: boolean }) {
   const fromDate = params.exactDates
     ? new UTCDate(parseISO(params.from))
     : startOfMonth(new UTCDate(parseISO(params.from)));
@@ -34,10 +22,7 @@ export function resolveMetricDateRange(params: {
   return { fromDate, toDate };
 }
 
-export async function getMetricAggregateData(
-  db: Database,
-  params: MetricAggregateParams,
-) {
+export async function getMetricAggregateData(db: Database, params: MetricAggregateParams) {
   const { fromDate, toDate } = resolveMetricDateRange(params);
   const aggregateData = await getReportTransactionAggregateRows(db, {
     teamId: params.teamId,

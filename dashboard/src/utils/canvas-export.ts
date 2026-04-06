@@ -17,20 +17,12 @@ function getCanvasContent(): HTMLElement | null {
 }
 
 function getHeadMarkup() {
-  return Array.from(
-    document.head.querySelectorAll('link[rel="stylesheet"], style'),
-  )
+  return Array.from(document.head.querySelectorAll('link[rel="stylesheet"], style'))
     .map((node) => node.outerHTML)
     .join("\n");
 }
 
-function getPrintDocumentMarkup({
-  content,
-  title,
-}: {
-  content: string;
-  title: string;
-}) {
+function getPrintDocumentMarkup({ content, title }: { content: string; title: string }) {
   const htmlClassName = document.documentElement.className;
   const bodyClassName = document.body.className;
 
@@ -129,9 +121,7 @@ export async function printCanvasReport({
   });
 }
 
-export async function shareCanvasReport({
-  title,
-}: CanvasExportOptions): Promise<boolean> {
+export async function shareCanvasReport({ title }: CanvasExportOptions): Promise<boolean> {
   if (!navigator.share) {
     return false;
   }

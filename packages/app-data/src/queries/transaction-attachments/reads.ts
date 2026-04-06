@@ -39,9 +39,7 @@ type GetTransactionAttachmentParams = {
   teamId: string;
 };
 
-export async function getTransactionAttachmentsByIds(
-  params: GetTransactionAttachmentsByIdsParams,
-) {
+export async function getTransactionAttachmentsByIds(params: GetTransactionAttachmentsByIdsParams) {
   return getTransactionAttachmentsByIdsFromConvex(params);
 }
 

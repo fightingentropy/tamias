@@ -1,9 +1,6 @@
 import { listInsightEligibleTeamsFromConvexIdentity } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
-import type {
-  GetTeamsForInsightsParams,
-  InsightEligibleTeam,
-} from "./shared";
+import type { GetTeamsForInsightsParams, InsightEligibleTeam } from "./shared";
 
 /**
  * Get teams eligible for insights generation.

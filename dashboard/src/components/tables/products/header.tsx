@@ -22,9 +22,7 @@ export function Header({ table }: Props) {
       <Input
         placeholder="Search products..."
         value={(table?.getColumn("name")?.getFilterValue() as string) ?? ""}
-        onChange={(event) =>
-          table?.getColumn("name")?.setFilterValue(event.target.value)
-        }
+        onChange={(event) => table?.getColumn("name")?.setFilterValue(event.target.value)}
         className="max-w-sm"
       />
 

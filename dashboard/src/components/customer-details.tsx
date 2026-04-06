@@ -2,12 +2,7 @@
 
 import { TZDate } from "@date-fns/tz";
 import { getApiUrl } from "@tamias/utils/envs";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@tamias/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@tamias/ui/accordion";
 import { Badge } from "@tamias/ui/badge";
 import { Button } from "@tamias/ui/button";
 import { cn } from "@tamias/ui/cn";
@@ -21,14 +16,7 @@ import { Icons } from "@tamias/ui/icons";
 import { SheetFooter, SheetHeader } from "@tamias/ui/sheet";
 import { Skeleton } from "@tamias/ui/skeleton";
 import { Switch } from "@tamias/ui/switch";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@tamias/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@tamias/ui/table";
 import { useToast } from "@tamias/ui/use-toast";
 import {
   keepPreviousData,
@@ -69,9 +57,7 @@ function formatTimezoneWithLocalTime(timezone: string): {
     }).format(now);
 
     // Calculate hour difference
-    const customerDate = new Date(
-      now.toLocaleString("en-US", { timeZone: timezone }),
-    );
+    const customerDate = new Date(now.toLocaleString("en-US", { timeZone: timezone }));
     const userDate = new Date(now.toLocaleString("en-US"));
     const diffMs = customerDate.getTime() - userDate.getTime();
     const diffHours = Math.round(diffMs / (1000 * 60 * 60));
@@ -154,8 +140,7 @@ export function CustomerDetails() {
         // Optimistically update to pending status
         queryClient.setQueryData(
           trpc.customers.getById.queryKey({ id: customerId! }),
-          (old: typeof customer) =>
-            old ? { ...old, enrichmentStatus: "pending" as const } : old,
+          (old: typeof customer) => (old ? { ...old, enrichmentStatus: "pending" as const } : old),
         );
       },
       onError: (error) => {
@@ -364,10 +349,7 @@ export function CustomerDetails() {
                   </DropdownMenuItem>
                 )}
                 {hasEnrichmentData && !isEnriching && (
-                  <DropdownMenuItem
-                    onClick={handleClearEnrichment}
-                    className="text-destructive"
-                  >
+                  <DropdownMenuItem onClick={handleClearEnrichment} className="text-destructive">
                     <Icons.Delete className="size-4 mr-2" />
                     Clear enrichment
                   </DropdownMenuItem>
@@ -392,9 +374,7 @@ export function CustomerDetails() {
                 <Skeleton className="h-[13px] w-4/5" />
               </div>
             ) : customer.description ? (
-              <p className="text-[13px] text-[#606060] line-clamp-2">
-                {customer.description}
-              </p>
+              <p className="text-[13px] text-[#606060] line-clamp-2">{customer.description}</p>
             ) : null}
 
             {/* Badges */}
@@ -409,75 +389,51 @@ export function CustomerDetails() {
               customer.employeeCount ||
               customer.fundingStage ? (
               <div className="flex items-center gap-2 mt-2 flex-wrap">
-                {customer.industry && (
-                  <Badge variant="tag">{customer.industry}</Badge>
-                )}
-                {customer.companyType && (
-                  <Badge variant="tag">{customer.companyType}</Badge>
-                )}
+                {customer.industry && <Badge variant="tag">{customer.industry}</Badge>}
+                {customer.companyType && <Badge variant="tag">{customer.companyType}</Badge>}
                 {customer.employeeCount && (
-                  <Badge variant="tag">
-                    {customer.employeeCount} employees
-                  </Badge>
+                  <Badge variant="tag">{customer.employeeCount} employees</Badge>
                 )}
-                {customer.fundingStage && (
-                  <Badge variant="tag">{customer.fundingStage}</Badge>
-                )}
+                {customer.fundingStage && <Badge variant="tag">{customer.fundingStage}</Badge>}
               </div>
             ) : null}
           </div>
         )}
 
         <div className="px-6 pb-4">
-          <Accordion
-            type="multiple"
-            defaultValue={["general", "profile"]}
-            className="space-y-0"
-          >
+          <Accordion type="multiple" defaultValue={["general", "profile"]} className="space-y-0">
             {/* General Section */}
             <AccordionItem value="general" className="border-b border-border">
-              <AccordionTrigger className="text-[16px] font-medium py-4">
-                General
-              </AccordionTrigger>
+              <AccordionTrigger className="text-[16px] font-medium py-4">General</AccordionTrigger>
               <AccordionContent>
                 <div className="grid grid-cols-2 gap-4 pt-0">
                   {customer.contact && (
                     <div>
-                      <div className="text-[12px] mb-2 text-[#606060]">
-                        Contact person
-                      </div>
+                      <div className="text-[12px] mb-2 text-[#606060]">Contact person</div>
                       <div className="text-[14px]">{customer.contact}</div>
                     </div>
                   )}
                   {customer.email && (
                     <div>
-                      <div className="text-[12px] mb-2 text-[#606060]">
-                        Email
-                      </div>
+                      <div className="text-[12px] mb-2 text-[#606060]">Email</div>
                       <div className="text-[14px]">{customer.email}</div>
                     </div>
                   )}
                   {customer.billingEmail && (
                     <div>
-                      <div className="text-[12px] mb-2 text-[#606060]">
-                        Billing Email
-                      </div>
+                      <div className="text-[12px] mb-2 text-[#606060]">Billing Email</div>
                       <div className="text-[14px]">{customer.billingEmail}</div>
                     </div>
                   )}
                   {customer.phone && (
                     <div>
-                      <div className="text-[12px] mb-2 text-[#606060]">
-                        Phone
-                      </div>
+                      <div className="text-[12px] mb-2 text-[#606060]">Phone</div>
                       <div className="text-[14px]">{customer.phone}</div>
                     </div>
                   )}
                   {customer.website && (
                     <div>
-                      <div className="text-[12px] mb-2 text-[#606060]">
-                        Website
-                      </div>
+                      <div className="text-[12px] mb-2 text-[#606060]">Website</div>
                       <div className="text-[14px]">{customer.website}</div>
                     </div>
                   )}
@@ -498,10 +454,7 @@ export function CustomerDetails() {
                   {isEnriching ? (
                     <div className="grid grid-cols-2 gap-4 pt-0">
                       {[...Array(6)].map((_, i) => (
-                        <div
-                          key={`skeleton-${i.toString()}`}
-                          className="space-y-2"
-                        >
+                        <div key={`skeleton-${i.toString()}`} className="space-y-2">
                           <Skeleton className="h-3 w-20" />
                           <Skeleton className="h-5 w-28" />
                         </div>
@@ -518,8 +471,7 @@ export function CustomerDetails() {
                         visible: {
                           opacity: 1,
                           transition: {
-                            staggerChildren:
-                              enrichmentAnimationKey > 0 ? 0.02 : 0,
+                            staggerChildren: enrichmentAnimationKey > 0 ? 0.02 : 0,
                             delayChildren: 0,
                           },
                         },
@@ -536,9 +488,7 @@ export function CustomerDetails() {
                             },
                           }}
                         >
-                          <div className="text-[12px] mb-2 text-[#606060]">
-                            Industry
-                          </div>
+                          <div className="text-[12px] mb-2 text-[#606060]">Industry</div>
                           <div className="text-[14px]">{customer.industry}</div>
                         </motion.div>
                       )}
@@ -553,12 +503,8 @@ export function CustomerDetails() {
                             },
                           }}
                         >
-                          <div className="text-[12px] mb-2 text-[#606060]">
-                            Company Type
-                          </div>
-                          <div className="text-[14px]">
-                            {customer.companyType}
-                          </div>
+                          <div className="text-[12px] mb-2 text-[#606060]">Company Type</div>
+                          <div className="text-[14px]">{customer.companyType}</div>
                         </motion.div>
                       )}
                       {customer.employeeCount && (
@@ -572,12 +518,8 @@ export function CustomerDetails() {
                             },
                           }}
                         >
-                          <div className="text-[12px] mb-2 text-[#606060]">
-                            Employees
-                          </div>
-                          <div className="text-[14px]">
-                            {customer.employeeCount}
-                          </div>
+                          <div className="text-[12px] mb-2 text-[#606060]">Employees</div>
+                          <div className="text-[14px]">{customer.employeeCount}</div>
                         </motion.div>
                       )}
                       {customer.foundedYear && (
@@ -591,12 +533,8 @@ export function CustomerDetails() {
                             },
                           }}
                         >
-                          <div className="text-[12px] mb-2 text-[#606060]">
-                            Founded
-                          </div>
-                          <div className="text-[14px]">
-                            {customer.foundedYear}
-                          </div>
+                          <div className="text-[12px] mb-2 text-[#606060]">Founded</div>
+                          <div className="text-[14px]">{customer.foundedYear}</div>
                         </motion.div>
                       )}
                       {customer.estimatedRevenue && (
@@ -610,12 +548,8 @@ export function CustomerDetails() {
                             },
                           }}
                         >
-                          <div className="text-[12px] mb-2 text-[#606060]">
-                            Est. Revenue
-                          </div>
-                          <div className="text-[14px]">
-                            {customer.estimatedRevenue}
-                          </div>
+                          <div className="text-[12px] mb-2 text-[#606060]">Est. Revenue</div>
+                          <div className="text-[14px]">{customer.estimatedRevenue}</div>
                         </motion.div>
                       )}
                       {(customer.fundingStage || customer.totalFunding) && (
@@ -629,13 +563,10 @@ export function CustomerDetails() {
                             },
                           }}
                         >
-                          <div className="text-[12px] mb-2 text-[#606060]">
-                            Funding
-                          </div>
+                          <div className="text-[12px] mb-2 text-[#606060]">Funding</div>
                           <div className="text-[14px]">
                             {customer.fundingStage}
-                            {customer.totalFunding &&
-                              ` (${customer.totalFunding})`}
+                            {customer.totalFunding && ` (${customer.totalFunding})`}
                           </div>
                         </motion.div>
                       )}
@@ -650,12 +581,8 @@ export function CustomerDetails() {
                             },
                           }}
                         >
-                          <div className="text-[12px] mb-2 text-[#606060]">
-                            Headquarters
-                          </div>
-                          <div className="text-[14px]">
-                            {customer.headquartersLocation}
-                          </div>
+                          <div className="text-[12px] mb-2 text-[#606060]">Headquarters</div>
+                          <div className="text-[14px]">{customer.headquartersLocation}</div>
                         </motion.div>
                       )}
                       {customer.ceoName && (
@@ -669,14 +596,11 @@ export function CustomerDetails() {
                             },
                           }}
                         >
-                          <div className="text-[12px] mb-2 text-[#606060]">
-                            CEO / Founder
-                          </div>
+                          <div className="text-[12px] mb-2 text-[#606060]">CEO / Founder</div>
                           <div className="text-[14px]">{customer.ceoName}</div>
                         </motion.div>
                       )}
-                      {(customer.financeContact ||
-                        customer.financeContactEmail) && (
+                      {(customer.financeContact || customer.financeContactEmail) && (
                         <motion.div
                           variants={{
                             hidden: { opacity: 0, y: 8 },
@@ -687,13 +611,9 @@ export function CustomerDetails() {
                             },
                           }}
                         >
-                          <div className="text-[12px] mb-2 text-[#606060]">
-                            Finance Contact
-                          </div>
+                          <div className="text-[12px] mb-2 text-[#606060]">Finance Contact</div>
                           <div className="text-[14px]">
-                            {customer.financeContact && (
-                              <div>{customer.financeContact}</div>
-                            )}
+                            {customer.financeContact && <div>{customer.financeContact}</div>}
                             {customer.financeContactEmail && (
                               <a
                                 href={`mailto:${customer.financeContactEmail}`}
@@ -716,12 +636,8 @@ export function CustomerDetails() {
                             },
                           }}
                         >
-                          <div className="text-[12px] mb-2 text-[#606060]">
-                            Language
-                          </div>
-                          <div className="text-[14px]">
-                            {customer.primaryLanguage}
-                          </div>
+                          <div className="text-[12px] mb-2 text-[#606060]">Language</div>
+                          <div className="text-[14px]">{customer.primaryLanguage}</div>
                         </motion.div>
                       )}
                       {customer.fiscalYearEnd && (
@@ -735,19 +651,13 @@ export function CustomerDetails() {
                             },
                           }}
                         >
-                          <div className="text-[12px] mb-2 text-[#606060]">
-                            Fiscal Year End
-                          </div>
-                          <div className="text-[14px]">
-                            {customer.fiscalYearEnd}
-                          </div>
+                          <div className="text-[12px] mb-2 text-[#606060]">Fiscal Year End</div>
+                          <div className="text-[14px]">{customer.fiscalYearEnd}</div>
                         </motion.div>
                       )}
                       {customer.timezone &&
                         (() => {
-                          const tz = formatTimezoneWithLocalTime(
-                            customer.timezone,
-                          );
+                          const tz = formatTimezoneWithLocalTime(customer.timezone);
                           return (
                             <motion.div
                               variants={{
@@ -763,14 +673,10 @@ export function CustomerDetails() {
                                 },
                               }}
                             >
-                              <div className="text-[12px] mb-2 text-[#606060]">
-                                Local Time
-                              </div>
+                              <div className="text-[12px] mb-2 text-[#606060]">Local Time</div>
                               <div className="text-[14px] flex items-center gap-1.5">
                                 <span>{tz.localTime}</span>
-                                <span className="text-[#878787]">
-                                  ({tz.relative})
-                                </span>
+                                <span className="text-[#878787]">({tz.relative})</span>
                               </div>
                             </motion.div>
                           );
@@ -792,9 +698,7 @@ export function CustomerDetails() {
                             },
                           }}
                         >
-                          <div className="text-[12px] mb-2 text-[#606060]">
-                            Links
-                          </div>
+                          <div className="text-[12px] mb-2 text-[#606060]">Links</div>
                           <div className="flex items-center gap-3">
                             {customer.linkedinUrl && (
                               <a
@@ -882,16 +786,12 @@ export function CustomerDetails() {
 
             {/* Details Section */}
             <AccordionItem value="details" className="border-b border-border">
-              <AccordionTrigger className="text-[16px] font-medium py-4">
-                Details
-              </AccordionTrigger>
+              <AccordionTrigger className="text-[16px] font-medium py-4">Details</AccordionTrigger>
               <AccordionContent>
                 <div className="grid grid-cols-2 gap-4 pt-0">
                   {customer.addressLine1 ? (
                     <div>
-                      <div className="text-[12px] mb-2 text-[#606060]">
-                        Address
-                      </div>
+                      <div className="text-[12px] mb-2 text-[#606060]">Address</div>
                       <div className="text-[14px]">
                         {customer.addressLine1}
                         {customer.addressLine2 && `, ${customer.addressLine2}`}
@@ -899,117 +799,83 @@ export function CustomerDetails() {
                     </div>
                   ) : (
                     <div>
-                      <div className="text-[12px] mb-2 text-[#606060]">
-                        Address
-                      </div>
+                      <div className="text-[12px] mb-2 text-[#606060]">Address</div>
                       <div className="text-[14px] text-[#606060]">-</div>
                     </div>
                   )}
                   {customer.city ? (
                     <div>
-                      <div className="text-[12px] mb-2 text-[#606060]">
-                        City
-                      </div>
+                      <div className="text-[12px] mb-2 text-[#606060]">City</div>
                       <div className="text-[14px]">{customer.city}</div>
                     </div>
                   ) : (
                     <div>
-                      <div className="text-[12px] mb-2 text-[#606060]">
-                        City
-                      </div>
+                      <div className="text-[12px] mb-2 text-[#606060]">City</div>
                       <div className="text-[14px] text-[#606060]">-</div>
                     </div>
                   )}
                   {customer.state ? (
                     <div>
-                      <div className="text-[12px] mb-2 text-[#606060]">
-                        State
-                      </div>
+                      <div className="text-[12px] mb-2 text-[#606060]">State</div>
                       <div className="text-[14px]">{customer.state}</div>
                     </div>
                   ) : (
                     <div>
-                      <div className="text-[12px] mb-2 text-[#606060]">
-                        State
-                      </div>
+                      <div className="text-[12px] mb-2 text-[#606060]">State</div>
                       <div className="text-[14px] text-[#606060]">-</div>
                     </div>
                   )}
                   {customer.zip ? (
                     <div>
-                      <div className="text-[12px] mb-2 text-[#606060]">
-                        ZIP Code
-                      </div>
+                      <div className="text-[12px] mb-2 text-[#606060]">ZIP Code</div>
                       <div className="text-[14px]">{customer.zip}</div>
                     </div>
                   ) : (
                     <div>
-                      <div className="text-[12px] mb-2 text-[#606060]">
-                        ZIP Code
-                      </div>
+                      <div className="text-[12px] mb-2 text-[#606060]">ZIP Code</div>
                       <div className="text-[14px] text-[#606060]">-</div>
                     </div>
                   )}
                   {customer.country ? (
                     <div>
-                      <div className="text-[12px] mb-2 text-[#606060]">
-                        Country
-                      </div>
+                      <div className="text-[12px] mb-2 text-[#606060]">Country</div>
                       <div className="text-[14px]">{customer.country}</div>
                     </div>
                   ) : (
                     <div>
-                      <div className="text-[12px] mb-2 text-[#606060]">
-                        Country
-                      </div>
+                      <div className="text-[12px] mb-2 text-[#606060]">Country</div>
                       <div className="text-[14px] text-[#606060]">-</div>
                     </div>
                   )}
                   {customer.vatNumber ? (
                     <div>
-                      <div className="text-[12px] mb-2 text-[#606060]">
-                        VAT Number
-                      </div>
+                      <div className="text-[12px] mb-2 text-[#606060]">VAT Number</div>
                       <div className="text-[14px]">{customer.vatNumber}</div>
                     </div>
                   ) : (
                     <div>
-                      <div className="text-[12px] mb-2 text-[#606060]">
-                        VAT Number
-                      </div>
+                      <div className="text-[12px] mb-2 text-[#606060]">VAT Number</div>
                       <div className="text-[14px] text-[#606060]">-</div>
                     </div>
                   )}
                   {customer.note ? (
                     <div className="col-span-2">
-                      <div className="text-[12px] mb-2 text-[#606060]">
-                        Note
-                      </div>
+                      <div className="text-[12px] mb-2 text-[#606060]">Note</div>
                       <div className="text-[14px]">{customer.note}</div>
                     </div>
                   ) : (
                     <div className="col-span-2">
-                      <div className="text-[12px] mb-2 text-[#606060]">
-                        Note
-                      </div>
+                      <div className="text-[12px] mb-2 text-[#606060]">Note</div>
                       <div className="text-[14px] text-[#606060]">-</div>
                     </div>
                   )}
                   {customer.tags && customer.tags.length > 0 ? (
                     <div className="col-span-2">
-                      <div className="text-[12px] mb-2 text-[#606060]">
-                        Tags
-                      </div>
+                      <div className="text-[12px] mb-2 text-[#606060]">Tags</div>
                       <div className="flex items-center gap-2 flex-wrap">
                         {customer.tags.map((tag) => (
-                          <Link
-                            href={`/transactions?tags=${tag.id}`}
-                            key={tag.id}
-                          >
-                            <Badge
-                              variant="tag"
-                              className="whitespace-nowrap flex-shrink-0"
-                            >
+                          <Link href={`/transactions?tags=${tag.id}`} key={tag.id}>
+                            <Badge variant="tag" className="whitespace-nowrap flex-shrink-0">
                               {tag.name}
                             </Badge>
                           </Link>
@@ -1018,9 +884,7 @@ export function CustomerDetails() {
                     </div>
                   ) : (
                     <div className="col-span-2">
-                      <div className="text-[12px] mb-2 text-[#606060]">
-                        Tags
-                      </div>
+                      <div className="text-[12px] mb-2 text-[#606060]">Tags</div>
                       <div className="text-[14px] text-[#606060]">-</div>
                     </div>
                   )}
@@ -1067,9 +931,7 @@ export function CustomerDetails() {
                       className="font-mono text-xs pr-14"
                     />
                     <div className="absolute right-10 top-2.5 border-r border-border pr-2 text-base">
-                      <OpenURL
-                        href={`${window.location.origin}/p/${customer.portalId}`}
-                      >
+                      <OpenURL href={`${window.location.origin}/p/${customer.portalId}`}>
                         <Icons.OpenInNew />
                       </OpenURL>
                     </div>
@@ -1098,15 +960,10 @@ export function CustomerDetails() {
                 {/* Summary Stats */}
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <div className="border border-border px-4 py-3">
-                    <div className="text-[12px] text-[#606060] mb-2">
-                      Total Amount
-                    </div>
+                    <div className="text-[12px] text-[#606060] mb-2">Total Amount</div>
                     <div className="text-[18px] font-medium">
                       {summary?.currency ? (
-                        <FormatAmount
-                          amount={summary.totalAmount}
-                          currency={summary.currency}
-                        />
+                        <FormatAmount amount={summary.totalAmount} currency={summary.currency} />
                       ) : (
                         "-"
                       )}
@@ -1116,19 +973,14 @@ export function CustomerDetails() {
                     <div className="text-[12px] text-[#606060] mb-2">Paid</div>
                     <div className="text-[18px] font-medium">
                       {summary?.currency ? (
-                        <FormatAmount
-                          amount={summary.paidAmount}
-                          currency={summary.currency}
-                        />
+                        <FormatAmount amount={summary.paidAmount} currency={summary.currency} />
                       ) : (
                         "-"
                       )}
                     </div>
                   </div>
                   <div className="border border-border px-4 py-3">
-                    <div className="text-[12px] text-[#606060] mb-2">
-                      Outstanding
-                    </div>
+                    <div className="text-[12px] text-[#606060] mb-2">Outstanding</div>
                     <div className="text-[18px] font-medium">
                       {summary?.currency ? (
                         <FormatAmount
@@ -1141,12 +993,8 @@ export function CustomerDetails() {
                     </div>
                   </div>
                   <div className="border border-border px-4 py-3">
-                    <div className="text-[12px] text-[#606060] mb-2">
-                      Invoices
-                    </div>
-                    <div className="text-[18px] font-medium">
-                      {summary?.invoiceCount ?? 0}
-                    </div>
+                    <div className="text-[12px] text-[#606060] mb-2">Invoices</div>
+                    <div className="text-[18px] font-medium">{summary?.invoiceCount ?? 0}</div>
                   </div>
                 </div>
 
@@ -1199,26 +1047,17 @@ export function CustomerDetails() {
                             </TableCell>
                             <TableCell className="text-[12px] whitespace-nowrap">
                               {invoice.issueDate
-                                ? format(
-                                    new TZDate(invoice.issueDate, "UTC"),
-                                    "MMM d",
-                                  )
+                                ? format(new TZDate(invoice.issueDate, "UTC"), "MMM d")
                                 : "-"}
                             </TableCell>
                             <TableCell className="text-[12px] whitespace-nowrap">
                               {invoice.dueDate
-                                ? format(
-                                    new TZDate(invoice.dueDate, "UTC"),
-                                    "MMM d",
-                                  )
+                                ? format(new TZDate(invoice.dueDate, "UTC"), "MMM d")
                                 : "-"}
                             </TableCell>
                             <TableCell className="text-[12px] whitespace-nowrap">
                               {invoice.amount != null && invoice.currency ? (
-                                <FormatAmount
-                                  amount={invoice.amount}
-                                  currency={invoice.currency}
-                                />
+                                <FormatAmount amount={invoice.amount} currency={invoice.currency} />
                               ) : (
                                 "-"
                               )}
@@ -1230,10 +1069,7 @@ export function CustomerDetails() {
                                 textOnly
                               />
                             </TableCell>
-                            <TableCell
-                              className="text-center w-[60px]"
-                              data-hide-in-pdf="true"
-                            >
+                            <TableCell className="text-center w-[60px]" data-hide-in-pdf="true">
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                   <button
@@ -1246,10 +1082,7 @@ export function CustomerDetails() {
                                     <Icons.MoreHoriz className="size-4" />
                                   </button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                  align="end"
-                                  className="z-[100]"
-                                >
+                                <DropdownMenuContent align="end" className="z-[100]">
                                   {invoice.status !== "draft" ? (
                                     <DropdownMenuItem
                                       onClick={(e) => {
@@ -1322,11 +1155,7 @@ export function CustomerDetails() {
       {/* Fixed Footer */}
       <SheetFooter className="border-t border-border pt-4 mt-auto flex-shrink-0 w-full mx-0">
         <div className="w-full px-6 flex justify-end">
-          <Button
-            onClick={handleEdit}
-            variant="secondary"
-            className="rounded-none"
-          >
+          <Button onClick={handleEdit} variant="secondary" className="rounded-none">
             Edit
           </Button>
         </div>

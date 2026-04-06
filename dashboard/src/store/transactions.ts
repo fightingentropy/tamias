@@ -17,10 +17,7 @@ interface TransactionsState {
   setTransactionIds: (ids: string[]) => void;
   // Per-tab row selection
   rowSelectionByTab: RowSelectionByTab;
-  setRowSelection: (
-    tab: TransactionTab,
-    updater: Updater<RowSelectionState>,
-  ) => void;
+  setRowSelection: (tab: TransactionTab, updater: Updater<RowSelectionState>) => void;
   // Helper to get row selection for a specific tab
   getRowSelection: (tab: TransactionTab) => Record<string, boolean>;
   // Clear selection for a specific tab
@@ -44,8 +41,7 @@ export const useTransactionsStore = create<TransactionsState>()((set, get) => ({
   setRowSelection: (tab: TransactionTab, updater: Updater<RowSelectionState>) =>
     set((state) => {
       const currentSelection = state.rowSelectionByTab[tab];
-      const newSelection =
-        typeof updater === "function" ? updater(currentSelection) : updater;
+      const newSelection = typeof updater === "function" ? updater(currentSelection) : updater;
       return {
         rowSelectionByTab: {
           ...state.rowSelectionByTab,

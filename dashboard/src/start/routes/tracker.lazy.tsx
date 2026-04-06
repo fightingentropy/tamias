@@ -19,10 +19,7 @@ function TrackerPage() {
   const loaderData = Route.useLoaderData() as TrackerLoaderData;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <ScrollableContent>
         <TrackerCalendar weeklyCalendar={loaderData.weeklyCalendar} />
 

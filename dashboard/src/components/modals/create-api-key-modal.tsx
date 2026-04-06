@@ -24,8 +24,8 @@ export function CreateApiKeyModal() {
         <DialogHeader>
           <DialogTitle>API Key Created</DialogTitle>
           <DialogDescription>
-            For security reasons, the key will only be shown once. Please copy
-            and store it in a secure location.
+            For security reasons, the key will only be shown once. Please copy and store it in a
+            secure location.
           </DialogDescription>
         </DialogHeader>
 
@@ -43,9 +43,7 @@ export function CreateApiKeyModal() {
       <div className="p-4 space-y-4">
         <DialogHeader>
           <DialogTitle>Create New API Key</DialogTitle>
-          <DialogDescription>
-            Create a new API key for your team.
-          </DialogDescription>
+          <DialogDescription>Create a new API key for your team.</DialogDescription>
         </DialogHeader>
 
         <ApiKeyForm

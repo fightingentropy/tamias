@@ -34,11 +34,7 @@ async function getCustomersByIds(teamId: string, customerIds: string[]) {
   return new Map(rows.map((row) => [row.id, row]));
 }
 
-async function getUsersByIds(
-  _db: Database,
-  teamId: string,
-  assignedIds: string[],
-) {
+async function getUsersByIds(_db: Database, teamId: string, assignedIds: string[]) {
   if (assignedIds.length === 0) {
     return new Map<
       string,
@@ -88,9 +84,7 @@ export async function enrichTrackerEntries(
   teamId: string,
   entries: TrackerEntryRecord[],
 ): Promise<EnrichedTrackerEntry[]> {
-  const projectIds = [
-    ...new Set(entries.map((entry) => entry.projectId).filter(isDefined)),
-  ];
+  const projectIds = [...new Set(entries.map((entry) => entry.projectId).filter(isDefined))];
   const projects = await getTrackerProjectsByIdsFromConvex({
     teamId,
     projectIds,
@@ -123,8 +117,6 @@ export async function enrichTrackerEntries(
   return entries.map((entry) => ({
     ...entry,
     user: entry.assignedId ? (usersById.get(entry.assignedId) ?? null) : null,
-    trackerProject: entry.projectId
-      ? (projectById.get(entry.projectId) ?? null)
-      : null,
+    trackerProject: entry.projectId ? (projectById.get(entry.projectId) ?? null) : null,
   }));
 }

@@ -6,9 +6,7 @@ import { renderCt600DraftBodyXml } from "./body";
 import { encodeInlineXbrlDocumentForCtSubmission } from "./inline-xbrl";
 
 function computeCt600DraftIrmark(bodyXmlWithoutIrmark: string) {
-  return createHash("sha1")
-    .update(bodyXmlWithoutIrmark, "utf8")
-    .digest("base64");
+  return createHash("sha1").update(bodyXmlWithoutIrmark, "utf8").digest("base64");
 }
 
 function resolveHmrcCtSubmissionReference(companyUtr?: string | null) {
@@ -31,16 +29,13 @@ export function renderCt600DraftXml(
   const productName = process.env.HMRC_CT_PRODUCT_NAME ?? "Tamias";
   const productVersion = process.env.HMRC_CT_PRODUCT_VERSION ?? "0.1.0-draft";
   const senderId = process.env.HMRC_CT_SENDER_ID ?? "DRAFT-SENDER-ID";
-  const senderPassword =
-    process.env.HMRC_CT_SENDER_PASSWORD ?? "DRAFT-SENDER-PASSWORD";
+  const senderPassword = process.env.HMRC_CT_SENDER_PASSWORD ?? "DRAFT-SENDER-PASSWORD";
   const reference = resolveHmrcCtSubmissionReference(draft.utr);
   const encodedAccountsAttachment = options?.accountsAttachmentXhtml
     ? encodeInlineXbrlDocumentForCtSubmission(options.accountsAttachmentXhtml)
     : undefined;
   const encodedComputationsAttachment = options?.computationsAttachmentXhtml
-    ? encodeInlineXbrlDocumentForCtSubmission(
-        options.computationsAttachmentXhtml,
-      )
+    ? encodeInlineXbrlDocumentForCtSubmission(options.computationsAttachmentXhtml)
     : undefined;
   const bodyXmlWithoutIrmark = renderCt600DraftBodyXml({
     draft,

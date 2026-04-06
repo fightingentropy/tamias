@@ -12,14 +12,8 @@ function ChatPage() {
   const loaderData = Route.useLoaderData() as ChatPageLoaderData;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
-      <ChatStoreRouteSync
-        chatId={Route.useParams().id}
-        initialMessages={loaderData.chat}
-      />
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
+      <ChatStoreRouteSync chatId={Route.useParams().id} initialMessages={loaderData.chat} />
       <ChatInterface />
     </AppLayoutShell>
   );

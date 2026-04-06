@@ -86,9 +86,7 @@ export const WebSearchSources = ({
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.3, delay: 0.1 }}
         >
-          <span className="text-xs text-muted-foreground font-medium">
-            Sources
-          </span>
+          <span className="text-xs text-muted-foreground font-medium">Sources</span>
           <span className="text-xs text-muted-foreground">•</span>
           <motion.span
             className="text-xs text-muted-foreground"
@@ -111,11 +109,7 @@ interface WebSearchSourceAvatarProps {
   index?: number;
 }
 
-const WebSearchSourceAvatar = ({
-  source,
-  zIndex = 0,
-  index = 0,
-}: WebSearchSourceAvatarProps) => {
+const WebSearchSourceAvatar = ({ source, zIndex = 0, index = 0 }: WebSearchSourceAvatarProps) => {
   const domain = source.domain || extractDomainFromUrl(source.url || "");
 
   if (!source.url) {
@@ -144,10 +138,7 @@ const WebSearchSourceAvatar = ({
         whileTap={{ scale: 0.95 }}
       >
         <Avatar className="h-5 w-5 cursor-pointer border-2 border-background shadow-sm">
-          <AvatarImage
-            src={getWebsiteFaviconUrl(domain, 32)}
-            alt={`${domain} logo`}
-          />
+          <AvatarImage src={getWebsiteFaviconUrl(domain, 32)} alt={`${domain} logo`} />
           <AvatarFallback className="text-[10px] bg-background text-muted-foreground font-medium">
             {domain.split(".")[0]?.charAt(0).toUpperCase() || ""}
           </AvatarFallback>

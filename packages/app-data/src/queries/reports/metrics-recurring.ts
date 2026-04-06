@@ -20,22 +20,13 @@ export type GetRecurringExpensesParams = {
 interface RecurringExpenseItem {
   name: string;
   amount: number;
-  frequency:
-    | "weekly"
-    | "biweekly"
-    | "monthly"
-    | "semi_monthly"
-    | "annually"
-    | "irregular";
+  frequency: "weekly" | "biweekly" | "monthly" | "semi_monthly" | "annually" | "irregular";
   categoryName: string | null;
   categorySlug: string | null;
   lastDate: string;
 }
 
-async function getRecurringExpensesImpl(
-  db: Database,
-  params: GetRecurringExpensesParams,
-) {
+async function getRecurringExpensesImpl(db: Database, params: GetRecurringExpensesParams) {
   const { teamId, currency: inputCurrency, from, to } = params;
 
   const targetCurrency = await getTargetCurrency(db, teamId, inputCurrency);
@@ -66,11 +57,7 @@ async function getRecurringExpensesImpl(
       continue;
     }
 
-    const key = [
-      row.name,
-      normalizeRecurringFrequency(row.frequency),
-      slug ?? "",
-    ].join("\0");
+    const key = [row.name, normalizeRecurringFrequency(row.frequency), slug ?? ""].join("\0");
     const current = grouped.get(key) ?? {
       name: row.name,
       frequency: row.frequency,
@@ -178,11 +165,6 @@ async function getRecurringExpensesImpl(
 export const getRecurringExpenses = reuseQueryResult({
   keyPrefix: "recurring-expenses",
   keyFn: (params: GetRecurringExpensesParams) =>
-    [
-      params.teamId,
-      params.currency ?? "",
-      params.from ?? "",
-      params.to ?? "",
-    ].join(":"),
+    [params.teamId, params.currency ?? "", params.from ?? "", params.to ?? ""].join(":"),
   load: getRecurringExpensesImpl,
 });

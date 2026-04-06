@@ -4,11 +4,7 @@ type SetClientCookieOptions = {
   expires?: Date;
 };
 
-export function setClientCookie(
-  name: string,
-  value: string,
-  options: SetClientCookieOptions = {},
-) {
+export function setClientCookie(name: string, value: string, options: SetClientCookieOptions = {}) {
   if (typeof document === "undefined") {
     return;
   }

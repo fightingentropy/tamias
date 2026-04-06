@@ -2,9 +2,7 @@ import { escapeXml, formatDraftDate } from "../../formatting";
 import type { AccountsAttachmentRenderData } from "../types";
 import { renderAccountsPageHeader, renderDirectorMarkup } from "./common";
 
-export function renderCompanyInformationPage(
-  data: AccountsAttachmentRenderData,
-) {
+export function renderCompanyInformationPage(data: AccountsAttachmentRenderData) {
   const { draft } = data;
 
   return `<div class="accountspage pagebreak">

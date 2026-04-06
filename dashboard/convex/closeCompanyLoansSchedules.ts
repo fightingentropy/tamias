@@ -38,9 +38,7 @@ function serializeSchedule(
   },
 ) {
   return {
-    id:
-      record.publicCloseCompanyLoansScheduleId ??
-      record._id,
+    id: record.publicCloseCompanyLoansScheduleId ?? record._id,
     teamId: publicTeamId,
     filingProfileId: record.filingProfileId,
     periodKey: record.periodKey,
@@ -139,9 +137,7 @@ export const serviceUpsertCloseCompanyLoansSchedule = mutation({
     const team = await getTeamByPublicTeamId(ctx, args.publicTeamId);
 
     if (!team) {
-      throw new ConvexError(
-        "Convex close company loans schedule team not found",
-      );
+      throw new ConvexError("Convex close company loans schedule team not found");
     }
 
     const timestamp = nowIso();
@@ -164,16 +160,14 @@ export const serviceUpsertCloseCompanyLoansSchedule = mutation({
       reliefEarlierThan: args.reliefEarlierThan.map((item) => ({
         name: item.name,
         amountRepaid: item.amountRepaid ?? undefined,
-        amountReleasedOrWrittenOff:
-          item.amountReleasedOrWrittenOff ?? undefined,
+        amountReleasedOrWrittenOff: item.amountReleasedOrWrittenOff ?? undefined,
         date: item.date,
       })),
       reliefEarlierDue: args.reliefEarlierDue ?? undefined,
       loanLaterReliefNow: args.loanLaterReliefNow.map((item) => ({
         name: item.name,
         amountRepaid: item.amountRepaid ?? undefined,
-        amountReleasedOrWrittenOff:
-          item.amountReleasedOrWrittenOff ?? undefined,
+        amountReleasedOrWrittenOff: item.amountReleasedOrWrittenOff ?? undefined,
         date: item.date,
       })),
       reliefLaterDue: args.reliefLaterDue ?? undefined,
@@ -188,9 +182,7 @@ export const serviceUpsertCloseCompanyLoansSchedule = mutation({
       const updated = await ctx.db.get(existing._id);
 
       if (!updated) {
-        throw new ConvexError(
-          "Failed to update close company loans schedule",
-        );
+        throw new ConvexError("Failed to update close company loans schedule");
       }
 
       return serializeSchedule(args.publicTeamId, updated);

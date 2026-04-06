@@ -9,21 +9,16 @@ export const Route = createLazyFileRoute("/account/security")({
 });
 
 function AccountSecurityPage() {
-  const loaderData = Route.useLoaderData() as Awaited<
-    ReturnType<typeof loadAccountSecurityData>
-  >;
+  const loaderData = Route.useLoaderData() as Awaited<ReturnType<typeof loadAccountSecurityData>>;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <div className="space-y-12">
         <div className="space-y-3">
           <h2 className="text-lg font-medium">Security</h2>
           <p className="text-sm text-muted-foreground">
-            This workspace now uses a simple email and password sign-in flow.
-            Multi-factor authentication has been removed.
+            This workspace now uses a simple email and password sign-in flow. Multi-factor
+            authentication has been removed.
           </p>
           <div className="max-w-sm">
             <SignOutButton />

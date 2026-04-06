@@ -19,9 +19,7 @@ import { addDays, format, getDay, lastDayOfMonth } from "date-fns";
  * @returns A new Date object set to 00:00:00.000 UTC on the same UTC day
  */
 export function getStartOfDayUTC(date: Date): Date {
-  return new Date(
-    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
-  );
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
 }
 
 /**
@@ -52,9 +50,7 @@ export function getStartOfDayUTC(date: Date): Date {
  * @returns ISO string representing UTC midnight for the selected local date
  */
 export function localDateToUTCMidnight(date: Date): string {
-  return new Date(
-    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
-  ).toISOString();
+  return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())).toISOString();
 }
 
 /**
@@ -108,12 +104,7 @@ export const RECURRING_FREQUENCIES = [
  * All valid recurring invoice statuses.
  * Used to derive both TypeScript types and Zod schemas.
  */
-export const RECURRING_STATUSES = [
-  "active",
-  "paused",
-  "completed",
-  "canceled",
-] as const;
+export const RECURRING_STATUSES = ["active", "paused", "completed", "canceled"] as const;
 
 /**
  * All valid recurring invoice end types.
@@ -153,15 +144,7 @@ export function getFrequencyLabel(
   frequencyDay: number | null,
   frequencyWeek: number | null,
 ): string {
-  const dayNames = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ];
+  const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   const ordinals = ["1st", "2nd", "3rd", "4th", "5th"];
 
   switch (frequency) {
@@ -403,10 +386,7 @@ export function getNextDate(config: RecurringConfig, currentDate: Date): Date {
     }
     case "monthly_weekday": {
       // frequencyDay is 0-6 (day of week), frequencyWeek is 1-5 (which occurrence)
-      const targetDayOfWeek = Math.min(
-        Math.max(config.frequencyDay ?? 0, 0),
-        6,
-      );
+      const targetDayOfWeek = Math.min(Math.max(config.frequencyDay ?? 0, 0), 6);
       const targetWeek = Math.min(Math.max(config.frequencyWeek ?? 1, 1), 5);
 
       // Get next month's nth weekday
@@ -422,21 +402,13 @@ export function getNextDate(config: RecurringConfig, currentDate: Date): Date {
     }
     case "monthly_last_day": {
       // Last day of next month
-      const nextMonth = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth() + 1,
-        1,
-      );
+      const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
       return lastDayOfMonth(nextMonth);
     }
     case "quarterly": {
       // Every 3 months on the same day
       const targetDayQ = config.frequencyDay ?? currentDate.getDate();
-      const nextQuarter = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth() + 3,
-        1,
-      );
+      const nextQuarter = new Date(currentDate.getFullYear(), currentDate.getMonth() + 3, 1);
       const lastDayQ = lastDayOfMonth(nextQuarter).getDate();
       nextQuarter.setDate(Math.min(targetDayQ, lastDayQ));
       return nextQuarter;
@@ -444,11 +416,7 @@ export function getNextDate(config: RecurringConfig, currentDate: Date): Date {
     case "semi_annual": {
       // Every 6 months on the same day
       const targetDayS = config.frequencyDay ?? currentDate.getDate();
-      const nextSemiAnnual = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth() + 6,
-        1,
-      );
+      const nextSemiAnnual = new Date(currentDate.getFullYear(), currentDate.getMonth() + 6, 1);
       const lastDayS = lastDayOfMonth(nextSemiAnnual).getDate();
       nextSemiAnnual.setDate(Math.min(targetDayS, lastDayS));
       return nextSemiAnnual;
@@ -456,11 +424,7 @@ export function getNextDate(config: RecurringConfig, currentDate: Date): Date {
     case "annual": {
       // Every 12 months on the same day
       const targetDayA = config.frequencyDay ?? currentDate.getDate();
-      const nextAnnual = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth() + 12,
-        1,
-      );
+      const nextAnnual = new Date(currentDate.getFullYear(), currentDate.getMonth() + 12, 1);
       const lastDayA = lastDayOfMonth(nextAnnual).getDate();
       nextAnnual.setDate(Math.min(targetDayA, lastDayA));
       return nextAnnual;
@@ -573,9 +537,7 @@ export interface RecurringConfigValidationError {
  *
  * @returns Array of validation errors (empty if valid)
  */
-export function validateRecurringConfig(
-  config: RecurringConfig,
-): RecurringConfigValidationError[] {
+export function validateRecurringConfig(config: RecurringConfig): RecurringConfigValidationError[] {
   const errors: RecurringConfigValidationError[] = [];
 
   // Validate frequencyDay is required for weekly frequency
@@ -699,10 +661,7 @@ export function validateRecurringConfig(
 
   // Validate frequencyInterval is required for custom frequency
   if (config.frequency === "custom") {
-    if (
-      config.frequencyInterval === null ||
-      config.frequencyInterval === undefined
-    ) {
+    if (config.frequencyInterval === null || config.frequencyInterval === undefined) {
       errors.push({
         field: "frequencyInterval",
         message: "Day interval is required for custom frequency",

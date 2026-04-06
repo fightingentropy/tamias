@@ -9,10 +9,7 @@ import type { Database } from "../../client";
 import { getAppByAppId, setAppConfig } from "../apps";
 import { getFilingProfile } from "../compliance/shared";
 
-export async function getCompaniesHouseProviderData(
-  db: Database,
-  teamId: string,
-) {
+export async function getCompaniesHouseProviderData(db: Database, teamId: string) {
   const app = await getAppByAppId(db, {
     teamId,
     appId: "companies-house",
@@ -62,10 +59,7 @@ export async function getCompaniesHouseProviderData(
   return { provider, config };
 }
 
-export async function requireCompaniesHouseProviderData(
-  db: Database,
-  teamId: string,
-) {
+export async function requireCompaniesHouseProviderData(db: Database, teamId: string) {
   const providerData = await getCompaniesHouseProviderData(db, teamId);
 
   if (!providerData) {
@@ -80,10 +74,7 @@ export function getErrorMessage(error: unknown) {
 }
 
 export function isCompaniesHouseApiKeyMissing(error: unknown) {
-  return (
-    error instanceof Error &&
-    error.message.includes("Companies House API key missing")
-  );
+  return error instanceof Error && error.message.includes("Companies House API key missing");
 }
 
 export function isMissingCompaniesHouseFilingHistoryResource(error: unknown) {
@@ -95,17 +86,14 @@ export function isMissingCompaniesHouseFilingHistoryResource(error: unknown) {
 }
 
 export function getCompaniesHouseEnvironment(): CompaniesHouseEnvironment {
-  return process.env.COMPANIES_HOUSE_ENVIRONMENT === "production"
-    ? "production"
-    : "sandbox";
+  return process.env.COMPANIES_HOUSE_ENVIRONMENT === "production" ? "production" : "sandbox";
 }
 
 export function getRequiredCompanyNumber(params: {
   explicitCompanyNumber?: string;
   profileCompanyNumber?: string | null;
 }) {
-  const companyNumber =
-    params.explicitCompanyNumber ?? params.profileCompanyNumber ?? null;
+  const companyNumber = params.explicitCompanyNumber ?? params.profileCompanyNumber ?? null;
 
   if (!companyNumber) {
     throw new Error("Company number is required for this Companies House filing");

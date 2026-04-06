@@ -1,18 +1,7 @@
 "use client";
 
-import {
-  createElement,
-  createContext,
-  useContext,
-  useMemo,
-  type ReactNode,
-} from "react";
-import {
-  createTranslator,
-  getStaticLocaleParams,
-  languages,
-  type Locale,
-} from "./shared";
+import { createElement, createContext, useContext, useMemo, type ReactNode } from "react";
+import { createTranslator, getStaticLocaleParams, languages, type Locale } from "./shared";
 
 type I18nContextValue = {
   locale: Locale;
@@ -49,8 +38,7 @@ export function useI18n() {
 
 export function useScopedI18n(scope: string) {
   const t = useI18n();
-  return (key: string, params?: Record<string, unknown>) =>
-    t(`${scope}.${key}`, params);
+  return (key: string, params?: Record<string, unknown>) => t(`${scope}.${key}`, params);
 }
 
 export function useCurrentLocale() {

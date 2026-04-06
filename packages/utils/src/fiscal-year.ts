@@ -123,9 +123,7 @@ export function getFiscalYearDates(
 
   // If we haven't reached fiscal year start yet, we're in previous fiscal year
   const fiscalYearStart =
-    referenceDate < fiscalStart
-      ? new Date(year - 1, fiscalYearStartMonth - 1, 1)
-      : fiscalStart;
+    referenceDate < fiscalStart ? new Date(year - 1, fiscalYearStartMonth - 1, 1) : fiscalStart;
 
   // Fiscal year end is one year later, last day of previous month
   const fiscalYearEnd = new Date(

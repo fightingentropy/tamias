@@ -10,9 +10,7 @@ export const Route = createLazyFileRoute("/oauth/authorize")({
 });
 
 function OAuthAuthorizePage() {
-  const loaderData = Route.useLoaderData() as Awaited<
-    ReturnType<typeof loadOAuthAuthorizeData>
-  >;
+  const loaderData = Route.useLoaderData() as Awaited<ReturnType<typeof loadOAuthAuthorizeData>>;
 
   if (loaderData.status === "error") {
     return (
@@ -26,12 +24,7 @@ function OAuthAuthorizePage() {
 
   return (
     <HydrationBoundary
-      state={
-        loaderData.dehydratedState as unknown as
-          | DehydratedState
-          | null
-          | undefined
-      }
+      state={loaderData.dehydratedState as unknown as DehydratedState | null | undefined}
     >
       <Suspense fallback={null}>
         <OAuthConsentScreen />

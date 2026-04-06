@@ -19,23 +19,15 @@ export function translations(locale: string, params?: TranslationParams) {
         "transactions.subject": "New transactions",
         "transactions.preview": `${params?.firstName ? `Hi ${params?.firstName}, ` : ""}You have ${
           params?.numberOfTransactions
-        } ${
-          params?.numberOfTransactions > 1
-            ? "new transactions"
-            : "new transaction"
-        }`,
+        } ${params?.numberOfTransactions > 1 ? "new transactions" : "new transaction"}`,
         "transactions.title1": "You have ",
         "transactions.title2": `${params?.numberOfTransactions} ${
-          params?.numberOfTransactions > 1
-            ? "new transactions"
-            : "new transaction"
+          params?.numberOfTransactions > 1 ? "new transactions" : "new transaction"
         }`,
         "transactions.description1": `${params?.firstName ? `Hi ${params?.firstName}` : "Hello"}`,
         "transactions.description2": "We found",
         "transactions.description3": `${params?.numberOfTransactions} ${
-          params?.numberOfTransactions > 1
-            ? "new transactions"
-            : "new transaction"
+          params?.numberOfTransactions > 1 ? "new transactions" : "new transaction"
         }`,
         "transactions.description4": `${params?.teamName ? `for your team ${params?.teamName}` : "for your account"}. We'll automatically match them against receipts in your inbox, or you can simply reply to this email with the receipts.`,
         "transactions.button": "View transactions",
@@ -78,23 +70,15 @@ export function translations(locale: string, params?: TranslationParams) {
         "transactions.subject": "Nya transaktioner",
         "transactions.preview": `${params?.firstName ? `Hej ${params?.firstName}, ` : ""}Vi hittade ${
           params?.numberOfTransactions
-        } ${
-          params?.numberOfTransactions > 1
-            ? "nya transaktioner"
-            : "nya transaktion"
-        }.`,
+        } ${params?.numberOfTransactions > 1 ? "nya transaktioner" : "nya transaktion"}.`,
         "transactions.title1": "Du har ",
         "transactions.title2": `${params?.numberOfTransactions} ${
-          params?.numberOfTransactions > 1
-            ? "nya transaktioner"
-            : "nya transaktion"
+          params?.numberOfTransactions > 1 ? "nya transaktioner" : "nya transaktion"
         }`,
         "transactions.description1": `${params?.firstName ? `Hej ${params?.firstName}` : "Hej"}`,
         "transactions.description2": "Vi hittade",
         "transactions.description3": `${params?.numberOfTransactions} ${
-          params?.numberOfTransactions > 1
-            ? "nya transaktioner"
-            : "nya transaktion"
+          params?.numberOfTransactions > 1 ? "nya transaktioner" : "nya transaktion"
         }`,
         "transactions.description4": `${params?.teamName ? `för ditt team ${params?.teamName}` : "på ditt konto"}. Vi matchar dem automatiskt mot kvitton i din inkorg, eller så kan du svara på detta email med dina kvitton.`,
         "transactions.button": "Visa transaktioner",
@@ -111,8 +95,7 @@ export function translations(locale: string, params?: TranslationParams) {
         "invite.link1": "har bjudit in dig till",
         "invite.link2": "på",
         "invite.join": "Gå med",
-        "invite.link3":
-          "eller kopiera och klistra in denna URL i din webbläsare",
+        "invite.link3": "eller kopiera och klistra in denna URL i din webbläsare",
         "invite.footer1": "Denna inbjudan var avsedd för",
         "invite.footer2": "Denna inbjudan skickades från",
         "invite.footer4":

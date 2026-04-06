@@ -14,10 +14,7 @@ export type GetOverdueInvoicesAlertParams = {
   currency?: string;
 };
 
-async function getOverdueInvoicesAlertImpl(
-  db: Database,
-  params: GetOverdueInvoicesAlertParams,
-) {
+async function getOverdueInvoicesAlertImpl(db: Database, params: GetOverdueInvoicesAlertParams) {
   const { teamId, currency: inputCurrency } = params;
 
   const targetCurrency = await getTargetCurrency(db, teamId, inputCurrency);
@@ -43,9 +40,7 @@ async function getOverdueInvoicesAlertImpl(
     };
 
     current.count += Number(row.invoiceCount || 0);
-    current.totalAmount = roundMoney(
-      current.totalAmount + Number(row.totalAmount ?? 0),
-    );
+    current.totalAmount = roundMoney(current.totalAmount + Number(row.totalAmount ?? 0));
 
     if (
       row.oldestDueDate &&
@@ -75,13 +70,9 @@ async function getOverdueInvoicesAlertImpl(
       oldestDueDate = singleResult?.oldestDueDate || null;
       mainCurrency = singleResult?.currency || targetCurrency;
     } else {
-      totalCount = result.reduce(
-        (sum, item) => sum + Number(item.count || 0),
-        0,
-      );
+      totalCount = result.reduce((sum, item) => sum + Number(item.count || 0), 0);
 
-      const primaryResult =
-        result.find((item) => item.currency === targetCurrency) || result[0];
+      const primaryResult = result.find((item) => item.currency === targetCurrency) || result[0];
       totalAmount = Number(primaryResult?.totalAmount || 0);
       oldestDueDate = primaryResult?.oldestDueDate || null;
       mainCurrency = primaryResult?.currency || targetCurrency || "USD";
@@ -93,9 +84,7 @@ async function getOverdueInvoicesAlertImpl(
   if (oldestDueDate) {
     const now = new Date();
     const dueDate = parseISO(oldestDueDate);
-    daysOverdue = Math.floor(
-      (now.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24),
-    );
+    daysOverdue = Math.floor((now.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
   }
 
   return {
@@ -113,17 +102,11 @@ async function getOverdueInvoicesAlertImpl(
   };
 }
 
-export async function getOverdueInvoicesAlert(
-  db: Database,
-  params: GetOverdueInvoicesAlertParams,
-) {
+export async function getOverdueInvoicesAlert(db: Database, params: GetOverdueInvoicesAlertParams) {
   return getOverdueInvoicesAlertImpl(db, params);
 }
 
-async function getOutstandingInvoicesImpl(
-  db: Database,
-  params: GetOutstandingInvoicesParams,
-) {
+async function getOutstandingInvoicesImpl(db: Database, params: GetOutstandingInvoicesParams) {
   const {
     teamId,
     currency: inputCurrency,
@@ -151,9 +134,7 @@ async function getOutstandingInvoicesImpl(
     const current = grouped.get(currency) ?? { count: 0, totalAmount: 0 };
 
     current.count += Number(row.invoiceCount || 0);
-    current.totalAmount = roundMoney(
-      current.totalAmount + Number(row.totalAmount ?? 0),
-    );
+    current.totalAmount = roundMoney(current.totalAmount + Number(row.totalAmount ?? 0));
     grouped.set(currency, current);
   }
 
@@ -173,13 +154,9 @@ async function getOutstandingInvoicesImpl(
       totalAmount = Number(singleResult?.totalAmount || 0);
       mainCurrency = singleResult?.currency || targetCurrency;
     } else {
-      totalCount = result.reduce(
-        (sum, item) => sum + Number(item.count || 0),
-        0,
-      );
+      totalCount = result.reduce((sum, item) => sum + Number(item.count || 0), 0);
 
-      const primaryResult =
-        result.find((item) => item.currency === targetCurrency) || result[0];
+      const primaryResult = result.find((item) => item.currency === targetCurrency) || result[0];
       totalAmount = Number(primaryResult?.totalAmount || 0);
       mainCurrency = primaryResult?.currency || targetCurrency || "USD";
     }
@@ -200,9 +177,6 @@ async function getOutstandingInvoicesImpl(
   };
 }
 
-export async function getOutstandingInvoices(
-  db: Database,
-  params: GetOutstandingInvoicesParams,
-) {
+export async function getOutstandingInvoices(db: Database, params: GetOutstandingInvoicesParams) {
   return getOutstandingInvoicesImpl(db, params);
 }

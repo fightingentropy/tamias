@@ -210,18 +210,14 @@ export function InvoicePaymentAnimation({
           }
 
           setInvoices((prev) =>
-            prev.map((inv, idx) =>
-              idx === index ? { ...inv, status: newStatus } : inv,
-            ),
+            prev.map((inv, idx) => (idx === index ? { ...inv, status: newStatus } : inv)),
           );
 
           if (isOverdue) {
             setOverdueCount((prev) => prev + 1);
           } else if (!isScheduled && !isRecurring) {
             paidCount++;
-            paidTotal += Number.parseFloat(
-              invoice.amount.replace(/[^0-9.]/g, ""),
-            );
+            paidTotal += Number.parseFloat(invoice.amount.replace(/[^0-9.]/g, ""));
           }
 
           if (index === invoiceCount - 1) {
@@ -256,10 +252,7 @@ export function InvoicePaymentAnimation({
   }, [shouldPlay, onComplete]);
 
   return (
-    <div
-      ref={containerRef}
-      className="w-full h-full flex flex-col relative overflow-hidden"
-    >
+    <div ref={containerRef} className="w-full h-full flex flex-col relative overflow-hidden">
       {/* Header */}
       <div className="px-2 md:px-3 pt-3 md:pt-4 pb-2 md:pb-3 border-b border-border relative z-10">
         <h3 className="text-[13px] md:text-[14px] text-foreground">Invoices</h3>
@@ -328,9 +321,7 @@ export function InvoicePaymentAnimation({
               className="bg-background border border-border p-3 md:p-4"
             >
               <div className="flex items-center justify-between mb-1.5 md:mb-2">
-                <div className="font-serif text-base md:text-lg text-foreground">
-                  Good
-                </div>
+                <div className="font-serif text-base md:text-lg text-foreground">Good</div>
                 {showPaymentScore && (
                   <div className="flex gap-1 md:gap-1 items-end">
                     {paymentScoreBars.map((bar, index) => (
@@ -373,10 +364,7 @@ export function InvoicePaymentAnimation({
             transition={{ duration: 0.3, delay: 0.4 }}
             className="flex-1 min-h-0 overflow-hidden border border-border bg-background"
           >
-            <table
-              className="w-full border-collapse"
-              style={{ borderSpacing: 0 }}
-            >
+            <table className="w-full border-collapse" style={{ borderSpacing: 0 }}>
               <thead className="sticky top-0 z-10 bg-secondary border-b border-border">
                 <tr className="h-[28px] md:h-[32px]">
                   <th className="w-[75px] md:w-[70px] px-1.5 md:px-2 text-left text-[10px] md:text-[11px] font-medium text-muted-foreground border-r border-border">

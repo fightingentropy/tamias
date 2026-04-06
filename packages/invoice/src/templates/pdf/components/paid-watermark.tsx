@@ -8,11 +8,7 @@ type Props = {
   timezone?: string;
 };
 
-export function PaidWatermark({
-  paidAt,
-  dateFormat = "MM/dd/yyyy",
-  timezone,
-}: Props) {
+export function PaidWatermark({ paidAt, dateFormat = "MM/dd/yyyy", timezone }: Props) {
   return (
     <View
       style={{

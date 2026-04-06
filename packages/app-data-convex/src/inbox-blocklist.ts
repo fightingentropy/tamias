@@ -34,10 +34,7 @@ export async function createInboxBlocklistInConvex(args: {
   ) as Promise<InboxBlocklistRecord>;
 }
 
-export async function deleteInboxBlocklistInConvex(args: {
-  teamId: string;
-  id: string;
-}) {
+export async function deleteInboxBlocklistInConvex(args: { teamId: string; id: string }) {
   return createClient().mutation(
     api.inboxBlocklist.serviceDeleteInboxBlocklist,
     serviceArgs({

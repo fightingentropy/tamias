@@ -4,10 +4,7 @@ import { useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@tamias/ui/alert";
 import { Icons } from "@tamias/ui/icons";
 import { Skeleton } from "@tamias/ui/skeleton";
-import {
-  type EmailPreviewData,
-  parseEmailPreview,
-} from "@/lib/email-preview";
+import { type EmailPreviewData, parseEmailPreview } from "@/lib/email-preview";
 
 type EmailViewerProps = {
   url: string;
@@ -51,11 +48,7 @@ export function EmailViewer({ url }: EmailViewerProps) {
           return;
         }
 
-        setError(
-          loadError instanceof Error
-            ? loadError.message
-            : "Unable to load email preview.",
-        );
+        setError(loadError instanceof Error ? loadError.message : "Unable to load email preview.");
       } finally {
         if (isActive) {
           setIsLoading(false);
@@ -79,9 +72,7 @@ export function EmailViewer({ url }: EmailViewerProps) {
     return (
       <div className="flex h-full w-full items-center justify-center p-8">
         <Alert className="max-w-md">
-          <AlertDescription>
-            {error ?? "Unable to load email preview."}
-          </AlertDescription>
+          <AlertDescription>{error ?? "Unable to load email preview."}</AlertDescription>
         </Alert>
       </div>
     );
@@ -111,14 +102,9 @@ export function EmailViewer({ url }: EmailViewerProps) {
             {metadata.length > 0 && (
               <dl className="grid gap-2 text-xs text-muted-foreground">
                 {metadata.map((item) => (
-                  <div
-                    key={item.label}
-                    className="grid grid-cols-[40px_1fr] items-start gap-2"
-                  >
+                  <div key={item.label} className="grid grid-cols-[40px_1fr] items-start gap-2">
                     <dt>{item.label}</dt>
-                    <dd className="break-words text-foreground/80">
-                      {item.value}
-                    </dd>
+                    <dd className="break-words text-foreground/80">{item.value}</dd>
                   </div>
                 ))}
               </dl>

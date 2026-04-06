@@ -39,12 +39,7 @@ export function TimeTrackerWidget() {
   });
 
   if (isLoading) {
-    return (
-      <WidgetSkeleton
-        title="Time Tracker"
-        icon={<Icons.Tracker className="size-4" />}
-      />
-    );
+    return <WidgetSkeleton title="Time Tracker" icon={<Icons.Tracker className="size-4" />} />;
   }
 
   const totalWeeklyTime = data?.result?.totalDuration ?? 0;

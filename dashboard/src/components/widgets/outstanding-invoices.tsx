@@ -78,17 +78,13 @@ export function OutstandingInvoicesWidget() {
               You currently have{" "}
               <span className="text-primary">
                 {data.result.count} unpaid and{" "}
-                <FormatAmount
-                  amount={data.result.totalAmount}
-                  currency={currency || "USD"}
-                />{" "}
-                in outstanding invoices
+                <FormatAmount amount={data.result.totalAmount} currency={currency || "USD"} /> in
+                outstanding invoices
               </span>
             </p>
           ) : (
             <p className="text-sm text-[#666666]">
-              You currently have{" "}
-              <span className="text-primary">0 unpaid invoices</span>
+              You currently have <span className="text-primary">0 unpaid invoices</span>
             </p>
           )}
         </div>

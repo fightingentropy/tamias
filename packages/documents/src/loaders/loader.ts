@@ -68,10 +68,7 @@ export async function loadDocument({
         if (error instanceof Error && error.stack) {
           errorDetails.errorStack = error.stack;
         }
-        console.error(
-          "Gemini PDF extraction failed after retries:",
-          errorDetails,
-        );
+        console.error("Gemini PDF extraction failed after retries:", errorDetails);
         // Return null instead of throwing to allow the process to continue
         // The upstream code will handle null documents appropriately
         document = null;

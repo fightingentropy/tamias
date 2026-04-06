@@ -130,10 +130,7 @@ export function CommandPanelAnimation({
   }, [shouldPlay, onComplete, transactionSearch]);
 
   return (
-    <div
-      ref={containerRef}
-      className="w-full h-full flex items-center justify-center p-2 md:p-3"
-    >
+    <div ref={containerRef} className="w-full h-full flex items-center justify-center p-2 md:p-3">
       {/* Command Panel Container */}
       <div className="w-full max-w-[400px] h-full max-h-[500px] border border-border bg-background flex flex-col relative">
         {/* Search Bar */}
@@ -174,10 +171,7 @@ export function CommandPanelAnimation({
                     transition={{ duration: 0.3, delay: 0.08, ease: "easeOut" }}
                     className="flex items-center gap-2 md:gap-3 pr-2 md:pr-3 py-1 md:py-1.5 cursor-pointer hover:bg-muted transition-colors"
                   >
-                    <MdOutlineListAlt
-                      className="text-muted-foreground flex-shrink-0"
-                      size={16}
-                    />
+                    <MdOutlineListAlt className="text-muted-foreground flex-shrink-0" size={16} />
                     <div className="flex-1 min-w-0">
                       <div className="text-[11px] md:text-[12px] text-foreground">
                         {transaction.name}
@@ -308,10 +302,7 @@ export function CommandPanelAnimation({
                     className="flex items-center gap-1 pr-2 md:pr-3 py-1 md:py-1.5 mt-2 text-[11px] md:text-[12px] text-muted-foreground hover:text-foreground cursor-pointer hover:bg-muted transition-colors"
                   >
                     <span>View vault</span>
-                    <MdOutlineArrowOutward
-                      className="text-muted-foreground"
-                      size={12}
-                    />
+                    <MdOutlineArrowOutward className="text-muted-foreground" size={12} />
                   </motion.div>
                 </motion.div>
               )}
@@ -334,28 +325,19 @@ export function CommandPanelAnimation({
               type="button"
               className="w-5 h-5 flex items-center justify-center bg-muted hover:bg-muted/80 transition-colors"
             >
-              <MdOutlineArrowUpward
-                className="text-muted-foreground"
-                size={12}
-              />
+              <MdOutlineArrowUpward className="text-muted-foreground" size={12} />
             </button>
             <button
               type="button"
               className="w-5 h-5 flex items-center justify-center bg-muted hover:bg-muted/80 transition-colors"
             >
-              <MdOutlineArrowDownward
-                className="text-muted-foreground"
-                size={12}
-              />
+              <MdOutlineArrowDownward className="text-muted-foreground" size={12} />
             </button>
             <button
               type="button"
               className="w-5 h-5 flex items-center justify-center bg-muted hover:bg-muted/80 transition-colors"
             >
-              <MdOutlineSubdirectoryArrowLeft
-                className="text-muted-foreground"
-                size={12}
-              />
+              <MdOutlineSubdirectoryArrowLeft className="text-muted-foreground" size={12} />
             </button>
           </div>
         </motion.div>

@@ -6,10 +6,7 @@ import {
   recalculateVatDraft,
   submitVatReturn,
 } from "@tamias/app-data/queries";
-import {
-  getVatDashboardForTeam,
-  getVatSubmissionsForTeam,
-} from "@tamias/app-services/compliance";
+import { getVatDashboardForTeam, getVatSubmissionsForTeam } from "@tamias/app-services/compliance";
 import {
   addVatAdjustmentSchema,
   getEvidencePackSchema,

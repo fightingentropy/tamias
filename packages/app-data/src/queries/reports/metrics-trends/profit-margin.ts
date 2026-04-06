@@ -11,17 +11,8 @@ export type GetProfitMarginParams = {
   revenueType?: "gross" | "net";
 };
 
-async function getProfitMarginImpl(
-  db: Database,
-  params: GetProfitMarginParams,
-) {
-  const {
-    teamId,
-    from,
-    to,
-    currency: inputCurrency,
-    revenueType = "net",
-  } = params;
+async function getProfitMarginImpl(db: Database, params: GetProfitMarginParams) {
+  const { teamId, from, to, currency: inputCurrency, revenueType = "net" } = params;
 
   const targetCurrency = await getTargetCurrency(db, teamId, inputCurrency);
   const [revenueData, profitData] = await Promise.all([
@@ -41,14 +32,8 @@ async function getProfitMarginImpl(
     }),
   ]);
 
-  const totalRevenue = revenueData.reduce(
-    (sum, item) => sum + Number.parseFloat(item.value),
-    0,
-  );
-  const totalProfit = profitData.reduce(
-    (sum, item) => sum + Number.parseFloat(item.value),
-    0,
-  );
+  const totalRevenue = revenueData.reduce((sum, item) => sum + Number.parseFloat(item.value), 0);
+  const totalProfit = profitData.reduce((sum, item) => sum + Number.parseFloat(item.value), 0);
 
   let profitMargin = 0;
 
@@ -78,8 +63,7 @@ async function getProfitMarginImpl(
 
   const avgMargin =
     monthlyMargins.length > 0
-      ? monthlyMargins.reduce((sum, item) => sum + item.margin, 0) /
-        monthlyMargins.length
+      ? monthlyMargins.reduce((sum, item) => sum + item.margin, 0) / monthlyMargins.length
       : 0;
 
   let trend: "positive" | "negative" | "neutral" = "neutral";
@@ -92,11 +76,7 @@ async function getProfitMarginImpl(
       const firstMargin = firstMonth.margin;
       const lastMargin = lastMonth.margin;
       trend =
-        lastMargin > firstMargin
-          ? "positive"
-          : lastMargin < firstMargin
-            ? "negative"
-            : "neutral";
+        lastMargin > firstMargin ? "positive" : lastMargin < firstMargin ? "negative" : "neutral";
     }
   }
 

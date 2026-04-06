@@ -5,10 +5,7 @@ import { getSupportFromDisplay } from "@tamias/utils/envs";
 import type { WorkerJob as Job } from "../../types/job";
 import { nanoid } from "nanoid";
 import { Resend } from "resend";
-import {
-  inviteTeamMembersSchema,
-  type InviteTeamMembersPayload,
-} from "../../schemas/teams";
+import { inviteTeamMembersSchema, type InviteTeamMembersPayload } from "../../schemas/teams";
 import { BaseProcessor } from "../base";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);

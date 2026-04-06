@@ -43,15 +43,11 @@ function withPlaceholder(
   return [...extensions, Placeholder.configure({ placeholder })];
 }
 
-export function createPlainEditorExtensions(options?: {
-  placeholder?: string;
-}) {
+export function createPlainEditorExtensions(options?: { placeholder?: string }) {
   return withPlaceholder(plainExtensions, options);
 }
 
-export function createMinimalEditorExtensions(options?: {
-  placeholder?: string;
-}) {
+export function createMinimalEditorExtensions(options?: { placeholder?: string }) {
   return withPlaceholder(formattingExtensions, options);
 }
 

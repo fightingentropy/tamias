@@ -9,13 +9,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
 } from "@tamias/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@tamias/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@tamias/ui/select";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { useToast } from "@tamias/ui/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -95,14 +89,10 @@ export function TrackerCreateInvoice({ projectId }: Props) {
   const weekStartsOnMonday = user?.weekStartsOnMonday ?? false;
   const presetOptions = getPresetOptions(weekStartsOnMonday);
   const defaultPreset = "last-month";
-  const defaultPresetOption = presetOptions.find(
-    (option) => option.value === defaultPreset,
-  );
+  const defaultPresetOption = presetOptions.find((option) => option.value === defaultPreset);
 
   const [selectedPreset, setSelectedPreset] = useState<string>(defaultPreset);
-  const [date, setDate] = useState<DateRange | undefined>(
-    defaultPresetOption?.dateRange,
-  );
+  const [date, setDate] = useState<DateRange | undefined>(defaultPresetOption?.dateRange);
 
   const createInvoiceFromTrackerMutation = useMutation(
     trpc.invoice.createFromTracker.mutationOptions({

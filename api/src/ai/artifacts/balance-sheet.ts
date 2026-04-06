@@ -5,22 +5,14 @@ export const balanceSheetArtifact = artifact(
   "balance-sheet-canvas",
   z.object({
     // Processing stage
-    stage: z.enum([
-      "loading",
-      "chart_ready",
-      "metrics_ready",
-      "analysis_ready",
-    ]),
+    stage: z.enum(["loading", "chart_ready", "metrics_ready", "analysis_ready"]),
 
     // Basic info
     currency: z.string(),
     asOf: z.string().optional(), // Date as of which balance sheet is calculated
     from: z.string().optional().describe("Start date (ISO 8601)"),
     to: z.string().optional().describe("End date (ISO 8601)"),
-    description: z
-      .string()
-      .optional()
-      .describe("Generated description based on date range"),
+    description: z.string().optional().describe("Generated description based on date range"),
 
     // Chart data (available at chart_ready stage)
     chart: z

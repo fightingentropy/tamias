@@ -1,8 +1,4 @@
-import {
-  type AccountingProvider,
-  type ProviderEntityType,
-  RATE_LIMITS,
-} from "@tamias/accounting";
+import { type AccountingProvider, type ProviderEntityType, RATE_LIMITS } from "@tamias/accounting";
 import {
   PROVIDER_ATTACHMENT_CONFIG,
   resolveMimeType,
@@ -83,19 +79,15 @@ export class SyncAttachmentsProcessor extends AccountingProcessorBase<Accounting
     });
 
     // Initialize provider with valid tokens
-    const { provider, config, db } = await this.initializeProvider(
-      teamId,
-      providerId,
-    );
+    const { provider, config, db } = await this.initializeProvider(teamId, providerId);
 
     // Get provider-agnostic org ID
     const orgId = this.getOrgIdFromConfig(config);
 
     // Start with existing mapping or empty object
-    const currentMapping: Record<string, string | null> =
-      existingSyncedAttachmentMapping
-        ? { ...existingSyncedAttachmentMapping }
-        : {};
+    const currentMapping: Record<string, string | null> = existingSyncedAttachmentMapping
+      ? { ...existingSyncedAttachmentMapping }
+      : {};
 
     let uploadedCount = 0;
     let deletedCount = 0;
@@ -127,7 +119,7 @@ export class SyncAttachmentsProcessor extends AccountingProcessorBase<Accounting
                 error: deleteResult.error,
               });
             }
-            } catch (error) {
+          } catch (error) {
             this.logger.warn("Error deleting attachment from provider", {
               tamiasId: removed.tamiasId,
               providerId: removed.providerId,
@@ -144,14 +136,9 @@ export class SyncAttachmentsProcessor extends AccountingProcessorBase<Accounting
 
     // Step 2: Filter out attachments that are already synced
     const alreadySyncedIds = new Set(Object.keys(currentMapping));
-    const newAttachmentIds = attachmentIds.filter(
-      (id) => !alreadySyncedIds.has(id),
-    );
+    const newAttachmentIds = attachmentIds.filter((id) => !alreadySyncedIds.has(id));
 
-    if (
-      newAttachmentIds.length === 0 &&
-      (!removedAttachments || removedAttachments.length === 0)
-    ) {
+    if (newAttachmentIds.length === 0 && (!removedAttachments || removedAttachments.length === 0)) {
       this.logger.info("No attachment changes to sync", {
         teamId,
         transactionId,
@@ -179,8 +166,7 @@ export class SyncAttachmentsProcessor extends AccountingProcessorBase<Accounting
       });
 
       // Get rate limits for this provider
-      const rateLimit =
-        RATE_LIMITS[providerId as keyof typeof RATE_LIMITS] ?? RATE_LIMITS.xero;
+      const rateLimit = RATE_LIMITS[providerId as keyof typeof RATE_LIMITS] ?? RATE_LIMITS.xero;
 
       this.logger.info("Starting concurrent attachment uploads", {
         attachmentCount: attachments.length,
@@ -259,8 +245,7 @@ export class SyncAttachmentsProcessor extends AccountingProcessorBase<Accounting
       const errorCode = failedCount > 0 ? (errorCodes[0] ?? null) : null;
       const errorMessage =
         failedCount > 0
-          ? (errorMessages[0] ??
-            `${failedCount} attachment(s) failed to upload`)
+          ? (errorMessages[0] ?? `${failedCount} attachment(s) failed to upload`)
           : null;
 
       const updateParams = {
@@ -391,12 +376,9 @@ export class SyncAttachmentsProcessor extends AccountingProcessorBase<Accounting
     }
 
     // Download file from storage
-    const filePath = Array.isArray(attachment.path)
-      ? attachment.path.join("/")
-      : attachment.path;
+    const filePath = Array.isArray(attachment.path) ? attachment.path.join("/") : attachment.path;
 
-    const { data: fileData, error: downloadError } =
-      await downloadVaultFile(filePath);
+    const { data: fileData, error: downloadError } = await downloadVaultFile(filePath);
 
     if (downloadError || !fileData) {
       this.logger.error("Failed to download attachment", {
@@ -417,12 +399,7 @@ export class SyncAttachmentsProcessor extends AccountingProcessorBase<Accounting
 
     // Resolve and validate MIME type using layered approach
     const providerConfig = PROVIDER_ATTACHMENT_CONFIG[providerId];
-    const mimeResolution = resolveMimeType(
-      attachment.type,
-      attachment.name,
-      buffer,
-      providerId,
-    );
+    const mimeResolution = resolveMimeType(attachment.type, attachment.name, buffer, providerId);
 
     if (!mimeResolution.mimeType) {
       this.logger.warn("Could not determine valid MIME type for attachment", {

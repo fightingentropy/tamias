@@ -65,21 +65,13 @@ export function RunwayCanvas() {
         {
           id: "cash-balance",
           title: "Cash Balance",
-          value: formatCurrencyAmount(
-            metrics.cashBalance || 0,
-            currency,
-            locale,
-          ),
+          value: formatCurrencyAmount(metrics.cashBalance || 0, currency, locale),
           subtitle: "Current available cash",
         },
         {
           id: "average-burn-rate",
           title: "Average Burn Rate",
-          value: formatCurrencyAmount(
-            metrics.averageBurnRate || 0,
-            currency,
-            locale,
-          ),
+          value: formatCurrencyAmount(metrics.averageBurnRate || 0, currency, locale),
           subtitle: "Monthly spending average",
         },
         {

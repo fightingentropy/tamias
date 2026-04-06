@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@tamias/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@tamias/ui/accordion";
 import { Skeleton } from "@tamias/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown } from "lucide-react";
@@ -56,9 +51,7 @@ export function NotificationSettings() {
           channel: "in_app" | "email" | "push";
           enabled: boolean;
         } =>
-          setting.channel === "in_app" ||
-          setting.channel === "email" ||
-          setting.channel === "push",
+          setting.channel === "in_app" || setting.channel === "email" || setting.channel === "push",
       );
 
       // Skip if no settings remain after filtering
@@ -76,10 +69,7 @@ export function NotificationSettings() {
       }
 
       // Get display info from i18n translations
-      const displayInfo = getNotificationDisplayInfoWithFallback(
-        notificationType.type,
-        t,
-      );
+      const displayInfo = getNotificationDisplayInfoWithFallback(notificationType.type, t);
 
       acc[category].notifications.push({
         type: notificationType.type,
@@ -109,23 +99,18 @@ export function NotificationSettings() {
   );
 
   // Sort categories by order, then by name
-  const sortedCategories = Object.values(groupedNotifications || {}).sort(
-    (a, b) => {
-      if (a.order !== b.order) {
-        return a.order - b.order;
-      }
-      return a.category.localeCompare(b.category);
-    },
-  );
+  const sortedCategories = Object.values(groupedNotifications || {}).sort((a, b) => {
+    if (a.order !== b.order) {
+      return a.order - b.order;
+    }
+    return a.category.localeCompare(b.category);
+  });
 
   return (
     <div className="space-y-6">
       <Accordion type="multiple" className="w-full">
         {sortedCategories.map((categoryGroup) => (
-          <AccordionItem
-            key={categoryGroup.category}
-            value={categoryGroup.category}
-          >
+          <AccordionItem key={categoryGroup.category} value={categoryGroup.category}>
             <AccordionTrigger className="text-base">
               {getCategoryDisplayTitle(categoryGroup.category, t)}
             </AccordionTrigger>

@@ -147,11 +147,7 @@ export const RecurringInvoiceErrors = {
     );
   },
 
-  templateInvalid(
-    recurringId: string,
-    reason: string,
-    teamId?: string,
-  ): RecurringInvoiceError {
+  templateInvalid(recurringId: string, reason: string, teamId?: string): RecurringInvoiceError {
     return new RecurringInvoiceError(
       "TEMPLATE_INVALID",
       recurringId,
@@ -160,11 +156,7 @@ export const RecurringInvoiceErrors = {
     );
   },
 
-  invoiceExists(
-    recurringId: string,
-    invoiceId: string,
-    teamId?: string,
-  ): RecurringInvoiceError {
+  invoiceExists(recurringId: string, invoiceId: string, teamId?: string): RecurringInvoiceError {
     return new RecurringInvoiceError(
       "INVOICE_EXISTS",
       recurringId,
@@ -173,11 +165,7 @@ export const RecurringInvoiceErrors = {
     );
   },
 
-  databaseError(
-    recurringId: string,
-    cause: Error,
-    teamId?: string,
-  ): RecurringInvoiceError {
+  databaseError(recurringId: string, cause: Error, teamId?: string): RecurringInvoiceError {
     return new RecurringInvoiceError(
       "DATABASE_ERROR",
       recurringId,
@@ -186,11 +174,7 @@ export const RecurringInvoiceErrors = {
     );
   },
 
-  generationFailed(
-    recurringId: string,
-    cause: Error,
-    teamId?: string,
-  ): RecurringInvoiceError {
+  generationFailed(recurringId: string, cause: Error, teamId?: string): RecurringInvoiceError {
     return new RecurringInvoiceError(
       "GENERATION_FAILED",
       recurringId,

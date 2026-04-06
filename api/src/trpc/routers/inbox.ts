@@ -13,10 +13,7 @@ import {
   unmatchTransaction,
   updateInbox,
 } from "@tamias/app-data/queries";
-import {
-  getInboxBlocklistForTeam,
-  getInboxPage,
-} from "@tamias/app-services/inbox";
+import { getInboxBlocklistForTeam, getInboxPage } from "@tamias/app-services/inbox";
 import { enqueue } from "@tamias/job-client";
 import { logger } from "@tamias/logger";
 import {

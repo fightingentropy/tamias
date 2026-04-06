@@ -40,10 +40,7 @@ export type CreateDocumentTagParams = {
   slug: string;
 };
 
-export const createDocumentTag = async (
-  _db: Database,
-  params: CreateDocumentTagParams,
-) => {
+export const createDocumentTag = async (_db: Database, params: CreateDocumentTagParams) => {
   const result = await createDocumentTagInConvex({
     teamId: params.teamId,
     name: params.name,
@@ -62,10 +59,7 @@ export type DeleteDocumentTagParams = {
   teamId: string;
 };
 
-export const deleteDocumentTag = async (
-  _db: Database,
-  params: DeleteDocumentTagParams,
-) => {
+export const deleteDocumentTag = async (_db: Database, params: DeleteDocumentTagParams) => {
   return deleteDocumentTagInConvex({
     id: params.id,
     teamId: params.teamId,
@@ -78,10 +72,7 @@ export type UpsertDocumentTagParams = {
   teamId: string;
 };
 
-export const upsertDocumentTags = async (
-  _db: Database,
-  params: UpsertDocumentTagParams[],
-) => {
+export const upsertDocumentTags = async (_db: Database, params: UpsertDocumentTagParams[]) => {
   if (params.length === 0) {
     return [];
   }

@@ -17,8 +17,7 @@ const ACCOUNTING_ERROR_CODES = {
   UNKNOWN: "UNKNOWN",
 } as const;
 
-type AccountingErrorCode =
-  (typeof ACCOUNTING_ERROR_CODES)[keyof typeof ACCOUNTING_ERROR_CODES];
+type AccountingErrorCode = (typeof ACCOUNTING_ERROR_CODES)[keyof typeof ACCOUNTING_ERROR_CODES];
 
 /**
  * User-facing error messages for each accounting error code
@@ -62,8 +61,7 @@ const ACCOUNTING_ERROR_MESSAGES: Record<
   },
   SERVER_ERROR: {
     title: "Server error",
-    description: (provider) =>
-      `${provider} is experiencing issues. Please try again later.`,
+    description: (provider) => `${provider} is experiencing issues. Please try again later.`,
   },
   UNKNOWN: {
     title: "Export failed",
@@ -113,16 +111,12 @@ export function useAccountingError() {
    * Returns the most relevant error message based on error codes
    */
   const getErrorInfo = useCallback(
-    (
-      errors: AccountingJobError[] | undefined,
-      providerName: string,
-    ): ErrorInfo => {
+    (errors: AccountingJobError[] | undefined, providerName: string): ErrorInfo => {
       if (!errors || errors.length === 0) {
         return ACCOUNTING_ERROR_MESSAGES.UNKNOWN.title
           ? {
               title: ACCOUNTING_ERROR_MESSAGES.UNKNOWN.title,
-              description:
-                ACCOUNTING_ERROR_MESSAGES.UNKNOWN.description(providerName),
+              description: ACCOUNTING_ERROR_MESSAGES.UNKNOWN.description(providerName),
             }
           : {
               title: "Export failed",
@@ -163,8 +157,7 @@ export function useAccountingError() {
 
       return {
         title: ACCOUNTING_ERROR_MESSAGES.UNKNOWN.title,
-        description:
-          ACCOUNTING_ERROR_MESSAGES.UNKNOWN.description(providerName),
+        description: ACCOUNTING_ERROR_MESSAGES.UNKNOWN.description(providerName),
       };
     },
     [],
@@ -178,10 +171,7 @@ export function useAccountingError() {
       const failedCount = result?.failedCount ?? 0;
 
       if (failedCount > 0) {
-        const { title, description } = getErrorInfo(
-          result?.errors,
-          providerName,
-        );
+        const { title, description } = getErrorInfo(result?.errors, providerName);
         toast({
           duration: 8000,
           variant: "error",

@@ -242,9 +242,7 @@ export function Summary() {
             value={total}
             currency={currency}
             maximumFractionDigits={
-              includeTax || includeVat || includeLineItemTax
-                ? 2
-                : maximumFractionDigits
+              includeTax || includeVat || includeLineItemTax ? 2 : maximumFractionDigits
             }
           />
         </span>

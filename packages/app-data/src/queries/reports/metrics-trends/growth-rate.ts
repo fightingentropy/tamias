@@ -70,14 +70,8 @@ async function getGrowthRateImpl(db: Database, params: GetGrowthRateParams) {
     }),
   ]);
 
-  const currentTotal = currentData.reduce(
-    (sum, item) => sum + Number.parseFloat(item.value),
-    0,
-  );
-  const previousTotal = previousData.reduce(
-    (sum, item) => sum + Number.parseFloat(item.value),
-    0,
-  );
+  const currentTotal = currentData.reduce((sum, item) => sum + Number.parseFloat(item.value), 0);
+  const previousTotal = previousData.reduce((sum, item) => sum + Number.parseFloat(item.value), 0);
 
   let growthRate = 0;
 
@@ -99,17 +93,11 @@ async function getGrowthRateImpl(db: Database, params: GetGrowthRateParams) {
       .reduce((sum, item) => sum + Number.parseFloat(item.value), 0);
 
     if (recentPrevious > 0) {
-      periodGrowthRate =
-        ((recentCurrent - recentPrevious) / recentPrevious) * 100;
+      periodGrowthRate = ((recentCurrent - recentPrevious) / recentPrevious) * 100;
     }
   }
 
-  const trend =
-    periodGrowthRate > 0
-      ? "positive"
-      : periodGrowthRate < 0
-        ? "negative"
-        : "neutral";
+  const trend = periodGrowthRate > 0 ? "positive" : periodGrowthRate < 0 ? "negative" : "neutral";
 
   return {
     summary: {

@@ -40,27 +40,19 @@ export function Apps() {
   }, [queryClient, trpc]);
 
   // Fetch from both endpoints
-  const { data: installedOfficialApps } = useSuspenseQuery(
-    trpc.apps.get.queryOptions(),
-  );
+  const { data: installedOfficialApps } = useSuspenseQuery(trpc.apps.get.queryOptions());
 
-  const { data: externalAppsData } = useSuspenseQuery(
-    trpc.oauthApplications.list.queryOptions(),
-  );
+  const { data: externalAppsData } = useSuspenseQuery(trpc.oauthApplications.list.queryOptions());
 
   const { data: authorizedExternalApps } = useSuspenseQuery(
     trpc.oauthApplications.authorized.queryOptions(),
   );
 
   // Fetch inbox accounts for Gmail/Outlook status
-  const { data: inboxAccounts } = useSuspenseQuery(
-    trpc.inboxAccounts.get.queryOptions(),
-  );
+  const { data: inboxAccounts } = useSuspenseQuery(trpc.inboxAccounts.get.queryOptions());
 
   // Fetch Stripe status for Stripe Payments app
-  const { data: stripeStatus } = useSuspenseQuery(
-    trpc.invoicePayments.stripeStatus.queryOptions(),
-  );
+  const { data: stripeStatus } = useSuspenseQuery(trpc.invoicePayments.stripeStatus.queryOptions());
 
   const searchParams = useSearchParams();
   const isInstalledPage = searchParams.get("tab") === "installed";
@@ -82,17 +74,14 @@ export function Apps() {
       ? !!inboxAccount
       : isStripePaymentsApp
         ? (stripeStatus?.connected ?? false)
-        : (installedOfficialApps?.some(
-            (installed) => installed.app_id === app.id,
-          ) ?? false);
+        : (installedOfficialApps?.some((installed) => installed.app_id === app.id) ?? false);
 
     return {
       id: app.id,
       name: app.name,
       category: "category" in app ? app.category : "Integration",
       active: app.active,
-      beta:
-        "beta" in app && typeof app.beta === "boolean" ? app.beta : undefined,
+      beta: "beta" in app && typeof app.beta === "boolean" ? app.beta : undefined,
       logo: app.logo,
       short_description: app.short_description,
       description: app.description || undefined,
@@ -109,61 +98,51 @@ export function Apps() {
               onComplete?: () => void;
             }) => {
               const result = app.onInitialize({ accessToken, onComplete });
-              return result instanceof Promise
-                ? result
-                : Promise.resolve(result);
+              return result instanceof Promise ? result : Promise.resolve(result);
             }
           : undefined,
-      settings:
-        "settings" in app && Array.isArray(app.settings)
-          ? app.settings
-          : undefined,
+      settings: "settings" in app && Array.isArray(app.settings) ? app.settings : undefined,
       userSettings:
-        (installedOfficialApps?.find((inst) => inst.app_id === app.id)
-          ?.settings as Record<string, any>) || undefined,
+        (installedOfficialApps?.find((inst) => inst.app_id === app.id)?.settings as Record<
+          string,
+          any
+        >) || undefined,
       // Include inbox account ID for Gmail/Outlook disconnect
       inboxAccountId: inboxAccount?.id,
       // Include installUrl for apps with external download pages
       installUrl:
-        "installUrl" in app && typeof app.installUrl === "string"
-          ? app.installUrl
-          : undefined,
+        "installUrl" in app && typeof app.installUrl === "string" ? app.installUrl : undefined,
     };
   });
 
   // Transform external apps (only approved ones)
   const approvedExternalApps =
     externalAppsData?.data?.filter((app) => app.status === "approved") || [];
-  const transformedExternalApps: UnifiedApp[] = approvedExternalApps.map(
-    (app) => ({
-      id: app.id,
-      name: app.name,
-      category: "Integration",
-      active: app.active ?? false, // Convert null to boolean
-      logo: app.logoUrl || undefined, // Convert null to undefined
-      short_description: app.description || undefined, // Convert null to undefined
-      description: app.overview || app.description || undefined, // Convert null to undefined
-      images: app.screenshots || [],
-      installed:
-        authorizedExternalApps?.data?.some(
-          (authorized) => authorized.id === app.id,
-        ) ?? false,
-      type: "external" as const,
-      clientId: app.clientId || undefined, // Convert null to undefined
-      scopes: app.scopes || undefined, // Convert null to undefined
-      developerName: app.developerName || undefined, // Convert null to undefined
-      website: app.website || undefined, // Convert null to undefined
-      installUrl: app.installUrl || undefined, // Convert null to undefined
-      screenshots: app.screenshots || undefined, // Convert null to undefined
-      overview: app.overview || undefined, // Convert null to undefined
-      createdAt: app.createdAt || undefined, // Convert null to undefined
-      status: app.status || undefined, // Convert null to undefined
-      lastUsedAt:
-        authorizedExternalApps?.data?.find(
-          (authorized) => authorized.id === app.id,
-        )?.lastUsedAt || undefined, // Convert null to undefined
-    }),
-  );
+  const transformedExternalApps: UnifiedApp[] = approvedExternalApps.map((app) => ({
+    id: app.id,
+    name: app.name,
+    category: "Integration",
+    active: app.active ?? false, // Convert null to boolean
+    logo: app.logoUrl || undefined, // Convert null to undefined
+    short_description: app.description || undefined, // Convert null to undefined
+    description: app.overview || app.description || undefined, // Convert null to undefined
+    images: app.screenshots || [],
+    installed:
+      authorizedExternalApps?.data?.some((authorized) => authorized.id === app.id) ?? false,
+    type: "external" as const,
+    clientId: app.clientId || undefined, // Convert null to undefined
+    scopes: app.scopes || undefined, // Convert null to undefined
+    developerName: app.developerName || undefined, // Convert null to undefined
+    website: app.website || undefined, // Convert null to undefined
+    installUrl: app.installUrl || undefined, // Convert null to undefined
+    screenshots: app.screenshots || undefined, // Convert null to undefined
+    overview: app.overview || undefined, // Convert null to undefined
+    createdAt: app.createdAt || undefined, // Convert null to undefined
+    status: app.status || undefined, // Convert null to undefined
+    lastUsedAt:
+      authorizedExternalApps?.data?.find((authorized) => authorized.id === app.id)?.lastUsedAt ||
+      undefined, // Convert null to undefined
+  }));
 
   // Combine all apps
   const allApps = [...transformedOfficialApps, ...transformedExternalApps];
@@ -171,9 +150,7 @@ export function Apps() {
   // Filter apps
   const filteredApps = allApps
     .filter((app) => !isInstalledPage || app.installed)
-    .filter(
-      (app) => !search || app.name.toLowerCase().includes(search.toLowerCase()),
-    );
+    .filter((app) => !search || app.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <>
@@ -181,11 +158,7 @@ export function Apps() {
 
       <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 mx-auto mt-8">
         {filteredApps.map((app) => (
-          <UnifiedAppComponent
-            key={app.id}
-            app={app}
-            userEmail={user?.email || undefined}
-          />
+          <UnifiedAppComponent key={app.id} app={app} userEmail={user?.email || undefined} />
         ))}
 
         {!search && !filteredApps.length && (
@@ -194,8 +167,7 @@ export function Apps() {
               No apps installed
             </h3>
             <p className="mt-2 text-sm text-[#878787] text-center max-w-md">
-              You haven't installed any apps yet. Go to the 'All Apps' tab to
-              browse available apps.
+              You haven't installed any apps yet. Go to the 'All Apps' tab to browse available apps.
             </p>
           </div>
         )}
@@ -206,15 +178,11 @@ export function Apps() {
               No apps found
             </h3>
             <p className="mt-2 text-sm text-[#878787] text-center max-w-md">
-              No apps found for your search, let us know if you want to see a
-              specific app in the app store.
+              No apps found for your search, let us know if you want to see a specific app in the
+              app store.
             </p>
 
-            <Button
-              onClick={() => router.push("/apps")}
-              className="mt-4"
-              variant="outline"
-            >
+            <Button onClick={() => router.push("/apps")} className="mt-4" variant="outline">
               Clear search
             </Button>
           </div>

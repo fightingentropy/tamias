@@ -2,19 +2,13 @@ import type { AppRouter } from "@tamias/trpc";
 import { getApiUrl } from "@tamias/utils/envs";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { createTRPCClient, httpBatchLink, loggerLink } from "@trpc/client";
-import {
-  createTRPCOptionsProxy,
-  type TRPCQueryOptions,
-} from "@trpc/tanstack-react-query";
+import { createTRPCOptionsProxy, type TRPCQueryOptions } from "@trpc/tanstack-react-query";
 import { cache } from "react";
 import superjson from "superjson";
 import { noteSsrTrpcCall } from "@/server/perf";
 import { getApiServiceBinding } from "@/start/server/cloudflare-context";
 import { makeQueryClient } from "./query-client";
-import {
-  buildTRPCRequestHeaders,
-  getServerRequestContext,
-} from "./request-context";
+import { buildTRPCRequestHeaders, getServerRequestContext } from "./request-context";
 
 // IMPORTANT: Create a stable getter for the query client that
 //            will return the same client during the same request.
@@ -24,9 +18,7 @@ const DEFAULT_TAMIAS_PROD_API_ORIGIN = "https://api.tamias.xyz";
 
 function resolvedApiMatchesProdDefault(url: string): boolean {
   try {
-    return (
-      new URL(url).origin === new URL(DEFAULT_TAMIAS_PROD_API_ORIGIN).origin
-    );
+    return new URL(url).origin === new URL(DEFAULT_TAMIAS_PROD_API_ORIGIN).origin;
   } catch {
     return false;
   }
@@ -60,11 +52,7 @@ function shouldUseApiServiceBinding(input: RequestInfo | URL) {
   }
 
   const requestUrl = new URL(
-    typeof input === "string"
-      ? input
-      : input instanceof Request
-        ? input.url
-        : input.toString(),
+    typeof input === "string" ? input : input instanceof Request ? input.url : input.toString(),
     API_BASE_URL,
   );
   const apiBaseUrl = new URL(API_BASE_URL);
@@ -72,14 +60,9 @@ function shouldUseApiServiceBinding(input: RequestInfo | URL) {
   return requestUrl.origin === apiBaseUrl.origin;
 }
 
-function fetchWithTimeout(
-  input: RequestInfo | URL,
-  init?: RequestInit,
-): Promise<Response> {
+function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   const timeoutSignal = AbortSignal.timeout(SSR_FETCH_TIMEOUT_MS);
-  const signal = init?.signal
-    ? AbortSignal.any([init.signal, timeoutSignal])
-    : timeoutSignal;
+  const signal = init?.signal ? AbortSignal.any([init.signal, timeoutSignal]) : timeoutSignal;
 
   const headers = new Headers(init?.headers);
 
@@ -136,16 +119,10 @@ export const trpc = createTRPCOptionsProxy<AppRouter>({
 export function HydrateClient(props: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
 
-  return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      {props.children}
-    </HydrationBoundary>
-  );
+  return <HydrationBoundary state={dehydrate(queryClient)}>{props.children}</HydrationBoundary>;
 }
 
-export function prefetch<T extends ReturnType<TRPCQueryOptions<any>>>(
-  queryOptions: T,
-) {
+export function prefetch<T extends ReturnType<TRPCQueryOptions<any>>>(queryOptions: T) {
   const queryClient = getQueryClient();
 
   if (queryOptions.queryKey[1]?.type === "infinite") {
@@ -159,18 +136,14 @@ export function prefetch<T extends ReturnType<TRPCQueryOptions<any>>>(
   });
 }
 
-export function batchPrefetch<T extends ReturnType<TRPCQueryOptions<any>>>(
-  queryOptionsArray: T[],
-) {
+export function batchPrefetch<T extends ReturnType<TRPCQueryOptions<any>>>(queryOptionsArray: T[]) {
   const queryClient = getQueryClient();
   return Promise.all(
     queryOptionsArray.map((queryOptions) => {
       if (queryOptions.queryKey[1]?.type === "infinite") {
-        return queryClient
-          .prefetchInfiniteQuery(queryOptions as any)
-          .catch(() => {
-            // Avoid unhandled promise rejections from fire-and-forget prefetches.
-          });
+        return queryClient.prefetchInfiniteQuery(queryOptions as any).catch(() => {
+          // Avoid unhandled promise rejections from fire-and-forget prefetches.
+        });
       }
 
       return queryClient.prefetchQuery(queryOptions).catch(() => {

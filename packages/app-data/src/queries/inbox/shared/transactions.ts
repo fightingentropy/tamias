@@ -43,10 +43,7 @@ export async function getInboxTransactionMap(
   });
 
   return new Map(
-    transactions.map((transaction) => [
-      transaction.id,
-      buildInboxTransactionSummary(transaction)!,
-    ]),
+    transactions.map((transaction) => [transaction.id, buildInboxTransactionSummary(transaction)!]),
   );
 }
 

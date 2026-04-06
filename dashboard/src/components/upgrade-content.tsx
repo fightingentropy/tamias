@@ -41,9 +41,7 @@ export function UpgradeContent() {
     <div className="flex items-center justify-center min-h-[calc(100vh-200px)] md:py-6 md:-ml-8">
       <div className="w-full max-w-[960px] p-8">
         <div className="mb-8 md:mt-8 text-center">
-          <h1 className="font-serif text-2xl text-foreground mb-2">
-            Continue with Tamias
-          </h1>
+          <h1 className="font-serif text-2xl text-foreground mb-2">Continue with Tamias</h1>
           <p className="font-sans text-base text-muted-foreground leading-normal max-w-lg mx-auto">
             Your trial has ended — subscribe to pick up where you left off.
           </p>
@@ -65,8 +63,8 @@ export function UpgradeContent() {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    your account and remove your data from our servers.
+                    This action cannot be undone. This will permanently delete your account and
+                    remove your data from our servers.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
 
@@ -85,9 +83,7 @@ export function UpgradeContent() {
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={() => deleteUserMutation.mutate()}
-                    disabled={
-                      deleteValue !== "DELETE" || deleteUserMutation.isPending
-                    }
+                    disabled={deleteValue !== "DELETE" || deleteUserMutation.isPending}
                   >
                     {deleteUserMutation.isPending ? (
                       <Loader2 className="h-4 w-4 animate-spin" />

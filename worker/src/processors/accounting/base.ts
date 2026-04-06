@@ -97,9 +97,7 @@ function hasRequiredConfigFields(config: AccountingProviderConfig): boolean {
  * - Transaction mapping to provider format
  * - Standardized error handling
  */
-export abstract class AccountingProcessorBase<
-  TData = unknown,
-> extends BaseProcessor<TData> {
+export abstract class AccountingProcessorBase<TData = unknown> extends BaseProcessor<TData> {
   /**
    * Initialize an accounting provider with valid tokens
    *
@@ -129,19 +127,14 @@ export abstract class AccountingProcessorBase<
 
     // Validate required config fields
     if (!hasRequiredConfigFields(config)) {
-      throw new Error(
-        `Invalid ${providerId} configuration - missing tokens or org ID`,
-      );
+      throw new Error(`Invalid ${providerId} configuration - missing tokens or org ID`);
     }
 
     // Get and validate OAuth credentials from environment
     const credentials = getProviderCredentials(providerId);
     validateProviderCredentials(providerId, credentials);
 
-    const provider = await getAccountingProvider(
-      providerId as AccountingProviderId,
-      config,
-    );
+    const provider = await getAccountingProvider(providerId as AccountingProviderId, config);
 
     // Ensure token is valid (refresh if expired)
     try {
@@ -177,9 +170,7 @@ export abstract class AccountingProcessorBase<
    * - Null coalescing for optional fields
    * - Attachment filtering and mapping
    */
-  protected mapTransactionsToProvider(
-    transactions: TransactionForMapping[],
-  ): MappedTransaction[] {
+  protected mapTransactionsToProvider(transactions: TransactionForMapping[]): MappedTransaction[] {
     return transactions.map((tx) => {
       // Resolve tax values using priority:
       // 1. Transaction taxAmount (if set)
@@ -220,11 +211,7 @@ export abstract class AccountingProcessorBase<
                 path: string[];
                 type: string;
                 size: number;
-              } =>
-                att.name !== null &&
-                att.path !== null &&
-                att.type !== null &&
-                att.size !== null,
+              } => att.name !== null && att.path !== null && att.type !== null && att.size !== null,
             )
             .map((att) => ({
               id: att.id,
@@ -264,18 +251,13 @@ export abstract class AccountingProcessorBase<
         return defaultAccount;
       }
 
-      this.logger.warn(
-        "Configured default account not found or inactive, falling back",
-        {
-          configuredAccountId: config.defaultBankAccountId,
-        },
-      );
+      this.logger.warn("Configured default account not found or inactive, falling back", {
+        configuredAccountId: config.defaultBankAccountId,
+      });
     }
 
     // Fall back to first active account
-    const targetAccount = accounts.find(
-      (a: { status: string }) => a.status === "active",
-    );
+    const targetAccount = accounts.find((a: { status: string }) => a.status === "active");
 
     if (!targetAccount) {
       throw new Error("No active bank account found in accounting provider");

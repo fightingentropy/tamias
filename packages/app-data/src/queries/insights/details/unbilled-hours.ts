@@ -29,21 +29,15 @@ export async function getUnbilledHoursDetails(
     teamId,
     projectIds: filteredProjects.map((project) => project.id),
   });
-  const customerIds = filteredProjects
-    .map((project) => project.customerId)
-    .filter(isDefined);
+  const customerIds = filteredProjects.map((project) => project.customerId).filter(isDefined);
   const customerRows = customerIds.length
     ? await getCustomersByIdsFromConvex({
         teamId,
         customerIds: [...new Set(customerIds)],
       })
     : [];
-  const customerNameById = new Map(
-    customerRows.map((row) => [row.id, row.name]),
-  );
-  const projectById = new Map(
-    filteredProjects.map((project) => [project.id, project]),
-  );
+  const customerNameById = new Map(customerRows.map((row) => [row.id, row.name]));
+  const projectById = new Map(filteredProjects.map((project) => [project.id, project]));
   const totalsByProject = new Map<string, number>();
 
   for (const entry of entries) {

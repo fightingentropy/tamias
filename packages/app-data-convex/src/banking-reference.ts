@@ -33,9 +33,7 @@ export type UpsertInstitutionInput = {
   type: string | null;
 };
 
-export async function getExchangeRatesForTargetFromConvex(args: {
-  target: string;
-}) {
+export async function getExchangeRatesForTargetFromConvex(args: { target: string }) {
   return createClient().query(
     api.exchangeRates.serviceGetExchangeRatesForTarget,
     serviceArgs({
@@ -44,9 +42,7 @@ export async function getExchangeRatesForTargetFromConvex(args: {
   ) as Promise<ExchangeRateRecord[]>;
 }
 
-export async function upsertExchangeRatesInConvex(args: {
-  rates: ExchangeRateRecord[];
-}) {
+export async function upsertExchangeRatesInConvex(args: { rates: ExchangeRateRecord[] }) {
   return createClient().mutation(
     api.exchangeRates.serviceUpsertExchangeRates,
     serviceArgs({
@@ -90,9 +86,7 @@ export async function updateInstitutionUsageInConvex(args: { id: string }) {
   ) as Promise<InstitutionRecord | null>;
 }
 
-export async function upsertInstitutionsInConvex(args: {
-  institutions: UpsertInstitutionInput[];
-}) {
+export async function upsertInstitutionsInConvex(args: { institutions: UpsertInstitutionInput[] }) {
   return createClient().mutation(
     api.institutions.serviceUpsertInstitutions,
     serviceArgs({

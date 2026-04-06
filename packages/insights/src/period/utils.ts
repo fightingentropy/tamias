@@ -167,10 +167,7 @@ export function getPeriodInfo(
 /**
  * Get the period before the given period (for comparison)
  */
-export function getPreviousPeriod(
-  periodType: PeriodType,
-  currentPeriod: PeriodInfo,
-): PeriodInfo {
+export function getPreviousPeriod(periodType: PeriodType, currentPeriod: PeriodInfo): PeriodInfo {
   // Pass periodStart directly - getPreviousCompletePeriod handles the subtraction internally
   return getPreviousCompletePeriod(periodType, currentPeriod.periodStart);
 }
@@ -193,8 +190,7 @@ export function getPeriodLabel(
   const periodInfo = getPeriodInfo(periodType, periodYear, periodNumber);
   const { periodStart, periodEnd } = periodInfo;
 
-  const formatMonth = (date: Date) =>
-    date.toLocaleDateString(locale, { month: "long" });
+  const formatMonth = (date: Date) => date.toLocaleDateString(locale, { month: "long" });
   const startMonth = formatMonth(periodStart);
   const endMonth = formatMonth(periodEnd);
   const startDay = periodStart.getDate();
@@ -405,8 +401,7 @@ function setHourInTimezone(date: Date, hour: number, timezone: string): Date {
 
     // Get parts in the target timezone
     const parts = formatter.formatToParts(tempDate);
-    const getPart = (type: string) =>
-      parts.find((p) => p.type === type)?.value ?? "0";
+    const getPart = (type: string) => parts.find((p) => p.type === type)?.value ?? "0";
 
     // The current UTC time formatted in target timezone
     const _tzYear = Number.parseInt(getPart("year"), 10);
@@ -417,20 +412,12 @@ function setHourInTimezone(date: Date, hour: number, timezone: string): Date {
     // Calculate the offset: what UTC time gives us the target local time?
     // We need to find UTC time such that when converted to timezone, it equals our target
     // Start with a guess and adjust
-    const targetUtc = new Date(
-      Date.UTC(year, date.getMonth(), date.getDate(), hour, 0, 0),
-    );
+    const targetUtc = new Date(Date.UTC(year, date.getMonth(), date.getDate(), hour, 0, 0));
 
     // Check what local time this UTC gives us
     const checkParts = formatter.formatToParts(targetUtc);
-    const checkHour = Number.parseInt(
-      checkParts.find((p) => p.type === "hour")?.value ?? "0",
-      10,
-    );
-    const checkDay = Number.parseInt(
-      checkParts.find((p) => p.type === "day")?.value ?? "0",
-      10,
-    );
+    const checkHour = Number.parseInt(checkParts.find((p) => p.type === "hour")?.value ?? "0", 10);
+    const checkDay = Number.parseInt(checkParts.find((p) => p.type === "day")?.value ?? "0", 10);
 
     // Calculate hour difference
     let hourDiff = checkHour - hour;
@@ -441,16 +428,12 @@ function setHourInTimezone(date: Date, hour: number, timezone: string): Date {
     if (dayDiff < 0) hourDiff -= 24;
 
     // Adjust UTC time to compensate
-    const adjustedUtc = new Date(
-      targetUtc.getTime() - hourDiff * 60 * 60 * 1000,
-    );
+    const adjustedUtc = new Date(targetUtc.getTime() - hourDiff * 60 * 60 * 1000);
 
     return adjustedUtc;
   } catch {
     // Fallback to UTC if timezone is invalid
-    return new Date(
-      Date.UTC(year, date.getMonth(), date.getDate(), hour, 0, 0),
-    );
+    return new Date(Date.UTC(year, date.getMonth(), date.getDate(), hour, 0, 0));
   }
 }
 
@@ -470,12 +453,7 @@ export function getInitialInsightSchedule(
   const now = new Date();
 
   // Calculate next occurrence
-  const nextTime = calculateNextInsightTime(
-    periodType,
-    timezone,
-    targetHour,
-    now,
-  );
+  const nextTime = calculateNextInsightTime(periodType, timezone, targetHour, now);
 
   // If the next time is in the past (shouldn't happen normally), add one period
   if (nextTime <= now) {
@@ -497,12 +475,7 @@ export function getInitialInsightSchedule(
       default:
         futureRef = addWeeks(now, 1);
     }
-    return calculateNextInsightTime(
-      periodType,
-      timezone,
-      targetHour,
-      futureRef,
-    );
+    return calculateNextInsightTime(periodType, timezone, targetHour, futureRef);
   }
 
   return nextTime;

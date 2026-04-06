@@ -89,8 +89,7 @@ export function RevenueForecastCard({
     ];
   }, [revenueForecastData]);
 
-  const forecastedRevenue =
-    revenueForecastData?.summary?.totalProjectedRevenue ?? 0;
+  const forecastedRevenue = revenueForecastData?.summary?.totalProjectedRevenue ?? 0;
 
   // Get confidence score from new bottom-up forecast meta
   const confidenceScore = useMemo(() => {
@@ -121,16 +120,9 @@ export function RevenueForecastCard({
     >
       <div className="mb-4 min-h-[140px]">
         <div className="flex items-start justify-between h-7">
-          <h3 className="text-sm font-normal text-muted-foreground">
-            Revenue Forecast
-          </h3>
+          <h3 className="text-sm font-normal text-muted-foreground">Revenue Forecast</h3>
           <div className="opacity-0 group-hover:opacity-100 group-has-[*[data-state=open]]:opacity-100 transition-opacity">
-            <ShareMetricButton
-              type="revenue_forecast"
-              from={from}
-              to={to}
-              currency={currency}
-            />
+            <ShareMetricButton type="revenue_forecast" from={from} to={to} currency={currency} />
           </div>
         </div>
         <p className="text-3xl font-normal">
@@ -159,9 +151,7 @@ export function RevenueForecastCard({
           </div>
           {confidenceScore !== null && (
             <div className="flex gap-1 items-center ml-auto">
-              <span className="text-xs text-muted-foreground">
-                {confidenceScore}% confidence
-              </span>
+              <span className="text-xs text-muted-foreground">{confidenceScore}% confidence</span>
             </div>
           )}
         </div>
@@ -173,11 +163,7 @@ export function RevenueForecastCard({
           enableSelection={true}
           onSelectionStateChange={setIsSelecting}
           onSelectionComplete={(startDate, endDate) => {
-            const message = generateChartSelectionMessage(
-              startDate,
-              endDate,
-              "revenue-forecast",
-            );
+            const message = generateChartSelectionMessage(startDate, endDate, "revenue-forecast");
             setInput(message);
           }}
         >

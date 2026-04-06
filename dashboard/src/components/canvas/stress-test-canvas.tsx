@@ -52,28 +52,19 @@ export function StressTestCanvas() {
       {
         id: "base-case-runway",
         title: "Base Case Runway",
-        value:
-          metrics.baseCaseRunway >= 999
-            ? "∞"
-            : formatRunway(metrics.baseCaseRunway),
+        value: metrics.baseCaseRunway >= 999 ? "∞" : formatRunway(metrics.baseCaseRunway),
         subtitle: "Current trends continue",
       },
       {
         id: "worst-case-runway",
         title: "Worst Case Runway",
-        value:
-          metrics.worstCaseRunway >= 999
-            ? "∞"
-            : formatRunway(metrics.worstCaseRunway),
+        value: metrics.worstCaseRunway >= 999 ? "∞" : formatRunway(metrics.worstCaseRunway),
         subtitle: "Revenue -30%, Expenses +20%",
       },
       {
         id: "best-case-runway",
         title: "Best Case Runway",
-        value:
-          metrics.bestCaseRunway >= 999
-            ? "∞"
-            : formatRunway(metrics.bestCaseRunway),
+        value: metrics.bestCaseRunway >= 999 ? "∞" : formatRunway(metrics.bestCaseRunway),
         subtitle: "Revenue +20%, Expenses -10%",
       },
       {

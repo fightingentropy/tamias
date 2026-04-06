@@ -63,15 +63,13 @@ export const serviceUpsertInvoiceRecurringSeries = mutation({
 
     if (existing) {
       await ctx.db.patch(existing._id, {
-        publicInvoiceRecurringId:
-          existing.publicInvoiceRecurringId ?? args.invoiceRecurringId,
+        publicInvoiceRecurringId: existing.publicInvoiceRecurringId ?? args.invoiceRecurringId,
         teamId: team._id,
         customerId: args.customerId ?? undefined,
         customerName: args.customerName ?? undefined,
         status: args.status,
         nextScheduledAt: args.nextScheduledAt ?? undefined,
-        upcomingNotificationSentAt:
-          args.upcomingNotificationSentAt ?? undefined,
+        upcomingNotificationSentAt: args.upcomingNotificationSentAt ?? undefined,
         payload,
         updatedAt: timestamp,
       });
@@ -103,8 +101,7 @@ export const serviceUpsertInvoiceRecurringSeries = mutation({
       customerName: args.customerName ?? undefined,
       status: args.status,
       nextScheduledAt: args.nextScheduledAt ?? undefined,
-      upcomingNotificationSentAt:
-        args.upcomingNotificationSentAt ?? undefined,
+      upcomingNotificationSentAt: args.upcomingNotificationSentAt ?? undefined,
       payload,
       createdAt: timestamp,
       updatedAt: timestamp,
@@ -249,7 +246,8 @@ export const serviceGetUpcomingInvoiceRecurringSeries = query({
     const records = await ctx.db
       .query("invoiceRecurringSeries")
       .withIndex("by_status_and_next_scheduled_at", (q) =>
-        q.eq("status", "active")
+        q
+          .eq("status", "active")
           .gt("nextScheduledAt", args.after)
           .lte("nextScheduledAt", args.before),
       )

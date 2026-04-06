@@ -4,8 +4,7 @@ const DEFAULT_API_URL = "https://api.tamias.xyz";
 const DEFAULT_CDN_URL = "https://cdn.tamias.xyz";
 const DEFAULT_SUPPORT_EMAIL = "support@tamias.xyz";
 const DEFAULT_CONVEX_URL = "https://fleet-chameleon-251.eu-west-1.convex.cloud";
-const DEFAULT_CONVEX_SITE_URL =
-  "https://fleet-chameleon-251.eu-west-1.convex.site";
+const DEFAULT_CONVEX_SITE_URL = "https://fleet-chameleon-251.eu-west-1.convex.site";
 
 function getFirstDefined(...values: Array<string | undefined>) {
   for (const value of values) {
@@ -19,10 +18,8 @@ function getFirstDefined(...values: Array<string | undefined>) {
 
 function getTamiasEnvironment() {
   return (
-    getFirstDefined(
-      process.env.TAMIAS_ENVIRONMENT,
-      process.env.CLOUDFLARE_ENV,
-    ) || (process.env.NODE_ENV === "production" ? "production" : "development")
+    getFirstDefined(process.env.TAMIAS_ENVIRONMENT, process.env.CLOUDFLARE_ENV) ||
+    (process.env.NODE_ENV === "production" ? "production" : "development")
   );
 }
 
@@ -39,10 +36,7 @@ function getCloudflarePreviewUrl() {
 }
 
 export function getAppUrl() {
-  const explicitUrl = getFirstDefined(
-    process.env.DASHBOARD_URL,
-    process.env.TAMIAS_DASHBOARD_URL,
-  );
+  const explicitUrl = getFirstDefined(process.env.DASHBOARD_URL, process.env.TAMIAS_DASHBOARD_URL);
 
   if (explicitUrl) {
     return explicitUrl;
@@ -63,10 +57,7 @@ export function getAppUrl() {
 }
 
 export function getWebsiteUrl() {
-  const explicitUrl = getFirstDefined(
-    process.env.WEBSITE_URL,
-    process.env.TAMIAS_WEBSITE_URL,
-  );
+  const explicitUrl = getFirstDefined(process.env.WEBSITE_URL, process.env.TAMIAS_WEBSITE_URL);
 
   if (explicitUrl) {
     return explicitUrl;
@@ -93,10 +84,7 @@ export function getCdnUrl() {
 }
 
 export function getApiUrl() {
-  const explicitUrl = getFirstDefined(
-    process.env.API_URL,
-    process.env.TAMIAS_API_URL,
-  );
+  const explicitUrl = getFirstDefined(process.env.API_URL, process.env.TAMIAS_API_URL);
 
   if (explicitUrl) {
     return explicitUrl;
@@ -117,10 +105,7 @@ export function getApiUrl() {
 }
 
 export function getConvexUrl() {
-  const explicitUrl = getFirstDefined(
-    process.env.CONVEX_URL,
-    process.env.TAMIAS_CONVEX_URL,
-  );
+  const explicitUrl = getFirstDefined(process.env.CONVEX_URL, process.env.TAMIAS_CONVEX_URL);
 
   if (explicitUrl) {
     return explicitUrl;

@@ -69,11 +69,9 @@ function VirtualRowInner<TData>({
         const meta = cell.column.columnDef.meta as TableColumnMeta | undefined;
         const isSticky = meta?.sticky ?? false;
         const isActions = columnId === "actions";
-        const isLastBeforeActions =
-          cellIndex === cells.length - 2 && lastCellId === "actions";
+        const isLastBeforeActions = cellIndex === cells.length - 2 && lastCellId === "actions";
         const actionsFullWidth = isActions && !hasNonStickyBeforeActions;
-        const shouldFlex =
-          (isLastBeforeActions && !isSticky) || actionsFullWidth;
+        const shouldFlex = (isLastBeforeActions && !isSticky) || actionsFullWidth;
 
         const cellStyle: CSSProperties = {
           width: actionsFullWidth ? undefined : cell.column.getSize(),

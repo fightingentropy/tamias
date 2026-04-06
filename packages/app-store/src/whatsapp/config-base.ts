@@ -15,8 +15,7 @@ export const baseConfig = {
     {
       id: "receipts",
       label: "Receipt Processing",
-      description:
-        "Automatically process receipts and invoices sent via WhatsApp.",
+      description: "Automatically process receipts and invoices sent via WhatsApp.",
       type: "switch",
       required: false,
       value: true,
@@ -24,8 +23,7 @@ export const baseConfig = {
     {
       id: "matches",
       label: "Match Notifications",
-      description:
-        "Get notified when receipts are matched or need review via WhatsApp.",
+      description: "Get notified when receipts are matched or need review via WhatsApp.",
       type: "switch",
       required: false,
       value: true,

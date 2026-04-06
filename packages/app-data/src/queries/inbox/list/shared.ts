@@ -1,7 +1,4 @@
-import {
-  getInboxItemsFromConvex,
-  type InboxItemRecord,
-} from "@tamias/app-data-convex";
+import { getInboxItemsFromConvex, type InboxItemRecord } from "@tamias/app-data-convex";
 import {
   compareNullableDates,
   compareNullableStrings,
@@ -27,19 +24,11 @@ export function matchesBlocklist(
   const website = normalizeText(item.website);
   const senderEmail = normalizeText(item.senderEmail);
 
-  if (
-    blockedDomains.some(
-      (domain) => website !== "" && website === normalizeText(domain),
-    )
-  ) {
+  if (blockedDomains.some((domain) => website !== "" && website === normalizeText(domain))) {
     return false;
   }
 
-  if (
-    blockedEmails.some(
-      (email) => senderEmail !== "" && senderEmail === normalizeText(email),
-    )
-  ) {
+  if (blockedEmails.some((email) => senderEmail !== "" && senderEmail === normalizeText(email))) {
     return false;
   }
 
@@ -59,20 +48,15 @@ export function decodeIndexedInboxCursor(
 
   try {
     const parsed = JSON.parse(
-      Buffer.from(
-        cursor.slice(INBOX_PAGE_CURSOR_PREFIX.length),
-        "base64url",
-      ).toString("utf8"),
+      Buffer.from(cursor.slice(INBOX_PAGE_CURSOR_PREFIX.length), "base64url").toString("utf8"),
     ) as Partial<IndexedInboxCursorState>;
 
     return {
-      sourceCursor:
-        typeof parsed.sourceCursor === "string" ? parsed.sourceCursor : null,
+      sourceCursor: typeof parsed.sourceCursor === "string" ? parsed.sourceCursor : null,
       sourceExhausted: parsed.sourceExhausted === true,
       bufferedIds: Array.isArray(parsed.bufferedIds)
         ? parsed.bufferedIds.filter(
-            (bufferedId): bufferedId is string =>
-              typeof bufferedId === "string",
+            (bufferedId): bufferedId is string => typeof bufferedId === "string",
           )
         : [],
     };
@@ -86,10 +70,9 @@ export function decodeIndexedInboxCursor(
 }
 
 export function encodeIndexedInboxCursor(state: IndexedInboxCursorState) {
-  return `${INBOX_PAGE_CURSOR_PREFIX}${Buffer.from(
-    JSON.stringify(state),
-    "utf8",
-  ).toString("base64url")}`;
+  return `${INBOX_PAGE_CURSOR_PREFIX}${Buffer.from(JSON.stringify(state), "utf8").toString(
+    "base64url",
+  )}`;
 }
 
 export function getIndexedInboxSourceOrder(order: string | null | undefined) {
@@ -116,9 +99,7 @@ export function isAmountLikeInboxQuery(query: string | null | undefined) {
     return false;
   }
 
-  return (
-    /[\d]/.test(normalizedQuery) && /^[\d\s,.\-+£$€]+$/.test(normalizedQuery)
-  );
+  return /[\d]/.test(normalizedQuery) && /^[\d\s,.\-+£$€]+$/.test(normalizedQuery);
 }
 
 export function parseInboxQueryAmount(query: string | null | undefined) {
@@ -179,10 +160,7 @@ export function matchesIndexedInboxCandidate(
 }
 
 export function matchesInboxQuery(
-  item: Pick<
-    InboxItemRecord,
-    "amount" | "description" | "displayName" | "fileName"
-  >,
+  item: Pick<InboxItemRecord, "amount" | "description" | "displayName" | "fileName">,
   query: string | null | undefined,
 ) {
   const normalizedQuery = normalizeInboxQuery(query);
@@ -225,10 +203,7 @@ export function compareInboxListItems(
   const { order, sort } = args;
 
   if (sort === "alphabetical") {
-    const comparison = compareNullableStrings(
-      left.displayName,
-      right.displayName,
-    );
+    const comparison = compareNullableStrings(left.displayName, right.displayName);
     return order === "desc" ? -comparison : comparison;
   }
 

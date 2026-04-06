@@ -58,9 +58,7 @@ export type InsightData = {
 /**
  * Extract insight data from getInsights tool result
  */
-export function extractInsightData(
-  parts: UIMessage["parts"],
-): InsightData | null {
+export function extractInsightData(parts: UIMessage["parts"]): InsightData | null {
   for (const part of parts) {
     const type = part.type as string;
     if (type === "tool-getInsights") {
@@ -111,9 +109,7 @@ export function extractBankAccountRequired(parts: UIMessage["parts"]): boolean {
  * Extract artifact type from message parts
  * Checks all tool calls in the message and returns the first artifact type found
  */
-export function extractArtifactTypeFromMessage(
-  parts: UIMessage["parts"],
-): ArtifactType | null {
+export function extractArtifactTypeFromMessage(parts: UIMessage["parts"]): ArtifactType | null {
   for (const part of parts) {
     const type = part.type as string;
     if (type.startsWith("tool-")) {
@@ -121,9 +117,7 @@ export function extractArtifactTypeFromMessage(
 
       // Extract tool name from type (e.g., "tool-cashFlow" -> "cashFlow")
       const toolName =
-        type === "dynamic-tool"
-          ? (toolPart.toolName as string)
-          : type.replace(/^tool-/, "");
+        type === "dynamic-tool" ? (toolPart.toolName as string) : type.replace(/^tool-/, "");
 
       const artifactType = getArtifactTypeFromTool(toolName);
       if (artifactType) {

@@ -1,7 +1,4 @@
-export type {
-  Attachment,
-  StoredTransactionAttachment,
-} from "./transaction-attachments/types";
+export type { Attachment, StoredTransactionAttachment } from "./transaction-attachments/types";
 export {
   deleteTransactionAttachmentsByIds,
   deleteTransactionAttachmentsByPathKeys,

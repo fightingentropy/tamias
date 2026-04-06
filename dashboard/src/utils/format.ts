@@ -1,10 +1,5 @@
 import { TZDate } from "@date-fns/tz";
-import {
-  differenceInDays,
-  differenceInMonths,
-  format,
-  startOfDay,
-} from "date-fns";
+import { differenceInDays, differenceInMonths, format, startOfDay } from "date-fns";
 import { normalizeCurrencyCode } from "./currency";
 
 export function formatSize(bytes: number): string {
@@ -125,11 +120,7 @@ export function formatDateRange(dates: TZDate[]): string {
 
   if (!startDate) return "";
 
-  if (
-    dates.length === 1 ||
-    !endDate ||
-    startDate.getTime() === endDate.getTime()
-  ) {
+  if (dates.length === 1 || !endDate || startDate.getTime() === endDate.getTime()) {
     return formatFullDate(startDate);
   }
 
@@ -165,8 +156,7 @@ export function getDueDateStatus(dueDate: string): string {
     return `in ${diffMonths} month${diffMonths === 1 ? "" : "s"}`;
   }
 
-  if (diffMonths < 1)
-    return `${Math.abs(diffDays)} day${Math.abs(diffDays) === 1 ? "" : "s"} ago`;
+  if (diffMonths < 1) return `${Math.abs(diffDays)} day${Math.abs(diffDays) === 1 ? "" : "s"} ago`;
   return `${diffMonths} month${diffMonths === 1 ? "" : "s"} ago`;
 }
 
@@ -196,10 +186,7 @@ export function formatRelativeTime(date: Date): string {
   return "just now";
 }
 
-export function formatCompactAmount(
-  amount: number,
-  locale?: string | null,
-): string {
+export function formatCompactAmount(amount: number, locale?: string | null): string {
   const absAmount = Math.abs(amount);
   const safeLocale = locale ?? "en-US";
 

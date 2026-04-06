@@ -30,10 +30,7 @@ export class EmailService {
       };
     }
 
-    const eligibleEmails = await this.#filterEligibleEmails(
-      emails,
-      notificationType,
-    );
+    const eligibleEmails = await this.#filterEligibleEmails(emails, notificationType);
 
     if (eligibleEmails.length === 0) {
       return {

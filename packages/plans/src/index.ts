@@ -1,6 +1,4 @@
-const POLAR_ENVIRONMENT = process.env.POLAR_ENVIRONMENT as
-  | "production"
-  | "sandbox";
+const POLAR_ENVIRONMENT = process.env.POLAR_ENVIRONMENT as "production" | "sandbox";
 
 export const PLANS = {
   production: {
@@ -96,9 +94,7 @@ export function getPlanByProductId(productId: string): "starter" | "pro" {
   return plan.key;
 }
 
-export function getPlanIntervalByProductId(
-  productId: string,
-): "month" | "year" {
+export function getPlanIntervalByProductId(productId: string): "month" | "year" {
   const plan = findProductById(productId);
 
   if (!plan) {
@@ -152,13 +148,11 @@ export type PlanFeature = {
 export const planFeatures: PlanFeature[] = [
   {
     label: "Invoicing and payments",
-    tooltip:
-      "Recurring schedules, templates, customer portal, and online card payments.",
+    tooltip: "Recurring schedules, templates, customer portal, and online card payments.",
   },
   {
     label: "Transactions and bank sync",
-    tooltip:
-      "Connect to 20,000+ banks. Transactions categorized automatically.",
+    tooltip: "Connect to 20,000+ banks. Transactions categorized automatically.",
   },
   {
     label: "Inbox and receipt matching",
@@ -175,18 +169,15 @@ export const planFeatures: PlanFeature[] = [
   },
   {
     label: "AI assistant",
-    tooltip:
-      "Ask questions about revenue, spending, and invoices in plain language.",
+    tooltip: "Ask questions about revenue, spending, and invoices in plain language.",
   },
   {
     label: "Financial overview and reports",
-    tooltip:
-      "Live dashboard with profit & loss, burn rate, runway, cash flow, and tax summaries.",
+    tooltip: "Live dashboard with profit & loss, burn rate, runway, cash flow, and tax summaries.",
   },
   {
     label: "Vault",
-    tooltip:
-      "Store and organize documents. Attach to transactions and invoices.",
+    tooltip: "Store and organize documents. Attach to transactions and invoices.",
   },
   {
     label: "Apps and integrations",
@@ -194,18 +185,15 @@ export const planFeatures: PlanFeature[] = [
   },
   {
     label: "Multi-currency",
-    tooltip:
-      "Invoice in any currency. Converted to your base currency automatically.",
+    tooltip: "Invoice in any currency. Converted to your base currency automatically.",
   },
   {
     label: "Customer management",
-    tooltip:
-      "Store customer details, track history, and reuse across invoices and projects.",
+    tooltip: "Store customer details, track history, and reuse across invoices and projects.",
   },
   {
     label: "API and MCP",
-    tooltip:
-      "REST API and MCP server for AI agents and custom workflows.",
+    tooltip: "REST API and MCP server for AI agents and custom workflows.",
   },
 ];
 

@@ -1,6 +1,4 @@
-export function isError(
-  data: unknown,
-): false | { code: string; message: string } {
+export function isError(data: unknown): false | { code: string; message: string } {
   if (typeof data !== "object" || data === null || !("error" in data)) {
     return false;
   }

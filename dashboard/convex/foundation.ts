@@ -29,9 +29,7 @@ function normalizeStringArray(values: string[] | undefined) {
 async function getApiKeyByPublicApiKeyId(ctx: DbCtx, publicApiKeyId: string) {
   return ctx.db
     .query("apiKeys")
-    .withIndex("by_public_api_key_id", (q) =>
-      q.eq("publicApiKeyId", publicApiKeyId),
-    )
+    .withIndex("by_public_api_key_id", (q) => q.eq("publicApiKeyId", publicApiKeyId))
     .unique();
 }
 
@@ -56,10 +54,7 @@ async function getOAuthAccessTokenByTokenHash(ctx: DbCtx, tokenHash: string) {
     .unique();
 }
 
-async function getOAuthAccessTokenByRefreshTokenHash(
-  ctx: DbCtx,
-  refreshTokenHash: string,
-) {
+async function getOAuthAccessTokenByRefreshTokenHash(ctx: DbCtx, refreshTokenHash: string) {
   return ctx.db
     .query("oauthAccessTokens")
     .withIndex("by_refresh_token", (q) => q.eq("refreshToken", refreshTokenHash))
@@ -86,15 +81,10 @@ async function getInstalledAppsByAppId(ctx: DbCtx, appId: string) {
     .collect();
 }
 
-async function serializeInstalledApp(
-  ctx: DbCtx,
-  installedApp: Doc<"installedApps">,
-) {
+async function serializeInstalledApp(ctx: DbCtx, installedApp: Doc<"installedApps">) {
   const [team, createdBy] = await Promise.all([
     ctx.db.get(installedApp.teamId),
-    installedApp.createdByAppUserId
-      ? ctx.db.get(installedApp.createdByAppUserId)
-      : null,
+    installedApp.createdByAppUserId ? ctx.db.get(installedApp.createdByAppUserId) : null,
   ]);
 
   return {
@@ -109,10 +99,7 @@ async function serializeInstalledApp(
   };
 }
 
-async function serializeApiKey(
-  ctx: DbCtx,
-  apiKey: Doc<"apiKeys">,
-) {
+async function serializeApiKey(ctx: DbCtx, apiKey: Doc<"apiKeys">) {
   const [appUser, team] = await Promise.all([
     ctx.db.get(apiKey.appUserId),
     ctx.db.get(apiKey.teamId),
@@ -137,10 +124,7 @@ async function serializeApiKey(
   };
 }
 
-async function serializeOAuthApplication(
-  ctx: DbCtx,
-  application: Doc<"oauthApplications">,
-) {
+async function serializeOAuthApplication(ctx: DbCtx, application: Doc<"oauthApplications">) {
   const createdByUser = await ctx.db.get(application.createdByAppUserId);
 
   return {
@@ -179,10 +163,7 @@ async function serializeOAuthApplication(
   };
 }
 
-async function serializeAuthorizedApplication(
-  ctx: DbCtx,
-  token: Doc<"oauthAccessTokens">,
-) {
+async function serializeAuthorizedApplication(ctx: DbCtx, token: Doc<"oauthAccessTokens">) {
   const application = await ctx.db.get(token.applicationId);
 
   if (!application || !application.active) {
@@ -207,32 +188,21 @@ async function serializeAuthorizedApplication(
   };
 }
 
-async function getActivityByPublicActivityId(
-  ctx: DbCtx,
-  publicActivityId: string,
-) {
+async function getActivityByPublicActivityId(ctx: DbCtx, publicActivityId: string) {
   return ctx.db
     .query("activities")
-    .withIndex("by_public_activity_id", (q) =>
-      q.eq("publicActivityId", publicActivityId),
-    )
+    .withIndex("by_public_activity_id", (q) => q.eq("publicActivityId", publicActivityId))
     .unique();
 }
 
-async function serializeNotificationSetting(
-  ctx: DbCtx,
-  setting: Doc<"notificationSettings">,
-) {
+async function serializeNotificationSetting(ctx: DbCtx, setting: Doc<"notificationSettings">) {
   const [appUser, team] = await Promise.all([
     ctx.db.get(setting.appUserId),
     ctx.db.get(setting.teamId),
   ]);
 
   return {
-    id: publicId(
-      setting.publicNotificationSettingId,
-      setting._id,
-    ),
+    id: publicId(setting.publicNotificationSettingId, setting._id),
     userId: appUser?._id ?? null,
     teamId: team?.publicTeamId ?? null,
     notificationType: setting.notificationType,
@@ -243,10 +213,7 @@ async function serializeNotificationSetting(
   };
 }
 
-async function serializeActivity(
-  ctx: DbCtx,
-  activity: Doc<"activities">,
-) {
+async function serializeActivity(ctx: DbCtx, activity: Doc<"activities">) {
   const [appUser, team] = await Promise.all([
     activity.appUserId ? ctx.db.get(activity.appUserId) : null,
     ctx.db.get(activity.teamId),
@@ -295,8 +262,7 @@ async function upsertNotificationSettingRecord(
       .collect()
   ).find(
     (setting) =>
-      setting.notificationType === args.notificationType &&
-      setting.channel === args.channel,
+      setting.notificationType === args.notificationType && setting.channel === args.channel,
   );
 
   const timestamp = nowIso();
@@ -572,8 +538,7 @@ export const serviceGetUserAuthorizedApplications = query({
       .collect();
 
     const filtered = tokens.filter(
-      (token) =>
-        token.teamId === team._id && !token.revoked && token.expiresAt > now,
+      (token) => token.teamId === team._id && !token.revoked && token.expiresAt > now,
     );
 
     const serialized = (
@@ -615,8 +580,7 @@ export const serviceHasUserEverAuthorizedApp = query({
       .collect();
 
     return tokens.some(
-      (token) =>
-        token.teamId === team._id && token.applicationId === application._id,
+      (token) => token.teamId === team._id && token.applicationId === application._id,
     );
   },
 });
@@ -745,8 +709,7 @@ export const serviceUpdateOAuthApplication = mutation({
     }
 
     if (args.developerName !== undefined) {
-      patch.developerName =
-        normalizeOptionalString(args.developerName) ?? undefined;
+      patch.developerName = normalizeOptionalString(args.developerName) ?? undefined;
     }
 
     if (args.logoUrl !== undefined) {
@@ -883,9 +846,7 @@ export const serviceRevokeUserApplicationTokens = mutation({
 
     await Promise.all(
       tokens
-        .filter(
-          (token) => token.applicationId === application._id && !token.revoked,
-        )
+        .filter((token) => token.applicationId === application._id && !token.revoked)
         .map((token) =>
           ctx.db.patch(token._id, {
             revoked: true,
@@ -943,9 +904,7 @@ export const serviceGetInstalledAppByTeamAndAppId = query({
 
     const installedApp = await ctx.db
       .query("installedApps")
-      .withIndex("by_team_and_app_id", (q) =>
-        q.eq("teamId", team._id).eq("appId", args.appId),
-      )
+      .withIndex("by_team_and_app_id", (q) => q.eq("teamId", team._id).eq("appId", args.appId))
       .unique();
 
     return installedApp ? serializeInstalledApp(ctx, installedApp) : null;
@@ -982,9 +941,7 @@ export const serviceGetInstalledAppBySlackTeamId = query({
     });
 
     if (args.channelId) {
-      const installedApp = [...matches].sort((a, b) =>
-        b.createdAt.localeCompare(a.createdAt),
-      )[0];
+      const installedApp = [...matches].sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
 
       return installedApp ? serializeInstalledApp(ctx, installedApp) : null;
     }
@@ -1008,17 +965,13 @@ export const serviceGetInstalledAppByWhatsAppNumber = query({
     const installedApps = await getInstalledAppsByAppId(ctx, "whatsapp");
     const installedApp = installedApps.find((candidate) => {
       const config =
-        candidate.config &&
-        typeof candidate.config === "object" &&
-        !Array.isArray(candidate.config)
+        candidate.config && typeof candidate.config === "object" && !Array.isArray(candidate.config)
           ? (candidate.config as {
               connections?: Array<{ phoneNumber?: string }>;
             })
           : undefined;
 
-      return config?.connections?.some(
-        (connection) => connection.phoneNumber === args.phoneNumber,
-      );
+      return config?.connections?.some((connection) => connection.phoneNumber === args.phoneNumber);
     });
 
     return installedApp ? serializeInstalledApp(ctx, installedApp) : null;
@@ -1041,9 +994,7 @@ export const serviceUpsertInstalledApp = mutation({
 
     const [team, createdBy] = await Promise.all([
       getTeamByPublicTeamId(ctx, args.publicTeamId),
-      args.createdByUserId
-        ? getAppUserById(ctx, args.createdByUserId)
-        : Promise.resolve(null),
+      args.createdByUserId ? getAppUserById(ctx, args.createdByUserId) : Promise.resolve(null),
     ]);
 
     if (!team) {
@@ -1056,9 +1007,7 @@ export const serviceUpsertInstalledApp = mutation({
 
     const existing = await ctx.db
       .query("installedApps")
-      .withIndex("by_team_and_app_id", (q) =>
-        q.eq("teamId", team._id).eq("appId", args.appId),
-      )
+      .withIndex("by_team_and_app_id", (q) => q.eq("teamId", team._id).eq("appId", args.appId))
       .unique();
 
     const timestamp = nowIso();
@@ -1118,9 +1067,7 @@ export const serviceDeleteInstalledApp = mutation({
 
     const installedApp = await ctx.db
       .query("installedApps")
-      .withIndex("by_team_and_app_id", (q) =>
-        q.eq("teamId", team._id).eq("appId", args.appId),
-      )
+      .withIndex("by_team_and_app_id", (q) => q.eq("teamId", team._id).eq("appId", args.appId))
       .unique();
 
     if (!installedApp) {
@@ -1152,9 +1099,7 @@ export const serviceSetInstalledAppSettings = mutation({
 
     const installedApp = await ctx.db
       .query("installedApps")
-      .withIndex("by_team_and_app_id", (q) =>
-        q.eq("teamId", team._id).eq("appId", args.appId),
-      )
+      .withIndex("by_team_and_app_id", (q) => q.eq("teamId", team._id).eq("appId", args.appId))
       .unique();
 
     if (!installedApp) {
@@ -1194,9 +1139,7 @@ export const serviceSetInstalledAppConfig = mutation({
 
     const installedApp = await ctx.db
       .query("installedApps")
-      .withIndex("by_team_and_app_id", (q) =>
-        q.eq("teamId", team._id).eq("appId", args.appId),
-      )
+      .withIndex("by_team_and_app_id", (q) => q.eq("teamId", team._id).eq("appId", args.appId))
       .unique();
 
     if (!installedApp) {
@@ -1236,9 +1179,7 @@ export const serviceMergeInstalledAppConfig = mutation({
 
     const installedApp = await ctx.db
       .query("installedApps")
-      .withIndex("by_team_and_app_id", (q) =>
-        q.eq("teamId", team._id).eq("appId", args.appId),
-      )
+      .withIndex("by_team_and_app_id", (q) => q.eq("teamId", team._id).eq("appId", args.appId))
       .unique();
 
     if (!installedApp) {
@@ -1252,9 +1193,7 @@ export const serviceMergeInstalledAppConfig = mutation({
         ? (installedApp.config as Record<string, unknown>)
         : {};
     const configPatch =
-      args.configPatch &&
-      typeof args.configPatch === "object" &&
-      !Array.isArray(args.configPatch)
+      args.configPatch && typeof args.configPatch === "object" && !Array.isArray(args.configPatch)
         ? (args.configPatch as Record<string, unknown>)
         : {};
 
@@ -1303,9 +1242,7 @@ export const serviceAddWhatsAppConnection = mutation({
             })
           : undefined;
 
-      return config?.connections?.some(
-        (connection) => connection.phoneNumber === args.phoneNumber,
-      );
+      return config?.connections?.some((connection) => connection.phoneNumber === args.phoneNumber);
     });
 
     if (existingConnection) {
@@ -1318,9 +1255,7 @@ export const serviceAddWhatsAppConnection = mutation({
 
     const existingTeamApp = await ctx.db
       .query("installedApps")
-      .withIndex("by_team_and_app_id", (q) =>
-        q.eq("teamId", team._id).eq("appId", "whatsapp"),
-      )
+      .withIndex("by_team_and_app_id", (q) => q.eq("teamId", team._id).eq("appId", "whatsapp"))
       .unique();
     const newConnection = {
       phoneNumber: args.phoneNumber,
@@ -1408,9 +1343,7 @@ export const serviceRemoveWhatsAppConnection = mutation({
 
     const installedApp = await ctx.db
       .query("installedApps")
-      .withIndex("by_team_and_app_id", (q) =>
-        q.eq("teamId", team._id).eq("appId", "whatsapp"),
-      )
+      .withIndex("by_team_and_app_id", (q) => q.eq("teamId", team._id).eq("appId", "whatsapp"))
       .unique();
 
     if (!installedApp) {
@@ -1463,9 +1396,7 @@ export const serviceGetNotificationSettings = query({
     userId: v.id("appUsers"),
     publicTeamId: v.string(),
     notificationType: v.optional(v.string()),
-    channel: v.optional(
-      v.union(v.literal("in_app"), v.literal("email"), v.literal("push")),
-    ),
+    channel: v.optional(v.union(v.literal("in_app"), v.literal("email"), v.literal("push"))),
   },
   async handler(ctx, args) {
     requireServiceKey(args.serviceKey);
@@ -1525,11 +1456,7 @@ export const serviceBulkUpsertNotificationSettings = mutation({
     updates: v.array(
       v.object({
         notificationType: v.string(),
-        channel: v.union(
-          v.literal("in_app"),
-          v.literal("email"),
-          v.literal("push"),
-        ),
+        channel: v.union(v.literal("in_app"), v.literal("email"), v.literal("push")),
         enabled: v.boolean(),
       }),
     ),
@@ -1561,9 +1488,7 @@ export const serviceCreateActivity = mutation({
     userId: v.optional(v.id("appUsers")),
     type: v.string(),
     source: v.union(v.literal("system"), v.literal("user")),
-    status: v.optional(
-      v.union(v.literal("unread"), v.literal("read"), v.literal("archived")),
-    ),
+    status: v.optional(v.union(v.literal("unread"), v.literal("read"), v.literal("archived"))),
     priority: v.optional(v.number()),
     groupId: v.optional(v.string()),
     metadata: v.any(),
@@ -1683,10 +1608,14 @@ export const serviceUpdateAllActivitiesStatus = mutation({
       ),
     );
 
-    return Promise.all(filtered.map((activity) => serializeActivity(ctx, {
-      ...activity,
-      status: args.status,
-    } as Doc<"activities">)));
+    return Promise.all(
+      filtered.map((activity) =>
+        serializeActivity(ctx, {
+          ...activity,
+          status: args.status,
+        } as Doc<"activities">),
+      ),
+    );
   },
 });
 
@@ -1739,7 +1668,10 @@ export const serviceGetActivities = query({
           return false;
         }
 
-        if (args.statuses && !args.statuses.includes(activity.status as "unread" | "read" | "archived")) {
+        if (
+          args.statuses &&
+          !args.statuses.includes(activity.status as "unread" | "read" | "archived")
+        ) {
           return false;
         }
 
@@ -1747,10 +1679,7 @@ export const serviceGetActivities = query({
           return false;
         }
 
-        if (
-          args.maxPriority !== undefined &&
-          (activity.priority ?? 5) > args.maxPriority
-        ) {
+        if (args.maxPriority !== undefined && (activity.priority ?? 5) > args.maxPriority) {
           return false;
         }
 
@@ -1765,8 +1694,7 @@ export const serviceGetActivities = query({
     const offset = args.cursor ? Number.parseInt(args.cursor, 10) : 0;
     const pageSize = args.pageSize ?? 20;
     const page = filtered.slice(offset, offset + pageSize);
-    const nextCursor =
-      page.length === pageSize ? String(offset + pageSize) : null;
+    const nextCursor = page.length === pageSize ? String(offset + pageSize) : null;
 
     return {
       meta: {
@@ -1980,10 +1908,7 @@ export const getOAuthAccessTokenByRefreshTokenHashInternal = internalQuery({
     refreshTokenHash: v.string(),
   },
   async handler(ctx, args) {
-    const token = await getOAuthAccessTokenByRefreshTokenHash(
-      ctx,
-      args.refreshTokenHash,
-    );
+    const token = await getOAuthAccessTokenByRefreshTokenHash(ctx, args.refreshTokenHash);
 
     if (!token) {
       return null;
@@ -2231,10 +2156,7 @@ export const createOAuthAuthorizationCodeInternal = internalMutation({
     }
 
     return {
-      id: publicId(
-        authorizationCode.publicAuthorizationCodeId,
-        authorizationCode._id,
-      ),
+      id: publicId(authorizationCode.publicAuthorizationCodeId, authorizationCode._id),
       code: authorizationCode.code,
       expiresAt: authorizationCode.expiresAt,
     };

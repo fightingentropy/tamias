@@ -36,9 +36,7 @@ export function UserMenu({ onlySignOut }: Props) {
             />
           )}
           <AvatarFallback>
-            <span className="text-xs">
-              {user?.fullName?.charAt(0)?.toUpperCase()}
-            </span>
+            <span className="text-xs">{user?.fullName?.charAt(0)?.toUpperCase()}</span>
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
@@ -51,9 +49,7 @@ export function UserMenu({ onlySignOut }: Props) {
                   <span className="truncate line-clamp-1 max-w-[155px] block text-xs">
                     {user?.fullName}
                   </span>
-                  <span className="truncate text-xs text-[#606060] font-normal">
-                    {user?.email}
-                  </span>
+                  <span className="truncate text-xs text-[#606060] font-normal">{user?.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>

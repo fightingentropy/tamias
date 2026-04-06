@@ -1,11 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router";
 import { createAppPublicFileRoute } from "@/start/route-hosts";
 import { LogEvents } from "@/lib/telemetry/events";
 import { reconnectConnectionActionSchema } from "@/actions/transactions/reconnect-connection-action";
-import {
-  requireAuthenticatedActionUser,
-  trackAction,
-} from "@/start/server/action-auth";
+import { requireAuthenticatedActionUser, trackAction } from "@/start/server/action-auth";
 import { isNotFoundQueryError } from "@/start/server/route-data/shared";
 import { getTRPCClient } from "@/trpc/server";
 

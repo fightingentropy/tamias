@@ -190,9 +190,7 @@ const RAW_CATEGORIES = [
 ] as const;
 
 // Function to automatically apply colors and parentSlug to all categories
-function applyColorsToCategories(
-  rawCategories: typeof RAW_CATEGORIES,
-): CategoryHierarchy {
+function applyColorsToCategories(rawCategories: typeof RAW_CATEGORIES): CategoryHierarchy {
   return rawCategories.map((parent) => ({
     ...parent,
     color: getCategoryColor(parent.slug),
@@ -208,5 +206,4 @@ function applyColorsToCategories(
   }));
 }
 
-export const CATEGORIES: CategoryHierarchy =
-  applyColorsToCategories(RAW_CATEGORIES);
+export const CATEGORIES: CategoryHierarchy = applyColorsToCategories(RAW_CATEGORIES);

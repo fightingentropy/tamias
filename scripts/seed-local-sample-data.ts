@@ -1,13 +1,6 @@
 import { createHash } from "node:crypto";
 import os from "node:os";
-import {
-  addDays,
-  endOfWeek,
-  getISOWeek,
-  getISOWeekYear,
-  startOfWeek,
-  subDays,
-} from "date-fns";
+import { addDays, endOfWeek, getISOWeek, getISOWeekYear, startOfWeek, subDays } from "date-fns";
 import sharp from "sharp";
 import {
   bulkUpsertNotificationSettingsInConvex,
@@ -211,12 +204,7 @@ function buildSeedPdf(lines: string[]) {
   return new TextEncoder().encode(pdf);
 }
 
-function buildSeedEmail(args: {
-  subject: string;
-  from: string;
-  to: string;
-  body: string;
-}) {
+function buildSeedEmail(args: { subject: string; from: string; to: string; body: string }) {
   return new TextEncoder().encode(
     [
       `From: ${args.from}`,
@@ -297,9 +285,7 @@ async function buildSeedInboxSampleFile(spec: {
           </svg>
         `;
 
-        return sharp(Buffer.from(svg))
-          .jpeg({ quality: 90, chromaSubsampling: "4:4:4" })
-          .toBuffer();
+        return sharp(Buffer.from(svg)).jpeg({ quality: 90, chromaSubsampling: "4:4:4" }).toBuffer();
       }
 
       return new TextEncoder().encode(spec.textBody ?? spec.description ?? spec.fileName);
@@ -389,10 +375,7 @@ function editorDoc(text: string): EditorDoc {
 }
 
 function amountForLineItems(items: LineItem[]) {
-  return items.reduce(
-    (sum, item) => sum + (item.price ?? 0) * (item.quantity ?? 1),
-    0,
-  );
+  return items.reduce((sum, item) => sum + (item.price ?? 0) * (item.quantity ?? 1), 0);
 }
 
 function metadataSeedKey(value: unknown) {
@@ -479,12 +462,7 @@ function scoreCandidate(
   members: TeamMemberIdentityRecord[],
   owner: TeamMemberIdentityRecord,
 ) {
-  const searchText = [
-    team.name,
-    team.email,
-    owner.user.fullName,
-    owner.user.email,
-  ]
+  const searchText = [team.name, team.email, owner.user.fullName, owner.user.email]
     .filter(Boolean)
     .join(" ")
     .toLowerCase();
@@ -2091,7 +2069,8 @@ async function seedTransactions(
       balance: 141450,
       manual: false,
       internal: false,
-      description: "Monthly contractor pod cost across strategy, reporting, and experiment support.",
+      description:
+        "Monthly contractor pod cost across strategy, reporting, and experiment support.",
       categorySlug: "contractors",
       baseAmount: -7200,
       baseCurrency: context.currency,
@@ -2475,7 +2454,9 @@ async function seedTransactionTags(
   transactions: TransactionRecord[],
   tagsByName: Map<string, TagRecord>,
 ) {
-  const transactionByName = new Map(transactions.map((transaction) => [transaction.name, transaction]));
+  const transactionByName = new Map(
+    transactions.map((transaction) => [transaction.name, transaction]),
+  );
 
   const retainerTag = tagsByName.get("Retainer");
   if (retainerTag) {
@@ -2513,106 +2494,106 @@ async function seedTransactionTags(
 
 async function seedDocuments(context: SeedContext) {
   const documentSpecs = [
-      {
-        seedScope: "document:orbit-msa",
-        teamId: context.teamId,
-        name: "vault/contracts/orbit-labs-master-services-agreement.pdf",
-        createdAt: asIso(subDays(context.today, 75)),
-        updatedAt: asIso(subDays(context.today, 75)),
-        metadata: { seedKey: "orbit-msa", category: "contract" },
-        pathTokens: ["vault", "contracts", "orbit-labs-master-services-agreement.pdf"],
-        title: "Orbit Labs Master Services Agreement",
-        summary: "Signed retained services agreement for Orbit Labs.",
-        content: "Retained growth strategy agreement covering monthly planning, reporting, and experimentation.",
-        date: dateOnly(subDays(context.today, 75)),
-        language: "en",
-        processingStatus: "completed",
-      },
-      {
-        seedScope: "document:aws-receipt",
-        teamId: context.teamId,
-        name: "vault/receipts/aws-invoice-feb-2026.pdf",
-        createdAt: asIso(subDays(context.today, 44)),
-        updatedAt: asIso(subDays(context.today, 44)),
-        metadata: { seedKey: "aws-receipt", category: "receipt" },
-        pathTokens: ["vault", "receipts", "aws-invoice-feb-2026.pdf"],
-        title: "AWS invoice February 2026",
-        summary: "Cloud infrastructure bill covering EC2, RDS, CloudFront, and support.",
-        content:
-          "Monthly AWS invoice for Acme Inc including EC2 compute, Amazon RDS database, S3 and CloudFront delivery, and business support.",
-        date: dateOnly(subDays(context.today, 44)),
-        language: "en",
-        processingStatus: "completed",
-      },
-      {
-        seedScope: "document:google-workspace-receipt",
-        teamId: context.teamId,
-        name: "vault/receipts/google-workspace-feb-2026.pdf",
-        createdAt: asIso(subDays(context.today, 35)),
-        updatedAt: asIso(subDays(context.today, 35)),
-        metadata: { seedKey: "google-workspace-receipt", category: "receipt" },
-        pathTokens: ["vault", "receipts", "google-workspace-feb-2026.pdf"],
-        title: "Google Workspace invoice February 2026",
-        summary: "Team productivity subscription for Workspace seats and Gemini add-ons.",
-        content:
-          "Invoice from Google Cloud EMEA Limited for four Google Workspace Business Standard seats and two Gemini add-ons.",
-        date: dateOnly(subDays(context.today, 35)),
-        language: "en",
-        processingStatus: "completed",
-      },
-      {
-        seedScope: "document:workspace-collective-invoice",
-        teamId: context.teamId,
-        name: "vault/receipts/workspace-collective-mar-2026.pdf",
-        createdAt: asIso(subDays(context.today, 10)),
-        updatedAt: asIso(subDays(context.today, 10)),
-        metadata: { seedKey: "workspace-collective-invoice", category: "receipt" },
-        pathTokens: ["vault", "receipts", "workspace-collective-mar-2026.pdf"],
-        title: "Workspace Collective March invoice",
-        summary: "Studio membership invoice with meeting room and mail handling add-ons.",
-        content:
-          "Workspace Collective monthly office invoice for dedicated desks, meeting room credits, and mail handling.",
-        date: dateOnly(subDays(context.today, 10)),
-        language: "en",
-        processingStatus: "completed",
-      },
-      {
-        seedScope: "document:figma-receipt",
-        teamId: context.teamId,
-        name: "vault/receipts/figma-mar-2026.pdf",
-        createdAt: asIso(subDays(context.today, 6)),
-        updatedAt: asIso(subDays(context.today, 6)),
-        metadata: { seedKey: "figma-receipt", category: "receipt" },
-        pathTokens: ["vault", "receipts", "figma-mar-2026.pdf"],
-        title: "Figma invoice March 2026",
-        summary: "Design collaboration subscription for three editors and one Dev Mode seat.",
-        content:
-          "Monthly Figma subscription invoice for Acme Inc covering editor seats, Dev Mode, and file storage.",
-        date: dateOnly(subDays(context.today, 6)),
-        language: "en",
-        processingStatus: "completed",
-      },
-      {
-        seedScope: "document:q2-growth-plan",
-        teamId: context.teamId,
-        name: "vault/planning/q2-growth-plan.md",
-        createdAt: asIso(subDays(context.today, 12)),
-        updatedAt: asIso(subDays(context.today, 2)),
-        metadata: { seedKey: "q2-plan", category: "planning" },
-        pathTokens: ["vault", "planning", "q2-growth-plan.md"],
-        title: "Q2 growth plan",
-        summary: "Pipeline and retention priorities for the next quarter.",
-        content: "Focus areas: retain Orbit Labs, close Seabright Coffee, improve campaign efficiency, tighten invoice follow-up.",
-        date: dateOnly(subDays(context.today, 12)),
-        language: "en",
-        processingStatus: "completed",
-      },
+    {
+      seedScope: "document:orbit-msa",
+      teamId: context.teamId,
+      name: "vault/contracts/orbit-labs-master-services-agreement.pdf",
+      createdAt: asIso(subDays(context.today, 75)),
+      updatedAt: asIso(subDays(context.today, 75)),
+      metadata: { seedKey: "orbit-msa", category: "contract" },
+      pathTokens: ["vault", "contracts", "orbit-labs-master-services-agreement.pdf"],
+      title: "Orbit Labs Master Services Agreement",
+      summary: "Signed retained services agreement for Orbit Labs.",
+      content:
+        "Retained growth strategy agreement covering monthly planning, reporting, and experimentation.",
+      date: dateOnly(subDays(context.today, 75)),
+      language: "en",
+      processingStatus: "completed",
+    },
+    {
+      seedScope: "document:aws-receipt",
+      teamId: context.teamId,
+      name: "vault/receipts/aws-invoice-feb-2026.pdf",
+      createdAt: asIso(subDays(context.today, 44)),
+      updatedAt: asIso(subDays(context.today, 44)),
+      metadata: { seedKey: "aws-receipt", category: "receipt" },
+      pathTokens: ["vault", "receipts", "aws-invoice-feb-2026.pdf"],
+      title: "AWS invoice February 2026",
+      summary: "Cloud infrastructure bill covering EC2, RDS, CloudFront, and support.",
+      content:
+        "Monthly AWS invoice for Acme Inc including EC2 compute, Amazon RDS database, S3 and CloudFront delivery, and business support.",
+      date: dateOnly(subDays(context.today, 44)),
+      language: "en",
+      processingStatus: "completed",
+    },
+    {
+      seedScope: "document:google-workspace-receipt",
+      teamId: context.teamId,
+      name: "vault/receipts/google-workspace-feb-2026.pdf",
+      createdAt: asIso(subDays(context.today, 35)),
+      updatedAt: asIso(subDays(context.today, 35)),
+      metadata: { seedKey: "google-workspace-receipt", category: "receipt" },
+      pathTokens: ["vault", "receipts", "google-workspace-feb-2026.pdf"],
+      title: "Google Workspace invoice February 2026",
+      summary: "Team productivity subscription for Workspace seats and Gemini add-ons.",
+      content:
+        "Invoice from Google Cloud EMEA Limited for four Google Workspace Business Standard seats and two Gemini add-ons.",
+      date: dateOnly(subDays(context.today, 35)),
+      language: "en",
+      processingStatus: "completed",
+    },
+    {
+      seedScope: "document:workspace-collective-invoice",
+      teamId: context.teamId,
+      name: "vault/receipts/workspace-collective-mar-2026.pdf",
+      createdAt: asIso(subDays(context.today, 10)),
+      updatedAt: asIso(subDays(context.today, 10)),
+      metadata: { seedKey: "workspace-collective-invoice", category: "receipt" },
+      pathTokens: ["vault", "receipts", "workspace-collective-mar-2026.pdf"],
+      title: "Workspace Collective March invoice",
+      summary: "Studio membership invoice with meeting room and mail handling add-ons.",
+      content:
+        "Workspace Collective monthly office invoice for dedicated desks, meeting room credits, and mail handling.",
+      date: dateOnly(subDays(context.today, 10)),
+      language: "en",
+      processingStatus: "completed",
+    },
+    {
+      seedScope: "document:figma-receipt",
+      teamId: context.teamId,
+      name: "vault/receipts/figma-mar-2026.pdf",
+      createdAt: asIso(subDays(context.today, 6)),
+      updatedAt: asIso(subDays(context.today, 6)),
+      metadata: { seedKey: "figma-receipt", category: "receipt" },
+      pathTokens: ["vault", "receipts", "figma-mar-2026.pdf"],
+      title: "Figma invoice March 2026",
+      summary: "Design collaboration subscription for three editors and one Dev Mode seat.",
+      content:
+        "Monthly Figma subscription invoice for Acme Inc covering editor seats, Dev Mode, and file storage.",
+      date: dateOnly(subDays(context.today, 6)),
+      language: "en",
+      processingStatus: "completed",
+    },
+    {
+      seedScope: "document:q2-growth-plan",
+      teamId: context.teamId,
+      name: "vault/planning/q2-growth-plan.md",
+      createdAt: asIso(subDays(context.today, 12)),
+      updatedAt: asIso(subDays(context.today, 2)),
+      metadata: { seedKey: "q2-plan", category: "planning" },
+      pathTokens: ["vault", "planning", "q2-growth-plan.md"],
+      title: "Q2 growth plan",
+      summary: "Pipeline and retention priorities for the next quarter.",
+      content:
+        "Focus areas: retain Orbit Labs, close Seabright Coffee, improve campaign efficiency, tighten invoice follow-up.",
+      date: dateOnly(subDays(context.today, 12)),
+      language: "en",
+      processingStatus: "completed",
+    },
   ] satisfies Parameters<typeof upsertDocumentsInConvex>[0]["documents"];
 
   const existingDocuments = await getDocumentsFromConvex({ teamId: context.teamId });
-  const existingByName = new Map(
-    existingDocuments.map((document) => [document.name, document]),
-  );
+  const existingByName = new Map(existingDocuments.map((document) => [document.name, document]));
 
   const documents = await upsertDocumentsInConvex({
     documents: documentSpecs.map((document) => {
@@ -2640,34 +2621,28 @@ async function seedDocuments(context: SeedContext) {
     assignments: [
       {
         teamId: context.teamId,
-        documentId:
-          documentByName.get(
-            "vault/contracts/orbit-labs-master-services-agreement.pdf",
-          )!.id,
+        documentId: documentByName.get("vault/contracts/orbit-labs-master-services-agreement.pdf")!
+          .id,
         tagId: tagBySlug.get("contracts")!.id,
       },
       {
         teamId: context.teamId,
-        documentId:
-          documentByName.get("vault/receipts/aws-invoice-feb-2026.pdf")!.id,
+        documentId: documentByName.get("vault/receipts/aws-invoice-feb-2026.pdf")!.id,
         tagId: tagBySlug.get("receipts")!.id,
       },
       {
         teamId: context.teamId,
-        documentId:
-          documentByName.get("vault/receipts/google-workspace-feb-2026.pdf")!.id,
+        documentId: documentByName.get("vault/receipts/google-workspace-feb-2026.pdf")!.id,
         tagId: tagBySlug.get("receipts")!.id,
       },
       {
         teamId: context.teamId,
-        documentId:
-          documentByName.get("vault/receipts/workspace-collective-mar-2026.pdf")!.id,
+        documentId: documentByName.get("vault/receipts/workspace-collective-mar-2026.pdf")!.id,
         tagId: tagBySlug.get("receipts")!.id,
       },
       {
         teamId: context.teamId,
-        documentId:
-          documentByName.get("vault/receipts/figma-mar-2026.pdf")!.id,
+        documentId: documentByName.get("vault/receipts/figma-mar-2026.pdf")!.id,
         tagId: tagBySlug.get("receipts")!.id,
       },
       {
@@ -2699,8 +2674,7 @@ async function seedInbox(context: SeedContext, transactions: TransactionRecord[]
     externalIdScope: string;
   }) {
     const existing = existingAccounts.find(
-      (account) =>
-        account.provider === args.provider && account.email === args.email,
+      (account) => account.provider === args.provider && account.email === args.email,
     );
 
     if (existing) {
@@ -2760,7 +2734,9 @@ async function seedInbox(context: SeedContext, transactions: TransactionRecord[]
     });
   }
 
-  const transactionByName = new Map(transactions.map((transaction) => [transaction.name, transaction]));
+  const transactionByName = new Map(
+    transactions.map((transaction) => [transaction.name, transaction]),
+  );
   const existingItems = await getInboxItemsFromConvex({ teamId: context.teamId });
   const existingItemByReferenceId = new Map(
     existingItems
@@ -2769,281 +2745,279 @@ async function seedInbox(context: SeedContext, transactions: TransactionRecord[]
   );
 
   const inboxSpecs = [
-      {
-        seedScope: "inbox-item:aws-receipt",
-        teamId: context.teamId,
-        createdAt: asIso(subDays(context.today, 44)),
-        updatedAt: asIso(subDays(context.today, 44)),
-        filePath: ["inbox", "receipts", "aws-feb-2026.pdf"],
-        fileName: "aws-feb-2026.pdf",
-        transactionId: transactionByName.get("AWS bill")!.id,
-        amount: 684.22,
-        currency: context.currency,
-        contentType: "application/pdf",
-        size: 248000,
-        date: dateOnly(subDays(context.today, 44)),
-        referenceId: "seed-ref-aws-receipt",
-        status: "done",
-        senderEmail: "no-reply@amazonaws.com",
-        displayName: "AWS Billing",
-        type: "expense",
-        description: "January AWS invoice for hosting, database, CDN, support, and data transfer.",
-        pdfLines: [
-          "AWS EMEA SARL - Tax Invoice",
-          "Invoice date: 11 Feb 2026",
-          "Billing period: 1 Jan 2026 - 31 Jan 2026",
-          "Account ID: 4813-1908",
-          "Customer: Acme Inc",
-          "EC2 Linux instances ................. GBP 226.40",
-          "Amazon RDS database ................ GBP 138.12",
-          "S3 + CloudFront .................... GBP 97.89",
-          "Business support ................... GBP 82.77",
-          "Data transfer out .................. GBP 25.00",
-          "Subtotal ........................... GBP 570.18",
-          "VAT (20%) ......................... GBP 114.04",
-          "Total due ......................... GBP 684.22",
-        ],
-        baseAmount: 684.22,
-        baseCurrency: context.currency,
-        taxAmount: 114.04,
-        taxRate: 20,
-        taxType: "vat",
-        inboxAccountId: gmailAccount.id,
-      },
-      {
-        seedScope: "inbox-item:google-workspace",
-        teamId: context.teamId,
-        createdAt: asIso(subDays(context.today, 35)),
-        updatedAt: asIso(subDays(context.today, 35)),
-        filePath: ["inbox", "receipts", "google-workspace-feb-2026.pdf"],
-        fileName: "google-workspace-feb-2026.pdf",
-        transactionId: transactionByName.get("Google Workspace subscription")!.id,
-        amount: 144,
-        currency: context.currency,
-        contentType: "application/pdf",
-        size: 164000,
-        date: dateOnly(subDays(context.today, 35)),
-        referenceId: "seed-ref-google-workspace",
-        status: "done",
-        senderEmail: "billing-noreply@google.com",
-        displayName: "Google Workspace",
-        type: "expense",
-        description: "Workspace seats, Gemini add-ons, and shared storage for the team.",
-        pdfLines: [
-          "Google Cloud EMEA Limited - Invoice",
-          "Invoice date: 20 Feb 2026",
-          "Billing account: 0017-4819-2210",
-          "Customer: Acme Inc",
-          "Workspace Business Standard x6 ..... GBP 108.00",
-          "Gemini add-on x2 ................... GBP 12.00",
-          "Vault storage overage .............. GBP 0.00",
-          "Subtotal ........................... GBP 120.00",
-          "VAT (20%) ......................... GBP 24.00",
-          "Total due ......................... GBP 144.00",
-        ],
-        baseAmount: 144,
-        baseCurrency: context.currency,
-        taxAmount: 24,
-        taxRate: 20,
-        taxType: "vat",
-        inboxAccountId: gmailAccount.id,
-      },
-      {
-        seedScope: "inbox-item:northwind-remittance",
-        teamId: context.teamId,
-        createdAt: asIso(subDays(context.today, 20)),
-        updatedAt: asIso(subDays(context.today, 20)),
-        filePath: ["inbox", "payments", "northwind-remittance.eml"],
-        fileName: "northwind-remittance.eml",
-        amount: 2900,
-        currency: context.currency,
-        contentType: "message/rfc822",
-        size: 54000,
-        date: dateOnly(subDays(context.today, 20)),
-        referenceId: "seed-ref-northwind-remittance",
-        status: "suggested_match",
-        senderEmail: "ap@northwind.studio",
-        displayName: "Northwind Accounts Payable",
-        type: "invoice",
-        description: "Remittance advice for invoice NW-220.",
-        emailBody: [
-          "Hello Acme team,",
-          "",
-          "Please find remittance details for invoice INV-2026-002 / client ref NW-220.",
-          "",
-          `Payment date: ${dateOnly(subDays(context.today, 20))}`,
-          "Payment reference: NW-220-7183",
-          "Amount paid: GBP 2,900.00",
-          "",
-          "This settles the February growth sprint approved last week.",
-          "",
-          "Regards,",
-          "Northwind Accounts Payable",
-        ].join("\n"),
-        baseAmount: 2900,
-        baseCurrency: context.currency,
-        inboxAccountId: outlookAccount.id,
-        invoiceNumber: "INV-2026-002",
-      },
-      {
-        seedScope: "inbox-item:travel-receipt",
-        teamId: context.teamId,
-        createdAt: asIso(subDays(context.today, 14)),
-        updatedAt: asIso(subDays(context.today, 13)),
-        filePath: ["inbox", "travel", "edinburgh-workshop-receipt.jpg"],
-        fileName: "edinburgh-workshop-receipt.jpg",
-        amount: 120,
-        currency: context.currency,
-        contentType: "image/jpeg",
-        size: 182000,
-        date: dateOnly(subDays(context.today, 14)),
-        referenceId: "seed-ref-travel-receipt",
-        status: "no_match",
-        senderEmail: "bookings@lner.co.uk",
-        displayName: "LNER",
-        type: "expense",
-        description: "Travel receipt without an accepted match yet.",
-        baseAmount: 120,
-        baseCurrency: context.currency,
-        inboxAccountId: gmailAccount.id,
-      },
-      {
-        seedScope: "inbox-item:workspace-collective",
-        teamId: context.teamId,
-        createdAt: asIso(subDays(context.today, 10)),
-        updatedAt: asIso(subDays(context.today, 10)),
-        filePath: ["inbox", "receipts", "workspace-collective-mar-2026.pdf"],
-        fileName: "workspace-collective-mar-2026.pdf",
-        transactionId: transactionByName.get("Studio rent")!.id,
-        amount: 2250,
-        currency: context.currency,
-        contentType: "application/pdf",
-        size: 176000,
-        date: dateOnly(subDays(context.today, 10)),
-        referenceId: "seed-ref-workspace-collective",
-        status: "done",
-        senderEmail: "billing@workspacecollective.co",
-        displayName: "Workspace Collective",
-        type: "expense",
-        description: "March studio membership invoice with meeting rooms and production space.",
-        pdfLines: [
-          "Workspace Collective - March Invoice",
-          "Invoice date: 18 Mar 2026",
-          "Customer: Acme Inc",
-          "Dedicated studio membership ........ GBP 1,650.00",
-          "Meeting room credits ............... GBP 420.00",
-          "Mail handling + lockers ............ GBP 180.00",
-          "Total due ......................... GBP 2,250.00",
-        ],
-        baseAmount: 2250,
-        baseCurrency: context.currency,
-        inboxAccountId: outlookAccount.id,
-      },
-      {
-        seedScope: "inbox-item:figma",
-        teamId: context.teamId,
-        createdAt: asIso(subDays(context.today, 6)),
-        updatedAt: asIso(subDays(context.today, 6)),
-        filePath: ["inbox", "receipts", "figma-mar-2026.pdf"],
-        fileName: "figma-mar-2026.pdf",
-        transactionId: transactionByName.get("Figma subscription")!.id,
-        amount: 186,
-        currency: context.currency,
-        contentType: "application/pdf",
-        size: 152000,
-        date: dateOnly(subDays(context.today, 6)),
-        referenceId: "seed-ref-figma",
-        status: "done",
-        senderEmail: "billing@figma.com",
-        displayName: "Figma",
-        type: "expense",
-        description: "Monthly design collaboration subscription with extra editor capacity.",
-        pdfLines: [
-          "Figma, Inc. - Invoice",
-          "Invoice date: 22 Mar 2026",
-          "Workspace: Acme Design",
-          "Professional editor seats x5 ...... GBP 115.00",
-          "Dev Mode seat x2 ................... GBP 40.00",
-          "Subtotal ........................... GBP 155.00",
-          "VAT (20%) ......................... GBP 31.00",
-          "Total due ......................... GBP 186.00",
-        ],
-        baseAmount: 186,
-        baseCurrency: context.currency,
-        taxAmount: 31,
-        taxRate: 20,
-        taxType: "vat",
-        inboxAccountId: gmailAccount.id,
-      },
-      {
-        seedScope: "inbox-item:slack-renewal",
-        teamId: context.teamId,
-        createdAt: asIso(subDays(context.today, 2)),
-        updatedAt: asIso(subDays(context.today, 2)),
-        filePath: ["inbox", "receipts", "slack-mar-2026.pdf"],
-        fileName: "slack-mar-2026.pdf",
-        amount: 264,
-        currency: context.currency,
-        contentType: "application/pdf",
-        size: 148000,
-        date: dateOnly(subDays(context.today, 2)),
-        referenceId: "seed-ref-slack-renewal",
-        status: "pending",
-        senderEmail: "billing@slack.com",
-        displayName: "Slack",
-        type: "expense",
-        description: "New workspace invoice waiting to be categorised and matched.",
-        pdfLines: [
-          "Slack Technologies - Invoice",
-          "Invoice date: 26 Mar 2026",
-          "Workspace: Acme Ops",
-          "Business+ seats x10 ............... GBP 220.00",
-          "VAT (20%) ......................... GBP 44.00",
-          "Total due ......................... GBP 264.00",
-        ],
-        baseAmount: 264,
-        baseCurrency: context.currency,
-        taxAmount: 44,
-        taxRate: 20,
-        taxType: "vat",
-        inboxAccountId: gmailAccount.id,
-      },
-      {
-        seedScope: "inbox-item:contract-renewal",
-        teamId: context.teamId,
-        createdAt: asIso(subDays(context.today, 1)),
-        updatedAt: asIso(subDays(context.today, 1)),
-        filePath: ["inbox", "contracts", "orbit-renewal-draft.pdf"],
-        fileName: "orbit-renewal-draft.pdf",
-        contentType: "application/pdf",
-        size: 166000,
-        date: dateOnly(subDays(context.today, 1)),
-        referenceId: "seed-ref-contract-renewal",
-        status: "other",
-        senderEmail: "legal@orbitlabs.co",
-        displayName: "Orbit Labs Legal",
-        type: "other",
-        description: "Contract renewal draft waiting for review.",
-        pdfLines: [
-          "Orbit Labs - Renewal Draft",
-          "Prepared for: Acme Inc",
-          "Term: 1 Apr 2026 - 30 Sep 2026",
-          "Retainer: GBP 2,500 per month",
-          "Forecast pack: GBP 650 per month",
-          "Notice period: 30 days",
-          "Status: awaiting review",
-        ],
-        inboxAccountId: outlookAccount.id,
-      },
+    {
+      seedScope: "inbox-item:aws-receipt",
+      teamId: context.teamId,
+      createdAt: asIso(subDays(context.today, 44)),
+      updatedAt: asIso(subDays(context.today, 44)),
+      filePath: ["inbox", "receipts", "aws-feb-2026.pdf"],
+      fileName: "aws-feb-2026.pdf",
+      transactionId: transactionByName.get("AWS bill")!.id,
+      amount: 684.22,
+      currency: context.currency,
+      contentType: "application/pdf",
+      size: 248000,
+      date: dateOnly(subDays(context.today, 44)),
+      referenceId: "seed-ref-aws-receipt",
+      status: "done",
+      senderEmail: "no-reply@amazonaws.com",
+      displayName: "AWS Billing",
+      type: "expense",
+      description: "January AWS invoice for hosting, database, CDN, support, and data transfer.",
+      pdfLines: [
+        "AWS EMEA SARL - Tax Invoice",
+        "Invoice date: 11 Feb 2026",
+        "Billing period: 1 Jan 2026 - 31 Jan 2026",
+        "Account ID: 4813-1908",
+        "Customer: Acme Inc",
+        "EC2 Linux instances ................. GBP 226.40",
+        "Amazon RDS database ................ GBP 138.12",
+        "S3 + CloudFront .................... GBP 97.89",
+        "Business support ................... GBP 82.77",
+        "Data transfer out .................. GBP 25.00",
+        "Subtotal ........................... GBP 570.18",
+        "VAT (20%) ......................... GBP 114.04",
+        "Total due ......................... GBP 684.22",
+      ],
+      baseAmount: 684.22,
+      baseCurrency: context.currency,
+      taxAmount: 114.04,
+      taxRate: 20,
+      taxType: "vat",
+      inboxAccountId: gmailAccount.id,
+    },
+    {
+      seedScope: "inbox-item:google-workspace",
+      teamId: context.teamId,
+      createdAt: asIso(subDays(context.today, 35)),
+      updatedAt: asIso(subDays(context.today, 35)),
+      filePath: ["inbox", "receipts", "google-workspace-feb-2026.pdf"],
+      fileName: "google-workspace-feb-2026.pdf",
+      transactionId: transactionByName.get("Google Workspace subscription")!.id,
+      amount: 144,
+      currency: context.currency,
+      contentType: "application/pdf",
+      size: 164000,
+      date: dateOnly(subDays(context.today, 35)),
+      referenceId: "seed-ref-google-workspace",
+      status: "done",
+      senderEmail: "billing-noreply@google.com",
+      displayName: "Google Workspace",
+      type: "expense",
+      description: "Workspace seats, Gemini add-ons, and shared storage for the team.",
+      pdfLines: [
+        "Google Cloud EMEA Limited - Invoice",
+        "Invoice date: 20 Feb 2026",
+        "Billing account: 0017-4819-2210",
+        "Customer: Acme Inc",
+        "Workspace Business Standard x6 ..... GBP 108.00",
+        "Gemini add-on x2 ................... GBP 12.00",
+        "Vault storage overage .............. GBP 0.00",
+        "Subtotal ........................... GBP 120.00",
+        "VAT (20%) ......................... GBP 24.00",
+        "Total due ......................... GBP 144.00",
+      ],
+      baseAmount: 144,
+      baseCurrency: context.currency,
+      taxAmount: 24,
+      taxRate: 20,
+      taxType: "vat",
+      inboxAccountId: gmailAccount.id,
+    },
+    {
+      seedScope: "inbox-item:northwind-remittance",
+      teamId: context.teamId,
+      createdAt: asIso(subDays(context.today, 20)),
+      updatedAt: asIso(subDays(context.today, 20)),
+      filePath: ["inbox", "payments", "northwind-remittance.eml"],
+      fileName: "northwind-remittance.eml",
+      amount: 2900,
+      currency: context.currency,
+      contentType: "message/rfc822",
+      size: 54000,
+      date: dateOnly(subDays(context.today, 20)),
+      referenceId: "seed-ref-northwind-remittance",
+      status: "suggested_match",
+      senderEmail: "ap@northwind.studio",
+      displayName: "Northwind Accounts Payable",
+      type: "invoice",
+      description: "Remittance advice for invoice NW-220.",
+      emailBody: [
+        "Hello Acme team,",
+        "",
+        "Please find remittance details for invoice INV-2026-002 / client ref NW-220.",
+        "",
+        `Payment date: ${dateOnly(subDays(context.today, 20))}`,
+        "Payment reference: NW-220-7183",
+        "Amount paid: GBP 2,900.00",
+        "",
+        "This settles the February growth sprint approved last week.",
+        "",
+        "Regards,",
+        "Northwind Accounts Payable",
+      ].join("\n"),
+      baseAmount: 2900,
+      baseCurrency: context.currency,
+      inboxAccountId: outlookAccount.id,
+      invoiceNumber: "INV-2026-002",
+    },
+    {
+      seedScope: "inbox-item:travel-receipt",
+      teamId: context.teamId,
+      createdAt: asIso(subDays(context.today, 14)),
+      updatedAt: asIso(subDays(context.today, 13)),
+      filePath: ["inbox", "travel", "edinburgh-workshop-receipt.jpg"],
+      fileName: "edinburgh-workshop-receipt.jpg",
+      amount: 120,
+      currency: context.currency,
+      contentType: "image/jpeg",
+      size: 182000,
+      date: dateOnly(subDays(context.today, 14)),
+      referenceId: "seed-ref-travel-receipt",
+      status: "no_match",
+      senderEmail: "bookings@lner.co.uk",
+      displayName: "LNER",
+      type: "expense",
+      description: "Travel receipt without an accepted match yet.",
+      baseAmount: 120,
+      baseCurrency: context.currency,
+      inboxAccountId: gmailAccount.id,
+    },
+    {
+      seedScope: "inbox-item:workspace-collective",
+      teamId: context.teamId,
+      createdAt: asIso(subDays(context.today, 10)),
+      updatedAt: asIso(subDays(context.today, 10)),
+      filePath: ["inbox", "receipts", "workspace-collective-mar-2026.pdf"],
+      fileName: "workspace-collective-mar-2026.pdf",
+      transactionId: transactionByName.get("Studio rent")!.id,
+      amount: 2250,
+      currency: context.currency,
+      contentType: "application/pdf",
+      size: 176000,
+      date: dateOnly(subDays(context.today, 10)),
+      referenceId: "seed-ref-workspace-collective",
+      status: "done",
+      senderEmail: "billing@workspacecollective.co",
+      displayName: "Workspace Collective",
+      type: "expense",
+      description: "March studio membership invoice with meeting rooms and production space.",
+      pdfLines: [
+        "Workspace Collective - March Invoice",
+        "Invoice date: 18 Mar 2026",
+        "Customer: Acme Inc",
+        "Dedicated studio membership ........ GBP 1,650.00",
+        "Meeting room credits ............... GBP 420.00",
+        "Mail handling + lockers ............ GBP 180.00",
+        "Total due ......................... GBP 2,250.00",
+      ],
+      baseAmount: 2250,
+      baseCurrency: context.currency,
+      inboxAccountId: outlookAccount.id,
+    },
+    {
+      seedScope: "inbox-item:figma",
+      teamId: context.teamId,
+      createdAt: asIso(subDays(context.today, 6)),
+      updatedAt: asIso(subDays(context.today, 6)),
+      filePath: ["inbox", "receipts", "figma-mar-2026.pdf"],
+      fileName: "figma-mar-2026.pdf",
+      transactionId: transactionByName.get("Figma subscription")!.id,
+      amount: 186,
+      currency: context.currency,
+      contentType: "application/pdf",
+      size: 152000,
+      date: dateOnly(subDays(context.today, 6)),
+      referenceId: "seed-ref-figma",
+      status: "done",
+      senderEmail: "billing@figma.com",
+      displayName: "Figma",
+      type: "expense",
+      description: "Monthly design collaboration subscription with extra editor capacity.",
+      pdfLines: [
+        "Figma, Inc. - Invoice",
+        "Invoice date: 22 Mar 2026",
+        "Workspace: Acme Design",
+        "Professional editor seats x5 ...... GBP 115.00",
+        "Dev Mode seat x2 ................... GBP 40.00",
+        "Subtotal ........................... GBP 155.00",
+        "VAT (20%) ......................... GBP 31.00",
+        "Total due ......................... GBP 186.00",
+      ],
+      baseAmount: 186,
+      baseCurrency: context.currency,
+      taxAmount: 31,
+      taxRate: 20,
+      taxType: "vat",
+      inboxAccountId: gmailAccount.id,
+    },
+    {
+      seedScope: "inbox-item:slack-renewal",
+      teamId: context.teamId,
+      createdAt: asIso(subDays(context.today, 2)),
+      updatedAt: asIso(subDays(context.today, 2)),
+      filePath: ["inbox", "receipts", "slack-mar-2026.pdf"],
+      fileName: "slack-mar-2026.pdf",
+      amount: 264,
+      currency: context.currency,
+      contentType: "application/pdf",
+      size: 148000,
+      date: dateOnly(subDays(context.today, 2)),
+      referenceId: "seed-ref-slack-renewal",
+      status: "pending",
+      senderEmail: "billing@slack.com",
+      displayName: "Slack",
+      type: "expense",
+      description: "New workspace invoice waiting to be categorised and matched.",
+      pdfLines: [
+        "Slack Technologies - Invoice",
+        "Invoice date: 26 Mar 2026",
+        "Workspace: Acme Ops",
+        "Business+ seats x10 ............... GBP 220.00",
+        "VAT (20%) ......................... GBP 44.00",
+        "Total due ......................... GBP 264.00",
+      ],
+      baseAmount: 264,
+      baseCurrency: context.currency,
+      taxAmount: 44,
+      taxRate: 20,
+      taxType: "vat",
+      inboxAccountId: gmailAccount.id,
+    },
+    {
+      seedScope: "inbox-item:contract-renewal",
+      teamId: context.teamId,
+      createdAt: asIso(subDays(context.today, 1)),
+      updatedAt: asIso(subDays(context.today, 1)),
+      filePath: ["inbox", "contracts", "orbit-renewal-draft.pdf"],
+      fileName: "orbit-renewal-draft.pdf",
+      contentType: "application/pdf",
+      size: 166000,
+      date: dateOnly(subDays(context.today, 1)),
+      referenceId: "seed-ref-contract-renewal",
+      status: "other",
+      senderEmail: "legal@orbitlabs.co",
+      displayName: "Orbit Labs Legal",
+      type: "other",
+      description: "Contract renewal draft waiting for review.",
+      pdfLines: [
+        "Orbit Labs - Renewal Draft",
+        "Prepared for: Acme Inc",
+        "Term: 1 Apr 2026 - 30 Sep 2026",
+        "Retainer: GBP 2,500 per month",
+        "Forecast pack: GBP 650 per month",
+        "Notice period: 30 days",
+        "Status: awaiting review",
+      ],
+      inboxAccountId: outlookAccount.id,
+    },
   ] satisfies Parameters<typeof upsertInboxItemsInConvex>[0]["items"];
 
   await ensureSeedInboxSampleFiles(context, inboxSpecs);
 
   const seededItems = await upsertInboxItemsInConvex({
     items: inboxSpecs.map((item) => {
-      const existing = item.referenceId
-        ? existingItemByReferenceId.get(item.referenceId)
-        : null;
+      const existing = item.referenceId ? existingItemByReferenceId.get(item.referenceId) : null;
       const { seedScope, ...payload } = item;
       return {
         ...payload,
@@ -3065,11 +3039,7 @@ async function seedInbox(context: SeedContext, transactions: TransactionRecord[]
         const seedKey = metadataSeedKey(suggestion.matchDetails);
         return seedKey ? [seedKey, suggestion] : null;
       })
-      .filter(
-        (
-          entry,
-        ): entry is [string, (typeof existingSuggestions)[number]] => entry !== null,
-      ),
+      .filter((entry): entry is [string, (typeof existingSuggestions)[number]] => entry !== null),
   );
 
   await upsertTransactionMatchSuggestionsInConvex({
@@ -3213,9 +3183,7 @@ async function seedInvoiceSetup(context: SeedContext) {
   const existingTemplates = await getInvoiceTemplatesFromConvex({
     teamId: context.teamId,
   });
-  const existingTemplate = existingTemplates.find(
-    (template) => template.name === templateName,
-  );
+  const existingTemplate = existingTemplates.find((template) => template.name === templateName);
 
   const template = existingTemplate
     ? await upsertInvoiceTemplateInConvex({
@@ -3624,9 +3592,7 @@ async function seedTracker(
   const existingProjects = await getTrackerProjectsFromConvex({
     teamId: context.teamId,
   });
-  const existingProjectByName = new Map(
-    existingProjects.map((project) => [project.name, project]),
-  );
+  const existingProjectByName = new Map(existingProjects.map((project) => [project.name, project]));
 
   const projects: TrackerProjectRecord[] = [];
   for (const project of [
@@ -3693,8 +3659,7 @@ async function seedTracker(
         id:
           existingEntryByKey.get(
             `${dateOnly(subDays(context.today, 8))}::Monthly planning call and experiment backlog.::${projectByName.get("Orbit Retainer Refresh")!.id}`,
-          )?.id ??
-          convexSeedId(context, "entry:orbit-kickoff"),
+          )?.id ?? convexSeedId(context, "entry:orbit-kickoff"),
         teamId: context.teamId,
         projectId: projectByName.get("Orbit Retainer Refresh")!.id,
         assignedId: context.userId,
@@ -3711,8 +3676,7 @@ async function seedTracker(
         id:
           existingEntryByKey.get(
             `${dateOnly(subDays(context.today, 6))}::Weekly reporting and optimisation notes.::${projectByName.get("Orbit Retainer Refresh")!.id}`,
-          )?.id ??
-          convexSeedId(context, "entry:orbit-reporting"),
+          )?.id ?? convexSeedId(context, "entry:orbit-reporting"),
         teamId: context.teamId,
         projectId: projectByName.get("Orbit Retainer Refresh")!.id,
         assignedId: context.userId,
@@ -3727,8 +3691,7 @@ async function seedTracker(
         id:
           existingEntryByKey.get(
             `${dateOnly(subDays(context.today, 5))}::Forecast model cleanup and commentary.::${projectByName.get("Alder Forecast Sprint")!.id}`,
-          )?.id ??
-          convexSeedId(context, "entry:alder-model"),
+          )?.id ?? convexSeedId(context, "entry:alder-model"),
         teamId: context.teamId,
         projectId: projectByName.get("Alder Forecast Sprint")!.id,
         assignedId: context.userId,
@@ -3743,8 +3706,7 @@ async function seedTracker(
         id:
           existingEntryByKey.get(
             `${dateOnly(subDays(context.today, 3))}::Invoice follow-up and collections review.::${projectByName.get("Internal Operating Cadence")!.id}`,
-          )?.id ??
-          convexSeedId(context, "entry:ops-invoicing"),
+          )?.id ?? convexSeedId(context, "entry:ops-invoicing"),
         teamId: context.teamId,
         projectId: projectByName.get("Internal Operating Cadence")!.id,
         assignedId: context.userId,
@@ -3759,8 +3721,7 @@ async function seedTracker(
         id:
           existingEntryByKey.get(
             `${dateOnly(subDays(context.today, 1))}::Q2 planning and KPI review.::${projectByName.get("Internal Operating Cadence")!.id}`,
-          )?.id ??
-          convexSeedId(context, "entry:ops-planning"),
+          )?.id ?? convexSeedId(context, "entry:ops-planning"),
         teamId: context.teamId,
         projectId: projectByName.get("Internal Operating Cadence")!.id,
         assignedId: context.userId,
@@ -3894,7 +3855,12 @@ async function seedCompliance(context: SeedContext) {
     ],
   });
 
-  const adjustments = await createMissingComplianceAdjustments(context, filingProfile.id, obligation.id, vatReturn.id);
+  const adjustments = await createMissingComplianceAdjustments(
+    context,
+    filingProfile.id,
+    obligation.id,
+    vatReturn.id,
+  );
 
   return {
     filingProfile,
@@ -3981,8 +3947,7 @@ async function seedInsight(
       periodType: "weekly",
       periodYear,
       periodNumber,
-    })) ??
-    null;
+    })) ?? null;
 
   if (!insight) {
     const created = await createInsightInConvex({
@@ -4108,7 +4073,8 @@ async function seedInsight(
         previousAmount: 920,
         change: 132.6,
         currency: context.currency,
-        message: "Marketing spend more than doubled week over week as paid search and paid social ramped.",
+        message:
+          "Marketing spend more than doubled week over week as paid search and paid social ramped.",
         tip: "Review CAC and pipeline quality before carrying the same spend into April.",
       },
     ],
@@ -4238,14 +4204,14 @@ async function seedActivities(
     {
       seedKey: "seed-activity-invoice-created",
       type: "invoice_created",
-        priority: 2,
-        metadata: {
-          seedKey: "seed-activity-invoice-created",
-          recordId: overdueInvoice.id,
-          customerName: "Northwind Studio",
-          amount: overdueInvoice.amount ?? 0,
-        },
+      priority: 2,
+      metadata: {
+        seedKey: "seed-activity-invoice-created",
+        recordId: overdueInvoice.id,
+        customerName: "Northwind Studio",
+        amount: overdueInvoice.amount ?? 0,
       },
+    },
     {
       seedKey: "seed-activity-inbox-new",
       type: "inbox_new",
@@ -4314,8 +4280,7 @@ async function main() {
   const insight = await seedInsight(context, invoices, projects);
   await seedNotificationSettings(context);
   const contractRenewalInboxItem =
-    inboxItems.find((item) => item.referenceId === "seed-ref-contract-renewal") ??
-    null;
+    inboxItems.find((item) => item.referenceId === "seed-ref-contract-renewal") ?? null;
   await seedActivities(
     context,
     insight!.id,

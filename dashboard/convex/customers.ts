@@ -47,9 +47,7 @@ async function getCustomerByPublicId(
 ) {
   const byLegacyId = await ctx.db
     .query("customers")
-    .withIndex("by_public_customer_id", (q) =>
-      q.eq("publicCustomerId", args.customerId),
-    )
+    .withIndex("by_public_customer_id", (q) => q.eq("publicCustomerId", args.customerId))
     .unique();
 
   if (byLegacyId && (!args.teamId || byLegacyId.teamId === args.teamId)) {
@@ -130,57 +128,55 @@ function serializeCustomer(customer: Doc<"customers">, teamId: string) {
   };
 }
 
-function normalizeCustomerValues(
-  args: {
-    createdAt?: string | null;
-    name: string;
-    email: string;
-    billingEmail?: string | null;
-    country?: string | null;
-    addressLine1?: string | null;
-    addressLine2?: string | null;
-    city?: string | null;
-    state?: string | null;
-    zip?: string | null;
-    note?: string | null;
-    website?: string | null;
-    phone?: string | null;
-    vatNumber?: string | null;
-    countryCode?: string | null;
-    token?: string | null;
-    contact?: string | null;
-    status?: string | null;
-    preferredCurrency?: string | null;
-    defaultPaymentTerms?: number | null;
-    isArchived?: boolean | null;
-    source?: string | null;
-    externalId?: string | null;
-    logoUrl?: string | null;
-    description?: string | null;
-    industry?: string | null;
-    companyType?: string | null;
-    employeeCount?: string | null;
-    foundedYear?: number | null;
-    estimatedRevenue?: string | null;
-    fundingStage?: string | null;
-    totalFunding?: string | null;
-    headquartersLocation?: string | null;
-    timezone?: string | null;
-    linkedinUrl?: string | null;
-    twitterUrl?: string | null;
-    instagramUrl?: string | null;
-    facebookUrl?: string | null;
-    ceoName?: string | null;
-    financeContact?: string | null;
-    financeContactEmail?: string | null;
-    primaryLanguage?: string | null;
-    fiscalYearEnd?: string | null;
-    enrichmentStatus?: string | null;
-    enrichedAt?: string | null;
-    portalEnabled?: boolean | null;
-    portalId?: string | null;
-  },
-) {
+function normalizeCustomerValues(args: {
+  createdAt?: string | null;
+  name: string;
+  email: string;
+  billingEmail?: string | null;
+  country?: string | null;
+  addressLine1?: string | null;
+  addressLine2?: string | null;
+  city?: string | null;
+  state?: string | null;
+  zip?: string | null;
+  note?: string | null;
+  website?: string | null;
+  phone?: string | null;
+  vatNumber?: string | null;
+  countryCode?: string | null;
+  token?: string | null;
+  contact?: string | null;
+  status?: string | null;
+  preferredCurrency?: string | null;
+  defaultPaymentTerms?: number | null;
+  isArchived?: boolean | null;
+  source?: string | null;
+  externalId?: string | null;
+  logoUrl?: string | null;
+  description?: string | null;
+  industry?: string | null;
+  companyType?: string | null;
+  employeeCount?: string | null;
+  foundedYear?: number | null;
+  estimatedRevenue?: string | null;
+  fundingStage?: string | null;
+  totalFunding?: string | null;
+  headquartersLocation?: string | null;
+  timezone?: string | null;
+  linkedinUrl?: string | null;
+  twitterUrl?: string | null;
+  instagramUrl?: string | null;
+  facebookUrl?: string | null;
+  ceoName?: string | null;
+  financeContact?: string | null;
+  financeContactEmail?: string | null;
+  primaryLanguage?: string | null;
+  fiscalYearEnd?: string | null;
+  enrichmentStatus?: string | null;
+  enrichedAt?: string | null;
+  portalEnabled?: boolean | null;
+  portalId?: string | null;
+}) {
   return {
     createdAt: args.createdAt ?? undefined,
     name: args.name.trim(),
@@ -200,8 +196,7 @@ function normalizeCustomerValues(
     token: normalizeOptionalString(args.token) ?? undefined,
     contact: normalizeOptionalString(args.contact) ?? undefined,
     status: normalizeOptionalString(args.status) ?? undefined,
-    preferredCurrency:
-      normalizeOptionalString(args.preferredCurrency) ?? undefined,
+    preferredCurrency: normalizeOptionalString(args.preferredCurrency) ?? undefined,
     defaultPaymentTerms: args.defaultPaymentTerms ?? undefined,
     isArchived: args.isArchived ?? undefined,
     source: normalizeOptionalString(args.source) ?? undefined,
@@ -212,12 +207,10 @@ function normalizeCustomerValues(
     companyType: normalizeOptionalString(args.companyType) ?? undefined,
     employeeCount: normalizeOptionalString(args.employeeCount) ?? undefined,
     foundedYear: args.foundedYear ?? undefined,
-    estimatedRevenue:
-      normalizeOptionalString(args.estimatedRevenue) ?? undefined,
+    estimatedRevenue: normalizeOptionalString(args.estimatedRevenue) ?? undefined,
     fundingStage: normalizeOptionalString(args.fundingStage) ?? undefined,
     totalFunding: normalizeOptionalString(args.totalFunding) ?? undefined,
-    headquartersLocation:
-      normalizeOptionalString(args.headquartersLocation) ?? undefined,
+    headquartersLocation: normalizeOptionalString(args.headquartersLocation) ?? undefined,
     timezone: normalizeOptionalString(args.timezone) ?? undefined,
     linkedinUrl: normalizeOptionalString(args.linkedinUrl) ?? undefined,
     twitterUrl: normalizeOptionalString(args.twitterUrl) ?? undefined,
@@ -225,13 +218,10 @@ function normalizeCustomerValues(
     facebookUrl: normalizeOptionalString(args.facebookUrl) ?? undefined,
     ceoName: normalizeOptionalString(args.ceoName) ?? undefined,
     financeContact: normalizeOptionalString(args.financeContact) ?? undefined,
-    financeContactEmail:
-      normalizeEmail(args.financeContactEmail) ?? undefined,
-    primaryLanguage:
-      normalizeOptionalString(args.primaryLanguage) ?? undefined,
+    financeContactEmail: normalizeEmail(args.financeContactEmail) ?? undefined,
+    primaryLanguage: normalizeOptionalString(args.primaryLanguage) ?? undefined,
     fiscalYearEnd: normalizeOptionalString(args.fiscalYearEnd) ?? undefined,
-    enrichmentStatus:
-      normalizeOptionalString(args.enrichmentStatus) ?? undefined,
+    enrichmentStatus: normalizeOptionalString(args.enrichmentStatus) ?? undefined,
     enrichedAt: normalizeOptionalString(args.enrichedAt) ?? undefined,
     portalEnabled: args.portalEnabled ?? undefined,
     portalId: normalizeOptionalString(args.portalId) ?? undefined,
@@ -408,9 +398,7 @@ export const serviceListCustomersPage = query({
 
     return {
       ...result,
-      page: result.page.map((customer) =>
-        serializeCustomer(customer, args.teamId),
-      ),
+      page: result.page.map((customer) => serializeCustomer(customer, args.teamId)),
     };
   },
 });
@@ -442,9 +430,7 @@ export const serviceSearchCustomers = query({
 
     return customers
       .filter((customer) =>
-        args.status === undefined || args.status === null
-          ? true
-          : customer.status === args.status,
+        args.status === undefined || args.status === null ? true : customer.status === args.status,
       )
       .slice(0, args.limit ?? customers.length)
       .map((customer) => serializeCustomer(customer, args.teamId));
@@ -659,9 +645,7 @@ export const serviceRebuildCustomerSearchTexts = mutation({
 
     const teams = args.teamId
       ? [await getTeamByPublicTeamId(ctx, args.teamId)]
-      : (await ctx.db.query("teams").collect()).filter(
-          (team) => !!team.publicTeamId,
-        );
+      : (await ctx.db.query("teams").collect()).filter((team) => !!team.publicTeamId);
 
     const validTeams = teams.filter(
       (team): team is NonNullable<(typeof teams)[number]> => team !== null,
@@ -863,10 +847,7 @@ export const serviceUpdateCustomerEnrichmentStatus = mutation({
 
     await ctx.db.patch(customer._id, {
       enrichmentStatus: normalizeOptionalString(args.status) ?? undefined,
-      enrichedAt:
-        args.status === "completed"
-          ? nowIso()
-          : customer.enrichedAt ?? undefined,
+      enrichedAt: args.status === "completed" ? nowIso() : (customer.enrichedAt ?? undefined),
       updatedAt: nowIso(),
     });
 
@@ -919,24 +900,19 @@ export const serviceUpdateCustomerEnrichment = mutation({
       companyType: normalizeOptionalString(args.companyType) ?? undefined,
       employeeCount: normalizeOptionalString(args.employeeCount) ?? undefined,
       foundedYear: args.foundedYear ?? undefined,
-      estimatedRevenue:
-        normalizeOptionalString(args.estimatedRevenue) ?? undefined,
+      estimatedRevenue: normalizeOptionalString(args.estimatedRevenue) ?? undefined,
       fundingStage: normalizeOptionalString(args.fundingStage) ?? undefined,
       totalFunding: normalizeOptionalString(args.totalFunding) ?? undefined,
-      headquartersLocation:
-        normalizeOptionalString(args.headquartersLocation) ?? undefined,
+      headquartersLocation: normalizeOptionalString(args.headquartersLocation) ?? undefined,
       timezone: normalizeOptionalString(args.timezone) ?? undefined,
       linkedinUrl: normalizeOptionalString(args.linkedinUrl) ?? undefined,
       twitterUrl: normalizeOptionalString(args.twitterUrl) ?? undefined,
       instagramUrl: normalizeOptionalString(args.instagramUrl) ?? undefined,
       facebookUrl: normalizeOptionalString(args.facebookUrl) ?? undefined,
       ceoName: normalizeOptionalString(args.ceoName) ?? undefined,
-      financeContact:
-        normalizeOptionalString(args.financeContact) ?? undefined,
-      financeContactEmail:
-        normalizeEmail(args.financeContactEmail) ?? undefined,
-      primaryLanguage:
-        normalizeOptionalString(args.primaryLanguage) ?? undefined,
+      financeContact: normalizeOptionalString(args.financeContact) ?? undefined,
+      financeContactEmail: normalizeEmail(args.financeContactEmail) ?? undefined,
+      primaryLanguage: normalizeOptionalString(args.primaryLanguage) ?? undefined,
       fiscalYearEnd: normalizeOptionalString(args.fiscalYearEnd) ?? undefined,
       vatNumber: normalizeOptionalString(args.vatNumber) ?? undefined,
       searchText: getCustomerSearchText({
@@ -944,10 +920,8 @@ export const serviceUpdateCustomerEnrichment = mutation({
         description: normalizeOptionalString(args.description) ?? undefined,
         industry: normalizeOptionalString(args.industry) ?? undefined,
         companyType: normalizeOptionalString(args.companyType) ?? undefined,
-        financeContact:
-          normalizeOptionalString(args.financeContact) ?? undefined,
-        financeContactEmail:
-          normalizeEmail(args.financeContactEmail) ?? undefined,
+        financeContact: normalizeOptionalString(args.financeContact) ?? undefined,
+        financeContactEmail: normalizeEmail(args.financeContactEmail) ?? undefined,
         vatNumber: normalizeOptionalString(args.vatNumber) ?? undefined,
       }),
       enrichmentStatus: "completed",

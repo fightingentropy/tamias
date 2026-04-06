@@ -63,11 +63,10 @@ export function VaultGrid() {
     },
   );
 
-  const { data, fetchNextPage, hasNextPage, isFetching } =
-    useSuspenseInfiniteQuery({
-      ...infiniteQueryOptions,
-      refetchInterval: params.view === "grid" ? 10_000 : false,
-    });
+  const { data, fetchNextPage, hasNextPage, isFetching } = useSuspenseInfiniteQuery({
+    ...infiniteQueryOptions,
+    refetchInterval: params.view === "grid" ? 10_000 : false,
+  });
 
   const documents = useMemo(() => {
     return data?.pages.flatMap((page) => page.data) ?? [];
@@ -88,12 +87,7 @@ export function VaultGrid() {
   useEffect(() => {
     const lastItem = virtualItems[virtualItems.length - 1];
 
-    if (
-      lastItem &&
-      lastItem.index >= rowCount - 2 &&
-      hasNextPage &&
-      !isFetching
-    ) {
+    if (lastItem && lastItem.index >= rowCount - 2 && hasNextPage && !isFetching) {
       fetchNextPage();
     }
   }, [virtualItems, rowCount, hasNextPage, isFetching, fetchNextPage]);
@@ -123,10 +117,7 @@ export function VaultGrid() {
       >
         {virtualItems.map((virtualRow) => {
           const startIndex = virtualRow.index * columnCount;
-          const rowDocuments = documents.slice(
-            startIndex,
-            startIndex + columnCount,
-          );
+          const rowDocuments = documents.slice(startIndex, startIndex + columnCount);
 
           return (
             <div
@@ -148,14 +139,9 @@ export function VaultGrid() {
               ))}
               {/* Fill empty slots in last row to maintain grid alignment */}
               {rowDocuments.length < columnCount &&
-                Array.from({ length: columnCount - rowDocuments.length }).map(
-                  (_, i) => (
-                    <div
-                      key={`empty-${virtualRow.index}-${i}`}
-                      className="flex-1 min-w-0"
-                    />
-                  ),
-                )}
+                Array.from({ length: columnCount - rowDocuments.length }).map((_, i) => (
+                  <div key={`empty-${virtualRow.index}-${i}`} className="flex-1 min-w-0" />
+                ))}
             </div>
           );
         })}

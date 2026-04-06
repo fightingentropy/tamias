@@ -1,11 +1,7 @@
 import { getTransactionsByIds } from "@tamias/app-data/queries";
 import { downloadVaultFile } from "@tamias/storage";
 import { ensureFileExtension } from "@tamias/utils";
-import {
-  calculateBaseTaxAmount,
-  getTaxTypeLabel,
-  resolveTaxValues,
-} from "@tamias/utils/tax";
+import { calculateBaseTaxAmount, getTaxTypeLabel, resolveTaxValues } from "@tamias/utils/tax";
 import { format, parseISO } from "date-fns";
 import { getDb } from "../../utils/db";
 import { processBatch } from "../../utils/process-batch";
@@ -56,36 +52,32 @@ export class ProcessExportProcessor {
             globalTransactionIndex += 1;
             const rowId = globalTransactionIndex;
 
-            return (transaction.attachments ?? []).map(
-              async (attachment, idx2: number) => {
-                const originalName = attachment.name || "attachment";
+            return (transaction.attachments ?? []).map(async (attachment, idx2: number) => {
+              const originalName = attachment.name || "attachment";
 
-                // Only apply MIME type extension if we have a valid MIME type
-                const nameWithExtension = attachment.type
-                  ? ensureFileExtension(originalName, attachment.type)
-                  : originalName;
-                const baseFilename = nameWithExtension.replace(/\.[^.]*$/, "");
+              // Only apply MIME type extension if we have a valid MIME type
+              const nameWithExtension = attachment.type
+                ? ensureFileExtension(originalName, attachment.type)
+                : originalName;
+              const baseFilename = nameWithExtension.replace(/\.[^.]*$/, "");
 
-                // Extract extension properly - if no extension exists, use "bin"
-                const parts = nameWithExtension.split(".");
-                const extension = parts.length > 1 ? parts.pop()! : "bin";
+              // Extract extension properly - if no extension exists, use "bin"
+              const parts = nameWithExtension.split(".");
+              const extension = parts.length > 1 ? parts.pop()! : "bin";
 
-                const name =
-                  idx2 > 0
-                    ? `${baseFilename}-${rowId}_${idx2}.${extension}`
-                    : `${baseFilename}-${rowId}.${extension}`;
+              const name =
+                idx2 > 0
+                  ? `${baseFilename}-${rowId}_${idx2}.${extension}`
+                  : `${baseFilename}-${rowId}.${extension}`;
 
-                const { data } = await downloadVaultFile(
-                  (attachment.path ?? []).join("/"),
-                );
+              const { data } = await downloadVaultFile((attachment.path ?? []).join("/"));
 
-                return {
-                  id: transaction.id,
-                  name,
-                  blob: data ?? undefined,
-                };
-              },
-            );
+              return {
+                id: transaction.id,
+                name,
+                blob: data ?? undefined,
+              };
+            });
           }),
         );
 
@@ -153,8 +145,7 @@ export class ProcessExportProcessor {
           transaction?.category?.name ?? "",
           transaction?.category?.description ?? "",
           transaction?.category?.taxReportingCode ?? "",
-          transaction?.attachments?.length > 0 ||
-          transaction?.status === "completed"
+          transaction?.attachments?.length > 0 || transaction?.status === "completed"
             ? "Completed"
             : "Not completed",
           attachments
@@ -175,5 +166,4 @@ export class ProcessExportProcessor {
       attachments: attachments ?? [],
     };
   }
-
 }

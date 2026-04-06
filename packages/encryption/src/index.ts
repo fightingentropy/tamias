@@ -97,9 +97,7 @@ function getKey(): Buffer {
     throw new Error("TAMIAS_ENCRYPTION_KEY environment variable is not set.");
   }
   if (Buffer.from(key, "hex").length !== 32) {
-    throw new Error(
-      "TAMIAS_ENCRYPTION_KEY must be a 64-character hex string (32 bytes).",
-    );
+    throw new Error("TAMIAS_ENCRYPTION_KEY must be a 64-character hex string (32 bytes).");
   }
   return Buffer.from(key, "hex");
 }
@@ -120,11 +118,9 @@ export function encrypt(text: string): string {
   const authTag = cipher.getAuthTag();
 
   // Concatenate IV, auth tag, and encrypted data
-  const encryptedPayload = Buffer.concat([
-    iv,
-    authTag,
-    Buffer.from(encrypted, "hex"),
-  ]).toString("base64");
+  const encryptedPayload = Buffer.concat([iv, authTag, Buffer.from(encrypted, "hex")]).toString(
+    "base64",
+  );
 
   return encryptedPayload;
 }
@@ -195,9 +191,7 @@ export async function generateFileKey(teamId: string): Promise<string> {
   return token;
 }
 
-export async function generateOptionalFileKey(
-  teamId?: string | null,
-): Promise<string | null> {
+export async function generateOptionalFileKey(teamId?: string | null): Promise<string | null> {
   if (!teamId) {
     return null;
   }

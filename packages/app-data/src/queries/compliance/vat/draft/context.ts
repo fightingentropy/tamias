@@ -5,17 +5,12 @@ import { listVatObligations } from "../obligations";
 import { buildManualObligation } from "./manual-obligation";
 import type { RecalculateVatDraftParams } from "../types";
 
-export async function getDraftContext(
-  db: Database,
-  params: RecalculateVatDraftParams,
-) {
+export async function getDraftContext(db: Database, params: RecalculateVatDraftParams) {
   const { team, profile } = await getRequiredVatContext(db, params.teamId);
   let obligation: ComplianceObligationRecord | null = null;
 
   if (params.obligationId) {
-    const { getVatObligationByIdFromConvex } = await import(
-      "@tamias/app-data-convex",
-    );
+    const { getVatObligationByIdFromConvex } = await import("@tamias/app-data-convex");
     obligation = await getVatObligationByIdFromConvex({
       id: params.obligationId,
     });
@@ -43,15 +38,12 @@ export async function getDraftContext(
     });
 
     obligation =
-      obligations.find((item) => item.status.toLowerCase() === "open") ??
-      obligations[0] ??
-      null;
+      obligations.find((item) => item.status.toLowerCase() === "open") ?? obligations[0] ?? null;
   }
 
   return {
     team,
     profile,
-    obligation:
-      obligation ?? buildManualObligation(params.teamId, profile.id),
+    obligation: obligation ?? buildManualObligation(params.teamId, profile.id),
   };
 }

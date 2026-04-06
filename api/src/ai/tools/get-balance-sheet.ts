@@ -19,22 +19,15 @@ const getBalanceSheetSchema = z.object({
     .optional()
     .describe("Historical period"),
   from: z.string().optional().describe("Start date (yyyy-MM-dd)"),
-  to: z
-    .string()
-    .optional()
-    .describe("End date (yyyy-MM-dd) - used as 'as of' date"),
+  to: z.string().optional().describe("End date (yyyy-MM-dd) - used as 'as of' date"),
   currency: z.string().nullable().optional().describe("Currency code"),
   showCanvas: z.boolean().default(false).describe("Show visual canvas"),
 });
 
 export const getBalanceSheetTool = tool({
-  description:
-    "Generate balance sheet - assets, liabilities, and equity as of a date.",
+  description: "Generate balance sheet - assets, liabilities, and equity as of a date.",
   inputSchema: getBalanceSheetSchema,
-  execute: async function* (
-    { period, from, to, currency, showCanvas },
-    executionOptions,
-  ) {
+  execute: async function* ({ period, from, to, currency, showCanvas }, executionOptions) {
     const appContext = getToolAppContext(executionOptions);
     const teamId = getToolTeamId(appContext);
 
@@ -53,12 +46,11 @@ export const getBalanceSheetTool = tool({
     throwIfBankAccountsRequired(appContext);
 
     try {
-      const { finalFrom, finalTo, finalCurrency, description, locale } =
-        resolveReportToolParams({
-          toolName: "getBalanceSheet",
-          appContext,
-          aiParams: { period, from, to, currency },
-        });
+      const { finalFrom, finalTo, finalCurrency, description, locale } = resolveReportToolParams({
+        toolName: "getBalanceSheet",
+        appContext,
+        aiParams: { period, from, to, currency },
+      });
 
       const targetCurrency = finalCurrency || "USD";
 
@@ -93,12 +85,10 @@ export const getBalanceSheetTool = tool({
       const totalEquity = balanceSheetData.equity.total;
       const totalAssets = balanceSheetData.assets.total;
 
-      const currentRatio =
-        currentLiabilities > 0 ? currentAssets / currentLiabilities : 0;
+      const currentRatio = currentLiabilities > 0 ? currentAssets / currentLiabilities : 0;
       const debtToEquity = totalEquity > 0 ? totalLiabilities / totalEquity : 0;
       const workingCapital = currentAssets - currentLiabilities;
-      const equityRatio =
-        totalAssets > 0 ? (totalEquity / totalAssets) * 100 : 0;
+      const equityRatio = totalAssets > 0 ? (totalEquity / totalAssets) * 100 : 0;
 
       // Generate summary analysis
       const summaryParts: string[] = [];
@@ -113,12 +103,8 @@ export const getBalanceSheetTool = tool({
           "Adequate liquidity position with current assets covering current liabilities.",
         );
       } else {
-        summaryParts.push(
-          "Low liquidity position - current liabilities exceed current assets.",
-        );
-        recommendations.push(
-          "Consider improving cash flow or reducing short-term debt.",
-        );
+        summaryParts.push("Low liquidity position - current liabilities exceed current assets.");
+        recommendations.push("Consider improving cash flow or reducing short-term debt.");
       }
 
       if (debtToEquity < 1) {
@@ -133,16 +119,10 @@ export const getBalanceSheetTool = tool({
       }
 
       if (equityRatio >= 50) {
-        summaryParts.push(
-          "Strong equity position providing a stable foundation.",
-        );
+        summaryParts.push("Strong equity position providing a stable foundation.");
       } else if (equityRatio < 30) {
-        summaryParts.push(
-          "Low equity ratio - consider increasing capital investment.",
-        );
-        recommendations.push(
-          "Consider increasing owner investment or retaining more earnings.",
-        );
+        summaryParts.push("Low equity ratio - consider increasing capital investment.");
+        recommendations.push("Consider increasing owner investment or retaining more earnings.");
       }
 
       const summary = summaryParts.join(" ");

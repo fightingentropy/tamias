@@ -138,12 +138,7 @@ export const withTeamPermission = async <TReturn>(opts: {
 
   let resolution = resolveCache.get(ctx);
   if (!resolution) {
-    resolution = resolveTeamPermission(
-      ctx.session,
-      opts.procedurePath,
-      ctx.requestId,
-      ctx.cfRay,
-    );
+    resolution = resolveTeamPermission(ctx.session, opts.procedurePath, ctx.requestId, ctx.cfRay);
     resolveCache.set(ctx, resolution);
   }
 

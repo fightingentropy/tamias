@@ -16,21 +16,14 @@ export {
   getResolvedTransactionTaxType,
   humanizeCategorySlug,
 } from "./shared/category-taxonomy";
-export {
-  getCogsCategorySlugs,
-  getTargetCurrency,
-  getTeamReportContext,
-} from "./shared/context";
+export { getCogsCategorySlugs, getTargetCurrency, getTeamReportContext } from "./shared/context";
 export {
   buildMonthlyAggregateSeriesMap,
   getMonthBucket,
   getPercentageIncrease,
   roundMoney,
 } from "./shared/money-date";
-export {
-  getRecurringMonthlyEquivalent,
-  normalizeRecurringFrequency,
-} from "./shared/recurring";
+export { getRecurringMonthlyEquivalent, normalizeRecurringFrequency } from "./shared/recurring";
 export {
   getReportInboxLiabilityAggregateRows,
   getReportInvoiceAgingAggregateRows,

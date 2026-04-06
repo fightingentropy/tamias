@@ -11,10 +11,7 @@ type CachedTransactionCategoryContext = {
 };
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
-const transactionCategoryContextCache = new Map<
-  string,
-  CachedTransactionCategoryContext
->();
+const transactionCategoryContextCache = new Map<string, CachedTransactionCategoryContext>();
 
 function buildTransactionCategoryContext(
   categories: TransactionCategoryRecord[],
@@ -49,8 +46,7 @@ function buildTransactionCategoryContext(
   return {
     categories: [...categories].sort(
       (left, right) =>
-        Number(right.system) - Number(left.system) ||
-        left.name.localeCompare(right.name),
+        Number(right.system) - Number(left.system) || left.name.localeCompare(right.name),
     ),
     byId,
     bySlug,

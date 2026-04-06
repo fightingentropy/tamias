@@ -36,10 +36,7 @@ export function CalendarHeader({
             <span className="relative">m</span>
           </div>
         </h1>
-        <TotalEarnings
-          selectedView={selectedView}
-          billableHoursData={billableHoursData}
-        />
+        <TotalEarnings selectedView={selectedView} billableHoursData={billableHoursData} />
       </div>
       <div className="flex space-x-2">
         <TrackerPeriodSelect dateFormat="MMMM" />

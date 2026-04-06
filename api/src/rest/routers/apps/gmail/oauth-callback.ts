@@ -7,11 +7,7 @@ import { getAppUrl } from "@tamias/utils/envs";
 import { HTTPException } from "hono/http-exception";
 import { publicMiddleware } from "../../../middleware";
 import type { Context } from "../../../types";
-import {
-  buildErrorRedirect,
-  buildSuccessRedirect,
-  mapOAuthError,
-} from "../../../utils/oauth";
+import { buildErrorRedirect, buildSuccessRedirect, mapOAuthError } from "../../../utils/oauth";
 
 const app = new OpenAPIHono<Context>();
 
@@ -100,14 +96,7 @@ app.openapi(
       const errorCode = mapOAuthError(error);
       logger.info("Gmail OAuth error or cancelled", { error, errorCode });
       return c.redirect(
-        buildErrorRedirect(
-          dashboardUrl,
-          errorCode,
-          "gmail",
-          source,
-          "/inbox",
-          redirectPath,
-        ),
+        buildErrorRedirect(dashboardUrl, errorCode, "gmail", source, "/inbox", redirectPath),
         302,
       );
     }
@@ -154,13 +143,7 @@ app.openapi(
 
       // Redirect based on source
       return c.redirect(
-        buildSuccessRedirect(
-          dashboardUrl,
-          "gmail",
-          parsedState.source,
-          "/inbox",
-          redirectPath,
-        ),
+        buildSuccessRedirect(dashboardUrl, "gmail", parsedState.source, "/inbox", redirectPath),
         302,
       );
     } catch (err) {

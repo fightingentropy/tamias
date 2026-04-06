@@ -78,9 +78,7 @@ export function LoginVideoBackground() {
     <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden m-2">
       <div
         className={`absolute inset-0 w-full h-full transition-all duration-1000 ease-in-out ${
-          isVideoLoaded && !hasVideoError
-            ? "opacity-0 pointer-events-none"
-            : "opacity-100"
+          isVideoLoaded && !hasVideoError ? "opacity-0 pointer-events-none" : "opacity-100"
         }`}
         style={{
           filter: isVideoLoaded && !hasVideoError ? "blur(0px)" : "blur(1px)",
@@ -124,13 +122,10 @@ export function LoginVideoBackground() {
         <div className="max-w-lg">
           <div className="text-white/80 max-w-md">
             <p className="text-xl leading-relaxed">
-              Due to improved invoice reconciliation, we are now saving 1-2 man-days
-              each month, and we have a better understanding of our finances thanks
-              to dashboards.
+              Due to improved invoice reconciliation, we are now saving 1-2 man-days each month, and
+              we have a better understanding of our finances thanks to dashboards.
             </p>
-            <p className="mt-4 text-xs text-white/60">
-              Paweł Michalski, VC leaders • Poland
-            </p>
+            <p className="mt-4 text-xs text-white/60">Paweł Michalski, VC leaders • Poland</p>
           </div>
         </div>
       </div>

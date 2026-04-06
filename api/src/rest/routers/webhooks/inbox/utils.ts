@@ -13,9 +13,7 @@ export const POSTMARK_IP_RANGE = [
 ] as const;
 
 export const FORWARD_FROM_EMAIL = "inbox@tamias.xyz";
-export const ALLOWED_FORWARDING_EMAILS = [
-  "forwarding-noreply@google.com",
-] as const;
+export const ALLOWED_FORWARDING_EMAILS = ["forwarding-noreply@google.com"] as const;
 export const MIN_ATTACHMENT_SIZE_BYTES = 100000; // 100KB
 export const FILE_EXTENSION_REGEX = /\.[^.]+$/;
 
@@ -41,10 +39,7 @@ export type UploadResult = {
 /**
  * Generate a unique file name by appending a random 4-character string before the extension
  */
-export function generateUniqueFileName(
-  name: string,
-  contentType: string,
-): string {
+export function generateUniqueFileName(name: string, contentType: string): string {
   const hasExtension = FILE_EXTENSION_REGEX.test(name);
   if (hasExtension) {
     return name.replace(/(\.[^.]+)$/, (ext) => `_${nanoid(4)}${ext}`);
@@ -56,9 +51,7 @@ export function generateUniqueFileName(
  * Filter attachments by size - exclude small images (<100KB) except PDFs
  * This helps avoid processing logos, favicons, and tracking pixels
  */
-export function filterAttachments(
-  attachments: InboxAttachment[],
-): InboxAttachment[] {
+export function filterAttachments(attachments: InboxAttachment[]): InboxAttachment[] {
   return attachments.filter(
     (attachment) =>
       !(
@@ -81,10 +74,7 @@ export async function uploadAttachment(
   messageId: string,
 ) {
   try {
-    const uniqueFileName = generateUniqueFileName(
-      attachment.Name,
-      attachment.ContentType,
-    );
+    const uniqueFileName = generateUniqueFileName(attachment.Name, attachment.ContentType);
 
     const { data, error } = await uploadVaultFile({
       path: `${teamId}/inbox/${uniqueFileName}`,
@@ -130,10 +120,7 @@ export async function uploadAttachment(
  * Trigger processing jobs for uploaded attachments
  * Triggers process-attachment jobs in parallel and sends notification
  */
-export async function triggerProcessingJobs(
-  teamId: string,
-  uploadResults: UploadResult[],
-) {
+export async function triggerProcessingJobs(teamId: string, uploadResults: UploadResult[]) {
   // Trigger process-attachment jobs in parallel
   const jobPromises = uploadResults.map((item) =>
     enqueue(

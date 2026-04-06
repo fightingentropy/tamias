@@ -2,11 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import {
-  MdOutlineExpandLess,
-  MdOutlineExpandMore,
-  MdOutlineMoreVert,
-} from "react-icons/md";
+import { MdOutlineExpandLess, MdOutlineExpandMore, MdOutlineMoreVert } from "react-icons/md";
 
 interface Invoice {
   id: string;
@@ -125,10 +121,7 @@ export function CustomerStatementAnimation({
   };
 
   return (
-    <div
-      ref={containerRef}
-      className="w-full h-full flex flex-col relative bg-background min-h-0"
-    >
+    <div ref={containerRef} className="w-full h-full flex flex-col relative bg-background min-h-0">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -145,14 +138,9 @@ export function CustomerStatementAnimation({
           >
             <span className="text-[10px] md:text-[12px] font-medium">NC</span>
           </motion.div>
-          <h2 className="text-[16px] md:text-[18px] font-serif text-foreground">
-            Northstar Cloud
-          </h2>
+          <h2 className="text-[16px] md:text-[18px] font-serif text-foreground">Northstar Cloud</h2>
         </div>
-        <MdOutlineMoreVert
-          className="text-sm text-muted-foreground"
-          size={16}
-        />
+        <MdOutlineMoreVert className="text-sm text-muted-foreground" size={16} />
       </motion.div>
 
       {/* General Section */}
@@ -163,27 +151,19 @@ export function CustomerStatementAnimation({
         className="border-b border-border md:mt-2"
       >
         <div className="pt-2 md:pt-3 pb-3 md:py-5 flex items-center justify-between px-2 md:px-3">
-          <h3 className="text-[11px] md:text-[12px] text-foreground">
-            General
-          </h3>
-          <MdOutlineExpandLess
-            className="text-sm text-muted-foreground"
-            size={16}
-          />
+          <h3 className="text-[11px] md:text-[12px] text-foreground">General</h3>
+          <MdOutlineExpandLess className="text-sm text-muted-foreground" size={16} />
         </div>
         {showGeneral && (
           <div className="pt-0 pb-3 md:pb-4 space-y-2.5 md:space-y-3 px-2 md:px-3">
             <div className="text-[10px] md:text-[11px] text-muted-foreground">
-              <span className="text-foreground">Contact person:</span> Michael
-              Thompson
+              <span className="text-foreground">Contact person:</span> Michael Thompson
             </div>
             <div className="text-[10px] md:text-[11px] text-muted-foreground">
-              <span className="text-foreground">Email:</span>{" "}
-              finance@northstarcloud.example
+              <span className="text-foreground">Email:</span> finance@northstarcloud.example
             </div>
             <div className="text-[10px] md:text-[11px] text-muted-foreground">
-              <span className="text-foreground">Website:</span>{" "}
-              northstarcloud.example
+              <span className="text-foreground">Website:</span> northstarcloud.example
             </div>
           </div>
         )}
@@ -197,13 +177,8 @@ export function CustomerStatementAnimation({
         className="border-b border-border"
       >
         <div className="py-2.5 md:py-3.5 flex items-center justify-between px-2 md:px-3">
-          <h3 className="text-[11px] md:text-[12px] text-foreground">
-            Details
-          </h3>
-          <MdOutlineExpandMore
-            className="text-sm text-muted-foreground"
-            size={16}
-          />
+          <h3 className="text-[11px] md:text-[12px] text-foreground">Details</h3>
+          <MdOutlineExpandMore className="text-sm text-muted-foreground" size={16} />
         </div>
       </motion.div>
 
@@ -215,13 +190,8 @@ export function CustomerStatementAnimation({
         className="flex-1 flex flex-col min-h-0 overflow-hidden"
       >
         <div className="py-2.5 md:py-3.5 flex items-center justify-between border-b border-border flex-shrink-0 px-2 md:px-3">
-          <h3 className="text-[11px] md:text-[12px] text-foreground">
-            Statement
-          </h3>
-          <MdOutlineMoreVert
-            className="text-sm text-muted-foreground"
-            size={16}
-          />
+          <h3 className="text-[11px] md:text-[12px] text-foreground">Statement</h3>
+          <MdOutlineMoreVert className="text-sm text-muted-foreground" size={16} />
         </div>
 
         {/* Summary Cards */}
@@ -293,10 +263,7 @@ export function CustomerStatementAnimation({
             transition={{ duration: 0.25 }}
             className="flex-1 min-h-0 overflow-hidden border border-border bg-background relative"
           >
-            <table
-              className="w-full border-collapse"
-              style={{ borderSpacing: 0 }}
-            >
+            <table className="w-full border-collapse" style={{ borderSpacing: 0 }}>
               <thead className="sticky top-0 z-10 bg-secondary border-b border-border">
                 <tr className="h-[28px] md:h-[32px]">
                   <th className="w-[90px] md:w-[100px] px-1.5 md:px-2 text-left text-[10px] md:text-[11px] font-medium text-muted-foreground border-r border-border">

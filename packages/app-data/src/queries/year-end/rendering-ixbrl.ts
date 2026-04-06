@@ -91,9 +91,7 @@ export function renderInlineXbrlContext(context: InlineXbrlContext) {
     )
     .join("");
   const membersMarkup = `${typedMembersMarkup}${explicitMembersMarkup}`;
-  const segmentMarkup = membersMarkup
-    ? `<xbrli:segment>${membersMarkup}</xbrli:segment>`
-    : "";
+  const segmentMarkup = membersMarkup ? `<xbrli:segment>${membersMarkup}</xbrli:segment>` : "";
 
   return `<xbrli:context id="${escapeXml(context.id)}"><xbrli:entity><xbrli:identifier scheme="${escapeXml(
     context.scheme,
@@ -115,9 +113,7 @@ export function renderPlainRows(
   return rows
     .map(
       (row) =>
-        `<tr><td>${escapeXml(row.label)}</td><td class="amount">${escapeXml(
-          row.value,
-        )}</td></tr>`,
+        `<tr><td>${escapeXml(row.label)}</td><td class="amount">${escapeXml(row.value)}</td></tr>`,
     )
     .join("");
 }
@@ -127,7 +123,5 @@ export function renderBulletList(items: string[]) {
     return "";
   }
 
-  return `<ul>${items
-    .map((item) => `<li>${escapeXml(item)}</li>`)
-    .join("")}</ul>`;
+  return `<ul>${items.map((item) => `<li>${escapeXml(item)}</li>`).join("")}</ul>`;
 }

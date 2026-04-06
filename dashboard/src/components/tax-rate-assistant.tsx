@@ -1,12 +1,7 @@
 import { Button } from "@tamias/ui/button";
 import { cn } from "@tamias/ui/cn";
 import { Icons } from "@tamias/ui/icons";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDebounceValue } from "usehooks-ts";
 import { getTaxRateAction } from "@/actions/ai/get-tax-rate";
@@ -19,15 +14,8 @@ type Props = {
   isNewProduct?: boolean;
 };
 
-export function TaxRateAssistant({
-  name,
-  onSelect,
-  value,
-  isNewProduct = true,
-}: Props) {
-  const [result, setResult] = useState<
-    { taxRate: number; country?: string } | undefined
-  >();
+export function TaxRateAssistant({ name, onSelect, value, isNewProduct = true }: Props) {
+  const [result, setResult] = useState<{ taxRate: number; country?: string } | undefined>();
   const [isLoading, setLoading] = useState(false);
   const requestedNames = useRef(new Set<string>());
 
@@ -87,10 +75,7 @@ export function TaxRateAssistant({
           </div>
         </TooltipTrigger>
         {result?.taxRate && (
-          <TooltipContent
-            sideOffset={20}
-            className="flex flex-col max-w-[310px] space-y-2"
-          >
+          <TooltipContent sideOffset={20} className="flex flex-col max-w-[310px] space-y-2">
             <div className="flex space-x-2 items-center">
               <span>Tax Rate Assistant</span>
             </div>
@@ -99,11 +84,7 @@ export function TaxRateAssistant({
             </span>
 
             <div className="flex justify-end mt-3 pt-3">
-              <Button
-                size="sm"
-                className="h-auto py-1"
-                onClick={handleOnSelect}
-              >
+              <Button size="sm" className="h-auto py-1" onClick={handleOnSelect}>
                 Apply
               </Button>
             </div>

@@ -2,13 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@tamias/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@tamias/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@tamias/ui/form";
 import { Textarea } from "@tamias/ui/textarea";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
@@ -55,9 +49,7 @@ export function SelectBankAccountsSupportForm() {
     return (
       <div className="h-[250px] flex items-center justify-center flex-col space-y-1">
         <p className="font-medium text-sm">Thank you!</p>
-        <p className="text-sm text-[#4C4C4C]">
-          We will be back with you as soon as possible.
-        </p>
+        <p className="text-sm text-[#4C4C4C]">We will be back with you as soon as possible.</p>
       </div>
     );
   }
@@ -86,16 +78,10 @@ export function SelectBankAccountsSupportForm() {
         <div className="flex justify-end">
           <Button
             type="submit"
-            disabled={
-              sendSupport.isPending || !form.formState.isValid
-            }
+            disabled={sendSupport.isPending || !form.formState.isValid}
             className="mt-4"
           >
-            {sendSupport.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              "Submit"
-            )}
+            {sendSupport.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Submit"}
           </Button>
         </div>
       </form>

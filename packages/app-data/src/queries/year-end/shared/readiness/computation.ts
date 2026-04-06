@@ -12,10 +12,8 @@ export function buildCtComputationBreakdown(args: {
   const groupedAdjustments = groupCorporationTaxAdjustments(args.adjustments);
   const breakdown: CtComputationBreakdown = {
     profitLossPerAccounts: roundCurrency(args.accountingProfitBeforeTax),
-    depreciationAmortisationAdjustments:
-      groupedAdjustments.depreciationAmortisation,
-    capitalAllowancesBalancingCharges:
-      groupedAdjustments.capitalAllowancesBalancingCharges,
+    depreciationAmortisationAdjustments: groupedAdjustments.depreciationAmortisation,
+    capitalAllowancesBalancingCharges: groupedAdjustments.capitalAllowancesBalancingCharges,
     netTradingProfits: roundCurrency(
       args.accountingProfitBeforeTax +
         groupedAdjustments.depreciationAmortisation +

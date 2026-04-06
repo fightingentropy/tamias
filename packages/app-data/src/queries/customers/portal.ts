@@ -3,15 +3,9 @@ import type { Database } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
 import { getTeamById } from "../index";
 import { getProjectedInvoicesForCustomers } from "./shared";
-import type {
-  GetCustomerByPortalIdParams,
-  GetCustomerPortalInvoicesParams,
-} from "./types";
+import type { GetCustomerByPortalIdParams, GetCustomerPortalInvoicesParams } from "./types";
 
-async function getCustomerByPortalIdImpl(
-  db: Database,
-  params: GetCustomerByPortalIdParams,
-) {
+async function getCustomerByPortalIdImpl(db: Database, params: GetCustomerByPortalIdParams) {
   const customer = await getCustomerByPortalIdFromConvex({
     portalId: params.portalId,
   });
@@ -53,28 +47,21 @@ async function getCustomerPortalInvoicesImpl(
     .filter(
       (invoice) =>
         invoice.customerId === customerId &&
-        (invoice.status === "paid" ||
-          invoice.status === "unpaid" ||
-          invoice.status === "overdue"),
+        (invoice.status === "paid" || invoice.status === "unpaid" || invoice.status === "overdue"),
     )
-    .sort((left, right) =>
-      (right.issueDate ?? "").localeCompare(left.issueDate ?? ""),
-    );
-  const data = allInvoices
-    .slice(offset, offset + pageSize)
-    .map((invoice) => ({
-      id: invoice.id,
-      invoiceNumber: null,
-      status: invoice.status,
-      amount: invoice.amount,
-      currency: invoice.currency,
-      issueDate: invoice.issueDate,
-      dueDate: invoice.dueDate,
-      token: invoice.token,
-    }));
+    .sort((left, right) => (right.issueDate ?? "").localeCompare(left.issueDate ?? ""));
+  const data = allInvoices.slice(offset, offset + pageSize).map((invoice) => ({
+    id: invoice.id,
+    invoiceNumber: null,
+    status: invoice.status,
+    amount: invoice.amount,
+    currency: invoice.currency,
+    issueDate: invoice.issueDate,
+    dueDate: invoice.dueDate,
+    token: invoice.token,
+  }));
 
-  const nextCursor =
-    data.length === pageSize ? (offset + pageSize).toString() : null;
+  const nextCursor = data.length === pageSize ? (offset + pageSize).toString() : null;
 
   return {
     data,
@@ -86,11 +73,6 @@ async function getCustomerPortalInvoicesImpl(
 export const getCustomerPortalInvoices = reuseQueryResult({
   keyPrefix: "customer-portal-invoices",
   keyFn: (params: GetCustomerPortalInvoicesParams) =>
-    [
-      params.teamId,
-      params.customerId,
-      params.cursor ?? "",
-      params.pageSize ?? 10,
-    ].join(":"),
+    [params.teamId, params.customerId, params.cursor ?? "", params.pageSize ?? 10].join(":"),
   load: getCustomerPortalInvoicesImpl,
 });

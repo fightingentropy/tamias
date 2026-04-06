@@ -1,10 +1,6 @@
 import type { Database } from "@tamias/app-data/client";
 import type { MatchResult } from "@tamias/app-data/queries";
-import {
-  getInboxById,
-  getTransactionById,
-  hasSuggestion,
-} from "@tamias/app-data/queries";
+import { getInboxById, getTransactionById, hasSuggestion } from "@tamias/app-data/queries";
 import { createLoggerWithContext } from "@tamias/logger";
 import { Notifications } from "@tamias/notifications";
 import { sendToProviders } from "./provider-notifications";
@@ -54,15 +50,14 @@ export async function triggerMatchingNotification(params: {
       return;
     }
 
-    const documentName =
-      inboxItem.displayName || inboxItem.fileName || "Document";
+    const documentName = inboxItem.displayName || inboxItem.fileName || "Document";
     const transactionName = transactionItem.name || "Transaction";
 
     // Check if this is a cross-currency match
     const isCrossCurrency = Boolean(
       inboxItem.currency &&
-        transactionItem.currency &&
-        inboxItem.currency !== transactionItem.currency,
+      transactionItem.currency &&
+      inboxItem.currency !== transactionItem.currency,
     );
 
     const notifications = new Notifications(db);
@@ -114,9 +109,7 @@ export async function triggerMatchingNotification(params: {
       );
     } else if (result.action === "suggestion_created") {
       const matchType =
-        result.suggestion.matchType === "high_confidence"
-          ? "high_confidence"
-          : "suggested";
+        result.suggestion.matchType === "high_confidence" ? "high_confidence" : "suggested";
 
       // All suggestions use inbox_needs_review, but with different matchType
       await notifications.create("inbox_needs_review", teamId, {

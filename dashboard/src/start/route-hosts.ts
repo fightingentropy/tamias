@@ -8,12 +8,8 @@ export type StartRouteStaticData = {
 };
 
 type RoutePath = keyof FileRoutesByPath;
-type FileRouteFactory<TFilePath extends RoutePath> = ReturnType<
-  typeof createFileRoute<TFilePath>
->;
-type FileRouteOptions<TFilePath extends RoutePath> = Parameters<
-  FileRouteFactory<TFilePath>
->[0];
+type FileRouteFactory<TFilePath extends RoutePath> = ReturnType<typeof createFileRoute<TFilePath>>;
+type FileRouteOptions<TFilePath extends RoutePath> = Parameters<FileRouteFactory<TFilePath>>[0];
 
 function withRouteStaticData<TFilePath extends RoutePath>(
   path: TFilePath,
@@ -26,7 +22,8 @@ function withRouteStaticData<TFilePath extends RoutePath>(
       ...(options as object),
       staticData: {
         appHostAccess,
-        ...(((options as { staticData?: Record<string, unknown> } | undefined)?.staticData ?? {}) as Record<string, unknown>),
+        ...(((options as { staticData?: Record<string, unknown> } | undefined)?.staticData ??
+          {}) as Record<string, unknown>),
       },
     } as FileRouteOptions<TFilePath>)) as FileRouteFactory<TFilePath>;
 }
@@ -35,8 +32,6 @@ export function createAppFileRoute<TFilePath extends RoutePath>(path: TFilePath)
   return withRouteStaticData(path, "protected");
 }
 
-export function createAppPublicFileRoute<TFilePath extends RoutePath>(
-  path: TFilePath,
-) {
+export function createAppPublicFileRoute<TFilePath extends RoutePath>(path: TFilePath) {
   return withRouteStaticData(path, "public");
 }

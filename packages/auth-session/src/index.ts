@@ -40,10 +40,7 @@ export type SessionUserRecord = {
 export type SessionResolverDependencies = {
   getSessionFromConvex(accessToken?: string): Promise<Session | null>;
   ensureCurrentAppUser(accessToken?: string): Promise<SessionUserRecord | null>;
-  getTeamMembershipIds(args: {
-    userId?: ConvexUserId;
-    email?: string | null;
-  }): Promise<string[]>;
+  getTeamMembershipIds(args: { userId?: ConvexUserId; email?: string | null }): Promise<string[]>;
   getCurrentUser(args: {
     userId?: ConvexUserId;
     email?: string | null;
@@ -99,10 +96,7 @@ export type RequestAuthResult = {
 export const DASHBOARD_AUTH_HEADER = "x-dashboard-key";
 export const TRUSTED_SESSION_HEADER = "x-trusted-session";
 
-const convexJwksByIssuer = new Map<
-  string,
-  ReturnType<typeof createRemoteJWKSet>
->();
+const convexJwksByIssuer = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
 
 function getDefaultAccessTokenIssuer() {
   return (
@@ -217,9 +211,7 @@ export async function resolveSession(
   };
 }
 
-export function createUserSessionResolver(
-  dependencies: SessionResolverDependencies,
-) {
+export function createUserSessionResolver(dependencies: SessionResolverDependencies) {
   return async (accessToken?: string): Promise<Session | null> => {
     const identity = await verifyAccessToken(accessToken);
     return resolveSession(dependencies, identity, accessToken);
@@ -231,9 +223,7 @@ export type TrustedSessionSnapshot = {
   headerValue: string | null;
 };
 
-export function serializeTrustedSessionHeaderValue(
-  session: Session | null,
-): string | null {
+export function serializeTrustedSessionHeaderValue(session: Session | null): string | null {
   if (!session) {
     return null;
   }
@@ -257,10 +247,7 @@ export async function createTrustedSessionHeaderValue(
   accessToken: string | null | undefined,
   resolveUserSession: (accessToken?: string) => Promise<Session | null>,
 ) {
-  const snapshot = await createTrustedSessionSnapshot(
-    accessToken,
-    resolveUserSession,
-  );
+  const snapshot = await createTrustedSessionSnapshot(accessToken, resolveUserSession);
 
   return snapshot.headerValue;
 }
@@ -332,8 +319,7 @@ export async function resolveRequestAuth(
   }
 
   if (bearerToken.startsWith("mid_access_token_")) {
-    const tokenData =
-      await dependencies.getOAuthAccessTokenByToken(bearerToken);
+    const tokenData = await dependencies.getOAuthAccessTokenByToken(bearerToken);
 
     if (!tokenData?.user?.id) {
       return {

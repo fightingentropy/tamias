@@ -1,10 +1,7 @@
 import { updateInboxAccount } from "@tamias/app-data/queries";
 import { encrypt } from "@tamias/encryption";
 import { ensureFileExtension } from "@tamias/utils";
-import {
-  OAuth2Client,
-  type Credentials,
-} from "google-auth-library";
+import { OAuth2Client, type Credentials } from "google-auth-library";
 import { gmail, type gmail_v1 } from "googleapis/build/src/apis/gmail";
 import { oauth2 } from "googleapis/build/src/apis/oauth2";
 import { decodeBase64Url } from "../attachments";
@@ -65,11 +62,7 @@ export class GmailProvider implements OAuthProviderInterface {
       );
     }
 
-    this.#oauth2Client = new OAuth2Client(
-      clientId,
-      clientSecret,
-      redirectUri,
-    );
+    this.#oauth2Client = new OAuth2Client(clientId, clientSecret, redirectUri);
   }
 
   setAccountId(accountId: string): void {
@@ -203,8 +196,7 @@ export class GmailProvider implements OAuthProviderInterface {
     }
 
     try {
-      const { credentials: newCredentials } =
-        await this.#oauth2Client.refreshAccessToken();
+      const { credentials: newCredentials } = await this.#oauth2Client.refreshAccessToken();
 
       if (!newCredentials.access_token) {
         throw new InboxAuthError({
@@ -239,8 +231,7 @@ export class GmailProvider implements OAuthProviderInterface {
 
       const googleError = error as GoogleApiError;
       const statusCode = googleError.code ?? googleError.response?.status;
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
       console.error("Token refresh failed", {
         statusCode,
@@ -249,16 +240,11 @@ export class GmailProvider implements OAuthProviderInterface {
       });
 
       // Check for specific Google OAuth error codes
-      if (
-        statusCode === 400 ||
-        statusCode === 401 ||
-        errorMessage.includes("invalid_grant")
-      ) {
+      if (statusCode === 400 || statusCode === 401 || errorMessage.includes("invalid_grant")) {
         throw new InboxAuthError({
           code: "refresh_token_expired",
           provider: "gmail",
-          message:
-            "Refresh token is invalid or expired. Re-authentication required.",
+          message: "Refresh token is invalid or expired. Re-authentication required.",
           requiresReauth: true,
           cause: error instanceof Error ? error : undefined,
         });
@@ -268,8 +254,7 @@ export class GmailProvider implements OAuthProviderInterface {
         throw new InboxAuthError({
           code: "token_invalid",
           provider: "gmail",
-          message:
-            "Invalid refresh token request. Check OAuth2 client configuration.",
+          message: "Invalid refresh token request. Check OAuth2 client configuration.",
           requiresReauth: true,
           cause: error instanceof Error ? error : undefined,
         });
@@ -403,19 +388,13 @@ export class GmailProvider implements OAuthProviderInterface {
         pagesFetched++;
 
         // Stop if we have enough messages or hit our page limit
-      } while (
-        nextPageToken &&
-        allMessages.length < maxResults &&
-        pagesFetched < maxPagesToFetch
-      );
+      } while (nextPageToken && allMessages.length < maxResults && pagesFetched < maxPagesToFetch);
 
       // Limit to maxResults to respect our system limits
       const messages = allMessages.slice(0, maxResults);
 
       if (!messages || messages.length === 0) {
-        console.log(
-          "No emails found with PDF attachments matching the criteria.",
-        );
+        console.log("No emails found with PDF attachments matching the criteria.");
         return [];
       }
 
@@ -438,9 +417,9 @@ export class GmailProvider implements OAuthProviderInterface {
             }),
         );
 
-      const fetchedMessages = (
-        await Promise.all(messageDetailsPromises)
-      ).filter((msg): msg is gmail_v1.Schema$Message => msg !== null);
+      const fetchedMessages = (await Promise.all(messageDetailsPromises)).filter(
+        (msg): msg is gmail_v1.Schema$Message => msg !== null,
+      );
 
       if (fetchedMessages.length === 0) {
         console.log("All filtered messages failed to fetch details.");
@@ -464,8 +443,7 @@ export class GmailProvider implements OAuthProviderInterface {
       // Extract Google API error properties for reliable error detection
       const googleError = error as GoogleApiError;
       const statusCode = googleError.code ?? googleError.response?.status;
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
       // Log the full error for debugging
       console.error("Gmail API error:", {
@@ -481,8 +459,7 @@ export class GmailProvider implements OAuthProviderInterface {
         throw new InboxAuthError({
           code: "token_expired",
           provider: "gmail",
-          message:
-            "Access token is invalid or expired. Authentication required.",
+          message: "Access token is invalid or expired. Authentication required.",
           requiresReauth: true,
           cause: error instanceof Error ? error : undefined,
         });
@@ -504,8 +481,7 @@ export class GmailProvider implements OAuthProviderInterface {
         throw new InboxAuthError({
           code: "refresh_token_expired",
           provider: "gmail",
-          message:
-            "Refresh token is invalid or expired. Re-authentication required.",
+          message: "Refresh token is invalid or expired. Re-authentication required.",
           requiresReauth: true,
           cause: error instanceof Error ? error : undefined,
         });
@@ -530,20 +506,14 @@ export class GmailProvider implements OAuthProviderInterface {
     }
   }
 
-  async #processMessageToAttachments(
-    message: gmail_v1.Schema$Message,
-  ): Promise<Attachment[]> {
+  async #processMessageToAttachments(message: gmail_v1.Schema$Message): Promise<Attachment[]> {
     if (!message.id || !message.payload?.parts) {
-      console.warn(
-        `Skipping message ${message.id} due to missing ID or parts.`,
-      );
+      console.warn(`Skipping message ${message.id} due to missing ID or parts.`);
       return [];
     }
 
     // Find the 'From' header to extract sender details
-    const fromHeader = message.payload?.headers?.find(
-      (h) => h.name === "From",
-    )?.value;
+    const fromHeader = message.payload?.headers?.find((h) => h.name === "From")?.value;
     let senderDomain: string | undefined;
     let senderEmail: string | undefined;
 
@@ -567,16 +537,11 @@ export class GmailProvider implements OAuthProviderInterface {
     }
 
     try {
-      const rawAttachments = await this.#fetchAttachments(
-        message.id,
-        message.payload.parts,
-      );
+      const rawAttachments = await this.#fetchAttachments(message.id, message.payload.parts);
 
       const attachments: Attachment[] = rawAttachments.map((att) => {
         const filename = ensureFileExtension(att.filename, att.mimeType);
-        const referenceId = generateDeterministicId(
-          `${message.id}_${filename}`,
-        );
+        const referenceId = generateDeterministicId(`${message.id}_${filename}`);
 
         return {
           id: referenceId,
@@ -592,11 +557,8 @@ export class GmailProvider implements OAuthProviderInterface {
 
       return attachments;
     } catch (error: unknown) {
-      const messageText =
-        error instanceof Error ? error.message : "Unknown error";
-      console.error(
-        `Failed to process attachments for message ${message.id}: ${messageText}`,
-      );
+      const messageText = error instanceof Error ? error.message : "Unknown error";
+      console.error(`Failed to process attachments for message ${message.id}: ${messageText}`);
       return [];
     }
   }
@@ -625,16 +587,14 @@ export class GmailProvider implements OAuthProviderInterface {
       if (
         part.filename &&
         part.body?.attachmentId &&
-        (mimeType === "application/pdf" ||
-          mimeType === "application/octet-stream")
+        (mimeType === "application/pdf" || mimeType === "application/octet-stream")
       ) {
         try {
-          const attachmentResponse =
-            await this.#gmail.users.messages.attachments.get({
-              userId: "me",
-              messageId: messageId,
-              id: part.body.attachmentId,
-            });
+          const attachmentResponse = await this.#gmail.users.messages.attachments.get({
+            userId: "me",
+            messageId: messageId,
+            id: part.body.attachmentId,
+          });
 
           if (attachmentResponse.data.data) {
             attachments.push({
@@ -648,8 +608,7 @@ export class GmailProvider implements OAuthProviderInterface {
         } catch (error: unknown) {
           const attachmentIdentifier =
             part.filename || `attachment with ID ${part.body.attachmentId}`;
-          const message =
-            error instanceof Error ? error.message : "Unknown error";
+          const message = error instanceof Error ? error.message : "Unknown error";
           console.error(
             `Failed to fetch ${attachmentIdentifier} for message ${messageId}: ${message}`,
             error,
@@ -658,10 +617,7 @@ export class GmailProvider implements OAuthProviderInterface {
       }
 
       if (part.parts) {
-        const nestedAttachments = await this.#fetchAttachments(
-          messageId,
-          part.parts,
-        );
+        const nestedAttachments = await this.#fetchAttachments(messageId, part.parts);
         attachments.push(...nestedAttachments);
         attachmentsCount = attachments.length;
         if (attachmentsCount >= maxAttachments) {

@@ -1,12 +1,7 @@
 "use client";
 
 import { formatAmountValue, formatDate } from "@tamias/import";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@tamias/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@tamias/ui/accordion";
 import { Icons } from "@tamias/ui/icons";
 import { Label } from "@tamias/ui/label";
 import {
@@ -20,12 +15,7 @@ import {
 } from "@tamias/ui/select";
 import { Spinner } from "@tamias/ui/spinner";
 import { Switch } from "@tamias/ui/switch";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { capitalCase } from "change-case";
 import { useEffect, useRef, useState } from "react";
@@ -90,10 +80,7 @@ export function FieldMapping({ currencies }: { currencies: string[] }) {
     })
       .then((finalMapping) => {
         try {
-          if (
-            abortController.signal.aborted ||
-            !isActiveRequest(requestId, mappingRequestIdRef)
-          ) {
+          if (abortController.signal.aborted || !isActiveRequest(requestId, mappingRequestIdRef)) {
             return;
           }
 
@@ -137,8 +124,7 @@ export function FieldMapping({ currencies }: { currencies: string[] }) {
               const currentBankAccounts = bankAccountsRef.current;
               if (currentBankAccounts && currentBankAccounts.length > 0) {
                 const matchingAccount = currentBankAccounts.find(
-                  (account) =>
-                    account.currency?.toUpperCase() === detectedCurrency,
+                  (account) => account.currency?.toUpperCase() === detectedCurrency,
                 );
 
                 if (matchingAccount) {
@@ -180,16 +166,14 @@ export function FieldMapping({ currencies }: { currencies: string[] }) {
       <div className="grid grid-cols-2 gap-x-4 gap-y-2">
         <div className="text-sm">CSV Data column</div>
         <div className="text-sm">Tamias data column</div>
-        {(Object.keys(mappableFields) as (keyof typeof mappableFields)[]).map(
-          (field) => (
-            <FieldRow
-              key={field}
-              field={field}
-              isStreaming={isStreaming}
-              currency={watch("currency")}
-            />
-          ),
-        )}
+        {(Object.keys(mappableFields) as (keyof typeof mappableFields)[]).map((field) => (
+          <FieldRow
+            key={field}
+            field={field}
+            isStreaming={isStreaming}
+            currency={watch("currency")}
+          />
+        ))}
       </div>
 
       <Accordion
@@ -209,15 +193,10 @@ export function FieldMapping({ currencies }: { currencies: string[] }) {
                   <div className="space-y-1">
                     <Label htmlFor="inverted">Inverted amount</Label>
                     <p className="text-sm text-[#606060]">
-                      If the transactions are from credit account, you can
-                      invert the amount.
+                      If the transactions are from credit account, you can invert the amount.
                     </p>
                     <div className="flex justify-end">
-                      <Switch
-                        id="inverted"
-                        checked={value}
-                        onCheckedChange={onChange}
-                      />
+                      <Switch id="inverted" checked={value} onCheckedChange={onChange} />
                     </div>
                   </div>
                 )}
@@ -280,9 +259,7 @@ export function FieldMapping({ currencies }: { currencies: string[] }) {
                 className="w-full text-xs"
                 value={value}
                 onChange={onChange}
-                currencies={Object.values(currencies)?.map(
-                  (currency) => currency,
-                )}
+                currencies={Object.values(currencies)?.map((currency) => currency)}
               />
             )}
           />
@@ -329,8 +306,7 @@ function FieldRow({
         : undefined;
 
   // For description and counterparty: collect up to 5 unique values from rows
-  const isDescriptionOrCounterparty =
-    field === "description" || field === "counterparty";
+  const isDescriptionOrCounterparty = field === "description" || field === "counterparty";
   const exampleValues: string[] =
     value && firstRows && isDescriptionOrCounterparty
       ? Array.from(
@@ -344,15 +320,11 @@ function FieldRow({
       : [];
 
   // Check if date field has valid parseable date
-  const isDateInvalid =
-    field === "date" && description && !formatDate(description);
+  const isDateInvalid = field === "date" && description && !formatDate(description);
 
   // Check if amount field has valid parseable number
-  const parsedAmount = description
-    ? formatAmountValue({ amount: description, inverted })
-    : null;
-  const isAmountInvalid =
-    field === "amount" && description && Number.isNaN(parsedAmount);
+  const parsedAmount = description ? formatAmountValue({ amount: description, inverted }) : null;
+  const isAmountInvalid = field === "amount" && description && Number.isNaN(parsedAmount);
 
   // Combined invalid state for styling
   const isFieldInvalid = isDateInvalid || isAmountInvalid;
@@ -474,9 +446,7 @@ function FieldRow({
                     (exampleValues.length > 0 ? (
                       <span className="block whitespace-pre-line">
                         {exampleValues
-                          .map((val) =>
-                            field === "description" ? capitalCase(val) : val,
-                          )
+                          .map((val) => (field === "description" ? capitalCase(val) : val))
                           .join("\n")}
                       </span>
                     ) : (

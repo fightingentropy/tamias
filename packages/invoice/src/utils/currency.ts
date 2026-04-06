@@ -145,10 +145,7 @@ export function toStripeAmount(amount: number, currency: string): number {
  * fromStripeAmount(1000, "JPY")  // 1000 (yen)
  * fromStripeAmount(10000, "KWD") // 10.00 (dinars)
  */
-export function fromStripeAmount(
-  stripeAmount: number,
-  currency: string,
-): number {
+export function fromStripeAmount(stripeAmount: number, currency: string): number {
   const multiplier = getCurrencyMultiplier(currency);
   return stripeAmount / multiplier;
 }

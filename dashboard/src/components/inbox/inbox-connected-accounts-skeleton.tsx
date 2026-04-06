@@ -4,10 +4,7 @@ export function InboxAccountsListSkeleton() {
   return (
     <div className="px-6 divide-y">
       {Array.from({ length: 2 }).map((_, index) => (
-        <div
-          key={index.toString()}
-          className="flex items-center justify-between py-4"
-        >
+        <div key={index.toString()} className="flex items-center justify-between py-4">
           <div className="flex items-center space-x-4">
             <Skeleton className="size-[34px] rounded-full" />
             <div className="flex flex-col space-y-2">

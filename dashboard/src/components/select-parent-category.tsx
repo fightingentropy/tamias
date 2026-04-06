@@ -44,32 +44,19 @@ function transformCategory(category: {
   };
 }
 
-export function SelectParentCategory({
-  parentId,
-  onChange,
-  excludeIds = [],
-  hideLoading,
-}: Props) {
+export function SelectParentCategory({ parentId, onChange, excludeIds = [], hideLoading }: Props) {
   const trpc = useTRPC();
-  const { data, isLoading } = useQuery(
-    trpc.transactionCategories.get.queryOptions(),
-  );
+  const { data, isLoading } = useQuery(trpc.transactionCategories.get.queryOptions());
 
   // Filter to only parent categories (no parentId) and exclude specified IDs
   const parentCategories =
     data
-      ?.filter(
-        (category) => !category.parentId && !excludeIds.includes(category.id),
-      )
+      ?.filter((category) => !category.parentId && !excludeIds.includes(category.id))
       .map(transformCategory) ?? [];
 
   // Find the selected parent category based on parentId
-  const selectedParent = parentId
-    ? data?.find((category) => category.id === parentId)
-    : null;
-  const selectedValue = selectedParent
-    ? transformCategory(selectedParent)
-    : undefined;
+  const selectedParent = parentId ? data?.find((category) => category.id === parentId) : null;
+  const selectedValue = selectedParent ? transformCategory(selectedParent) : undefined;
 
   if (!selectedParent && isLoading && !hideLoading) {
     return (
@@ -100,9 +87,7 @@ export function SelectParentCategory({
       renderSelectedItem={(selectedItem) => (
         <div className="flex items-center space-x-2">
           <CategoryColor color={selectedItem.color} />
-          <span className="text-left truncate max-w-[90%] font-normal">
-            {selectedItem.label}
-          </span>
+          <span className="text-left truncate max-w-[90%] font-normal">{selectedItem.label}</span>
         </div>
       )}
       renderListItem={({ item }) => {

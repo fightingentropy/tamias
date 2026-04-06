@@ -18,9 +18,7 @@ export function ProjectMembers({ members }: ProjectMembersProps) {
               height={20}
             />
             <AvatarFallback>
-              <span className="text-xs">
-                {member?.fullName?.charAt(0)?.toUpperCase()}
-              </span>
+              <span className="text-xs">{member?.fullName?.charAt(0)?.toUpperCase()}</span>
             </AvatarFallback>
           </Avatar>
         </div>

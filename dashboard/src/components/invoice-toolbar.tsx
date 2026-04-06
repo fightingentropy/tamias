@@ -4,12 +4,7 @@ import { getApiUrl } from "@tamias/utils/envs";
 import { Button } from "@tamias/ui/button";
 import { Icons } from "@tamias/ui/icons";
 import { Spinner } from "@tamias/ui/spinner";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { useToast } from "@tamias/ui/use-toast";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
@@ -127,9 +122,7 @@ export default function InvoiceToolbar({
         duration: 4000,
         title: "Download failed",
         description:
-          error instanceof Error
-            ? error.message
-            : "Failed to download files. Please try again.",
+          error instanceof Error ? error.message : "Failed to download files. Please try again.",
         variant: "error",
       });
     } finally {
@@ -222,12 +215,7 @@ export default function InvoiceToolbar({
               <TooltipProvider delayDuration={0}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="rounded-full size-8"
-                      asChild
-                    >
+                    <Button variant="ghost" size="icon" className="rounded-full size-8" asChild>
                       <a href={`/p/${portalId}`}>
                         <Icons.Customers className="size-[18px]" />
                       </a>
@@ -284,32 +272,30 @@ export default function InvoiceToolbar({
         </div>
       </motion.div>
 
-      {shouldRenderModal &&
-        status !== "draft" &&
-        typeof amount === "number" && (
-          <PaymentModal
-            open={paymentModalOpen}
-            onOpenChange={(open) => {
-              setPaymentModalOpen(open);
-              // When modal closes after successful payment, update isPaid state
-              if (!open && paymentSucceeded) {
-                setIsPaid(true);
-              }
-            }}
-            invoiceToken={token}
-            amount={amount}
-            currency={currency || "usd"}
-            invoiceNumber={invoiceNumber}
-            prefetch={shouldPrefetch}
-            useOverlay={useOverlay}
-            onSuccess={() => {
-              // Mark payment as succeeded but don't set isPaid yet
-              // (that happens when modal closes, to keep modal mounted)
-              setPaymentSucceeded(true);
-              onPaymentSuccess?.();
-            }}
-          />
-        )}
+      {shouldRenderModal && status !== "draft" && typeof amount === "number" && (
+        <PaymentModal
+          open={paymentModalOpen}
+          onOpenChange={(open) => {
+            setPaymentModalOpen(open);
+            // When modal closes after successful payment, update isPaid state
+            if (!open && paymentSucceeded) {
+              setIsPaid(true);
+            }
+          }}
+          invoiceToken={token}
+          amount={amount}
+          currency={currency || "usd"}
+          invoiceNumber={invoiceNumber}
+          prefetch={shouldPrefetch}
+          useOverlay={useOverlay}
+          onSuccess={() => {
+            // Mark payment as succeeded but don't set isPaid yet
+            // (that happens when modal closes, to keep modal mounted)
+            setPaymentSucceeded(true);
+            onPaymentSuccess?.();
+          }}
+        />
+      )}
     </>
   );
 }

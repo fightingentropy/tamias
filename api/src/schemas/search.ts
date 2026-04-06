@@ -24,8 +24,7 @@ export const globalSearchSchema = z
     }),
   })
   .openapi({
-    description:
-      "Parameters for performing a global search across all data sources.",
+    description: "Parameters for performing a global search across all data sources.",
   });
 
 export const searchResponseSchema = z
@@ -36,8 +35,7 @@ export const searchResponseSchema = z
         example: "b3b7e6e2-8c2a-4e2a-9b1a-2e4b5c6d7f8a",
       }),
       type: z.string().openapi({
-        description:
-          "Type of the entity returned (e.g., invoice, customer, transaction).",
+        description: "Type of the entity returned (e.g., invoice, customer, transaction).",
         example: "invoice",
       }),
       relevance: z.number().openapi({
@@ -49,8 +47,7 @@ export const searchResponseSchema = z
         example: "2024-06-01T00:00:00.000Z",
       }),
       data: z.any().openapi({
-        description:
-          "Additional data for the search result, structure depends on the type.",
+        description: "Additional data for the search result, structure depends on the type.",
         example: {
           invoiceNumber: "INV-2024-001",
           customerName: "Acme Corporation",
@@ -83,8 +80,7 @@ export const searchAttachmentsSchema = z
       example: "invoice",
     }),
     transactionId: z.string().nullable().optional().openapi({
-      description:
-        "Transaction ID for smart suggestions based on transaction details.",
+      description: "Transaction ID for smart suggestions based on transaction details.",
       example: "4awvtgnpr2ymczbdc7n6vzeviizjutwn",
     }),
     limit: z.coerce.number().min(1).max(100).default(30).openapi({
@@ -93,8 +89,7 @@ export const searchAttachmentsSchema = z
     }),
   })
   .openapi({
-    description:
-      "Parameters for searching attachments (inbox items and invoices).",
+    description: "Parameters for searching attachments (inbox items and invoices).",
   });
 
 export const attachmentSearchResultSchema = z

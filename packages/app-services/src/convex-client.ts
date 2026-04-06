@@ -4,11 +4,7 @@ let sharedConvexClient: ConvexHttpClient | null = null;
 let sharedConvexClientUrl: string | null = null;
 
 export function getConvexUrl() {
-  return (
-    process.env.CONVEX_URL ||
-    process.env.TAMIAS_CONVEX_URL ||
-    process.env.CONVEX_SITE_URL
-  );
+  return process.env.CONVEX_URL || process.env.TAMIAS_CONVEX_URL || process.env.CONVEX_SITE_URL;
 }
 
 export function createConvexClient() {

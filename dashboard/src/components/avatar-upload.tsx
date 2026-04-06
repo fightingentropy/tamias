@@ -19,10 +19,7 @@ type Props = {
 };
 
 export const AvatarUpload = forwardRef<HTMLInputElement, Props>(
-  (
-    { userId, avatarUrl: initialAvatarUrl, size = 65, onUpload, className },
-    ref,
-  ) => {
+  ({ userId, avatarUrl: initialAvatarUrl, size = 65, onUpload, className }, ref) => {
     const [avatar, setAvatar] = useState(initialAvatarUrl);
     const inputRef = useRef<HTMLInputElement>(null);
     const trpc = useTRPC();

@@ -176,9 +176,7 @@ export type GetProjectedInvoicesByFiltersParams = {
   to?: string;
 };
 
-export async function getProjectedInvoicesByFilters(
-  params: GetProjectedInvoicesByFiltersParams,
-) {
+export async function getProjectedInvoicesByFilters(params: GetProjectedInvoicesByFiltersParams) {
   const records = await getPublicInvoicesByFiltersFromConvex({
     teamId: params.teamId,
     statuses: params.statuses,

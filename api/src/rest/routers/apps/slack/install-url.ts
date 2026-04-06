@@ -18,8 +18,7 @@ app.openapi(
     path: "/",
     summary: "Get Slack install URL",
     operationId: "getSlackInstallUrl",
-    description:
-      "Generates OAuth install URL for Slack integration. Requires authentication.",
+    description: "Generates OAuth install URL for Slack integration. Requires authentication.",
     tags: ["Integrations"],
     responses: {
       200: {

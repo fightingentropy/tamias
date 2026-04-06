@@ -16,11 +16,7 @@ const ALL_INVOICE_STATUSES = [
   "scheduled",
   "refunded",
 ] as const;
-const RECENT_REVENUE_INVOICE_STATUSES = new Set<string>([
-  "paid",
-  "unpaid",
-  "overdue",
-]);
+const RECENT_REVENUE_INVOICE_STATUSES = new Set<string>(["paid", "unpaid", "overdue"]);
 const CUSTOMER_COUNT_PAGE_SIZE = 200;
 const MAX_TRACKER_ENTRY_DATE = "9999-12-31";
 
@@ -63,10 +59,7 @@ export async function getRecentCustomerActivity(args: {
   ]);
 
   const invoiceCountsByCustomerId = new Map<string, number>();
-  const topRevenueByCustomerKey = new Map<
-    string,
-    Omit<CustomerRevenueSummary, "customerName">
-  >();
+  const topRevenueByCustomerKey = new Map<string, Omit<CustomerRevenueSummary, "customerName">>();
 
   for (const row of recentInvoiceRows) {
     invoiceCountsByCustomerId.set(
@@ -108,9 +101,7 @@ export async function getRecentCustomerActivity(args: {
       : [];
   const trackerProjectCustomerById = new Map(
     trackerProjects.flatMap((project) =>
-      hasStringValue(project.customerId)
-        ? [[project.id, project.customerId]]
-        : [],
+      hasStringValue(project.customerId) ? [[project.id, project.customerId]] : [],
     ),
   );
   const trackerTimeByCustomerId = new Map<string, number>();
@@ -160,8 +151,7 @@ export async function getRecentCustomerActivity(args: {
         key,
         {
           ...row,
-          customerName:
-            customerNameById.get(row.customerId) ?? "Unknown Customer",
+          customerName: customerNameById.get(row.customerId) ?? "Unknown Customer",
         },
       ]),
     ),

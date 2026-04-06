@@ -44,12 +44,8 @@ export function LineItems({
         <div className="text-[11px] text-[#878787]">{descriptionLabel}</div>
         <div className="text-[11px] text-[#878787]">{quantityLabel}</div>
         <div className="text-[11px] text-[#878787]">{priceLabel}</div>
-        {includeLineItemTax && (
-          <div className="text-[11px] text-[#878787]">{lineItemTaxLabel}</div>
-        )}
-        <div className="text-[11px] text-[#878787] text-right">
-          {totalLabel}
-        </div>
+        {includeLineItemTax && <div className="text-[11px] text-[#878787]">{lineItemTaxLabel}</div>}
+        <div className="text-[11px] text-[#878787] text-right">{totalLabel}</div>
       </div>
 
       {lineItems.map((item, index) => (

@@ -1,12 +1,4 @@
-import {
-  Body,
-  Container,
-  Heading,
-  Link,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
+import { Body, Container, Heading, Link, Preview, Section, Text } from "@react-email/components";
 import { getAppUrl } from "@tamias/utils/envs";
 import { Footer } from "../components/footer";
 import { Logo } from "../components/logo";
@@ -31,10 +23,7 @@ export const WelcomeEmail = ({ fullName = "" }: Props) => {
 
   return (
     <EmailThemeProvider preview={<Preview>{text}</Preview>}>
-      <Body
-        className={`my-auto mx-auto font-sans ${themeClasses.body}`}
-        style={lightStyles.body}
-      >
+      <Body className={`my-auto mx-auto font-sans ${themeClasses.body}`} style={lightStyles.body}>
         <Container
           className={`my-[40px] mx-auto p-[20px] max-w-[600px] ${themeClasses.container}`}
           style={{
@@ -59,20 +48,16 @@ export const WelcomeEmail = ({ fullName = "" }: Props) => {
           >
             {firstName ? `Hi ${firstName},` : "Hello,"}
           </span>
-          <Text
-            className={themeClasses.text}
-            style={{ color: lightStyles.text.color }}
-          >
+          <Text className={themeClasses.text} style={{ color: lightStyles.text.color }}>
             I'm Pontus, one of the founders of Tamias.
             <br />
             <br />
-            We started Tamias after years of running our own companies — tired
-            of juggling tools just to know where things stand. If that sounds
-            familiar, you're in the right place.
+            We started Tamias after years of running our own companies — tired of juggling tools
+            just to know where things stand. If that sounds familiar, you're in the right place.
             <br />
             <br />
-            The best way to get started: connect your bank account. Everything
-            else follows from there.
+            The best way to get started: connect your bank account. Everything else follows from
+            there.
           </Text>
 
           <Section className="text-center mt-[32px] mb-[32px]">

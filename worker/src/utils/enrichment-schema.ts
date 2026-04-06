@@ -60,23 +60,16 @@ export const transactionCategories = [
 
 // Structured output schema for LLM response (for use with output: "array")
 export const enrichmentSchema = z.object({
-  merchant: z
-    .string()
-    .nullable()
-    .describe("The formal legal business entity name"),
+  merchant: z.string().nullable().describe("The formal legal business entity name"),
   category: z
     .enum(transactionCategories)
     .nullable()
-    .describe(
-      "The category of the transaction - only return if confidence is high",
-    ),
+    .describe("The category of the transaction - only return if confidence is high"),
   categoryConfidence: z
     .number()
     .min(0)
     .max(1)
-    .describe(
-      "Confidence score for the category assignment (0-1, where 1 is highest confidence)",
-    ),
+    .describe("Confidence score for the category assignment (0-1, where 1 is highest confidence)"),
   merchantConfidence: z
     .number()
     .min(0)
@@ -110,15 +103,13 @@ export const CONFIDENCE_THRESHOLDS = {
 // Helper function to determine if we should use the LLM result
 export function shouldUseCategoryResult(result: EnrichmentResult): boolean {
   return (
-    result.category !== null &&
-    result.categoryConfidence >= CONFIDENCE_THRESHOLDS.CATEGORY_MIN
+    result.category !== null && result.categoryConfidence >= CONFIDENCE_THRESHOLDS.CATEGORY_MIN
   );
 }
 
 export function shouldUseMerchantResult(result: EnrichmentResult): boolean {
   return (
-    result.merchant !== null &&
-    result.merchantConfidence >= CONFIDENCE_THRESHOLDS.MERCHANT_MIN
+    result.merchant !== null && result.merchantConfidence >= CONFIDENCE_THRESHOLDS.MERCHANT_MIN
   );
 }
 

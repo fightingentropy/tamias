@@ -1,12 +1,4 @@
-import {
-  Body,
-  Container,
-  Heading,
-  Link,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
+import { Body, Container, Heading, Link, Preview, Section, Text } from "@react-email/components";
 import { getAppUrl } from "@tamias/utils/envs";
 import { Footer } from "../components/footer";
 import { Logo } from "../components/logo";
@@ -31,10 +23,7 @@ export const TrialActivationEmail = ({ fullName = "" }: Props) => {
 
   return (
     <EmailThemeProvider preview={<Preview>{text}</Preview>}>
-      <Body
-        className={`my-auto mx-auto font-sans ${themeClasses.body}`}
-        style={lightStyles.body}
-      >
+      <Body className={`my-auto mx-auto font-sans ${themeClasses.body}`} style={lightStyles.body}>
         <Container
           className={`my-[40px] mx-auto p-[20px] max-w-[600px] ${themeClasses.container}`}
           style={{
@@ -59,20 +48,16 @@ export const TrialActivationEmail = ({ fullName = "" }: Props) => {
           >
             {firstName ? `Hi ${firstName},` : "Hello,"}
           </span>
-          <Text
-            className={themeClasses.text}
-            style={{ color: lightStyles.text.color }}
-          >
-            You signed up for Tamias a few days ago — great start. The teams
-            that get the most value all do one thing early: connect their bank
-            account.
+          <Text className={themeClasses.text} style={{ color: lightStyles.text.color }}>
+            You signed up for Tamias a few days ago — great start. The teams that get the most value
+            all do one thing early: connect their bank account.
           </Text>
           <Text
             className={`text-[14px] ${themeClasses.text}`}
             style={{ color: lightStyles.text.color }}
           >
-            Once connected, your transactions, spending overview, and financial
-            reports update automatically. No spreadsheets, no manual entry.
+            Once connected, your transactions, spending overview, and financial reports update
+            automatically. No spreadsheets, no manual entry.
           </Text>
           <Section className="text-center mt-[50px] mb-[50px]">
             <Button href={baseAppUrl}>Connect your bank</Button>
@@ -81,8 +66,8 @@ export const TrialActivationEmail = ({ fullName = "" }: Props) => {
             className={`text-[14px] ${themeClasses.text}`}
             style={{ color: lightStyles.text.color }}
           >
-            It takes about 30 seconds, and you'll immediately see your
-            transactions flow in. If you need help getting set up,{" "}
+            It takes about 30 seconds, and you'll immediately see your transactions flow in. If you
+            need help getting set up,{" "}
             <Link
               href="https://cal.com/pontus-tamias/15min"
               className={`underline ${themeClasses.link}`}

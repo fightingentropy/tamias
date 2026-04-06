@@ -7,8 +7,7 @@ import { SearchIcon } from "@/start/components/app-shell-icons";
 
 export function OpenSearchButton() {
   const { setOpen } = useSearchStore();
-  const { elementRef: searchButtonRef, prefetchSearchData } =
-    useForesightSearchPrefetch();
+  const { elementRef: searchButtonRef, prefetchSearchData } = useForesightSearchPrefetch();
   const handlePrefetch = () => {
     prefetchSearchData();
   };

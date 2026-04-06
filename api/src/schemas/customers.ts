@@ -8,8 +8,7 @@ export const getCustomersSchema = z
       .nullable()
       .optional()
       .openapi({
-        description:
-          "Search query string to filter customers by name, email, or other text fields",
+        description: "Search query string to filter customers by name, email, or other text fields",
         example: "acme",
         param: {
           in: "query",
@@ -33,8 +32,7 @@ export const getCustomersSchema = z
       .string()
       .optional()
       .openapi({
-        description:
-          "Cursor for pagination, representing the last item from the previous page",
+        description: "Cursor for pagination, representing the last item from the previous page",
         example: "eyJpZCI6IjEyMyJ9",
         param: {
           in: "query",
@@ -74,8 +72,7 @@ export const customerResponseSchema = z.object({
     example: "contact@acme.com",
   }),
   billingEmail: z.string().nullable().openapi({
-    description:
-      "Billing email addresses of the customer (comma-separated for multiple)",
+    description: "Billing email addresses of the customer (comma-separated for multiple)",
     example: "finance@acme.com, accounting@acme.com",
   }),
   phone: z.string().nullable().openapi({
@@ -87,8 +84,7 @@ export const customerResponseSchema = z.object({
     example: "https://acme.com",
   }),
   createdAt: z.string().openapi({
-    description:
-      "Date and time when the customer was created in ISO 8601 format",
+    description: "Date and time when the customer was created in ISO 8601 format",
     example: "2024-05-01T12:34:56.789Z",
   }),
   country: z.string().nullable().openapi({
@@ -100,8 +96,7 @@ export const customerResponseSchema = z.object({
     example: "123 Main Street",
   }),
   addressLine2: z.string().nullable().openapi({
-    description:
-      "Second line of the customer's address (suite, apartment, etc.)",
+    description: "Second line of the customer's address (suite, apartment, etc.)",
     example: "Suite 400",
   }),
   city: z.string().nullable().openapi({
@@ -129,8 +124,7 @@ export const customerResponseSchema = z.object({
     example: "US",
   }),
   token: z.string().openapi({
-    description:
-      "Unique token for the customer (used for internal identification)",
+    description: "Unique token for the customer (used for internal identification)",
     example: "cus_abc123xyz789",
   }),
   contact: z.string().nullable().openapi({
@@ -180,8 +174,7 @@ export const customerResponseSchema = z.object({
       }),
     )
     .openapi({
-      description:
-        "Array of tags associated with the customer for categorization",
+      description: "Array of tags associated with the customer for categorization",
       example: [
         { id: "e7a9c1a2-4c2a-4e7a-9c1a-2b7c1e24c2a4", name: "VIP" },
         { id: "f1b2c3d4-5678-4e7a-9c1a-2b7c1e24c2a4", name: "Enterprise" },
@@ -282,18 +275,15 @@ export const customersResponseSchema = z.object({
   meta: z
     .object({
       cursor: z.string().nullable().openapi({
-        description:
-          "Cursor for the next page of results, null if no more pages",
+        description: "Cursor for the next page of results, null if no more pages",
         example: "eyJpZCI6IjQ1NiJ9",
       }),
       hasPreviousPage: z.boolean().openapi({
-        description:
-          "Whether there are more customers available on the previous page",
+        description: "Whether there are more customers available on the previous page",
         example: false,
       }),
       hasNextPage: z.boolean().openapi({
-        description:
-          "Whether there are more customers available on the next page",
+        description: "Whether there are more customers available on the next page",
         example: true,
       }),
     })
@@ -377,8 +367,7 @@ export const enrichCustomerResponseSchema = z.object({
 
 export const upsertCustomerSchema = z.object({
   id: z.string().uuid().optional().openapi({
-    description:
-      "Unique identifier of the customer. Required for updates, omit for new customers",
+    description: "Unique identifier of the customer. Required for updates, omit for new customers",
     example: "b3b7c1e2-4c2a-4e7a-9c1a-2b7c1e24c2a4",
   }),
   name: z.string().openapi({
@@ -397,8 +386,7 @@ export const upsertCustomerSchema = z.object({
       message: "All billing emails must be valid and unique",
     })
     .openapi({
-      description:
-        "Billing email addresses of the customer (comma-separated for multiple)",
+      description: "Billing email addresses of the customer (comma-separated for multiple)",
       example: "finance@acme.com, accounting@acme.com",
     }),
   country: z.string().nullable().optional().openapi({
@@ -410,8 +398,7 @@ export const upsertCustomerSchema = z.object({
     example: "123 Main Street",
   }),
   addressLine2: z.string().nullable().optional().openapi({
-    description:
-      "Second line of the customer's address (suite, apartment, etc.)",
+    description: "Second line of the customer's address (suite, apartment, etc.)",
     example: "Suite 400",
   }),
   city: z.string().nullable().optional().openapi({
@@ -465,8 +452,7 @@ export const upsertCustomerSchema = z.object({
     )
     .optional()
     .openapi({
-      description:
-        "Array of tags to associate with the customer for categorization",
+      description: "Array of tags to associate with the customer for categorization",
       example: [
         { id: "e7a9c1a2-4c2a-4e7a-9c1a-2b7c1e24c2a4", name: "VIP" },
         { id: "f1b2c3d4-5678-4e7a-9c1a-2b7c1e24c2a4", name: "Enterprise" },

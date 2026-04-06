@@ -88,12 +88,7 @@ export function MonthlyRevenueCard({
         <div className="flex items-start justify-between h-7">
           <h3 className="text-sm font-normal text-muted-foreground">Revenue</h3>
           <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 group-has-[*[data-state=open]]:opacity-100 transition-opacity">
-            <ShareMetricButton
-              type="monthly_revenue"
-              from={from}
-              to={to}
-              currency={currency}
-            />
+            <ShareMetricButton type="monthly_revenue" from={from} to={to} currency={currency} />
           </div>
         </div>
         <p className="text-3xl font-normal mb-3">
@@ -136,11 +131,7 @@ export function MonthlyRevenueCard({
           enableSelection={true}
           onSelectionStateChange={setIsSelecting}
           onSelectionComplete={(startDate, endDate) => {
-            const message = generateChartSelectionMessage(
-              startDate,
-              endDate,
-              "monthly-revenue",
-            );
+            const message = generateChartSelectionMessage(startDate, endDate, "monthly-revenue");
             setInput(message);
           }}
         >

@@ -1,13 +1,7 @@
-import {
-  createActivityInConvex,
-  type CurrentUserIdentityRecord,
-} from "@tamias/app-data-convex";
+import { createActivityInConvex, type CurrentUserIdentityRecord } from "@tamias/app-data-convex";
 import type { DatabaseOrTransaction } from "../client";
 
-export type InvoiceActivityType =
-  | "invoice_paid"
-  | "invoice_cancelled"
-  | "invoice_duplicated";
+export type InvoiceActivityType = "invoice_paid" | "invoice_cancelled" | "invoice_duplicated";
 
 type ConvexUserId = CurrentUserIdentityRecord["convexId"];
 

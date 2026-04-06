@@ -93,8 +93,7 @@ export const TrackerEvents = memo(
       const previousDateObj = new Date(year, month - 1, dayNum - 1); // month is 0-indexed in JS Date
       const previousDayStr = format(previousDateObj, "yyyy-MM-dd");
 
-      const previousDayData =
-        (allData && previousDayStr && allData[previousDayStr]) || [];
+      const previousDayData = (allData && previousDayStr && allData[previousDayStr]) || [];
 
       for (const event of previousDayData) {
         const startDate = createSafeDate(event.start);
@@ -144,9 +143,7 @@ export const TrackerEvents = memo(
     // Update current time every 5 seconds for running timers
     useEffect(() => {
       // Check if any running timers exist in processed entries
-      const hasRunningTimers = processedEntries.some(
-        (entry) => !entry.stop || entry.stop === null,
-      );
+      const hasRunningTimers = processedEntries.some((entry) => !entry.stop || entry.stop === null);
 
       if (hasRunningTimers) {
         const interval = setInterval(() => {
@@ -169,9 +166,7 @@ export const TrackerEvents = memo(
               ? Math.max(
                   0,
                   Math.round(
-                    (currentTime.getTime() -
-                      createSafeDate(entry.start).getTime()) /
-                      1000,
+                    (currentTime.getTime() - createSafeDate(entry.start).getTime()) / 1000,
                   ),
                 )
               : (entry.duration ?? 0);

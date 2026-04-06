@@ -12,11 +12,7 @@ export type ConvexUserId = Id<"appUsers">;
 export type ConvexTeamId = Id<"teams">;
 
 function getConvexUrl() {
-  return (
-    process.env.CONVEX_URL ||
-    process.env.TAMIAS_CONVEX_URL ||
-    process.env.CONVEX_SITE_URL
-  );
+  return process.env.CONVEX_URL || process.env.TAMIAS_CONVEX_URL || process.env.CONVEX_SITE_URL;
 }
 
 function getServiceKey() {

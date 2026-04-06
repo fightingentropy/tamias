@@ -15,12 +15,8 @@ interface UploadParams {
 export function useUpload() {
   const trpc = useTRPC();
   const [activeUploads, setActiveUploads] = useState(0);
-  const generateUploadUrl = useMutation(
-    trpc.uploads.generateUrl.mutationOptions(),
-  );
-  const registerUpload = useMutation(
-    trpc.uploads.register.mutationOptions(),
-  );
+  const generateUploadUrl = useMutation(trpc.uploads.generateUrl.mutationOptions());
+  const registerUpload = useMutation(trpc.uploads.register.mutationOptions());
 
   const uploadFile = async ({
     file,

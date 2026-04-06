@@ -5,10 +5,7 @@ import { getApiUrl } from "@tamias/utils/envs";
 import type { QueryClient } from "@tanstack/react-query";
 import { isServer, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, loggerLink, TRPCUntypedClient } from "@trpc/client";
-import {
-  createTRPCOptionsProxy,
-  type TRPCOptionsProxy,
-} from "@trpc/tanstack-react-query";
+import { createTRPCOptionsProxy, type TRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import { createContext, useContext, useMemo } from "react";
 import superjson from "superjson";
 import { useAuthToken } from "@/framework/auth-client";
@@ -60,8 +57,7 @@ export function TRPCReactProvider(
               log: (...args) => trpcBrowserConsole.log(...args),
               error: (...args) => trpcBrowserConsole.warn(...args),
             },
-            enabled: (opts) =>
-              process.env.NODE_ENV === "development" && opts.direction === "up",
+            enabled: (opts) => process.env.NODE_ENV === "development" && opts.direction === "up",
           }),
           httpBatchLink({
             url: `${apiUrl}/trpc`,

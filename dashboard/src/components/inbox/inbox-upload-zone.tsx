@@ -31,12 +31,8 @@ export function UploadZone({ children, onUploadComplete }: Props) {
   const uploadProgress = useRef<number[]>([]);
   const { toast, dismiss, update } = useToast();
   const { uploadFile } = useUpload();
-  const processAttachmentsMutation = useMutation(
-    trpc.inbox.processAttachments.mutationOptions(),
-  );
-  const createInboxItemMutation = useMutation(
-    trpc.inbox.create.mutationOptions(),
-  );
+  const processAttachmentsMutation = useMutation(trpc.inbox.processAttachments.mutationOptions());
+  const createInboxItemMutation = useMutation(trpc.inbox.create.mutationOptions());
 
   useEffect(() => {
     if (!toastId && showProgress) {
@@ -115,12 +111,9 @@ export function UploadZone({ children, onUploadComplete }: Props) {
             onProgress: (bytesUploaded, bytesTotal) => {
               uploadProgress.current[idx] = (bytesUploaded / bytesTotal) * 100;
 
-              const _progress = uploadProgress.current.reduce(
-                (acc, currentValue) => {
-                  return acc + currentValue;
-                },
-                0,
-              );
+              const _progress = uploadProgress.current.reduce((acc, currentValue) => {
+                return acc + currentValue;
+              }, 0);
 
               setProgress(Math.round(_progress / files.length));
             },
@@ -199,10 +192,7 @@ export function UploadZone({ children, onUploadComplete }: Props) {
   });
 
   return (
-    <div
-      {...getRootProps({ onClick: (evt) => evt.stopPropagation() })}
-      className="relative h-full"
-    >
+    <div {...getRootProps({ onClick: (evt) => evt.stopPropagation() })} className="relative h-full">
       <div className="absolute top-0 bottom-0 right-0 left-0 z-[51] pointer-events-none">
         <div
           className={cn(

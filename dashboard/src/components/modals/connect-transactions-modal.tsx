@@ -39,8 +39,8 @@ export function ConnectTransactionsModal() {
             <DialogTitle>Connect bank account</DialogTitle>
 
             <DialogDescription>
-              We work with a variety of banking providers to support as many
-              banks as possible. If you can't find yours,{" "}
+              We work with a variety of banking providers to support as many banks as possible. If
+              you can't find yours,{" "}
               <button
                 type="button"
                 className="underline"
@@ -52,10 +52,7 @@ export function ConnectTransactionsModal() {
             </DialogDescription>
 
             <div className="pt-4">
-              <BankSearchContent
-                enabled={isOpen}
-                defaultCountryCode={team?.countryCode ?? ""}
-              />
+              <BankSearchContent enabled={isOpen} defaultCountryCode={team?.countryCode ?? ""} />
             </div>
           </DialogHeader>
         </div>

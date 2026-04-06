@@ -28,17 +28,14 @@ export function DeleteApiKeyModal() {
 
   return (
     <Dialog open={type === "delete"} onOpenChange={() => setData(undefined)}>
-      <DialogContent
-        className="max-w-[455px]"
-        onOpenAutoFocus={(evt) => evt.preventDefault()}
-      >
+      <DialogContent className="max-w-[455px]" onOpenAutoFocus={(evt) => evt.preventDefault()}>
         <div className="p-4 space-y-4">
           <DialogHeader>
             <DialogTitle>Delete API Key</DialogTitle>
             <DialogDescription>
               This will permanently delete the API key{" "}
-              <span className="text-primary">{data?.name}</span> for and revoke
-              all access to your account. Are you sure you want to continue?
+              <span className="text-primary">{data?.name}</span> for and revoke all access to your
+              account. Are you sure you want to continue?
             </DialogDescription>
           </DialogHeader>
 

@@ -15,17 +15,14 @@ export class WhatsAppClient {
   }
 
   private async request(endpoint: string, body: unknown) {
-    const response = await fetch(
-      `${WHATSAPP_API_URL}/${this.phoneNumberId}${endpoint}`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${this.accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+    const response = await fetch(`${WHATSAPP_API_URL}/${this.phoneNumberId}${endpoint}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify(body),
+    });
 
     if (!response.ok) {
       const error = await response.text();

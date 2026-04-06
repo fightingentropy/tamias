@@ -19,9 +19,7 @@ export type FileTypeDetectionResult =
  * @param buffer - File buffer to analyze
  * @returns Detection result with detected mimetype or null if unknown
  */
-export function detectFileTypeFromBuffer(
-  buffer: Buffer,
-): FileTypeDetectionResult {
+export function detectFileTypeFromBuffer(buffer: Buffer): FileTypeDetectionResult {
   if (buffer.length < 4) {
     return { detected: false, buffer };
   }
@@ -94,9 +92,7 @@ export function detectFileTypeFromBuffer(
  * @param blob - File blob to analyze
  * @returns Detection result with detected mimetype or null if unknown
  */
-export async function detectFileTypeFromBlob(
-  blob: Blob,
-): Promise<FileTypeDetectionResult> {
+export async function detectFileTypeFromBlob(blob: Blob): Promise<FileTypeDetectionResult> {
   const arrayBuffer = await blob.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
   return detectFileTypeFromBuffer(buffer);

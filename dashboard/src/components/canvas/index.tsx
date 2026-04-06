@@ -9,22 +9,19 @@ const BurnRateCanvas = dynamic(
   () => import("./burn-rate-canvas").then((mod) => mod.BurnRateCanvas),
   { ssr: false },
 );
-const RevenueCanvas = dynamic(
-  () => import("./revenue-canvas").then((mod) => mod.RevenueCanvas),
-  { ssr: false },
-);
-const ProfitCanvas = dynamic(
-  () => import("./profit-canvas").then((mod) => mod.ProfitCanvas),
-  { ssr: false },
-);
+const RevenueCanvas = dynamic(() => import("./revenue-canvas").then((mod) => mod.RevenueCanvas), {
+  ssr: false,
+});
+const ProfitCanvas = dynamic(() => import("./profit-canvas").then((mod) => mod.ProfitCanvas), {
+  ssr: false,
+});
 const GrowthRateCanvas = dynamic(
   () => import("./growth-rate-canvas").then((mod) => mod.GrowthRateCanvas),
   { ssr: false },
 );
-const RunwayCanvas = dynamic(
-  () => import("./runway-canvas").then((mod) => mod.RunwayCanvas),
-  { ssr: false },
-);
+const RunwayCanvas = dynamic(() => import("./runway-canvas").then((mod) => mod.RunwayCanvas), {
+  ssr: false,
+});
 const CashFlowCanvas = dynamic(
   () => import("./cash-flow-canvas").then((mod) => mod.CashFlowCanvas),
   { ssr: false },
@@ -34,15 +31,11 @@ const BalanceSheetCanvas = dynamic(
   { ssr: false },
 );
 const CategoryExpensesCanvas = dynamic(
-  () =>
-    import("./category-expenses-canvas").then(
-      (mod) => mod.CategoryExpensesCanvas,
-    ),
+  () => import("./category-expenses-canvas").then((mod) => mod.CategoryExpensesCanvas),
   { ssr: false },
 );
 const HealthReportCanvas = dynamic(
-  () =>
-    import("./health-report-canvas").then((mod) => mod.HealthReportCanvas),
+  () => import("./health-report-canvas").then((mod) => mod.HealthReportCanvas),
   { ssr: false },
 );
 const SpendingCanvas = dynamic(
@@ -62,15 +55,12 @@ const StressTestCanvas = dynamic(
   { ssr: false },
 );
 const InvoicePaymentCanvas = dynamic(
-  () =>
-    import("./invoice-payment-canvas").then((mod) => mod.InvoicePaymentCanvas),
+  () => import("./invoice-payment-canvas").then((mod) => mod.InvoicePaymentCanvas),
   { ssr: false },
 );
 const MetricsBreakdownSummaryCanvas = dynamic(
   () =>
-    import("./metrics-breakdown-summary-canvas").then(
-      (mod) => mod.MetricsBreakdownSummaryCanvas,
-    ),
+    import("./metrics-breakdown-summary-canvas").then((mod) => mod.MetricsBreakdownSummaryCanvas),
   { ssr: false },
 );
 
@@ -93,10 +83,7 @@ const canvasComponents = {
 } as const;
 
 export function Canvas() {
-  const [selectedType, setSelectedType] = useQueryState(
-    "artifact-type",
-    parseAsString,
-  );
+  const [selectedType, setSelectedType] = useQueryState("artifact-type", parseAsString);
 
   const [data] = useArtifacts({
     value: selectedType,
@@ -106,8 +93,7 @@ export function Canvas() {
 
   const activeType = data.activeType;
   const CanvasComponent =
-    activeType === "breakdown-summary-canvas" ||
-    (activeType && isMonthlyBreakdownType(activeType))
+    activeType === "breakdown-summary-canvas" || (activeType && isMonthlyBreakdownType(activeType))
       ? MetricsBreakdownSummaryCanvas
       : activeType
         ? canvasComponents[activeType as keyof typeof canvasComponents]

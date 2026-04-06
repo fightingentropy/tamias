@@ -53,45 +53,43 @@ function loadGooglePlacesApi(apiKey: string) {
     return window.__tamiasGooglePlacesApiPromise;
   }
 
-  window.__tamiasGooglePlacesApiPromise = new Promise<void>(
-    (resolve, reject) => {
-      const existingScript = document.getElementById(
-        GOOGLE_PLACES_SCRIPT_ID,
-      ) as HTMLScriptElement | null;
+  window.__tamiasGooglePlacesApiPromise = new Promise<void>((resolve, reject) => {
+    const existingScript = document.getElementById(
+      GOOGLE_PLACES_SCRIPT_ID,
+    ) as HTMLScriptElement | null;
 
-      const handleLoad = () => {
-        if (window.google?.maps?.places) {
-          resolve();
-          return;
-        }
-
-        window.__tamiasGooglePlacesApiPromise = undefined;
-        reject(new Error("Google Places API did not initialize."));
-      };
-
-      const handleError = () => {
-        window.__tamiasGooglePlacesApiPromise = undefined;
-        reject(new Error("Failed to load Google Places API."));
-      };
-
-      if (existingScript) {
-        existingScript.addEventListener("load", handleLoad, { once: true });
-        existingScript.addEventListener("error", handleError, { once: true });
+    const handleLoad = () => {
+      if (window.google?.maps?.places) {
+        resolve();
         return;
       }
 
-      const script = document.createElement("script");
-      script.id = GOOGLE_PLACES_SCRIPT_ID;
-      script.src =
-        "https://maps.googleapis.com/maps/api/js" +
-        `?key=${encodeURIComponent(apiKey)}&libraries=${GOOGLE_PLACES_LIBRARIES}`;
-      script.async = true;
-      script.defer = true;
-      script.addEventListener("load", handleLoad, { once: true });
-      script.addEventListener("error", handleError, { once: true });
-      document.head.appendChild(script);
-    },
-  );
+      window.__tamiasGooglePlacesApiPromise = undefined;
+      reject(new Error("Google Places API did not initialize."));
+    };
+
+    const handleError = () => {
+      window.__tamiasGooglePlacesApiPromise = undefined;
+      reject(new Error("Failed to load Google Places API."));
+    };
+
+    if (existingScript) {
+      existingScript.addEventListener("load", handleLoad, { once: true });
+      existingScript.addEventListener("error", handleError, { once: true });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.id = GOOGLE_PLACES_SCRIPT_ID;
+    script.src =
+      "https://maps.googleapis.com/maps/api/js" +
+      `?key=${encodeURIComponent(apiKey)}&libraries=${GOOGLE_PLACES_LIBRARIES}`;
+    script.async = true;
+    script.defer = true;
+    script.addEventListener("load", handleLoad, { once: true });
+    script.addEventListener("error", handleError, { once: true });
+    document.head.appendChild(script);
+  });
 
   return window.__tamiasGooglePlacesApiPromise;
 }
@@ -111,9 +109,7 @@ type Option = {
   label: string;
 };
 
-const getAddressDetailsByAddressId = async (
-  addressId: string,
-): Promise<AddressDetails> => {
+const getAddressDetailsByAddressId = async (addressId: string): Promise<AddressDetails> => {
   const details = (await getDetails({
     placeId: addressId,
     fields: ["address_component"],
@@ -121,24 +117,18 @@ const getAddressDetailsByAddressId = async (
 
   const comps = details.address_components;
 
-  const streetNumber =
-    comps?.find((c) => c.types.includes("street_number"))?.long_name ?? "";
-  const streetAddress =
-    comps?.find((c) => c.types.includes("route"))?.long_name ?? "";
+  const streetNumber = comps?.find((c) => c.types.includes("street_number"))?.long_name ?? "";
+  const streetAddress = comps?.find((c) => c.types.includes("route"))?.long_name ?? "";
   const city =
     comps?.find((c) => c.types.includes("postal_town"))?.long_name ||
     comps?.find((c) => c.types.includes("locality"))?.long_name ||
     comps?.find((c) => c.types.includes("sublocality_level_1"))?.long_name ||
     "";
   const state =
-    comps?.find((c) => c.types.includes("administrative_area_level_1"))
-      ?.short_name || "";
-  const zip =
-    comps?.find((c) => c.types.includes("postal_code"))?.long_name || "";
-  const country =
-    comps?.find((c) => c.types.includes("country"))?.long_name || "";
-  const countryCode =
-    comps?.find((c) => c.types.includes("country"))?.short_name || "";
+    comps?.find((c) => c.types.includes("administrative_area_level_1"))?.short_name || "";
+  const zip = comps?.find((c) => c.types.includes("postal_code"))?.long_name || "";
+  const country = comps?.find((c) => c.types.includes("country"))?.long_name || "";
+  const countryCode = comps?.find((c) => c.types.includes("country"))?.short_name || "";
 
   return {
     address_line_1: `${streetNumber} ${streetAddress}`.trim(),
@@ -254,9 +244,7 @@ export function SearchAddressInputCore({
       }
 
       if (event.key === "Enter" && input.value !== "") {
-        const optionToSelect = options.find(
-          (option) => option.label === input.value,
-        );
+        const optionToSelect = options.find((option) => option.label === input.value);
 
         if (optionToSelect) {
           setSelected(optionToSelect);
@@ -332,10 +320,7 @@ export function SearchAddressInputCore({
                         event.stopPropagation();
                       }}
                       onSelect={() => handleSelectOption(option)}
-                      className={cn(
-                        "flex w-full items-center gap-2",
-                        !isSelected ? "pl-8" : null,
-                      )}
+                      className={cn("flex w-full items-center gap-2", !isSelected ? "pl-8" : null)}
                     >
                       {option.label}
                       {isSelected ? <Check className="w-4" /> : null}
@@ -344,10 +329,7 @@ export function SearchAddressInputCore({
                 })}
               </CommandGroup>
             ) : null}
-            {inputValue &&
-            options.length === 0 &&
-            !selected &&
-            status === "ZERO_RESULTS" ? (
+            {inputValue && options.length === 0 && !selected && status === "ZERO_RESULTS" ? (
               <CommandEmpty className="select-none px-2 py-3 text-center text-sm">
                 {emptyMessage}
               </CommandEmpty>

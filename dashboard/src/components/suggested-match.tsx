@@ -14,9 +14,7 @@ import { LocalStorageKeys } from "@/utils/constants";
 import { FilePreview } from "./file-preview";
 import { FormatAmount } from "./format-amount";
 
-type Suggestion = NonNullable<
-  RouterOutputs["transactions"]["getById"]
->["suggestion"];
+type Suggestion = NonNullable<RouterOutputs["transactions"]["getById"]>["suggestion"];
 
 type SuggestedMatchProps = {
   suggestion?: Suggestion;
@@ -133,9 +131,7 @@ export function SuggestedMatch({
 
   const documentName = suggestion?.documentName || "Document";
   const mimeType = getMimeType(suggestion?.documentPath || null);
-  const filePath = suggestion?.documentPath
-    ? suggestion.documentPath.join("/")
-    : null;
+  const filePath = suggestion?.documentPath ? suggestion.documentPath.join("/") : null;
 
   if (isLoading) {
     return (
@@ -205,9 +201,7 @@ export function SuggestedMatch({
           ) : (
             <div className="flex flex-col items-center space-y-2">
               <Icons.Description className="h-12 w-12 text-[#878787]" />
-              <span className="text-sm text-[#878787]">
-                No preview available
-              </span>
+              <span className="text-sm text-[#878787]">No preview available</span>
             </div>
           )}
         </div>

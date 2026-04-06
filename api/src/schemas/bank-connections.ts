@@ -1,8 +1,6 @@
 import { z } from "@hono/zod-openapi";
 
-export const getBankConnectionsSchema = z
-  .object({ enabled: z.boolean().optional() })
-  .optional();
+export const getBankConnectionsSchema = z.object({ enabled: z.boolean().optional() }).optional();
 
 export const createBankConnectionSchema = z.object({
   accessToken: z.string().nullable().optional(), // Teller
@@ -19,13 +17,7 @@ export const createBankConnectionSchema = z.object({
       currency: z.string(),
       enabled: z.boolean(),
       balance: z.number().optional(),
-      type: z.enum([
-        "credit",
-        "depository",
-        "other_asset",
-        "loan",
-        "other_liability",
-      ]),
+      type: z.enum(["credit", "depository", "other_asset", "loan", "other_liability"]),
       accountReference: z.string().nullable().optional(), // GoCardLess
       expiresAt: z.string().nullable().optional(), // GoCardLess
       // Additional account data for reconnect matching and user display
@@ -53,13 +45,7 @@ export const addProviderAccountsSchema = z.object({
       accountId: z.string(),
       name: z.string(),
       currency: z.string(),
-      type: z.enum([
-        "credit",
-        "depository",
-        "other_asset",
-        "loan",
-        "other_liability",
-      ]),
+      type: z.enum(["credit", "depository", "other_asset", "loan", "other_liability"]),
       accountReference: z.string().nullable().optional(),
       balance: z.number().optional(),
       iban: z.string().nullable().optional(),

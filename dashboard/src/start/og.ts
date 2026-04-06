@@ -56,7 +56,9 @@ export async function fetchDataUri(url?: string | null) {
 function toFontFaceCss(fontFamily: string, fontData: ArrayBuffer) {
   return `@font-face { font-family: "${fontFamily}"; src: url(data:font/ttf;base64,${Buffer.from(
     fontData,
-  ).toString("base64")}) format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }`;
+  ).toString(
+    "base64",
+  )}) format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }`;
 }
 
 export async function loadHedvigSansFontCss() {
@@ -67,12 +69,14 @@ export async function loadHedvigSerifFontCss() {
   return toFontFaceCss("hedvig-serif", await loadHedvigSerifFont());
 }
 
-export function editorDocToLines(doc?: {
-  content?: Array<{
-    type: string;
-    content?: Array<{ type: string; text?: string }>;
-  }>;
-} | null) {
+export function editorDocToLines(
+  doc?: {
+    content?: Array<{
+      type: string;
+      content?: Array<{ type: string; text?: string }>;
+    }>;
+  } | null,
+) {
   if (!doc?.content?.length) {
     return [];
   }

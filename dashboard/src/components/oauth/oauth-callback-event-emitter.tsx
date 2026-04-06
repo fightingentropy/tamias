@@ -17,9 +17,7 @@ export function OAuthCallbackEventEmitter({ status, error }: Props) {
     }
 
     const message: OAuthMessage =
-      status === "success"
-        ? { type: "app_oauth_completed" }
-        : { type: "app_oauth_error", error };
+      status === "success" ? { type: "app_oauth_completed" } : { type: "app_oauth_error", error };
 
     let channel: BroadcastChannel | null = null;
 

@@ -23,7 +23,5 @@ export function isStaleProcessing(
     return false;
   }
 
-  return (
-    Date.now() - new Date(createdAt).getTime() > STALE_PROCESSING_THRESHOLD_MS
-  );
+  return Date.now() - new Date(createdAt).getTime() > STALE_PROCESSING_THRESHOLD_MS;
 }

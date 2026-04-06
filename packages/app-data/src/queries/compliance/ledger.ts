@@ -6,11 +6,7 @@ import type { Database } from "../../client";
 
 type DerivedJournalEntry = ComplianceJournalEntryRecord;
 
-const DERIVED_LEDGER_SOURCE_TYPES = [
-  "transaction",
-  "invoice",
-  "invoice_refund",
-] as const;
+const DERIVED_LEDGER_SOURCE_TYPES = ["transaction", "invoice", "invoice_refund"] as const;
 
 export function listJournalRowsForPeriod(
   entries: DerivedJournalEntry[],
@@ -18,9 +14,7 @@ export function listJournalRowsForPeriod(
   periodEnd: string,
 ) {
   return entries
-    .filter(
-      (entry) => entry.entryDate >= periodStart && entry.entryDate <= periodEnd,
-    )
+    .filter((entry) => entry.entryDate >= periodStart && entry.entryDate <= periodEnd)
     .flatMap((entry) =>
       entry.lines.map((line) => ({
         sourceType: entry.sourceType,

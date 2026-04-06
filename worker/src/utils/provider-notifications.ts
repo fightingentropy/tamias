@@ -7,10 +7,7 @@ import {
 } from "@tamias/app-store/slack/server";
 import { sendMatchNotification } from "@tamias/app-store/whatsapp/server";
 import type { Database } from "@tamias/app-data/client";
-import {
-  getApps,
-  getWhatsAppConnections,
-} from "@tamias/app-data/queries";
+import { getApps, getWhatsAppConnections } from "@tamias/app-data/queries";
 import { createLoggerWithContext } from "@tamias/logger";
 import { getAppUrl } from "@tamias/utils/envs";
 
@@ -18,11 +15,7 @@ const logger = createLoggerWithContext("provider-notifications");
 const dashboardUrl = getAppUrl();
 
 // Notification types that can be sent to providers
-export type ProviderNotificationType =
-  | "transaction"
-  | "match"
-  | "invoice_paid"
-  | "invoice_overdue";
+export type ProviderNotificationType = "transaction" | "match" | "invoice_paid" | "invoice_overdue";
 
 // Payload types for each notification
 export type TransactionPayload = {
@@ -109,10 +102,7 @@ const SETTING_MAP: Record<ProviderNotificationType, string> = {
 /**
  * Check if a notification type is enabled for an app
  */
-function isSettingEnabled(
-  app: AppConfig,
-  type: ProviderNotificationType,
-): boolean {
+function isSettingEnabled(app: AppConfig, type: ProviderNotificationType): boolean {
   const settings = app.settings || [];
   const settingId = SETTING_MAP[type];
   const setting = settings.find((s) => s.id === settingId);
@@ -120,10 +110,7 @@ function isSettingEnabled(
   return setting?.value !== false;
 }
 
-function toAppConfig(
-  app: Awaited<ReturnType<typeof getApps>>[number],
-  teamId: string,
-): AppConfig {
+function toAppConfig(app: Awaited<ReturnType<typeof getApps>>[number], teamId: string): AppConfig {
   return {
     id: `${teamId}:${app.app_id}`,
     appId: app.app_id,
@@ -171,13 +158,7 @@ export async function sendToProviders<T extends ProviderNotificationType>(
             await sendSlackNotification(appConfig, type, payload, options);
             break;
           case "whatsapp":
-            await sendWhatsAppNotification(
-              db,
-              appConfig,
-              type,
-              payload,
-              options,
-            );
+            await sendWhatsAppNotification(db, appConfig, type, payload, options);
             break;
           // Future providers:
           // case "expo-push":
@@ -285,8 +266,7 @@ async function sendSlackNotification<T extends ProviderNotificationType>(
       const matchPayload = payload as MatchPayload;
 
       // For match notifications, use channel from inbox metadata if available
-      const matchChannelId =
-        options?.inboxMeta?.sourceMetadata?.channelId || channelId;
+      const matchChannelId = options?.inboxMeta?.sourceMetadata?.channelId || channelId;
 
       if (!matchChannelId) {
         logger.warn("Slack channel ID not found for match notification", {
@@ -323,12 +303,9 @@ async function sendSlackNotification<T extends ProviderNotificationType>(
 
     case "invoice_paid": {
       if (!channelId) {
-        logger.warn(
-          "Slack channel ID not found for invoice paid notification",
-          {
-            teamId: app.teamId,
-          },
-        );
+        logger.warn("Slack channel ID not found for invoice paid notification", {
+          teamId: app.teamId,
+        });
         return;
       }
 
@@ -344,10 +321,9 @@ async function sendSlackNotification<T extends ProviderNotificationType>(
 
     case "invoice_overdue": {
       if (!channelId) {
-        logger.warn(
-          "Slack channel ID not found for invoice overdue notification",
-          { teamId: app.teamId },
-        );
+        logger.warn("Slack channel ID not found for invoice overdue notification", {
+          teamId: app.teamId,
+        });
         return;
       }
 
@@ -398,8 +374,7 @@ async function sendWhatsAppNotification<T extends ProviderNotificationType>(
 
   // Find the connection that matches the source, or use the first one
   const connection = sourcePhoneNumber
-    ? connections.find((c) => c.phoneNumber === sourcePhoneNumber) ||
-      connections[0]
+    ? connections.find((c) => c.phoneNumber === sourcePhoneNumber) || connections[0]
     : connections[0];
 
   if (!connection) {

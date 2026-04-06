@@ -28,8 +28,7 @@ export function buildTrialBalance(
       const descriptor = describeAccount(line.accountCode);
 
       if (
-        (descriptor.accountType === "income" ||
-          descriptor.accountType === "expense") &&
+        (descriptor.accountType === "income" || descriptor.accountType === "expense") &&
         (entry.entryDate < periodStart || entry.entryDate > periodEnd)
       ) {
         continue;
@@ -76,10 +75,7 @@ function sumPresentedBalances(
   return roundCurrency(
     lines
       .filter((line) => accountTypes.includes(line.accountType))
-      .reduce(
-        (total, line) => total + presentBalance(line.accountType, line.balance),
-        0,
-      ),
+      .reduce((total, line) => total + presentBalance(line.accountType, line.balance), 0),
   );
 }
 
@@ -106,27 +102,15 @@ export function buildBalanceSheet(
   const assets = sumPresentedBalances(trialBalance, ["asset"]);
   const liabilities = sumPresentedBalances(trialBalance, ["liability"]);
   const shareCapital = trialBalance
-    .filter(
-      (line) => line.accountType === "equity" && line.accountCode === "3000",
-    )
-    .reduce(
-      (total, line) => total + presentBalance(line.accountType, line.balance),
-      0,
-    );
+    .filter((line) => line.accountType === "equity" && line.accountCode === "3000")
+    .reduce((total, line) => total + presentBalance(line.accountType, line.balance), 0);
   const otherEquity = trialBalance
     .filter(
       (line) =>
-        line.accountType === "equity" &&
-        line.accountCode !== "3000" &&
-        line.accountCode !== "3100",
+        line.accountType === "equity" && line.accountCode !== "3000" && line.accountCode !== "3100",
     )
-    .reduce(
-      (total, line) => total + presentBalance(line.accountType, line.balance),
-      0,
-    );
-  const equity = roundCurrency(
-    shareCapital + retainedEarnings.closingBalance + otherEquity,
-  );
+    .reduce((total, line) => total + presentBalance(line.accountType, line.balance), 0);
+  const equity = roundCurrency(shareCapital + retainedEarnings.closingBalance + otherEquity);
 
   return [
     { key: "assets", label: "Assets", amount: assets },
@@ -135,9 +119,7 @@ export function buildBalanceSheet(
   ];
 }
 
-export function buildWorkingPapers(
-  trialBalance: TrialBalanceLine[],
-): WorkingPaperSection[] {
+export function buildWorkingPapers(trialBalance: TrialBalanceLine[]): WorkingPaperSection[] {
   const sectionMatchers: Array<{
     key: WorkingPaperSection["key"];
     label: string;
@@ -156,14 +138,12 @@ export function buildWorkingPapers(
     {
       key: "payables",
       label: "Payables",
-      matches: (line) =>
-        line.accountCode === "2000" || line.accountCode === "2100",
+      matches: (line) => line.accountCode === "2000" || line.accountCode === "2100",
     },
     {
       key: "vat",
       label: "VAT",
-      matches: (line) =>
-        line.accountCode === "1200" || line.accountCode === "2200",
+      matches: (line) => line.accountCode === "1200" || line.accountCode === "2200",
     },
     {
       key: "debt",
@@ -173,14 +153,12 @@ export function buildWorkingPapers(
     {
       key: "equity",
       label: "Equity",
-      matches: (line) =>
-        line.accountCode === "3000" || line.accountCode === "3100",
+      matches: (line) => line.accountCode === "3000" || line.accountCode === "3100",
     },
     {
       key: "tax_accruals",
       label: "Tax accruals",
-      matches: (line) =>
-        line.accountCode === "2210" || line.accountCode === "2300",
+      matches: (line) => line.accountCode === "2210" || line.accountCode === "2300",
     },
   ];
 
@@ -195,9 +173,7 @@ export function buildWorkingPapers(
     return {
       key: section.key,
       label: section.label,
-      total: roundCurrency(
-        lines.reduce((total, line) => total + roundCurrency(line.balance), 0),
-      ),
+      total: roundCurrency(lines.reduce((total, line) => total + roundCurrency(line.balance), 0)),
       lines,
     };
   });

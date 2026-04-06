@@ -32,9 +32,7 @@ export function WebSearchButton() {
       <span
         className={cn(
           "overflow-hidden transition-all duration-200 text-[12px] leading-[14px] font-medium whitespace-nowrap text-black dark:text-white",
-          isWebSearch
-            ? "max-w-[100px] opacity-100 ml-0.5"
-            : "max-w-0 opacity-0 ml-0",
+          isWebSearch ? "max-w-[100px] opacity-100 ml-0.5" : "max-w-0 opacity-0 ml-0",
         )}
       >
         Search

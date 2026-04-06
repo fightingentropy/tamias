@@ -6,12 +6,7 @@ import {
   getTellerApplicationId,
   getTellerEnvironment,
 } from "@tamias/utils/envs";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { useToast } from "@tamias/ui/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { nanoid } from "nanoid";
@@ -79,9 +74,7 @@ export function ReconnectProvider({
     trpc.banking.gocardlessAgreement.mutationOptions({}),
   );
 
-  const createGocardlessLink = useMutation(
-    trpc.banking.gocardlessLink.mutationOptions({}),
-  );
+  const createGocardlessLink = useMutation(trpc.banking.gocardlessLink.mutationOptions({}));
 
   useScript("https://cdn.teller.io/connect/connect.js", {
     removeOnUnmount: false,
@@ -202,11 +195,7 @@ export function ReconnectProvider({
             onClick={handleOnClick}
             disabled={isLoading}
           >
-            {isLoading ? (
-              <Spinner className="size-3.5" />
-            ) : (
-              <Icons.Reconnect size={16} />
-            )}
+            {isLoading ? <Spinner className="size-3.5" /> : <Icons.Reconnect size={16} />}
           </Button>
         </TooltipTrigger>
 

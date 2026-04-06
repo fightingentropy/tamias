@@ -16,30 +16,20 @@ export function buildComputationsAttachmentRenderData(
     durationTradeDetailContextId: "ct-context-trade-detail",
     unitId: "unit",
     pureUnitId: "pure-unit",
-    tradeBusinessName:
-      draft.companyName.replace(/\s+/g, " ").trim() || "Main trade",
+    tradeBusinessName: draft.companyName.replace(/\s+/g, " ").trim() || "Main trade",
     periodUsesSmallProfitsRules:
-      parseISO(draft.periodEnd).getTime() >=
-      parseISO(SMALL_PROFITS_RATE_START).getTime(),
+      parseISO(draft.periodEnd).getTime() >= parseISO(SMALL_PROFITS_RATE_START).getTime(),
     rateBreakdownRows: draft.financialYearBreakdown.map((financialYear) => ({
-      label: `FY ${financialYear.financialYear} · ${humanizeToken(
-        financialYear.chargeType,
-      )}`,
+      label: `FY ${financialYear.financialYear} · ${humanizeToken(financialYear.chargeType)}`,
       value: `${formatDraftAmount(
         financialYear.netCorporationTax,
         draft.currency,
-      )} on profits ${formatDraftAmount(
-        financialYear.chargeableProfits,
-        draft.currency,
-      )}${
+      )} on profits ${formatDraftAmount(financialYear.chargeableProfits, draft.currency)}${
         financialYear.lowerLimit != null && financialYear.upperLimit != null
           ? ` · limits ${formatDraftAmount(
               financialYear.lowerLimit,
               draft.currency,
-            )} to ${formatDraftAmount(
-              financialYear.upperLimit,
-              draft.currency,
-            )}`
+            )} to ${formatDraftAmount(financialYear.upperLimit, draft.currency)}`
           : ""
       }`,
     })),

@@ -78,9 +78,7 @@ export function InvoiceSheet() {
     return (
       <Sheet open={isOpen} onOpenChange={handleOnOpenChange}>
         <SheetContent className="bg-white dark:bg-[#080808] p-6">
-          <span className="text-sm text-muted-foreground">
-            Loading invoice settings...
-          </span>
+          <span className="text-sm text-muted-foreground">Loading invoice settings...</span>
         </SheetContent>
       </Sheet>
     );

@@ -100,7 +100,5 @@ export const shortLinksRouter = createTRPCRouter({
 
   get: publicProcedure
     .input(getShortLinkSchema)
-    .query(async ({ ctx: { db }, input }) =>
-      getPublicShortLink({ db, shortId: input.shortId }),
-    ),
+    .query(async ({ ctx: { db }, input }) => getPublicShortLink({ db, shortId: input.shortId })),
 });

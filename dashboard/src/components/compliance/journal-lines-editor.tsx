@@ -22,15 +22,9 @@ export function JournalLinesEditor({
   onChange,
   addLabel = "Add line",
 }: JournalLinesEditorProps) {
-  const updateLine = (
-    index: number,
-    key: keyof EditableJournalLine,
-    value: string,
-  ) => {
+  const updateLine = (index: number, key: keyof EditableJournalLine, value: string) => {
     onChange(
-      lines.map((line, lineIndex) =>
-        lineIndex === index ? { ...line, [key]: value } : line,
-      ),
+      lines.map((line, lineIndex) => (lineIndex === index ? { ...line, [key]: value } : line)),
     );
   };
 
@@ -49,9 +43,7 @@ export function JournalLinesEditor({
             <Label>Account</Label>
             <Input
               value={line.accountCode}
-              onChange={(event) =>
-                updateLine(index, "accountCode", event.target.value)
-              }
+              onChange={(event) => updateLine(index, "accountCode", event.target.value)}
               placeholder="3100"
             />
           </div>
@@ -59,9 +51,7 @@ export function JournalLinesEditor({
             <Label>Description</Label>
             <Input
               value={line.description}
-              onChange={(event) =>
-                updateLine(index, "description", event.target.value)
-              }
+              onChange={(event) => updateLine(index, "description", event.target.value)}
               placeholder="Accrual"
             />
           </div>
@@ -70,9 +60,7 @@ export function JournalLinesEditor({
             <Input
               inputMode="decimal"
               value={line.debit}
-              onChange={(event) =>
-                updateLine(index, "debit", event.target.value)
-              }
+              onChange={(event) => updateLine(index, "debit", event.target.value)}
               placeholder="0.00"
             />
           </div>
@@ -81,9 +69,7 @@ export function JournalLinesEditor({
             <Input
               inputMode="decimal"
               value={line.credit}
-              onChange={(event) =>
-                updateLine(index, "credit", event.target.value)
-              }
+              onChange={(event) => updateLine(index, "credit", event.target.value)}
               placeholder="0.00"
             />
           </div>

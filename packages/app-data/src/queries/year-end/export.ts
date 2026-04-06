@@ -1,6 +1,4 @@
-import {
-  upsertYearEndPackInConvex,
-} from "@tamias/app-data-convex";
+import { upsertYearEndPackInConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { buildYearEndExportArchive } from "./export-archive";
 import { persistYearEndExportBundle } from "./export-persistence";
@@ -11,18 +9,12 @@ export async function generateYearEndExport(
   params: { teamId: string; periodKey?: string },
 ) {
   const workspace = await getYearEndPack(db, params);
-  const rebuiltWorkspace = workspace.pack
-    ? null
-    : await rebuildYearEndPack(db, params);
+  const rebuiltWorkspace = workspace.pack ? null : await rebuildYearEndPack(db, params);
   const pack = workspace.pack ?? rebuiltWorkspace?.pack ?? null;
   const closeCompanyLoansSchedule =
-    workspace.closeCompanyLoansSchedule ??
-    rebuiltWorkspace?.closeCompanyLoansSchedule ??
-    null;
+    workspace.closeCompanyLoansSchedule ?? rebuiltWorkspace?.closeCompanyLoansSchedule ?? null;
   const corporationTaxRateSchedule =
-    workspace.corporationTaxRateSchedule ??
-    rebuiltWorkspace?.corporationTaxRateSchedule ??
-    null;
+    workspace.corporationTaxRateSchedule ?? rebuiltWorkspace?.corporationTaxRateSchedule ?? null;
 
   if (!pack) {
     throw new Error("Year-end pack not found");

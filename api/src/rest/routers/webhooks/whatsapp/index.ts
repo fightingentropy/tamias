@@ -102,8 +102,7 @@ app.openapi(
     path: "/",
     summary: "WhatsApp webhook",
     operationId: "whatsappWebhook",
-    description:
-      "Receive messages, media, and button replies from WhatsApp Business API",
+    description: "Receive messages, media, and button replies from WhatsApp Business API",
     tags: ["Webhooks"],
     request: {
       body: {
@@ -297,10 +296,7 @@ async function handleTextMessage(
     });
 
     const client = createWhatsAppClient();
-    await client.sendMessage(
-      phoneNumber,
-      formatConnectionSuccess(team?.name || "your team"),
-    );
+    await client.sendMessage(phoneNumber, formatConnectionSuccess(team?.name || "your team"));
   } catch (error) {
     if (error instanceof WhatsAppAlreadyConnectedToAnotherTeamError) {
       // User is trying to connect to Team A but already connected to Team B
@@ -319,10 +315,7 @@ async function handleTextMessage(
         // Fallback if we can't get team info
         await client.sendMessage(
           phoneNumber,
-          formatAlreadyConnectedToAnotherTeamError(
-            "another team",
-            team?.name || "this team",
-          ),
+          formatAlreadyConnectedToAnotherTeamError("another team", team?.name || "this team"),
         );
       }
     } else {
@@ -334,12 +327,7 @@ async function handleTextMessage(
 /**
  * Handle media messages (images, documents)
  */
-async function handleMediaMessage(
-  db: any,
-  phoneNumber: string,
-  messageId: string,
-  message: any,
-) {
+async function handleMediaMessage(db: any, phoneNumber: string, messageId: string, message: any) {
   // Check if phone number is connected
   const app = await getAppByWhatsAppNumber(db, phoneNumber);
 
@@ -375,11 +363,7 @@ async function handleMediaMessage(
   // React with hourglass to indicate processing
   try {
     const client = createWhatsAppClient();
-    await client.reactToMessage(
-      phoneNumber,
-      messageId,
-      REACTION_EMOJIS.PROCESSING,
-    );
+    await client.reactToMessage(phoneNumber, messageId, REACTION_EMOJIS.PROCESSING);
   } catch (error) {
     logger.warn("Failed to add processing reaction", {
       phoneNumber,
@@ -452,10 +436,7 @@ async function handleButtonReply(
       teamId,
     });
     const client = createWhatsAppClient();
-    await client.sendMessage(
-      phoneNumber,
-      formatMatchSuggestionNotFoundMessage(),
-    );
+    await client.sendMessage(phoneNumber, formatMatchSuggestionNotFoundMessage());
     return;
   }
 
@@ -507,10 +488,7 @@ async function handleButtonReply(
       error: error instanceof Error ? error.message : "Unknown error",
     });
 
-    await client.sendMessage(
-      phoneNumber,
-      formatMatchActionErrorMessage(action),
-    );
+    await client.sendMessage(phoneNumber, formatMatchActionErrorMessage(action));
   }
 }
 

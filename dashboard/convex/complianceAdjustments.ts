@@ -31,10 +31,7 @@ type ComplianceAdjustmentRecord = {
   createdAt: string;
 };
 
-function serializeComplianceAdjustment(
-  publicTeamId: string,
-  record: ComplianceAdjustmentRecord,
-) {
+function serializeComplianceAdjustment(publicTeamId: string, record: ComplianceAdjustmentRecord) {
   return {
     id: record.publicComplianceAdjustmentId ?? record._id,
     teamId: publicTeamId,
@@ -79,8 +76,7 @@ export const serviceListComplianceAdjustmentsForPeriod = query({
     return records
       .filter(
         (record) =>
-          record.effectiveDate >= args.periodStart &&
-          record.effectiveDate <= args.periodEnd,
+          record.effectiveDate >= args.periodStart && record.effectiveDate <= args.periodEnd,
       )
       .map((record) =>
         serializeComplianceAdjustment(args.publicTeamId, {
@@ -164,8 +160,7 @@ export const serviceCreateComplianceAdjustment = mutation({
     }
 
     const insertedId = await ctx.db.insert("complianceAdjustments", {
-      publicComplianceAdjustmentId:
-        args.complianceAdjustmentId ?? crypto.randomUUID(),
+      publicComplianceAdjustmentId: args.complianceAdjustmentId ?? crypto.randomUUID(),
       teamId: team._id,
       filingProfileId: args.filingProfileId,
       vatReturnId: args.vatReturnId ?? undefined,

@@ -96,10 +96,7 @@ export const serviceUpsertCorporationTaxAdjustment = mutation({
       const existing = await ctx.db
         .query("corporationTaxAdjustments")
         .withIndex("by_public_corporation_tax_adjustment_id", (q) =>
-          q.eq(
-            "publicCorporationTaxAdjustmentId",
-            args.corporationTaxAdjustmentId,
-          ),
+          q.eq("publicCorporationTaxAdjustmentId", args.corporationTaxAdjustmentId),
         )
         .unique();
 
@@ -126,8 +123,7 @@ export const serviceUpsertCorporationTaxAdjustment = mutation({
     }
 
     const insertedId = await ctx.db.insert("corporationTaxAdjustments", {
-      publicCorporationTaxAdjustmentId:
-        args.corporationTaxAdjustmentId ?? crypto.randomUUID(),
+      publicCorporationTaxAdjustmentId: args.corporationTaxAdjustmentId ?? crypto.randomUUID(),
       teamId: team._id,
       filingProfileId: args.filingProfileId,
       periodKey: args.periodKey,
@@ -168,10 +164,7 @@ export const serviceDeleteCorporationTaxAdjustment = mutation({
     const existing = await ctx.db
       .query("corporationTaxAdjustments")
       .withIndex("by_public_corporation_tax_adjustment_id", (q) =>
-        q.eq(
-          "publicCorporationTaxAdjustmentId",
-          args.corporationTaxAdjustmentId,
-        ),
+        q.eq("publicCorporationTaxAdjustmentId", args.corporationTaxAdjustmentId),
       )
       .unique();
 

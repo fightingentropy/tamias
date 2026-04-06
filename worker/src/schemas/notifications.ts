@@ -197,37 +197,17 @@ export const notificationPayloadSchema = z.discriminatedUnion("type", [
 export type NotificationPayload = z.infer<typeof notificationPayloadSchema>;
 
 // Individual type exports for type narrowing
-export type InsightReadyNotification = z.infer<
-  typeof insightReadyNotificationSchema
->;
+export type InsightReadyNotification = z.infer<typeof insightReadyNotificationSchema>;
 export type InboxNewNotification = z.infer<typeof inboxNewNotificationSchema>;
-export type DocumentUploadedNotification = z.infer<
-  typeof documentUploadedNotificationSchema
->;
-export type DocumentProcessedNotification = z.infer<
-  typeof documentProcessedNotificationSchema
->;
-export type InvoicePaidNotification = z.infer<
-  typeof invoicePaidNotificationSchema
->;
-export type InvoiceOverdueNotification = z.infer<
-  typeof invoiceOverdueNotificationSchema
->;
-export type InvoiceSentNotification = z.infer<
-  typeof invoiceSentNotificationSchema
->;
-export type InvoiceCancelledNotification = z.infer<
-  typeof invoiceCancelledNotificationSchema
->;
-export type InvoiceScheduledNotification = z.infer<
-  typeof invoiceScheduledNotificationSchema
->;
-export type InvoiceReminderSentNotification = z.infer<
-  typeof invoiceReminderSentNotificationSchema
->;
-export type InvoiceRefundedNotification = z.infer<
-  typeof invoiceRefundedNotificationSchema
->;
+export type DocumentUploadedNotification = z.infer<typeof documentUploadedNotificationSchema>;
+export type DocumentProcessedNotification = z.infer<typeof documentProcessedNotificationSchema>;
+export type InvoicePaidNotification = z.infer<typeof invoicePaidNotificationSchema>;
+export type InvoiceOverdueNotification = z.infer<typeof invoiceOverdueNotificationSchema>;
+export type InvoiceSentNotification = z.infer<typeof invoiceSentNotificationSchema>;
+export type InvoiceCancelledNotification = z.infer<typeof invoiceCancelledNotificationSchema>;
+export type InvoiceScheduledNotification = z.infer<typeof invoiceScheduledNotificationSchema>;
+export type InvoiceReminderSentNotification = z.infer<typeof invoiceReminderSentNotificationSchema>;
+export type InvoiceRefundedNotification = z.infer<typeof invoiceRefundedNotificationSchema>;
 export type InvoiceRecurringGeneratedNotification = z.infer<
   typeof invoiceRecurringGeneratedNotificationSchema
 >;

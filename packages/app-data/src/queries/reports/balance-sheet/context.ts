@@ -108,12 +108,10 @@ export async function loadBalanceSheetContext(
     asOfDateStr,
     excludedCategorySlugs,
     accountBalanceData,
-    transactions: (transactionAggregateData.rows as BalanceSheetTransactionRow[]).filter(
-      (row) => {
-        const slug = row.categorySlug;
-        return !slug || !excludedCategorySlugs.includes(slug);
-      },
-    ),
+    transactions: (transactionAggregateData.rows as BalanceSheetTransactionRow[]).filter((row) => {
+      const slug = row.categorySlug;
+      return !slug || !excludedCategorySlugs.includes(slug);
+    }),
     accountsReceivableInvoices: accountsReceivableInvoices as BalanceSheetInvoiceRow[],
     bankAccounts: bankAccountsData,
     unmatchedBills: unmatchedBillsData as BalanceSheetLiabilityRow[],

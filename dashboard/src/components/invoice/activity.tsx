@@ -13,13 +13,7 @@ type ActivityItemProps = {
   timeFormat?: number | null;
 };
 
-function ActivityItem({
-  label,
-  date,
-  completed,
-  isLast,
-  timeFormat,
-}: ActivityItemProps) {
+function ActivityItem({ label, date, completed, isLast, timeFormat }: ActivityItemProps) {
   return (
     <li className="relative pb-6 last:pb-0">
       {!isLast && (
@@ -35,21 +29,12 @@ function ActivityItem({
         />
 
         <div className="flex flex-1 items-center justify-between">
-          <span
-            className={cn(
-              "text-sm",
-              completed ? "text-primary" : "text-[#666666]",
-            )}
-          >
+          <span className={cn("text-sm", completed ? "text-primary" : "text-[#666666]")}>
             {label}
           </span>
 
           <span className="text-sm text-[#666666]">
-            {date &&
-              format(
-                new Date(date),
-                `MMM d, ${timeFormat === 24 ? "HH:mm" : "h:mm a"}`,
-              )}
+            {date && format(new Date(date), `MMM d, ${timeFormat === 24 ? "HH:mm" : "h:mm a"}`)}
           </span>
         </div>
       </div>
@@ -76,12 +61,7 @@ export function InvoiceActivity({ data }: Props) {
         />
       )}
       {data?.sentAt && (
-        <ActivityItem
-          label="Sent"
-          date={data?.sentAt}
-          completed
-          timeFormat={user?.timeFormat}
-        />
+        <ActivityItem label="Sent" date={data?.sentAt} completed timeFormat={user?.timeFormat} />
       )}
       {data?.scheduledAt && data?.status === "scheduled" && (
         <ActivityItem

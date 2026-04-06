@@ -54,10 +54,7 @@ export function WidgetSkeleton({
           {Array.from({ length: descriptionLines }).map((_, i) => (
             <Skeleton
               key={i.toString()}
-              className={cn(
-                "h-3",
-                i === descriptionLines - 1 ? "w-3/4" : "w-full",
-              )}
+              className={cn("h-3", i === descriptionLines - 1 ? "w-3/4" : "w-full")}
             />
           ))}
         </div>

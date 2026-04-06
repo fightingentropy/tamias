@@ -17,10 +17,7 @@ function AccountDateAndLocalePage() {
   >;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <div className="space-y-12">
         <LocaleSettings />
         <ChangeTimezone />

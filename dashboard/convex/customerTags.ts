@@ -14,10 +14,7 @@ type CustomerTagAssignmentRecord = {
   updatedAt: string;
 };
 
-function serializeCustomerTagAssignment(
-  teamId: string,
-  assignment: CustomerTagAssignmentRecord,
-) {
+function serializeCustomerTagAssignment(teamId: string, assignment: CustomerTagAssignmentRecord) {
   return {
     customerId: assignment.customerId,
     tagId: assignment.tagId,
@@ -88,9 +85,9 @@ export const serviceGetCustomerTagAssignmentsForCustomerIds = query({
       ),
     );
 
-    return assignments.flat().map((assignment) =>
-      serializeCustomerTagAssignment(args.teamId, assignment),
-    );
+    return assignments
+      .flat()
+      .map((assignment) => serializeCustomerTagAssignment(args.teamId, assignment));
   },
 });
 
@@ -106,9 +103,7 @@ export const serviceReplaceCustomerTags = mutation({
 
     const team = await getTeamOrThrow(ctx, args.teamId);
     const currentAssignments = await listAssignmentsForCustomer(ctx, args);
-    const currentTagIds = new Set(
-      currentAssignments.map((assignment) => assignment.tagId),
-    );
+    const currentTagIds = new Set(currentAssignments.map((assignment) => assignment.tagId));
     const nextTagIds = [...new Set(args.tagIds)];
     const nextTagIdSet = new Set(nextTagIds);
     const timestamp = nowIso();
@@ -135,9 +130,7 @@ export const serviceReplaceCustomerTags = mutation({
 
     const assignments = await listAssignmentsForCustomer(ctx, args);
 
-    return assignments.map((assignment) =>
-      serializeCustomerTagAssignment(args.teamId, assignment),
-    );
+    return assignments.map((assignment) => serializeCustomerTagAssignment(args.teamId, assignment));
   },
 });
 
@@ -177,9 +170,7 @@ export const serviceDeleteCustomerTagsForTag = mutation({
 
     const assignments = await ctx.db
       .query("customerTags")
-      .withIndex("by_team_and_tag", (q) =>
-        q.eq("teamId", team._id).eq("tagId", args.tagId),
-      )
+      .withIndex("by_team_and_tag", (q) => q.eq("teamId", team._id).eq("tagId", args.tagId))
       .collect();
 
     for (const assignment of assignments) {

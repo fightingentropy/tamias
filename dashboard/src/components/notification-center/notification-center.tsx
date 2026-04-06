@@ -9,10 +9,7 @@ import { useEffect, useState } from "react";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { ErrorFallback } from "@/components/error-fallback";
 import { useNotifications } from "@/hooks/use-notifications";
-import {
-  NotificationIcon,
-  SettingsNavIcon,
-} from "@/start/components/app-shell-icons";
+import { NotificationIcon, SettingsNavIcon } from "@/start/components/app-shell-icons";
 import { EmptyState } from "./empty-state";
 import { NotificationItem } from "./notification-item";
 
@@ -68,10 +65,7 @@ export function NotificationCenter() {
                   Archive
                 </TabsTrigger>
               </div>
-              <Link
-                href="/settings/notifications"
-                onClick={() => setOpen(false)}
-              >
+              <Link href="/settings/notifications" onClick={() => setOpen(false)}>
                 <Button
                   variant="ghost"
                   size="icon"

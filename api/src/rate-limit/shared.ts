@@ -33,8 +33,7 @@ export function isRateLimitRequest(value: unknown): value is RateLimitRequest {
     typeof candidate.windowMs === "number" &&
     Number.isFinite(candidate.windowMs) &&
     candidate.windowMs > 0 &&
-    (typeof candidate.nowMs === "number" ||
-      typeof candidate.nowMs === "undefined")
+    (typeof candidate.nowMs === "number" || typeof candidate.nowMs === "undefined")
   );
 }
 
@@ -53,9 +52,7 @@ export function pruneStoredRateLimitBucket(
     };
   }
 
-  const timestamps = bucket.timestamps.filter(
-    (timestamp) => timestamp > nowMs - bucket.windowMs,
-  );
+  const timestamps = bucket.timestamps.filter((timestamp) => timestamp > nowMs - bucket.windowMs);
 
   if (timestamps.length === 0) {
     return {
@@ -84,10 +81,7 @@ export function consumeRateLimit(
     existingBucket.windowMs === request.windowMs
       ? existingBucket
       : null;
-  const { bucket: prunedBucket } = pruneStoredRateLimitBucket(
-    compatibleBucket,
-    nowMs,
-  );
+  const { bucket: prunedBucket } = pruneStoredRateLimitBucket(compatibleBucket, nowMs);
   const currentBucket =
     prunedBucket ??
     ({

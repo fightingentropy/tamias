@@ -18,10 +18,7 @@ export const getUserByEmail = async (_db: QueryClient, email: string) => {
   return getUserByEmailFromConvexIdentity({ email });
 };
 
-export type UpdateUserParams = Omit<
-  UpdateUserInConvexIdentityInput,
-  "userId" | "currentEmail"
-> & {
+export type UpdateUserParams = Omit<UpdateUserInConvexIdentityInput, "userId" | "currentEmail"> & {
   id: ConvexUserId;
 };
 
@@ -40,10 +37,7 @@ export const getUserTeamId = async (_db: QueryClient, userId: ConvexUserId) => {
   return user?.teamId ?? null;
 };
 
-export const deleteUserByConvexId = async (
-  _db: QueryClient,
-  id: ConvexUserId,
-) => {
+export const deleteUserByConvexId = async (_db: QueryClient, id: ConvexUserId) => {
   await deleteUserInConvexIdentity({ userId: id });
   return { id };
 };

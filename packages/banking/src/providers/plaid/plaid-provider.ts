@@ -24,12 +24,7 @@ export class PlaidProvider implements Provider {
     this.#api = new PlaidApi();
   }
 
-  async getTransactions({
-    accessToken,
-    accountId,
-    accountType,
-    latest,
-  }: GetTransactionsRequest) {
+  async getTransactions({ accessToken, accountId, accountType, latest }: GetTransactionsRequest) {
     if (!accessToken || !accountId) {
       throw Error("accessToken or accountId is missing");
     }
@@ -65,10 +60,7 @@ export class PlaidProvider implements Provider {
     return (response ?? []).map(transformAccount);
   }
 
-  async getAccountBalance({
-    accessToken,
-    accountId,
-  }: GetAccountBalanceRequest) {
+  async getAccountBalance({ accessToken, accountId }: GetAccountBalanceRequest) {
     if (!accessToken || !accountId) {
       throw Error("Missing params");
     }

@@ -6,9 +6,7 @@ import { TeamInvite } from "./team-invite";
 
 export function TeamInvites() {
   const trpc = useTRPC();
-  const { data: invites } = useSuspenseQuery(
-    trpc.team.invitesByEmail.queryOptions(),
-  );
+  const { data: invites } = useSuspenseQuery(trpc.team.invitesByEmail.queryOptions());
 
   return (
     <div className="mt-4">

@@ -18,6 +18,4 @@ export function useDocumentFilterParams() {
   };
 }
 
-export const loadDocumentFilterParams = createLoader(
-  documentFilterParamsSchema,
-);
+export const loadDocumentFilterParams = createLoader(documentFilterParamsSchema);

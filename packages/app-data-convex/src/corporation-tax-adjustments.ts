@@ -67,10 +67,7 @@ export async function upsertCorporationTaxAdjustmentInConvex(args: {
   ) as Promise<CorporationTaxAdjustmentRecord>;
 }
 
-export async function deleteCorporationTaxAdjustmentInConvex(args: {
-  teamId: string;
-  id: string;
-}) {
+export async function deleteCorporationTaxAdjustmentInConvex(args: { teamId: string; id: string }) {
   return createClient().mutation(
     apiWithCorporationTaxAdjustments.corporationTaxAdjustments
       .serviceDeleteCorporationTaxAdjustment,

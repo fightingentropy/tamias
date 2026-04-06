@@ -24,11 +24,7 @@ const BANK_LABELS = [
 
 const BANK_FAILED_LABEL = "Bank sync failed";
 
-const INBOX_LABELS = [
-  "Connecting inbox...",
-  "Importing receipts...",
-  "Inbox connected",
-] as const;
+const INBOX_LABELS = ["Connecting inbox...", "Importing receipts...", "Inbox connected"] as const;
 
 function useSyncLabels({
   labels,
@@ -133,11 +129,7 @@ function SyncPill({
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
             >
-              <Icons.AlertCircle
-                width={12}
-                height={12}
-                className="text-destructive"
-              />
+              <Icons.AlertCircle width={12} height={12} className="text-destructive" />
             </motion.div>
           ) : (
             <motion.div
@@ -164,11 +156,7 @@ type Props = {
   onVisibilityChange?: (visible: boolean) => void;
 };
 
-export function OnboardingSyncStatus({
-  bankSync,
-  inboxSync,
-  onVisibilityChange,
-}: Props) {
+export function OnboardingSyncStatus({ bankSync, inboxSync, onVisibilityChange }: Props) {
   const [dismissed, setDismissed] = useState<{
     bank: boolean;
     inbox: boolean;
@@ -190,9 +178,7 @@ export function OnboardingSyncStatus({
   }, [isDebug, bankSync, debugBankCompleted]);
 
   const bankActive = !!bankSync && !dismissed.bank;
-  const bankCompleted = isDebug
-    ? debugBankCompleted
-    : bankStatus === "COMPLETED";
+  const bankCompleted = isDebug ? debugBankCompleted : bankStatus === "COMPLETED";
   const bankFailed = isDebug ? false : bankStatus === "FAILED";
 
   const { label: bankLabel, isDone: bankDone } = useSyncLabels({
@@ -226,10 +212,7 @@ export function OnboardingSyncStatus({
 
   useEffect(() => {
     if ((bankDone || bankFailed) && bankActive) {
-      const timer = setTimeout(
-        () => handleDismiss("bank"),
-        bankFailed ? 5000 : 2000,
-      );
+      const timer = setTimeout(() => handleDismiss("bank"), bankFailed ? 5000 : 2000);
       return () => clearTimeout(timer);
     }
   }, [bankDone, bankFailed, bankActive, handleDismiss]);

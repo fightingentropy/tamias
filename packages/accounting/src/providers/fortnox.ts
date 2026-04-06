@@ -137,8 +137,7 @@ export class FortnoxProvider extends BaseAccountingProvider {
    * Fortnox rate limit: 25 calls per 5 seconds = 300 per minute
    * https://apps.fortnox.se/apidocs
    */
-  protected override readonly rateLimitConfig: RateLimitConfig =
-    RATE_LIMITS.fortnox;
+  protected override readonly rateLimitConfig: RateLimitConfig = RATE_LIMITS.fortnox;
 
   private accessToken: string | null = null;
   private refreshTokenValue: string | null = null;
@@ -198,10 +197,7 @@ export class FortnoxProvider extends BaseAccountingProvider {
   /**
    * Make an authenticated API call to Fortnox
    */
-  private async apiCall<T>(
-    endpoint: string,
-    options: RequestInit = {},
-  ): Promise<T> {
+  private async apiCall<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     if (!this.accessToken) {
       throw new Error("Fortnox client not initialized - no access token");
     }
@@ -220,9 +216,7 @@ export class FortnoxProvider extends BaseAccountingProvider {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(
-        `Fortnox API error ${response.status}: ${errorText || response.statusText}`,
-      );
+      throw new Error(`Fortnox API error ${response.status}: ${errorText || response.statusText}`);
     }
 
     return response.json() as Promise<T>;
@@ -244,11 +238,7 @@ export class FortnoxProvider extends BaseAccountingProvider {
     const formData = new FormData();
     // Convert Buffer to Uint8Array for Blob compatibility
     const uint8Array = new Uint8Array(content);
-    formData.append(
-      "file",
-      new Blob([uint8Array], { type: "application/octet-stream" }),
-      fileName,
-    );
+    formData.append("file", new Blob([uint8Array], { type: "application/octet-stream" }), fileName);
 
     const url = new URL(`${FORTNOX_API_URL}${endpoint}`);
     if (folder) {
@@ -315,9 +305,7 @@ export class FortnoxProvider extends BaseAccountingProvider {
       const err = error as Record<string, unknown>;
 
       // Fortnox ErrorInformation structure
-      const errorInfo = err.ErrorInformation as
-        | Record<string, unknown>
-        | undefined;
+      const errorInfo = err.ErrorInformation as Record<string, unknown> | undefined;
       if (errorInfo) {
         if (errorInfo.message) return String(errorInfo.message);
         if (errorInfo.Message) return String(errorInfo.Message);
@@ -359,8 +347,7 @@ export class FortnoxProvider extends BaseAccountingProvider {
         return {
           type: "auth_expired",
           code: ACCOUNTING_ERROR_CODES.AUTH_EXPIRED,
-          message:
-            "Authentication failed. Please reconnect your Fortnox account.",
+          message: "Authentication failed. Please reconnect your Fortnox account.",
           providerCode: "401",
           retryable: false,
         };
@@ -438,9 +425,9 @@ export class FortnoxProvider extends BaseAccountingProvider {
    * Exchange authorization code for tokens
    */
   async exchangeCodeForTokens(code: string): Promise<TokenSet> {
-    const credentials = Buffer.from(
-      `${this.config.clientId}:${this.config.clientSecret}`,
-    ).toString("base64");
+    const credentials = Buffer.from(`${this.config.clientId}:${this.config.clientSecret}`).toString(
+      "base64",
+    );
 
     const response = await fetch(`${FORTNOX_AUTH_URL}/token`, {
       method: "POST",
@@ -458,9 +445,7 @@ export class FortnoxProvider extends BaseAccountingProvider {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(
-        `Fortnox token exchange failed: ${response.status} ${errorText}`,
-      );
+      throw new Error(`Fortnox token exchange failed: ${response.status} ${errorText}`);
     }
 
     const tokens = (await response.json()) as FortnoxTokenResponse;
@@ -473,9 +458,7 @@ export class FortnoxProvider extends BaseAccountingProvider {
     this.accessToken = tokens.access_token;
     this.refreshTokenValue = tokens.refresh_token;
     // Fortnox access tokens expire in 1 hour (expires_in is in seconds)
-    this.tokenExpiresAt = new Date(
-      Date.now() + (tokens.expires_in || 3600) * 1000,
-    );
+    this.tokenExpiresAt = new Date(Date.now() + (tokens.expires_in || 3600) * 1000);
 
     return {
       accessToken: tokens.access_token,
@@ -492,9 +475,9 @@ export class FortnoxProvider extends BaseAccountingProvider {
   async refreshTokens(refreshToken: string): Promise<TokenSet> {
     logger.info("Refreshing Fortnox tokens", { provider: "fortnox" });
 
-    const credentials = Buffer.from(
-      `${this.config.clientId}:${this.config.clientSecret}`,
-    ).toString("base64");
+    const credentials = Buffer.from(`${this.config.clientId}:${this.config.clientSecret}`).toString(
+      "base64",
+    );
 
     const response = await fetch(`${FORTNOX_AUTH_URL}/token`, {
       method: "POST",
@@ -516,9 +499,7 @@ export class FortnoxProvider extends BaseAccountingProvider {
         status: response.status,
         error: errorText,
       });
-      throw new Error(
-        `Fortnox token refresh failed: ${response.status} ${errorText}`,
-      );
+      throw new Error(`Fortnox token refresh failed: ${response.status} ${errorText}`);
     }
 
     const tokens = (await response.json()) as FortnoxTokenResponse;
@@ -530,9 +511,7 @@ export class FortnoxProvider extends BaseAccountingProvider {
     // Update local state
     this.accessToken = tokens.access_token;
     this.refreshTokenValue = tokens.refresh_token ?? refreshToken;
-    this.tokenExpiresAt = new Date(
-      Date.now() + (tokens.expires_in || 3600) * 1000,
-    );
+    this.tokenExpiresAt = new Date(Date.now() + (tokens.expires_in || 3600) * 1000);
 
     logger.info("Fortnox tokens refreshed successfully", {
       provider: "fortnox",
@@ -573,12 +552,8 @@ export class FortnoxProvider extends BaseAccountingProvider {
    * Get tenant info (company information in Fortnox)
    * Note: tenantId is ignored in Fortnox as it's single-tenant
    */
-  async getTenantInfo(
-    _tenantId: string,
-  ): Promise<{ id: string; name: string; currency?: string }> {
-    const response = await this.apiCall<FortnoxCompanyInfo>(
-      "/companyinformation",
-    );
+  async getTenantInfo(_tenantId: string): Promise<{ id: string; name: string; currency?: string }> {
+    const response = await this.apiCall<FortnoxCompanyInfo>("/companyinformation");
 
     return {
       id: response.CompanyInformation?.DatabaseNumber?.toString() ?? "default",
@@ -590,9 +565,7 @@ export class FortnoxProvider extends BaseAccountingProvider {
   /**
    * Get tenants - Fortnox is single-tenant, returns current company
    */
-  async getTenants(): Promise<
-    Array<{ tenantId: string; tenantName: string; tenantType: string }>
-  > {
+  async getTenants(): Promise<Array<{ tenantId: string; tenantName: string; tenantType: string }>> {
     const tenant = await this.getTenantInfo("default");
     return [
       {
@@ -802,8 +775,7 @@ export class FortnoxProvider extends BaseAccountingProvider {
     if (this.financialYearsCache) {
       return this.financialYearsCache;
     }
-    const response =
-      await this.apiCall<FortnoxFinancialYearsResponse>("/financialyears");
+    const response = await this.apiCall<FortnoxFinancialYearsResponse>("/financialyears");
     this.financialYearsCache = response.FinancialYears ?? [];
     return this.financialYearsCache;
   }
@@ -885,9 +857,7 @@ export class FortnoxProvider extends BaseAccountingProvider {
 
     if (existingYears.length > 0 && existingYears[0]?.FromDate) {
       const existingFrom = parseISO(existingYears[0].FromDate);
-      const existingTo = existingYears[0].ToDate
-        ? parseISO(existingYears[0].ToDate)
-        : null;
+      const existingTo = existingYears[0].ToDate ? parseISO(existingYears[0].ToDate) : null;
 
       fromMonth = existingFrom.getMonth() + 1;
       fromDay = existingFrom.getDate();
@@ -932,19 +902,16 @@ export class FortnoxProvider extends BaseAccountingProvider {
       toDate,
     });
 
-    const response = await this.apiCall<FortnoxFinancialYearResponse>(
-      "/financialyears",
-      {
-        method: "POST",
-        body: JSON.stringify({
-          FinancialYear: {
-            FromDate: fromDate,
-            ToDate: toDate,
-            AccountingMethod: "ACCRUAL",
-          },
-        }),
-      },
-    );
+    const response = await this.apiCall<FortnoxFinancialYearResponse>("/financialyears", {
+      method: "POST",
+      body: JSON.stringify({
+        FinancialYear: {
+          FromDate: fromDate,
+          ToDate: toDate,
+          AccountingMethod: "ACCRUAL",
+        },
+      }),
+    });
 
     if (!response.FinancialYear) {
       throw new Error("Failed to create financial year - no response");
@@ -1086,9 +1053,7 @@ export class FortnoxProvider extends BaseAccountingProvider {
       const amount = Math.abs(tx.amount);
 
       // Determine contra account (expense or income)
-      const defaultAccount = isExpense
-        ? DEFAULT_EXPENSE_ACCOUNT
-        : DEFAULT_INCOME_ACCOUNT;
+      const defaultAccount = isExpense ? DEFAULT_EXPENSE_ACCOUNT : DEFAULT_INCOME_ACCOUNT;
       const contraAccount = this.getValidAccountCode(
         tx.categoryReportingCode,
         tx.id,
@@ -1125,16 +1090,14 @@ export class FortnoxProvider extends BaseAccountingProvider {
           ];
 
       // Use the same description as shown in Tamias
-      const baseDescription =
-        tx.description || tx.counterpartyName || "Transaction";
+      const baseDescription = tx.description || tx.counterpartyName || "Transaction";
 
       // Append tax info to VoucherRow description (use compact format for Fortnox)
       // Fortnox description field has ~200 char limit
-      const rowDescription = appendTaxInfoToDescription(
-        tx.description || "",
-        tx,
-        { compact: true, maxLength: 200 },
-      );
+      const rowDescription = appendTaxInfoToDescription(tx.description || "", tx, {
+        compact: true,
+        maxLength: 200,
+      });
 
       // Build comments with tax info and user notes (visible in Fortnox UI comment box)
       const voucherComments = buildPrivateNote(tx);
@@ -1159,17 +1122,14 @@ export class FortnoxProvider extends BaseAccountingProvider {
               CostCenter: tx.costCenter || undefined,
               Project: tx.project || undefined,
               // TransactionInformation: WHO the transaction is with (max 100 chars)
-              TransactionInformation:
-                tx.counterpartyName?.substring(0, 100) || undefined,
+              TransactionInformation: tx.counterpartyName?.substring(0, 100) || undefined,
             })),
           },
         }),
       });
 
       if (!response.Voucher?.VoucherNumber) {
-        throw new Error(
-          "Failed to create voucher - no voucher number returned",
-        );
+        throw new Error("Failed to create voucher - no voucher number returned");
       }
 
       // Voucher ID in Fortnox is: Series + Number + Year
@@ -1190,9 +1150,7 @@ export class FortnoxProvider extends BaseAccountingProvider {
    * 1. Upload file to archive
    * 2. Create voucher file connection
    */
-  async uploadAttachment(
-    params: UploadAttachmentParams,
-  ): Promise<AttachmentResult> {
+  async uploadAttachment(params: UploadAttachmentParams): Promise<AttachmentResult> {
     const { transactionId, fileName, mimeType, content } = params;
 
     // Ensure filename has proper extension based on mimeType
@@ -1207,8 +1165,7 @@ export class FortnoxProvider extends BaseAccountingProvider {
 
     try {
       // Parse voucher ID (format: Series-Number-Year)
-      const [voucherSeries, voucherNumber, voucherYear] =
-        transactionId.split("-");
+      const [voucherSeries, voucherNumber, voucherYear] = transactionId.split("-");
       if (!voucherSeries || !voucherNumber || !voucherYear) {
         logger.warn("Invalid Fortnox voucher ID format", {
           provider: "fortnox",
@@ -1229,12 +1186,7 @@ export class FortnoxProvider extends BaseAccountingProvider {
 
       // Step 2: Create voucher file connection
       // VoucherYear is required to uniquely identify the voucher
-      await this.createVoucherFileConnection(
-        fileId,
-        voucherSeries,
-        voucherNumber,
-        voucherYear,
-      );
+      await this.createVoucherFileConnection(fileId, voucherSeries, voucherNumber, voucherYear);
 
       logger.info("Fortnox attachment uploaded successfully", {
         provider: "fortnox",
@@ -1265,10 +1217,7 @@ export class FortnoxProvider extends BaseAccountingProvider {
    * Upload file to Fortnox Inbox
    * Upload to root inbox - Fortnox will handle the file location
    */
-  private async uploadFileToInbox(
-    fileName: string,
-    content: Buffer,
-  ): Promise<string> {
+  private async uploadFileToInbox(fileName: string, content: Buffer): Promise<string> {
     return this.withRetry(async () => {
       // Upload to inbox root (no path parameter)
       const response = await this.uploadFile("/inbox", fileName, content);
@@ -1314,19 +1263,16 @@ export class FortnoxProvider extends BaseAccountingProvider {
 
       // Try without VoucherYear - Fortnox may derive it from voucher lookup
       // VoucherNumber as string per API examples
-      await this.apiCall(
-        `/voucherfileconnections?financialyear=${voucherYear}`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            VoucherFileConnection: {
-              FileId: fileId,
-              VoucherSeries: voucherSeries,
-              VoucherNumber: voucherNumber, // String
-            },
-          }),
-        },
-      );
+      await this.apiCall(`/voucherfileconnections?financialyear=${voucherYear}`, {
+        method: "POST",
+        body: JSON.stringify({
+          VoucherFileConnection: {
+            FileId: fileId,
+            VoucherSeries: voucherSeries,
+            VoucherNumber: voucherNumber, // String
+          },
+        }),
+      });
     }, "createVoucherFileConnection");
   }
 
@@ -1335,9 +1281,7 @@ export class FortnoxProvider extends BaseAccountingProvider {
    *
    * Fortnox API: DELETE /voucherfileconnections/{FileId}
    */
-  async deleteAttachment(
-    params: DeleteAttachmentParams,
-  ): Promise<DeleteAttachmentResult> {
+  async deleteAttachment(params: DeleteAttachmentParams): Promise<DeleteAttachmentResult> {
     const { transactionId, attachmentId } = params;
 
     logger.info("Deleting Fortnox attachment", {

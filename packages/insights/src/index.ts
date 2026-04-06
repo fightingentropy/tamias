@@ -30,10 +30,7 @@ import {
   getSpending,
   getSpendingForPeriod,
 } from "@tamias/app-data/queries";
-import {
-  ContentGenerator,
-  type YearOverYearContext,
-} from "./content/generator";
+import { ContentGenerator, type YearOverYearContext } from "./content/generator";
 import {
   addActivityMetrics,
   calculateAllMetrics,
@@ -76,9 +73,7 @@ export class InsightsService {
   /**
    * Generate a complete insight for a team and period
    */
-  async generateInsight(
-    params: GenerateInsightParams,
-  ): Promise<InsightGenerationResult> {
+  async generateInsight(params: GenerateInsightParams): Promise<InsightGenerationResult> {
     const {
       teamId,
       periodType,
@@ -130,9 +125,7 @@ export class InsightsService {
             teamId,
             weeksBack: 52, // Enough for YoY comparison
             excludeCurrentPeriod: { year: periodYear, number: periodNumber },
-          }).catch(
-            () => ({ weeks: [], weeksOfHistory: 0 }) as InsightHistoryData,
-          )
+          }).catch(() => ({ weeks: [], weeksOfHistory: 0 }) as InsightHistoryData)
         : null,
       // Revenue concentration for risk assessment
       getRevenueConcentration(this.db, {
@@ -150,31 +143,16 @@ export class InsightsService {
     ]);
 
     // Calculate all metrics
-    let allMetrics = calculateAllMetrics(
-      currentMetrics,
-      previousMetrics,
-      currency,
-    );
+    let allMetrics = calculateAllMetrics(currentMetrics, previousMetrics, currency);
 
     // Add activity-based metrics
-    allMetrics = addActivityMetrics(
-      allMetrics,
-      currentActivity,
-      previousActivity,
-      currency,
-    );
+    allMetrics = addActivityMetrics(allMetrics, currentActivity, previousActivity, currency);
 
     // Add historical context for personal bests (weekly insights only)
     let yearOverYearContext: YearOverYearContext | undefined;
-    let quarterPaceContext:
-      | import("./content/generator").QuarterPaceContext
-      | undefined;
+    let quarterPaceContext: import("./content/generator").QuarterPaceContext | undefined;
 
-    if (
-      periodType === "weekly" &&
-      insightHistory &&
-      insightHistory.weeks.length >= 4
-    ) {
+    if (periodType === "weekly" && insightHistory && insightHistory.weeks.length >= 4) {
       const historicalContext = computeHistoricalContext(insightHistory, {
         revenue: currentMetrics.revenue,
         profit: currentMetrics.netProfit,
@@ -189,21 +167,18 @@ export class InsightsService {
         } else if (historicalContext.revenueHighestSince) {
           allMetrics.revenue.historicalContext = `Highest since ${historicalContext.revenueHighestSince}`;
         } else if (historicalContext.isRecentRevenueHigh) {
-          allMetrics.revenue.historicalContext =
-            "One of your best recent weeks";
+          allMetrics.revenue.historicalContext = "One of your best recent weeks";
         }
       }
 
       // Add historical context to profit metric
       if (allMetrics.net_profit) {
         if (historicalContext.isAllTimeProfitHigh) {
-          allMetrics.net_profit.historicalContext =
-            "Your most profitable week ever";
+          allMetrics.net_profit.historicalContext = "Your most profitable week ever";
         } else if (historicalContext.profitHighestSince) {
           allMetrics.net_profit.historicalContext = `Most profitable since ${historicalContext.profitHighestSince}`;
         } else if (historicalContext.isRecentProfitHigh) {
-          allMetrics.net_profit.historicalContext =
-            "One of your most profitable recent weeks";
+          allMetrics.net_profit.historicalContext = "One of your most profitable recent weeks";
         }
       }
 
@@ -248,14 +223,8 @@ export class InsightsService {
 
     if (periodType === "weekly" && insightHistory) {
       // Compute momentum and recovery from pre-fetched history (no extra DB calls)
-      const momentumData = computeMomentum(
-        insightHistory,
-        currentMetrics.revenue,
-      );
-      const recoveryData = computeRecovery(
-        insightHistory,
-        currentMetrics.revenue,
-      );
+      const momentumData = computeMomentum(insightHistory, currentMetrics.revenue);
+      const recoveryData = computeRecovery(insightHistory, currentMetrics.revenue);
 
       // Fetch invoice data in parallel (these can't be derived from history)
       const [upcomingInvoicesData, _overdueData] = await Promise.all([
@@ -467,36 +436,29 @@ export class InsightsService {
     if (expenses === 0 && impliedExpenses > 0) {
       // Spending query returned 0 but profit tells us there were expenses
       expenses = impliedExpenses;
-      logger.warn(
-        "Data consistency fix applied: expenses derived from profit",
-        {
-          originalExpenses,
-          derivedExpenses: expenses,
-          revenue: revenueTotal,
-          profit: profitTotal,
-          teamId,
-        },
-      );
+      logger.warn("Data consistency fix applied: expenses derived from profit", {
+        originalExpenses,
+        derivedExpenses: expenses,
+        revenue: revenueTotal,
+        profit: profitTotal,
+        teamId,
+      });
     } else if (expenses > 0 && Math.abs(expenses - impliedExpenses) > 1) {
       // Data mismatch - trust the profit calculation and derive expenses
       // This ensures the summary never contradicts itself
       expenses = Math.max(expenses, impliedExpenses);
-      logger.warn(
-        "Data consistency fix applied: expenses adjusted for mismatch",
-        {
-          originalExpenses,
-          adjustedExpenses: expenses,
-          impliedExpenses,
-          revenue: revenueTotal,
-          profit: profitTotal,
-          teamId,
-        },
-      );
+      logger.warn("Data consistency fix applied: expenses adjusted for mismatch", {
+        originalExpenses,
+        adjustedExpenses: expenses,
+        impliedExpenses,
+        revenue: revenueTotal,
+        profit: profitTotal,
+        teamId,
+      });
     }
 
     // Calculate profit margin
-    const profitMargin =
-      revenueTotal > 0 ? (profitTotal / revenueTotal) * 100 : 0;
+    const profitMargin = revenueTotal > 0 ? (profitTotal / revenueTotal) * 100 : 0;
 
     // Get cash balance (point-in-time value)
     const cashBalance = cashBalanceData?.totalBalance ?? 0;
@@ -574,26 +536,20 @@ export class InsightsService {
   ): Promise<InsightActivity> {
     // Fetch all detailed data in parallel
     const sevenDaysFromNow = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    const [overdueData, upcomingRecurring, overdueDetails, draftInvoices] =
-      await Promise.all([
-        getOverdueInvoicesAlert(this.db, { teamId, currency }).catch(
-          () => null,
-        ),
-        getUpcomingDueRecurringByTeam(this.db, {
-          teamId,
-          before: sevenDaysFromNow,
-        }).catch(
-          () => [] as Awaited<ReturnType<typeof getUpcomingDueRecurringByTeam>>,
-        ),
-        // Detailed queries for "money on table" with payment behavior analysis
-        getOverdueInvoicesWithBehavior(this.db, { teamId, currency }).catch(
-          () =>
-            [] as Awaited<ReturnType<typeof getOverdueInvoicesWithBehavior>>,
-        ),
-        getDraftInvoices(this.db, { teamId, currency }).catch(
-          () => [] as Awaited<ReturnType<typeof getDraftInvoices>>,
-        ),
-      ]);
+    const [overdueData, upcomingRecurring, overdueDetails, draftInvoices] = await Promise.all([
+      getOverdueInvoicesAlert(this.db, { teamId, currency }).catch(() => null),
+      getUpcomingDueRecurringByTeam(this.db, {
+        teamId,
+        before: sevenDaysFromNow,
+      }).catch(() => [] as Awaited<ReturnType<typeof getUpcomingDueRecurringByTeam>>),
+      // Detailed queries for "money on table" with payment behavior analysis
+      getOverdueInvoicesWithBehavior(this.db, { teamId, currency }).catch(
+        () => [] as Awaited<ReturnType<typeof getOverdueInvoicesWithBehavior>>,
+      ),
+      getDraftInvoices(this.db, { teamId, currency }).catch(
+        () => [] as Awaited<ReturnType<typeof getDraftInvoices>>,
+      ),
+    ]);
 
     // Compute rolling averages from history (no extra DB call)
     const rollingAverages = insightHistory
@@ -663,8 +619,7 @@ export class InsightsService {
       // Calculate comparison vs average
       if (rollingAverages.avgRevenue > 0) {
         const revenueVsAvg = Math.round(
-          ((currentMetrics.revenue - rollingAverages.avgRevenue) /
-            rollingAverages.avgRevenue) *
+          ((currentMetrics.revenue - rollingAverages.avgRevenue) / rollingAverages.avgRevenue) *
             100,
         );
         const direction = revenueVsAvg >= 0 ? "above" : "below";

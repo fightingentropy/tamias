@@ -1,12 +1,4 @@
-import {
-  Body,
-  Container,
-  Heading,
-  Hr,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
+import { Body, Container, Heading, Hr, Preview, Section, Text } from "@react-email/components";
 import { getAppUrl } from "@tamias/utils/envs";
 import { format } from "date-fns";
 import { InvoiceSchema } from "../components/invoice-schema";
@@ -93,18 +85,13 @@ export const InvoiceEmail = ({
   const resolvedDateFormat = dateFormat || "MM/dd/yyyy";
 
   const formattedAmount =
-    amount !== undefined && currency
-      ? formatInvoiceAmount(amount, currency, resolvedLocale)
-      : null;
-  const formattedDueDate = dueDate
-    ? formatInvoiceDueDate(dueDate, resolvedDateFormat)
-    : null;
+    amount !== undefined && currency ? formatInvoiceAmount(amount, currency, resolvedLocale) : null;
+  const formattedDueDate = dueDate ? formatInvoiceDueDate(dueDate, resolvedDateFormat) : null;
   const themeClasses = getEmailThemeClasses();
   const lightStyles = getEmailInlineStyles("light");
 
   // Only render Gmail schema if we have all required data
-  const hasSchemaData =
-    invoiceNumber && amount !== undefined && currency && dueDate;
+  const hasSchemaData = invoiceNumber && amount !== undefined && currency && dueDate;
 
   return (
     <EmailThemeProvider preview={<Preview>{text}</Preview>}>
@@ -119,10 +106,7 @@ export const InvoiceEmail = ({
           link={link}
         />
       )}
-      <Body
-        className={`my-auto mx-auto font-sans ${themeClasses.body}`}
-        style={lightStyles.body}
-      >
+      <Body className={`my-auto mx-auto font-sans ${themeClasses.body}`} style={lightStyles.body}>
         <Container
           className={`my-[40px] mx-auto p-[20px] max-w-[600px] ${themeClasses.container}`}
           style={{

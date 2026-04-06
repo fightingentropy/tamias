@@ -108,9 +108,7 @@ export const accountingRouter = createTRPCRouter({
         const config = app.config as AccountingProviderConfig | null;
         return {
           providerId: app.app_id,
-          tenantName: config
-            ? (getOrgName(config) ?? "Connected")
-            : "Connected",
+          tenantName: config ? (getOrgName(config) ?? "Connected") : "Connected",
           settings: app.settings,
           connectedAt: app.createdAt ?? null,
         };
@@ -152,8 +150,7 @@ export const accountingRouter = createTRPCRouter({
       } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message:
-            error instanceof Error ? error.message : "Failed to get accounts",
+          message: error instanceof Error ? error.message : "Failed to get accounts",
         });
       }
     }),

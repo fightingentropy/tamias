@@ -1,7 +1,4 @@
-import type {
-  CurrentUserIdentityRecord,
-  TeamIdentityRecord,
-} from "@tamias/app-data-convex";
+import type { CurrentUserIdentityRecord, TeamIdentityRecord } from "@tamias/app-data-convex";
 
 export type TeamRecord = TeamIdentityRecord;
 export type ConvexUserId = CurrentUserIdentityRecord["convexId"];

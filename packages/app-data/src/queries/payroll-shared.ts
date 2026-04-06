@@ -72,10 +72,7 @@ export function assertUkComplianceEnabled(
   }
 }
 
-export async function getTeamContext(
-  db: Database,
-  teamId: string,
-): Promise<TeamContext> {
+export async function getTeamContext(db: Database, teamId: string): Promise<TeamContext> {
   const team = await getTeamById(db, teamId);
 
   if (!team) {
@@ -116,17 +113,11 @@ export function validateBalancedLines(lines: PayrollImportLine[]) {
     throw new Error("At least two payroll journal lines are required");
   }
 
-  const debitTotal = roundCurrency(
-    lines.reduce((total, line) => total + line.debit, 0),
-  );
-  const creditTotal = roundCurrency(
-    lines.reduce((total, line) => total + line.credit, 0),
-  );
+  const debitTotal = roundCurrency(lines.reduce((total, line) => total + line.debit, 0));
+  const creditTotal = roundCurrency(lines.reduce((total, line) => total + line.credit, 0));
 
   if (debitTotal <= 0 || creditTotal <= 0) {
-    throw new Error(
-      "Payroll journal must include both debit and credit values",
-    );
+    throw new Error("Payroll journal must include both debit and credit values");
   }
 
   if (Math.abs(debitTotal - creditTotal) > 0.009) {
@@ -134,10 +125,7 @@ export function validateBalancedLines(lines: PayrollImportLine[]) {
   }
 }
 
-export function buildPayrollPeriodKey(
-  payPeriodStart: string,
-  payPeriodEnd: string,
-) {
+export function buildPayrollPeriodKey(payPeriodStart: string, payPeriodEnd: string) {
   return `${payPeriodStart}:${payPeriodEnd}`;
 }
 
@@ -183,23 +171,17 @@ export function parsePayrollCsv(csvContent: string) {
     .filter(Boolean);
 
   if (rows.length < 2) {
-    throw new Error(
-      "Payroll CSV must include a header and at least one data row",
-    );
+    throw new Error("Payroll CSV must include a header and at least one data row");
   }
 
-  const headers = splitCsvRow(rows[0] ?? "").map((header) =>
-    header.toLowerCase(),
-  );
+  const headers = splitCsvRow(rows[0] ?? "").map((header) => header.toLowerCase());
   const accountCodeIndex = headers.indexOf("accountcode");
   const debitIndex = headers.indexOf("debit");
   const creditIndex = headers.indexOf("credit");
   const descriptionIndex = headers.indexOf("description");
 
   if (accountCodeIndex < 0 || debitIndex < 0 || creditIndex < 0) {
-    throw new Error(
-      "Payroll CSV must include accountCode, debit, and credit columns",
-    );
+    throw new Error("Payroll CSV must include accountCode, debit, and credit columns");
   }
 
   return rows.slice(1).map((row, rowIndex) => {
@@ -218,10 +200,7 @@ export function parsePayrollCsv(csvContent: string) {
 
     return {
       accountCode,
-      description:
-        descriptionIndex >= 0
-          ? columns[descriptionIndex]?.trim() || null
-          : null,
+      description: descriptionIndex >= 0 ? columns[descriptionIndex]?.trim() || null : null,
       debit: roundCurrency(debit),
       credit: roundCurrency(credit),
     } satisfies PayrollImportLine;
@@ -268,10 +247,7 @@ export function buildPayrollRunChecksum(args: {
     .digest("hex");
 }
 
-export function buildLiabilitySummary(
-  runs: PayrollRunRecord[],
-  currency: string,
-) {
+export function buildLiabilitySummary(runs: PayrollRunRecord[], currency: string) {
   return {
     currency,
     importedRunCount: runs.length,

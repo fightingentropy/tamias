@@ -1,11 +1,7 @@
 /**
  * Storage utilities for insight audio files
  */
-import {
-  getVaultSignedUrl,
-  removeVaultFile,
-  uploadVaultFile,
-} from "@tamias/storage";
+import { getVaultSignedUrl, removeVaultFile, uploadVaultFile } from "@tamias/storage";
 
 /**
  * Storage bucket for audio files
@@ -73,9 +69,7 @@ export async function getAudioPresignedUrl(
   });
 
   if (error || !data?.signedUrl) {
-    throw new Error(
-      `Failed to create signed URL for audio: ${error?.message || "Unknown error"}`,
-    );
+    throw new Error(`Failed to create signed URL for audio: ${error?.message || "Unknown error"}`);
   }
 
   return data.signedUrl;
@@ -88,10 +82,7 @@ export async function getAudioPresignedUrl(
  * @param insightId - Insight ID
  * @returns true if audio file exists
  */
-export async function audioExists(
-  teamId: string,
-  insightId: string,
-): Promise<boolean> {
+export async function audioExists(teamId: string, insightId: string): Promise<boolean> {
   const path = getAudioPath(teamId, insightId);
   const { data, error } = await getVaultSignedUrl({
     path,
@@ -107,10 +98,7 @@ export async function audioExists(
  * @param teamId - Team ID
  * @param insightId - Insight ID
  */
-export async function deleteInsightAudio(
-  teamId: string,
-  insightId: string,
-): Promise<void> {
+export async function deleteInsightAudio(teamId: string, insightId: string): Promise<void> {
   const path = getAudioPath(teamId, insightId);
 
   const { error } = await removeVaultFile(path);

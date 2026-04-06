@@ -12,10 +12,7 @@ export type UpdateAppSettingsParams = {
   };
 };
 
-export const updateAppSettings = async (
-  db: Database,
-  params: UpdateAppSettingsParams,
-) => {
+export const updateAppSettings = async (db: Database, params: UpdateAppSettingsParams) => {
   const existingApp = await getAppByAppId(db, {
     appId: params.appId,
     teamId: params.teamId,
@@ -53,10 +50,7 @@ export type UpdateAppSettingsBulkParams = {
   }>;
 };
 
-export const updateAppSettingsBulk = async (
-  _db: Database,
-  params: UpdateAppSettingsBulkParams,
-) => {
+export const updateAppSettingsBulk = async (_db: Database, params: UpdateAppSettingsBulkParams) => {
   const result = await setInstalledAppSettingsInConvex({
     appId: params.appId,
     teamId: params.teamId,

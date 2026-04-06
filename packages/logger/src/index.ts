@@ -52,9 +52,7 @@ function createLoggerAdapter(pinoLogger: pino.Logger, prefixContext?: string) {
   return {
     info: (message: string, data?: object) => {
       try {
-        const fullMessage = formattedContext
-          ? `${formattedContext} ${message}`
-          : message;
+        const fullMessage = formattedContext ? `${formattedContext} ${message}` : message;
         if (data) {
           pinoLogger.info(data, fullMessage);
         } else {
@@ -67,9 +65,7 @@ function createLoggerAdapter(pinoLogger: pino.Logger, prefixContext?: string) {
     },
     error: (message: string, data?: object) => {
       try {
-        const fullMessage = formattedContext
-          ? `${formattedContext} ${message}`
-          : message;
+        const fullMessage = formattedContext ? `${formattedContext} ${message}` : message;
         if (data) {
           pinoLogger.error(data, fullMessage);
         } else {
@@ -82,9 +78,7 @@ function createLoggerAdapter(pinoLogger: pino.Logger, prefixContext?: string) {
     },
     warn: (message: string, data?: object) => {
       try {
-        const fullMessage = formattedContext
-          ? `${formattedContext} ${message}`
-          : message;
+        const fullMessage = formattedContext ? `${formattedContext} ${message}` : message;
         if (data) {
           pinoLogger.warn(data, fullMessage);
         } else {
@@ -97,9 +91,7 @@ function createLoggerAdapter(pinoLogger: pino.Logger, prefixContext?: string) {
     },
     debug: (message: string, data?: object) => {
       try {
-        const fullMessage = formattedContext
-          ? `${formattedContext} ${message}`
-          : message;
+        const fullMessage = formattedContext ? `${formattedContext} ${message}` : message;
         if (data) {
           pinoLogger.debug(data, fullMessage);
         } else {

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router";
 import { createAppPublicFileRoute } from "@/start/route-hosts";
 import { format, parseISO } from "date-fns";
 import { getChartDisplayName } from "@/components/metrics/utils/chart-types";
@@ -34,10 +34,7 @@ export const Route = createAppPublicFileRoute("/r/$linkId/opengraph-image")({
         const chartName = getChartDisplayName(report.type as any);
         const fromDate = parseISO(report.from!);
         const toDate = parseISO(report.to!);
-        const dateRangeDisplay = `${format(fromDate, "MMM d")} - ${format(
-          toDate,
-          "MMM d, yyyy",
-        )}`;
+        const dateRangeDisplay = `${format(fromDate, "MMM d")} - ${format(toDate, "MMM d, yyyy")}`;
         const teamName = report.teamName || "Company";
         const logoDataUri = await fetchDataUri(report.teamLogoUrl);
         const [sansFontCss, serifFontCss] = await Promise.all([

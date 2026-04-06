@@ -1,8 +1,6 @@
 import { listSubmissionEventsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
-import {
-  getSubmissionEventRequestPeriodKey,
-} from "../submission-common";
+import { getSubmissionEventRequestPeriodKey } from "../submission-common";
 
 export async function listCtSubmissionEvents(
   db: Database,
@@ -17,9 +15,6 @@ export async function listCtSubmissionEvents(
   });
 
   return params.periodKey
-    ? events.filter(
-        (event) =>
-          getSubmissionEventRequestPeriodKey(event) === params.periodKey,
-      )
+    ? events.filter((event) => getSubmissionEventRequestPeriodKey(event) === params.periodKey)
     : events;
 }

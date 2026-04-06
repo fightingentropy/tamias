@@ -1,13 +1,5 @@
 import { getAppUrl, getEmailUrl } from "@tamias/utils/envs";
-import {
-  Column,
-  Hr,
-  Img,
-  Link,
-  Row,
-  Section,
-  Text,
-} from "@react-email/components";
+import { Column, Hr, Img, Link, Row, Section, Text } from "@react-email/components";
 import { LogoFooter } from "./logo-footer";
 import { getEmailInlineStyles, getEmailThemeClasses } from "./theme";
 
@@ -35,22 +27,12 @@ export function Footer() {
       <Row>
         <Column className="align-middle w-[40px]">
           <Link href="https://go.tamias.xyz/lS72Toq">
-            <Img
-              src={`${baseUrl}/email/x.png`}
-              width="18"
-              height="18"
-              alt="X"
-            />
+            <Img src={`${baseUrl}/email/x.png`} width="18" height="18" alt="X" />
           </Link>
         </Column>
         <Column className="align-middle">
           <Link href="https://go.tamias.xyz/Ct3xybK">
-            <Img
-              src={`${baseUrl}/email/linkedin.png`}
-              width="22"
-              height="22"
-              alt="LinkedIn"
-            />
+            <Img src={`${baseUrl}/email/linkedin.png`} width="22" height="22" alt="LinkedIn" />
           </Link>
         </Column>
       </Row>

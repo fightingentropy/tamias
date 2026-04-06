@@ -12,20 +12,11 @@ function OnboardingRouteComponent() {
 
   return (
     <HydrationBoundary
-      state={
-        loaderData.dehydratedState as unknown as
-          | DehydratedState
-          | null
-          | undefined
-      }
+      state={loaderData.dehydratedState as unknown as DehydratedState | null | undefined}
     >
       <OnboardingPage
-        defaultCurrencyPromise={Promise.resolve(
-          loaderData.defaultCurrency ?? "",
-        )}
-        defaultCountryCodePromise={Promise.resolve(
-          loaderData.defaultCountryCode,
-        )}
+        defaultCurrencyPromise={Promise.resolve(loaderData.defaultCurrency ?? "")}
+        defaultCountryCodePromise={Promise.resolve(loaderData.defaultCountryCode)}
         user={{
           id: loaderData.user.id,
           fullName: loaderData.user.fullName,

@@ -1,10 +1,4 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@tamias/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@tamias/ui/select";
 
 const heardAboutOptions = [
   { value: "twitter", label: "Twitter / X" },
@@ -24,12 +18,7 @@ type Props = {
   dataTestId?: string;
 };
 
-export function SelectHeardAbout({
-  value,
-  onChange,
-  className,
-  dataTestId,
-}: Props) {
+export function SelectHeardAbout({ value, onChange, className, dataTestId }: Props) {
   return (
     <Select value={value} onValueChange={onChange}>
       <SelectTrigger className={className} data-testid={dataTestId}>

@@ -19,9 +19,7 @@ type ReviewPageCursorState = {
 
 const REVIEW_PAGE_CURSOR_PREFIX = "review:";
 
-function decodeReviewPageCursor(
-  cursor: string | null | undefined,
-): ReviewPageCursorState {
+function decodeReviewPageCursor(cursor: string | null | undefined): ReviewPageCursorState {
   if (!cursor?.startsWith(REVIEW_PAGE_CURSOR_PREFIX)) {
     return {
       sourceCursor: null,
@@ -32,15 +30,11 @@ function decodeReviewPageCursor(
 
   try {
     const parsed = JSON.parse(
-      Buffer.from(
-        cursor.slice(REVIEW_PAGE_CURSOR_PREFIX.length),
-        "base64url",
-      ).toString("utf8"),
+      Buffer.from(cursor.slice(REVIEW_PAGE_CURSOR_PREFIX.length), "base64url").toString("utf8"),
     ) as Partial<ReviewPageCursorState>;
 
     return {
-      sourceCursor:
-        typeof parsed.sourceCursor === "string" ? parsed.sourceCursor : null,
+      sourceCursor: typeof parsed.sourceCursor === "string" ? parsed.sourceCursor : null,
       sourceExhausted: parsed.sourceExhausted === true,
       bufferedIds: Array.isArray(parsed.bufferedIds)
         ? parsed.bufferedIds.filter(
@@ -58,20 +52,16 @@ function decodeReviewPageCursor(
 }
 
 function encodeReviewPageCursor(state: ReviewPageCursorState) {
-  return `${REVIEW_PAGE_CURSOR_PREFIX}${Buffer.from(
-    JSON.stringify(state),
-    "utf8",
-  ).toString("base64url")}`;
+  return `${REVIEW_PAGE_CURSOR_PREFIX}${Buffer.from(JSON.stringify(state), "utf8").toString(
+    "base64url",
+  )}`;
 }
 
 function getIndexedReviewBatchSize(pageSize: number) {
   return Math.min(Math.max(pageSize * 2, 100), 250);
 }
 
-async function getTransactionsByIdsInOrder(args: {
-  teamId: string;
-  transactionIds: string[];
-}) {
+async function getTransactionsByIdsInOrder(args: { teamId: string; transactionIds: string[] }) {
   if (args.transactionIds.length === 0) {
     return [];
   }
@@ -137,21 +127,13 @@ export async function getIndexedReviewTransactionPage(args: {
   let bufferedIds = [...cursorState.bufferedIds];
   const eligibleTransactions: TransactionRecord[] = [];
 
-  while (
-    eligibleTransactions.length <= args.pageSize &&
-    bufferedIds.length > 0
-  ) {
+  while (eligibleTransactions.length <= args.pageSize && bufferedIds.length > 0) {
     const bufferedTransactions = await getTransactionsByIdsInOrder({
       teamId: args.teamId,
-      transactionIds: bufferedIds.slice(
-        0,
-        args.pageSize + 1 - eligibleTransactions.length,
-      ),
+      transactionIds: bufferedIds.slice(0, args.pageSize + 1 - eligibleTransactions.length),
     });
 
-    bufferedIds = bufferedIds.slice(
-      args.pageSize + 1 - eligibleTransactions.length,
-    );
+    bufferedIds = bufferedIds.slice(args.pageSize + 1 - eligibleTransactions.length);
 
     eligibleTransactions.push(
       ...(await getTransactionsReadyForReviewFromCandidates(args.db, {
@@ -252,8 +234,7 @@ export async function getIndexedTransactionPage(args: {
   end: GetTransactionsParams["end"];
   statusesNotIn: TransactionStatus[];
 }) {
-  const bankAccountId =
-    args.accounts && args.accounts.length === 1 ? args.accounts[0] : undefined;
+  const bankAccountId = args.accounts && args.accounts.length === 1 ? args.accounts[0] : undefined;
   const indexedPage = bankAccountId
     ? await getTransactionsByBankAccountPageFromConvex({
         teamId: args.teamId,

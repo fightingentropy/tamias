@@ -7,10 +7,7 @@ export type GetRevenueForecastParams = {
   revenueType?: "gross" | "net";
 };
 
-export type RecurringTransactionProjection = Map<
-  string,
-  { amount: number; count: number }
->;
+export type RecurringTransactionProjection = Map<string, { amount: number; count: number }>;
 
 export interface TeamCollectionMetrics {
   onTimeRate: number;

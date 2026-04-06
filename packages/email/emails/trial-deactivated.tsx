@@ -1,12 +1,4 @@
-import {
-  Body,
-  Container,
-  Heading,
-  Link,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
+import { Body, Container, Heading, Link, Preview, Section, Text } from "@react-email/components";
 import { getAppUrl } from "@tamias/utils/envs";
 import { Footer } from "../components/footer";
 import { Logo } from "../components/logo";
@@ -31,10 +23,7 @@ export const TrialDeactivatedEmail = ({ fullName = "" }: Props) => {
 
   return (
     <EmailThemeProvider preview={<Preview>{text}</Preview>}>
-      <Body
-        className={`my-auto mx-auto font-sans ${themeClasses.body}`}
-        style={lightStyles.body}
-      >
+      <Body className={`my-auto mx-auto font-sans ${themeClasses.body}`} style={lightStyles.body}>
         <Container
           className={`my-[40px] mx-auto p-[20px] max-w-[600px] ${themeClasses.container}`}
           style={{
@@ -59,20 +48,15 @@ export const TrialDeactivatedEmail = ({ fullName = "" }: Props) => {
           >
             {firstName ? `Hi ${firstName},` : "Hello,"}
           </span>
-          <Text
-            className={themeClasses.text}
-            style={{ color: lightStyles.text.color }}
-          >
-            Since your trial ended, your bank sync, inbox processing, and
-            recurring invoices will be paused soon. Your data is safe — nothing
-            will be deleted.
+          <Text className={themeClasses.text} style={{ color: lightStyles.text.color }}>
+            Since your trial ended, your bank sync, inbox processing, and recurring invoices will be
+            paused soon. Your data is safe — nothing will be deleted.
           </Text>
           <Text
             className={`text-[14px] ${themeClasses.text}`}
             style={{ color: lightStyles.text.color }}
           >
-            Pick a plan to resume everything right where you left off. It takes
-            less than a minute.
+            Pick a plan to resume everything right where you left off. It takes less than a minute.
           </Text>
           <Section className="text-center mt-[50px] mb-[50px]">
             <Button href={`${baseAppUrl}/upgrade`}>Choose a plan</Button>

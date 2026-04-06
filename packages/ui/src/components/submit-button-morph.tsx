@@ -26,11 +26,7 @@ export function SubmitButtonMorph({
       disabled={disabled}
       aria-disabled={isBlocked}
       {...props}
-      className={cn(
-        "relative",
-        isSubmitting && "pointer-events-none",
-        props.className,
-      )}
+      className={cn("relative", isSubmitting && "pointer-events-none", props.className)}
     >
       <AnimatedSizeContainer width className="inline-flex">
         <span className="inline-flex items-center gap-2 w-max">

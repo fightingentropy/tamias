@@ -152,9 +152,9 @@ export async function generatePayrollExport(
     throw new Error("Payroll run not found");
   }
 
-  const journalEntries = (
-    await listPayrollJournalEntries(params.teamId)
-  ).filter((entry) => entry.sourceId === run.id);
+  const journalEntries = (await listPayrollJournalEntries(params.teamId)).filter(
+    (entry) => entry.sourceId === run.id,
+  );
   const exportBundle = await createPayrollExportBundle({
     teamId: params.teamId,
     run,

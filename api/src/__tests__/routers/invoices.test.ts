@@ -142,12 +142,9 @@ describe("REST: DELETE /invoices/:id", () => {
   });
 
   test("deletes invoice successfully", async () => {
-    const res = await app.request(
-      "/invoices/a1b2c3d4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
-      {
-        method: "DELETE",
-      },
-    );
+    const res = await app.request("/invoices/a1b2c3d4-5e6f-4a7b-8c9d-0e1f2a3b4c5d", {
+      method: "DELETE",
+    });
 
     expect(res.status).toBe(200);
     const json = (await res.json()) as InvoiceResponse;

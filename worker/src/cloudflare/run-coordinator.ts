@@ -35,10 +35,7 @@ export class RunCoordinator extends DurableObject<CloudflareAsyncEnv> {
     if (request.method === "POST" && url.pathname === "/schedule") {
       const payload = await request.json().catch(() => null);
       if (!isCloudflareRecurringScheduleRequest(payload)) {
-        return Response.json(
-          { error: "Invalid recurring schedule payload" },
-          { status: 400 },
-        );
+        return Response.json({ error: "Invalid recurring schedule payload" }, { status: 400 });
       }
 
       const timestamp = new Date().toISOString();
@@ -86,10 +83,7 @@ export class RunCoordinator extends DurableObject<CloudflareAsyncEnv> {
       runtime: "cloudflare-durable-object",
       environment: this.env.TAMIAS_ENVIRONMENT ?? "development",
       schedule,
-      nextAlarmAt:
-        typeof nextAlarmAt === "number"
-          ? new Date(nextAlarmAt).toISOString()
-          : null,
+      nextAlarmAt: typeof nextAlarmAt === "number" ? new Date(nextAlarmAt).toISOString() : null,
     });
   }
 

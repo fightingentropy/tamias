@@ -47,10 +47,7 @@ export type GetAppByAppIdParams = {
   teamId: string;
 };
 
-export const getAppByAppId = async (
-  _db: Database,
-  params: GetAppByAppIdParams,
-) => {
+export const getAppByAppId = async (_db: Database, params: GetAppByAppIdParams) => {
   const result = await getInstalledAppFromConvex({
     teamId: params.teamId,
     appId: params.appId,
@@ -64,10 +61,7 @@ export type GetAppBySlackTeamIdParams = {
   channelId?: string;
 };
 
-export const getAppBySlackTeamId = async (
-  _db: Database,
-  params: GetAppBySlackTeamIdParams,
-) => {
+export const getAppBySlackTeamId = async (_db: Database, params: GetAppBySlackTeamIdParams) => {
   const result = await getInstalledAppBySlackTeamIdFromConvex({
     slackTeamId: params.slackTeamId,
     channelId: params.channelId,
@@ -81,10 +75,7 @@ export type DisconnectAppParams = {
   teamId: string;
 };
 
-export const disconnectApp = async (
-  _db: Database,
-  params: DisconnectAppParams,
-) => {
+export const disconnectApp = async (_db: Database, params: DisconnectAppParams) => {
   const result = await deleteInstalledAppInConvex({
     appId: params.appId,
     teamId: params.teamId,

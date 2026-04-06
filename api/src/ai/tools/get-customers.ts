@@ -8,25 +8,16 @@ import { getToolAppContext, getToolTeamId } from "../utils/tool-runtime";
 
 const getCustomersSchema = z.object({
   cursor: z.string().nullable().optional().describe("Pagination cursor"),
-  sort: z
-    .array(z.string())
-    .length(2)
-    .nullable()
-    .optional()
-    .describe("Sort order"),
+  sort: z.array(z.string()).length(2).nullable().optional().describe("Sort order"),
   pageSize: z.number().min(1).max(100).default(10).describe("Page size"),
   q: z.string().nullable().optional().describe("Search query"),
   tags: z.array(z.string()).nullable().optional().describe("Tag IDs"),
 });
 
 export const getCustomersTool = tool({
-  description:
-    "Retrieve and filter customers with pagination, sorting, and search.",
+  description: "Retrieve and filter customers with pagination, sorting, and search.",
   inputSchema: getCustomersSchema,
-  execute: async function* (
-    { cursor, sort, pageSize = 10, q, tags },
-    executionOptions,
-  ) {
+  execute: async function* ({ cursor, sort, pageSize = 10, q, tags }, executionOptions) {
     const appContext = getToolAppContext(executionOptions);
     const teamId = getToolTeamId(appContext);
 
@@ -67,8 +58,7 @@ export const getCustomersTool = tool({
       }
 
       const formattedCustomers = filteredData.map((customer) => {
-        const tagNames =
-          customer.tags?.map((tag) => tag.name).join(", ") || "None";
+        const tagNames = customer.tags?.map((tag) => tag.name).join(", ") || "None";
         return {
           id: customer.id,
           name: customer.name,
@@ -81,14 +71,8 @@ export const getCustomersTool = tool({
         };
       });
 
-      const totalInvoices = filteredData.reduce(
-        (sum, cust) => sum + (cust.invoiceCount ?? 0),
-        0,
-      );
-      const totalProjects = filteredData.reduce(
-        (sum, cust) => sum + (cust.projectCount ?? 0),
-        0,
-      );
+      const totalInvoices = filteredData.reduce((sum, cust) => sum + (cust.invoiceCount ?? 0), 0);
+      const totalProjects = filteredData.reduce((sum, cust) => sum + (cust.projectCount ?? 0), 0);
 
       const response = `| Name | Email | Contact | Invoices | Projects | Tags | Created |\n|------|-------|---------|----------|----------|------|----------|\n${formattedCustomers.map((cust) => `| ${cust.name} | ${cust.email} | ${cust.contact} | ${cust.invoiceCount} | ${cust.projectCount} | ${cust.tags} | ${cust.createdAt} |`).join("\n")}\n\n**${filteredData.length} customers** | Total Invoices: ${totalInvoices} | Total Projects: ${totalProjects}`;
 

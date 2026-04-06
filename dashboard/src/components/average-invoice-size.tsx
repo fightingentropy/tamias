@@ -11,9 +11,7 @@ export function AverageInvoiceSize() {
   const trpc = useTRPC();
   const { data: team } = useTeamQuery();
   const { data: user } = useUserQuery();
-  const { data } = useSuspenseQuery(
-    trpc.invoice.averageInvoiceSize.queryOptions(),
-  );
+  const { data } = useSuspenseQuery(trpc.invoice.averageInvoiceSize.queryOptions());
 
   if (!data || data.length === 0) {
     return (
@@ -25,9 +23,7 @@ export function AverageInvoiceSize() {
         <CardContent className="pb-[34px]">
           <div className="flex flex-col gap-2">
             <div>Average Invoice Size</div>
-            <div className="text-sm text-muted-foreground">
-              No invoices sent this month
-            </div>
+            <div className="text-sm text-muted-foreground">No invoices sent this month</div>
           </div>
         </CardContent>
       </Card>
@@ -52,9 +48,7 @@ export function AverageInvoiceSize() {
       <CardContent className="pb-[34px]">
         <div className="flex flex-col gap-2">
           <div>Average Invoice Size</div>
-          <div className="text-sm text-muted-foreground">
-            Based on invoices sent this month
-          </div>
+          <div className="text-sm text-muted-foreground">Based on invoices sent this month</div>
         </div>
       </CardContent>
     </Card>

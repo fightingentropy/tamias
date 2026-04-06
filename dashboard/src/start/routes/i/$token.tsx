@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router";
 import { createAppPublicFileRoute } from "@/start/route-hosts";
 import { createServerFn } from "@tanstack/react-start";
 import { getAppUrl } from "@tamias/utils/envs";
@@ -8,18 +8,14 @@ const appUrl = getAppUrl();
 const loadPublicInvoice = createServerFn({ method: "GET" })
   .inputValidator((data: { token: string; viewer?: string | null }) => data)
   .handler(async ({ data }) => {
-    const { buildPublicInvoicePageData } = await import(
-      "@/start/server/route-data/public"
-    );
-    return (await buildPublicInvoicePageData({
+    const { buildPublicInvoicePageData } = await import("@/start/server/route-data/public");
+    return await buildPublicInvoicePageData({
       token: data.token,
       viewer: data.viewer ?? undefined,
-    }));
+    });
   });
 
-export type PublicInvoiceLoaderData = Awaited<
-  ReturnType<typeof loadPublicInvoice>
->;
+export type PublicInvoiceLoaderData = Awaited<ReturnType<typeof loadPublicInvoice>>;
 
 export const Route = createAppPublicFileRoute("/i/$token")({
   loader: ({ params, location }) => {
@@ -32,16 +28,11 @@ export const Route = createAppPublicFileRoute("/i/$token")({
     });
   },
   head: ({ loaderData }) => {
-    const data = loaderData as Awaited<
-      ReturnType<typeof loadPublicInvoice>
-    > | null | undefined;
+    const data = loaderData as Awaited<ReturnType<typeof loadPublicInvoice>> | null | undefined;
 
     if (!data || data.status !== "ok") {
       return {
-        meta: [
-          { title: "Page not found" },
-          { name: "robots", content: "noindex,nofollow" },
-        ],
+        meta: [{ title: "Page not found" }, { name: "robots", content: "noindex,nofollow" }],
       };
     }
 

@@ -305,15 +305,10 @@ export function TransactionFlowAnimation({
   }, [shouldPlay, onComplete]);
 
   return (
-    <div
-      ref={containerRef}
-      className="w-full h-full flex flex-col relative overflow-hidden"
-    >
+    <div ref={containerRef} className="w-full h-full flex flex-col relative overflow-hidden">
       {/* Header */}
       <div className="px-2 md:px-3 pt-2 md:pt-3 pb-1.5 md:pb-2 border-b border-border relative z-10">
-        <h3 className="text-[13px] md:text-[14px] text-foreground">
-          Transactions
-        </h3>
+        <h3 className="text-[13px] md:text-[14px] text-foreground">Transactions</h3>
       </div>
 
       {/* Main content area */}
@@ -419,10 +414,7 @@ export function TransactionFlowAnimation({
 
         {/* Transaction list */}
         <div className="flex-1 min-h-0 overflow-hidden border border-border bg-background">
-          <table
-            className="w-full border-collapse"
-            style={{ borderSpacing: 0 }}
-          >
+          <table className="w-full border-collapse" style={{ borderSpacing: 0 }}>
             <thead className="sticky top-0 z-10 bg-secondary border-b border-border">
               <tr className="h-[28px] md:h-[32px]">
                 <th className="w-[60px] md:w-[70px] px-1.5 md:px-2 text-left text-[10px] md:text-[11px] font-medium text-muted-foreground border-r border-border">
@@ -460,9 +452,7 @@ export function TransactionFlowAnimation({
                   </td>
                   <td
                     className={`w-[140px] md:w-[160px] px-1.5 md:px-2 text-[10px] md:text-[11px] border-r border-border ${
-                      transaction.amount > 0
-                        ? "text-[#4CAF50]"
-                        : "text-foreground"
+                      transaction.amount > 0 ? "text-[#4CAF50]" : "text-foreground"
                     }`}
                   >
                     <div className="truncate" title={transaction.description}>
@@ -471,9 +461,7 @@ export function TransactionFlowAnimation({
                   </td>
                   <td
                     className={`w-[90px] md:w-[100px] px-1.5 md:px-2 text-[10px] md:text-[11px] border-r border-border ${
-                      transaction.amount > 0
-                        ? "text-[#4CAF50]"
-                        : "text-foreground"
+                      transaction.amount > 0 ? "text-[#4CAF50]" : "text-foreground"
                     }`}
                   >
                     {transaction.amount > 0 ? "+" : "-"}

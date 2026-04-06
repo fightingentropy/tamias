@@ -1,8 +1,6 @@
 import type { ConfidenceBounds, ForecastBreakdown } from "./types";
 
-export function calculateConfidenceBounds(
-  breakdown: ForecastBreakdown,
-): ConfidenceBounds {
+export function calculateConfidenceBounds(breakdown: ForecastBreakdown): ConfidenceBounds {
   const optimistic =
     breakdown.recurringInvoices * 1.05 +
     breakdown.recurringTransactions * 1.1 +

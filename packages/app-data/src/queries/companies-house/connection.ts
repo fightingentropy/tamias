@@ -16,10 +16,7 @@ import {
   isMissingCompaniesHouseFilingHistoryResource,
 } from "./shared";
 
-async function getCompaniesHouseConnectionImpl(
-  db: Database,
-  params: { teamId: string },
-) {
+async function getCompaniesHouseConnectionImpl(db: Database, params: { teamId: string }) {
   const [profile, providerData] = await Promise.all([
     getFilingProfile(db, params.teamId),
     getCompaniesHouseProviderData(db, params.teamId),
@@ -41,9 +38,7 @@ async function getCompaniesHouseConnectionImpl(
     profileCompanyNumber: profile?.companyNumber ?? null,
     environment: providerData.config.environment,
     scopes: providerData.config.scope ?? [],
-    companyScopes: extractCompaniesHouseCompanyScopes(
-      providerData.config.scope ?? [],
-    ),
+    companyScopes: extractCompaniesHouseCompanyScopes(providerData.config.scope ?? []),
     userProfile: providerData.config.userProfile ?? null,
   };
 }
@@ -54,10 +49,7 @@ export const getCompaniesHouseConnection = reuseQueryResult({
   load: getCompaniesHouseConnectionImpl,
 });
 
-async function getCompaniesHouseAccountsStatusImpl(
-  db: Database,
-  params: { teamId: string },
-) {
+async function getCompaniesHouseAccountsStatusImpl(db: Database, params: { teamId: string }) {
   const [profile, providerData] = await Promise.all([
     getFilingProfile(db, params.teamId),
     getCompaniesHouseProviderData(db, params.teamId),
@@ -80,26 +72,21 @@ async function getCompaniesHouseAccountsStatusImpl(
     connected: Boolean(providerData),
     environment: providerData?.config.environment ?? getCompaniesHouseEnvironment(),
     xmlGatewayEnvironment: getCompaniesHouseXmlGatewayEnvironment(),
-    xmlGatewayConfigured:
-      CompaniesHouseXmlGatewayProvider.isConfiguredInEnvironment(),
+    xmlGatewayConfigured: CompaniesHouseXmlGatewayProvider.isConfiguredInEnvironment(),
     packageReferenceConfigured: Boolean(
       process.env.COMPANIES_HOUSE_XML_PACKAGE_REFERENCE ??
-        getCompaniesHouseXmlGatewayEnvironment() === "test",
+      getCompaniesHouseXmlGatewayEnvironment() === "test",
     ),
     profileCompanyName: profile?.companyName ?? null,
     profileCompanyNumber: profile?.companyNumber ?? null,
-    companyAuthenticationCodeConfigured: Boolean(
-      profile?.companyAuthenticationCode,
-    ),
+    companyAuthenticationCodeConfigured: Boolean(profile?.companyAuthenticationCode),
     scopes: providerData?.config.scope ?? ([] as string[]),
     companyScopes: providerData
       ? extractCompaniesHouseCompanyScopes(providerData.config.scope ?? [])
       : ([] as Array<{ companyNumber: string; scopeKind: string }>),
     userProfile: providerData?.config.userProfile ?? null,
     apiKeyConfigured: Boolean(process.env.COMPANIES_HOUSE_API_KEY),
-    companyProfile: null as Awaited<
-      ReturnType<CompaniesHouseProvider["getCompanyProfile"]>
-    > | null,
+    companyProfile: null as Awaited<ReturnType<CompaniesHouseProvider["getCompanyProfile"]>> | null,
     recentAccountsFilings: [] as Awaited<
       ReturnType<CompaniesHouseProvider["listFilingHistory"]>
     >["items"],
@@ -133,25 +120,18 @@ async function getCompaniesHouseAccountsStatusImpl(
 
     const companyProfile = companyProfileResult.value;
     const filingHistory =
-      filingHistoryResult.status === "fulfilled"
-        ? filingHistoryResult.value
-        : null;
+      filingHistoryResult.status === "fulfilled" ? filingHistoryResult.value : null;
     const publicDataError =
       filingHistoryResult.status === "rejected" &&
       !isMissingCompaniesHouseFilingHistoryResource(filingHistoryResult.reason)
         ? getErrorMessage(filingHistoryResult.reason)
         : null;
 
-    const latestAccountsMadeUpTo =
-      companyProfile.accounts?.lastAccounts?.madeUpTo ?? null;
+    const latestAccountsMadeUpTo = companyProfile.accounts?.lastAccounts?.madeUpTo ?? null;
     const nextAccountsDueOn =
-      companyProfile.accounts?.nextAccounts?.dueOn ??
-      companyProfile.accounts?.nextDue ??
-      null;
+      companyProfile.accounts?.nextAccounts?.dueOn ?? companyProfile.accounts?.nextDue ?? null;
     const accountsOverdue =
-      companyProfile.accounts?.nextAccounts?.overdue ??
-      companyProfile.accounts?.overdue ??
-      null;
+      companyProfile.accounts?.nextAccounts?.overdue ?? companyProfile.accounts?.overdue ?? null;
     const currentPeriodFiled =
       currentPeriodEnd && latestAccountsMadeUpTo
         ? latestAccountsMadeUpTo >= currentPeriodEnd

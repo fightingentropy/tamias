@@ -17,9 +17,7 @@ type UseUpdateTransactionCategoryOptions = {
   onError?: (error: unknown) => void;
 };
 
-export function useUpdateTransactionCategory(
-  options?: UseUpdateTransactionCategoryOptions,
-) {
+export function useUpdateTransactionCategory(options?: UseUpdateTransactionCategoryOptions) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const invalidateTransactionQueries = useInvalidateTransactionQueries();
@@ -98,9 +96,7 @@ export function useUpdateTransactionCategory(
             <ToastAction
               altText="Yes"
               onClick={() => {
-                const similarTransactionIds = similarTransactions.map(
-                  (t) => t.id,
-                );
+                const similarTransactionIds = similarTransactions.map((t) => t.id);
                 updateTransactionsMutation.mutate({
                   ids: similarTransactionIds,
                   categorySlug: category.slug,

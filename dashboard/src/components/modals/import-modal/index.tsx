@@ -31,21 +31,15 @@ function ImportPageFallback() {
   return <div className="mt-8 h-[240px]" />;
 }
 
-const FieldMapping = dynamic(
-  () => import("./field-mapping").then((mod) => mod.FieldMapping),
-  {
-    ssr: false,
-    loading: ImportPageFallback,
-  },
-);
+const FieldMapping = dynamic(() => import("./field-mapping").then((mod) => mod.FieldMapping), {
+  ssr: false,
+  loading: ImportPageFallback,
+});
 
-const SelectFile = dynamic(
-  () => import("./select-file").then((mod) => mod.SelectFile),
-  {
-    ssr: false,
-    loading: ImportPageFallback,
-  },
-);
+const SelectFile = dynamic(() => import("./select-file").then((mod) => mod.SelectFile), {
+  ssr: false,
+  loading: ImportPageFallback,
+});
 
 const pages = ["select-file", "confirm-import"] as const;
 
@@ -61,12 +55,8 @@ export function ImportModal() {
   const stepTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sequenceIndexRef = useRef(0);
   const [fileColumns, setFileColumns] = useState<string[] | null>(null);
-  const [firstRows, setFirstRows] = useState<Record<string, string>[] | null>(
-    null,
-  );
-  const [visibleProgressStep, setVisibleProgressStep] = useState<
-    string | undefined
-  >();
+  const [firstRows, setFirstRows] = useState<Record<string, string>[] | null>(null);
+  const [visibleProgressStep, setVisibleProgressStep] = useState<string | undefined>();
 
   const { data: user } = useUserQuery();
 
@@ -191,12 +181,7 @@ export function ImportModal() {
   }, [status, toast]);
 
   // Predefined sequence - backend steps are too fast to poll, so we run these locally.
-  const EARLY_STEPS = [
-    "analyzing",
-    "transforming",
-    "validating",
-    "importing",
-  ] as const;
+  const EARLY_STEPS = ["analyzing", "transforming", "validating", "importing"] as const;
   const STEP_DURATION_MS = 1000;
 
   useEffect(() => {
@@ -373,8 +358,7 @@ export function ImportModal() {
               </DialogTitle>
             </div>
             <DialogDescription>
-              {page === "select-file" &&
-                "Upload a CSV file of your transactions."}
+              {page === "select-file" && "Upload a CSV file of your transactions."}
               {page === "confirm-import" &&
                 "We've mapped each column to what we believe is correct, but please review the data below to confirm it's accurate."}
             </DialogDescription>
@@ -412,11 +396,7 @@ export function ImportModal() {
 
                       const currentBalance =
                         firstRows && data.date && data.balance
-                          ? getBalanceFromLatestDate(
-                              firstRows,
-                              data.date,
-                              data.balance,
-                            )
+                          ? getBalanceFromLatestDate(firstRows, data.date, data.balance)
                           : undefined;
 
                       importTransactions.mutate({

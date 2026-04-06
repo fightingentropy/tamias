@@ -1,11 +1,9 @@
 import { z } from "@hono/zod-openapi";
 
-export const periodTypeSchema = z
-  .enum(["weekly", "monthly", "quarterly", "yearly"])
-  .openapi({
-    description: "Type of insight period",
-    example: "weekly",
-  });
+export const periodTypeSchema = z.enum(["weekly", "monthly", "quarterly", "yearly"]).openapi({
+  description: "Type of insight period",
+  example: "weekly",
+});
 
 export const listInsightsSchema = z
   .object({
@@ -71,8 +69,7 @@ export const insightByPeriodSchema = z
       example: 2024,
     }),
     periodNumber: z.coerce.number().int().min(1).max(2100).openapi({
-      description:
-        "Period number (week 1-53, month 1-12, quarter 1-4, or year e.g. 2024)",
+      description: "Period number (week 1-53, month 1-12, quarter 1-4, or year e.g. 2024)",
       example: 1,
     }),
   })
@@ -157,9 +154,7 @@ const insightMetricSchema = z
     value: z.number().openapi({ description: "Current period value" }),
     previousValue: z.number().openapi({ description: "Previous period value" }),
     change: z.number().openapi({ description: "Percentage change" }),
-    changeDirection: z
-      .enum(["up", "down", "flat"])
-      .openapi({ description: "Direction of change" }),
+    changeDirection: z.enum(["up", "down", "flat"]).openapi({ description: "Direction of change" }),
     unit: z.string().optional().openapi({ description: "Unit of measurement" }),
     currency: z.string().optional().openapi({ description: "Currency code" }),
   })
@@ -176,9 +171,7 @@ const insightContentSchema = z
         z.object({
           text: z.string(),
           type: z.string().optional(),
-          entityType: z
-            .enum(["invoice", "project", "customer", "transaction"])
-            .optional(),
+          entityType: z.enum(["invoice", "project", "customer", "transaction"]).optional(),
           entityId: z.string().optional(),
         }),
       )
@@ -200,25 +193,14 @@ export const insightResponseSchema = z
       .enum(["pending", "processing", "completed", "failed"])
       .openapi({ description: "Generation status" }),
     title: z.string().nullable().openapi({ description: "AI-generated title" }),
-    currency: z
-      .string()
-      .nullable()
-      .openapi({ description: "Primary currency" }),
+    currency: z.string().nullable().openapi({ description: "Primary currency" }),
     selectedMetrics: z
       .array(insightMetricSchema)
       .nullable()
       .openapi({ description: "Key metrics for this period" }),
-    content: insightContentSchema
-      .nullable()
-      .openapi({ description: "AI-generated content" }),
-    audioPath: z
-      .string()
-      .nullable()
-      .openapi({ description: "Path to audio file" }),
-    generatedAt: z
-      .string()
-      .nullable()
-      .openapi({ description: "When insight was generated" }),
+    content: insightContentSchema.nullable().openapi({ description: "AI-generated content" }),
+    audioPath: z.string().nullable().openapi({ description: "Path to audio file" }),
+    generatedAt: z.string().nullable().openapi({ description: "When insight was generated" }),
     createdAt: z.string().openapi({ description: "Creation timestamp" }),
     updatedAt: z.string().openapi({ description: "Last update timestamp" }),
   })
@@ -246,13 +228,11 @@ export const insightsListResponseSchema = z
 export const audioUrlResponseSchema = z
   .object({
     audioUrl: z.string().url().nullable().openapi({
-      description:
-        "Pre-signed URL for the audio file, or null when audio is unavailable",
+      description: "Pre-signed URL for the audio file, or null when audio is unavailable",
       example: "https://storage.example.com/audio/insight-123.mp3?token=abc",
     }),
     expiresIn: z.number().nullable().openapi({
-      description:
-        "Time in seconds until the URL expires, or null when audio is unavailable",
+      description: "Time in seconds until the URL expires, or null when audio is unavailable",
       example: 3600,
     }),
   })

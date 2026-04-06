@@ -1,10 +1,6 @@
 import type { FilingProfileRecord } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
-import {
-  assertUkComplianceEnabled,
-  getFilingProfile,
-  getTeamContext,
-} from "../shared";
+import { assertUkComplianceEnabled, getFilingProfile, getTeamContext } from "../shared";
 
 export type VatTeamContext = Awaited<ReturnType<typeof getTeamContext>>;
 

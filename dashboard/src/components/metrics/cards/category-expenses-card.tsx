@@ -4,10 +4,7 @@ import { cn } from "@tamias/ui/cn";
 import { useQuery } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import { useMemo } from "react";
-import {
-  PublicDonutChart,
-  publicChartGrayShades,
-} from "@/components/charts/public-report-charts";
+import { PublicDonutChart, publicChartGrayShades } from "@/components/charts/public-report-charts";
 import { useLongPress } from "@/hooks/use-long-press";
 import { useMetricsCustomize } from "@/hooks/use-metrics-customize";
 import { useTRPC } from "@/trpc/client";
@@ -31,8 +28,7 @@ export function CategoryExpensesCard({
   isCustomizing,
 }: CategoryExpensesCardProps) {
   const trpc = useTRPC();
-  const { isCustomizing: metricsIsCustomizing, setIsCustomizing } =
-    useMetricsCustomize();
+  const { isCustomizing: metricsIsCustomizing, setIsCustomizing } = useMetricsCustomize();
 
   const longPressHandlers = useLongPress({
     onLongPress: () => setIsCustomizing(true),
@@ -52,10 +48,7 @@ export function CategoryExpensesCard({
   const categoryDonutChartData = useMemo(() => {
     if (!spendingData || spendingData.length === 0) return [];
 
-    const total = spendingData.reduce(
-      (sum, item) => sum + Math.abs(item.amount),
-      0,
-    );
+    const total = spendingData.reduce((sum, item) => sum + Math.abs(item.amount), 0);
 
     return spendingData.slice(0, 5).map((item) => ({
       category: item.name,
@@ -64,10 +57,7 @@ export function CategoryExpensesCard({
     }));
   }, [spendingData]);
 
-  const totalExpenses = categoryDonutChartData.reduce(
-    (sum, item) => sum + item.amount,
-    0,
-  );
+  const totalExpenses = categoryDonutChartData.reduce((sum, item) => sum + item.amount, 0);
 
   const dateRangeDisplay = useMemo(() => {
     try {
@@ -89,16 +79,9 @@ export function CategoryExpensesCard({
     >
       <div className="mb-4 min-h-[140px]">
         <div className="flex items-start justify-between h-7">
-          <h3 className="text-sm font-normal text-muted-foreground">
-            Expenses by Category
-          </h3>
+          <h3 className="text-sm font-normal text-muted-foreground">Expenses by Category</h3>
           <div className="opacity-0 group-hover:opacity-100 group-has-[*[data-state=open]]:opacity-100 transition-opacity">
-            <ShareMetricButton
-              type="category_expenses"
-              from={from}
-              to={to}
-              currency={currency}
-            />
+            <ShareMetricButton type="category_expenses" from={from} to={to} currency={currency} />
           </div>
         </div>
         <p className="text-3xl font-normal">
@@ -117,15 +100,10 @@ export function CategoryExpensesCard({
                 <div
                   className="w-2 h-2 rounded-full"
                   style={{
-                    backgroundColor:
-                      publicChartGrayShades[
-                        idx % publicChartGrayShades.length
-                      ],
+                    backgroundColor: publicChartGrayShades[idx % publicChartGrayShades.length],
                   }}
                 />
-                <span className="text-xs text-muted-foreground">
-                  {item.category}
-                </span>
+                <span className="text-xs text-muted-foreground">{item.category}</span>
               </div>
             ))}
           </div>

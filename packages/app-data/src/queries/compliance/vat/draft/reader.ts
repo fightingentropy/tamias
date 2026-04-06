@@ -57,10 +57,7 @@ async function readVatReturnDraft(
   };
 }
 
-export async function getVatDraft(
-  db: Database,
-  params: GetVatDraftParams,
-) {
+export async function getVatDraft(db: Database, params: GetVatDraftParams) {
   if (params.vatReturnId) {
     return readVatReturnDraft(db, params.vatReturnId);
   }

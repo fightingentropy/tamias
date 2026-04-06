@@ -79,14 +79,10 @@ function SortableCard({
   customizeMode: boolean;
   wiggleClass?: string;
 }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id, disabled: !customizeMode });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+    disabled: !customizeMode,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -174,13 +170,8 @@ export function WidgetsGrid() {
       }
     }
   });
-  const {
-    reorderPrimaryWidgets,
-    moveToAvailable,
-    moveToPrimary,
-    swapWithLastPrimary,
-    setSaving,
-  } = useWidgetActions();
+  const { reorderPrimaryWidgets, moveToAvailable, moveToPrimary, swapWithLastPrimary, setSaving } =
+    useWidgetActions();
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -291,10 +282,7 @@ export function WidgetsGrid() {
       <div ref={gridRef}>
         {/* Primary Widgets */}
         {isCustomizing ? (
-          <SortableContext
-            items={primaryWidgets}
-            strategy={rectSortingStrategy}
-          >
+          <SortableContext items={primaryWidgets} strategy={rectSortingStrategy}>
             {/* Mobile: Horizontal scrollable row with snap */}
             <div className="lg:hidden overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-4">
               <div className="flex gap-4">
@@ -391,10 +379,7 @@ export function WidgetsGrid() {
               {primaryWidgets.map((widgetType) => {
                 const WidgetComponent = WIDGET_COMPONENTS[widgetType];
                 return (
-                  <ErrorBoundary
-                    key={widgetType}
-                    fallback={<WidgetErrorFallback />}
-                  >
+                  <ErrorBoundary key={widgetType} fallback={<WidgetErrorFallback />}>
                     <WidgetComponent />
                   </ErrorBoundary>
                 );
@@ -412,18 +397,13 @@ export function WidgetsGrid() {
             </div>
 
             {/* Available Widgets - Draggable */}
-            <SortableContext
-              items={availableWidgets}
-              strategy={rectSortingStrategy}
-            >
+            <SortableContext items={availableWidgets} strategy={rectSortingStrategy}>
               {/* Mobile: Horizontal scrollable row with snap */}
               <div className="lg:hidden overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-4">
                 <div className="flex gap-4">
                   {availableWidgets.map((widgetType, index) => {
                     const WidgetComponent = WIDGET_COMPONENTS[widgetType];
-                    const wiggleClass = getWiggleClass(
-                      primaryWidgets.length + index,
-                    );
+                    const wiggleClass = getWiggleClass(primaryWidgets.length + index);
 
                     return (
                       <div
@@ -450,9 +430,7 @@ export function WidgetsGrid() {
               <div className="hidden lg:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 gap-y-6">
                 {availableWidgets.map((widgetType, index) => {
                   const WidgetComponent = WIDGET_COMPONENTS[widgetType];
-                  const wiggleClass = getWiggleClass(
-                    primaryWidgets.length + index,
-                  );
+                  const wiggleClass = getWiggleClass(primaryWidgets.length + index);
 
                   return (
                     <SortableCard

@@ -1,19 +1,7 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@tamias/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@tamias/ui/select";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@tamias/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@tamias/ui/select";
 import { useUserMutation, useUserQuery } from "@/hooks/use-user";
 
 export function TimeFormatSettings() {

@@ -19,9 +19,7 @@ export async function extractTextFromPdf(
     if (!pdfBuffer) {
       const response = await fetch(pdfUrl);
       if (!response.ok) {
-        throw new Error(
-          `Failed to download PDF: ${response.status} ${response.statusText}`,
-        );
+        throw new Error(`Failed to download PDF: ${response.status} ${response.statusText}`);
       }
       buffer = await response.arrayBuffer();
     } else {

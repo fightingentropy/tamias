@@ -9,11 +9,7 @@ export function OpenTrackerSheet() {
 
   return (
     <div>
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={() => setParams({ create: true })}
-      >
+      <Button variant="outline" size="icon" onClick={() => setParams({ create: true })}>
         <Icons.Add />
       </Button>
     </div>

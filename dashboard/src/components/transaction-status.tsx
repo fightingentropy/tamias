@@ -1,19 +1,11 @@
 import { Icons } from "@tamias/ui/icons";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { format } from "date-fns";
 
 const ERROR_MESSAGES: Record<string, string> = {
-  FINANCIAL_YEAR_MISSING:
-    "Financial year not set up in your accounting software",
-  FINANCIAL_YEAR_SETUP_REQUIRED:
-    "Please set up financial years in your accounting software first",
-  AUTH_EXPIRED:
-    "Connection expired — please reconnect your accounting software",
+  FINANCIAL_YEAR_MISSING: "Financial year not set up in your accounting software",
+  FINANCIAL_YEAR_SETUP_REQUIRED: "Please set up financial years in your accounting software first",
+  AUTH_EXPIRED: "Connection expired — please reconnect your accounting software",
   RATE_LIMIT: "Too many requests — will retry automatically",
   VALIDATION: "Invalid data format",
   NOT_FOUND: "Resource not found in accounting software",

@@ -51,9 +51,7 @@ export function DataTable() {
           className="flex-1"
           placeholder="Search..."
           value={(table.getColumn("user")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("user")?.setFilterValue(event.target.value)
-          }
+          onChange={(event) => table.getColumn("user")?.setFilterValue(event.target.value)}
           autoComplete="off"
           autoCapitalize="none"
           autoCorrect="off"
@@ -76,10 +74,7 @@ export function DataTable() {
                 {row.getAllCells().map((cell) => (
                   <TableCell
                     key={cell.id}
-                    className={cn(
-                      "border-r-[0px] py-4",
-                      cell.column.columnDef.meta?.className,
-                    )}
+                    className={cn("border-r-[0px] py-4", cell.column.columnDef.meta?.className)}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>

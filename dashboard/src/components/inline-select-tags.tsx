@@ -100,9 +100,7 @@ export function InlineSelectTags({ transactionId, tags = [] }: Props) {
 
   const showCreate =
     Boolean(inputValue) &&
-    !filteredTags.some(
-      (tag) => tag.name.toLowerCase() === inputValue.toLowerCase(),
-    );
+    !filteredTags.some((tag) => tag.name.toLowerCase() === inputValue.toLowerCase());
 
   const handleTagToggle = (tagId: string) => {
     if (selectedTagIds.has(tagId)) {
@@ -186,10 +184,7 @@ export function InlineSelectTags({ transactionId, tags = [] }: Props) {
                       className="cursor-pointer"
                     >
                       <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          isSelected ? "opacity-100" : "opacity-0",
-                        )}
+                        className={cn("mr-2 h-4 w-4", isSelected ? "opacity-100" : "opacity-0")}
                       />
                       {tag.name}
                     </CommandItem>

@@ -1,14 +1,8 @@
-import {
-  eachMonthOfInterval,
-  format,
-} from "date-fns";
+import { eachMonthOfInterval, format } from "date-fns";
 import type { Database } from "../../../client";
 import { reuseQueryResult } from "../../../utils/request-cache";
 import { serializeMetricRangeParams } from "../metrics-common";
-import {
-  getMonthBucket,
-  roundMoney,
-} from "../shared";
+import { getMonthBucket, roundMoney } from "../shared";
 import { getMetricAggregateData } from "./common";
 
 export type GetExpensesParams = {
@@ -39,8 +33,7 @@ async function getExpensesImpl(db: Database, params: GetExpensesParams) {
 
     return (
       aggregateRow.direction === "expense" &&
-      (slug === null ||
-        !aggregateData.excludedCategorySlugs.includes(slug))
+      (slug === null || !aggregateData.excludedCategorySlugs.includes(slug))
     );
   })) {
     const month = getMonthBucket(row.date);
@@ -75,10 +68,8 @@ async function getExpensesImpl(db: Database, params: GetExpensesParams) {
     rawData.length > 0
       ? Number(
           (
-            rawData.reduce(
-              (sum, item) => sum + Number.parseFloat(item.value || "0"),
-              0,
-            ) / rawData.length
+            rawData.reduce((sum, item) => sum + Number.parseFloat(item.value || "0"), 0) /
+            rawData.length
           ).toFixed(2),
         )
       : 0;
@@ -93,14 +84,10 @@ async function getExpensesImpl(db: Database, params: GetExpensesParams) {
       currency: rawData.at(0)?.currency ?? params.currency,
     },
     result: rawData.map((item) => {
-      const value = Number.parseFloat(
-        Number.parseFloat(item.value || "0").toFixed(2),
-      );
+      const value = Number.parseFloat(Number.parseFloat(item.value || "0").toFixed(2));
       const recurring = Number.parseFloat(
         Number.parseFloat(
-          item.recurring_value !== undefined
-            ? String(item.recurring_value)
-            : "0",
+          item.recurring_value !== undefined ? String(item.recurring_value) : "0",
         ).toFixed(2),
       );
 

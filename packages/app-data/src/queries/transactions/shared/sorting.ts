@@ -1,7 +1,4 @@
-import type {
-  BankAccountRecord,
-  TransactionRecord,
-} from "@tamias/app-data-convex";
+import type { BankAccountRecord, TransactionRecord } from "@tamias/app-data-convex";
 import { getTransactionCategoryContext } from "../../transaction-categories";
 import type { TransactionDerivedState } from "./types";
 
@@ -13,11 +10,9 @@ export function getTransactionDerivedState(
     errorTransactionIds: Set<string>;
   },
 ): TransactionDerivedState {
-  const isFulfilled =
-    transaction.hasAttachment || transaction.status === "completed";
+  const isFulfilled = transaction.hasAttachment || transaction.status === "completed";
   const isExported =
-    transaction.status === "exported" ||
-    lookups.syncedTransactionIds.has(transaction.id);
+    transaction.status === "exported" || lookups.syncedTransactionIds.has(transaction.id);
 
   return {
     hasPendingSuggestion: lookups.pendingSuggestionIds.has(transaction.id),
@@ -31,17 +26,11 @@ export function isActiveWorkflowStatus(status: TransactionRecord["status"]) {
   return status !== "excluded" && status !== "archived";
 }
 
-export function compareStrings(
-  left: string | null | undefined,
-  right: string | null | undefined,
-) {
+export function compareStrings(left: string | null | undefined, right: string | null | undefined) {
   return (left ?? "").localeCompare(right ?? "");
 }
 
-export function compareNumbers(
-  left: number | null | undefined,
-  right: number | null | undefined,
-) {
+export function compareNumbers(left: number | null | undefined, right: number | null | undefined) {
   return (left ?? 0) - (right ?? 0);
 }
 
@@ -93,10 +82,8 @@ export function compareTransactionsForSort(
       break;
     case "assigned":
       comparison = compareNumbers(
-        args.assigneeSortIndexById.get(left.assignedId ?? "") ??
-          args.assigneeSortIndexById.size,
-        args.assigneeSortIndexById.get(right.assignedId ?? "") ??
-          args.assigneeSortIndexById.size,
+        args.assigneeSortIndexById.get(left.assignedId ?? "") ?? args.assigneeSortIndexById.size,
+        args.assigneeSortIndexById.get(right.assignedId ?? "") ?? args.assigneeSortIndexById.size,
       );
       break;
     case "bank_account":
@@ -107,10 +94,8 @@ export function compareTransactionsForSort(
       break;
     case "category":
       comparison = compareStrings(
-        args.categoryContext.bySlug.get(left.categorySlug ?? "")?.name ??
-          left.categorySlug,
-        args.categoryContext.bySlug.get(right.categorySlug ?? "")?.name ??
-          right.categorySlug,
+        args.categoryContext.bySlug.get(left.categorySlug ?? "")?.name ?? left.categorySlug,
+        args.categoryContext.bySlug.get(right.categorySlug ?? "")?.name ?? right.categorySlug,
       );
       break;
     case "tags":
@@ -132,10 +117,7 @@ export function compareTransactionsForSort(
       comparison = compareStrings(left.status, right.status);
       break;
     case "counterparty":
-      comparison = compareStrings(
-        left.counterpartyName,
-        right.counterpartyName,
-      );
+      comparison = compareStrings(left.counterpartyName, right.counterpartyName);
       break;
     default:
       return compareTransactionsByDateDesc(left, right);

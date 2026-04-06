@@ -61,13 +61,7 @@ const MARGIN = { top: 16, right: 12, bottom: 28, left: 12 };
 const CHART_WIDTH = SVG_WIDTH - MARGIN.left - MARGIN.right;
 const CHART_HEIGHT = SVG_HEIGHT - MARGIN.top - MARGIN.bottom;
 
-export const publicChartGrayShades = [
-  "#C6C6C6",
-  "#A8A8A8",
-  "#8B8B8B",
-  "#707070",
-  "#545454",
-];
+export const publicChartGrayShades = ["#C6C6C6", "#A8A8A8", "#8B8B8B", "#707070", "#545454"];
 
 function getStep(count: number) {
   if (count <= 6) return 1;
@@ -112,9 +106,7 @@ function buildLinePath(points: Array<{ x: number; y: number }>) {
   }
 
   return points
-    .map((point, index) =>
-      `${index === 0 ? "M" : "L"} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`,
-    )
+    .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`)
     .join(" ");
 }
 
@@ -142,13 +134,7 @@ function xBand(index: number, count: number) {
   return MARGIN.left + (index / count) * CHART_WIDTH;
 }
 
-function Frame({
-  children,
-  labels,
-}: {
-  children: React.ReactNode;
-  labels?: string[];
-}) {
+function Frame({ children, labels }: { children: React.ReactNode; labels?: string[] }) {
   const step = labels ? getStep(labels.length) : 1;
 
   return (
@@ -261,9 +247,7 @@ export function PublicComparisonBarChart({
   const labels = data.map((item) => item.label);
   const values = data.flatMap((item) => [item.primary, item.secondary]);
   const average =
-    data.length > 0
-      ? data.reduce((sum, item) => sum + item.primary, 0) / data.length
-      : 0;
+    data.length > 0 ? data.reduce((sum, item) => sum + item.primary, 0) / data.length : 0;
   const { min, max } = getRange(showAverage ? [...values, average] : values, true);
   const zeroY = valueToY(0, min, max);
   const bandWidth = CHART_WIDTH / Math.max(data.length, 1);
@@ -433,11 +417,7 @@ export function PublicRunwayChart({ data }: { data: RunwayDatum[] }) {
 
   return (
     <Frame labels={labels}>
-      <path
-        d={buildAreaPath(points, baselineY)}
-        fill="hsl(var(--foreground))"
-        opacity="0.12"
-      />
+      <path d={buildAreaPath(points, baselineY)} fill="hsl(var(--foreground))" opacity="0.12" />
       <path
         d={buildLinePath(points)}
         fill="none"
@@ -450,11 +430,7 @@ export function PublicRunwayChart({ data }: { data: RunwayDatum[] }) {
   );
 }
 
-export function PublicStackedExpensesChart({
-  data,
-}: {
-  data: StackedDatum[];
-}) {
+export function PublicStackedExpensesChart({ data }: { data: StackedDatum[] }) {
   const labels = data.map((item) => item.label);
   const totals = data.map((item) => item.total);
   const { min, max } = getRange(totals, true);
@@ -471,14 +447,7 @@ export function PublicStackedExpensesChart({
           patternUnits="userSpaceOnUse"
           patternTransform="rotate(45)"
         >
-          <line
-            x1="0"
-            y1="0"
-            x2="0"
-            y2="8"
-            stroke="hsl(var(--foreground))"
-            strokeWidth="3"
-          />
+          <line x1="0" y1="0" x2="0" y2="8" stroke="hsl(var(--foreground))" strokeWidth="3" />
         </pattern>
       </defs>
       {data.map((item, index) => {
@@ -538,19 +507,7 @@ function describeArc(
   const end = polarToCartesian(centerX, centerY, radius, startAngle);
   const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
 
-  return [
-    "M",
-    start.x,
-    start.y,
-    "A",
-    radius,
-    radius,
-    0,
-    largeArcFlag,
-    0,
-    end.x,
-    end.y,
-  ].join(" ");
+  return ["M", start.x, start.y, "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y].join(" ");
 }
 
 export function PublicDonutChart({ data }: { data: DonutDatum[] }) {
@@ -599,11 +556,7 @@ export function PublicDonutChart({ data }: { data: DonutDatum[] }) {
   );
 }
 
-export function PublicScoreLineChart({
-  data,
-}: {
-  data: Array<{ label: string; value: number }>;
-}) {
+export function PublicScoreLineChart({ data }: { data: Array<{ label: string; value: number }> }) {
   const labels = data.map((item) => item.label);
   const points = data.map((item, index) => ({
     x: xCenter(index, data.length),
@@ -621,13 +574,7 @@ export function PublicScoreLineChart({
         strokeLinejoin="round"
       />
       {points.map((point, index) => (
-        <circle
-          key={labels[index]}
-          cx={point.x}
-          cy={point.y}
-          r="3"
-          fill="hsl(var(--foreground))"
-        />
+        <circle key={labels[index]} cx={point.x} cy={point.y} r="3" fill="hsl(var(--foreground))" />
       ))}
     </Frame>
   );
@@ -687,9 +634,7 @@ export function PublicMultiLineChart({
             fill="none"
             stroke={entry.color}
             strokeWidth={entry.width ?? 2.5}
-            strokeDasharray={
-              entry.dotted ? "3 5" : entry.dashed ? "6 6" : undefined
-            }
+            strokeDasharray={entry.dotted ? "3 5" : entry.dashed ? "6 6" : undefined}
             strokeLinecap="round"
             strokeLinejoin="round"
           />
@@ -724,8 +669,7 @@ export function PublicGroupedBarLineChart({
         .map((item) => item[line.key])
         .filter((value): value is number => typeof value === "number")
     : [];
-  const lineRange =
-    lineValues.length > 0 ? getRange(lineValues, true) : { min: 0, max: 1 };
+  const lineRange = lineValues.length > 0 ? getRange(lineValues, true) : { min: 0, max: 1 };
   const bandWidth = CHART_WIDTH / Math.max(data.length, 1);
   const totalGap = Math.max(6, bandWidth * 0.14);
   const barWidth = Math.max(
@@ -760,14 +704,7 @@ export function PublicGroupedBarLineChart({
             patternUnits="userSpaceOnUse"
             patternTransform="rotate(45)"
           >
-            <line
-              x1="0"
-              y1="0"
-              x2="0"
-              y2="8"
-              stroke="hsl(var(--foreground))"
-              strokeWidth="3"
-            />
+            <line x1="0" y1="0" x2="0" y2="8" stroke="hsl(var(--foreground))" strokeWidth="3" />
           </pattern>
         </defs>
       )}
@@ -782,8 +719,7 @@ export function PublicGroupedBarLineChart({
       {data.map((item, dataIndex) => {
         const startX =
           xBand(dataIndex, data.length) +
-          (bandWidth - bars.length * barWidth - (bars.length - 1) * totalGap) /
-            2;
+          (bandWidth - bars.length * barWidth - (bars.length - 1) * totalGap) / 2;
 
         return (
           <g key={item.label + dataIndex}>
@@ -803,11 +739,7 @@ export function PublicGroupedBarLineChart({
                   y={Math.min(y, zeroY)}
                   width={barWidth}
                   height={Math.max(2, Math.abs(zeroY - y))}
-                  fill={
-                    entry.pattern
-                      ? `url(#public-grouped-pattern-${patternId})`
-                      : entry.color
-                  }
+                  fill={entry.pattern ? `url(#public-grouped-pattern-${patternId})` : entry.color}
                   opacity={entry.opacity ?? 0.95}
                   rx="2"
                 />
@@ -822,9 +754,7 @@ export function PublicGroupedBarLineChart({
           fill="none"
           stroke={line.color}
           strokeWidth={line.width ?? 2.5}
-          strokeDasharray={
-            line.dotted ? "3 5" : line.dashed ? "6 6" : undefined
-          }
+          strokeDasharray={line.dotted ? "3 5" : line.dashed ? "6 6" : undefined}
           strokeLinecap="round"
           strokeLinejoin="round"
         />

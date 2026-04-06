@@ -1,6 +1,4 @@
-let searchModulePromise:
-  | Promise<typeof import("@/components/search/search")>
-  | undefined;
+let searchModulePromise: Promise<typeof import("@/components/search/search")> | undefined;
 
 export function loadSearchModule() {
   if (!searchModulePromise) {

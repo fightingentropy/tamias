@@ -93,13 +93,9 @@ export function buildReadinessResponse(results: DependencyResult[]) {
  * - Tier 3/4 failure → "ok" (individual features affected, not system-level)
  */
 export function buildDependenciesResponse(results: DependencyResult[]) {
-  const tier1Healthy = results
-    .filter((r) => r.tier === 1)
-    .every((r) => r.healthy);
+  const tier1Healthy = results.filter((r) => r.tier === 1).every((r) => r.healthy);
 
-  const tier2Healthy = results
-    .filter((r) => r.tier === 2)
-    .every((r) => r.healthy);
+  const tier2Healthy = results.filter((r) => r.tier === 2).every((r) => r.healthy);
 
   const status = !tier1Healthy
     ? ("unhealthy" as const)

@@ -48,13 +48,8 @@ export function FileViewer({ mimeType, url, maxWidth }: Props) {
 
   const displayUrl = finalUrl || url;
 
-  if (
-    mimeType === "application/pdf" ||
-    mimeType === "application/octet-stream"
-  ) {
-    return (
-      <DynamicPdfViewer url={displayUrl} key={displayUrl} maxWidth={maxWidth} />
-    );
+  if (mimeType === "application/pdf" || mimeType === "application/octet-stream") {
+    return <DynamicPdfViewer url={displayUrl} key={displayUrl} maxWidth={maxWidth} />;
   }
 
   if (mimeType?.startsWith("image/")) {

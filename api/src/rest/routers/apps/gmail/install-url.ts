@@ -19,8 +19,7 @@ app.openapi(
     path: "/",
     summary: "Get Gmail install URL",
     operationId: "getGmailInstallUrl",
-    description:
-      "Generates OAuth install URL for Gmail integration. Requires authentication.",
+    description: "Generates OAuth install URL for Gmail integration. Requires authentication.",
     tags: ["Integrations"],
     responses: {
       200: {

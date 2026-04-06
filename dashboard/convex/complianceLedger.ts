@@ -2,10 +2,7 @@ import { ConvexError, v } from "convex/values";
 import { UK_SYSTEM_LEDGER_ACCOUNTS } from "../../packages/compliance/src/chart-of-accounts";
 import { roundCurrency } from "../../packages/compliance/src/vat";
 import { nowIso } from "../../packages/domain/src/identity";
-import {
-  calculateBaseTaxAmount,
-  resolveTaxValues,
-} from "../../packages/utils/src/tax";
+import { calculateBaseTaxAmount, resolveTaxValues } from "../../packages/utils/src/tax";
 import type { Doc, Id } from "./_generated/dataModel";
 import type { MutationCtx } from "./_generated/server";
 import { mutation, query } from "./_generated/server";
@@ -64,13 +61,7 @@ const DERIVED_LEDGER_SOURCE_TYPES: JournalSourceType[] = [
   "invoice",
   "invoice_refund",
 ];
-const DERIVED_INVOICE_STATUSES = new Set([
-  "paid",
-  "unpaid",
-  "overdue",
-  "scheduled",
-  "refunded",
-]);
+const DERIVED_INVOICE_STATUSES = new Set(["paid", "unpaid", "overdue", "scheduled", "refunded"]);
 
 const sourceTypeValidator = v.union(
   v.literal("transaction"),
@@ -122,31 +113,19 @@ function normalizeJournalLines(lines: JournalLineInput[]) {
   }));
 }
 
-function getTransactionSourceId(
-  transaction: Pick<TransactionDoc, "_id" | "publicTransactionId">,
-) {
+function getTransactionSourceId(transaction: Pick<TransactionDoc, "_id" | "publicTransactionId">) {
   return transaction.publicTransactionId ?? transaction._id;
 }
 
-function getPublicInvoiceSourceId(
-  invoice: Pick<PublicInvoiceDoc, "_id" | "publicInvoiceId">,
-) {
+function getPublicInvoiceSourceId(invoice: Pick<PublicInvoiceDoc, "_id" | "publicInvoiceId">) {
   return invoice.publicInvoiceId ?? invoice._id;
 }
 
-function getStringFieldFromPayload(
-  payload: Record<string, unknown>,
-  key: string,
-) {
-  return typeof payload[key] === "string" && payload[key].length > 0
-    ? payload[key]
-    : null;
+function getStringFieldFromPayload(payload: Record<string, unknown>, key: string) {
+  return typeof payload[key] === "string" && payload[key].length > 0 ? payload[key] : null;
 }
 
-function getNumberFieldFromPayload(
-  payload: Record<string, unknown>,
-  key: string,
-) {
+function getNumberFieldFromPayload(payload: Record<string, unknown>, key: string) {
   return typeof payload[key] === "number" ? payload[key] : null;
 }
 
@@ -179,9 +158,7 @@ async function buildDerivedLedgerContext(
   return {
     team,
     filingProfile,
-    transactionCategoryBySlug: new Map(
-      categories.map((category) => [category.slug, category]),
-    ),
+    transactionCategoryBySlug: new Map(categories.map((category) => [category.slug, category])),
     accountMap: ensureLedgerAccounts(),
   };
 }
@@ -213,21 +190,14 @@ function buildTransactionJournalEntry(
   const salesAccount = context.accountMap.get("4000");
   const expenseAccount = context.accountMap.get("5000");
 
-  if (
-    !bankAccount ||
-    !vatInputAccount ||
-    !vatOutputAccount ||
-    !salesAccount ||
-    !expenseAccount
-  ) {
+  if (!bankAccount || !vatInputAccount || !vatOutputAccount || !salesAccount || !expenseAccount) {
     throw new ConvexError("Required compliance ledger accounts are missing");
   }
 
   const reportingCurrency =
     context.filingProfile?.baseCurrency ?? context.team.baseCurrency ?? "GBP";
   const reportingAmount =
-    transaction.baseCurrency === reportingCurrency &&
-    transaction.baseAmount !== undefined
+    transaction.baseCurrency === reportingCurrency && transaction.baseAmount !== undefined
       ? transaction.baseAmount
       : transaction.amount;
   const baseTaxAmount = calculateBaseTaxAmount({
@@ -250,8 +220,7 @@ function buildTransactionJournalEntry(
     categoryTaxType: category?.taxType ?? null,
   });
   const grossAmount = Math.abs(reportingAmount);
-  const vatAmount =
-    resolved.taxType === "vat" ? Math.abs(resolved.taxAmount ?? 0) : 0;
+  const vatAmount = resolved.taxType === "vat" ? Math.abs(resolved.taxAmount ?? 0) : 0;
   const netAmount = roundCurrency(Math.max(grossAmount - vatAmount, 0));
   const isIncome = reportingAmount > 0;
   const lines = isIncome
@@ -336,12 +305,7 @@ function buildPublicInvoiceJournalEntry(
   const salesAccount = context.accountMap.get("4000");
   const salesReturnsAccount = context.accountMap.get("4900");
 
-  if (
-    !arAccount ||
-    !vatOutputAccount ||
-    !salesAccount ||
-    !salesReturnsAccount
-  ) {
+  if (!arAccount || !vatOutputAccount || !salesAccount || !salesReturnsAccount) {
     throw new ConvexError("Required compliance ledger accounts are missing");
   }
 
@@ -349,22 +313,18 @@ function buildPublicInvoiceJournalEntry(
   const grossAmount = Math.abs(invoice.amount ?? 0);
   const vatAmount = Math.abs(getNumberFieldFromPayload(payload, "vat") ?? 0);
   const netAmount = roundCurrency(
-    getNumberFieldFromPayload(payload, "subtotal") ??
-      Math.max(grossAmount - vatAmount, 0),
+    getNumberFieldFromPayload(payload, "subtotal") ?? Math.max(grossAmount - vatAmount, 0),
   );
   const isRefund = invoice.status === "refunded";
   const entryDate = (
-    isRefund
-      ? getStringFieldFromPayload(payload, "refundedAt")
-      : invoice.issueDate
+    isRefund ? getStringFieldFromPayload(payload, "refundedAt") : invoice.issueDate
   )?.slice(0, 10);
 
   if (!entryDate) {
     return null;
   }
 
-  const description =
-    invoice.customerName ?? invoice.invoiceNumber ?? "Invoice";
+  const description = invoice.customerName ?? invoice.invoiceNumber ?? "Invoice";
   const lines = isRefund
     ? [
         {
@@ -424,10 +384,7 @@ function buildPublicInvoiceJournalEntry(
     sourceType: isRefund ? "invoice_refund" : "invoice",
     sourceId: getPublicInvoiceSourceId(invoice),
     currency:
-      invoice.currency ??
-      context.filingProfile?.baseCurrency ??
-      context.team.baseCurrency ??
-      "GBP",
+      invoice.currency ?? context.filingProfile?.baseCurrency ?? context.team.baseCurrency ?? "GBP",
     meta: {
       grossAmount,
       netAmount,
@@ -446,16 +403,11 @@ async function upsertComplianceJournalEntryRecord(
   const existingSourceLink = await ctx.db
     .query("sourceLinks")
     .withIndex("by_team_source_type_source_id", (q) =>
-      q
-        .eq("teamId", team._id)
-        .eq("sourceType", entry.sourceType)
-        .eq("sourceId", entry.sourceId),
+      q.eq("teamId", team._id).eq("sourceType", entry.sourceType).eq("sourceId", entry.sourceId),
     )
     .unique();
   const journalEntryId =
-    entry.journalEntryId ??
-    existingSourceLink?.journalEntryId ??
-    crypto.randomUUID();
+    entry.journalEntryId ?? existingSourceLink?.journalEntryId ?? crypto.randomUUID();
   const timestamp = nowIso();
 
   if (existingSourceLink) {
@@ -531,10 +483,7 @@ async function deleteComplianceJournalEntryBySourceRecord(
   const sourceLink = await ctx.db
     .query("sourceLinks")
     .withIndex("by_team_source_type_source_id", (q) =>
-      q
-        .eq("teamId", team._id)
-        .eq("sourceType", args.sourceType)
-        .eq("sourceId", args.sourceId),
+      q.eq("teamId", team._id).eq("sourceType", args.sourceType).eq("sourceId", args.sourceId),
     )
     .unique();
 
@@ -570,9 +519,7 @@ async function deleteComplianceJournalEntriesForSourceTypes(
     .query("complianceJournalEntries")
     .withIndex("by_team_id", (q) => q.eq("teamId", team._id))
     .collect()
-    .then((records) =>
-      records.filter((entry) => sourceTypes.includes(entry.sourceType)),
-    );
+    .then((records) => records.filter((entry) => sourceTypes.includes(entry.sourceType)));
   const existingSourceLinks = await Promise.all(
     sourceTypes.map((sourceType) =>
       ctx.db
@@ -590,9 +537,7 @@ async function deleteComplianceJournalEntriesForSourceTypes(
   ]);
 
   return {
-    deletedEntryIds: existingEntries.map(
-      (entry) => entry.publicJournalEntryId ?? entry._id,
-    ),
+    deletedEntryIds: existingEntries.map((entry) => entry.publicJournalEntryId ?? entry._id),
     deletedSourceLinkIds: existingSourceLinks
       .flat()
       .map((record) => record.publicSourceLinkId ?? record._id),
@@ -616,12 +561,8 @@ export async function syncTransactionComplianceJournalEntriesForChanges(
   });
 
   for (const change of changes) {
-    const previousSourceId = change.previous
-      ? getTransactionSourceId(change.previous)
-      : null;
-    const nextEntry = change.next
-      ? buildTransactionJournalEntry(context, change.next)
-      : null;
+    const previousSourceId = change.previous ? getTransactionSourceId(change.previous) : null;
+    const nextEntry = change.next ? buildTransactionJournalEntry(context, change.next) : null;
 
     if (previousSourceId && !nextEntry) {
       await deleteComplianceJournalEntryBySourceRecord(ctx, team, {
@@ -647,13 +588,7 @@ export async function syncPublicInvoiceComplianceJournalEntryForChange(
 ) {
   const context = await buildDerivedLedgerContext(ctx, team);
 
-  return syncPublicInvoiceComplianceJournalEntryWithContext(
-    ctx,
-    team,
-    context,
-    previous,
-    next,
-  );
+  return syncPublicInvoiceComplianceJournalEntryWithContext(ctx, team, context, previous, next);
 }
 
 async function syncPublicInvoiceComplianceJournalEntryWithContext(
@@ -663,9 +598,7 @@ async function syncPublicInvoiceComplianceJournalEntryWithContext(
   previous: PublicInvoiceDoc | null,
   next: PublicInvoiceDoc | null,
 ) {
-  const previousEntry = previous
-    ? buildPublicInvoiceJournalEntry(context, previous)
-    : null;
+  const previousEntry = previous ? buildPublicInvoiceJournalEntry(context, previous) : null;
   const nextEntry = next ? buildPublicInvoiceJournalEntry(context, next) : null;
   const sourceId = next
     ? getPublicInvoiceSourceId(next)
@@ -673,10 +606,7 @@ async function syncPublicInvoiceComplianceJournalEntryWithContext(
       ? getPublicInvoiceSourceId(previous)
       : null;
 
-  if (
-    previousEntry &&
-    (!nextEntry || previousEntry.sourceType !== nextEntry.sourceType)
-  ) {
+  if (previousEntry && (!nextEntry || previousEntry.sourceType !== nextEntry.sourceType)) {
     await deleteComplianceJournalEntryBySourceRecord(ctx, team, {
       sourceType: previousEntry.sourceType,
       sourceId: previousEntry.sourceId,
@@ -706,11 +636,7 @@ export async function rebuildDerivedComplianceJournalEntriesForTeam(
   ctx: MutationCtx,
   team: TeamDoc,
 ): Promise<DerivedLedgerRebuildResult> {
-  await deleteComplianceJournalEntriesForSourceTypes(
-    ctx,
-    team,
-    DERIVED_LEDGER_SOURCE_TYPES,
-  );
+  await deleteComplianceJournalEntriesForSourceTypes(ctx, team, DERIVED_LEDGER_SOURCE_TYPES);
 
   const [transactions, publicInvoices] = await Promise.all([
     ctx.db
@@ -728,21 +654,12 @@ export async function rebuildDerivedComplianceJournalEntriesForTeam(
     next: transaction,
   }));
 
-  await syncTransactionComplianceJournalEntriesForChanges(
-    ctx,
-    team,
-    transactionChanges,
-  );
+  await syncTransactionComplianceJournalEntriesForChanges(ctx, team, transactionChanges);
 
-  let journalEntryCount = transactions.filter(
-    shouldDeriveTransactionJournalEntry,
-  ).length;
+  let journalEntryCount = transactions.filter(shouldDeriveTransactionJournalEntry).length;
 
   for (const invoice of publicInvoices) {
-    const invoiceEntry = buildPublicInvoiceJournalEntry(
-      invoiceContext,
-      invoice,
-    );
+    const invoiceEntry = buildPublicInvoiceJournalEntry(invoiceContext, invoice);
 
     await syncPublicInvoiceComplianceJournalEntryWithContext(
       ctx,
@@ -790,9 +707,7 @@ export const serviceListComplianceJournalEntries = query({
       return [];
     }
 
-    const allowedSourceTypes = args.sourceTypes
-      ? new Set(args.sourceTypes)
-      : null;
+    const allowedSourceTypes = args.sourceTypes ? new Set(args.sourceTypes) : null;
 
     return ctx.db
       .query("complianceJournalEntries")
@@ -801,14 +716,10 @@ export const serviceListComplianceJournalEntries = query({
       .then((records) =>
         records
           .filter((record) =>
-            allowedSourceTypes
-              ? allowedSourceTypes.has(record.sourceType)
-              : true,
+            allowedSourceTypes ? allowedSourceTypes.has(record.sourceType) : true,
           )
           .sort((left, right) => {
-            const dateComparison = left.entryDate.localeCompare(
-              right.entryDate,
-            );
+            const dateComparison = left.entryDate.localeCompare(right.entryDate);
 
             if (dateComparison !== 0) {
               return dateComparison;
@@ -869,8 +780,7 @@ export const serviceUpsertComplianceJournalEntry = mutation({
       sourceType: args.entry.sourceType as JournalSourceType,
       sourceId: args.entry.sourceId,
       currency: args.entry.currency,
-      meta:
-        (args.entry.meta as Record<string, unknown> | null | undefined) ?? null,
+      meta: (args.entry.meta as Record<string, unknown> | null | undefined) ?? null,
       lines: args.entry.lines.map((line) => ({
         accountCode: line.accountCode,
         description: line.description ?? null,
@@ -931,9 +841,7 @@ export const serviceRebuildDerivedComplianceJournalEntries = mutation({
     const results: DerivedLedgerRebuildResult[] = [];
 
     for (const team of validTeams) {
-      results.push(
-        await rebuildDerivedComplianceJournalEntriesForTeam(ctx, team),
-      );
+      results.push(await rebuildDerivedComplianceJournalEntriesForTeam(ctx, team));
     }
 
     return results;

@@ -12,10 +12,7 @@ export async function getMatchThresholds(db: Database, teamId: string) {
   const calibration = await getTeamCalibration(db, teamId);
 
   return {
-    suggestedThreshold: Math.max(
-      0.6,
-      calibration.calibratedSuggestedThreshold,
-    ),
+    suggestedThreshold: Math.max(0.6, calibration.calibratedSuggestedThreshold),
     autoThreshold: calibration.calibratedAutoThreshold,
   };
 }
@@ -30,12 +27,7 @@ export function resolveMatchType(
   nameScore: number,
   autoThreshold: number,
 ): MatchType {
-  if (
-    AUTO_MATCH_ENABLED &&
-    confidence >= autoThreshold &&
-    canAutoMatch &&
-    nameScore >= 0.4
-  ) {
+  if (AUTO_MATCH_ENABLED && confidence >= autoThreshold && canAutoMatch && nameScore >= 0.4) {
     return "auto_matched";
   }
 
@@ -61,9 +53,7 @@ export async function getDismissedTransactionIds(args: {
       inboxId: args.inboxId,
       statuses: ["declined", "unmatched"],
     })
-  ).filter((suggestion) =>
-    args.transactionIds.includes(suggestion.transactionId),
-  );
+  ).filter((suggestion) => args.transactionIds.includes(suggestion.transactionId));
 
   return new Set(dismissed.map((suggestion) => suggestion.transactionId));
 }

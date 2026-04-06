@@ -13,10 +13,7 @@ export type AccountingSyncAttachment = {
   size: number | null;
 };
 
-const ACCOUNTING_SYNC_EXCLUDED_STATUSES: TransactionStatus[] = [
-  "excluded",
-  "archived",
-];
+const ACCOUNTING_SYNC_EXCLUDED_STATUSES: TransactionStatus[] = ["excluded", "archived"];
 
 export const ACCOUNTING_SYNC_EXCLUDED_STATUS_SET = new Set<TransactionStatus>(
   ACCOUNTING_SYNC_EXCLUDED_STATUSES,

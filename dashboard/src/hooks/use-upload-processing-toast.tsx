@@ -122,13 +122,7 @@ export function useUploadProcessingToast({
 
       previousStatusesRef.current.set(item.id, newStatus);
     }
-  }, [
-    markComplete,
-    onStatusChange,
-    pendingIdList,
-    pendingInboxQueries,
-    playMatchSound,
-  ]);
+  }, [markComplete, onStatusChange, pendingIdList, pendingInboxQueries, playMatchSound]);
 
   // Timeout ref for fallback completion
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);

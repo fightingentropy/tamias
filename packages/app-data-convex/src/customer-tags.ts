@@ -49,10 +49,7 @@ export async function deleteCustomerTagsForCustomerInConvex(args: {
   ) as Promise<{ customerId: string }>;
 }
 
-export async function deleteCustomerTagsForTagInConvex(args: {
-  teamId: string;
-  tagId: string;
-}) {
+export async function deleteCustomerTagsForTagInConvex(args: { teamId: string; tagId: string }) {
   return createClient().mutation(
     api.customerTags.serviceDeleteCustomerTagsForTag,
     serviceArgs({

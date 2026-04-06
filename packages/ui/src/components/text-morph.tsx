@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  AnimatePresence,
-  motion,
-  type Transition,
-  type Variants,
-} from "framer-motion";
+import { AnimatePresence, motion, type Transition, type Variants } from "framer-motion";
 import { cn } from "../utils";
 
 export type TextMorphProps = {
@@ -37,10 +32,7 @@ export function TextMorph({
   };
 
   return (
-    <Component
-      className={cn("relative overflow-hidden", className)}
-      style={style}
-    >
+    <Component className={cn("relative overflow-hidden", className)} style={style}>
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.span
           key={children}

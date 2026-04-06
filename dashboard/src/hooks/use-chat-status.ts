@@ -32,10 +32,7 @@ interface ChatStatusResult {
  * - Tool message: shown when a tool is actively running
  * - Hidden: when text content is streaming or chat is ready
  */
-export function useChatStatus(
-  messages: UIMessage[],
-  status: ChatStatus,
-): ChatStatusResult {
+export function useChatStatus(messages: UIMessage[], status: ChatStatus): ChatStatusResult {
   const [agentStatusData] = useDataPart<AgentStatus>("agent-status");
   const [{ current }] = useArtifacts({
     exclude: ["chat-title", "suggestions"],
@@ -86,9 +83,7 @@ export function useChatStatus(
     }
 
     // Check if we have text content streaming
-    const textParts = lastMessage?.parts?.filter(
-      (part) => part.type === "text",
-    );
+    const textParts = lastMessage?.parts?.filter((part) => part.type === "text");
 
     const hasTextContent = textParts.some((part) => {
       const textPart = part as { text?: string };
@@ -143,19 +138,14 @@ export function useChatStatus(
 
       // Extract tool name from type (e.g., "tool-cashFlow" -> "cashFlow")
       const toolName =
-        type === "dynamic-tool"
-          ? (toolWithMeta.toolName as string)
-          : type.replace(/^tool-/, "");
+        type === "dynamic-tool" ? (toolWithMeta.toolName as string) : type.replace(/^tool-/, "");
 
       currentToolCall = toolName;
       _toolMetadata = toolWithMeta;
     }
 
     // Hide tool indicator when content is streaming or complete
-    if (
-      currentToolCall &&
-      (hasTextContent || hasInsightData || status === "ready")
-    ) {
+    if (currentToolCall && (hasTextContent || hasInsightData || status === "ready")) {
       currentToolCall = null;
       _toolMetadata = null;
     }

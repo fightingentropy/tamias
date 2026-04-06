@@ -1,11 +1,5 @@
 import { CurrencyInput } from "@tamias/ui/currency-input";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@tamias/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@tamias/ui/dialog";
 import {
   Form,
   FormControl,
@@ -16,13 +10,7 @@ import {
   FormMessage,
 } from "@tamias/ui/form";
 import { Input } from "@tamias/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@tamias/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@tamias/ui/select";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod/v3";
@@ -90,25 +78,14 @@ export function EditBankAccountModal({
       id,
       name: values.name,
       balance: values.balance,
-      type: values.type as
-        | "depository"
-        | "credit"
-        | "other_asset"
-        | "loan"
-        | "other_liability",
+      type: values.type as "depository" | "credit" | "other_asset" | "loan" | "other_liability",
     });
   }
 
   const accountTypes = () => {
     const translate = t as (key: string) => string;
 
-    return [
-      "depository",
-      "credit",
-      "other_asset",
-      "loan",
-      "other_liability",
-    ].map((type) => (
+    return ["depository", "credit", "other_asset", "loan", "other_liability"].map((type) => (
       <SelectItem key={type} value={type}>
         {translate(`account_type.${type}`)}
       </SelectItem>
@@ -117,15 +94,10 @@ export function EditBankAccountModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="max-w-[455px]"
-        onOpenAutoFocus={(evt) => evt.preventDefault()}
-      >
+      <DialogContent className="max-w-[455px]" onOpenAutoFocus={(evt) => evt.preventDefault()}>
         <div className="p-4">
           <DialogHeader>
-            <DialogTitle className="flex justify-between">
-              Edit Account
-            </DialogTitle>
+            <DialogTitle className="flex justify-between">Edit Account</DialogTitle>
           </DialogHeader>
 
           <Form {...form}>
@@ -147,9 +119,7 @@ export function EditBankAccountModal({
                         {...field}
                       />
                     </FormControl>
-                    <FormDescription>
-                      You can change the name of the account here
-                    </FormDescription>
+                    <FormDescription>You can change the name of the account here</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -161,10 +131,7 @@ export function EditBankAccountModal({
                 render={({ field }) => (
                   <FormItem className="mt-4">
                     <FormLabel>Type</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Change account type" />
@@ -194,9 +161,7 @@ export function EditBankAccountModal({
                       />
                     </FormControl>
 
-                    <FormDescription>
-                      Change the account balance
-                    </FormDescription>
+                    <FormDescription>Change the account balance</FormDescription>
                   </FormItem>
                 )}
               />

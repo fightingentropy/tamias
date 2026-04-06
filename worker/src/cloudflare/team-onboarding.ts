@@ -1,18 +1,11 @@
-import {
-  getBankConnections,
-  getTeamById,
-  getUserByEmail,
-} from "@tamias/app-data/queries";
+import { getBankConnections, getTeamById, getUserByEmail } from "@tamias/app-data/queries";
 import { TrialActivationEmail } from "@tamias/email/emails/trial-activation";
 import { TrialDeactivatedEmail } from "@tamias/email/emails/trial-deactivated";
 import { TrialEndedEmail } from "@tamias/email/emails/trial-ended";
 import { TrialExpiringEmail } from "@tamias/email/emails/trial-expiring";
 import { WelcomeEmail } from "@tamias/email/emails/welcome";
 import { render } from "@tamias/email/render";
-import {
-  getSupportFromDisplay,
-  getSupportReplyToEmail,
-} from "@tamias/utils/envs";
+import { getSupportFromDisplay, getSupportReplyToEmail } from "@tamias/utils/envs";
 import { Resend } from "resend";
 import { getDb } from "../utils/db";
 
@@ -56,9 +49,7 @@ function getContactNameParts(fullName: string) {
   };
 }
 
-export async function loadTeamOnboardingUser(
-  email: string,
-): Promise<TeamOnboardingUser> {
+export async function loadTeamOnboardingUser(email: string): Promise<TeamOnboardingUser> {
   const user = await getUserByEmail(getDb(), email);
 
   if (!user?.fullName || !user.email) {

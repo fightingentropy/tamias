@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@tamias/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@tamias/ui/card";
 import { Switch } from "@tamias/ui/switch";
 import { useUserMutation, useUserQuery } from "@/hooks/use-user";
 
@@ -18,9 +12,7 @@ export function WeekSettings() {
     <Card className="flex justify-between items-center">
       <CardHeader>
         <CardTitle>Start Week on Monday</CardTitle>
-        <CardDescription>
-          Set the first day of the week in calendar views.
-        </CardDescription>
+        <CardDescription>Set the first day of the week in calendar views.</CardDescription>
       </CardHeader>
 
       <CardContent>

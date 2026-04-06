@@ -8,10 +8,7 @@ import {
   updateInvoice,
   updateInvoiceRecurring,
 } from "@tamias/app-data/queries";
-import {
-  calculateNextScheduledDate,
-  isDateInFutureUTC,
-} from "@tamias/invoice/server-recurring";
+import { calculateNextScheduledDate, isDateInFutureUTC } from "@tamias/invoice/server-recurring";
 import { Notifications } from "@tamias/notifications";
 import { TRPCError } from "@trpc/server";
 import {
@@ -70,11 +67,7 @@ export const invoiceRecurringMutationProcedures = {
         }
       }
 
-      await assertRecurringCustomerCanReceiveInvoices(
-        db,
-        context.teamId,
-        recurringData.customerId,
-      );
+      await assertRecurringCustomerCanReceiveInvoices(db, context.teamId, recurringData.customerId);
 
       const issueDate = existingInvoice?.issueDate ?? null;
       const recurring = await createInvoiceRecurring(db, {
@@ -148,12 +141,9 @@ export const invoiceRecurringMutationProcedures = {
             endCount: recurringData.endCount ?? undefined,
           })
           .catch((error) => {
-            invoiceRecurringLogger.error(
-              "Failed to send recurring_series_started notification",
-              {
-                error: error instanceof Error ? error.message : String(error),
-              },
-            );
+            invoiceRecurringLogger.error("Failed to send recurring_series_started notification", {
+              error: error instanceof Error ? error.message : String(error),
+            });
           });
       }
 

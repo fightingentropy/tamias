@@ -2,8 +2,7 @@
  * Constants for metrics breakdown artifacts
  */
 
-export const METRICS_BREAKDOWN_MONTHLY_PATTERN =
-  /^breakdown-summary-canvas-\d{4}-\d{2}$/;
+export const METRICS_BREAKDOWN_MONTHLY_PATTERN = /^breakdown-summary-canvas-\d{4}-\d{2}$/;
 
 /**
  * Check if an artifact type is a monthly breakdown

@@ -32,9 +32,7 @@ function createOpenAIWebSearchTools({
   } as unknown as ToolSet;
 }
 
-function extractSources(
-  result: Awaited<ReturnType<typeof generateText>>,
-): OpenAIWebSearchSource[] {
+function extractSources(result: Awaited<ReturnType<typeof generateText>>): OpenAIWebSearchSource[] {
   const rawSources: Array<{ url: string; title?: string }> = [];
 
   if (result.steps?.[0]?.content && Array.isArray(result.steps[0].content)) {

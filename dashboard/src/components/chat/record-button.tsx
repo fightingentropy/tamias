@@ -144,21 +144,10 @@ export interface RecordButtonProps {
   size?: number;
 }
 
-export function RecordButton({
-  disabled = false,
-  className,
-  size = 16,
-}: RecordButtonProps) {
-  const {
-    input,
-    setInput,
-    isRecording,
-    isProcessing,
-    setIsRecording,
-    setIsProcessing,
-  } = useChatStore();
-  const { startRecording, stopRecording, transcribeAudio } =
-    useAudioRecording();
+export function RecordButton({ disabled = false, className, size = 16 }: RecordButtonProps) {
+  const { input, setInput, isRecording, isProcessing, setIsRecording, setIsProcessing } =
+    useChatStore();
+  const { startRecording, stopRecording, transcribeAudio } = useAudioRecording();
 
   const handleRecordClick = useCallback(async () => {
     if (isRecording) {

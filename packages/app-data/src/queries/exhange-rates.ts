@@ -5,10 +5,7 @@ import {
 import type { Database } from "../client";
 
 const RATE_TTL_MS = 4 * 60 * 60 * 1000; // 4 hours
-const rateCache = new Map<
-  string,
-  { rates: Record<string, number>; ts: number }
->();
+const rateCache = new Map<string, { rates: Record<string, number>; ts: number }>();
 
 export type ExchangeRateData = {
   base: string;
@@ -26,10 +23,7 @@ export type UpsertExchangeRatesBatchParams = {
   rates: ExchangeRateData[];
 };
 
-export const upsertExchangeRates = async (
-  _db: Database,
-  params: UpsertExchangeRatesParams,
-) => {
+export const upsertExchangeRates = async (_db: Database, params: UpsertExchangeRatesParams) => {
   const { rates, batchSize = 1000 } = params;
 
   if (rates.length === 0) {
@@ -63,10 +57,7 @@ export type GetExchangeRateParams = {
   target: string;
 };
 
-async function getRatesForTarget(
-  _db: Database,
-  target: string,
-): Promise<Record<string, number>> {
+async function getRatesForTarget(_db: Database, target: string): Promise<Record<string, number>> {
   const cached = rateCache.get(target);
   if (cached && Date.now() - cached.ts < RATE_TTL_MS) {
     return cached.rates;
@@ -85,10 +76,7 @@ async function getRatesForTarget(
   return rates;
 }
 
-export async function getExchangeRate(
-  db: Database,
-  params: GetExchangeRateParams,
-) {
+export async function getExchangeRate(db: Database, params: GetExchangeRateParams) {
   const { base, target } = params;
 
   if (base === target) return { rate: 1 };
@@ -102,10 +90,7 @@ export type GetExchangeRatesBatchParams = {
   pairs: Array<{ base: string; target: string }>;
 };
 
-export async function getExchangeRatesBatch(
-  db: Database,
-  params: GetExchangeRatesBatchParams,
-) {
+export async function getExchangeRatesBatch(db: Database, params: GetExchangeRatesBatchParams) {
   const { pairs } = params;
 
   if (pairs.length === 0) {

@@ -141,11 +141,7 @@ export async function fetchAllInstitutions(): Promise<FetchInstitutionsResult> {
   const institutions: InstitutionRecord[] = [];
   const errors: { provider: string; error: string }[] = [];
   const succeededProviders: Providers[] = [];
-  const providers: Providers[] = [
-    "gocardless",
-    "plaid",
-    "teller",
-  ];
+  const providers: Providers[] = ["gocardless", "plaid", "teller"];
 
   for (let i = 0; i < results.length; i++) {
     const result = results[i]!;

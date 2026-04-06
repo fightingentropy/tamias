@@ -73,10 +73,7 @@ export function InvoiceSuccess() {
               </div>
 
               <span className="text-[11px]">
-                {format(
-                  new TZDate(invoice.dueDate!, "UTC"),
-                  invoice.template.dateFormat,
-                )}
+                {format(new TZDate(invoice.dueDate!, "UTC"), invoice.template.dateFormat)}
               </span>
             </div>
           </motion.div>
@@ -86,9 +83,7 @@ export function InvoiceSuccess() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.3 }}
           >
-            <span className="text-[11px] font-mono">
-              {invoice.template.customerLabel}
-            </span>
+            <span className="text-[11px] font-mono">{invoice.template.customerLabel}</span>
             <div className="text-[#878787]">
               {/* @ts-expect-error - customerDetails is JSONB */}
               {formatEditorContent(invoice.customerDetails)}
@@ -107,10 +102,7 @@ export function InvoiceSuccess() {
 
             <span className="text-xl">
               {invoice.amount && invoice.currency && (
-                <FormatAmount
-                  amount={invoice.amount}
-                  currency={invoice.currency}
-                />
+                <FormatAmount amount={invoice.amount} currency={invoice.currency} />
               )}
             </span>
           </motion.div>
@@ -125,17 +117,13 @@ export function InvoiceSuccess() {
 
             {invoice.sentTo && (
               <div className="flex flex-col space-y-1">
-                <span className="text-[11px] text-[#878787] font-mono">
-                  Invoice sent to
-                </span>
+                <span className="text-[11px] text-[#878787] font-mono">Invoice sent to</span>
                 <span className="text-sm">{invoice.sentTo}</span>
               </div>
             )}
 
             <div>
-              <span className="text-[11px] text-[#878787] font-mono">
-                Share link
-              </span>
+              <span className="text-[11px] text-[#878787] font-mono">Share link</span>
               <div className="flex w-full gap-2 mt-1">
                 <div className="flex-1 min-w-0">
                   <CopyInput value={`${getUrl()}/i/${invoice.token}`} />

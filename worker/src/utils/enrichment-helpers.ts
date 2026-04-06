@@ -1,9 +1,5 @@
 import type { TransactionForEnrichment } from "@tamias/app-data/queries";
-import type {
-  EnrichmentResult,
-  TransactionData,
-  UpdateData,
-} from "./enrichment-schema";
+import type { EnrichmentResult, TransactionData, UpdateData } from "./enrichment-schema";
 import {
   shouldUseCategoryResult,
   shouldUseMerchantResult,
@@ -31,13 +27,10 @@ export function generateEnrichmentPrompt(
   let returnInstructions = "Return:\n";
 
   if (needsCategories) {
-    returnInstructions +=
-      "1. Legal entity name: Apply the transformation rules above\n";
-    returnInstructions +=
-      "2. Category: Select the best-fit category from the allowed list\n";
+    returnInstructions += "1. Legal entity name: Apply the transformation rules above\n";
+    returnInstructions += "2. Category: Select the best-fit category from the allowed list\n";
   } else {
-    returnInstructions +=
-      "Legal entity name: Apply the transformation rules above\n";
+    returnInstructions += "Legal entity name: Apply the transformation rules above\n";
   }
 
   return `You are a legal entity identification system for business expense transactions.
@@ -134,9 +127,7 @@ Return exactly ${batch.length} results in order. Apply the transformation rules 
 /**
  * Prepares transaction data for LLM processing
  */
-export function prepareTransactionData(
-  batch: TransactionForEnrichment[],
-): TransactionData[] {
+export function prepareTransactionData(batch: TransactionForEnrichment[]): TransactionData[] {
   return batch.map((tx) => {
     // Build a comprehensive description with all available information
     const parts: string[] = [];
@@ -149,11 +140,7 @@ export function prepareTransactionData(
       parts.push(`Raw: ${tx.name}`);
     }
 
-    if (
-      tx.description &&
-      tx.description !== tx.counterpartyName &&
-      tx.description !== tx.name
-    ) {
+    if (tx.description && tx.description !== tx.counterpartyName && tx.description !== tx.name) {
       parts.push(`Description: ${tx.description}`);
     }
 
@@ -172,9 +159,7 @@ export function prepareTransactionData(
  * Validates if a category is in the allowed list
  */
 function isValidCategory(category: string): boolean {
-  return transactionCategories.includes(
-    category as (typeof transactionCategories)[number],
-  );
+  return transactionCategories.includes(category as (typeof transactionCategories)[number]);
 }
 
 /**
@@ -197,11 +182,7 @@ export function prepareUpdateData(
 
   // Category assignment logic
   if (!transaction.categorySlug && transaction.amount <= 0) {
-    if (
-      shouldUseCategoryResult(result) &&
-      result.category &&
-      isValidCategory(result.category)
-    ) {
+    if (shouldUseCategoryResult(result) && result.category && isValidCategory(result.category)) {
       // High confidence: use the suggested category
       updateData.categorySlug = result.category;
     } else {

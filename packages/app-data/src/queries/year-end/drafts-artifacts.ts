@@ -35,19 +35,10 @@ export function buildCtSubmissionArtifacts(args: {
     closeCompanyLoansSchedule: args.closeCompanyLoansSchedule,
     corporationTaxRateSchedule: args.corporationTaxRateSchedule,
   });
-  const statutoryAccountsDraftHtml = renderStatutoryAccountsDraftHtml(
-    statutoryAccountsDraft,
-  );
-  const statutoryAccountsDraftJson = JSON.stringify(
-    statutoryAccountsDraft,
-    null,
-    2,
-  );
-  const accountsAttachmentIxbrl = renderAccountsAttachmentIxbrl(
-    statutoryAccountsDraft,
-  );
-  const computationsAttachmentIxbrl =
-    renderComputationsAttachmentIxbrl(ct600Draft);
+  const statutoryAccountsDraftHtml = renderStatutoryAccountsDraftHtml(statutoryAccountsDraft);
+  const statutoryAccountsDraftJson = JSON.stringify(statutoryAccountsDraft, null, 2);
+  const accountsAttachmentIxbrl = renderAccountsAttachmentIxbrl(statutoryAccountsDraft);
+  const computationsAttachmentIxbrl = renderComputationsAttachmentIxbrl(ct600Draft);
   const ct600DraftXml = renderCt600DraftXml(ct600Draft, {
     accountsAttachmentXhtml: accountsAttachmentIxbrl,
     computationsAttachmentXhtml: computationsAttachmentIxbrl,

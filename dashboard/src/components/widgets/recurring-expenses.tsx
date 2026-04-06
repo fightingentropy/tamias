@@ -28,12 +28,7 @@ export function RecurringExpensesWidget() {
   });
 
   if (isLoading) {
-    return (
-      <WidgetSkeleton
-        title="Recurring Expenses"
-        icon={<Icons.Repeat className="size-4" />}
-      />
-    );
+    return <WidgetSkeleton title="Recurring Expenses" icon={<Icons.Repeat className="size-4" />} />;
   }
 
   const recurringData = data?.result;

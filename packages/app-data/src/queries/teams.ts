@@ -16,11 +16,5 @@ export {
   isTeamStillCanceled,
   hasTeamData,
 } from "./teams/reads";
-export {
-  updateTeamById,
-  createTeam,
-  deleteTeam,
-} from "./teams/mutations";
-export {
-  getTeamsForInsights,
-} from "./teams/insights";
+export { updateTeamById, createTeam, deleteTeam } from "./teams/mutations";
+export { getTeamsForInsights } from "./teams/insights";

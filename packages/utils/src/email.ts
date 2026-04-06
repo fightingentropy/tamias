@@ -24,8 +24,7 @@ export function isValidEmail(email: string): boolean {
   if (local.length > 64 || /\s/.test(local)) return false;
 
   // Domain validation: must have content, no spaces, and a valid TLD
-  if (domain.length === 0 || domain.length > 253 || /\s/.test(domain))
-    return false;
+  if (domain.length === 0 || domain.length > 253 || /\s/.test(domain)) return false;
 
   // Domain must have at least one dot with content on both sides
   const lastDotIndex = domain.lastIndexOf(".");

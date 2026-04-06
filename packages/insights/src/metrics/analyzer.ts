@@ -8,12 +8,7 @@ import {
   MAX_METRICS_PER_CATEGORY,
   SCORING_WEIGHTS,
 } from "../constants";
-import type {
-  CategorySpending,
-  ExpenseAnomaly,
-  InsightAnomaly,
-  InsightMetric,
-} from "../types";
+import type { CategorySpending, ExpenseAnomaly, InsightAnomaly, InsightMetric } from "../types";
 import { getMetricDefinition, isCoreFinancialMetric } from "./definitions";
 
 /**
@@ -48,19 +43,13 @@ function scoreMetric(metric: InsightMetric): number {
   }
 
   // 4. Anomaly/alert boost (15 points)
-  if (
-    metric.type === "runway_months" &&
-    metric.value < ANOMALY_THRESHOLDS.runwayWarning
-  ) {
+  if (metric.type === "runway_months" && metric.value < ANOMALY_THRESHOLDS.runwayWarning) {
     score += SCORING_WEIGHTS.anomalyBoost;
   }
   if (metric.type === "net_profit" && metric.value < 0) {
     score += SCORING_WEIGHTS.anomalyBoost;
   }
-  if (
-    metric.type === "cash_flow" &&
-    metric.value < ANOMALY_THRESHOLDS.negativeCashFlow
-  ) {
+  if (metric.type === "cash_flow" && metric.value < ANOMALY_THRESHOLDS.negativeCashFlow) {
     score += SCORING_WEIGHTS.anomalyBoost;
   }
 
@@ -88,11 +77,7 @@ const EXCLUDED_METRIC_TYPES = new Set(["invoices_overdue"]);
  * State metrics that should be allowed even when zero (useful for quiet weeks)
  * These are point-in-time values that provide context regardless of period activity
  */
-const STATE_METRICS = new Set([
-  "cash_balance",
-  "overdue_amount",
-  "runway_months",
-]);
+const STATE_METRICS = new Set(["cash_balance", "overdue_amount", "runway_months"]);
 
 /**
  * Select the top N most relevant metrics for display
@@ -110,9 +95,7 @@ export function selectTopMetrics(
   count: number = DEFAULT_TOP_METRICS_COUNT,
 ): InsightMetric[] {
   // Convert to array if object
-  const metricsArray = Array.isArray(metrics)
-    ? metrics
-    : Object.values(metrics);
+  const metricsArray = Array.isArray(metrics) ? metrics : Object.values(metrics);
 
   // Filter out bookkeeping metrics, point-in-time status metrics, and zero-value metrics
   // But allow state metrics even when zero
@@ -121,10 +104,7 @@ export function selectTopMetrics(
     if (EXCLUDED_METRIC_TYPES.has(m.type)) return false;
     // Exclude zero-value metrics (no activity in current or previous period)
     // BUT allow state metrics even when zero (they provide context for quiet weeks)
-    if (
-      m.value === 0 &&
-      (m.previousValue === 0 || m.previousValue === undefined)
-    ) {
+    if (m.value === 0 && (m.previousValue === 0 || m.previousValue === undefined)) {
       // Still include state metrics - they're useful even at zero
       if (!STATE_METRICS.has(m.type)) return false;
     }
@@ -164,9 +144,7 @@ export function selectTopMetrics(
   const hasFinancial = selected.some((m) => isCoreFinancialMetric(m.type));
 
   if (!hasFinancial && businessMetrics.length > 0) {
-    const financialMetric = businessMetrics.find((m) =>
-      isCoreFinancialMetric(m.type),
-    );
+    const financialMetric = businessMetrics.find((m) => isCoreFinancialMetric(m.type));
     if (financialMetric) {
       selected.pop(); // Remove lowest priority
       selected.unshift(financialMetric); // Add financial at start
@@ -179,11 +157,7 @@ export function selectTopMetrics(
     const selectedTypes = new Set(selected.map((m) => m.type));
 
     // Priority order for state metric fallbacks
-    const stateMetricPriority = [
-      "cash_balance",
-      "overdue_amount",
-      "runway_months",
-    ];
+    const stateMetricPriority = ["cash_balance", "overdue_amount", "runway_months"];
 
     for (const metricType of stateMetricPriority) {
       if (selected.length >= count) break;
@@ -207,19 +181,14 @@ export function detectAnomalies(
   metrics: InsightMetric[] | Record<string, InsightMetric>,
 ): InsightAnomaly[] {
   const anomalies: InsightAnomaly[] = [];
-  const metricsArray = Array.isArray(metrics)
-    ? metrics
-    : Object.values(metrics);
+  const metricsArray = Array.isArray(metrics) ? metrics : Object.values(metrics);
 
   for (const metric of metricsArray) {
     // Significant positive changes
     if (metric.change > ANOMALY_THRESHOLDS.significantChange) {
-      const isExpenseMetric =
-        metric.type === "expenses" || metric.type === "burn_rate";
+      const isExpenseMetric = metric.type === "expenses" || metric.type === "burn_rate";
       anomalies.push({
-        type: isExpenseMetric
-          ? "significant_expense_increase"
-          : "significant_increase",
+        type: isExpenseMetric ? "significant_expense_increase" : "significant_increase",
         severity: isExpenseMetric ? "warning" : "info",
         message: `${metric.label} increased by ${Math.abs(metric.change).toFixed(0)}%`,
         metricType: metric.type,
@@ -228,12 +197,9 @@ export function detectAnomalies(
 
     // Significant negative changes
     if (metric.change < -ANOMALY_THRESHOLDS.significantChange) {
-      const isExpenseMetric =
-        metric.type === "expenses" || metric.type === "burn_rate";
+      const isExpenseMetric = metric.type === "expenses" || metric.type === "burn_rate";
       anomalies.push({
-        type: isExpenseMetric
-          ? "significant_expense_decrease"
-          : "significant_decrease",
+        type: isExpenseMetric ? "significant_expense_decrease" : "significant_decrease",
         severity: isExpenseMetric ? "info" : "warning",
         message: `${metric.label} decreased by ${Math.abs(metric.change).toFixed(0)}%`,
         metricType: metric.type,
@@ -241,10 +207,7 @@ export function detectAnomalies(
     }
 
     // Low runway warning with escalating urgency
-    if (
-      metric.type === "runway_months" &&
-      metric.value < ANOMALY_THRESHOLDS.runwayWarning
-    ) {
+    if (metric.type === "runway_months" && metric.value < ANOMALY_THRESHOLDS.runwayWarning) {
       let message: string;
       let severity: "info" | "warning" | "alert";
 
@@ -281,10 +244,7 @@ export function detectAnomalies(
     }
 
     // Negative cash flow
-    if (
-      metric.type === "cash_flow" &&
-      metric.value < ANOMALY_THRESHOLDS.negativeCashFlow
-    ) {
+    if (metric.type === "cash_flow" && metric.value < ANOMALY_THRESHOLDS.negativeCashFlow) {
       anomalies.push({
         type: "negative_cash_flow",
         severity: "warning",
@@ -450,9 +410,7 @@ export function detectExpenseAnomalies(
           message: `New expense category: ${current.name}`,
           tip: getTipForCategory(current.slug, true),
         });
-      } else if (
-        current.amount >= EXPENSE_ANOMALY_THRESHOLDS.newCategoryMinor
-      ) {
+      } else if (current.amount >= EXPENSE_ANOMALY_THRESHOLDS.newCategoryMinor) {
         anomalies.push({
           type: "new_category",
           severity: "info",
@@ -515,8 +473,7 @@ export function detectExpenseAnomalies(
       // Significant decrease (> 50%) - could be good news
       else if (
         percentChange <= -EXPENSE_ANOMALY_THRESHOLDS.largeSpikePercent &&
-        Math.abs(absoluteChange) >=
-          EXPENSE_ANOMALY_THRESHOLDS.largeSpikeAbsolute
+        Math.abs(absoluteChange) >= EXPENSE_ANOMALY_THRESHOLDS.largeSpikeAbsolute
       ) {
         anomalies.push({
           type: "category_decrease",

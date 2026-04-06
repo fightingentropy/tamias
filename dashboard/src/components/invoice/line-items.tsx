@@ -238,22 +238,14 @@ function LineItemRow({
       <QuantityInput name={`lineItems.${index}.quantity`} />
 
       <div className="flex items-center gap-2">
-        <ProductAwareAmountInput
-          name={`lineItems.${index}.price`}
-          lineItemIndex={index}
-        />
+        <ProductAwareAmountInput name={`lineItems.${index}.price`} lineItemIndex={index} />
         {includeUnits && <span className="text-xs text-[#878787]">/</span>}
         {includeUnits && (
-          <ProductAwareUnitInput
-            name={`lineItems.${index}.unit`}
-            lineItemIndex={index}
-          />
+          <ProductAwareUnitInput name={`lineItems.${index}.unit`} lineItemIndex={index} />
         )}
       </div>
 
-      {includeLineItemTax && (
-        <PercentInput name={`lineItems.${index}.taxRate`} />
-      )}
+      {includeLineItemTax && <PercentInput name={`lineItems.${index}.taxRate`} />}
 
       <div className="text-right">
         <span className="text-xs text-primary font-mono">

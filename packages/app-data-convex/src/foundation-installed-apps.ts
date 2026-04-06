@@ -21,10 +21,7 @@ export async function listInstalledAppsFromConvex(args: { teamId: string }) {
   ) as Promise<InstalledAppRecord[]>;
 }
 
-export async function getInstalledAppFromConvex(args: {
-  teamId: string;
-  appId: string;
-}) {
+export async function getInstalledAppFromConvex(args: { teamId: string; appId: string }) {
   return createClient().query(
     api.foundation.serviceGetInstalledAppByTeamAndAppId,
     serviceArgs({
@@ -47,9 +44,7 @@ export async function getInstalledAppBySlackTeamIdFromConvex(args: {
   ) as Promise<InstalledAppRecord | null>;
 }
 
-export async function getInstalledAppByWhatsAppNumberFromConvex(args: {
-  phoneNumber: string;
-}) {
+export async function getInstalledAppByWhatsAppNumberFromConvex(args: { phoneNumber: string }) {
   return createClient().query(
     api.foundation.serviceGetInstalledAppByWhatsAppNumber,
     serviceArgs({
@@ -81,10 +76,7 @@ export async function upsertInstalledAppInConvex(args: {
   ) as Promise<InstalledAppRecord>;
 }
 
-export async function deleteInstalledAppInConvex(args: {
-  teamId: string;
-  appId: string;
-}) {
+export async function deleteInstalledAppInConvex(args: { teamId: string; appId: string }) {
   return createClient().mutation(
     api.foundation.serviceDeleteInstalledApp,
     serviceArgs({

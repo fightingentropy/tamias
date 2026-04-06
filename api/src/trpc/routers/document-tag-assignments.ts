@@ -1,7 +1,4 @@
-import {
-  createDocumentTagAssignment,
-  deleteDocumentTagAssignment,
-} from "@tamias/app-data/queries";
+import { createDocumentTagAssignment, deleteDocumentTagAssignment } from "@tamias/app-data/queries";
 import {
   createDocumentTagAssignmentSchema,
   deleteDocumentTagAssignmentSchema,

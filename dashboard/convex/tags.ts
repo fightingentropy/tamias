@@ -151,9 +151,7 @@ export const serviceCreateTag = mutation({
     const team = await getTeamOrThrow(ctx, args.teamId);
     const existing = await ctx.db
       .query("tags")
-      .withIndex("by_team_and_name", (q) =>
-        q.eq("teamId", team._id).eq("name", args.name),
-      )
+      .withIndex("by_team_and_name", (q) => q.eq("teamId", team._id).eq("name", args.name))
       .unique();
 
     if (existing) {
@@ -197,9 +195,7 @@ export const serviceUpdateTag = mutation({
 
     const conflicting = await ctx.db
       .query("tags")
-      .withIndex("by_team_and_name", (q) =>
-        q.eq("teamId", team._id).eq("name", args.name),
-      )
+      .withIndex("by_team_and_name", (q) => q.eq("teamId", team._id).eq("name", args.name))
       .unique();
 
     if (conflicting && conflicting._id !== tag._id) {

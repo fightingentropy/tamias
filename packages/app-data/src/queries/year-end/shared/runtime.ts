@@ -1,7 +1,4 @@
-import {
-  isUkComplianceVisible,
-  type HmrcCtEnvironment,
-} from "@tamias/compliance";
+import { isUkComplianceVisible, type HmrcCtEnvironment } from "@tamias/compliance";
 import type { FilingProfileRecord } from "@tamias/app-data-convex";
 import type { HmrcCtRuntimeStatus, TeamContext } from "./types";
 
@@ -26,9 +23,7 @@ export function buildEmptyYearEndDashboard(args: {
 }
 
 export function getHmrcCtEnvironment(): HmrcCtEnvironment {
-  return process.env.HMRC_CT_ENVIRONMENT === "production"
-    ? "production"
-    : "test";
+  return process.env.HMRC_CT_ENVIRONMENT === "production" ? "production" : "test";
 }
 
 export function getHmrcCtRuntimeStatus(
@@ -37,8 +32,8 @@ export function getHmrcCtRuntimeStatus(
   const environment = getHmrcCtEnvironment();
   const configured = Boolean(
     process.env.HMRC_CT_SENDER_ID &&
-      process.env.HMRC_CT_SENDER_PASSWORD &&
-      process.env.HMRC_CT_VENDOR_ID,
+    process.env.HMRC_CT_SENDER_PASSWORD &&
+    process.env.HMRC_CT_VENDOR_ID,
   );
   const testReference = process.env.HMRC_CT_TEST_UTR?.trim() || null;
   const filingProfileReference = profile?.utr?.trim() || null;

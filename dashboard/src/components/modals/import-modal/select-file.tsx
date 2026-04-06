@@ -146,11 +146,7 @@ export function SelectFile() {
                     </div>
                   )}
 
-                  {error && (
-                    <p className="text-center text-sm text-red-600 mt-4">
-                      {error}
-                    </p>
-                  )}
+                  {error && <p className="text-center text-sm text-red-600 mt-4">{error}</p>}
                 </div>
               </div>
             )}

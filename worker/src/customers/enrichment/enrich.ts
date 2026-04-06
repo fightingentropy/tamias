@@ -1,12 +1,6 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createLoggerWithContext } from "@tamias/logger";
-import {
-  generateText,
-  generateObject,
-  stepCountIs,
-  tool,
-  zodSchema,
-} from "ai";
+import { generateText, generateObject, stepCountIs, tool, zodSchema } from "ai";
 import Exa from "exa-js";
 import { z } from "zod";
 import type {
@@ -179,10 +173,9 @@ export async function enrichCustomer(
     // ========================================
     // Phase 3: Verify
     // ========================================
-    const verified = await verifyEnrichmentData(
-      extractedData as CustomerEnrichmentResult,
-      { signal: combinedSignal },
-    );
+    const verified = await verifyEnrichmentData(extractedData as CustomerEnrichmentResult, {
+      signal: combinedSignal,
+    });
 
     const verifiedFieldCount = DATA_FIELDS.filter(
       (f) => verified[f as keyof VerifiedEnrichmentData] !== null,
@@ -268,10 +261,7 @@ Find:
 Start by searching for their LinkedIn profile and business registry information.`;
 }
 
-function buildExtractionPrompt(
-  params: EnrichCustomerParams,
-  research: string,
-): string {
+function buildExtractionPrompt(params: EnrichCustomerParams, research: string): string {
   return `Extract structured company data from this research.
 
 **Company:** ${params.companyName}

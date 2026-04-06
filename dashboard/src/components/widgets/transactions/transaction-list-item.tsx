@@ -7,9 +7,7 @@ import { TransactionStatus } from "@/components/transaction-status";
 import { useTransactionParams } from "@/hooks/use-transaction-params";
 
 type Props = {
-  transaction: NonNullable<
-    RouterOutputs["transactions"]["get"]["data"]
-  >[number];
+  transaction: NonNullable<RouterOutputs["transactions"]["get"]["data"]>[number];
   disabled?: boolean;
 };
 
@@ -17,10 +15,7 @@ export function TransactionListItem({ transaction, disabled }: Props) {
   const { setParams } = useTransactionParams();
 
   return (
-    <div
-      onClick={() => setParams({ transactionId: transaction.id })}
-      className="w-full"
-    >
+    <div onClick={() => setParams({ transactionId: transaction.id })} className="w-full">
       <div className="flex items-center py-3">
         <div className="w-[50%] flex space-x-2">
           <span
@@ -41,10 +36,7 @@ export function TransactionListItem({ transaction, disabled }: Props) {
               transaction.amount > 0 && "text-[#00C969]",
             )}
           >
-            <FormatAmount
-              amount={transaction.amount}
-              currency={transaction.currency}
-            />
+            <FormatAmount amount={transaction.amount} currency={transaction.currency} />
           </span>
         </div>
 

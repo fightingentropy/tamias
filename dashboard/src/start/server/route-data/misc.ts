@@ -1,10 +1,7 @@
 import { getCurrencyForCountry, getLocationHeaders } from "@tamias/location";
 import { redirect } from "@tanstack/react-router";
 import { getStartContext } from "@tanstack/start-storage-context";
-import {
-  buildBaseAppShellState,
-  dehydrateQueryClient,
-} from "@/start/server/route-data/shared";
+import { buildBaseAppShellState, dehydrateQueryClient } from "@/start/server/route-data/shared";
 import { trpc } from "@/trpc/server";
 import { geolocation } from "@/utils/geo";
 
@@ -45,9 +42,7 @@ export async function buildTeamsSelectionPageData() {
 
 export async function buildChatPageData(id: string) {
   const { queryClient, user } = await buildBaseAppShellState();
-  const chat = await queryClient.fetchQuery(
-    trpc.chats.get.queryOptions({ chatId: id }),
-  );
+  const chat = await queryClient.fetchQuery(trpc.chats.get.queryOptions({ chatId: id }));
 
   return {
     dehydratedState: dehydrateQueryClient(queryClient),
@@ -63,9 +58,7 @@ export async function buildOnboardingPageData() {
   const { queryClient, user } = await buildBaseAppShellState({
     allowIncomplete: true,
   });
-  const location = getLocationHeaders(
-    getStartContext().request.headers as Headers,
-  );
+  const location = getLocationHeaders(getStartContext().request.headers as Headers);
 
   return {
     dehydratedState: dehydrateQueryClient(queryClient),
@@ -75,6 +68,4 @@ export async function buildOnboardingPageData() {
   };
 }
 
-export type OnboardingPageLoaderData = Awaited<
-  ReturnType<typeof buildOnboardingPageData>
->;
+export type OnboardingPageLoaderData = Awaited<ReturnType<typeof buildOnboardingPageData>>;

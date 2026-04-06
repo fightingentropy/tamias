@@ -73,9 +73,7 @@ export const serviceListSubmissionEvents = query({
       .filter(
         (record) =>
           (args.provider ? record.provider === args.provider : true) &&
-          (args.obligationType
-            ? record.obligationType === args.obligationType
-            : true),
+          (args.obligationType ? record.obligationType === args.obligationType : true),
       )
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   },

@@ -22,10 +22,7 @@ function buildAdjustmentMap(rows: Array<{ lineCode: string; amount: number }>) {
   }, {});
 }
 
-export async function recalculateVatDraft(
-  db: Database,
-  params: RecalculateVatDraftParams,
-) {
+export async function recalculateVatDraft(db: Database, params: RecalculateVatDraftParams) {
   const context = await getDraftContext(db, params);
   const journalRows = listJournalRowsForPeriod(
     await listDerivedLedgerEntries(db, {
@@ -55,10 +52,7 @@ export async function recalculateVatDraft(
       reclaimedVat += roundCurrency((row.debit ?? 0) - (row.credit ?? 0));
     }
 
-    if (
-      (row.accountCode === "4000" || row.accountCode === "4900") &&
-      salesSourceAllowed
-    ) {
+    if ((row.accountCode === "4000" || row.accountCode === "4900") && salesSourceAllowed) {
       salesExVat += amount;
     }
 
@@ -84,23 +78,18 @@ export async function recalculateVatDraft(
     id: params.vatReturnId,
     teamId: params.teamId,
     filingProfileId: context.profile.id,
-    obligationId: context.obligation.id.startsWith("manual-")
-      ? null
-      : context.obligation.id,
+    obligationId: context.obligation.id.startsWith("manual-") ? null : context.obligation.id,
     periodKey: context.obligation.periodKey,
     periodStart: context.obligation.periodStart,
     periodEnd: context.obligation.periodEnd,
     status: "ready",
-    currency:
-      context.profile.baseCurrency ?? context.team.baseCurrency ?? "GBP",
+    currency: context.profile.baseCurrency ?? context.team.baseCurrency ?? "GBP",
     netVatDue: boxes.box5,
-    lines: buildVatDraftLines(boxes).map(
-      (line: VatReturnDraft["lines"][number]) => ({
-        code: line.code,
-        label: line.label,
-        amount: line.amount,
-      }),
-    ),
+    lines: buildVatDraftLines(boxes).map((line: VatReturnDraft["lines"][number]) => ({
+      code: line.code,
+      label: line.label,
+      amount: line.amount,
+    })),
   });
 
   if (!draft) {

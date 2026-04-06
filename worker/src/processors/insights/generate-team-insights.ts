@@ -12,11 +12,7 @@ import {
   getPeriodLabel,
   type PeriodType,
 } from "@tamias/insights";
-import {
-  buildAudioUrl,
-  createAudioToken,
-  isAudioTokenEnabled,
-} from "@tamias/insights/audio";
+import { buildAudioUrl, createAudioToken, isAudioTokenEnabled } from "@tamias/insights/audio";
 import { enqueue } from "@tamias/job-client";
 import { getApiUrl } from "@tamias/utils/envs";
 import type { WorkerJob as Job } from "../../types/job";
@@ -56,15 +52,8 @@ type ProcessResult = {
  */
 export class GenerateInsightsProcessor extends BaseProcessor<GenerateTeamInsightsPayload> {
   async process(job: Job<GenerateTeamInsightsPayload>): Promise<ProcessResult> {
-    const {
-      teamId,
-      periodType,
-      periodYear,
-      periodNumber,
-      currency,
-      locale,
-      skipDataQualityCheck,
-    } = job.data;
+    const { teamId, periodType, periodYear, periodNumber, currency, locale, skipDataQualityCheck } =
+      job.data;
     const db = getDb();
 
     this.logger.info("Starting insight generation", {
@@ -109,16 +98,13 @@ export class GenerateInsightsProcessor extends BaseProcessor<GenerateTeamInsight
       });
 
       if (!dataQuality.hasSufficientData) {
-        this.logger.info(
-          "Skipping insight generation due to insufficient data",
-          {
-            teamId,
-            periodType,
-            periodLabel: period.periodLabel,
-            skipReason: dataQuality.skipReason,
-            metrics: dataQuality.metrics,
-          },
-        );
+        this.logger.info("Skipping insight generation due to insufficient data", {
+          teamId,
+          periodType,
+          periodLabel: period.periodLabel,
+          skipReason: dataQuality.skipReason,
+          metrics: dataQuality.metrics,
+        });
 
         return {
           teamId,
@@ -232,8 +218,7 @@ export class GenerateInsightsProcessor extends BaseProcessor<GenerateTeamInsight
 
       // Trigger notification for new insights (not updates)
       // Must be explicitly enabled via INSIGHTS_NOTIFICATIONS_ENABLED=true
-      const notificationsEnabled =
-        process.env.INSIGHTS_NOTIFICATIONS_ENABLED === "true";
+      const notificationsEnabled = process.env.INSIGHTS_NOTIFICATIONS_ENABLED === "true";
 
       if (!existingInsight && notificationsEnabled) {
         try {

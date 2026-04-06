@@ -33,8 +33,7 @@ export function ExpensesCard({
   wiggleClass,
 }: ExpensesCardProps) {
   const trpc = useTRPC();
-  const { isCustomizing: metricsIsCustomizing, setIsCustomizing } =
-    useMetricsCustomize();
+  const { isCustomizing: metricsIsCustomizing, setIsCustomizing } = useMetricsCustomize();
   const setInput = useChatStore((state) => state.setInput);
   const [isSelecting, setIsSelecting] = useState(false);
 
@@ -64,16 +63,9 @@ export function ExpensesCard({
     >
       <div className="mb-4 min-h-[140px]">
         <div className="flex items-start justify-between h-7">
-          <h3 className="text-sm font-normal text-muted-foreground">
-            Average Monthly Expenses
-          </h3>
+          <h3 className="text-sm font-normal text-muted-foreground">Average Monthly Expenses</h3>
           <div className="opacity-0 group-hover:opacity-100 group-has-[*[data-state=open]]:opacity-100 transition-opacity">
-            <ShareMetricButton
-              type="expense"
-              from={from}
-              to={to}
-              currency={currency}
-            />
+            <ShareMetricButton type="expense" from={from} to={to} currency={currency} />
           </div>
         </div>
         <p className="text-3xl font-normal mb-3">
@@ -109,11 +101,7 @@ export function ExpensesCard({
             enableSelection={true}
             onSelectionStateChange={setIsSelecting}
             onSelectionComplete={(startDate, endDate) => {
-              const message = generateChartSelectionMessage(
-                startDate,
-                endDate,
-                "stacked-bar",
-              );
+              const message = generateChartSelectionMessage(startDate, endDate, "stacked-bar");
               setInput(message);
             }}
           >

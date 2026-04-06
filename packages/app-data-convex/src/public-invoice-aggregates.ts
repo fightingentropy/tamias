@@ -14,10 +14,7 @@ export type InvoiceAggregateRowRecord = {
 
 export type InvoiceAggregateDateField = "issueDate" | "paidAt";
 export type InvoiceCustomerAggregateDateField = "createdAt" | "paidAt";
-export type InvoiceAnalyticsAggregateDateField =
-  | "createdAt"
-  | "sentAt"
-  | "paidAt";
+export type InvoiceAnalyticsAggregateDateField = "createdAt" | "sentAt" | "paidAt";
 
 export type InvoiceDateAggregateRowRecord = {
   status: string;
@@ -164,9 +161,7 @@ export async function getInvoiceAgingAggregateRowsFromConvex(args: {
   ) as Promise<InvoiceAgingAggregateRowRecord[]>;
 }
 
-export async function rebuildInvoiceReportAggregatesInConvex(args: {
-  teamId?: string | null;
-}) {
+export async function rebuildInvoiceReportAggregatesInConvex(args: { teamId?: string | null }) {
   return createClient().mutation(
     convexApi.publicInvoices.serviceRebuildInvoiceReportAggregates,
     serviceArgs({
@@ -185,9 +180,7 @@ export async function rebuildInvoiceReportAggregatesInConvex(args: {
   >;
 }
 
-export async function rebuildPublicInvoiceSearchTextsInConvex(args: {
-  teamId?: string | null;
-}) {
+export async function rebuildPublicInvoiceSearchTextsInConvex(args: { teamId?: string | null }) {
   return createClient().mutation(
     convexApi.publicInvoices.serviceRebuildPublicInvoiceSearchTexts,
     serviceArgs({

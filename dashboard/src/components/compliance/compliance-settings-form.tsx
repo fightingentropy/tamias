@@ -107,9 +107,7 @@ export function ComplianceSettingsForm() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { data, isLoading } = useQuery(
-    trpc.compliance.getProfile.queryOptions(),
-  );
+  const { data, isLoading } = useQuery(trpc.compliance.getProfile.queryOptions());
   const [form, setForm] = useState<FilingProfileFormState>(defaultState);
 
   useEffect(() => {
@@ -136,13 +134,9 @@ export function ComplianceSettingsForm() {
       signingDirectorName: data.signingDirectorName ?? "",
       approvalDate: data.approvalDate ?? "",
       averageEmployeeCount:
-        typeof data.averageEmployeeCount === "number"
-          ? String(data.averageEmployeeCount)
-          : "",
+        typeof data.averageEmployeeCount === "number" ? String(data.averageEmployeeCount) : "",
       ordinaryShareCount:
-        typeof data.ordinaryShareCount === "number"
-          ? String(data.ordinaryShareCount)
-          : "",
+        typeof data.ordinaryShareCount === "number" ? String(data.ordinaryShareCount) : "",
       ordinaryShareNominalValue:
         typeof data.ordinaryShareNominalValue === "number"
           ? String(data.ordinaryShareNominalValue)
@@ -150,8 +144,7 @@ export function ComplianceSettingsForm() {
       dormant: data.dormant === true,
       auditExemptionClaimed: data.auditExemptionClaimed === true,
       membersDidNotRequireAudit: data.membersDidNotRequireAudit === true,
-      directorsAcknowledgeResponsibilities:
-        data.directorsAcknowledgeResponsibilities === true,
+      directorsAcknowledgeResponsibilities: data.directorsAcknowledgeResponsibilities === true,
       accountsPreparedUnderSmallCompaniesRegime:
         data.accountsPreparedUnderSmallCompaniesRegime === true,
     });
@@ -190,8 +183,7 @@ export function ComplianceSettingsForm() {
       vatScheme: "standard_quarterly",
       accountingBasis: form.accountingBasis,
       filingMode: form.filingMode,
-      agentReferenceNumber:
-        form.filingMode === "agent" ? form.agentReferenceNumber || null : null,
+      agentReferenceNumber: form.filingMode === "agent" ? form.agentReferenceNumber || null : null,
       yearEndMonth: Number(form.yearEndMonth),
       yearEndDay: Number(form.yearEndDay),
       baseCurrency: form.baseCurrency || "GBP",
@@ -201,16 +193,12 @@ export function ComplianceSettingsForm() {
       approvalDate: form.approvalDate || null,
       averageEmployeeCount: parseOptionalInteger(form.averageEmployeeCount),
       ordinaryShareCount: parseOptionalInteger(form.ordinaryShareCount),
-      ordinaryShareNominalValue: parseOptionalNumber(
-        form.ordinaryShareNominalValue,
-      ),
+      ordinaryShareNominalValue: parseOptionalNumber(form.ordinaryShareNominalValue),
       dormant: form.dormant,
       auditExemptionClaimed: form.auditExemptionClaimed,
       membersDidNotRequireAudit: form.membersDidNotRequireAudit,
-      directorsAcknowledgeResponsibilities:
-        form.directorsAcknowledgeResponsibilities,
-      accountsPreparedUnderSmallCompaniesRegime:
-        form.accountsPreparedUnderSmallCompaniesRegime,
+      directorsAcknowledgeResponsibilities: form.directorsAcknowledgeResponsibilities,
+      accountsPreparedUnderSmallCompaniesRegime: form.accountsPreparedUnderSmallCompaniesRegime,
     });
   };
 
@@ -219,9 +207,8 @@ export function ComplianceSettingsForm() {
       <CardHeader>
         <CardTitle>UK filing profile</CardTitle>
         <CardDescription>
-          Tamias keeps legal-entity filing settings separate from general
-          team country settings. This profile is the entry point for VAT and
-          later year-end workflows.
+          Tamias keeps legal-entity filing settings separate from general team country settings.
+          This profile is the entry point for VAT and later year-end workflows.
         </CardDescription>
       </CardHeader>
 
@@ -235,9 +222,7 @@ export function ComplianceSettingsForm() {
           </div>
           <Switch
             checked={form.enabled}
-            onCheckedChange={(checked) =>
-              setForm((current) => ({ ...current, enabled: checked }))
-            }
+            onCheckedChange={(checked) => setForm((current) => ({ ...current, enabled: checked }))}
           />
         </div>
 
@@ -271,18 +256,14 @@ export function ComplianceSettingsForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="companyAuthenticationCode">
-              Companies House authentication code
-            </Label>
+            <Label htmlFor="companyAuthenticationCode">Companies House authentication code</Label>
             <Input
               id="companyAuthenticationCode"
               value={form.companyAuthenticationCode}
               onChange={(event) =>
                 setForm((current) => ({
                   ...current,
-                  companyAuthenticationCode: event.target.value
-                    .trim()
-                    .toUpperCase(),
+                  companyAuthenticationCode: event.target.value.trim().toUpperCase(),
                 }))
               }
               placeholder="6 to 8 characters"
@@ -294,9 +275,7 @@ export function ComplianceSettingsForm() {
             <Input
               id="utr"
               value={form.utr}
-              onChange={(event) =>
-                setForm((current) => ({ ...current, utr: event.target.value }))
-              }
+              onChange={(event) => setForm((current) => ({ ...current, utr: event.target.value }))}
             />
           </div>
 
@@ -346,9 +325,7 @@ export function ComplianceSettingsForm() {
 
           {form.filingMode === "agent" && (
             <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="agentReferenceNumber">
-                Agent reference number
-              </Label>
+              <Label htmlFor="agentReferenceNumber">Agent reference number</Label>
               <Input
                 id="agentReferenceNumber"
                 value={form.agentReferenceNumber}
@@ -409,12 +386,10 @@ export function ComplianceSettingsForm() {
 
         <div className="space-y-4 rounded-lg border p-4">
           <div className="space-y-1">
-            <div className="text-sm font-medium">
-              Statutory filing facts
-            </div>
+            <div className="text-sm font-medium">Statutory filing facts</div>
             <div className="text-sm text-[#606060]">
-              These facts drive the filing-ready small-company accounts and CT
-              pack. Leave them blank if you only want prep/export output.
+              These facts drive the filing-ready small-company accounts and CT pack. Leave them
+              blank if you only want prep/export output.
             </div>
           </div>
 
@@ -481,9 +456,7 @@ export function ComplianceSettingsForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="averageEmployeeCount">
-                Average employee count
-              </Label>
+              <Label htmlFor="averageEmployeeCount">Average employee count</Label>
               <Input
                 id="averageEmployeeCount"
                 inputMode="numeric"
@@ -498,9 +471,7 @@ export function ComplianceSettingsForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="ordinaryShareCount">
-                Ordinary shares in issue
-              </Label>
+              <Label htmlFor="ordinaryShareCount">Ordinary shares in issue</Label>
               <Input
                 id="ordinaryShareCount"
                 inputMode="numeric"
@@ -515,9 +486,7 @@ export function ComplianceSettingsForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="ordinaryShareNominalValue">
-                Nominal value per ordinary share
-              </Label>
+              <Label htmlFor="ordinaryShareNominalValue">Nominal value per ordinary share</Label>
               <Input
                 id="ordinaryShareNominalValue"
                 inputMode="decimal"
@@ -551,12 +520,9 @@ export function ComplianceSettingsForm() {
 
             <div className="flex items-center justify-between rounded-lg border p-3">
               <div className="space-y-1">
-                <div className="text-sm font-medium">
-                  Small-company regime statement
-                </div>
+                <div className="text-sm font-medium">Small-company regime statement</div>
                 <div className="text-xs text-[#606060]">
-                  Confirms the accounts were prepared under the small
-                  companies regime.
+                  Confirms the accounts were prepared under the small companies regime.
                 </div>
               </div>
               <Switch
@@ -572,9 +538,7 @@ export function ComplianceSettingsForm() {
 
             <div className="flex items-center justify-between rounded-lg border p-3">
               <div className="space-y-1">
-                <div className="text-sm font-medium">
-                  Audit exemption claimed
-                </div>
+                <div className="text-sm font-medium">Audit exemption claimed</div>
                 <div className="text-xs text-[#606060]">
                   Use for the section 477 small-company exemption statement.
                 </div>
@@ -592,12 +556,9 @@ export function ComplianceSettingsForm() {
 
             <div className="flex items-center justify-between rounded-lg border p-3">
               <div className="space-y-1">
-                <div className="text-sm font-medium">
-                  Members did not require audit
-                </div>
+                <div className="text-sm font-medium">Members did not require audit</div>
                 <div className="text-xs text-[#606060]">
-                  Confirms the members did not require an audit under section
-                  476.
+                  Confirms the members did not require an audit under section 476.
                 </div>
               </div>
               <Switch
@@ -617,8 +578,7 @@ export function ComplianceSettingsForm() {
                   Directors acknowledge Companies Act responsibilities
                 </div>
                 <div className="text-xs text-[#606060]">
-                  Required for the standard small-company directors’
-                  responsibility statement.
+                  Required for the standard small-company directors’ responsibility statement.
                 </div>
               </div>
               <Switch
@@ -642,11 +602,7 @@ export function ComplianceSettingsForm() {
             : "Complete the statutory facts above to unlock the filing-ready small-company accounts and CT path."}
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => setForm(defaultState)}
-          >
+          <Button type="button" variant="ghost" onClick={() => setForm(defaultState)}>
             Reset
           </Button>
           <SubmitButton

@@ -74,17 +74,10 @@ function flattenCategories(categories: any[]): any[] {
   return flattened;
 }
 
-export function SelectCategory({
-  selected,
-  onChange,
-  headless,
-  hideLoading,
-}: Props) {
+export function SelectCategory({ selected, onChange, headless, hideLoading }: Props) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const { data, isLoading } = useQuery(
-    trpc.transactionCategories.get.queryOptions(),
-  );
+  const { data, isLoading } = useQuery(trpc.transactionCategories.get.queryOptions());
 
   // Transform and flatten categories to include children
   const transformedCategories = data?.map(transformCategory) ?? [];
@@ -147,9 +140,7 @@ export function SelectCategory({
       renderSelectedItem={(selectedItem) => (
         <div className="flex items-center space-x-2">
           <CategoryColor color={selectedItem.color} />
-          <span className="text-left truncate max-w-[90%]">
-            {selectedItem.label}
-          </span>
+          <span className="text-left truncate max-w-[90%]">{selectedItem.label}</span>
         </div>
       )}
       renderOnCreate={(value) => {

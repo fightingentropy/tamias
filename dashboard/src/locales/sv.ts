@@ -73,19 +73,14 @@ export default {
   transaction_categories: {
     // Parent Categories
     revenue: "Intäkter och pengar från verksamheten",
-    "cost-of-goods-sold":
-      "Direkta kostnader för att producera varor eller tjänster",
-    "sales-marketing":
-      "Kostnader relaterade till försäljning och marknadsföring",
+    "cost-of-goods-sold": "Direkta kostnader för att producera varor eller tjänster",
+    "sales-marketing": "Kostnader relaterade till försäljning och marknadsföring",
     operations: "Dagliga driftskostnader för att driva verksamheten",
-    "professional-services":
-      "Avgifter till externa experter och tjänsteleverantörer",
-    "human-resources":
-      "Anställdrelaterade kostnader inklusive löner, förmåner och utbildning",
+    "professional-services": "Avgifter till externa experter och tjänsteleverantörer",
+    "human-resources": "Anställdrelaterade kostnader inklusive löner, förmåner och utbildning",
     "travel-entertainment": "Affärsresor, måltider och nöjeskostnader",
     technology: "Programvara, hårdvara och teknologirelaterade kostnader",
-    "banking-finance":
-      "Bankavgifter, lånebetalningar och finansiella transaktioner",
+    "banking-finance": "Bankavgifter, lånebetalningar och finansiella transaktioner",
     "assets-capex": "Kapitalutgifter och tillgångsförvärv",
     "liabilities-debt": "Skuldförbindelser och uppskjuten intäkt",
     taxes: "Skattebetalningar och myndighetsavgifter",
@@ -94,12 +89,10 @@ export default {
 
     // Child Categories - Revenue
     income: "Allmänna affärsintäkter från olika källor",
-    "product-sales":
-      "Intäkter från försäljning av fysiska eller digitala produkter",
+    "product-sales": "Intäkter från försäljning av fysiska eller digitala produkter",
     "service-revenue": "Intäkter från att tillhandahålla tjänster till kunder",
     "consulting-revenue": "Intäkter från konsulttjänster och rådgivning",
-    "subscription-revenue":
-      "Återkommande intäkter från prenumerationsbaserade tjänster",
+    "subscription-revenue": "Återkommande intäkter från prenumerationsbaserade tjänster",
     "interest-income": "Intäkter från ränta på investeringar eller lån",
     "other-income": "Diverse intäkter som inte klassificeras annorstädes",
     "customer-refunds": "Pengar återbetalda till kunder för återbetalningar",
@@ -116,8 +109,7 @@ export default {
     advertising: "Betalda annonser och mediaplaceringar",
     website: "Webbplatsutveckling, hosting och underhåll",
     events: "Mässor, konferenser och evenemangskostnader",
-    "promotional-materials":
-      "Broschyrer, visitkort och marknadsföringsmaterial",
+    "promotional-materials": "Broschyrer, visitkort och marknadsföringsmaterial",
 
     // Child Categories - Operations
     "office-supplies": "Kontorsmaterial och pappersvaror",
@@ -169,10 +161,8 @@ export default {
     "deferred-revenue": "Förhandsbetalningar mottagna för framtida tjänster",
 
     // Child Categories - Taxes & Government
-    "vat-gst-pst-qst-payments":
-      "Mervärdesskatt och försäljningsskattebetalningar",
-    "sales-use-tax-payments":
-      "Försäljnings- och användningsskatteförpliktelser",
+    "vat-gst-pst-qst-payments": "Mervärdesskatt och försäljningsskattebetalningar",
+    "sales-use-tax-payments": "Försäljnings- och användningsskatteförpliktelser",
     "income-tax-payments": "Inkomstskattebetalningar och avbetalningar",
     "payroll-tax-remittances": "Anställdas skatteavdrag och remitteringar",
     "government-fees": "Myndighetslicensiering och regelverksavgifter",

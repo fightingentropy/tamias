@@ -15,9 +15,7 @@ export function NotFoundPage({
 }: NotFoundPageProps) {
   const content = (
     <div className="max-w-md space-y-4 text-center">
-      <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">
-        404
-      </p>
+      <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">404</p>
       <h1 className="text-3xl font-serif text-foreground">Page not found</h1>
       <p className="text-sm text-muted-foreground">{description}</p>
       <Link
@@ -30,16 +28,10 @@ export function NotFoundPage({
   );
 
   if (fullScreen) {
-    return (
-      <main className="flex min-h-screen items-center justify-center px-6">
-        {content}
-      </main>
-    );
+    return <main className="flex min-h-screen items-center justify-center px-6">{content}</main>;
   }
 
   return (
-    <section className="flex min-h-[60vh] items-center justify-center py-24">
-      {content}
-    </section>
+    <section className="flex min-h-[60vh] items-center justify-center py-24">{content}</section>
   );
 }

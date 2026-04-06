@@ -1,8 +1,6 @@
 import type { NotificationSetting } from "./types";
 
-export function toNotificationSetting(
-  setting: NotificationSetting,
-): NotificationSetting {
+export function toNotificationSetting(setting: NotificationSetting): NotificationSetting {
   return {
     id: setting.id,
     userId: setting.userId,

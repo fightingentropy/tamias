@@ -2,9 +2,7 @@ import { HmrcCtProvider } from "@tamias/compliance";
 import { createSubmissionEventInConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import { getYearEndContext } from "../pack";
-import {
-  getSubmissionEventResponseEndpoint,
-} from "../submission-common";
+import { getSubmissionEventResponseEndpoint } from "../submission-common";
 import { listCtSubmissionEvents } from "./list";
 
 function resolveCtSubmissionStatus(message: {
@@ -40,8 +38,7 @@ export async function pollCt600Submission(
     periodKey: context.period.periodKey,
   });
   const targetEvent = params.correlationId
-    ? (events.find((event) => event.correlationId === params.correlationId) ??
-      null)
+    ? (events.find((event) => event.correlationId === params.correlationId) ?? null)
     : (events.find((event) => Boolean(event.correlationId)) ?? null);
 
   if (!targetEvent?.correlationId) {
@@ -53,9 +50,7 @@ export async function pollCt600Submission(
     periodKey: context.period.periodKey,
     correlationId: targetEvent.correlationId,
     responseEndpoint:
-      params.responseEndpoint ??
-      getSubmissionEventResponseEndpoint(targetEvent) ??
-      null,
+      params.responseEndpoint ?? getSubmissionEventResponseEndpoint(targetEvent) ?? null,
     environment: provider.environment,
   };
 
@@ -63,9 +58,7 @@ export async function pollCt600Submission(
     const receipt = await provider.pollSubmission({
       correlationId: targetEvent.correlationId,
       responseEndpoint:
-        params.responseEndpoint ??
-        getSubmissionEventResponseEndpoint(targetEvent) ??
-        undefined,
+        params.responseEndpoint ?? getSubmissionEventResponseEndpoint(targetEvent) ?? undefined,
     });
 
     await createSubmissionEventInConvex({

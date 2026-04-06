@@ -3,13 +3,7 @@
 import { Button } from "@tamias/ui/button";
 import { Form, FormControl, FormField, FormItem } from "@tamias/ui/form";
 import { Input } from "@tamias/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@tamias/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@tamias/ui/select";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { useToast } from "@tamias/ui/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -93,10 +87,7 @@ export function InviteForm({ onSuccess, skippable = true }: InviteFormProps) {
     <Form {...form}>
       <form onSubmit={onSubmit}>
         {fields.map((field, index) => (
-          <div
-            className="flex items-center justify-between mt-3 space-x-4"
-            key={index.toString()}
-          >
+          <div className="flex items-center justify-between mt-3 space-x-4" key={index.toString()}>
             <FormField
               control={form.control}
               key={field.id}
@@ -123,10 +114,7 @@ export function InviteForm({ onSuccess, skippable = true }: InviteFormProps) {
               name={`invites.${index}.role`}
               render={({ field }) => (
                 <FormItem>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger className="min-w-[120px]">
                         <SelectValue placeholder="Select role" />
@@ -155,19 +143,14 @@ export function InviteForm({ onSuccess, skippable = true }: InviteFormProps) {
         <div className="border-t-[1px] pt-4 mt-8 items-center justify-between">
           <div>
             {Object.values(form.formState.errors).length > 0 && (
-              <span className="text-sm text-destructive">
-                Please complete the fields above.
-              </span>
+              <span className="text-sm text-destructive">Please complete the fields above.</span>
             )}
           </div>
 
           <div className="flex items-center justify-between">
             {skippable ? (
               <Link href="/dashboard">
-                <Button
-                  variant="ghost"
-                  className="p-0 hover:bg-transparent font-normal"
-                >
+                <Button variant="ghost" className="p-0 hover:bg-transparent font-normal">
                   Skip this step
                 </Button>
               </Link>

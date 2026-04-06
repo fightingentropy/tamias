@@ -8,20 +8,13 @@ import { getToolAppContext, getToolTeamId } from "../utils/tool-runtime";
 
 const getInvoicesSchema = z.object({
   cursor: z.string().nullable().optional().describe("Pagination cursor"),
-  sort: z
-    .array(z.string())
-    .length(2)
-    .nullable()
-    .optional()
-    .describe("Sort order"),
+  sort: z.array(z.string()).length(2).nullable().optional().describe("Sort order"),
   pageSize: z.number().min(1).max(100).default(10).describe("Page size"),
   q: z.string().nullable().optional().describe("Search query"),
   start: z.string().nullable().optional().describe("Start date (ISO 8601)"),
   end: z.string().nullable().optional().describe("End date (ISO 8601)"),
   statuses: z
-    .array(
-      z.enum(["draft", "overdue", "paid", "unpaid", "canceled", "scheduled"]),
-    )
+    .array(z.enum(["draft", "overdue", "paid", "unpaid", "canceled", "scheduled"]))
     .nullable()
     .optional()
     .describe("Status filter"),
@@ -29,8 +22,7 @@ const getInvoicesSchema = z.object({
 });
 
 export const getInvoicesTool = tool({
-  description:
-    "Retrieve and filter invoices with pagination, sorting, and search.",
+  description: "Retrieve and filter invoices with pagination, sorting, and search.",
   inputSchema: getInvoicesSchema,
   execute: async function* (
     { cursor, sort, pageSize = 10, q, start, end, statuses, customers },
@@ -80,8 +72,7 @@ export const getInvoicesTool = tool({
         return {
           id: invoice.id,
           invoiceNumber: invoice.invoiceNumber || "Draft",
-          customerName:
-            invoice.customerName || invoice.customer?.name || "No customer",
+          customerName: invoice.customerName || invoice.customer?.name || "No customer",
           amount: formattedAmount,
           status: invoice.status,
           dueDate: invoice.dueDate ? formatDate(invoice.dueDate) : "N/A",
@@ -89,25 +80,16 @@ export const getInvoicesTool = tool({
         };
       });
 
-      const totalAmount = result.data.reduce(
-        (sum, inv) => sum + (inv.amount ?? 0),
-        0,
-      );
+      const totalAmount = result.data.reduce((sum, inv) => sum + (inv.amount ?? 0), 0);
       const formattedTotalAmount = formatAmount({
         amount: totalAmount,
         currency: baseCurrency,
         locale,
       });
 
-      const paidCount = result.data.filter(
-        (inv) => inv.status === "paid",
-      ).length;
-      const unpaidCount = result.data.filter(
-        (inv) => inv.status === "unpaid",
-      ).length;
-      const overdueCount = result.data.filter(
-        (inv) => inv.status === "overdue",
-      ).length;
+      const paidCount = result.data.filter((inv) => inv.status === "paid").length;
+      const unpaidCount = result.data.filter((inv) => inv.status === "unpaid").length;
+      const overdueCount = result.data.filter((inv) => inv.status === "overdue").length;
 
       const response = `| Invoice # | Customer | Amount | Status | Due Date | Created |\n|-----------|---------|--------|--------|----------|----------|\n${formattedInvoices.map((inv) => `| ${inv.invoiceNumber} | ${inv.customerName} | ${inv.amount} | ${inv.status} | ${inv.dueDate} | ${inv.createdAt} |`).join("\n")}\n\n**${result.data.length} invoices** | Total: ${formattedTotalAmount} | Paid: ${paidCount} | Unpaid: ${unpaidCount} | Overdue: ${overdueCount}`;
 

@@ -2,12 +2,7 @@
 
 import { useArtifact } from "@ai-sdk-tools/artifacts/client";
 import { balanceSheetArtifact } from "@tamias/ai-artifacts/balance-sheet";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { format, parseISO } from "date-fns";
 import { parseAsInteger, useQueryState } from "nuqs";
 import { BaseCanvas, CanvasHeader } from "@/components/canvas/base";
@@ -19,20 +14,17 @@ import { formatAmount } from "@/utils/format";
 function getBalanceSheetTooltip(item: string): string {
   const tooltips: Record<string, string> = {
     cash: "Sum of all bank account balances (depository accounts)",
-    accountsReceivable:
-      "Unpaid invoices that represent money owed to the business",
+    accountsReceivable: "Unpaid invoices that represent money owed to the business",
     inventory: "Transactions categorized as inventory",
     prepaidExpenses: "Transactions categorized as prepaid expenses",
     fixedAssets: "Transactions categorized as fixed assets and equipment",
     accumulatedDepreciation:
       "Depreciation calculated based on asset age using straight-line method (5 years for equipment, 3 years for software)",
     softwareTechnology: "Transactions categorized as software",
-    longTermInvestments:
-      "Long-term investment transactions (currently not tracked)",
+    longTermInvestments: "Long-term investment transactions (currently not tracked)",
     otherAssets: "Other asset account balances",
     accountsPayable: "Unmatched bills and vendor invoices from inbox",
-    accruedExpenses:
-      "Expenses incurred but not yet paid (currently not tracked)",
+    accruedExpenses: "Expenses incurred but not yet paid (currently not tracked)",
     shortTermDebt: "Short-term loan obligations",
     creditCardDebt: "Credit card account balances",
     longTermDebt: "Loan proceeds minus repayments, plus loan account balances",
@@ -41,8 +33,7 @@ function getBalanceSheetTooltip(item: string): string {
     otherLiabilities: "Other liability account balances",
     capitalInvestment: "Transactions categorized as capital investment",
     ownerDraws: "Transactions categorized as owner draws",
-    retainedEarnings:
-      "Total revenue minus total expenses (excluding asset purchases)",
+    retainedEarnings: "Total revenue minus total expenses (excluding asset purchases)",
   };
 
   return tooltips[item] || "";
@@ -59,9 +50,7 @@ export function BalanceSheetCanvas() {
   const balanceSheet = data?.balanceSheet;
   const metrics = data?.metrics;
   const currency = data?.currency || "USD";
-  const asOf = data?.asOf
-    ? format(parseISO(data.asOf), "MMMM dd, yyyy")
-    : undefined;
+  const asOf = data?.asOf ? format(parseISO(data.asOf), "MMMM dd, yyyy") : undefined;
 
   // Format financial ratios for display
   const ratioMetrics = metrics
@@ -69,9 +58,7 @@ export function BalanceSheetCanvas() {
         {
           id: "current-ratio",
           title: "Current Ratio",
-          value: metrics.currentRatio
-            ? `${metrics.currentRatio.toFixed(2)}:1`
-            : "0.00:1",
+          value: metrics.currentRatio ? `${metrics.currentRatio.toFixed(2)}:1` : "0.00:1",
           subtitle:
             // If no current liabilities, show excellent liquidity
             balanceSheet?.liabilities.current.total === 0
@@ -85,9 +72,7 @@ export function BalanceSheetCanvas() {
         {
           id: "debt-to-equity",
           title: "Debt-to-Equity",
-          value: metrics.debtToEquity
-            ? `${metrics.debtToEquity.toFixed(2)}:1`
-            : "0.00:1",
+          value: metrics.debtToEquity ? `${metrics.debtToEquity.toFixed(2)}:1` : "0.00:1",
           subtitle:
             // If no debt, show excellent debt position
             balanceSheet?.liabilities.total === 0
@@ -123,9 +108,7 @@ export function BalanceSheetCanvas() {
         {
           id: "equity-ratio",
           title: "Equity Ratio",
-          value: metrics.equityRatio
-            ? `${metrics.equityRatio.toFixed(1)}%`
-            : "0.0%",
+          value: metrics.equityRatio ? `${metrics.equityRatio.toFixed(1)}%` : "0.0%",
           subtitle:
             metrics.equityRatio && metrics.equityRatio >= 50
               ? "Strong equity position"
@@ -154,9 +137,7 @@ export function BalanceSheetCanvas() {
                 </h4>
 
                 {asOf && (
-                  <div className="text-[12px] text-[#707070] dark:text-[#666666]">
-                    As of {asOf}
-                  </div>
+                  <div className="text-[12px] text-[#707070] dark:text-[#666666]">As of {asOf}</div>
                 )}
               </div>
 
@@ -187,10 +168,7 @@ export function BalanceSheetCanvas() {
                             Cash and Cash Equivalents
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent
-                          sideOffset={5}
-                          className="text-xs p-1.5"
-                        >
+                        <TooltipContent sideOffset={5} className="text-xs p-1.5">
                           {getBalanceSheetTooltip("cash")}
                         </TooltipContent>
                       </Tooltip>
@@ -211,10 +189,7 @@ export function BalanceSheetCanvas() {
                             Accounts Receivable
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent
-                          sideOffset={5}
-                          className="text-xs p-1.5"
-                        >
+                        <TooltipContent sideOffset={5} className="text-xs p-1.5">
                           {getBalanceSheetTooltip("accountsReceivable")}
                         </TooltipContent>
                       </Tooltip>
@@ -236,10 +211,7 @@ export function BalanceSheetCanvas() {
                               "Inventory (Cost of Goods Sold)"}
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent
-                          sideOffset={5}
-                          className="text-xs p-1.5"
-                        >
+                        <TooltipContent sideOffset={5} className="text-xs p-1.5">
                           {getBalanceSheetTooltip("inventory")}
                         </TooltipContent>
                       </Tooltip>
@@ -257,14 +229,10 @@ export function BalanceSheetCanvas() {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div className="text-[12px] pl-4 text-[#707070] dark:text-[#666666] cursor-help">
-                            {balanceSheet.assets.current.prepaidExpensesName ||
-                              "Prepaid Expenses"}
+                            {balanceSheet.assets.current.prepaidExpensesName || "Prepaid Expenses"}
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent
-                          sideOffset={5}
-                          className="text-xs p-1.5"
-                        >
+                        <TooltipContent sideOffset={5} className="text-xs p-1.5">
                           {getBalanceSheetTooltip("prepaidExpenses")}
                         </TooltipContent>
                       </Tooltip>
@@ -307,10 +275,7 @@ export function BalanceSheetCanvas() {
                               "Fixed Assets (Equipment)"}
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent
-                          sideOffset={5}
-                          className="text-xs p-1.5"
-                        >
+                        <TooltipContent sideOffset={5} className="text-xs p-1.5">
                           {getBalanceSheetTooltip("fixedAssets")}
                         </TooltipContent>
                       </Tooltip>
@@ -331,10 +296,7 @@ export function BalanceSheetCanvas() {
                             Accumulated Depreciation
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent
-                          sideOffset={5}
-                          className="text-xs p-1.5"
-                        >
+                        <TooltipContent sideOffset={5} className="text-xs p-1.5">
                           {getBalanceSheetTooltip("accumulatedDepreciation")}
                         </TooltipContent>
                       </Tooltip>
@@ -342,9 +304,7 @@ export function BalanceSheetCanvas() {
                     <div className="text-[12px] font-sans text-black dark:text-white">
                       {formatAmount({
                         currency,
-                        amount:
-                          balanceSheet.assets.nonCurrent
-                            .accumulatedDepreciation,
+                        amount: balanceSheet.assets.nonCurrent.accumulatedDepreciation,
                         locale: user?.locale,
                       })}
                     </div>
@@ -354,15 +314,11 @@ export function BalanceSheetCanvas() {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div className="text-[12px] pl-4 text-[#707070] dark:text-[#666666] cursor-help">
-                            {balanceSheet.assets.nonCurrent
-                              .softwareTechnologyName ||
+                            {balanceSheet.assets.nonCurrent.softwareTechnologyName ||
                               "Software & Technology"}
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent
-                          sideOffset={5}
-                          className="text-xs p-1.5"
-                        >
+                        <TooltipContent sideOffset={5} className="text-xs p-1.5">
                           {getBalanceSheetTooltip("softwareTechnology")}
                         </TooltipContent>
                       </Tooltip>
@@ -370,8 +326,7 @@ export function BalanceSheetCanvas() {
                     <div className="text-[12px] font-sans text-black dark:text-white">
                       {formatAmount({
                         currency,
-                        amount:
-                          balanceSheet.assets.nonCurrent.softwareTechnology,
+                        amount: balanceSheet.assets.nonCurrent.softwareTechnology,
                         locale: user?.locale,
                       })}
                     </div>
@@ -381,15 +336,11 @@ export function BalanceSheetCanvas() {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div className="text-[12px] pl-4 text-[#707070] dark:text-[#666666] cursor-help">
-                            {balanceSheet.assets.nonCurrent
-                              .longTermInvestmentsName ||
+                            {balanceSheet.assets.nonCurrent.longTermInvestmentsName ||
                               "Long-term Investments"}
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent
-                          sideOffset={5}
-                          className="text-xs p-1.5"
-                        >
+                        <TooltipContent sideOffset={5} className="text-xs p-1.5">
                           {getBalanceSheetTooltip("longTermInvestments")}
                         </TooltipContent>
                       </Tooltip>
@@ -397,8 +348,7 @@ export function BalanceSheetCanvas() {
                     <div className="text-[12px] font-sans text-black dark:text-white">
                       {formatAmount({
                         currency,
-                        amount:
-                          balanceSheet.assets.nonCurrent.longTermInvestments,
+                        amount: balanceSheet.assets.nonCurrent.longTermInvestments,
                         locale: user?.locale,
                       })}
                     </div>
@@ -411,10 +361,7 @@ export function BalanceSheetCanvas() {
                             Other Assets
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent
-                          sideOffset={5}
-                          className="text-xs p-1.5"
-                        >
+                        <TooltipContent sideOffset={5} className="text-xs p-1.5">
                           {getBalanceSheetTooltip("otherAssets")}
                         </TooltipContent>
                       </Tooltip>
@@ -480,10 +427,7 @@ export function BalanceSheetCanvas() {
                             Accounts Payable
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent
-                          sideOffset={5}
-                          className="text-xs p-1.5"
-                        >
+                        <TooltipContent sideOffset={5} className="text-xs p-1.5">
                           {getBalanceSheetTooltip("accountsPayable")}
                         </TooltipContent>
                       </Tooltip>
@@ -491,8 +435,7 @@ export function BalanceSheetCanvas() {
                     <div className="text-[12px] font-sans text-black dark:text-white">
                       {formatAmount({
                         currency,
-                        amount:
-                          balanceSheet.liabilities.current.accountsPayable,
+                        amount: balanceSheet.liabilities.current.accountsPayable,
                         locale: user?.locale,
                       })}
                     </div>
@@ -502,15 +445,11 @@ export function BalanceSheetCanvas() {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div className="text-[12px] pl-4 text-[#707070] dark:text-[#666666] cursor-help">
-                            {balanceSheet.liabilities.current
-                              .accruedExpensesName ||
+                            {balanceSheet.liabilities.current.accruedExpensesName ||
                               "Accrued Expenses (Operations)"}
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent
-                          sideOffset={5}
-                          className="text-xs p-1.5"
-                        >
+                        <TooltipContent sideOffset={5} className="text-xs p-1.5">
                           {getBalanceSheetTooltip("accruedExpenses")}
                         </TooltipContent>
                       </Tooltip>
@@ -518,8 +457,7 @@ export function BalanceSheetCanvas() {
                     <div className="text-[12px] font-sans text-black dark:text-white">
                       {formatAmount({
                         currency,
-                        amount:
-                          balanceSheet.liabilities.current.accruedExpenses,
+                        amount: balanceSheet.liabilities.current.accruedExpenses,
                         locale: user?.locale,
                       })}
                     </div>
@@ -532,10 +470,7 @@ export function BalanceSheetCanvas() {
                             Short-term Debt (Banking & Finance)
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent
-                          sideOffset={5}
-                          className="text-xs p-1.5"
-                        >
+                        <TooltipContent sideOffset={5} className="text-xs p-1.5">
                           {getBalanceSheetTooltip("shortTermDebt")}
                         </TooltipContent>
                       </Tooltip>
@@ -553,14 +488,11 @@ export function BalanceSheetCanvas() {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div className="text-[12px] pl-4 text-[#707070] dark:text-[#666666] cursor-help">
-                            {balanceSheet.liabilities.current
-                              .creditCardDebtName || "Credit Card Debt"}
+                            {balanceSheet.liabilities.current.creditCardDebtName ||
+                              "Credit Card Debt"}
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent
-                          sideOffset={5}
-                          className="text-xs p-1.5"
-                        >
+                        <TooltipContent sideOffset={5} className="text-xs p-1.5">
                           {getBalanceSheetTooltip("creditCardDebt")}
                         </TooltipContent>
                       </Tooltip>
@@ -602,10 +534,7 @@ export function BalanceSheetCanvas() {
                             Long-term Debt (Banking & Finance)
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent
-                          sideOffset={5}
-                          className="text-xs p-1.5"
-                        >
+                        <TooltipContent sideOffset={5} className="text-xs p-1.5">
                           {getBalanceSheetTooltip("longTermDebt")}
                         </TooltipContent>
                       </Tooltip>
@@ -613,8 +542,7 @@ export function BalanceSheetCanvas() {
                     <div className="text-[12px] font-sans text-black dark:text-white">
                       {formatAmount({
                         currency,
-                        amount:
-                          balanceSheet.liabilities.nonCurrent.longTermDebt,
+                        amount: balanceSheet.liabilities.nonCurrent.longTermDebt,
                         locale: user?.locale,
                       })}
                     </div>
@@ -624,15 +552,11 @@ export function BalanceSheetCanvas() {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div className="text-[12px] pl-4 text-[#707070] dark:text-[#666666] cursor-help">
-                            {balanceSheet.liabilities.nonCurrent
-                              .deferredRevenueName ||
+                            {balanceSheet.liabilities.nonCurrent.deferredRevenueName ||
                               "Deferred Revenue (Liabilities & Debt)"}
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent
-                          sideOffset={5}
-                          className="text-xs p-1.5"
-                        >
+                        <TooltipContent sideOffset={5} className="text-xs p-1.5">
                           {getBalanceSheetTooltip("deferredRevenue")}
                         </TooltipContent>
                       </Tooltip>
@@ -640,8 +564,7 @@ export function BalanceSheetCanvas() {
                     <div className="text-[12px] font-sans text-black dark:text-white">
                       {formatAmount({
                         currency,
-                        amount:
-                          balanceSheet.liabilities.nonCurrent.deferredRevenue,
+                        amount: balanceSheet.liabilities.nonCurrent.deferredRevenue,
                         locale: user?.locale,
                       })}
                     </div>
@@ -651,14 +574,10 @@ export function BalanceSheetCanvas() {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div className="text-[12px] pl-4 text-[#707070] dark:text-[#666666] cursor-help">
-                            {balanceSheet.liabilities.nonCurrent.leasesName ||
-                              "Leases"}
+                            {balanceSheet.liabilities.nonCurrent.leasesName || "Leases"}
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent
-                          sideOffset={5}
-                          className="text-xs p-1.5"
-                        >
+                        <TooltipContent sideOffset={5} className="text-xs p-1.5">
                           {getBalanceSheetTooltip("leases")}
                         </TooltipContent>
                       </Tooltip>
@@ -679,10 +598,7 @@ export function BalanceSheetCanvas() {
                             Other Liabilities
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent
-                          sideOffset={5}
-                          className="text-xs p-1.5"
-                        >
+                        <TooltipContent sideOffset={5} className="text-xs p-1.5">
                           {getBalanceSheetTooltip("otherLiabilities")}
                         </TooltipContent>
                       </Tooltip>
@@ -690,8 +606,7 @@ export function BalanceSheetCanvas() {
                     <div className="text-[12px] font-sans text-black dark:text-white">
                       {formatAmount({
                         currency,
-                        amount:
-                          balanceSheet.liabilities.nonCurrent.otherLiabilities,
+                        amount: balanceSheet.liabilities.nonCurrent.otherLiabilities,
                         locale: user?.locale,
                       })}
                     </div>
@@ -727,23 +642,17 @@ export function BalanceSheetCanvas() {
                 {/* Equity */}
                 <div className="border-b border-[#e6e6e6] dark:border-[#1d1d1d]">
                   <div className="px-4 py-2 bg-[#f7f7f7] dark:bg-[#131313]">
-                    <div className="text-[12px] font-medium text-black dark:text-white">
-                      Equity
-                    </div>
+                    <div className="text-[12px] font-medium text-black dark:text-white">Equity</div>
                   </div>
                   <div className="px-4 py-2 flex justify-between">
                     <TooltipProvider delayDuration={0}>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div className="text-[12px] pl-4 text-[#707070] dark:text-[#666666] cursor-help">
-                            {balanceSheet.equity.capitalInvestmentName ||
-                              "Capital Investment"}
+                            {balanceSheet.equity.capitalInvestmentName || "Capital Investment"}
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent
-                          sideOffset={5}
-                          className="text-xs p-1.5"
-                        >
+                        <TooltipContent sideOffset={5} className="text-xs p-1.5">
                           {getBalanceSheetTooltip("capitalInvestment")}
                         </TooltipContent>
                       </Tooltip>
@@ -761,14 +670,10 @@ export function BalanceSheetCanvas() {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div className="text-[12px] pl-4 text-[#707070] dark:text-[#666666] cursor-help">
-                            {balanceSheet.equity.ownerDrawsName ||
-                              "Owner Draws"}
+                            {balanceSheet.equity.ownerDrawsName || "Owner Draws"}
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent
-                          sideOffset={5}
-                          className="text-xs p-1.5"
-                        >
+                        <TooltipContent sideOffset={5} className="text-xs p-1.5">
                           {getBalanceSheetTooltip("ownerDraws")}
                         </TooltipContent>
                       </Tooltip>
@@ -789,10 +694,7 @@ export function BalanceSheetCanvas() {
                             Retained Earnings
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent
-                          sideOffset={5}
-                          className="text-xs p-1.5"
-                        >
+                        <TooltipContent sideOffset={5} className="text-xs p-1.5">
                           {getBalanceSheetTooltip("retainedEarnings")}
                         </TooltipContent>
                       </Tooltip>
@@ -827,9 +729,7 @@ export function BalanceSheetCanvas() {
                   <div className="text-[14px] font-sans font-medium text-black dark:text-white">
                     {formatAmount({
                       currency,
-                      amount:
-                        balanceSheet.liabilities.total +
-                        balanceSheet.equity.total,
+                      amount: balanceSheet.liabilities.total + balanceSheet.equity.total,
                       locale: user?.locale,
                     })}
                   </div>
@@ -855,11 +755,7 @@ export function BalanceSheetCanvas() {
                     <Skeleton width="3rem" height="0.75rem" />
                   </div>
                   <div className="w-1/2 px-4 py-3 text-right">
-                    <Skeleton
-                      width="3rem"
-                      height="0.75rem"
-                      className="ml-auto"
-                    />
+                    <Skeleton width="3rem" height="0.75rem" className="ml-auto" />
                   </div>
                 </div>
 
@@ -870,11 +766,7 @@ export function BalanceSheetCanvas() {
                   </div>
                   {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="px-4 py-2 flex justify-between">
-                      <Skeleton
-                        width="8rem"
-                        height="0.75rem"
-                        className="pl-4"
-                      />
+                      <Skeleton width="8rem" height="0.75rem" className="pl-4" />
                       <Skeleton width="4rem" height="0.75rem" />
                     </div>
                   ))}
@@ -891,11 +783,7 @@ export function BalanceSheetCanvas() {
                   </div>
                   {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="px-4 py-2 flex justify-between">
-                      <Skeleton
-                        width="9rem"
-                        height="0.75rem"
-                        className="pl-4"
-                      />
+                      <Skeleton width="9rem" height="0.75rem" className="pl-4" />
                       <Skeleton width="4rem" height="0.75rem" />
                     </div>
                   ))}
@@ -917,11 +805,7 @@ export function BalanceSheetCanvas() {
                     <Skeleton width="8rem" height="0.75rem" />
                   </div>
                   <div className="w-1/2 px-4 py-3 text-right">
-                    <Skeleton
-                      width="3rem"
-                      height="0.75rem"
-                      className="ml-auto"
-                    />
+                    <Skeleton width="3rem" height="0.75rem" className="ml-auto" />
                   </div>
                 </div>
 
@@ -932,11 +816,7 @@ export function BalanceSheetCanvas() {
                   </div>
                   {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="px-4 py-2 flex justify-between">
-                      <Skeleton
-                        width="7rem"
-                        height="0.75rem"
-                        className="pl-4"
-                      />
+                      <Skeleton width="7rem" height="0.75rem" className="pl-4" />
                       <Skeleton width="4rem" height="0.75rem" />
                     </div>
                   ))}
@@ -953,11 +833,7 @@ export function BalanceSheetCanvas() {
                   </div>
                   {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="px-4 py-2 flex justify-between">
-                      <Skeleton
-                        width="9rem"
-                        height="0.75rem"
-                        className="pl-4"
-                      />
+                      <Skeleton width="9rem" height="0.75rem" className="pl-4" />
                       <Skeleton width="4rem" height="0.75rem" />
                     </div>
                   ))}
@@ -980,11 +856,7 @@ export function BalanceSheetCanvas() {
                   </div>
                   {[1, 2, 3].map((i) => (
                     <div key={i} className="px-4 py-2 flex justify-between">
-                      <Skeleton
-                        width="7rem"
-                        height="0.75rem"
-                        className="pl-4"
-                      />
+                      <Skeleton width="7rem" height="0.75rem" className="pl-4" />
                       <Skeleton width="4rem" height="0.75rem" />
                     </div>
                   ))}

@@ -26,10 +26,7 @@ function InvoicesPage() {
   const loaderData = Route.useLoaderData() as InvoicesLoaderData;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <ScrollableContent>
         <div className="flex flex-col gap-6">
           <CollapsibleSummary>

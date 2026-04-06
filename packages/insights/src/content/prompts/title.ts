@@ -103,18 +103,12 @@ function buildDataSection(slots: InsightSlots): string {
   // CRITICAL: Low runway warning at the top
   if (facts.runway.isCritical) {
     lines.push("CRITICAL RUNWAY WARNING");
-    lines.push(
-      `${getRunwayDescription(facts)} — this overrides all other context.`,
-    );
-    lines.push(
-      `Do NOT use: ${CRITICAL_RUNWAY_BANNED_WORDS.slice(0, 5).join(", ")}`,
-    );
+    lines.push(`${getRunwayDescription(facts)} — this overrides all other context.`);
+    lines.push(`Do NOT use: ${CRITICAL_RUNWAY_BANNED_WORDS.slice(0, 5).join(", ")}`);
     lines.push("");
   } else if (facts.runway.isLow) {
     lines.push("LOW RUNWAY WARNING");
-    lines.push(
-      `Runway is ${facts.runway.months} months — be careful with reassuring language.`,
-    );
+    lines.push(`Runway is ${facts.runway.months} months — be careful with reassuring language.`);
     lines.push("");
   }
 
@@ -139,9 +133,7 @@ function buildDataSection(slots: InsightSlots): string {
     const notable = getNotableContext(slots);
     if (notable) {
       lines.push(`notable_context: ${notable}`);
-      lines.push(
-        "(LEAD with this context - it's what makes this week interesting)",
-      );
+      lines.push("(LEAD with this context - it's what makes this week interesting)");
       lines.push("");
     }
   }
@@ -183,11 +175,7 @@ function buildDataSection(slots: InsightSlots): string {
   return lines.join("\n");
 }
 
-function buildExamples(
-  weekType: string,
-  _isFirstInsight: boolean,
-  isLowRunway = false,
-): string {
+function buildExamples(weekType: string, _isFirstInsight: boolean, isLowRunway = false): string {
   // Personal examples that lead with context, use "your/you", and feel conversational
   const examples: Record<string, string[]> = {
     great: [
@@ -235,8 +223,7 @@ function buildExamples(
       "Profit reached 5,644 kr this week, but with only 1 month runway until February 24, collecting the 22,500 kr overdue is urgent",
   };
 
-  const concreteExample =
-    concreteExamples[effectiveWeekType] ?? concreteExamples.good;
+  const concreteExample = concreteExamples[effectiveWeekType] ?? concreteExamples.good;
 
   return `<examples>
 <concrete_example>${concreteExample}</concrete_example>

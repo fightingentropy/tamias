@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router";
 import * as crypto from "node:crypto";
 import { LogEvents } from "@/lib/telemetry/events";
 import { setupAnalytics } from "@/lib/telemetry/server";
@@ -15,10 +15,7 @@ export const Route = createAppPublicFileRoute("/api/webhook/registered")({
         const signature = request.headers.get(SIGNATURE_HEADER);
 
         if (!signature) {
-          return Response.json(
-            { message: "Missing signature" },
-            { status: 401 },
-          );
+          return Response.json({ message: "Missing signature" }, { status: 401 });
         }
 
         const decodedSignature = Buffer.from(signature, "base64");
@@ -26,21 +23,14 @@ export const Route = createAppPublicFileRoute("/api/webhook/registered")({
           .createHmac("sha256", process.env.WEBHOOK_SECRET_KEY!)
           .update(text)
           .digest();
-        const hmacMatch = crypto.timingSafeEqual(
-          decodedSignature,
-          calculatedSignature,
-        );
+        const hmacMatch = crypto.timingSafeEqual(decodedSignature, calculatedSignature);
 
         if (!hmacMatch) {
           return Response.json({ message: "Not Authorized" }, { status: 401 });
         }
 
         const bodyRaw: unknown = await request.json();
-        if (
-          bodyRaw === null ||
-          typeof bodyRaw !== "object" ||
-          !("record" in bodyRaw)
-        ) {
+        if (bodyRaw === null || typeof bodyRaw !== "object" || !("record" in bodyRaw)) {
           return Response.json({ message: "Invalid body" }, { status: 400 });
         }
         const record = (bodyRaw as { record: unknown }).record;

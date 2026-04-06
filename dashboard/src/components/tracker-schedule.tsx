@@ -13,14 +13,7 @@ import {
 } from "@tamias/ui/context-menu";
 import { ScrollArea } from "@tamias/ui/scroll-area";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  addDays,
-  addMinutes,
-  endOfDay,
-  format,
-  isValid,
-  startOfDay,
-} from "date-fns";
+import { addDays, addMinutes, endOfDay, format, isValid, startOfDay } from "date-fns";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useLatestProjectId } from "@/hooks/use-latest-project-id";
@@ -48,11 +41,7 @@ import { TrackerDaySelect } from "./tracker-day-select";
  * @param timezone - IANA timezone identifier
  * @returns UTC Date object for database storage
  */
-const userTimeToUTC = (
-  dateStr: string,
-  timeStr: string,
-  timezone: string,
-): Date => {
+const userTimeToUTC = (dateStr: string, timeStr: string, timezone: string): Date => {
   try {
     // Create a date in the user's timezone
     const tzDate = tz(timezone);
@@ -157,10 +146,7 @@ const getUserTimezone = (user?: { timezone?: string | null }): string => {
  * @param userTimezone - User's display timezone
  * @returns Formatted time string
  */
-const safeFormatTime = (
-  dateStr: string | null,
-  userTimezone?: string,
-): string => {
+const safeFormatTime = (dateStr: string | null, userTimezone?: string): string => {
   if (!dateStr) return "";
 
   try {
@@ -175,10 +161,7 @@ const safeFormatTime = (
   } catch (error) {
     console.warn("Time formatting with tz() failed, using native API:", error);
     // Fallback to displayInUserTimezone
-    return displayInUserTimezone(
-      createSafeDate(dateStr),
-      userTimezone || "UTC",
-    );
+    return displayInUserTimezone(createSafeDate(dateStr), userTimezone || "UTC");
   }
 };
 
@@ -188,17 +171,12 @@ const safeFormatTime = (
  * @param stop - Stop timestamp string
  * @returns Duration in seconds
  */
-const safeCalculateDuration = (
-  start: string | null,
-  stop: string | null,
-): number => {
+const safeCalculateDuration = (start: string | null, stop: string | null): number => {
   if (!start || !stop) return 0;
   return calculateDuration(createSafeDate(start), createSafeDate(stop));
 };
 
-type TrackerRecord = NonNullable<
-  RouterOutputs["trackerEntries"]["byDate"]["data"]
->[number];
+type TrackerRecord = NonNullable<RouterOutputs["trackerEntries"]["byDate"]["data"]>[number];
 
 type ProcessedScheduleEntry = TrackerRecord & {
   isFirstPart: boolean;
@@ -218,16 +196,8 @@ type PositionedScheduleEntry = ProcessedScheduleEntry & {
 /**
  * Detect if two events overlap in time
  */
-const eventsOverlap = (
-  event1: ProcessedScheduleEntry,
-  event2: ProcessedScheduleEntry,
-): boolean => {
-  if (
-    !event1.displayStart ||
-    !event1.displayStop ||
-    !event2.displayStart ||
-    !event2.displayStop
-  ) {
+const eventsOverlap = (event1: ProcessedScheduleEntry, event2: ProcessedScheduleEntry): boolean => {
+  if (!event1.displayStart || !event1.displayStop || !event2.displayStart || !event2.displayStop) {
     return false;
   }
 
@@ -334,13 +304,11 @@ const calculateScheduleEventPositions = (
         }
         const aDuration =
           a.displayStart && a.displayStop
-            ? new Date(a.displayStop).getTime() -
-              new Date(a.displayStart).getTime()
+            ? new Date(a.displayStop).getTime() - new Date(a.displayStart).getTime()
             : 0;
         const bDuration =
           b.displayStart && b.displayStop
-            ? new Date(b.displayStop).getTime() -
-              new Date(b.displayStart).getTime()
+            ? new Date(b.displayStop).getTime() - new Date(b.displayStart).getTime()
             : 0;
         return bDuration - aDuration;
       });
@@ -355,10 +323,7 @@ const calculateScheduleEventPositions = (
         const totalEvents = sortedGroup.length;
 
         // First event (index 0) gets full width, others get progressively smaller
-        const width =
-          index === 0
-            ? 100
-            : Math.max(60, baseWidth - (index - 1) * widthReduction);
+        const width = index === 0 ? 100 : Math.max(60, baseWidth - (index - 1) * widthReduction);
 
         // Each event is offset to the right (except the first one)
         const leftOffset = index * offsetStep;
@@ -477,11 +442,7 @@ const createNewEvent = (
   };
 };
 
-const updateEventTime = (
-  event: TrackerRecord,
-  start: Date,
-  stop: Date,
-): TrackerRecord => {
+const updateEventTime = (event: TrackerRecord, start: Date, stop: Date): TrackerRecord => {
   return {
     ...event,
     start: start.toISOString(),
@@ -566,9 +527,7 @@ const useTrackerData = (selectedDate: string | null) => {
 
 // Hook for managing selected event
 const useSelectedEvent = () => {
-  const [selectedEvent, setSelectedEvent] = useState<TrackerRecord | null>(
-    null,
-  );
+  const [selectedEvent, setSelectedEvent] = useState<TrackerRecord | null>(null);
 
   const selectEvent = useCallback((event: TrackerRecord | null) => {
     setSelectedEvent(event);
@@ -593,13 +552,7 @@ const useSelectedEvent = () => {
 
 export function TrackerSchedule() {
   const { data: user } = useUserQuery();
-  const {
-    selectedDate,
-    range,
-    projectId: urlProjectId,
-    eventId,
-    setParams,
-  } = useTrackerParams();
+  const { selectedDate, range, projectId: urlProjectId, eventId, setParams } = useTrackerParams();
   const { latestProjectId } = useLatestProjectId(user?.teamId);
   const scrollRef = useRef<HTMLDivElement>(null);
   const trpc = useTRPC();
@@ -611,13 +564,8 @@ export function TrackerSchedule() {
     }),
   );
 
-  const {
-    data,
-    setData,
-    totalDuration,
-    deleteTrackerEntry,
-    upsertTrackerEntry,
-  } = useTrackerData(selectedDate);
+  const { data, setData, totalDuration, deleteTrackerEntry, upsertTrackerEntry } =
+    useTrackerData(selectedDate);
 
   const { selectedEvent, selectEvent, clearNewEvent } = useSelectedEvent();
 
@@ -627,9 +575,7 @@ export function TrackerSchedule() {
   // Update current time every 5 seconds for running timers
   useEffect(() => {
     // Check if any running timers exist (no stop time)
-    const hasRunningTimers = data.some(
-      (event) => !event.stop || event.stop === null,
-    );
+    const hasRunningTimers = data.some((event) => !event.stop || event.stop === null);
 
     if (hasRunningTimers) {
       const interval = setInterval(() => {
@@ -656,10 +602,7 @@ export function TrackerSchedule() {
 
           // Add some padding to center the event better
           const containerHeight = scrollRef.current.clientHeight;
-          const adjustedScrollPosition = Math.max(
-            0,
-            scrollPosition - containerHeight / 3,
-          );
+          const adjustedScrollPosition = Math.max(0, scrollPosition - containerHeight / 3);
 
           scrollRef.current.scrollTo({
             top: adjustedScrollPosition,
@@ -683,9 +626,7 @@ export function TrackerSchedule() {
   // Interaction state
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartSlot, setDragStartSlot] = useState<number | null>(null);
-  const [resizingEvent, setResizingEvent] = useState<TrackerRecord | null>(
-    null,
-  );
+  const [resizingEvent, setResizingEvent] = useState<TrackerRecord | null>(null);
   const [resizeStartY, setResizeStartY] = useState(0);
   const [resizeType, setResizeType] = useState<"top" | "bottom" | null>(null);
   const [movingEvent, setMovingEvent] = useState<TrackerRecord | null>(null);
@@ -773,23 +714,13 @@ export function TrackerSchedule() {
       const dateStr = selectedDate || format(baseDate, "yyyy-MM-dd");
 
       // Handle next day stop time (e.g., 23:00-01:00)
-      const startHour = Number.parseInt(
-        formValues.start.split(":")[0] || "0",
-        10,
-      );
-      const stopHour = Number.parseInt(
-        formValues.stop.split(":")[0] || "0",
-        10,
-      );
+      const startHour = Number.parseInt(formValues.start.split(":")[0] || "0", 10);
+      const stopHour = Number.parseInt(formValues.stop.split(":")[0] || "0", 10);
       const isNextDay = stopHour < startHour;
 
       // For next day calculation, use parseDateAsUTC to properly add a day
-      const nextDayDate = selectedDate
-        ? parseDateAsUTC(selectedDate)
-        : baseDate;
-      const stopDateStr = isNextDay
-        ? format(addDays(nextDayDate, 1), "yyyy-MM-dd")
-        : dateStr;
+      const nextDayDate = selectedDate ? parseDateAsUTC(selectedDate) : baseDate;
+      const stopDateStr = isNextDay ? format(addDays(nextDayDate, 1), "yyyy-MM-dd") : dateStr;
 
       // Convert user timezone input to UTC for storage
       const startDate = userTimeToUTC(dateStr, formValues.start, timezone);
@@ -883,15 +814,11 @@ export function TrackerSchedule() {
         const startTimeStr = `${String(startHour).padStart(2, "0")}:${String(startMinute).padStart(2, "0")}`;
 
         const startDate = userTimeToUTC(dateStr, startTimeStr, timezone);
-        const endDate = new Date(
-          startDate.getTime() + (end - start + 1) * 15 * 60 * 1000,
-        );
+        const endDate = new Date(startDate.getTime() + (end - start + 1) * 15 * 60 * 1000);
 
         const updatedEvent = updateEventTime(selectedEvent, startDate, endDate);
         setData((prevData) =>
-          prevData.map((event) =>
-            event.id === selectedEvent.id ? updatedEvent : event,
-          ),
+          prevData.map((event) => (event.id === selectedEvent.id ? updatedEvent : event)),
         );
         selectEvent(updatedEvent);
       } else if (resizingEvent && resizingEvent.id !== NEW_EVENT_ID) {
@@ -902,30 +829,18 @@ export function TrackerSchedule() {
           const currentStop = createSafeDate(resizingEvent.stop);
           const newEnd = addMinutes(currentStop, deltaSlots * 15);
           const currentStart = createSafeDate(resizingEvent.start);
-          const updatedEvent = updateEventTime(
-            resizingEvent,
-            currentStart,
-            newEnd,
-          );
+          const updatedEvent = updateEventTime(resizingEvent, currentStart, newEnd);
           setData((prevData) =>
-            prevData.map((event) =>
-              event.id === resizingEvent.id ? updatedEvent : event,
-            ),
+            prevData.map((event) => (event.id === resizingEvent.id ? updatedEvent : event)),
           );
           selectEvent(updatedEvent);
         } else if (resizeType === "top") {
           const currentStart = createSafeDate(resizingEvent.start);
           const newStart = addMinutes(currentStart, deltaSlots * 15);
           const currentStop = createSafeDate(resizingEvent.stop);
-          const updatedEvent = updateEventTime(
-            resizingEvent,
-            newStart,
-            currentStop,
-          );
+          const updatedEvent = updateEventTime(resizingEvent, newStart, currentStop);
           setData((prevData) =>
-            prevData.map((event) =>
-              event.id === resizingEvent.id ? updatedEvent : event,
-            ),
+            prevData.map((event) => (event.id === resizingEvent.id ? updatedEvent : event)),
           );
           selectEvent(updatedEvent);
         }
@@ -944,9 +859,7 @@ export function TrackerSchedule() {
         if (newStart >= dayStart && newEnd <= dayEnd) {
           const updatedEvent = updateEventTime(movingEvent, newStart, newEnd);
           setData((prevData) =>
-            prevData.map((event) =>
-              event.id === movingEvent.id ? updatedEvent : event,
-            ),
+            prevData.map((event) => (event.id === movingEvent.id ? updatedEvent : event)),
           );
           selectEvent(updatedEvent);
         }
@@ -982,11 +895,15 @@ export function TrackerSchedule() {
   }, [handleMouseUp]);
 
   // Keyboard shortcuts
-  useHotkeys("backspace", () => {
-    if (selectedEvent && selectedEvent.id !== NEW_EVENT_ID) {
-      handleDeleteEvent(selectedEvent.id);
-    }
-  }, [selectedEvent, handleDeleteEvent]);
+  useHotkeys(
+    "backspace",
+    () => {
+      if (selectedEvent && selectedEvent.id !== NEW_EVENT_ID) {
+        handleDeleteEvent(selectedEvent.id);
+      }
+    },
+    [selectedEvent, handleDeleteEvent],
+  );
 
   const handleEventResizeStart = useCallback(
     (e: React.MouseEvent, event: TrackerRecord, type: "top" | "bottom") => {
@@ -1026,8 +943,7 @@ export function TrackerSchedule() {
       let currentEvent = data.find((ev) => ev.id === selectedEvent?.id) || null;
       let eventCreated = false;
 
-      const isCompleteStartTime =
-        start && (/^\d{4}$/.test(start) || /^\d{2}:\d{2}$/.test(start));
+      const isCompleteStartTime = start && (/^\d{4}$/.test(start) || /^\d{2}:\d{2}$/.test(start));
 
       if (
         start &&
@@ -1044,11 +960,7 @@ export function TrackerSchedule() {
         // Use selectedDate directly if available to avoid timezone conversion issues
         const dateStr = selectedDate || format(baseDate, "yyyy-MM-dd");
         const timezone = getUserTimezone(user);
-        const startTime = userTimeToUTC(
-          dateStr,
-          formattedStartTimeStr,
-          timezone,
-        );
+        const startTime = userTimeToUTC(dateStr, formattedStartTimeStr, timezone);
 
         if (isValid(startTime)) {
           const endTime = new Date(startTime.getTime() + 15 * 60 * 1000);
@@ -1084,8 +996,7 @@ export function TrackerSchedule() {
           let startChanged = false;
 
           if (start !== undefined) {
-            const isCompleteFormat =
-              /^\d{4}$/.test(start) || /^\d{2}:\d{2}$/.test(start);
+            const isCompleteFormat = /^\d{4}$/.test(start) || /^\d{2}:\d{2}$/.test(start);
             if (isCompleteFormat) {
               let formattedStart = start;
               if (/^\d{4}$/.test(start))
@@ -1094,16 +1005,9 @@ export function TrackerSchedule() {
               // Use selectedDate directly if available to avoid timezone conversion issues
               const dateStr = selectedDate || format(baseDate, "yyyy-MM-dd");
               const timezone = getUserTimezone(user);
-              const parsedStart = userTimeToUTC(
-                dateStr,
-                formattedStart,
-                timezone,
-              );
+              const parsedStart = userTimeToUTC(dateStr, formattedStart, timezone);
 
-              if (
-                isValid(parsedStart) &&
-                parsedStart.getTime() !== newStart.getTime()
-              ) {
+              if (isValid(parsedStart) && parsedStart.getTime() !== newStart.getTime()) {
                 newStart = parsedStart;
                 startChanged = true;
               }
@@ -1114,47 +1018,32 @@ export function TrackerSchedule() {
           let endChanged = false;
 
           if (end !== undefined) {
-            const isCompleteFormat =
-              /^\d{4}$/.test(end) || /^\d{2}:\d{2}$/.test(end);
+            const isCompleteFormat = /^\d{4}$/.test(end) || /^\d{2}:\d{2}$/.test(end);
             if (isCompleteFormat) {
               let formattedEnd = end;
-              if (/^\d{4}$/.test(end))
-                formattedEnd = `${end.substring(0, 2)}:${end.substring(2)}`;
+              if (/^\d{4}$/.test(end)) formattedEnd = `${end.substring(0, 2)}:${end.substring(2)}`;
 
               // Use selectedDate directly if available to avoid timezone conversion issues
               const dateStr = selectedDate || format(baseDate, "yyyy-MM-dd");
               const timezone = getUserTimezone(user);
               const parsedEnd = userTimeToUTC(dateStr, formattedEnd, timezone);
 
-              if (
-                isValid(parsedEnd) &&
-                parsedEnd.getTime() !== newEnd.getTime()
-              ) {
+              if (isValid(parsedEnd) && parsedEnd.getTime() !== newEnd.getTime()) {
                 newEnd = parsedEnd;
                 endChanged = true;
               }
             }
           }
 
-          if (
-            (startChanged || endChanged) &&
-            isValid(newStart) &&
-            isValid(newEnd)
-          ) {
+          if ((startChanged || endChanged) && isValid(newStart) && isValid(newEnd)) {
             // If end time is before start time, assume it's on the next day
             if (newEnd < newStart) {
               newEnd = addDays(newEnd, 1);
             }
 
-            const updatedEvent = updateEventTime(
-              currentEvent,
-              newStart,
-              newEnd,
-            );
+            const updatedEvent = updateEventTime(currentEvent, newStart, newEnd);
             setData((prevData) =>
-              prevData.map((event) =>
-                event.id === currentEvent?.id ? updatedEvent : event,
-              ),
+              prevData.map((event) => (event.id === currentEvent?.id ? updatedEvent : event)),
             );
             if (selectedEvent?.id === currentEvent.id) {
               selectEvent(updatedEvent);
@@ -1188,48 +1077,35 @@ export function TrackerSchedule() {
           projectsData?.data.find((candidate) => candidate.id === project.id) ?? null;
         const updatedEvent = {
           ...eventToUpdate,
-          trackerProject:
-            selectedProject ??
-            {
-              id: project.id,
-              teamId: "",
-              name: project.name,
-              description: null,
-              status: "in_progress" as const,
-              customerId: null,
-              estimate: null,
-              currency: null,
-              billable: false,
-              rate: null,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-              customer: null,
-            },
+          trackerProject: selectedProject ?? {
+            id: project.id,
+            teamId: "",
+            name: project.name,
+            description: null,
+            status: "in_progress" as const,
+            customerId: null,
+            estimate: null,
+            currency: null,
+            billable: false,
+            rate: null,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            customer: null,
+          },
         };
 
         setData((prevData) =>
-          prevData.map((ev) =>
-            ev.id === eventToUpdate.id ? updatedEvent : ev,
-          ),
+          prevData.map((ev) => (ev.id === eventToUpdate.id ? updatedEvent : ev)),
         );
 
         selectEvent(updatedEvent);
 
         if (eventToUpdate.id !== NEW_EVENT_ID) {
-          const duration = safeCalculateDuration(
-            eventToUpdate.start,
-            eventToUpdate.stop,
-          );
+          const duration = safeCalculateDuration(eventToUpdate.start, eventToUpdate.stop);
           handleCreateEvent({
             id: eventToUpdate.id,
-            start: safeFormatTime(
-              eventToUpdate.start,
-              user?.timezone ? user.timezone : undefined,
-            ),
-            stop: safeFormatTime(
-              eventToUpdate.stop,
-              user?.timezone ? user.timezone : undefined,
-            ),
+            start: safeFormatTime(eventToUpdate.start, user?.timezone ? user.timezone : undefined),
+            stop: safeFormatTime(eventToUpdate.stop, user?.timezone ? user.timezone : undefined),
             projectId: project.id,
             description: eventToUpdate.description ?? undefined,
             duration: duration,
@@ -1237,14 +1113,7 @@ export function TrackerSchedule() {
         }
       }
     },
-    [
-      data,
-      selectedEvent,
-      setData,
-      selectEvent,
-      handleCreateEvent,
-      user?.timezone,
-    ],
+    [data, selectedEvent, setData, selectEvent, handleCreateEvent, user?.timezone],
   );
 
   const renderScheduleEntries = () => {
@@ -1355,10 +1224,7 @@ export function TrackerSchedule() {
       if (!event.displayStop || event.stop === null) {
         isRunningTimer = true;
         // Calculate current time slot for running timer using state
-        const currentSlot = safeGetSlot(
-          currentTime.toISOString(),
-          userTimezone,
-        );
+        const currentSlot = safeGetSlot(currentTime.toISOString(), userTimezone);
         // Ensure running timer doesn't extend beyond current time
         endSlot = Math.max(startSlot + 1, currentSlot); // At least 1 slot minimum
       } else {
@@ -1400,26 +1266,19 @@ export function TrackerSchedule() {
                 "bg-[#F0F0F0]/[0.95] dark:bg-[#1D1D1D]/[0.95] text-[#606060] dark:text-[#878787] border-t border-border",
                 selectedEvent?.id === event.id && "!text-primary",
                 event.id !== NEW_EVENT_ID && "cursor-move",
-                event.totalColumns > 1 && event.column > 0
-                  ? "border border-border"
-                  : "",
+                event.totalColumns > 1 && event.column > 0 ? "border border-border" : "",
               )}
               style={{
                 top: `${startSlot * SLOT_HEIGHT}px`,
                 height: `${height}px`,
-                left:
-                  event.leftPx !== undefined
-                    ? `${event.leftPx}px`
-                    : `${event.left}%`,
+                left: event.leftPx !== undefined ? `${event.leftPx}px` : `${event.left}%`,
                 width:
                   event.leftPx !== undefined
                     ? `calc(${event.width}% - ${event.leftPx}px)`
                     : `${event.width}%`,
                 zIndex: event.totalColumns > 1 ? 20 + event.column : 10,
               }}
-              onMouseDown={(e) =>
-                event.id !== NEW_EVENT_ID && handleEventMoveStart(e, event)
-              }
+              onMouseDown={(e) => event.id !== NEW_EVENT_ID && handleEventMoveStart(e, event)}
             >
               <div className="text-xs p-4 flex justify-between flex-col select-none pointer-events-none">
                 <div className="flex items-center gap-2">
@@ -1453,9 +1312,7 @@ export function TrackerSchedule() {
                   />
                   <div
                     className="absolute bottom-0 left-0 right-0 h-3 cursor-ns-resize"
-                    onMouseDown={(e) =>
-                      handleEventResizeStart(e, event, "bottom")
-                    }
+                    onMouseDown={(e) => handleEventResizeStart(e, event, "bottom")}
                   />
                 </>
               )}
@@ -1477,15 +1334,12 @@ export function TrackerSchedule() {
   };
 
   // Find the event to pass to the form
-  const formEvent =
-    data.find((event) => event.id === NEW_EVENT_ID) || selectedEvent;
+  const formEvent = data.find((event) => event.id === NEW_EVENT_ID) || selectedEvent;
 
   return (
     <div className="w-full">
       <div className="text-left mb-8">
-        <h2 className="text-xl text-[#878787]">
-          {secondsToHoursAndMinutes(totalDuration)}
-        </h2>
+        <h2 className="text-xl text-[#878787]">{secondsToHoursAndMinutes(totalDuration)}</h2>
       </div>
 
       <TrackerDaySelect />
@@ -1494,11 +1348,7 @@ export function TrackerSchedule() {
         <div className="flex text-[#878787] text-xs">
           <div className="w-20 flex-shrink-0 select-none">
             {hours.map((hour) => (
-              <div
-                key={hour}
-                className="pr-4 flex flex-col"
-                style={{ height: `${ROW_HEIGHT}px` }}
-              >
+              <div key={hour} className="pr-4 flex flex-col" style={{ height: `${ROW_HEIGHT}px` }}>
                 {formatHour(hour, user?.timeFormat, getUserTimezone(user))}
               </div>
             ))}
@@ -1541,18 +1391,12 @@ export function TrackerSchedule() {
         description={formEvent?.description ?? undefined}
         start={
           formEvent?.start
-            ? safeFormatTime(
-                formEvent.start,
-                user?.timezone ? user.timezone : undefined,
-              )
+            ? safeFormatTime(formEvent.start, user?.timezone ? user.timezone : undefined)
             : undefined
         }
         stop={
           formEvent?.stop
-            ? safeFormatTime(
-                formEvent.stop,
-                user?.timezone ? user.timezone : undefined,
-              )
+            ? safeFormatTime(formEvent.stop, user?.timezone ? user.timezone : undefined)
             : undefined
         }
         onSelectProject={handleSelectProject}

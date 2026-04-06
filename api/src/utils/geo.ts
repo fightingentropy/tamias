@@ -4,8 +4,7 @@ export function getGeoContext(req: HonoRequest) {
   const headers = req.header();
 
   // Client-sent headers take priority, fall back to Cloudflare geo headers
-  const country =
-    headers["x-user-country"]?.toUpperCase() ?? headers["cf-ipcountry"] ?? null;
+  const country = headers["x-user-country"]?.toUpperCase() ?? headers["cf-ipcountry"] ?? null;
   const locale = headers["x-user-locale"] ?? null;
   const timezone = headers["x-user-timezone"] ?? headers["cf-timezone"] ?? null;
   const city = headers["cf-ipcity"] ?? null;

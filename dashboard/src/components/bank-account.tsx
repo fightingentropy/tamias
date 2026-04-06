@@ -26,13 +26,7 @@ import { Label } from "@tamias/ui/label";
 import { Switch } from "@tamias/ui/switch";
 import { useToast } from "@tamias/ui/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  AlertTriangle,
-  Eye,
-  EyeOff,
-  Loader2,
-  MoreHorizontal,
-} from "lucide-react";
+import { AlertTriangle, Eye, EyeOff, Loader2, MoreHorizontal } from "lucide-react";
 import { parseAsBoolean, parseAsString, useQueryStates } from "nuqs";
 import { useState } from "react";
 import { useI18n } from "@/locales/client";
@@ -41,9 +35,7 @@ import { FormatAmount } from "./format-amount";
 import { EditBankAccountModal } from "./modals/edit-bank-account-modal";
 
 type Props = {
-  data: NonNullable<
-    RouterOutputs["bankConnections"]["get"]
-  >[number]["bankAccounts"][number];
+  data: NonNullable<RouterOutputs["bankConnections"]["get"]>[number]["bankAccounts"][number];
   provider?: string | null;
 };
 
@@ -144,11 +136,10 @@ export function BankAccount({ data, provider }: Props) {
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 
-  const { data: transactionCountData, isFetching: isFetchingTransactionCount } =
-    useQuery({
-      ...trpc.bankAccounts.getTransactionCount.queryOptions({ id }),
-      enabled: isDeleteOpen,
-    });
+  const { data: transactionCountData, isFetching: isFetchingTransactionCount } = useQuery({
+    ...trpc.bankAccounts.getTransactionCount.queryOptions({ id }),
+    enabled: isDeleteOpen,
+  });
 
   const transactionCount = transactionCountData?.count ?? 0;
   const isLoadingTransactionCount =
@@ -216,9 +207,7 @@ export function BankAccount({ data, provider }: Props) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-48" align="end">
-                <DropdownMenuItem onClick={() => setEditOpen(true)}>
-                  Edit
-                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setEditOpen(true)}>Edit</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => {
@@ -233,9 +222,7 @@ export function BankAccount({ data, provider }: Props) {
                   Backfill
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setDeleteOpen(true)}>
-                  Delete
-                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setDeleteOpen(true)}>Delete</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -245,8 +232,8 @@ export function BankAccount({ data, provider }: Props) {
                 <AlertDialogDescription asChild>
                   <div className="space-y-3">
                     <p>
-                      This will permanently remove the account and its history.
-                      This cannot be undone.
+                      This will permanently remove the account and its history. This cannot be
+                      undone.
                     </p>
                     <div className="my-6 px-3 py-3 bg-amber-50 border border-amber-200 dark:bg-amber-900/10 dark:border-amber-800/30">
                       <div className="flex items-start gap-2">
@@ -315,36 +302,26 @@ export function BankAccount({ data, provider }: Props) {
         {balance != null && Number.isFinite(balance) && currency ? (
           <>
             <div className="flex items-baseline gap-2">
-              {isCreditAccount && (
-                <span className="text-xs text-[#878787]">Owed</span>
-              )}
+              {isCreditAccount && <span className="text-xs text-[#878787]">Owed</span>}
               <span className="text-lg font-medium">
                 <FormatAmount amount={balance} currency={currency} />
               </span>
             </div>
-            {isCreditAccount &&
-              (availableBalance !== null || creditLimit !== null) && (
-                <div className="flex items-center gap-2 text-xs text-[#878787]">
-                  {availableBalance !== null && (
-                    <span>
-                      Available:{" "}
-                      <FormatAmount
-                        amount={availableBalance}
-                        currency={currency}
-                      />
-                    </span>
-                  )}
-                  {availableBalance !== null && creditLimit !== null && (
-                    <span>·</span>
-                  )}
-                  {creditLimit !== null && (
-                    <span>
-                      Limit:{" "}
-                      <FormatAmount amount={creditLimit} currency={currency} />
-                    </span>
-                  )}
-                </div>
-              )}
+            {isCreditAccount && (availableBalance !== null || creditLimit !== null) && (
+              <div className="flex items-center gap-2 text-xs text-[#878787]">
+                {availableBalance !== null && (
+                  <span>
+                    Available: <FormatAmount amount={availableBalance} currency={currency} />
+                  </span>
+                )}
+                {availableBalance !== null && creditLimit !== null && <span>·</span>}
+                {creditLimit !== null && (
+                  <span>
+                    Limit: <FormatAmount amount={creditLimit} currency={currency} />
+                  </span>
+                )}
+              </div>
+            )}
           </>
         ) : null}
       </div>
@@ -361,10 +338,7 @@ export function BankAccount({ data, provider }: Props) {
                     <span className="text-[#878787]">Routing</span>
                     <div className="flex items-center gap-1">
                       <span className="font-mono text-xs">{routingNumber}</span>
-                      <CopyButton
-                        value={routingNumber}
-                        label="Routing number"
-                      />
+                      <CopyButton value={routingNumber} label="Routing number" />
                     </div>
                   </div>
                 )}
@@ -372,13 +346,8 @@ export function BankAccount({ data, provider }: Props) {
                   <div className="flex items-center justify-between">
                     <span className="text-[#878787]">Wire</span>
                     <div className="flex items-center gap-1">
-                      <span className="font-mono text-xs">
-                        {wireRoutingNumber}
-                      </span>
-                      <CopyButton
-                        value={wireRoutingNumber}
-                        label="Wire routing number"
-                      />
+                      <span className="font-mono text-xs">{wireRoutingNumber}</span>
+                      <CopyButton value={wireRoutingNumber} label="Wire routing number" />
                     </div>
                   </div>
                 )}
@@ -390,14 +359,8 @@ export function BankAccount({ data, provider }: Props) {
                         <Loader2 className="h-3 w-3 animate-spin" />
                       ) : details?.accountNumber ? (
                         <>
-                          <MaskedValue
-                            value={details.accountNumber}
-                            revealed={showSensitive}
-                          />
-                          <CopyButton
-                            value={details.accountNumber}
-                            label="Account number"
-                          />
+                          <MaskedValue value={details.accountNumber} revealed={showSensitive} />
+                          <CopyButton value={details.accountNumber} label="Account number" />
                         </>
                       ) : (
                         <span className="text-xs text-[#878787]">—</span>
@@ -408,11 +371,7 @@ export function BankAccount({ data, provider }: Props) {
                         className="h-5 w-5"
                         onClick={() => setShowSensitive(!showSensitive)}
                       >
-                        {showSensitive ? (
-                          <EyeOff className="size-3" />
-                        ) : (
-                          <Eye className="size-3" />
-                        )}
+                        {showSensitive ? <EyeOff className="size-3" /> : <Eye className="size-3" />}
                       </Button>
                     </div>
                   </div>
@@ -440,10 +399,7 @@ export function BankAccount({ data, provider }: Props) {
                     <Loader2 className="h-3 w-3 animate-spin" />
                   ) : details?.iban ? (
                     <>
-                      <MaskedValue
-                        value={details.iban}
-                        revealed={showSensitive}
-                      />
+                      <MaskedValue value={details.iban} revealed={showSensitive} />
                       <CopyButton value={details.iban} label="IBAN" />
                     </>
                   ) : (
@@ -455,11 +411,7 @@ export function BankAccount({ data, provider }: Props) {
                     className="h-5 w-5"
                     onClick={() => setShowSensitive(!showSensitive)}
                   >
-                    {showSensitive ? (
-                      <EyeOff className="size-3" />
-                    ) : (
-                      <Eye className="size-3" />
-                    )}
+                    {showSensitive ? <EyeOff className="size-3" /> : <Eye className="size-3" />}
                   </Button>
                 </div>
               </div>

@@ -14,8 +14,7 @@ export const registerTagTools: RegisterTools = (server, ctx) => {
     "tags_list",
     {
       title: "List Tags",
-      description:
-        "List all tags used for organizing transactions and documents.",
+      description: "List all tags used for organizing transactions and documents.",
       inputSchema: {},
       annotations: READ_ONLY_ANNOTATIONS,
     },

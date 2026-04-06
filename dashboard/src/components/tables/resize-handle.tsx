@@ -8,10 +8,7 @@ interface ResizeHandleProps<TData> {
   className?: string;
 }
 
-export function ResizeHandle<TData>({
-  header,
-  className,
-}: ResizeHandleProps<TData>) {
+export function ResizeHandle<TData>({ header, className }: ResizeHandleProps<TData>) {
   if (!header.column.getCanResize()) {
     return null;
   }

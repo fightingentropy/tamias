@@ -1,9 +1,7 @@
 import { type TransactionStatus } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import { getAccountingSyncStatus } from "../../accounting-sync";
-import {
-  getPendingSuggestionTransactionIdsForTransactions,
-} from "../shared";
+import { getPendingSuggestionTransactionIdsForTransactions } from "../shared";
 import {
   buildProcessedTransactionLookups,
   buildProcessedTransactions,
@@ -14,10 +12,7 @@ import {
   buildTransactionsPageMeta,
   type GetTransactionsParams,
 } from "../reads-shared";
-import {
-  buildAssigneeSortIndex,
-  filterAndSortFallbackTransactions,
-} from "./postfilter";
+import { buildAssigneeSortIndex, filterAndSortFallbackTransactions } from "./postfilter";
 import {
   applyFallbackPrefilters,
   buildFallbackFilterState,
@@ -32,17 +27,12 @@ export async function getFallbackTransactionsPage(
   convexStatusesNotIn: TransactionStatus[],
 ) {
   const { teamId, cursor, pageSize } = params;
-  const {
-    teamMembers,
-    categoryContext,
-    bankAccounts,
-    allTransactions,
-    taggedTransactionIdSet,
-  } = await loadFallbackPageContext({
-    db,
-    params,
-    convexStatusesNotIn,
-  });
+  const { teamMembers, categoryContext, bankAccounts, allTransactions, taggedTransactionIdSet } =
+    await loadFallbackPageContext({
+      db,
+      params,
+      convexStatusesNotIn,
+    });
   const filterState = buildFallbackFilterState({
     params,
     categoryContext,
@@ -60,9 +50,7 @@ export async function getFallbackTransactionsPage(
     });
   }
 
-  const candidateTransactionIds = prefilteredTransactions.map(
-    (transaction) => transaction.id,
-  );
+  const candidateTransactionIds = prefilteredTransactions.map((transaction) => transaction.id);
   const [accountingSyncRecords, pendingSuggestionIds] = await Promise.all([
     getAccountingSyncStatus(db, {
       teamId,
@@ -83,9 +71,7 @@ export async function getFallbackTransactionsPage(
     transactionAttachments: [],
     transactionTagAssignments: [],
   });
-  const assigneeSortIndexById = buildAssigneeSortIndex(
-    baseLookups.assignedUserById,
-  );
+  const assigneeSortIndexById = buildAssigneeSortIndex(baseLookups.assignedUserById);
   const filteredTransactions = filterAndSortFallbackTransactions({
     transactions: prefilteredTransactions,
     params,

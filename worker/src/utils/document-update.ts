@@ -1,8 +1,5 @@
 import type { Database } from "@tamias/app-data/client";
-import {
-  type UpdateDocumentByPathParams,
-  updateDocumentByPath,
-} from "@tamias/app-data/queries";
+import { type UpdateDocumentByPathParams, updateDocumentByPath } from "@tamias/app-data/queries";
 import type { createLoggerWithContext } from "@tamias/logger";
 
 /**

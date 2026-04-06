@@ -42,8 +42,7 @@ export const createWidgetStore = (initialPreferences?: WidgetPreferences) => {
   const initialState = {
     isCustomizing: false,
     primaryWidgets: initialPreferences?.primaryWidgets || ([] as WidgetType[]),
-    availableWidgets:
-      initialPreferences?.availableWidgets || ([] as WidgetType[]),
+    availableWidgets: initialPreferences?.availableWidgets || ([] as WidgetType[]),
     isSaving: false,
   };
 
@@ -52,8 +51,7 @@ export const createWidgetStore = (initialPreferences?: WidgetPreferences) => {
       (set, get) => ({
         ...initialState,
 
-        setIsCustomizing: (isCustomizing) =>
-          set({ isCustomizing }, false, "setIsCustomizing"),
+        setIsCustomizing: (isCustomizing) => set({ isCustomizing }, false, "setIsCustomizing"),
 
         setWidgetPreferences: (preferences) =>
           set(
@@ -75,9 +73,7 @@ export const createWidgetStore = (initialPreferences?: WidgetPreferences) => {
 
         moveToAvailable: (widgetId) => {
           const state = get();
-          const newPrimaryWidgets = state.primaryWidgets.filter(
-            (w) => w !== widgetId,
-          );
+          const newPrimaryWidgets = state.primaryWidgets.filter((w) => w !== widgetId);
           const newAvailableWidgets = [...state.availableWidgets, widgetId];
 
           set(
@@ -90,14 +86,9 @@ export const createWidgetStore = (initialPreferences?: WidgetPreferences) => {
           );
         },
 
-        moveToPrimary: (
-          widgetId: WidgetType,
-          newPrimaryOrder: WidgetType[],
-        ) => {
+        moveToPrimary: (widgetId: WidgetType, newPrimaryOrder: WidgetType[]) => {
           const state = get();
-          const newAvailableWidgets = state.availableWidgets.filter(
-            (w) => w !== widgetId,
-          );
+          const newAvailableWidgets = state.availableWidgets.filter((w) => w !== widgetId);
 
           set(
             {
@@ -117,8 +108,7 @@ export const createWidgetStore = (initialPreferences?: WidgetPreferences) => {
           }
 
           // Remove the last primary widget and the widget from available
-          const lastPrimaryWidget =
-            state.primaryWidgets[state.primaryWidgets.length - 1];
+          const lastPrimaryWidget = state.primaryWidgets[state.primaryWidgets.length - 1];
           if (!lastPrimaryWidget) {
             console.warn("No last primary widget found");
             return;
@@ -155,9 +145,7 @@ export const createWidgetStore = (initialPreferences?: WidgetPreferences) => {
 // Context for the store
 export type WidgetStoreApi = ReturnType<typeof createWidgetStore>;
 
-export const WidgetStoreContext = createContext<WidgetStoreApi | undefined>(
-  undefined,
-);
+export const WidgetStoreContext = createContext<WidgetStoreApi | undefined>(undefined);
 
 // Provider component
 export interface WidgetProviderProps {
@@ -165,10 +153,7 @@ export interface WidgetProviderProps {
   initialPreferences: WidgetPreferences;
 }
 
-export const WidgetProvider = ({
-  children,
-  initialPreferences,
-}: WidgetProviderProps) => {
+export const WidgetProvider = ({ children, initialPreferences }: WidgetProviderProps) => {
   const storeRef = useRef<WidgetStoreApi | null>(null);
 
   if (storeRef.current === null) {
@@ -176,9 +161,7 @@ export const WidgetProvider = ({
   }
 
   return (
-    <WidgetStoreContext.Provider value={storeRef.current}>
-      {children}
-    </WidgetStoreContext.Provider>
+    <WidgetStoreContext.Provider value={storeRef.current}>{children}</WidgetStoreContext.Provider>
   );
 };
 
@@ -194,14 +177,11 @@ export const useWidgetStore = <T,>(selector: (store: WidgetState) => T): T => {
 };
 
 // Selector hooks
-export const useIsCustomizing = () =>
-  useWidgetStore((state) => state.isCustomizing);
+export const useIsCustomizing = () => useWidgetStore((state) => state.isCustomizing);
 
-export const usePrimaryWidgets = () =>
-  useWidgetStore((state) => state.primaryWidgets);
+export const usePrimaryWidgets = () => useWidgetStore((state) => state.primaryWidgets);
 
-export const useAvailableWidgets = () =>
-  useWidgetStore((state) => state.availableWidgets);
+export const useAvailableWidgets = () => useWidgetStore((state) => state.availableWidgets);
 
 export const useWidgetActions = () =>
   useWidgetStore(

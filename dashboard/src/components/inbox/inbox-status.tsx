@@ -3,12 +3,7 @@
 import type { RouterOutputs } from "@tamias/trpc";
 import { Icons } from "@tamias/ui/icons";
 import { Spinner } from "@tamias/ui/spinner";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 
 type Props = {
   item: RouterOutputs["inbox"]["get"]["data"][number];

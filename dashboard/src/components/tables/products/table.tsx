@@ -1,19 +1,8 @@
 "use client";
 
 import { cn } from "@tamias/ui/cn";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@tamias/ui/table";
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@tamias/ui/table";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import {
   flexRender,
   getCoreRowModel,
@@ -80,10 +69,7 @@ export function DataTable() {
                   <TableHead key={header.id}>
                     {header.isPlaceholder
                       ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
+                      : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 );
               })}
@@ -101,9 +87,7 @@ export function DataTable() {
               {row.getVisibleCells().map((cell, index) => (
                 <TableCell
                   key={cell.id}
-                  className={cn(
-                    index === table.getAllColumns().length - 1 && "w-[50px]",
-                  )}
+                  className={cn(index === table.getAllColumns().length - 1 && "w-[50px]")}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>

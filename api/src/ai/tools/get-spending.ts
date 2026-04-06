@@ -27,13 +27,9 @@ const getSpendingSchema = z.object({
 });
 
 export const getSpendingTool = tool({
-  description:
-    "Analyze spending patterns - totals, top transactions, category breakdown.",
+  description: "Analyze spending patterns - totals, top transactions, category breakdown.",
   inputSchema: getSpendingSchema,
-  execute: async function* (
-    { period, from, to, currency, showCanvas },
-    executionOptions,
-  ) {
+  execute: async function* ({ period, from, to, currency, showCanvas }, executionOptions) {
     const appContext = getToolAppContext(executionOptions);
     const teamId = getToolTeamId(appContext);
 
@@ -54,12 +50,11 @@ export const getSpendingTool = tool({
     throwIfBankAccountsRequired(appContext);
 
     try {
-      const { finalFrom, finalTo, finalCurrency, description, locale } =
-        resolveReportToolParams({
-          toolName: "getSpending",
-          appContext,
-          aiParams: { period, from, to, currency },
-        });
+      const { finalFrom, finalTo, finalCurrency, description, locale } = resolveReportToolParams({
+        toolName: "getSpending",
+        appContext,
+        aiParams: { period, from, to, currency },
+      });
       const analysis = startArtifactStream({
         enabled: showCanvas,
         executionOptions,
@@ -77,42 +72,38 @@ export const getSpendingTool = tool({
 
       const currentMonthStart = startOfMonth(new Date());
       const currentMonthEnd = endOfMonth(new Date());
-      const [
-        spendingCategories,
-        periodSummary,
-        transactionsResult,
-        currentMonthSummary,
-      ] = await Promise.all([
-        getSpending(db, {
-          teamId,
-          from: finalFrom,
-          to: finalTo,
-          currency: finalCurrency ?? undefined,
-        }),
-        getSpendingForPeriod(db, {
-          teamId,
-          from: finalFrom,
-          to: finalTo,
-          currency: finalCurrency ?? undefined,
-        }),
-        getTransactionsPage({
-          db,
-          teamId,
-          input: {
-            type: "expense",
-            start: finalFrom,
-            end: finalTo,
-            sort: ["amount", "asc"], // Ascending because expenses are negative, so smallest (most negative) = largest expense
-            pageSize: 10,
-          },
-        }),
-        getSpendingForPeriod(db, {
-          teamId,
-          from: currentMonthStart.toISOString(),
-          to: currentMonthEnd.toISOString(),
-          currency: finalCurrency ?? undefined,
-        }),
-      ]);
+      const [spendingCategories, periodSummary, transactionsResult, currentMonthSummary] =
+        await Promise.all([
+          getSpending(db, {
+            teamId,
+            from: finalFrom,
+            to: finalTo,
+            currency: finalCurrency ?? undefined,
+          }),
+          getSpendingForPeriod(db, {
+            teamId,
+            from: finalFrom,
+            to: finalTo,
+            currency: finalCurrency ?? undefined,
+          }),
+          getTransactionsPage({
+            db,
+            teamId,
+            input: {
+              type: "expense",
+              start: finalFrom,
+              end: finalTo,
+              sort: ["amount", "asc"], // Ascending because expenses are negative, so smallest (most negative) = largest expense
+              pageSize: 10,
+            },
+          }),
+          getSpendingForPeriod(db, {
+            teamId,
+            from: currentMonthStart.toISOString(),
+            to: currentMonthEnd.toISOString(),
+            currency: finalCurrency ?? undefined,
+          }),
+        ]);
 
       const totalSpending = periodSummary.totalSpending;
       const topCategory = periodSummary.topCategory;
@@ -142,8 +133,7 @@ export const getSpendingTool = tool({
         (toDate.getFullYear() - fromDate.getFullYear()) * 12 +
         (toDate.getMonth() - fromDate.getMonth()) +
         1;
-      const averageMonthlySpending =
-        monthsDiff > 0 ? totalSpending / monthsDiff : totalSpending;
+      const averageMonthlySpending = monthsDiff > 0 ? totalSpending / monthsDiff : totalSpending;
 
       const currentMonthSpending = currentMonthSummary.totalSpending;
 
@@ -278,23 +268,19 @@ Provide a concise analysis (2-3 sentences) of the key spending patterns and tren
       let responseText_output = `**Total Spending:** ${formattedTotalSpending}\n\n`;
 
       if (topCategory) {
-        responseText_output += `**Top Category:** ${topCategory.name} - ${formatAmount(
-          {
-            amount: topCategory.amount,
-            currency: targetCurrency,
-            locale,
-          },
-        )} (${topCategory.percentage.toFixed(1)}% of total)\n\n`;
+        responseText_output += `**Top Category:** ${topCategory.name} - ${formatAmount({
+          amount: topCategory.amount,
+          currency: targetCurrency,
+          locale,
+        })} (${topCategory.percentage.toFixed(1)}% of total)\n\n`;
       }
 
       // Only show detailed transaction table, summary, and recommendations if canvas is not shown
       if (!showCanvas) {
         if (formattedTransactions.length > 0) {
           responseText_output += `**Top ${formattedTransactions.length} Largest Transactions:**\n\n`;
-          responseText_output +=
-            "| Date | Vendor | Category | Amount | Share |\n";
-          responseText_output +=
-            "|------|--------|----------|--------|------|\n";
+          responseText_output += "| Date | Vendor | Category | Amount | Share |\n";
+          responseText_output += "|------|--------|----------|--------|------|\n";
 
           for (const transaction of formattedTransactions) {
             const formattedAmount = formatAmount({

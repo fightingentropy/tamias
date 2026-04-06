@@ -77,11 +77,7 @@ export function CustomerDetails() {
 
   return (
     <div>
-      <LabelInput
-        name="template.customerLabel"
-        className="mb-2 block"
-        onSave={handleLabelSave}
-      />
+      <LabelInput name="template.customerLabel" className="mb-2 block" onSave={handleLabelSave} />
       {content ? (
         <Controller
           name="customerDetails"

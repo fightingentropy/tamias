@@ -3,16 +3,10 @@ import type { z } from "zod/v4";
 import { receiptConfig } from "../../config/extraction-config";
 import type { GetDocumentRequest } from "../../types";
 import { extractWebsite } from "../../utils";
-import {
-  applyReceiptFixes,
-  validateReceiptConsistency,
-} from "../../utils/cross-field-validation";
+import { applyReceiptFixes, validateReceiptConsistency } from "../../utils/cross-field-validation";
 import type { DocumentFormat } from "../../utils/format-detection";
 import { detectReceiptFormat } from "../../utils/format-detection";
-import {
-  calculateReceiptExtractionConfidence,
-  mergeReceiptResults,
-} from "../../utils/merging";
+import { calculateReceiptExtractionConfidence, mergeReceiptResults } from "../../utils/merging";
 import {
   calculateReceiptQualityScore,
   getReceiptFieldsNeedingReExtraction,
@@ -21,9 +15,7 @@ import { BaseExtractionEngine } from "../base-extraction-engine";
 
 type ReceiptData = z.infer<typeof receiptConfig.schema>;
 
-export class ReceiptProcessor extends BaseExtractionEngine<
-  typeof receiptConfig.schema
-> {
+export class ReceiptProcessor extends BaseExtractionEngine<typeof receiptConfig.schema> {
   constructor() {
     super(receiptConfig, createLoggerWithContext("ReceiptProcessor"));
   }
@@ -45,10 +37,7 @@ export class ReceiptProcessor extends BaseExtractionEngine<
     return getReceiptFieldsNeedingReExtraction(result);
   }
 
-  protected mergeResults(
-    primary: ReceiptData,
-    secondary: Partial<ReceiptData>,
-  ): ReceiptData {
+  protected mergeResults(primary: ReceiptData, secondary: Partial<ReceiptData>): ReceiptData {
     return mergeReceiptResults(primary, secondary);
   }
 
@@ -95,12 +84,7 @@ export class ReceiptProcessor extends BaseExtractionEngine<
     primaryConfidence: number,
     secondaryConfidence: number,
   ): ReceiptData {
-    return mergeReceiptResults(
-      primary,
-      secondary,
-      primaryConfidence,
-      secondaryConfidence,
-    );
+    return mergeReceiptResults(primary, secondary, primaryConfidence, secondaryConfidence);
   }
 
   async #getWebsite({

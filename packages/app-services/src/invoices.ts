@@ -33,10 +33,7 @@ export async function getInvoiceByIdForTeam(args: {
   });
 }
 
-export async function getInvoicePaymentStatusForTeam(args: {
-  db: Database;
-  teamId: string;
-}) {
+export async function getInvoicePaymentStatusForTeam(args: { db: Database; teamId: string }) {
   return getPaymentStatus(args.db, args.teamId);
 }
 

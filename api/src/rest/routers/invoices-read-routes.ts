@@ -18,10 +18,7 @@ import {
 import { validateResponse } from "../../utils/validate-response";
 import { withRequiredScope } from "../middleware";
 import type { Context } from "../types";
-import {
-  serializeInvoiceForRest,
-  serializeInvoicePageForRest,
-} from "./invoices-shared";
+import { serializeInvoiceForRest, serializeInvoicePageForRest } from "./invoices-shared";
 
 export function registerInvoiceReadRoutes(app: OpenAPIHono<Context>) {
   app.openapi(
@@ -64,12 +61,7 @@ export function registerInvoiceReadRoutes(app: OpenAPIHono<Context>) {
         },
       });
 
-      return c.json(
-        validateResponse(
-          serializeInvoicePageForRest(result),
-          invoicesResponseSchema,
-        ),
-      );
+      return c.json(validateResponse(serializeInvoicePageForRest(result), invoicesResponseSchema));
     },
   );
 
@@ -148,16 +140,14 @@ export function registerInvoiceReadRoutes(app: OpenAPIHono<Context>) {
       summary: "Retrieve a invoice",
       operationId: "getInvoiceById",
       "x-speakeasy-name-override": "get",
-      description:
-        "Retrieve a invoice by its unique identifier for the authenticated team.",
+      description: "Retrieve a invoice by its unique identifier for the authenticated team.",
       tags: ["Invoices"],
       request: {
         params: getInvoiceByIdSchema.pick({ id: true }),
       },
       responses: {
         200: {
-          description:
-            "Retrieve a invoice by its unique identifier for the authenticated team.",
+          description: "Retrieve a invoice by its unique identifier for the authenticated team.",
           content: {
             "application/json": {
               schema: invoiceResponseSchema,
@@ -182,12 +172,7 @@ export function registerInvoiceReadRoutes(app: OpenAPIHono<Context>) {
         throw new HTTPException(404, { message: "Invoice not found" });
       }
 
-      return c.json(
-        validateResponse(
-          serializeInvoiceForRest(result),
-          invoiceResponseSchema,
-        ),
-      );
+      return c.json(validateResponse(serializeInvoiceForRest(result), invoiceResponseSchema));
     },
   );
 }

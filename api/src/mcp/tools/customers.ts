@@ -1,8 +1,5 @@
 import { deleteCustomer, upsertCustomer } from "@tamias/app-data/queries";
-import {
-  getCustomerByIdForTeam,
-  getCustomersPage,
-} from "@tamias/app-services/customers";
+import { getCustomerByIdForTeam, getCustomersPage } from "@tamias/app-services/customers";
 import { z } from "zod";
 import {
   deleteCustomerSchema,
@@ -160,8 +157,7 @@ export const registerCustomerTools: RegisterTools = (server, ctx) => {
       "customers_update",
       {
         title: "Update Customer",
-        description:
-          "Update an existing customer. Provide the customer ID and fields to update.",
+        description: "Update an existing customer. Provide the customer ID and fields to update.",
         inputSchema: {
           id: z.string().uuid().describe("The ID of the customer to update"),
           name: upsertCustomerSchema.shape.name.optional(),
@@ -245,11 +241,7 @@ export const registerCustomerTools: RegisterTools = (server, ctx) => {
             content: [
               {
                 type: "text",
-                text: JSON.stringify(
-                  { success: true, deleted: result },
-                  null,
-                  2,
-                ),
+                text: JSON.stringify({ success: true, deleted: result }, null, 2),
               },
             ],
           };
@@ -258,10 +250,7 @@ export const registerCustomerTools: RegisterTools = (server, ctx) => {
             content: [
               {
                 type: "text",
-                text:
-                  error instanceof Error
-                    ? error.message
-                    : "Failed to delete customer",
+                text: error instanceof Error ? error.message : "Failed to delete customer",
               },
             ],
             isError: true,

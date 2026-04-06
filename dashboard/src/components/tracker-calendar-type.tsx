@@ -33,11 +33,7 @@ export function TrackerCalendarType({ selectedView }: Props) {
   };
 
   return (
-    <Tabs
-      value={selectedView}
-      onValueChange={handleChange}
-      className="h-[36px]"
-    >
+    <Tabs value={selectedView} onValueChange={handleChange} className="h-[36px]">
       <div className="relative flex items-stretch bg-[#f7f7f7] dark:bg-[#131313] w-fit">
         <TabsList className="flex items-stretch h-auto p-0 bg-transparent h-[36px]">
           {options.map((option) => (

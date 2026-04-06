@@ -358,8 +358,7 @@ export const GOLDEN_DATASET: GoldenMatch[] = [
   // PURPOSE: Regression testing to ensure algorithm changes don't break known good cases
   {
     id: "real-vercel-cross-currency",
-    description:
-      "Real production example: Vercel invoice USD to SEK payment (regression baseline)",
+    description: "Real production example: Vercel invoice USD to SEK payment (regression baseline)",
     inbox: {
       displayName: "Vercel Inc.",
       amount: 260.18,
@@ -386,15 +385,13 @@ export const GOLDEN_DATASET: GoldenMatch[] = [
     },
     matchType: "perfect_match", // USD invoice to SEK payment with base amounts
     category: "medium_amount",
-    notes:
-      "Real production data - cross-currency conversion already handled by base amounts",
+    notes: "Real production data - cross-currency conversion already handled by base amounts",
   },
 
   // More regression test cases for common patterns
   {
     id: "recurring-subscription-exact",
-    description:
-      "Recurring subscription - exact monthly match (regression baseline)",
+    description: "Recurring subscription - exact monthly match (regression baseline)",
     inbox: {
       displayName: "Netflix",
       amount: 149,
@@ -450,8 +447,7 @@ export const GOLDEN_DATASET: GoldenMatch[] = [
 
   {
     id: "small-fee-mismatch",
-    description:
-      "Small transaction fee causing amount mismatch (regression baseline)",
+    description: "Small transaction fee causing amount mismatch (regression baseline)",
     inbox: {
       displayName: "Stripe Payment",
       amount: 100,
@@ -508,8 +504,7 @@ export const GOLDEN_DATASET: GoldenMatch[] = [
   // Additional edge cases based on production patterns
   {
     id: "old-inbox-item",
-    description:
-      "Old inbox item (90+ days) - should eventually be marked no_match",
+    description: "Old inbox item (90+ days) - should eventually be marked no_match",
     inbox: {
       displayName: "Ancient Invoice Co",
       amount: 5000,
@@ -532,14 +527,12 @@ export const GOLDEN_DATASET: GoldenMatch[] = [
     },
     matchType: "perfect_match", // Dates match, just conceptually old
     category: "large_amount",
-    notes:
-      "Scoring should be high — the scheduler handles inbox age expiration separately",
+    notes: "Scoring should be high — the scheduler handles inbox age expiration separately",
   },
 
   {
     id: "duplicate-merchant-name",
-    description:
-      "Multiple transactions from same merchant - disambiguation challenge",
+    description: "Multiple transactions from same merchant - disambiguation challenge",
     inbox: {
       displayName: "Amazon Web Services",
       amount: 125.5,
@@ -562,8 +555,7 @@ export const GOLDEN_DATASET: GoldenMatch[] = [
     },
     matchType: "amount_mismatch",
     category: "medium_amount",
-    notes:
-      "Same merchant, same date, different amounts - common AWS/subscription scenario",
+    notes: "Same merchant, same date, different amounts - common AWS/subscription scenario",
   },
 
   {
@@ -591,17 +583,12 @@ export const GOLDEN_DATASET: GoldenMatch[] = [
     },
     matchType: "perfect_match",
     category: "small_amount", // Very small amount
-    notes:
-      "Very small amounts (near-zero) are valid - refunds, corrections, etc.",
+    notes: "Very small amounts (near-zero) are valid - refunds, corrections, etc.",
   },
 ];
 
 // Helper function to capture current algorithm scores for regression testing
-export function captureAlgorithmBaseline(
-  _inbox: any,
-  _transaction: any,
-  nameScore = 0.85,
-): any {
+export function captureAlgorithmBaseline(_inbox: any, _transaction: any, nameScore = 0.85): any {
   console.log("To capture baseline for new case:");
   console.log("1. Run the algorithm with this data");
   console.log("2. Copy the actual scores as expectedScores");
@@ -710,14 +697,10 @@ export function validateGoldenDataset(): { valid: boolean; errors: string[] } {
     // Validate cross-currency requirements
     if (item.matchType === "cross_currency") {
       if (item.inbox.currency === item.transaction.currency) {
-        errors.push(
-          `Item ${item.id}: Cross-currency match should have different currencies`,
-        );
+        errors.push(`Item ${item.id}: Cross-currency match should have different currencies`);
       }
       if (!item.inbox.baseAmount || !item.transaction.baseAmount) {
-        errors.push(
-          `Item ${item.id}: Cross-currency match should have base amounts`,
-        );
+        errors.push(`Item ${item.id}: Cross-currency match should have base amounts`);
       }
     }
   });
@@ -733,57 +716,33 @@ export function getDatasetStats() {
   const stats = {
     total: GOLDEN_DATASET.length,
     byFeedback: {
-      confirmed: GOLDEN_DATASET.filter(
-        (item) => item.userFeedback === "confirmed",
-      ).length,
-      declined: GOLDEN_DATASET.filter(
-        (item) => item.userFeedback === "declined",
-      ).length,
-      unmatched: GOLDEN_DATASET.filter(
-        (item) => item.userFeedback === "unmatched",
-      ).length,
+      confirmed: GOLDEN_DATASET.filter((item) => item.userFeedback === "confirmed").length,
+      declined: GOLDEN_DATASET.filter((item) => item.userFeedback === "declined").length,
+      unmatched: GOLDEN_DATASET.filter((item) => item.userFeedback === "unmatched").length,
     },
     byMatchType: {
-      perfect_match: GOLDEN_DATASET.filter(
-        (item) => item.matchType === "perfect_match",
-      ).length,
-      cross_currency: GOLDEN_DATASET.filter(
-        (item) => item.matchType === "cross_currency",
-      ).length,
-      false_positive: GOLDEN_DATASET.filter(
-        (item) => item.matchType === "false_positive",
-      ).length,
-      date_mismatch: GOLDEN_DATASET.filter(
-        (item) => item.matchType === "date_mismatch",
-      ).length,
-      amount_mismatch: GOLDEN_DATASET.filter(
-        (item) => item.matchType === "amount_mismatch",
-      ).length,
+      perfect_match: GOLDEN_DATASET.filter((item) => item.matchType === "perfect_match").length,
+      cross_currency: GOLDEN_DATASET.filter((item) => item.matchType === "cross_currency").length,
+      false_positive: GOLDEN_DATASET.filter((item) => item.matchType === "false_positive").length,
+      date_mismatch: GOLDEN_DATASET.filter((item) => item.matchType === "date_mismatch").length,
+      amount_mismatch: GOLDEN_DATASET.filter((item) => item.matchType === "amount_mismatch").length,
     },
     byCategory: {
-      small_amount: GOLDEN_DATASET.filter(
-        (item) => item.category === "small_amount",
-      ).length,
-      medium_amount: GOLDEN_DATASET.filter(
-        (item) => item.category === "medium_amount",
-      ).length,
-      large_amount: GOLDEN_DATASET.filter(
-        (item) => item.category === "large_amount",
-      ).length,
+      small_amount: GOLDEN_DATASET.filter((item) => item.category === "small_amount").length,
+      medium_amount: GOLDEN_DATASET.filter((item) => item.category === "medium_amount").length,
+      large_amount: GOLDEN_DATASET.filter((item) => item.category === "large_amount").length,
     },
     avgConfidenceByFeedback: {
       confirmed:
-        GOLDEN_DATASET.filter(
-          (item) => item.userFeedback === "confirmed",
-        ).reduce((sum, item) => sum + item.expectedScores.confidenceScore, 0) /
-        GOLDEN_DATASET.filter((item) => item.userFeedback === "confirmed")
-          .length,
+        GOLDEN_DATASET.filter((item) => item.userFeedback === "confirmed").reduce(
+          (sum, item) => sum + item.expectedScores.confidenceScore,
+          0,
+        ) / GOLDEN_DATASET.filter((item) => item.userFeedback === "confirmed").length,
       declined:
-        GOLDEN_DATASET.filter(
-          (item) => item.userFeedback === "declined",
-        ).reduce((sum, item) => sum + item.expectedScores.confidenceScore, 0) /
-        GOLDEN_DATASET.filter((item) => item.userFeedback === "declined")
-          .length,
+        GOLDEN_DATASET.filter((item) => item.userFeedback === "declined").reduce(
+          (sum, item) => sum + item.expectedScores.confidenceScore,
+          0,
+        ) / GOLDEN_DATASET.filter((item) => item.userFeedback === "declined").length,
     },
   };
 

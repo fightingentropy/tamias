@@ -27,11 +27,7 @@ export function Meta({
 }: MetaProps) {
   return (
     <View>
-      <Text
-        style={{ fontSize: 21, fontWeight: 500, marginBottom: 8, maxLines: 2 }}
-      >
-        {title}
-      </Text>
+      <Text style={{ fontSize: 21, fontWeight: 500, marginBottom: 8, maxLines: 2 }}>{title}</Text>
       <View style={{ flexDirection: "column", gap: 4 }}>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <Text style={{ fontSize: 9, fontWeight: 500, marginRight: 2 }}>

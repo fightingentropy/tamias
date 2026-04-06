@@ -48,8 +48,7 @@ export function ChatStatusIndicators({
   const toolMessage = getToolMessage(currentToolCall);
 
   // Determine artifact type from tool name or use provided artifact type
-  const resolvedArtifactType =
-    artifactType || getArtifactTypeFromTool(currentToolCall);
+  const resolvedArtifactType = artifactType || getArtifactTypeFromTool(currentToolCall);
   const isStreaming = status === "streaming" || status === "submitted";
 
   // Show artifact status when:
@@ -69,10 +68,7 @@ export function ChatStatusIndicators({
       resolvedArtifactType,
       currentSection ?? null,
     );
-    const stageMessage = getArtifactStageMessageForStatus(
-      resolvedArtifactType,
-      artifactStage,
-    );
+    const stageMessage = getArtifactStageMessageForStatus(resolvedArtifactType, artifactStage);
     displayMessage = sectionMessage || stageMessage;
   } else {
     // Default behavior: prioritize tool message over agent status
@@ -91,10 +87,7 @@ export function ChatStatusIndicators({
 
   const toolIcon = currentToolCall
     ? getToolIcon(currentToolCall)
-    : displayMessage &&
-        artifactStage &&
-        artifactStage !== "analysis_ready" &&
-        resolvedArtifactType
+    : displayMessage && artifactStage && artifactStage !== "analysis_ready" && resolvedArtifactType
       ? getToolIcon(getToolNameForArtifact(resolvedArtifactType) || "")
       : null;
 
@@ -110,9 +103,7 @@ export function ChatStatusIndicators({
       />
 
       {((agentStatus && !getStatusMessage(agentStatus)) ||
-        (status === "submitted" && !agentStatus && !currentToolCall)) && (
-        <Loader />
-      )}
+        (status === "submitted" && !agentStatus && !currentToolCall)) && <Loader />}
     </div>
   );
 }

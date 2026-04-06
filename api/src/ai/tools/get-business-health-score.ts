@@ -27,10 +27,7 @@ export const getBusinessHealthScoreTool = tool({
   description:
     "Calculate business health score (0-100) - composite score based on revenue, expenses, cash flow, and profitability metrics.",
   inputSchema: getBusinessHealthScoreSchema,
-  execute: async function* (
-    { period, from, to, currency, showCanvas },
-    executionOptions,
-  ) {
+  execute: async function* ({ period, from, to, currency, showCanvas }, executionOptions) {
     const appContext = getToolAppContext(executionOptions);
     const teamId = getToolTeamId(appContext);
 
@@ -47,12 +44,11 @@ export const getBusinessHealthScoreTool = tool({
     throwIfBankAccountsRequired(appContext);
 
     try {
-      const { finalFrom, finalTo, finalCurrency, description } =
-        resolveReportToolParams({
-          toolName: "getBusinessHealthScore",
-          appContext,
-          aiParams: { period, from, to, currency },
-        });
+      const { finalFrom, finalTo, finalCurrency, description } = resolveReportToolParams({
+        toolName: "getBusinessHealthScore",
+        appContext,
+        aiParams: { period, from, to, currency },
+      });
       const analysis = startArtifactStream({
         enabled: showCanvas,
         executionOptions,
@@ -69,38 +65,37 @@ export const getBusinessHealthScoreTool = tool({
       const targetCurrency = finalCurrency || "USD";
 
       // Fetch all required data in parallel
-      const [revenueResult, expensesResult, cashFlowResult, profitResult] =
-        await Promise.all([
-          getReports(db, {
-            teamId,
-            from: finalFrom,
-            to: finalTo,
-            currency: finalCurrency ?? undefined,
-            type: "revenue",
-            revenueType: "net",
-          }),
-          getExpenses(db, {
-            teamId,
-            from: finalFrom,
-            to: finalTo,
-            currency: finalCurrency ?? undefined,
-          }),
-          getCashFlow(db, {
-            teamId,
-            from: finalFrom,
-            to: finalTo,
-            currency: finalCurrency ?? undefined,
-            period: "monthly",
-          }),
-          getReports(db, {
-            teamId,
-            from: finalFrom,
-            to: finalTo,
-            currency: finalCurrency ?? undefined,
-            type: "profit",
-            revenueType: "net",
-          }),
-        ]);
+      const [revenueResult, expensesResult, cashFlowResult, profitResult] = await Promise.all([
+        getReports(db, {
+          teamId,
+          from: finalFrom,
+          to: finalTo,
+          currency: finalCurrency ?? undefined,
+          type: "revenue",
+          revenueType: "net",
+        }),
+        getExpenses(db, {
+          teamId,
+          from: finalFrom,
+          to: finalTo,
+          currency: finalCurrency ?? undefined,
+        }),
+        getCashFlow(db, {
+          teamId,
+          from: finalFrom,
+          to: finalTo,
+          currency: finalCurrency ?? undefined,
+          period: "monthly",
+        }),
+        getReports(db, {
+          teamId,
+          from: finalFrom,
+          to: finalTo,
+          currency: finalCurrency ?? undefined,
+          type: "profit",
+          revenueType: "net",
+        }),
+      ]);
 
       const revenueData = revenueResult.result || [];
       const expensesData = expensesResult.result || [];
@@ -132,16 +127,12 @@ export const getBusinessHealthScoreTool = tool({
           : 0;
       const revenueVariance =
         revenueValues.length > 0
-          ? revenueValues.reduce(
-              (sum, val) => sum + (val - avgRevenue) ** 2,
-              0,
-            ) / revenueValues.length
+          ? revenueValues.reduce((sum, val) => sum + (val - avgRevenue) ** 2, 0) /
+            revenueValues.length
           : 0;
       const revenueStdDev = Math.sqrt(revenueVariance);
       const revenueConsistency =
-        avgRevenue > 0
-          ? Math.max(0, 100 - (revenueStdDev / avgRevenue) * 100)
-          : 0;
+        avgRevenue > 0 ? Math.max(0, 100 - (revenueStdDev / avgRevenue) * 100) : 0;
 
       const revenueScore = Math.min(
         100,
@@ -156,41 +147,28 @@ export const getBusinessHealthScoreTool = tool({
       // Calculate Expense Score (0-100)
       // Based on: expense ratio, expense growth, and control
       const currentExpenses =
-        expensesData.length > 0
-          ? expensesData.reduce((sum, item) => sum + item.value, 0)
-          : 0;
-      const expenseRatio =
-        currentRevenue > 0 ? (currentExpenses / currentRevenue) * 100 : 100;
+        expensesData.length > 0 ? expensesData.reduce((sum, item) => sum + item.value, 0) : 0;
+      const expenseRatio = currentRevenue > 0 ? (currentExpenses / currentRevenue) * 100 : 100;
       const expenseScore = Math.max(0, Math.min(100, 100 - expenseRatio * 0.8)); // Lower expense ratio = higher score
 
       // Calculate Cash Flow Score (0-100)
       // Based on: positive cash flow months, average cash flow, consistency
-      const positiveCashFlowMonths = last12MonthsCashFlow.filter(
-        (m) => m.netCashFlow > 0,
-      ).length;
+      const positiveCashFlowMonths = last12MonthsCashFlow.filter((m) => m.netCashFlow > 0).length;
       const cashFlowPositivity =
-        (positiveCashFlowMonths / Math.max(1, last12MonthsCashFlow.length)) *
-        100;
+        (positiveCashFlowMonths / Math.max(1, last12MonthsCashFlow.length)) * 100;
       const avgCashFlow =
         last12MonthsCashFlow.length > 0
           ? last12MonthsCashFlow.reduce((sum, m) => sum + m.netCashFlow, 0) /
             last12MonthsCashFlow.length
           : 0;
-      const cashFlowMagnitude = Math.min(
-        100,
-        Math.max(0, (avgCashFlow > 0 ? 1 : 0) * 100),
-      );
-      const cashFlowScore = Math.min(
-        100,
-        cashFlowPositivity * 0.6 + cashFlowMagnitude * 0.4,
-      );
+      const cashFlowMagnitude = Math.min(100, Math.max(0, (avgCashFlow > 0 ? 1 : 0) * 100));
+      const cashFlowScore = Math.min(100, cashFlowPositivity * 0.6 + cashFlowMagnitude * 0.4);
 
       // Calculate Profitability Score (0-100)
       // Based on: profit margin, profit growth, profitability consistency
       const currentProfit = profitResult.summary.currentTotal;
       const prevProfit = profitResult.summary.prevTotal;
-      const profitMargin =
-        currentRevenue > 0 ? (currentProfit / currentRevenue) * 100 : 0;
+      const profitMargin = currentRevenue > 0 ? (currentProfit / currentRevenue) * 100 : 0;
       const profitGrowth =
         prevProfit !== 0
           ? ((currentProfit - prevProfit) / Math.abs(prevProfit)) * 100
@@ -223,15 +201,9 @@ export const getBusinessHealthScoreTool = tool({
       }).slice(-12);
 
       // Create maps for quick lookup
-      const revenueMap = new Map(
-        last12Months.map((m) => [m.date, m.current.value]),
-      );
-      const expensesMap = new Map(
-        last12MonthsExpenses.map((m) => [m.date, m.value]),
-      );
-      const cashFlowMap = new Map(
-        last12MonthsCashFlow.map((m) => [m.date, m.netCashFlow]),
-      );
+      const revenueMap = new Map(last12Months.map((m) => [m.date, m.current.value]));
+      const expensesMap = new Map(last12MonthsExpenses.map((m) => [m.date, m.value]));
+      const cashFlowMap = new Map(last12MonthsCashFlow.map((m) => [m.date, m.netCashFlow]));
 
       // Calculate monthly health scores
       const monthlyHealthScores = monthSeries.map((month) => {
@@ -244,14 +216,10 @@ export const getBusinessHealthScoreTool = tool({
         // Calculate monthly component scores
         const monthRevenueScore = monthRevenue > 0 ? 50 : 0;
         const monthExpenseScore =
-          monthRevenue > 0
-            ? Math.max(0, 100 - (monthExpenses / monthRevenue) * 100)
-            : 50;
+          monthRevenue > 0 ? Math.max(0, 100 - (monthExpenses / monthRevenue) * 100) : 50;
         const monthCashFlowScore = monthCashFlow > 0 ? 75 : 25;
         const monthProfitabilityScore =
-          monthRevenue > 0
-            ? Math.max(0, (monthProfit / monthRevenue) * 100)
-            : 0;
+          monthRevenue > 0 ? Math.max(0, (monthProfit / monthRevenue) * 100) : 0;
 
         const monthHealthScore = Math.round(
           monthRevenueScore * 0.25 +

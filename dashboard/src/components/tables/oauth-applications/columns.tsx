@@ -13,20 +13,14 @@ import {
   DropdownMenuTrigger,
 } from "@tamias/ui/dropdown-menu";
 import { Icons } from "@tamias/ui/icons";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { format } from "date-fns";
 import { useCopyToClipboard } from "usehooks-ts";
 import { useOAuthApplicationParams } from "@/hooks/use-oauth-application-params";
 import { DeleteOAuthApplicationModal } from "../../modals/delete-oauth-application-modal";
 import { OAuthApplicationStatusBadge } from "../../oauth-application-status-badge";
 
-type OAuthApplication =
-  RouterOutputs["oauthApplications"]["list"]["data"][number];
+type OAuthApplication = RouterOutputs["oauthApplications"]["list"]["data"][number];
 
 export const columns: ColumnDef<OAuthApplication>[] = [
   {
@@ -37,11 +31,7 @@ export const columns: ColumnDef<OAuthApplication>[] = [
       return (
         <div className="flex items-center space-x-2">
           {row.original.logoUrl && (
-            <img
-              src={row.original.logoUrl}
-              alt={row.original.name}
-              className="h-6 w-6"
-            />
+            <img src={row.original.logoUrl} alt={row.original.name} className="h-6 w-6" />
           )}
           <span className="font-medium">{row.original.name}</span>
         </div>

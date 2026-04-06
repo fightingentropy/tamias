@@ -261,9 +261,7 @@ export function selectPrimaryAction(slots: InsightSlots): PrimaryAction | null {
 
   // Priority 2: Draft invoices ready to send
   if (slots.hasDrafts && slots.drafts.length > 0) {
-    const topDraft = slots.drafts.reduce((max, d) =>
-      d.rawAmount > max.rawAmount ? d : max,
-    );
+    const topDraft = slots.drafts.reduce((max, d) => (d.rawAmount > max.rawAmount ? d : max));
     return {
       type: "draft",
       description: `Send the ${topDraft.amount} draft invoice to ${topDraft.company}`,
@@ -492,14 +490,10 @@ export function computeSlots(
   },
 ): InsightSlots {
   // Extract metrics
-  const profitMetric = metrics.find(
-    (m) => m.type === "net_profit" || m.type === "profit",
-  );
+  const profitMetric = metrics.find((m) => m.type === "net_profit" || m.type === "profit");
   const revenueMetric = metrics.find((m) => m.type === "revenue");
   const expensesMetric = metrics.find((m) => m.type === "expenses");
-  const marginMetric = metrics.find(
-    (m) => m.type === "profit_margin" || m.type === "margin",
-  );
+  const marginMetric = metrics.find((m) => m.type === "profit_margin" || m.type === "margin");
   const cashFlowMetric = metrics.find((m) => m.type === "cash_flow");
   const runwayMetric = metrics.find((m) => m.type === "runway_months");
 
@@ -536,9 +530,7 @@ export function computeSlots(
     revenueRaw = impliedRevenue;
   }
 
-  const marginRaw =
-    marginMetric?.value ??
-    (revenueRaw > 0 ? (profitRaw / revenueRaw) * 100 : 0);
+  const marginRaw = marginMetric?.value ?? (revenueRaw > 0 ? (profitRaw / revenueRaw) * 100 : 0);
   const cashFlowRaw = cashFlowMetric?.value ?? 0;
   const runway = context?.runwayMonths ?? runwayMetric?.value ?? 0;
 
@@ -547,9 +539,7 @@ export function computeSlots(
   let runwayExhaustionDate: string | undefined;
   if (runway > 0 && runway < 24) {
     // Only show date if runway is meaningful (< 2 years)
-    const baseDate = context?.periodEnd
-      ? new Date(context.periodEnd)
-      : new Date();
+    const baseDate = context?.periodEnd ? new Date(context.periodEnd) : new Date();
     const exhaustionDate = new Date(baseDate);
     exhaustionDate.setDate(exhaustionDate.getDate() + Math.round(runway * 30));
     // Format as "September 15, 2026"
@@ -594,12 +584,9 @@ export function computeSlots(
   );
 
   // Historical context
-  const historicalContext =
-    profitMetric?.historicalContext || revenueMetric?.historicalContext;
+  const historicalContext = profitMetric?.historicalContext || revenueMetric?.historicalContext;
   const isPersonalBest =
-    historicalContext?.includes("best") ||
-    historicalContext?.includes("ever") ||
-    false;
+    historicalContext?.includes("best") || historicalContext?.includes("ever") || false;
 
   // Week type
   const weekType = determineWeekType(
@@ -624,9 +611,7 @@ export function computeSlots(
     })) ?? [];
   const largestOverdue =
     overdue.length > 0
-      ? overdue.reduce((max, inv) =>
-          inv.rawAmount > max.rawAmount ? inv : max,
-        )
+      ? overdue.reduce((max, inv) => (inv.rawAmount > max.rawAmount ? inv : max))
       : undefined;
 
   // Money on table - Drafts
@@ -660,11 +645,7 @@ export function computeSlots(
   let quarterPace: string | undefined;
   const qp = context?.quarterPace;
   if (qp && qp.projectedRevenue > 0) {
-    const projectedFormatted = formatMetricValue(
-      qp.projectedRevenue,
-      "currency",
-      currency,
-    );
+    const projectedFormatted = formatMetricValue(qp.projectedRevenue, "currency", currency);
     if (qp.hasComparison && qp.vsLastYearPercent !== 0) {
       const dir = qp.vsLastYearPercent > 0 ? "ahead of" : "behind";
       const pct = Math.abs(qp.vsLastYearPercent);
@@ -679,11 +660,7 @@ export function computeSlots(
 
   // Process expense anomalies - only significant spikes (>50% increase)
   const expenseSpikes: ExpenseSpikeSlot[] = (context?.expenseAnomalies ?? [])
-    .filter(
-      (ea) =>
-        (ea.type === "category_spike" && ea.change >= 50) ||
-        ea.type === "new_category",
-    )
+    .filter((ea) => (ea.type === "category_spike" && ea.change >= 50) || ea.type === "new_category")
     .slice(0, 2) // Max 2 spikes for actions
     .map((ea) => ({
       category: ea.categoryName,
@@ -695,8 +672,7 @@ export function computeSlots(
 
   // Process revenue concentration warning
   const concentrationWarning: ConcentrationWarning | undefined =
-    context?.revenueConcentration?.isConcentrated &&
-    context.revenueConcentration.topCustomer
+    context?.revenueConcentration?.isConcentrated && context.revenueConcentration.topCustomer
       ? {
           customerName: context.revenueConcentration.topCustomer.name,
           percentage: context.revenueConcentration.topCustomer.percentage,
@@ -718,11 +694,7 @@ export function computeSlots(
     largestPayment: activity.largestPayment
       ? {
           customer: activity.largestPayment.customer,
-          amount: formatMetricValue(
-            activity.largestPayment.amount,
-            "currency",
-            currency,
-          ),
+          amount: formatMetricValue(activity.largestPayment.amount, "currency", currency),
         }
       : undefined,
     yoyProfit,
@@ -774,8 +746,7 @@ export function computeSlots(
     // Overdue
     hasOverdue: overdue.length > 0,
     overdueTotal: formatMetricValue(
-      moneyOnTable?.overdueInvoices.reduce((sum, inv) => sum + inv.amount, 0) ??
-        0,
+      moneyOnTable?.overdueInvoices.reduce((sum, inv) => sum + inv.amount, 0) ?? 0,
       "currency",
       currency,
     ),
@@ -786,8 +757,7 @@ export function computeSlots(
     // Drafts
     hasDrafts: drafts.length > 0,
     draftsTotal: formatMetricValue(
-      moneyOnTable?.draftInvoices.reduce((sum, inv) => sum + inv.amount, 0) ??
-        0,
+      moneyOnTable?.draftInvoices.reduce((sum, inv) => sum + inv.amount, 0) ?? 0,
       "currency",
       currency,
     ),
@@ -809,18 +779,13 @@ export function computeSlots(
     // Activity (with pre-computed change descriptions from allMetrics)
     invoicesPaid: activity.invoicesPaid,
     invoicesSent: activity.invoicesSent,
-    invoicesSentChange:
-      context?.allMetrics?.invoices_sent?.changeDescription ?? undefined,
+    invoicesSentChange: context?.allMetrics?.invoices_sent?.changeDescription ?? undefined,
     hoursTracked: activity.hoursTracked,
     newCustomers: activity.newCustomers,
     largestPayment: activity.largestPayment
       ? {
           customer: activity.largestPayment.customer,
-          amount: formatMetricValue(
-            activity.largestPayment.amount,
-            "currency",
-            currency,
-          ),
+          amount: formatMetricValue(activity.largestPayment.amount, "currency", currency),
         }
       : undefined,
 

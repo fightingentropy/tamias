@@ -57,9 +57,7 @@ export const getSyncedTransactionIds = async (
 
   return [
     ...new Set(
-      records
-        .filter((record) => record.status === "synced")
-        .map((record) => record.transactionId),
+      records.filter((record) => record.status === "synced").map((record) => record.transactionId),
     ),
   ];
 };
@@ -70,10 +68,7 @@ export type GetSyncStatusParams = {
   provider?: AccountingSyncProvider;
 };
 
-export const getAccountingSyncStatus = async (
-  _db: Database,
-  params: GetSyncStatusParams,
-) => {
+export const getAccountingSyncStatus = async (_db: Database, params: GetSyncStatusParams) => {
   return getAccountingSyncStatusFromConvex({
     teamId: params.teamId,
     transactionIds: params.transactionIds,

@@ -70,9 +70,7 @@ export function DataTableHeader({ tableScroll }: Props) {
             onClick={() => createSortQuery("customer")}
           >
             <span>Customer</span>
-            {"customer" === column && value === "asc" && (
-              <ArrowDown size={16} />
-            )}
+            {"customer" === column && value === "asc" && <ArrowDown size={16} />}
             {"customer" === column && value === "desc" && <ArrowUp size={16} />}
           </Button>
         </TableHead>
@@ -106,12 +104,8 @@ export function DataTableHeader({ tableScroll }: Props) {
             onClick={() => createSortQuery("description")}
           >
             <span className="line-clamp-1 text-ellipsis">Description</span>
-            {"description" === column && value === "asc" && (
-              <ArrowDown size={16} />
-            )}
-            {"description" === column && value === "desc" && (
-              <ArrowUp size={16} />
-            )}
+            {"description" === column && value === "asc" && <ArrowDown size={16} />}
+            {"description" === column && value === "desc" && <ArrowUp size={16} />}
           </Button>
         </TableHead>
 
@@ -134,9 +128,7 @@ export function DataTableHeader({ tableScroll }: Props) {
             onClick={() => createSortQuery("assigned")}
           >
             <span>Assigned</span>
-            {"assigned" === column && value === "asc" && (
-              <ArrowDown size={16} />
-            )}
+            {"assigned" === column && value === "asc" && <ArrowDown size={16} />}
             {"assigned" === column && value === "desc" && <ArrowUp size={16} />}
           </Button>
         </TableHead>

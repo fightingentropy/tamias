@@ -103,12 +103,7 @@ export function mergeWithDefaults(
  */
 export function getColumnIds<TData>(columns: ColumnDef<TData>[]): string[] {
   return columns
-    .map(
-      (col) =>
-        col.id ??
-        (col as ColumnDef<TData> & { accessorKey?: string }).accessorKey ??
-        "",
-    )
+    .map((col) => col.id ?? (col as ColumnDef<TData> & { accessorKey?: string }).accessorKey ?? "")
     .filter(Boolean);
 }
 
@@ -127,13 +122,9 @@ export function normalizeColumnOrder(
   const definedIds = new Set(allColumnIds);
   const savedIds = new Set(savedOrder);
 
-  const orderWithoutActions = savedOrder.filter(
-    (id) => id !== "actions" && definedIds.has(id),
-  );
+  const orderWithoutActions = savedOrder.filter((id) => id !== "actions" && definedIds.has(id));
 
-  const newColumns = allColumnIds.filter(
-    (id) => id !== "actions" && !savedIds.has(id),
-  );
+  const newColumns = allColumnIds.filter((id) => id !== "actions" && !savedIds.has(id));
 
   const result = [...orderWithoutActions, ...newColumns];
 

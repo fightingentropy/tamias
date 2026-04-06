@@ -66,24 +66,18 @@ export class ClassifyDocumentProcessor extends BaseProcessor<ClassifyDocumentPay
     // Process title - use AI result, generate fallback, or leave null for retry
     let finalTitle: string | null = null;
 
-    if (
-      classificationResult?.title &&
-      classificationResult.title.trim().length > 0
-    ) {
+    if (classificationResult?.title && classificationResult.title.trim().length > 0) {
       finalTitle = classificationResult.title;
     } else if (classificationResult && !classificationFailed) {
       // AI returned but with empty title - generate fallback from available data
-      this.logger.warn(
-        "Classification returned null or empty title - generating fallback",
-        {
-          fileName,
-          pathTokens,
-          teamId,
-          hasSummary: !!classificationResult.summary,
-          hasDate: !!classificationResult.date,
-          contentLength: content.length,
-        },
-      );
+      this.logger.warn("Classification returned null or empty title - generating fallback", {
+        fileName,
+        pathTokens,
+        teamId,
+        hasSummary: !!classificationResult.summary,
+        hasDate: !!classificationResult.date,
+        contentLength: content.length,
+      });
 
       // Generate fallback title from available metadata
       const fileNameWithoutExt =
@@ -91,9 +85,7 @@ export class ClassifyDocumentProcessor extends BaseProcessor<ClassifyDocumentPay
           .split("/")
           .pop()
           ?.replace(/\.[^/.]+$/, "") || "Document";
-      const datePart = classificationResult.date
-        ? ` - ${classificationResult.date}`
-        : "";
+      const datePart = classificationResult.date ? ` - ${classificationResult.date}` : "";
       const summaryPart = classificationResult.summary
         ? ` - ${classificationResult.summary.substring(0, 50)}${classificationResult.summary.length > 50 ? "..." : ""}`
         : "";
@@ -105,10 +97,7 @@ export class ClassifyDocumentProcessor extends BaseProcessor<ClassifyDocumentPay
         inferredType = "Invoice";
       } else if (contentSample.includes("receipt")) {
         inferredType = "Receipt";
-      } else if (
-        contentSample.includes("contract") ||
-        contentSample.includes("agreement")
-      ) {
+      } else if (contentSample.includes("contract") || contentSample.includes("agreement")) {
         inferredType = "Contract";
       } else if (contentSample.includes("report")) {
         inferredType = "Report";
@@ -134,9 +123,7 @@ export class ClassifyDocumentProcessor extends BaseProcessor<ClassifyDocumentPay
         summary: classificationResult?.summary ?? undefined,
         content: limitWords(content, 10000),
         date: classificationResult?.date ?? undefined,
-        language: mapLanguageCodeToSearchConfig(
-          classificationResult?.language,
-        ),
+        language: mapLanguageCodeToSearchConfig(classificationResult?.language),
         // Always mark as completed - even if AI failed, document is usable
         processingStatus: "completed",
       },
@@ -154,9 +141,7 @@ export class ClassifyDocumentProcessor extends BaseProcessor<ClassifyDocumentPay
 
     const data = updatedDocs[0];
     if (!data || !data.id) {
-      throw new Error(
-        `Document update returned invalid data for path ${fileName}`,
-      );
+      throw new Error(`Document update returned invalid data for path ${fileName}`);
     }
 
     // Only trigger tag embedding if we have tags from successful classification

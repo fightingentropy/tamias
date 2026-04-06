@@ -180,12 +180,7 @@ export const METRIC_DEFINITIONS: MetricDefinition[] = [
 /**
  * Core financial metrics that should always be considered
  */
-export const CORE_FINANCIAL_METRICS = [
-  "revenue",
-  "net_profit",
-  "cash_flow",
-  "expenses",
-];
+export const CORE_FINANCIAL_METRICS = ["revenue", "net_profit", "cash_flow", "expenses"];
 
 /**
  * Period type display names

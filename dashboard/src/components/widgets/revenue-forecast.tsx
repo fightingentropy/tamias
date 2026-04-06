@@ -114,16 +114,11 @@ export function RevenueForecastWidget() {
           {/* Simple trend line chart */}
           {chartData.length > 0 ? (
             <div className="w-full">
-              <MiniLineChart
-                data={chartData}
-                className="h-12 w-full text-foreground"
-              />
+              <MiniLineChart data={chartData} className="h-12 w-full text-foreground" />
             </div>
           ) : (
             <div className="h-12 w-full flex items-center">
-              <div className="text-xs text-muted-foreground">
-                No data available
-              </div>
+              <div className="text-xs text-muted-foreground">No data available</div>
             </div>
           )}
 
@@ -132,10 +127,7 @@ export function RevenueForecastWidget() {
               Next month projection{" "}
               <span className="font-medium text-foreground">
                 +
-                <FormatAmount
-                  amount={nextMonthProjection}
-                  currency={currency || "USD"}
-                />
+                <FormatAmount amount={nextMonthProjection} currency={currency || "USD"} />
               </span>
             </p>
           )}

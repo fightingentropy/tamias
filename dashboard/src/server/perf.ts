@@ -28,10 +28,7 @@ export function noteSsrTrpcCall(url: string) {
   });
 }
 
-export async function measureServerRead<T>(
-  name: string,
-  read: () => Promise<T>,
-): Promise<T> {
+export async function measureServerRead<T>(name: string, read: () => Promise<T>): Promise<T> {
   if (!PERF_ENABLED) {
     return read();
   }

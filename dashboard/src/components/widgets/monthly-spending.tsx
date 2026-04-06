@@ -28,12 +28,7 @@ export function MonthlySpendingWidget() {
   });
 
   if (isLoading) {
-    return (
-      <WidgetSkeleton
-        title="Expenses"
-        icon={<Icons.Transactions className="size-4" />}
-      />
-    );
+    return <WidgetSkeleton title="Expenses" icon={<Icons.Transactions className="size-4" />} />;
   }
 
   const spending = data?.result;
@@ -97,10 +92,7 @@ export function MonthlySpendingWidget() {
     >
       {spending && spending.totalSpending > 0 && (
         <h2 className="text-2xl font-normal">
-          <FormatAmount
-            amount={spending.totalSpending}
-            currency={currency || "USD"}
-          />
+          <FormatAmount amount={spending.totalSpending} currency={currency || "USD"} />
         </h2>
       )}
     </BaseWidget>

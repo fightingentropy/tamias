@@ -29,9 +29,7 @@ const ChatHistoryContext = createContext<{
 export function useChatHistoryContext() {
   const context = useContext(ChatHistoryContext);
   if (!context) {
-    throw new Error(
-      "useChatHistoryContext must be used within ChatHistoryProvider",
-    );
+    throw new Error("useChatHistoryContext must be used within ChatHistoryProvider");
   }
   return context;
 }
@@ -40,10 +38,7 @@ function ChatHistorySkeleton() {
   return (
     <div className="space-y-1">
       {Array.from({ length: 10 }, (_, i) => (
-        <div
-          key={`chat-skeleton-${i + 1}`}
-          className="flex items-center justify-between px-2 py-2"
-        >
+        <div key={`chat-skeleton-${i + 1}`} className="flex items-center justify-between px-2 py-2">
           <Skeleton className="h-4 w-3/4" />
           <Skeleton className="h-3 w-16" />
         </div>
@@ -201,9 +196,7 @@ export function ChatHistoryDropdown() {
     if (isOpen) {
       const target = event.target as Element;
       const clickedButton = target.closest("button");
-      const isHistoryButton = clickedButton?.closest(
-        "[data-chat-history-button]",
-      );
+      const isHistoryButton = clickedButton?.closest("[data-chat-history-button]");
 
       // Don't close if clicking on the history button itself
       if (!isHistoryButton) {
@@ -237,11 +230,7 @@ export function ChatHistoryDropdown() {
         break;
       case "Enter":
         e.preventDefault();
-        if (
-          selectedIndex >= 0 &&
-          selectedIndex < chats.length &&
-          chats[selectedIndex]
-        ) {
+        if (selectedIndex >= 0 && selectedIndex < chats.length && chats[selectedIndex]) {
           handleChatSelect(chats[selectedIndex].chatId);
         }
         break;

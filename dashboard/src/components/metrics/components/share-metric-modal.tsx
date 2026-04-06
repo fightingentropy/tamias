@@ -46,13 +46,9 @@ export function ShareMetricModal({
 }: ShareMetricModalProps) {
   const { data: user } = useUserQuery();
   const trpc = useTRPC();
-  const [expireAt, setExpireAt] = useState<Date | undefined>(
-    addDays(new Date(), 30),
-  );
+  const [expireAt, setExpireAt] = useState<Date | undefined>(addDays(new Date(), 30));
 
-  const createReportMutation = useMutation(
-    trpc.reports.create.mutationOptions(),
-  );
+  const createReportMutation = useMutation(trpc.reports.create.mutationOptions());
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
@@ -85,17 +81,12 @@ export function ShareMetricModal({
   const openInLinkedIn = () => {
     if (!shareUrl) return;
     // Ensure URL is absolute and properly formatted
-    const absoluteUrl = shareUrl.startsWith("http")
-      ? shareUrl
-      : `https://${shareUrl}`;
+    const absoluteUrl = shareUrl.startsWith("http") ? shareUrl : `https://${shareUrl}`;
 
     // LinkedIn share URL - encode the URL parameter
     // LinkedIn's share-offsite endpoint requires URL encoding
     const encodedUrl = encodeURIComponent(absoluteUrl);
-    window.open(
-      `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
-      "_blank",
-    );
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`, "_blank");
   };
 
   return (
@@ -105,8 +96,7 @@ export function ShareMetricModal({
           <DialogHeader>
             <DialogTitle>Share metric</DialogTitle>
             <DialogDescription>
-              Create a public link you can share, the chart is a snapshot in
-              time.
+              Create a public link you can share, the chart is a snapshot in time.
             </DialogDescription>
           </DialogHeader>
 
@@ -157,11 +147,7 @@ export function ShareMetricModal({
                 Failed to create share link. Please try again.
               </div>
               <DialogFooter>
-                <Button
-                  onClick={handleCreateLink}
-                  variant="outline"
-                  className="w-full"
-                >
+                <Button onClick={handleCreateLink} variant="outline" className="w-full">
                   Try again
                 </Button>
               </DialogFooter>
@@ -181,8 +167,7 @@ export function ShareMetricModal({
 
               {createReportMutation.data.expireAt && (
                 <p className="text-xs text-muted-foreground">
-                  Expires{" "}
-                  {format(new Date(createReportMutation.data.expireAt), "PPP")}
+                  Expires {format(new Date(createReportMutation.data.expireAt), "PPP")}
                 </p>
               )}
 
@@ -191,11 +176,7 @@ export function ShareMetricModal({
                   Open in
                   <FaXTwitter className="ml-1 h-4 w-4" />
                 </Button>
-                <Button
-                  variant="outline"
-                  className="flex-1"
-                  onClick={openInLinkedIn}
-                >
+                <Button variant="outline" className="flex-1" onClick={openInLinkedIn}>
                   Open in
                   <FaLinkedinIn className="ml-1 h-4 w-4" />
                 </Button>

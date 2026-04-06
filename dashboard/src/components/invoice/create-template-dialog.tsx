@@ -9,14 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@tamias/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@tamias/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@tamias/ui/form";
 import { Input } from "@tamias/ui/input";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { useToast } from "@tamias/ui/use-toast";
@@ -110,10 +103,7 @@ export function CreateTemplateDialog({ open, onOpenChange, onCreated }: Props) {
           </DialogHeader>
 
           <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(handleSubmit)}
-              className="mt-6 space-y-4"
-            >
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="mt-6 space-y-4">
               <FormField
                 control={form.control}
                 name="name"
@@ -137,17 +127,10 @@ export function CreateTemplateDialog({ open, onOpenChange, onCreated }: Props) {
               />
 
               <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => onOpenChange(false)}
-                >
+                <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                   Cancel
                 </Button>
-                <SubmitButton
-                  type="submit"
-                  isSubmitting={createTemplateMutation.isPending}
-                >
+                <SubmitButton type="submit" isSubmitting={createTemplateMutation.isPending}>
                   Create
                 </SubmitButton>
               </DialogFooter>

@@ -23,12 +23,7 @@ export function RunwayWidget() {
   });
 
   if (isLoading) {
-    return (
-      <WidgetSkeleton
-        title="Cash Runway"
-        icon={<Icons.Time className="size-4" />}
-      />
-    );
+    return <WidgetSkeleton title="Cash Runway" icon={<Icons.Time className="size-4" />} />;
   }
 
   const handleToolCall = (params: {

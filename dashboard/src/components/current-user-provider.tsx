@@ -20,10 +20,7 @@ type CurrentUserProviderProps = {
   children: ReactNode;
 };
 
-export function CurrentUserProvider({
-  initialUser,
-  children,
-}: CurrentUserProviderProps) {
+export function CurrentUserProvider({ initialUser, children }: CurrentUserProviderProps) {
   const trpc = useTRPC();
   const { data } = useQuery({
     ...trpc.user.me.queryOptions(),

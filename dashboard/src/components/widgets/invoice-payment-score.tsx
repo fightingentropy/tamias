@@ -19,9 +19,7 @@ export function InvoicePaymentScoreWidget() {
   const chatId = useChatId();
   const { setChatId } = useChatInterface();
   const { currency } = useMetricsFilter();
-  const { data, isLoading } = useQuery(
-    trpc.invoice.paymentStatus.queryOptions(),
-  );
+  const { data, isLoading } = useQuery(trpc.invoice.paymentStatus.queryOptions());
 
   if (isLoading) {
     return (

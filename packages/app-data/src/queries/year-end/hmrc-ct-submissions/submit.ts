@@ -10,10 +10,7 @@ import type { Database } from "../../../client";
 import { buildCtSubmissionArtifacts } from "../drafts";
 import { getYearEndContext } from "../pack";
 import { getHmrcCtRuntimeStatus } from "../runtime";
-import {
-  getSubmissionEventResponseEndpoint,
-  requireReadyYearEndPack,
-} from "../submission-common";
+import { getSubmissionEventResponseEndpoint, requireReadyYearEndPack } from "../submission-common";
 import { createCtSubmissionArtifactBundle, buildCtSubmissionRequestSummary } from "./artifacts";
 import type { SubmissionArtifactBundleRecord } from "../types";
 
@@ -66,24 +63,23 @@ export async function submitCt600ToHmrc(
   },
 ) {
   const context = await getYearEndContext(db, params.teamId, params.periodKey);
-  const [packRecord, closeCompanyLoansSchedule, corporationTaxRateSchedule] =
-    await Promise.all([
-      getYearEndPackByPeriodFromConvex({
-        teamId: params.teamId,
-        filingProfileId: context.profile.id,
-        periodKey: context.period.periodKey,
-      }),
-      getCloseCompanyLoansScheduleByPeriodFromConvex({
-        teamId: params.teamId,
-        filingProfileId: context.profile.id,
-        periodKey: context.period.periodKey,
-      }),
-      getCorporationTaxRateScheduleByPeriodFromConvex({
-        teamId: params.teamId,
-        filingProfileId: context.profile.id,
-        periodKey: context.period.periodKey,
-      }),
-    ]);
+  const [packRecord, closeCompanyLoansSchedule, corporationTaxRateSchedule] = await Promise.all([
+    getYearEndPackByPeriodFromConvex({
+      teamId: params.teamId,
+      filingProfileId: context.profile.id,
+      periodKey: context.period.periodKey,
+    }),
+    getCloseCompanyLoansScheduleByPeriodFromConvex({
+      teamId: params.teamId,
+      filingProfileId: context.profile.id,
+      periodKey: context.period.periodKey,
+    }),
+    getCorporationTaxRateScheduleByPeriodFromConvex({
+      teamId: params.teamId,
+      filingProfileId: context.profile.id,
+      periodKey: context.period.periodKey,
+    }),
+  ]);
   const pack = requireReadyYearEndPack(packRecord);
   const artifacts = buildCtSubmissionArtifacts({
     team: context.team,

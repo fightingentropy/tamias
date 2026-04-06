@@ -12,11 +12,9 @@ export function getRequestUrl(input?: string) {
   return new URL(getStartContext().request.url);
 }
 
-export function dehydrateQueryClient(
-  queryClient: ReturnType<typeof getQueryClient>,
-) {
+export function dehydrateQueryClient(queryClient: ReturnType<typeof getQueryClient>) {
   // TanStack serializable shape for dehydrated query client state (see ValidateSerializable).
-  // biome-ignore lint/complexity/noBannedTypes: matches router-core index signature for nested `{}` nodes
+  // matches router-core index signature for nested `{}` nodes
   return dehydrate(queryClient) as unknown as { [key: string]: {} };
 }
 
@@ -101,9 +99,7 @@ export function isNotFoundQueryError(error: unknown) {
   );
 }
 
-export async function buildBaseAppShellState(opts?: {
-  allowIncomplete?: boolean;
-}) {
+export async function buildBaseAppShellState(opts?: { allowIncomplete?: boolean }) {
   const queryClient = getQueryClient();
   const currentTeamQuery = trpc.team.current.queryOptions();
   const currentUserQuery = trpc.user.me.queryOptions();
@@ -113,10 +109,7 @@ export async function buildBaseAppShellState(opts?: {
   ]);
 
   if (userResult.status === "rejected") {
-    if (
-      isUnauthorizedQueryError(userResult.reason) ||
-      isQueryTransportError(userResult.reason)
-    ) {
+    if (isUnauthorizedQueryError(userResult.reason) || isQueryTransportError(userResult.reason)) {
       throw redirect({
         to: "/login",
         throw: true,
@@ -136,10 +129,7 @@ export async function buildBaseAppShellState(opts?: {
   }
 
   if (teamResult.status === "rejected") {
-    if (
-      isUnauthorizedQueryError(teamResult.reason) ||
-      isQueryTransportError(teamResult.reason)
-    ) {
+    if (isUnauthorizedQueryError(teamResult.reason) || isQueryTransportError(teamResult.reason)) {
       throw redirect({
         to: "/login",
         throw: true,
@@ -165,9 +155,7 @@ export async function buildBaseAppShellState(opts?: {
   };
 }
 
-export async function buildShellOnlyPageData(opts?: {
-  allowIncomplete?: boolean;
-}) {
+export async function buildShellOnlyPageData(opts?: { allowIncomplete?: boolean }) {
   const { queryClient, user } = await buildBaseAppShellState(opts);
 
   return {

@@ -29,9 +29,7 @@ export interface ConsistencyValidationResult {
 /**
  * Validate cross-field consistency for invoices
  */
-export function validateInvoiceConsistency(
-  result: InvoiceData,
-): ConsistencyValidationResult {
+export function validateInvoiceConsistency(result: InvoiceData): ConsistencyValidationResult {
   const issues: ConsistencyIssue[] = [];
   const suggestedFixes: Array<{
     field: string;
@@ -42,10 +40,8 @@ export function validateInvoiceConsistency(
   // 1. Validate: tax_amount + subtotal ≈ total_amount
   const subtotal = calculateSubtotalFromLineItems(result.line_items);
   const hasSubtotal = subtotal > 0;
-  const hasTaxAmount =
-    result.tax_amount !== null && result.tax_amount !== undefined;
-  const hasTotalAmount =
-    result.total_amount !== null && result.total_amount !== undefined;
+  const hasTaxAmount = result.tax_amount !== null && result.tax_amount !== undefined;
+  const hasTotalAmount = result.total_amount !== null && result.total_amount !== undefined;
 
   if (hasTotalAmount && isValidAmount(result.total_amount)) {
     // Check if tax_amount + subtotal matches total_amount
@@ -66,8 +62,7 @@ export function validateInvoiceConsistency(
           suggestedFixes.push({
             field: "total_amount",
             value: Math.round(calculatedTotal * 100) / 100,
-            reason:
-              "Calculated from subtotal + tax_amount (rounding correction)",
+            reason: "Calculated from subtotal + tax_amount (rounding correction)",
           });
         }
       }
@@ -169,9 +164,7 @@ export function validateInvoiceConsistency(
 /**
  * Validate cross-field consistency for receipts
  */
-export function validateReceiptConsistency(
-  result: ReceiptData,
-): ConsistencyValidationResult {
+export function validateReceiptConsistency(result: ReceiptData): ConsistencyValidationResult {
   const issues: ConsistencyIssue[] = [];
   const suggestedFixes: Array<{
     field: string;
@@ -209,8 +202,7 @@ export function validateReceiptConsistency(
           suggestedFixes.push({
             field: "total_amount",
             value: Math.round(calculatedTotal * 100) / 100,
-            reason:
-              "Calculated from subtotal + tax_amount (rounding correction)",
+            reason: "Calculated from subtotal + tax_amount (rounding correction)",
           });
         }
       }
@@ -281,9 +273,7 @@ export function validateReceiptConsistency(
   if (result.items && result.items.length > 0) {
     const itemsTotal = result.items.reduce((sum, item) => {
       const itemTotal =
-        item.total_price !== null && item.total_price !== undefined
-          ? item.total_price
-          : 0;
+        item.total_price !== null && item.total_price !== undefined ? item.total_price : 0;
       return sum + itemTotal;
     }, 0);
 
@@ -333,9 +323,7 @@ function calculateSubtotalFromLineItems(
 
   return lineItems.reduce((sum, item) => {
     const itemTotal =
-      item.total_price !== null &&
-      item.total_price !== undefined &&
-      isValidAmount(item.total_price)
+      item.total_price !== null && item.total_price !== undefined && isValidAmount(item.total_price)
         ? item.total_price
         : 0;
     return sum + itemTotal;
@@ -359,8 +347,7 @@ export function applyInvoiceFixes(
       currentValue === null ||
       currentValue === undefined ||
       (typeof currentValue === "number" &&
-        (Number.isNaN(currentValue) ||
-          (currentValue === 0 && fix.field !== "total_amount")))
+        (Number.isNaN(currentValue) || (currentValue === 0 && fix.field !== "total_amount")))
     ) {
       (fixed as any)[fix.field] = fix.value;
     }
@@ -386,8 +373,7 @@ export function applyReceiptFixes(
       currentValue === null ||
       currentValue === undefined ||
       (typeof currentValue === "number" &&
-        (Number.isNaN(currentValue) ||
-          (currentValue === 0 && fix.field !== "total_amount")))
+        (Number.isNaN(currentValue) || (currentValue === 0 && fix.field !== "total_amount")))
     ) {
       (fixed as any)[fix.field] = fix.value;
     }

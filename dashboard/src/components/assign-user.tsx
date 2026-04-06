@@ -1,10 +1,4 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@tamias/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@tamias/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTRPC } from "@/trpc/client";
@@ -22,11 +16,7 @@ type Props = {
   onSelect: (user?: User) => void;
 };
 
-export function AssignUser({
-  selectedId,
-  valueKey = "id",
-  onSelect,
-}: Props) {
+export function AssignUser({ selectedId, valueKey = "id", onSelect }: Props) {
   const [value, setValue] = useState<string>();
   const trpc = useTRPC();
 
@@ -67,16 +57,11 @@ export function AssignUser({
 
       <SelectContent className="overflow-y-auto max-h-[200px]">
         {users?.map(({ user }) => {
-          const optionId = user
-            ? (valueKey === "convexId" ? user.convexId : user.id)
-            : "";
+          const optionId = user ? (valueKey === "convexId" ? user.convexId : user.id) : "";
 
           return (
             <SelectItem key={optionId} value={optionId}>
-              <AssignedUser
-                fullName={user?.fullName}
-                avatarUrl={user?.avatarUrl}
-              />
+              <AssignedUser fullName={user?.fullName} avatarUrl={user?.avatarUrl} />
             </SelectItem>
           );
         })}

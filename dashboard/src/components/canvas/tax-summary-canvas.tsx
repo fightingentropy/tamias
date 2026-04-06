@@ -18,10 +18,7 @@ import {
   shouldShowMetricsSkeleton,
   shouldShowSummarySkeleton,
 } from "@/components/canvas/utils";
-import {
-  PublicDonutChart,
-  publicChartGrayShades,
-} from "@/components/charts/public-report-charts";
+import { PublicDonutChart, publicChartGrayShades } from "@/components/charts/public-report-charts";
 import { useTeamQuery } from "@/hooks/use-team";
 import { useUserQuery } from "@/hooks/use-user";
 import { useI18n } from "@/locales/client";
@@ -56,15 +53,12 @@ function getTaxTerminology(
 
   // Map tax type to i18n key
   const typeKey =
-    taxType === "vat" || taxType === "gst" || taxType === "sales_tax"
-      ? taxType
-      : "default";
+    taxType === "vat" || taxType === "gst" || taxType === "sales_tax" ? taxType : "default";
 
   const title = t(`tax_summary.title.${typeKey}` as "tax_summary.title.vat");
 
   // Extract tax type name from title (e.g., "VAT Summary" -> "VAT")
-  const typeName =
-    typeKey === "default" ? "Tax" : title.replace(" Summary", "");
+  const typeName = typeKey === "default" ? "Tax" : title.replace(" Summary", "");
 
   // Get paid label from i18n
   const paidLabel = t(`tax_summary.paid.${typeKey}` as "tax_summary.paid.vat");
@@ -114,21 +108,13 @@ export function TaxSummaryCanvas() {
     {
       id: "total-tax-liability",
       title: taxTerms.liability,
-      value: formatCurrencyAmount(
-        metrics?.totalTaxLiability || 0,
-        currency,
-        locale,
-      ),
+      value: formatCurrencyAmount(metrics?.totalTaxLiability || 0, currency, locale),
       subtitle: taxTerms.paid,
     },
     {
       id: "total-taxable-income",
       title: "Total Taxable Income",
-      value: formatCurrencyAmount(
-        metrics?.totalTaxableIncome || 0,
-        currency,
-        locale,
-      ),
+      value: formatCurrencyAmount(metrics?.totalTaxableIncome || 0, currency, locale),
       subtitle: "Income subject to tax",
     },
     {
@@ -156,11 +142,7 @@ export function TaxSummaryCanvas() {
     taxMetrics.push({
       id: "previous-period-tax",
       title: taxTerms.previousPeriod,
-      value: formatCurrencyAmount(
-        metrics.previousPeriod.totalTaxLiability,
-        currency,
-        locale,
-      ),
+      value: formatCurrencyAmount(metrics.previousPeriod.totalTaxLiability, currency, locale),
       subtitle: "For comparison",
     });
   }
@@ -189,14 +171,10 @@ export function TaxSummaryCanvas() {
                         className="h-2 w-2 rounded-full"
                         style={{
                           backgroundColor:
-                            publicChartGrayShades[
-                              idx % publicChartGrayShades.length
-                            ],
+                            publicChartGrayShades[idx % publicChartGrayShades.length],
                         }}
                       />
-                      <span className="text-xs text-muted-foreground">
-                        {item.category}
-                      </span>
+                      <span className="text-xs text-muted-foreground">{item.category}</span>
                     </div>
                   ))}
                 </div>

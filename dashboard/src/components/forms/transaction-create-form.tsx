@@ -2,12 +2,7 @@
 
 import { utc } from "@date-fns/utc";
 import { uniqueCurrencies } from "@tamias/location/currencies";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@tamias/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@tamias/ui/accordion";
 import { Button } from "@tamias/ui/button";
 import { Calendar } from "@tamias/ui/calendar";
 import { cn } from "@tamias/ui/cn";
@@ -70,9 +65,7 @@ const formSchema = z.object({
     .optional(),
 });
 
-type ManualAttachment = NonNullable<
-  z.infer<typeof formSchema>["attachments"]
->[number];
+type ManualAttachment = NonNullable<z.infer<typeof formSchema>["attachments"]>[number];
 
 type AttachmentUploadEvent = {
   path?: string[];
@@ -81,14 +74,10 @@ type AttachmentUploadEvent = {
   type: string;
 };
 
-const hasAttachmentPath = (
-  file: AttachmentUploadEvent,
-): file is ManualAttachment => Array.isArray(file.path);
+const hasAttachmentPath = (file: AttachmentUploadEvent): file is ManualAttachment =>
+  Array.isArray(file.path);
 
-const isSameAttachment = (
-  left: ManualAttachment,
-  right: AttachmentUploadEvent,
-) =>
+const isSameAttachment = (left: ManualAttachment, right: AttachmentUploadEvent) =>
   Array.isArray(right.path) &&
   left.name === right.name &&
   left.type === right.type &&
@@ -111,9 +100,7 @@ export function TransactionCreateForm() {
     }),
   );
 
-  const { data: categories } = useQuery(
-    trpc.transactionCategories.get.queryOptions(),
-  );
+  const { data: categories } = useQuery(trpc.transactionCategories.get.queryOptions());
 
   const createTransactionMutation = useMutation(
     trpc.transactions.create.mutationOptions({
@@ -181,9 +168,7 @@ export function TransactionCreateForm() {
 
   const handleAttachmentDelete = (file: AttachmentUploadEvent) => {
     setFormAttachments(
-      getFormAttachments().filter(
-        (attachment) => !isSameAttachment(attachment, file),
-      ),
+      getFormAttachments().filter((attachment) => !isSameAttachment(attachment, file)),
     );
   };
 
@@ -218,9 +203,7 @@ export function TransactionCreateForm() {
                     variant="ghost"
                     className={cn(
                       "h-6 px-2 flex-1 rounded-none text-xs border-r border-border last:border-r-0",
-                      field.value === "expense"
-                        ? "bg-transparent"
-                        : "bg-background font-medium",
+                      field.value === "expense" ? "bg-transparent" : "bg-background font-medium",
                     )}
                     onClick={(e) => {
                       e.preventDefault();
@@ -244,9 +227,7 @@ export function TransactionCreateForm() {
                     variant="ghost"
                     className={cn(
                       "h-6 px-2 flex-1 rounded-none text-xs border-r border-border last:border-r-0",
-                      field.value === "income"
-                        ? "bg-transparent"
-                        : "bg-background font-medium",
+                      field.value === "income" ? "bg-transparent" : "bg-background font-medium",
                     )}
                     onClick={(e) => {
                       e.preventDefault();
@@ -269,8 +250,7 @@ export function TransactionCreateForm() {
                 </div>
               </FormControl>
               <FormDescription>
-                Select whether this is money coming in (income) or going out
-                (expense)
+                Select whether this is money coming in (income) or going out (expense)
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -293,9 +273,7 @@ export function TransactionCreateForm() {
                   spellCheck="false"
                 />
               </FormControl>
-              <FormDescription>
-                A brief description of what this transaction is for
-              </FormDescription>
+              <FormDescription>A brief description of what this transaction is for</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -318,9 +296,7 @@ export function TransactionCreateForm() {
                         // Store signed value based on transaction type
                         const positiveValue = Math.abs(values.floatValue);
                         const signedValue =
-                          transactionType === "expense"
-                            ? -positiveValue
-                            : positiveValue;
+                          transactionType === "expense" ? -positiveValue : positiveValue;
                         field.onChange(signedValue);
                       }
                     }}
@@ -347,9 +323,7 @@ export function TransactionCreateForm() {
                     value={field.value}
                   />
                 </FormControl>
-                <FormDescription>
-                  The currency for this transaction
-                </FormDescription>
+                <FormDescription>The currency for this transaction</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -376,9 +350,7 @@ export function TransactionCreateForm() {
                     placeholder="Select account"
                   />
                 </FormControl>
-                <FormDescription>
-                  The account this transaction belongs to
-                </FormDescription>
+                <FormDescription>The account this transaction belongs to</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -415,9 +387,7 @@ export function TransactionCreateForm() {
                       selected={field.value ? utc(field.value) : undefined}
                       onSelect={(value) => {
                         if (value) {
-                          field.onChange(
-                            formatISO(value, { representation: "date" }),
-                          );
+                          field.onChange(formatISO(value, { representation: "date" }));
                           setIsOpen(false);
                         }
                       }}
@@ -426,9 +396,7 @@ export function TransactionCreateForm() {
                     />
                   </PopoverContent>
                 </Popover>
-                <FormDescription>
-                  When this transaction occurred
-                </FormDescription>
+                <FormDescription>When this transaction occurred</FormDescription>
               </FormItem>
             )}
           />
@@ -466,9 +434,7 @@ export function TransactionCreateForm() {
                       .find((category) => category.slug === field.value)}
                   />
                 </FormControl>
-                <FormDescription>
-                  Help organize and track your transactions
-                </FormDescription>
+                <FormDescription>Help organize and track your transactions</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -480,20 +446,12 @@ export function TransactionCreateForm() {
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormLabel>Assign</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <AssignUser
-                      selectedId={field.value}
-                      onSelect={field.onChange}
-                    />
+                    <AssignUser selectedId={field.value} onSelect={field.onChange} />
                   </FormControl>
                 </Select>
-                <FormDescription>
-                  Assign this transaction to a team member
-                </FormDescription>
+                <FormDescription>Assign this transaction to a team member</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -506,8 +464,7 @@ export function TransactionCreateForm() {
             <AccordionContent>
               <div className="space-y-2">
                 <p className="text-xs text-muted-foreground">
-                  Upload receipts, invoices, or other documents related to this
-                  transaction
+                  Upload receipts, invoices, or other documents related to this transaction
                 </p>
                 <TransactionAttachments
                   // Manual create: keep attachments in form state, persist on submit.
@@ -523,18 +480,14 @@ export function TransactionCreateForm() {
           </AccordionItem>
 
           <div className="mt-6 mb-4">
-            <Label
-              htmlFor="settings"
-              className="mb-2 block font-medium text-md"
-            >
+            <Label htmlFor="settings" className="mb-2 block font-medium text-md">
               Exclude from reports
             </Label>
             <div className="flex flex-row items-center justify-between">
               <div className="space-y-0.5 pr-4">
                 <p className="text-xs text-muted-foreground">
-                  Exclude this transaction from reports like profit, expense and
-                  revenue. This is useful for internal transfers between
-                  accounts to avoid double-counting.
+                  Exclude this transaction from reports like profit, expense and revenue. This is
+                  useful for internal transfers between accounts to avoid double-counting.
                 </p>
               </div>
 

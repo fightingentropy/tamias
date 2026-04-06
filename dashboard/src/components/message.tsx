@@ -1,8 +1,5 @@
 import { TextShimmer } from "@tamias/ui/text-shimmer";
-import {
-  type SupportedToolName,
-  ToolCallIndicator,
-} from "@tamias/ui/tool-call-indicator";
+import { type SupportedToolName, ToolCallIndicator } from "@tamias/ui/tool-call-indicator";
 
 export const ThinkingMessage = () => {
   return (

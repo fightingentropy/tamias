@@ -53,10 +53,7 @@ export const createTransactionCategory = async (
     name: result.name,
     system: result.system,
   }).catch((error) => {
-    console.error(
-      `Failed to generate embedding for category "${result.name}":`,
-      error,
-    );
+    console.error(`Failed to generate embedding for category "${result.name}":`, error);
   });
 
   return result;
@@ -80,16 +77,11 @@ export const updateTransactionCategory = async (
     id: params.id,
     name: params.name ?? existing.name,
     color: params.color !== undefined ? params.color : existing.color,
-    description:
-      params.description !== undefined
-        ? params.description
-        : existing.description,
+    description: params.description !== undefined ? params.description : existing.description,
     taxRate: params.taxRate !== undefined ? params.taxRate : existing.taxRate,
     taxType: params.taxType !== undefined ? params.taxType : existing.taxType,
     taxReportingCode:
-      params.taxReportingCode !== undefined
-        ? params.taxReportingCode
-        : existing.taxReportingCode,
+      params.taxReportingCode !== undefined ? params.taxReportingCode : existing.taxReportingCode,
     parentId: params.parentId !== undefined ? params.parentId : existing.parentId,
     excluded: existing.excluded,
   });
@@ -101,10 +93,7 @@ export const updateTransactionCategory = async (
       name: params.name,
       system: result.system,
     }).catch((error) => {
-      console.error(
-        `Failed to update embedding for category "${params.name}":`,
-        error,
-      );
+      console.error(`Failed to update embedding for category "${params.name}":`, error);
     });
   }
 

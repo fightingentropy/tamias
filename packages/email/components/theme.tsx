@@ -207,12 +207,7 @@ export function EmailThemeProvider({
           theme: {
             extend: {
               fontFamily: {
-                sans: [
-                  "Hedvig Letters Sans",
-                  "system-ui",
-                  "Arial",
-                  "sans-serif",
-                ],
+                sans: ["Hedvig Letters Sans", "system-ui", "Arial", "sans-serif"],
                 serif: ["Hedvig Letters Serif", "Georgia", "serif"],
               },
             },
@@ -222,16 +217,8 @@ export function EmailThemeProvider({
         <Head>
           <meta name="color-scheme" content="light dark" />
           <meta name="supported-color-schemes" content="light dark" />
-          <meta
-            name="theme-color"
-            content="#0d0d0d"
-            media="(prefers-color-scheme: dark)"
-          />
-          <meta
-            name="theme-color"
-            content="#ffffff"
-            media="(prefers-color-scheme: light)"
-          />
+          <meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+          <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
           <meta name="msapplication-navbutton-color" content="#0d0d0d" />
 
           <style>{getEmailDarkModeCSS()}</style>

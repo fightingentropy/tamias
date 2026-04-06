@@ -39,11 +39,7 @@ const ActionsCell = memo(
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            className="h-8 w-8 p-0"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <Button variant="ghost" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
             <DotsHorizontalIcon className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
@@ -72,9 +68,7 @@ export const columns: ColumnDef<Product>[] = [
       <div className="flex flex-col">
         <span className="font-medium">{row.original.name}</span>
         {row.original.description && (
-          <span className="text-sm text-muted-foreground">
-            {row.original.description}
-          </span>
+          <span className="text-sm text-muted-foreground">{row.original.description}</span>
         )}
       </div>
     ),
@@ -104,11 +98,7 @@ export const columns: ColumnDef<Product>[] = [
     header: "Unit",
     cell: ({ row }) => {
       const unit = row.original.unit;
-      return unit ? (
-        <span>{unit}</span>
-      ) : (
-        <span className="text-muted-foreground">-</span>
-      );
+      return unit ? <span>{unit}</span> : <span className="text-muted-foreground">-</span>;
     },
   },
   {
@@ -141,9 +131,7 @@ export const columns: ColumnDef<Product>[] = [
     header: "Status",
     cell: ({ row }) => {
       const isActive = row.original.isActive;
-      return (
-        <Badge variant="outline">{isActive ? "Active" : "Inactive"}</Badge>
-      );
+      return <Badge variant="outline">{isActive ? "Active" : "Inactive"}</Badge>;
     },
   },
   {
@@ -155,11 +143,7 @@ export const columns: ColumnDef<Product>[] = [
       };
 
       return (
-        <ActionsCell
-          product={row.original}
-          onEdit={meta.onEdit}
-          onDelete={meta.handleDelete}
-        />
+        <ActionsCell product={row.original} onEdit={meta.onEdit} onDelete={meta.handleDelete} />
       );
     },
   },

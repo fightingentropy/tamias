@@ -2,14 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@tamias/ui/cn";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@tamias/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@tamias/ui/form";
 import { Input } from "@tamias/ui/input";
 import { Spinner } from "@tamias/ui/spinner";
 import { SubmitButton } from "@tamias/ui/submit-button";
@@ -103,9 +96,7 @@ export function PasswordAuthForm({ className }: PasswordAuthFormProps) {
                 <FormLabel>Password</FormLabel>
                 <FormControl>
                   <Input
-                    autoComplete={
-                      mode === "signIn" ? "current-password" : "new-password"
-                    }
+                    autoComplete={mode === "signIn" ? "current-password" : "new-password"}
                     placeholder="At least 8 characters"
                     type="password"
                     {...field}
@@ -126,9 +117,7 @@ export function PasswordAuthForm({ className }: PasswordAuthFormProps) {
             {isSubmitting ? (
               <span className="inline-flex items-center gap-2">
                 <Spinner size={16} className="text-current" />
-                <span>
-                  {mode === "signIn" ? "Signing in" : "Creating account"}
-                </span>
+                <span>{mode === "signIn" ? "Signing in" : "Creating account"}</span>
               </span>
             ) : mode === "signIn" ? (
               "Sign in"
@@ -142,14 +131,10 @@ export function PasswordAuthForm({ className }: PasswordAuthFormProps) {
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             onClick={() => {
               setError(null);
-              setMode((current) =>
-                current === "signIn" ? "signUp" : "signIn",
-              );
+              setMode((current) => (current === "signIn" ? "signUp" : "signIn"));
             }}
           >
-            {mode === "signIn"
-              ? "Need an account? Create one"
-              : "Already have an account? Sign in"}
+            {mode === "signIn" ? "Need an account? Create one" : "Already have an account? Sign in"}
           </button>
         </div>
       </form>

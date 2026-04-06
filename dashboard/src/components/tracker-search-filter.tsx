@@ -91,13 +91,9 @@ export function TrackerSearchFilter() {
     setFilter({ q: input.length > 0 ? input : null });
   };
 
-  const validFilters = Object.fromEntries(
-    Object.entries(filter).filter(([key]) => key !== "q"),
-  );
+  const validFilters = Object.fromEntries(Object.entries(filter).filter(([key]) => key !== "q"));
 
-  const hasValidFilters = Object.values(validFilters).some(
-    (value) => value !== null,
-  );
+  const hasValidFilters = Object.values(validFilters).some((value) => value !== null);
 
   const members = membersData?.map((member) => ({
     id: member.user!.id as string,
@@ -168,11 +164,7 @@ export function TrackerSearchFilter() {
               <span>Date</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
-              <DropdownMenuSubContent
-                sideOffset={14}
-                alignOffset={-4}
-                className="p-0"
-              >
+              <DropdownMenuSubContent sideOffset={14} alignOffset={-4} className="p-0">
                 <Calendar
                   mode="range"
                   initialFocus
@@ -181,9 +173,7 @@ export function TrackerSearchFilter() {
                   selected={
                     filter.start || filter.end
                       ? {
-                          from: filter.start
-                            ? parseISO(filter.start)
-                            : undefined,
+                          from: filter.start ? parseISO(filter.start) : undefined,
                           to: filter.end ? parseISO(filter.end) : undefined,
                         }
                       : undefined
@@ -195,9 +185,7 @@ export function TrackerSearchFilter() {
                       start: range.from
                         ? formatISO(range.from, { representation: "date" })
                         : filter.start,
-                      end: range.to
-                        ? formatISO(range.to, { representation: "date" })
-                        : filter.end,
+                      end: range.to ? formatISO(range.to, { representation: "date" }) : filter.end,
                     };
 
                     setFilter(newRange);
@@ -215,11 +203,7 @@ export function TrackerSearchFilter() {
               <span>Status</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
-              <DropdownMenuSubContent
-                sideOffset={14}
-                alignOffset={-4}
-                className="p-0"
-              >
+              <DropdownMenuSubContent sideOffset={14} alignOffset={-4} className="p-0">
                 {statusFilters.map(({ id, name }) => (
                   <DropdownMenuCheckboxItem
                     key={id}
@@ -246,11 +230,7 @@ export function TrackerSearchFilter() {
               <span>Customer</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
-              <DropdownMenuSubContent
-                sideOffset={14}
-                alignOffset={-4}
-                className="p-0"
-              >
+              <DropdownMenuSubContent sideOffset={14} alignOffset={-4} className="p-0">
                 {customersData?.data?.map((customer) => (
                   <DropdownMenuCheckboxItem
                     key={customer.id}
@@ -268,9 +248,7 @@ export function TrackerSearchFilter() {
                 ))}
 
                 {!customersData?.data?.length && (
-                  <DropdownMenuItem disabled>
-                    No customers found
-                  </DropdownMenuItem>
+                  <DropdownMenuItem disabled>No customers found</DropdownMenuItem>
                 )}
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
@@ -284,11 +262,7 @@ export function TrackerSearchFilter() {
               <span>Tags</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
-              <DropdownMenuSubContent
-                sideOffset={14}
-                alignOffset={-4}
-                className="p-0"
-              >
+              <DropdownMenuSubContent sideOffset={14} alignOffset={-4} className="p-0">
                 {tagsData?.map((tag) => (
                   <DropdownMenuCheckboxItem
                     key={tag.id}
@@ -305,9 +279,7 @@ export function TrackerSearchFilter() {
                   </DropdownMenuCheckboxItem>
                 ))}
 
-                {!tagsData?.length && (
-                  <DropdownMenuItem disabled>No tags found</DropdownMenuItem>
-                )}
+                {!tagsData?.length && <DropdownMenuItem disabled>No tags found</DropdownMenuItem>}
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
           </DropdownMenuSub>

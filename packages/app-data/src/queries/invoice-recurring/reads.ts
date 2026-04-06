@@ -15,12 +15,8 @@ import {
   type GetUpcomingInvoicesParams,
 } from "./shared";
 
-function getValidRecurringStatuses(
-  statuses: GetInvoiceRecurringListParams["status"],
-) {
-  return (statuses ?? []).filter((status) =>
-    RECURRING_STATUSES.includes(status),
-  );
+function getValidRecurringStatuses(statuses: GetInvoiceRecurringListParams["status"]) {
+  return (statuses ?? []).filter((status) => RECURRING_STATUSES.includes(status));
 }
 
 export async function getInvoiceRecurringById(
@@ -53,8 +49,7 @@ export async function getInvoiceRecurringList(
   const offset = cursor ? Number.parseInt(cursor, 10) : 0;
   data = [...data].sort(sortRecurringByCreatedAtDesc);
   const pagedData = data.slice(offset, offset + pageSize);
-  const nextCursor =
-    pagedData.length === pageSize ? (offset + pageSize).toString() : undefined;
+  const nextCursor = pagedData.length === pageSize ? (offset + pageSize).toString() : undefined;
 
   return {
     meta: {
@@ -86,10 +81,7 @@ export async function getInvoiceRecurringList(
   };
 }
 
-export async function getUpcomingInvoices(
-  db: Database,
-  params: GetUpcomingInvoicesParams,
-) {
+export async function getUpcomingInvoices(db: Database, params: GetUpcomingInvoicesParams) {
   const { id, teamId, limit = 10 } = params;
   const recurring = await getInvoiceRecurringById(db, { id, teamId });
 
@@ -97,9 +89,7 @@ export async function getUpcomingInvoices(
     return null;
   }
 
-  const startDate = recurring.nextScheduledAt
-    ? new Date(recurring.nextScheduledAt)
-    : new Date();
+  const startDate = recurring.nextScheduledAt ? new Date(recurring.nextScheduledAt) : new Date();
 
   return calculateUpcomingDates(
     buildRecurringParams(recurring),
@@ -118,9 +108,7 @@ export async function checkInvoiceExists(
   _db: Database,
   params: { invoiceRecurringId: string; recurringSequence: number },
 ) {
-  const recurring = await getProjectedInvoiceRecurringByLegacyId(
-    params.invoiceRecurringId,
-  );
+  const recurring = await getProjectedInvoiceRecurringByLegacyId(params.invoiceRecurringId);
 
   if (!recurring) {
     return null;

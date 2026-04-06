@@ -32,9 +32,7 @@ function buildOpenRouterHeaders(): Record<string, string> | undefined {
 const openrouterProvider = createOpenAI({
   name: "openrouter",
   apiKey: process.env.OPENROUTER_API_KEY,
-  baseURL:
-    process.env.OPENROUTER_BASE_URL?.replace(/\/$/, "") ||
-    "https://openrouter.ai/api/v1",
+  baseURL: process.env.OPENROUTER_BASE_URL?.replace(/\/$/, "") || "https://openrouter.ai/api/v1",
   headers: buildOpenRouterHeaders(),
 });
 
@@ -51,10 +49,7 @@ const assistantProviders: Record<AIProvider, AssistantProviderConfig> = {
     provider: kimiProvider,
     models: {
       primary: process.env.KIMI_MODEL_PRIMARY || "kimi-latest",
-      small:
-        process.env.KIMI_MODEL_SMALL ||
-        process.env.KIMI_MODEL_PRIMARY ||
-        "kimi-latest",
+      small: process.env.KIMI_MODEL_SMALL || process.env.KIMI_MODEL_PRIMARY || "kimi-latest",
       micro:
         process.env.KIMI_MODEL_MICRO ||
         process.env.KIMI_MODEL_SMALL ||
@@ -68,9 +63,7 @@ const assistantProviders: Record<AIProvider, AssistantProviderConfig> = {
   openrouter: {
     provider: openrouterProvider,
     models: {
-      primary:
-        process.env.OPENROUTER_ASSISTANT_MODEL_PRIMARY ||
-        DEFAULT_OPENROUTER_ASSISTANT_MODEL,
+      primary: process.env.OPENROUTER_ASSISTANT_MODEL_PRIMARY || DEFAULT_OPENROUTER_ASSISTANT_MODEL,
       small:
         process.env.OPENROUTER_ASSISTANT_MODEL_SMALL ||
         process.env.OPENROUTER_ASSISTANT_MODEL_PRIMARY ||
@@ -91,23 +84,16 @@ function resolveAssistantProvider(aiProvider?: AIProvider | null) {
   return assistantProviders[aiProvider ?? DEFAULT_AI_PROVIDER];
 }
 
-export function normalizeAIProvider(
-  aiProvider?: AIProvider | null,
-): AIProvider {
+export function normalizeAIProvider(aiProvider?: AIProvider | null): AIProvider {
   return aiProvider ?? DEFAULT_AI_PROVIDER;
 }
 
-export function getAssistantModel(
-  aiProvider: AIProvider,
-  tier: AssistantModelTier,
-) {
+export function getAssistantModel(aiProvider: AIProvider, tier: AssistantModelTier) {
   const provider = resolveAssistantProvider(aiProvider);
 
   return provider.provider.chat(provider.models[tier]);
 }
 
-export function getAIProviderConfigurationError(
-  aiProvider: AIProvider,
-): string | null {
+export function getAIProviderConfigurationError(aiProvider: AIProvider): string | null {
   return resolveAssistantProvider(aiProvider).configurationError ?? null;
 }

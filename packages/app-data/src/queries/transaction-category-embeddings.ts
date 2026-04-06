@@ -8,10 +8,7 @@ export type GetCategoryEmbeddingParams = {
   name: string;
 };
 
-export const getCategoryEmbedding = async (
-  _db: Database,
-  params: GetCategoryEmbeddingParams,
-) => {
+export const getCategoryEmbedding = async (_db: Database, params: GetCategoryEmbeddingParams) => {
   const [result] = await getTransactionCategoryEmbeddingsByNamesFromConvex({
     names: [params.name],
   });

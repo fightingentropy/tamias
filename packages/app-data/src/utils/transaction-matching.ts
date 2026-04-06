@@ -44,11 +44,7 @@ export function isCrossCurrencyMatch(
   }
 
   // Must have same base currency
-  if (
-    !item1.baseCurrency ||
-    !item2.baseCurrency ||
-    item1.baseCurrency !== item2.baseCurrency
-  ) {
+  if (!item1.baseCurrency || !item2.baseCurrency || item1.baseCurrency !== item2.baseCurrency) {
     return false;
   }
 
@@ -117,11 +113,8 @@ export function isCrossCurrencyMatch(
       isHighRisk: actualTolerancePercent > 0.1, // Flag >10% effective tolerance
       isConservative: actualTolerancePercent <= 0.05, // Flag ≤5% tolerance
       toleranceSource:
-        adjustedTolerance ===
-        Math.max(15, avgAmount * effectiveTolerancePercent)
-          ? adjustedTolerance === 15 ||
-            adjustedTolerance === 25 ||
-            adjustedTolerance === 50
+        adjustedTolerance === Math.max(15, avgAmount * effectiveTolerancePercent)
+          ? adjustedTolerance === 15 || adjustedTolerance === 25 || adjustedTolerance === 50
             ? "minimum"
             : "percentage"
           : "percentage",
@@ -184,8 +177,7 @@ export function calculateAmountScore(
   ) {
     const maxBaseAmount = Math.max(baseAmount1, baseAmount2);
     const avgBaseAmount = (baseAmount1 + baseAmount2) / 2;
-    const basePercentageDiff =
-      Math.abs(baseAmount1 - baseAmount2) / maxBaseAmount;
+    const basePercentageDiff = Math.abs(baseAmount1 - baseAmount2) / maxBaseAmount;
 
     if (basePercentageDiff === 0) return 1.0;
 
@@ -208,9 +200,7 @@ export function calculateAmountScore(
   }
 
   // Fallback for cross-currency without usable base amounts.
-  const ratio =
-    Math.max(absAmount1, absAmount2) /
-    Math.max(Math.min(absAmount1, absAmount2), 1e-9);
+  const ratio = Math.max(absAmount1, absAmount2) / Math.max(Math.min(absAmount1, absAmount2), 1e-9);
   if (ratio > 5) return 0.1;
   if (percentageDiff <= 0.05) return 0.7;
   if (percentageDiff <= 0.2) return 0.4;
@@ -306,9 +296,7 @@ export function calculateNameScore(
 
     const inboxSet = new Set(inboxTokens);
     const compareSet = new Set(compareTokens);
-    const intersection = new Set(
-      [...inboxSet].filter((t) => compareSet.has(t)),
-    );
+    const intersection = new Set([...inboxSet].filter((t) => compareSet.has(t)));
     const union = new Set([...inboxSet, ...compareSet]);
 
     if (union.size > 0) {
@@ -321,8 +309,7 @@ export function calculateNameScore(
     if (
       inboxJoined.length >= 3 &&
       compareJoined.length >= 3 &&
-      (inboxJoined.includes(compareJoined) ||
-        compareJoined.includes(inboxJoined))
+      (inboxJoined.includes(compareJoined) || compareJoined.includes(inboxJoined))
     ) {
       scores.push(0.85);
     }
@@ -386,10 +373,7 @@ export function scoreMatch({
   const totalWeight = 10 + amountWeight + dateWeight + 5;
 
   const weightedBase =
-    (nameScore * 10 +
-      amountScore * amountWeight +
-      dateScore * dateWeight +
-      currencyScore * 5) /
+    (nameScore * 10 + amountScore * amountWeight + dateScore * dateWeight + currencyScore * 5) /
     totalWeight;
 
   let confidence = weightedBase;
@@ -404,12 +388,7 @@ export function scoreMatch({
 
   // Cross-currency additive boost instead of a hard floor — preserves the
   // natural score spread so date can still discriminate between months.
-  if (
-    !isSameCurrency &&
-    nameScore >= 0.5 &&
-    amountScore >= 0.6 &&
-    dateScore >= 0.3
-  ) {
+  if (!isSameCurrency && nameScore >= 0.5 && amountScore >= 0.6 && dateScore >= 0.3) {
     confidence = Math.max(confidence, confidence + 0.05);
   }
 
@@ -437,14 +416,12 @@ export function calculateDateScore(
   const transactionDateObj = parseISO(transactionDate);
 
   const diffDays = Math.abs(
-    (inboxDateObj.getTime() - transactionDateObj.getTime()) /
-      (1000 * 60 * 60 * 24),
+    (inboxDateObj.getTime() - transactionDateObj.getTime()) / (1000 * 60 * 60 * 24),
   );
 
   // Signed difference: positive = transaction AFTER inbox date, negative = transaction BEFORE inbox date
   const signedDiffDays =
-    (transactionDateObj.getTime() - inboxDateObj.getTime()) /
-    (1000 * 60 * 60 * 24);
+    (transactionDateObj.getTime() - inboxDateObj.getTime()) / (1000 * 60 * 60 * 24);
 
   const type = inboxType || "expense"; // Default to expense if not specified
 
@@ -463,8 +440,7 @@ export function calculateDateScore(
       if (signedDiffDays <= 6) return 0.99; // 0-3 days + 3-day banking delay
 
       // Extended payment terms (up to 120 days + delay)
-      if (signedDiffDays <= 123)
-        return Math.max(0.7, 0.9 - (signedDiffDays - 33) * 0.002);
+      if (signedDiffDays <= 123) return Math.max(0.7, 0.9 - (signedDiffDays - 33) * 0.002);
     }
     // Payment BEFORE invoice (advance payment, accounting for delay)
     else if (signedDiffDays >= -10) {

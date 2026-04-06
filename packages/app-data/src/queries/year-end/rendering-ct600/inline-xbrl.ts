@@ -11,14 +11,9 @@ function stripInlineDoctype(value: string) {
 }
 
 function normalizeInlineXbrlDocumentForCtSubmission(value: string) {
-  return stripInlineDoctype(
-    stripLeadingXmlDeclaration(stripUtf8ByteOrderMark(value)),
-  ).trim();
+  return stripInlineDoctype(stripLeadingXmlDeclaration(stripUtf8ByteOrderMark(value))).trim();
 }
 
 export function encodeInlineXbrlDocumentForCtSubmission(value: string) {
-  return Buffer.from(
-    normalizeInlineXbrlDocumentForCtSubmission(value),
-    "utf8",
-  ).toString("base64");
+  return Buffer.from(normalizeInlineXbrlDocumentForCtSubmission(value), "utf8").toString("base64");
 }

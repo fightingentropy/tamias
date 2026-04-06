@@ -76,10 +76,7 @@ export function TransactionUnmatchItem() {
         currency={selectedInboxItem.transaction.currency}
       />
 
-      <button
-        onClick={() => unmatchTransactionMutation.mutate({ id })}
-        type="button"
-      >
+      <button onClick={() => unmatchTransactionMutation.mutate({ id })} type="button">
         <Icons.Delete className="w-4 h-4 text-[#878787]" />
       </button>
     </div>

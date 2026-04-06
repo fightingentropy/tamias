@@ -215,23 +215,17 @@ describe("calculateNextScheduledDate", () => {
 
 describe("shouldMarkCompleted", () => {
   test("never-ending series never completes", () => {
-    expect(shouldMarkCompleted("never", null, null, 100, new Date())).toBe(
-      false,
-    );
+    expect(shouldMarkCompleted("never", null, null, 100, new Date())).toBe(false);
   });
 
   test("on_date completes when next date exceeds end date", () => {
     const endDate = new Date("2025-02-01T00:00:00.000Z");
     const nextScheduledAt = new Date("2025-02-02T00:00:00.000Z");
-    expect(
-      shouldMarkCompleted("on_date", endDate, null, 5, nextScheduledAt),
-    ).toBe(true);
+    expect(shouldMarkCompleted("on_date", endDate, null, 5, nextScheduledAt)).toBe(true);
   });
 
   test("after_count completes when count reached", () => {
-    expect(shouldMarkCompleted("after_count", null, 12, 12, new Date())).toBe(
-      true,
-    );
+    expect(shouldMarkCompleted("after_count", null, 12, 12, new Date())).toBe(true);
   });
 });
 

@@ -2,18 +2,9 @@ import { isDateInFutureUTC } from "@tamias/invoice/recurring";
 import { Button } from "@tamias/ui/button";
 import { Icons } from "@tamias/ui/icons";
 import { ScrollArea } from "@tamias/ui/scroll-area";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { useToast } from "@tamias/ui/use-toast";
-import {
-  useIsMutating,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useIsMutating, useMutation, useQueryClient } from "@tanstack/react-query";
 import { differenceInDays } from "date-fns";
 import { useEffect } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
@@ -30,40 +21,23 @@ import { Meta } from "./meta";
 import { Summary } from "./summary";
 import { transformFormValuesToDraft } from "./utils";
 
-const EmailPreview = dynamic(
-  () => import("./email-preview").then((mod) => mod.EmailPreview),
-  { ssr: false },
-);
+const EmailPreview = dynamic(() => import("./email-preview").then((mod) => mod.EmailPreview), {
+  ssr: false,
+});
 
-function InvoiceActionButtonFallback({
-  label,
-  className,
-}: {
-  label: string;
-  className?: string;
-}) {
+function InvoiceActionButtonFallback({ label, className }: { label: string; className?: string }) {
   return (
-    <Button
-      type="button"
-      variant="outline"
-      disabled
-      className={className ?? "h-9 px-3 text-xs"}
-    >
+    <Button type="button" variant="outline" disabled className={className ?? "h-9 px-3 text-xs"}>
       {label}
     </Button>
   );
 }
 
-function InvoiceSectionFallback({
-  className,
-}: {
-  className?: string;
-}) {
+function InvoiceSectionFallback({ className }: { className?: string }) {
   return (
     <div
       className={
-        className ??
-        "min-h-[120px] rounded-sm border border-dashed border-border/50 bg-transparent"
+        className ?? "min-h-[120px] rounded-sm border border-dashed border-border/50 bg-transparent"
       }
     />
   );
@@ -77,42 +51,30 @@ const CustomerDetails = dynamic(
   },
 );
 
-const EditBlock = dynamic(
-  () => import("./edit-block").then((mod) => mod.EditBlock),
-  {
-    ssr: false,
-    loading: () => <InvoiceSectionFallback className="min-h-[48px]" />,
-  },
-);
+const EditBlock = dynamic(() => import("./edit-block").then((mod) => mod.EditBlock), {
+  ssr: false,
+  loading: () => <InvoiceSectionFallback className="min-h-[48px]" />,
+});
 
-const FromDetails = dynamic(
-  () => import("./from-details").then((mod) => mod.FromDetails),
-  {
-    ssr: false,
-    loading: () => <InvoiceSectionFallback className="min-h-[120px]" />,
-  },
-);
+const FromDetails = dynamic(() => import("./from-details").then((mod) => mod.FromDetails), {
+  ssr: false,
+  loading: () => <InvoiceSectionFallback className="min-h-[120px]" />,
+});
 
-const LineItems = dynamic(
-  () => import("./line-items").then((mod) => mod.LineItems),
-  {
-    ssr: false,
-    loading: () => <InvoiceSectionFallback className="min-h-[240px]" />,
-  },
-);
+const LineItems = dynamic(() => import("./line-items").then((mod) => mod.LineItems), {
+  ssr: false,
+  loading: () => <InvoiceSectionFallback className="min-h-[240px]" />,
+});
 
 const Logo = dynamic(() => import("./logo").then((mod) => mod.Logo), {
   ssr: false,
   loading: () => <InvoiceSectionFallback className="h-[80px] w-[80px]" />,
 });
 
-const NoteDetails = dynamic(
-  () => import("./note-details").then((mod) => mod.NoteDetails),
-  {
-    ssr: false,
-    loading: () => <InvoiceSectionFallback className="min-h-[110px]" />,
-  },
-);
+const NoteDetails = dynamic(() => import("./note-details").then((mod) => mod.NoteDetails), {
+  ssr: false,
+  loading: () => <InvoiceSectionFallback className="min-h-[110px]" />,
+});
 
 const PaymentDetails = dynamic(
   () => import("./payment-details").then((mod) => mod.PaymentDetails),
@@ -122,13 +84,10 @@ const PaymentDetails = dynamic(
   },
 );
 
-const SettingsMenu = dynamic(
-  () => import("./settings-menu").then((mod) => mod.SettingsMenu),
-  {
-    ssr: false,
-    loading: () => <InvoiceActionButtonFallback label="Settings" />,
-  },
-);
+const SettingsMenu = dynamic(() => import("./settings-menu").then((mod) => mod.SettingsMenu), {
+  ssr: false,
+  loading: () => <InvoiceActionButtonFallback label="Settings" />,
+});
 
 const TemplateSelector = dynamic(
   () => import("./template-selector").then((mod) => mod.TemplateSelector),
@@ -144,9 +103,7 @@ const InvoiceSubmitButton = dynamic(
   () => import("./submit-button").then((mod) => mod.SubmitButton),
   {
     ssr: false,
-    loading: () => (
-      <InvoiceActionButtonFallback label="Send" className="h-9 px-4" />
-    ),
+    loading: () => <InvoiceActionButtonFallback label="Send" className="h-9 px-4" />,
   },
 );
 
@@ -217,8 +174,7 @@ export function Form() {
         if (error.data?.code === "SERVICE_UNAVAILABLE") {
           toast({
             title: "Scheduling Failed",
-            description:
-              "Please try again. If the issue persists, contact support.",
+            description: "Please try again. If the issue persists, contact support.",
           });
         } else {
           // Generic error handling for other invoice creation errors
@@ -368,8 +324,7 @@ export function Form() {
 
     if (needsRecurringUpdate) {
       // Remove deliveryType from template since "recurring" is not a valid API deliveryType
-      const { deliveryType: _, ...templateWithoutDeliveryType } =
-        currentFormValues.template;
+      const { deliveryType: _, ...templateWithoutDeliveryType } = currentFormValues.template;
 
       updateRecurringTemplateMutation.mutate(
         {
@@ -402,10 +357,7 @@ export function Form() {
   // Submit the form and the draft invoice
   const handleSubmit = async (values: InvoiceFormValues) => {
     // Handle recurring invoices differently
-    if (
-      values.template.deliveryType === "recurring" &&
-      values.recurringConfig
-    ) {
+    if (values.template.deliveryType === "recurring" && values.recurringConfig) {
       const config = values.recurringConfig;
 
       // Calculate due date offset from issue date to due date
@@ -414,45 +366,41 @@ export function Form() {
       const dueDateOffset = differenceInDays(dueDate, issueDate);
 
       // Remove deliveryType from template since recurring is handled differently
-      const { deliveryType: _, ...templateWithoutDeliveryType } =
-        values.template;
+      const { deliveryType: _, ...templateWithoutDeliveryType } = values.template;
 
       try {
         // First create the recurring series and link the draft invoice
-        const recurringResult =
-          await createRecurringInvoiceMutation.mutateAsync({
-            invoiceId: values.id, // Link the draft invoice to the recurring series
-            customerId: values.customerId,
-            customerName: values.customerName ?? undefined,
-            frequency: config.frequency,
-            frequencyDay: config.frequencyDay,
-            frequencyWeek: config.frequencyWeek,
-            frequencyInterval: config.frequencyInterval,
-            endType: config.endType ?? "never",
-            endDate: config.endDate,
-            endCount: config.endCount,
-            timezone:
-              user?.timezone ||
-              Intl.DateTimeFormat().resolvedOptions().timeZone,
-            dueDateOffset: dueDateOffset >= 0 ? dueDateOffset : 30,
-            amount: values.amount,
-            currency: values.template.currency,
-            lineItems: values.lineItems,
-            template: {
-              ...templateWithoutDeliveryType,
-              deliveryType: "create_and_send" as const, // Recurring invoices are sent automatically
-            },
-            templateId: values.template.id, // Save the template reference
-            paymentDetails: values.paymentDetails,
-            fromDetails: values.fromDetails,
-            noteDetails: values.noteDetails,
-            vat: values.vat,
-            tax: values.tax,
-            discount: values.discount,
-            subtotal: values.subtotal,
-            topBlock: values.topBlock,
-            bottomBlock: values.bottomBlock,
-          });
+        const recurringResult = await createRecurringInvoiceMutation.mutateAsync({
+          invoiceId: values.id, // Link the draft invoice to the recurring series
+          customerId: values.customerId,
+          customerName: values.customerName ?? undefined,
+          frequency: config.frequency,
+          frequencyDay: config.frequencyDay,
+          frequencyWeek: config.frequencyWeek,
+          frequencyInterval: config.frequencyInterval,
+          endType: config.endType ?? "never",
+          endDate: config.endDate,
+          endCount: config.endCount,
+          timezone: user?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+          dueDateOffset: dueDateOffset >= 0 ? dueDateOffset : 30,
+          amount: values.amount,
+          currency: values.template.currency,
+          lineItems: values.lineItems,
+          template: {
+            ...templateWithoutDeliveryType,
+            deliveryType: "create_and_send" as const, // Recurring invoices are sent automatically
+          },
+          templateId: values.template.id, // Save the template reference
+          paymentDetails: values.paymentDetails,
+          fromDetails: values.fromDetails,
+          noteDetails: values.noteDetails,
+          vat: values.vat,
+          tax: values.tax,
+          discount: values.discount,
+          subtotal: values.subtotal,
+          topBlock: values.topBlock,
+          bottomBlock: values.bottomBlock,
+        });
 
         // Update form state with the recurring series ID to prevent duplicate series
         // if the send fails and user retries
@@ -503,8 +451,7 @@ export function Form() {
     const deliveryType = values.template.deliveryType;
     createInvoiceMutation.mutate({
       id: values.id,
-      deliveryType:
-        deliveryType === "recurring" ? "create" : (deliveryType ?? "create"),
+      deliveryType: deliveryType === "recurring" ? "create" : (deliveryType ?? "create"),
       scheduledAt: values.scheduledAt || undefined,
     });
   };
@@ -523,10 +470,7 @@ export function Form() {
       className="relative h-full"
       onKeyDown={handleKeyDown}
     >
-      <ScrollArea
-        className="h-[calc(100vh-110px)] p-6 [&>div>div]:h-full"
-        hideScrollbar
-      >
+      <ScrollArea className="h-[calc(100vh-110px)] p-6 [&>div>div]:h-full" hideScrollbar>
         <div className="p-8 pb-4 h-full flex flex-col bg-[#fcfcfc] dark:bg-[#0f0f0f]">
           <div className="flex justify-between items-start">
             <div className="flex-1 min-w-0 mr-5">
@@ -594,11 +538,7 @@ export function Form() {
                         <Icons.ForwardToInbox className="size-3" />
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent
-                      side="top"
-                      sideOffset={8}
-                      className="text-[10px] px-2 py-1"
-                    >
+                    <TooltipContent side="top" sideOffset={8} className="text-[10px] px-2 py-1">
                       Preview email
                     </TooltipContent>
                   </Tooltip>
@@ -618,11 +558,7 @@ export function Form() {
                         <Icons.ExternalLink className="size-3" />
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent
-                      side="top"
-                      sideOffset={8}
-                      className="text-[10px] px-2 py-1"
-                    >
+                    <TooltipContent side="top" sideOffset={8} className="text-[10px] px-2 py-1">
                       Preview invoice
                     </TooltipContent>
                   </Tooltip>
@@ -631,8 +567,7 @@ export function Form() {
 
               <InvoiceSubmitButton
                 isSubmitting={
-                  createInvoiceMutation.isPending ||
-                  createRecurringInvoiceMutation.isPending
+                  createInvoiceMutation.isPending || createRecurringInvoiceMutation.isPending
                 }
                 disabled={
                   createInvoiceMutation.isPending ||

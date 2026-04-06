@@ -26,11 +26,7 @@ type Props = {
   transactionId?: string;
 };
 
-export function SelectAttachment({
-  placeholder,
-  onSelect,
-  transactionId,
-}: Props) {
+export function SelectAttachment({ placeholder, onSelect, transactionId }: Props) {
   const [debouncedValue, setDebouncedValue] = useDebounceValue("", 200);
   const [isOpen, setIsOpen] = useState(false);
   const { data: user } = useUserQuery();
@@ -107,8 +103,7 @@ export function SelectAttachment({
         }
 
         const isSmartSuggestion = debouncedValue.length === 0 && transactionId;
-        const showBestMatch =
-          isSmartSuggestion && index === 0 && items?.length > 1;
+        const showBestMatch = isSmartSuggestion && index === 0 && items?.length > 1;
 
         return {
           id: item.id,
@@ -129,9 +124,7 @@ export function SelectAttachment({
                     >
                       <FilePreview
                         mimeType={
-                          isInvoice
-                            ? "application/pdf"
-                            : item.contentType || "application/pdf"
+                          isInvoice ? "application/pdf" : item.contentType || "application/pdf"
                         }
                         filePath={filePath!}
                         lazy
@@ -146,9 +139,7 @@ export function SelectAttachment({
                 <div className="flex flex-col">
                   <span className="truncate text-sm">{displayName}</span>
                   {secondaryText && (
-                    <span className="text-muted-foreground text-xs">
-                      {secondaryText}
-                    </span>
+                    <span className="text-muted-foreground text-xs">{secondaryText}</span>
                   )}
                 </div>
               </div>

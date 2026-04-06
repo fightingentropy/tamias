@@ -72,10 +72,7 @@ export function useScrollHeader(
         // Enable transition after first scroll (keeps navigation instant)
         if (!hasScrolledRef.current) {
           hasScrolledRef.current = true;
-          document.documentElement.style.setProperty(
-            HEADER_TRANSITION_VAR,
-            "200ms",
-          );
+          document.documentElement.style.setProperty(HEADER_TRANSITION_VAR, "200ms");
         }
 
         let scrollTop: number;

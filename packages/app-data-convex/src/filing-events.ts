@@ -51,10 +51,7 @@ export async function upsertEvidencePackInConvex(args: {
   ) as Promise<EvidencePackRecord>;
 }
 
-export async function getEvidencePackByIdFromConvex(args: {
-  teamId: string;
-  id: string;
-}) {
+export async function getEvidencePackByIdFromConvex(args: { teamId: string; id: string }) {
   return createClient().query(
     api.evidencePacks.serviceGetEvidencePackById,
     serviceArgs({

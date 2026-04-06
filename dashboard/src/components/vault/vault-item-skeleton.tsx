@@ -7,16 +7,9 @@ type Props = {
 
 export function VaultItemSkeleton({ small }: Props) {
   return (
-    <div
-      className={cn(
-        "h-72 border relative flex p-4 flex-col gap-3",
-        small && "h-48",
-      )}
-    >
+    <div className={cn("h-72 border relative flex p-4 flex-col gap-3", small && "h-48")}>
       {/* Skeleton for the preview area */}
-      <Skeleton
-        className={cn("w-[60px] h-[84px]", small && "w-[45px] h-[63px]")}
-      />
+      <Skeleton className={cn("w-[60px] h-[84px]", small && "w-[45px] h-[63px]")} />
 
       {/* Skeleton for title and summary */}
       <div className="flex flex-col mt-3 gap-2">

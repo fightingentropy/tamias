@@ -16,10 +16,7 @@ type DeleteAttachmentParams = {
   teamId: string;
 };
 
-export async function deleteAttachment(
-  db: Database,
-  params: DeleteAttachmentParams,
-) {
+export async function deleteAttachment(db: Database, params: DeleteAttachmentParams) {
   const [result] = await getTransactionAttachmentsByIds({
     teamId: params.teamId,
     attachmentIds: [params.id],
@@ -39,9 +36,7 @@ export async function deleteAttachment(
 
   if (result.transactionId) {
     const rows = teamInboxItems.filter(
-      (item) =>
-        item.attachmentId === result.id ||
-        item.transactionId === result.transactionId,
+      (item) => item.attachmentId === result.id || item.transactionId === result.transactionId,
     );
 
     for (const row of rows) {
@@ -94,10 +89,7 @@ export async function deleteAttachment(
       transactionId: result.transactionId,
     });
 
-    const latestSuggestionByInboxId = new Map<
-      string,
-      (typeof suggestions)[number]
-    >();
+    const latestSuggestionByInboxId = new Map<string, (typeof suggestions)[number]>();
 
     for (const suggestion of suggestions) {
       const current = latestSuggestionByInboxId.get(suggestion.inboxId);

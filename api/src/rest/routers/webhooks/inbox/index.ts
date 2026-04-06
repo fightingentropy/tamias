@@ -53,18 +53,13 @@ app.use("*", async (c, next) => {
     throw new HTTPException(403, { message: "Invalid IP address" });
   }
 
-  const isValidIp = POSTMARK_IP_RANGE.includes(
-    clientIp as (typeof POSTMARK_IP_RANGE)[number],
-  );
+  const isValidIp = POSTMARK_IP_RANGE.includes(clientIp as (typeof POSTMARK_IP_RANGE)[number]);
 
   if (!isValidIp) {
-    logger.warn(
-      "Inbox webhook IP validation failed - IP not in allowed range",
-      {
-        receivedIp: clientIp,
-        allowedIps: POSTMARK_IP_RANGE,
-      },
-    );
+    logger.warn("Inbox webhook IP validation failed - IP not in allowed range", {
+      receivedIp: clientIp,
+      allowedIps: POSTMARK_IP_RANGE,
+    });
     throw new HTTPException(403, { message: "Invalid IP address" });
   }
 
@@ -155,15 +150,8 @@ app.openapi(
       );
     }
 
-    const {
-      MessageID,
-      FromFull,
-      Subject,
-      Attachments,
-      OriginalRecipient,
-      TextBody,
-      HtmlBody,
-    } = parsedBody.data;
+    const { MessageID, FromFull, Subject, Attachments, OriginalRecipient, TextBody, HtmlBody } =
+      parsedBody.data;
 
     const inboxId = getInboxIdFromEmail(OriginalRecipient);
 
@@ -213,10 +201,7 @@ app.openapi(
       });
 
       // If the email is forwarded from a Google Workspace account, we need to send a reply to the team email
-      if (
-        teamData.email &&
-        ALLOWED_FORWARDING_EMAILS.includes(FromFull.Email as any)
-      ) {
+      if (teamData.email && ALLOWED_FORWARDING_EMAILS.includes(FromFull.Email as any)) {
         logger.info("Processing Google Workspace forwarded email", {
           teamId,
           inboxId,
@@ -282,13 +267,7 @@ app.openapi(
 
       // Upload all attachments in parallel
       const uploadPromises = filteredAttachments.map((attachment) =>
-        uploadAttachment(
-          teamId,
-          attachment,
-          FromFull?.Email || null,
-          Subject,
-          MessageID,
-        ),
+        uploadAttachment(teamId, attachment, FromFull?.Email || null, Subject, MessageID),
       );
 
       const uploadResults = await Promise.all(uploadPromises);
@@ -347,8 +326,7 @@ app.openapi(
       }
 
       // Log and wrap other errors
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       const errorStack = error instanceof Error ? error.stack : undefined;
 
       logger.error("Inbox webhook processing failed", {

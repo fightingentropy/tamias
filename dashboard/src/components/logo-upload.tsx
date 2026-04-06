@@ -48,12 +48,7 @@ export const LogoUpload = ({ logoUrl: initialLogoUrl, onUpload }: Props) => {
       {isLoading ? (
         <Spinner className="h-4 w-4" />
       ) : (
-        <AvatarImage
-          src={logo ?? undefined}
-          alt="Logo"
-          width={64}
-          height={64}
-        />
+        <AvatarImage src={logo ?? undefined} alt="Logo" width={64} height={64} />
       )}
 
       <input

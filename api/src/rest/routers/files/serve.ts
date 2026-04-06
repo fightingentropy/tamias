@@ -68,10 +68,7 @@ app.openapi(
   }),
   async (c) => {
     const { filePath } = c.req.valid("query");
-    const { normalizedPath, pathArray } = normalizeAndValidatePath(
-      filePath,
-      c.get("teamId"),
-    );
+    const { normalizedPath, pathArray } = normalizeAndValidatePath(filePath, c.get("teamId"));
 
     const { data, error } = await downloadVaultFile(normalizedPath);
 
@@ -88,10 +85,7 @@ app.openapi(
     const blob = await data.arrayBuffer();
     const filename = pathArray.at(-1);
     const contentType =
-      data.type ||
-      (filename
-        ? getContentTypeFromFilename(filename)
-        : "application/octet-stream");
+      data.type || (filename ? getContentTypeFromFilename(filename) : "application/octet-stream");
 
     // Set cache headers for images (long cache for immutable content)
     const headers: Record<string, string> = {
@@ -104,9 +98,7 @@ app.openapi(
       contentType.startsWith("image/") ||
       contentType === "message/rfc822"
     ) {
-      headers["Content-Disposition"] = filename
-        ? `inline; filename="${filename}"`
-        : "inline";
+      headers["Content-Disposition"] = filename ? `inline; filename="${filename}"` : "inline";
     }
 
     // Add cache headers for images

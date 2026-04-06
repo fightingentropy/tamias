@@ -23,12 +23,9 @@ export async function buildTransactionsPageData(href?: string) {
     tab,
   });
 
-  const activeTransactionsQuery = trpc.transactions.get.infiniteQueryOptions(
-    transactionsFilter,
-    {
-      getNextPageParam: ({ meta }) => meta?.cursor,
-    },
-  );
+  const activeTransactionsQuery = trpc.transactions.get.infiniteQueryOptions(transactionsFilter, {
+    getNextPageParam: ({ meta }) => meta?.cursor,
+  });
 
   await batchPrefetch([activeTransactionsQuery]);
 

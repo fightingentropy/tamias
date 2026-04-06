@@ -83,9 +83,7 @@ describe("Cash Balance Calculation Logic", () => {
 
   test("cash accounts should NOT include credit type", () => {
     const cashTypes = ["depository", "other_asset"];
-    expect(cashTypes.includes(mockAccounts.creditCardPositive.type)).toBe(
-      false,
-    );
+    expect(cashTypes.includes(mockAccounts.creditCardPositive.type)).toBe(false);
   });
 
   test("cash accounts should NOT include loan type", () => {
@@ -94,11 +92,7 @@ describe("Cash Balance Calculation Logic", () => {
   });
 
   test("total cash should sum depository + other_asset balances", () => {
-    const cashAccounts = [
-      mockAccounts.checking,
-      mockAccounts.savings,
-      mockAccounts.treasury,
-    ];
+    const cashAccounts = [mockAccounts.checking, mockAccounts.savings, mockAccounts.treasury];
 
     const totalCash = cashAccounts.reduce((sum, acc) => sum + acc.balance, 0);
 
@@ -114,9 +108,7 @@ describe("Cash Balance Calculation Logic", () => {
     ].filter((acc) => acc.enabled);
 
     expect(enabledCashAccounts).toHaveLength(3);
-    expect(enabledCashAccounts).not.toContainEqual(
-      mockAccounts.disabledAccount,
-    );
+    expect(enabledCashAccounts).not.toContainEqual(mockAccounts.disabledAccount);
   });
 });
 
@@ -147,15 +139,9 @@ describe("Credit Balance Normalization", () => {
   });
 
   test("total credit debt should sum absolute values", () => {
-    const creditAccounts = [
-      mockAccounts.creditCardPositive,
-      mockAccounts.creditCardNegative,
-    ];
+    const creditAccounts = [mockAccounts.creditCardPositive, mockAccounts.creditCardNegative];
 
-    const totalDebt = creditAccounts.reduce(
-      (sum, acc) => sum + Math.abs(acc.balance),
-      0,
-    );
+    const totalDebt = creditAccounts.reduce((sum, acc) => sum + Math.abs(acc.balance), 0);
 
     // |25,000| + |-15,000| = 40,000
     expect(totalDebt).toBe(40000);
@@ -204,9 +190,7 @@ describe("Runway Calculation Logic", () => {
 
     // Simulate filtering accounts
     const allAccounts = Object.values(mockAccounts);
-    const cashAccounts = allAccounts.filter(
-      (acc) => cashTypes.includes(acc.type) && acc.enabled,
-    );
+    const cashAccounts = allAccounts.filter((acc) => cashTypes.includes(acc.type) && acc.enabled);
 
     // Should include: checking, savings, treasury
     // Should exclude: credit cards, loan, disabled
@@ -376,35 +360,25 @@ describe("Burn Rate Calculation Logic", () => {
     );
 
     expect(nonInternalExpenses).toHaveLength(5);
-    expect(nonInternalExpenses.map((t) => t.name)).not.toContain(
-      "Transfer to Savings",
-    );
+    expect(nonInternalExpenses.map((t) => t.name)).not.toContain("Transfer to Savings");
   });
 
   test("burn rate should exclude credit-card-payment category", () => {
     const expensesWithoutExcluded = mockTransactions.filter(
       (tx) =>
-        tx.amount < 0 &&
-        tx.internal === false &&
-        !excludedCategories.includes(tx.categorySlug),
+        tx.amount < 0 && tx.internal === false && !excludedCategories.includes(tx.categorySlug),
     );
 
-    expect(expensesWithoutExcluded.map((t) => t.name)).not.toContain(
-      "Credit Card Payment",
-    );
+    expect(expensesWithoutExcluded.map((t) => t.name)).not.toContain("Credit Card Payment");
   });
 
   test("burn rate should exclude internal-transfer category", () => {
     const expensesWithoutExcluded = mockTransactions.filter(
       (tx) =>
-        tx.amount < 0 &&
-        tx.internal === false &&
-        !excludedCategories.includes(tx.categorySlug),
+        tx.amount < 0 && tx.internal === false && !excludedCategories.includes(tx.categorySlug),
     );
 
-    expect(expensesWithoutExcluded.map((t) => t.name)).not.toContain(
-      "Internal Transfer",
-    );
+    expect(expensesWithoutExcluded.map((t) => t.name)).not.toContain("Internal Transfer");
   });
 
   test("burn rate should exclude transactions with excluded status", () => {
@@ -416,9 +390,7 @@ describe("Burn Rate Calculation Logic", () => {
         !excludedCategories.includes(tx.categorySlug),
     );
 
-    expect(validExpenses.map((t) => t.name)).not.toContain(
-      "Excluded Transaction",
-    );
+    expect(validExpenses.map((t) => t.name)).not.toContain("Excluded Transaction");
   });
 
   test("burn rate should correctly calculate monthly expenses", () => {
@@ -434,10 +406,7 @@ describe("Burn Rate Calculation Logic", () => {
     // Should only include: Software Subscription (-500) + Office Rent (-3000)
     expect(validExpenses).toHaveLength(2);
 
-    const totalBurn = validExpenses.reduce(
-      (sum, tx) => sum + Math.abs(tx.amount),
-      0,
-    );
+    const totalBurn = validExpenses.reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
 
     expect(totalBurn).toBe(3500);
   });
@@ -455,8 +424,7 @@ describe("Burn Rate Calculation Logic", () => {
     const creditCardPayment = -500;
 
     // Bug scenario: counting both
-    const incorrectBurn =
-      Math.abs(softwareExpense) + Math.abs(creditCardPayment);
+    const incorrectBurn = Math.abs(softwareExpense) + Math.abs(creditCardPayment);
     expect(incorrectBurn).toBe(1000); // Wrong!
 
     // Correct scenario: exclude credit card payment
@@ -550,9 +518,7 @@ describe("Regression: Treasury + Credit Card Scenario", () => {
   const CASH_TYPES = ["depository", "other_asset"];
 
   test("cash balance should include treasury account", () => {
-    const cashAccounts = startupAccounts.filter((acc) =>
-      CASH_TYPES.includes(acc.type),
-    );
+    const cashAccounts = startupAccounts.filter((acc) => CASH_TYPES.includes(acc.type));
 
     const totalCash = cashAccounts.reduce((sum, acc) => sum + acc.balance, 0);
 
@@ -564,39 +530,25 @@ describe("Regression: Treasury + Credit Card Scenario", () => {
   });
 
   test("cash balance should NOT include credit card", () => {
-    const cashAccounts = startupAccounts.filter((acc) =>
-      CASH_TYPES.includes(acc.type),
-    );
+    const cashAccounts = startupAccounts.filter((acc) => CASH_TYPES.includes(acc.type));
 
     expect(cashAccounts.map((a) => a.type)).not.toContain("credit");
   });
 
   test("credit debt should be correctly calculated", () => {
-    const creditAccounts = startupAccounts.filter(
-      (acc) => acc.type === "credit",
-    );
+    const creditAccounts = startupAccounts.filter((acc) => acc.type === "credit");
 
-    const totalDebt = creditAccounts.reduce(
-      (sum, acc) => sum + Math.abs(acc.balance),
-      0,
-    );
+    const totalDebt = creditAccounts.reduce((sum, acc) => sum + Math.abs(acc.balance), 0);
 
     expect(totalDebt).toBe(75000);
   });
 
   test("net position should be cash minus credit debt", () => {
-    const cashAccounts = startupAccounts.filter((acc) =>
-      CASH_TYPES.includes(acc.type),
-    );
-    const creditAccounts = startupAccounts.filter(
-      (acc) => acc.type === "credit",
-    );
+    const cashAccounts = startupAccounts.filter((acc) => CASH_TYPES.includes(acc.type));
+    const creditAccounts = startupAccounts.filter((acc) => acc.type === "credit");
 
     const totalCash = cashAccounts.reduce((sum, acc) => sum + acc.balance, 0);
-    const totalDebt = creditAccounts.reduce(
-      (sum, acc) => sum + Math.abs(acc.balance),
-      0,
-    );
+    const totalDebt = creditAccounts.reduce((sum, acc) => sum + Math.abs(acc.balance), 0);
 
     const netPosition = totalCash - totalDebt;
 
@@ -605,17 +557,12 @@ describe("Regression: Treasury + Credit Card Scenario", () => {
   });
 
   test("runway should use correct cash balance (not inflated by credit)", () => {
-    const cashAccounts = startupAccounts.filter((acc) =>
-      CASH_TYPES.includes(acc.type),
-    );
+    const cashAccounts = startupAccounts.filter((acc) => CASH_TYPES.includes(acc.type));
 
     const correctCash = cashAccounts.reduce((sum, acc) => sum + acc.balance, 0);
 
     // BUG scenario: if credit was incorrectly added to cash
-    const buggyAllAccountsSum = startupAccounts.reduce(
-      (sum, acc) => sum + acc.balance,
-      0,
-    );
+    const buggyAllAccountsSum = startupAccounts.reduce((sum, acc) => sum + acc.balance, 0);
 
     // Correct cash should NOT equal sum of all accounts
     expect(correctCash).not.toBe(buggyAllAccountsSum);

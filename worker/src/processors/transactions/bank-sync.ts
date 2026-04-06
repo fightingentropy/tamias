@@ -55,9 +55,7 @@ function getClassification(type: SyncBankAccountPayload["accountType"]) {
   }
 }
 
-function normalizeMethod(
-  method: string | null,
-): UpsertTransactionData["method"] {
+function normalizeMethod(method: string | null): UpsertTransactionData["method"] {
   switch (method) {
     case "card_purchase":
     case "transfer":
@@ -96,10 +94,7 @@ function toUpsertTransaction(params: {
   };
 }
 
-export async function syncBankAccount(
-  payload: SyncBankAccountPayload,
-  logger: LoggerLike,
-) {
+export async function syncBankAccount(payload: SyncBankAccountPayload, logger: LoggerLike) {
   const {
     id,
     teamId,
@@ -207,15 +202,13 @@ export async function syncBankAccount(
   const upsertedTransactionIds: string[] = [];
 
   try {
-    const transactionsResult = await trpc.banking.getProviderTransactions.query(
-      {
-        provider,
-        accountId,
-        accountType: classification,
-        accessToken,
-        latest: !manualSync,
-      },
-    );
+    const transactionsResult = await trpc.banking.getProviderTransactions.query({
+      provider,
+      accountId,
+      accountType: classification,
+      accessToken,
+      latest: !manualSync,
+    });
 
     await updateAccount({
       errorDetails: null,
@@ -244,8 +237,7 @@ export async function syncBankAccount(
 
     if (needsCurrencyHeal && !currencyHealed && mappedTransactions.length > 0) {
       const transactionCurrency = mappedTransactions.find(
-        (transaction) =>
-          transaction.currency && transaction.currency.toUpperCase() !== "XXX",
+        (transaction) => transaction.currency && transaction.currency.toUpperCase() !== "XXX",
       )?.currency;
 
       if (transactionCurrency) {

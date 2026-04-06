@@ -5,10 +5,7 @@ import { motion } from "framer-motion";
 import type { ReactElement } from "react";
 import { useEffect, useRef, useState } from "react";
 import type { IconType } from "react-icons";
-import {
-  MdOutlineAccountBalanceWallet,
-  MdOutlineReceipt,
-} from "react-icons/md";
+import { MdOutlineAccountBalanceWallet, MdOutlineReceipt } from "react-icons/md";
 
 const dynamicIconMap: Record<string, IconType> = {
   account_balance_wallet: MdOutlineAccountBalanceWallet,
@@ -132,10 +129,7 @@ export function AssistantQuestionAnimation({
         );
       } else if (line.startsWith("## ")) {
         elements.push(
-          <h2
-            key={key}
-            className="text-[12px] mb-1 md:mb-2 mt-2 md:mt-3 text-foreground"
-          >
+          <h2 key={key} className="text-[12px] mb-1 md:mb-2 mt-2 md:mt-3 text-foreground">
             {line.slice(3)}
           </h2>,
         );
@@ -282,15 +276,10 @@ export function AssistantQuestionAnimation({
             )}
 
             {displayedSegments.map((segment, index) => (
-              <div
-                key={`${segment.id}-${index}`}
-                className={index > 0 ? "mt-3 md:mt-5" : ""}
-              >
+              <div key={`${segment.id}-${index}`} className={index > 0 ? "mt-3 md:mt-5" : ""}>
                 <div className="flex justify-start">
                   <div className="flex flex-col max-w-full w-full">
-                    <div className="prose prose-sm max-w-none">
-                      {renderMarkdown(segment.text)}
-                    </div>
+                    <div className="prose prose-sm max-w-none">{renderMarkdown(segment.text)}</div>
                     {!segment.isComplete && (
                       <div className="flex items-center gap-0.5 mt-2 md:mt-3">
                         <div
@@ -347,32 +336,30 @@ export function AssistantQuestionAnimation({
                   </div>
                 )}
 
-                {segment.isComplete &&
-                  index === displayedSegments.length - 1 &&
-                  activeToolCall && (
-                    <div className="flex justify-start mt-3 md:mt-4 animate-fade-in">
-                      <div className="px-2 py-1 flex items-center gap-2 h-6 w-fit bg-secondary border border-border">
-                        <DynamicIcon
-                          name={activeToolCall.icon}
-                          className="text-muted-foreground"
-                          size={12}
-                        />
-                        <motion.span
-                          className="text-[10px] leading-[14px] relative inline-block bg-gradient-to-r from-muted-foreground via-foreground to-muted-foreground bg-[length:200%_100%] bg-clip-text text-transparent"
-                          animate={{
-                            backgroundPosition: ["200% 0", "-200% 0"],
-                          }}
-                          transition={{
-                            duration: 2,
-                            repeat: Number.POSITIVE_INFINITY,
-                            ease: "linear",
-                          }}
-                        >
-                          {activeToolCall.text}
-                        </motion.span>
-                      </div>
+                {segment.isComplete && index === displayedSegments.length - 1 && activeToolCall && (
+                  <div className="flex justify-start mt-3 md:mt-4 animate-fade-in">
+                    <div className="px-2 py-1 flex items-center gap-2 h-6 w-fit bg-secondary border border-border">
+                      <DynamicIcon
+                        name={activeToolCall.icon}
+                        className="text-muted-foreground"
+                        size={12}
+                      />
+                      <motion.span
+                        className="text-[10px] leading-[14px] relative inline-block bg-gradient-to-r from-muted-foreground via-foreground to-muted-foreground bg-[length:200%_100%] bg-clip-text text-transparent"
+                        animate={{
+                          backgroundPosition: ["200% 0", "-200% 0"],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Number.POSITIVE_INFINITY,
+                          ease: "linear",
+                        }}
+                      >
+                        {activeToolCall.text}
+                      </motion.span>
                     </div>
-                  )}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -430,10 +417,7 @@ export function AssistantQuestionAnimation({
               type="button"
               className="w-4 h-4 md:w-5 md:h-5 flex items-center justify-center transition-opacity bg-foreground"
             >
-              <Icons.ArrowUpward
-                size={10}
-                className="text-background md:w-[12px] md:h-[12px]"
-              />
+              <Icons.ArrowUpward size={10} className="text-background md:w-[12px] md:h-[12px]" />
             </button>
           </div>
         </div>

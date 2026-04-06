@@ -7,11 +7,7 @@ import { endOfMonth, startOfMonth, subMonths } from "date-fns";
 import { z } from "zod";
 import { getAssistantModel } from "../providers";
 import { generateArtifactDescription } from "../utils/artifact-title";
-import {
-  getToolAppContext,
-  getToolTeamId,
-  startArtifactStream,
-} from "../utils/tool-runtime";
+import { getToolAppContext, getToolTeamId, startArtifactStream } from "../utils/tool-runtime";
 
 const getInvoicePaymentAnalysisSchema = z.object({
   from: z
@@ -22,11 +18,7 @@ const getInvoicePaymentAnalysisSchema = z.object({
     .string()
     .default(() => endOfMonth(new Date()).toISOString())
     .describe("End date (ISO 8601)"),
-  currency: z
-    .string()
-    .describe("Currency code (ISO 4217, e.g. 'USD')")
-    .nullable()
-    .optional(),
+  currency: z.string().describe("Currency code (ISO 4217, e.g. 'USD')").nullable().optional(),
   showCanvas: z.boolean().default(false).describe("Show visual analytics"),
 });
 
@@ -34,10 +26,7 @@ export const getInvoicePaymentAnalysisTool = tool({
   description:
     "Analyze invoice payment patterns - shows average days to pay, payment trends, overdue invoice summary, and payment score.",
   inputSchema: getInvoicePaymentAnalysisSchema,
-  execute: async function* (
-    { from, to, currency, showCanvas },
-    executionOptions,
-  ) {
+  execute: async function* ({ from, to, currency, showCanvas }, executionOptions) {
     const appContext = getToolAppContext(executionOptions);
     const teamId = getToolTeamId(appContext);
 
@@ -87,8 +76,7 @@ export const getInvoicePaymentAnalysisTool = tool({
       });
 
       if (paymentData.metrics.totalInvoices === 0) {
-        const emptyMessage =
-          "No invoices found in the specified date range for payment analysis.";
+        const emptyMessage = "No invoices found in the specified date range for payment analysis.";
         yield { text: emptyMessage };
         return {
           averageDaysToPay: 0,
@@ -160,10 +148,7 @@ export const getInvoicePaymentAnalysisTool = tool({
 **Payment Trends (last 3 months):**
 ${paymentData.paymentTrends
   .slice(-3)
-  .map(
-    (t) =>
-      `- ${t.month}: ${t.averageDaysToPay} days avg, ${t.paymentRate}% paid`,
-  )
+  .map((t) => `- ${t.month}: ${t.averageDaysToPay} days avg, ${t.paymentRate}% paid`)
   .join("\n")}
 
 Provide a concise 2-3 sentence summary analyzing the payment patterns and 2-3 actionable recommendations for improving cash collection.`,
@@ -174,9 +159,7 @@ Provide a concise 2-3 sentence summary analyzing the payment patterns and 2-3 ac
       const aiResponseText = analysisResult.text;
 
       // Parse summary and recommendations from AI response
-      const summaryMatch = aiResponseText.match(
-        /(?:summary|analysis)[:\s]*(.+?)(?:\n\n|$)/i,
-      );
+      const summaryMatch = aiResponseText.match(/(?:summary|analysis)[:\s]*(.+?)(?:\n\n|$)/i);
       const summary = summaryMatch?.[1]
         ? summaryMatch[1].trim()
         : aiResponseText.split("\n\n")[0] || aiResponseText;

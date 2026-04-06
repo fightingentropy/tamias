@@ -1,8 +1,5 @@
 import { WorkerEntrypoint } from "cloudflare:workers";
-import {
-  type CloudflareAsyncServiceBinding,
-  enqueue,
-} from "@tamias/job-client";
+import { type CloudflareAsyncServiceBinding, enqueue } from "@tamias/job-client";
 import "./runtime-shims";
 import {
   type CloudflareAsyncMessage,
@@ -33,18 +30,13 @@ export { handleLedgerQueueBatch } from "./ledger";
 export type { CloudflareAsyncEnv } from "./shared";
 export { AsyncWorkflow, RunCoordinator } from "./durable-classes";
 export { handleAsyncWorkerScheduled } from "./scheduled-cron";
-export {
-  isCaptureConsumerQueue,
-  isLedgerConsumerQueue,
-} from "./queue-route";
+export { isCaptureConsumerQueue, isLedgerConsumerQueue } from "./queue-route";
 
 type CloudflareEnqueueRequest = CloudflareAsyncMessage & {
   delayMs?: number;
 };
 
-function isCloudflareEnqueueRequest(
-  value: unknown,
-): value is CloudflareEnqueueRequest {
+function isCloudflareEnqueueRequest(value: unknown): value is CloudflareEnqueueRequest {
   if (!value || typeof value !== "object") {
     return false;
   }
@@ -55,23 +47,15 @@ function isCloudflareEnqueueRequest(
     typeof candidate.queueName === "string" &&
     typeof candidate.jobName === "string" &&
     typeof candidate.payload !== "undefined" &&
-    (typeof candidate.runId === "string" ||
-      typeof candidate.runId === "undefined") &&
-    (typeof candidate.delayMs === "number" ||
-      typeof candidate.delayMs === "undefined") &&
-    (typeof candidate.maxAttempts === "number" ||
-      typeof candidate.maxAttempts === "undefined")
+    (typeof candidate.runId === "string" || typeof candidate.runId === "undefined") &&
+    (typeof candidate.delayMs === "number" || typeof candidate.delayMs === "undefined") &&
+    (typeof candidate.maxAttempts === "number" || typeof candidate.maxAttempts === "undefined")
   );
 }
 
-async function enqueueInAsyncWorker(
-  env: CloudflareAsyncEnv,
-  payload: CloudflareEnqueueRequest,
-) {
+async function enqueueInAsyncWorker(env: CloudflareAsyncEnv, payload: CloudflareEnqueueRequest) {
   if (!isSupportedCloudflareMessage(payload)) {
-    throw new Error(
-      `Unsupported Cloudflare bridge job ${payload.queueName}:${payload.jobName}`,
-    );
+    throw new Error(`Unsupported Cloudflare bridge job ${payload.queueName}:${payload.jobName}`);
   }
 
   const queueBinding = getQueueBinding(env, payload.queue);
@@ -146,10 +130,7 @@ async function handleEnqueueRequest(request: Request, env: CloudflareAsyncEnv) {
       runId: payload.runId,
       error: error instanceof Error ? error.message : String(error),
     });
-    return Response.json(
-      { error: "Queue binding not configured" },
-      { status: 500 },
-    );
+    return Response.json({ error: "Queue binding not configured" }, { status: 500 });
   }
 }
 
@@ -200,20 +181,14 @@ async function startWorkflowInAsyncWorker(
   };
 }
 
-async function handleWorkflowStartRequest(
-  request: Request,
-  env: CloudflareAsyncEnv,
-) {
+async function handleWorkflowStartRequest(request: Request, env: CloudflareAsyncEnv) {
   if (!isBridgeAuthorized(request, env)) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const payload = await request.json().catch(() => null);
   if (!isCloudflareWorkflowStartRequest(payload)) {
-    return Response.json(
-      { error: "Invalid workflow start payload" },
-      { status: 400 },
-    );
+    return Response.json({ error: "Invalid workflow start payload" }, { status: 400 });
   }
 
   try {
@@ -224,17 +199,11 @@ async function handleWorkflowStartRequest(
       instanceId: payload.instanceId,
       error: error instanceof Error ? error.message : String(error),
     });
-    return Response.json(
-      { error: "Failed to start workflow" },
-      { status: 500 },
-    );
+    return Response.json({ error: "Failed to start workflow" }, { status: 500 });
   }
 }
 
-async function getWorkflowStatusInAsyncWorker(
-  env: CloudflareAsyncEnv,
-  instanceId: string,
-) {
+async function getWorkflowStatusInAsyncWorker(env: CloudflareAsyncEnv, instanceId: string) {
   if (!env.ASYNC_WORKFLOW) {
     throw new Error("Workflow binding not configured");
   }
@@ -250,10 +219,7 @@ async function getWorkflowStatusInAsyncWorker(
   };
 }
 
-async function handleWorkflowStatusRequest(
-  request: Request,
-  env: CloudflareAsyncEnv,
-) {
+async function handleWorkflowStatusRequest(request: Request, env: CloudflareAsyncEnv) {
   if (!isBridgeAuthorized(request, env)) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -275,10 +241,7 @@ async function handleWorkflowStatusRequest(
       error: error instanceof Error ? error.message : String(error),
     });
 
-    return Response.json(
-      { error: "Failed to fetch workflow status" },
-      { status: 500 },
-    );
+    return Response.json({ error: "Failed to fetch workflow status" }, { status: 500 });
   }
 }
 
@@ -314,20 +277,14 @@ async function cancelWorkflowInAsyncWorker(
   };
 }
 
-async function handleWorkflowCancelRequest(
-  request: Request,
-  env: CloudflareAsyncEnv,
-) {
+async function handleWorkflowCancelRequest(request: Request, env: CloudflareAsyncEnv) {
   if (!isBridgeAuthorized(request, env)) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const payload = await request.json().catch(() => null);
   if (!isCloudflareWorkflowInstanceRequest(payload)) {
-    return Response.json(
-      { error: "Invalid workflow cancel payload" },
-      { status: 400 },
-    );
+    return Response.json({ error: "Invalid workflow cancel payload" }, { status: 400 });
   }
 
   try {
@@ -342,34 +299,22 @@ async function handleWorkflowCancelRequest(
       error: error instanceof Error ? error.message : String(error),
     });
 
-    return Response.json(
-      { error: "Failed to cancel workflow" },
-      { status: 500 },
-    );
+    return Response.json({ error: "Failed to cancel workflow" }, { status: 500 });
   }
 }
 
-async function handleScheduleUpsertRequest(
-  request: Request,
-  env: CloudflareAsyncEnv,
-) {
+async function handleScheduleUpsertRequest(request: Request, env: CloudflareAsyncEnv) {
   if (!isBridgeAuthorized(request, env)) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   if (!env.RUN_COORDINATOR) {
-    return Response.json(
-      { error: "Run coordinator binding not configured" },
-      { status: 500 },
-    );
+    return Response.json({ error: "Run coordinator binding not configured" }, { status: 500 });
   }
 
   const payload = await request.json().catch(() => null);
   if (!isCloudflareRecurringScheduleRequest(payload)) {
-    return Response.json(
-      { error: "Invalid recurring schedule payload" },
-      { status: 400 },
-    );
+    return Response.json({ error: "Invalid recurring schedule payload" }, { status: 400 });
   }
 
   const response = await upsertRecurringScheduleInRunCoordinator(env, payload);
@@ -384,33 +329,21 @@ async function handleScheduleUpsertRequest(
   return response;
 }
 
-async function handleScheduleCancelRequest(
-  request: Request,
-  env: CloudflareAsyncEnv,
-) {
+async function handleScheduleCancelRequest(request: Request, env: CloudflareAsyncEnv) {
   if (!isBridgeAuthorized(request, env)) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   if (!env.RUN_COORDINATOR) {
-    return Response.json(
-      { error: "Run coordinator binding not configured" },
-      { status: 500 },
-    );
+    return Response.json({ error: "Run coordinator binding not configured" }, { status: 500 });
   }
 
   const payload = await request.json().catch(() => null);
   if (!isCloudflareRecurringScheduleCancelRequest(payload)) {
-    return Response.json(
-      { error: "Invalid recurring schedule cancel payload" },
-      { status: 400 },
-    );
+    return Response.json({ error: "Invalid recurring schedule cancel payload" }, { status: 400 });
   }
 
-  const response = await cancelRecurringScheduleInRunCoordinator(
-    env,
-    payload.scheduleId,
-  );
+  const response = await cancelRecurringScheduleInRunCoordinator(env, payload.scheduleId);
 
   if (!response.ok) {
     return Response.json(
@@ -435,14 +368,8 @@ async function upsertRecurringScheduleInAsyncWorker(
   return response.json();
 }
 
-async function cancelRecurringScheduleInAsyncWorker(
-  env: CloudflareAsyncEnv,
-  scheduleId: string,
-) {
-  const response = await cancelRecurringScheduleInRunCoordinator(
-    env,
-    scheduleId,
-  );
+async function cancelRecurringScheduleInAsyncWorker(env: CloudflareAsyncEnv, scheduleId: string) {
+  const response = await cancelRecurringScheduleInRunCoordinator(env, scheduleId);
 
   if (!response.ok) {
     throw new Error("Failed to cancel Cloudflare recurring schedule");
@@ -454,27 +381,16 @@ async function cancelRecurringScheduleInAsyncWorker(
   } | null;
 }
 
-export function createInProcessAsyncBridge(
-  env: CloudflareAsyncEnv,
-): CloudflareAsyncServiceBinding {
+export function createInProcessAsyncBridge(env: CloudflareAsyncEnv): CloudflareAsyncServiceBinding {
   return {
-    enqueue: (request) =>
-      enqueueInAsyncWorker(env, request as CloudflareEnqueueRequest),
+    enqueue: (request) => enqueueInAsyncWorker(env, request as CloudflareEnqueueRequest),
     startWorkflow: (request) =>
-      startWorkflowInAsyncWorker(
-        env,
-        request as CloudflareWorkflowStartRequest,
-      ),
-    getWorkflowStatus: (request) =>
-      getWorkflowStatusInAsyncWorker(env, request.instanceId),
+      startWorkflowInAsyncWorker(env, request as CloudflareWorkflowStartRequest),
+    getWorkflowStatus: (request) => getWorkflowStatusInAsyncWorker(env, request.instanceId),
     cancelWorkflow: (request) => cancelWorkflowInAsyncWorker(env, request),
-    upsertRecurringSchedule: (request) =>
-      upsertRecurringScheduleInAsyncWorker(env, request),
+    upsertRecurringSchedule: (request) => upsertRecurringScheduleInAsyncWorker(env, request),
     cancelRecurringSchedule: async (request) => {
-      const result = await cancelRecurringScheduleInAsyncWorker(
-        env,
-        request.scheduleId,
-      );
+      const result = await cancelRecurringScheduleInAsyncWorker(env, request.scheduleId);
       return result ?? { canceled: false };
     },
   };
@@ -492,38 +408,23 @@ export async function handleAsyncWorkerHttp(
     return handleEnqueueRequest(request, env);
   }
 
-  if (
-    request.method === "POST" &&
-    url.pathname === "/internal/workflows/start"
-  ) {
+  if (request.method === "POST" && url.pathname === "/internal/workflows/start") {
     return handleWorkflowStartRequest(request, env);
   }
 
-  if (
-    request.method === "GET" &&
-    url.pathname === "/internal/workflows/status"
-  ) {
+  if (request.method === "GET" && url.pathname === "/internal/workflows/status") {
     return handleWorkflowStatusRequest(request, env);
   }
 
-  if (
-    request.method === "POST" &&
-    url.pathname === "/internal/workflows/cancel"
-  ) {
+  if (request.method === "POST" && url.pathname === "/internal/workflows/cancel") {
     return handleWorkflowCancelRequest(request, env);
   }
 
-  if (
-    request.method === "POST" &&
-    url.pathname === "/internal/schedules/upsert"
-  ) {
+  if (request.method === "POST" && url.pathname === "/internal/schedules/upsert") {
     return handleScheduleUpsertRequest(request, env);
   }
 
-  if (
-    request.method === "POST" &&
-    url.pathname === "/internal/schedules/cancel"
-  ) {
+  if (request.method === "POST" && url.pathname === "/internal/schedules/cancel") {
     return handleScheduleCancelRequest(request, env);
   }
 
@@ -579,11 +480,7 @@ function buildAsyncWorkerDiscoveryResponse(env: CloudflareAsyncEnv) {
       "teams:delete-team",
       "teams:payment-issue",
     ],
-    supportedWorkflows: [
-      "team-cancellation-email",
-      "bank-initial-setup",
-      "onboard-team",
-    ],
+    supportedWorkflows: ["team-cancellation-email", "bank-initial-setup", "onboard-team"],
     supportedWorkflowEndpoints: [
       "POST /internal/workflows/start",
       "GET /internal/workflows/status",
@@ -633,10 +530,7 @@ export class AsyncBridgeService extends WorkerEntrypoint<CloudflareAsyncEnv> {
 
 export default {
   async fetch(request: Request, env: CloudflareAsyncEnv) {
-    return (
-      (await handleAsyncWorkerHttp(request, env)) ??
-      buildAsyncWorkerDiscoveryResponse(env)
-    );
+    return (await handleAsyncWorkerHttp(request, env)) ?? buildAsyncWorkerDiscoveryResponse(env);
   },
 
   scheduled: handleAsyncWorkerScheduled,

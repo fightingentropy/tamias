@@ -5,10 +5,7 @@ import {
   type CurrentUserIdentityRecord,
 } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
-import {
-  getYearEndMutationContext,
-  rebuildYearEndMutationPack,
-} from "./common";
+import { getYearEndMutationContext, rebuildYearEndMutationPack } from "./common";
 
 export async function upsertCloseCompanyLoansSchedule(
   db: Database,
@@ -39,11 +36,7 @@ export async function upsertCloseCompanyLoansSchedule(
     totalLoansOutstanding: number | null;
   },
 ) {
-  const context = await getYearEndMutationContext(
-    db,
-    params.teamId,
-    params.periodKey,
-  );
+  const context = await getYearEndMutationContext(db, params.teamId, params.periodKey);
 
   await upsertCloseCompanyLoansScheduleInConvex({
     teamId: params.teamId,
@@ -54,12 +47,10 @@ export async function upsertCloseCompanyLoansSchedule(
       name: entry.name.trim(),
       amountOfLoan: Math.round(entry.amountOfLoan),
     })),
-    taxChargeable:
-      params.taxChargeable == null ? null : roundCurrency(params.taxChargeable),
+    taxChargeable: params.taxChargeable == null ? null : roundCurrency(params.taxChargeable),
     reliefEarlierThan: params.reliefEarlierThan.map((entry) => ({
       name: entry.name.trim(),
-      amountRepaid:
-        entry.amountRepaid == null ? null : Math.round(entry.amountRepaid),
+      amountRepaid: entry.amountRepaid == null ? null : Math.round(entry.amountRepaid),
       amountReleasedOrWrittenOff:
         entry.amountReleasedOrWrittenOff == null
           ? null
@@ -67,27 +58,19 @@ export async function upsertCloseCompanyLoansSchedule(
       date: entry.date,
     })),
     reliefEarlierDue:
-      params.reliefEarlierDue == null
-        ? null
-        : roundCurrency(params.reliefEarlierDue),
+      params.reliefEarlierDue == null ? null : roundCurrency(params.reliefEarlierDue),
     loanLaterReliefNow: params.loanLaterReliefNow.map((entry) => ({
       name: entry.name.trim(),
-      amountRepaid:
-        entry.amountRepaid == null ? null : Math.round(entry.amountRepaid),
+      amountRepaid: entry.amountRepaid == null ? null : Math.round(entry.amountRepaid),
       amountReleasedOrWrittenOff:
         entry.amountReleasedOrWrittenOff == null
           ? null
           : Math.round(entry.amountReleasedOrWrittenOff),
       date: entry.date,
     })),
-    reliefLaterDue:
-      params.reliefLaterDue == null
-        ? null
-        : roundCurrency(params.reliefLaterDue),
+    reliefLaterDue: params.reliefLaterDue == null ? null : roundCurrency(params.reliefLaterDue),
     totalLoansOutstanding:
-      params.totalLoansOutstanding == null
-        ? null
-        : Math.round(params.totalLoansOutstanding),
+      params.totalLoansOutstanding == null ? null : Math.round(params.totalLoansOutstanding),
     createdBy: params.createdBy,
   });
 
@@ -105,11 +88,7 @@ export async function deleteCloseCompanyLoansSchedule(
     periodKey?: string;
   },
 ) {
-  const context = await getYearEndMutationContext(
-    db,
-    params.teamId,
-    params.periodKey,
-  );
+  const context = await getYearEndMutationContext(db, params.teamId, params.periodKey);
 
   await deleteCloseCompanyLoansScheduleInConvex({
     teamId: params.teamId,

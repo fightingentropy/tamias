@@ -6,8 +6,7 @@ export const getTrackerProjectsSchema = z.object({
     .nullable()
     .optional()
     .openapi({
-      description:
-        "Cursor for pagination, representing the last item from the previous page",
+      description: "Cursor for pagination, representing the last item from the previous page",
       example: "eyJpZCI6IjEyMyJ9",
       param: {
         in: "query",
@@ -30,8 +29,7 @@ export const getTrackerProjectsSchema = z.object({
     .nullable()
     .optional()
     .openapi({
-      description:
-        "Search query string to filter projects by name or description",
+      description: "Search query string to filter projects by name or description",
       example: "website",
       param: {
         in: "query",
@@ -42,8 +40,7 @@ export const getTrackerProjectsSchema = z.object({
     .nullable()
     .optional()
     .openapi({
-      description:
-        "Start date for filtering projects by creation date in YYYY-MM-DD format",
+      description: "Start date for filtering projects by creation date in YYYY-MM-DD format",
       example: "2024-04-01",
       param: {
         in: "query",
@@ -54,8 +51,7 @@ export const getTrackerProjectsSchema = z.object({
     .nullable()
     .optional()
     .openapi({
-      description:
-        "End date for filtering projects by creation date in YYYY-MM-DD format",
+      description: "End date for filtering projects by creation date in YYYY-MM-DD format",
       example: "2024-04-30",
       param: {
         in: "query",
@@ -77,8 +73,7 @@ export const getTrackerProjectsSchema = z.object({
     .nullable()
     .optional()
     .openapi({
-      description:
-        "Array of customer IDs to filter projects by specific customers",
+      description: "Array of customer IDs to filter projects by specific customers",
       example: ["customer-1", "customer-2"],
       param: {
         in: "query",
@@ -100,8 +95,7 @@ export const getTrackerProjectsSchema = z.object({
     .nullable()
     .optional()
     .openapi({
-      description:
-        "Sorting order as an array of field names. Prefix with '-' for descending order",
+      description: "Sorting order as an array of field names. Prefix with '-' for descending order",
       example: ["-createdAt", "name"],
       param: {
         in: "query",
@@ -112,8 +106,7 @@ export const getTrackerProjectsSchema = z.object({
 export const upsertTrackerProjectSchema = z
   .object({
     id: z.string().uuid().optional().openapi({
-      description:
-        "Unique identifier for the project. Required for updates, omit for new projects",
+      description: "Unique identifier for the project. Required for updates, omit for new projects",
       example: "b7e6c8e2-1f2a-4c3b-9e2d-1a2b3c4d5e6f",
     }),
     name: z.string().min(1).openapi({
@@ -146,8 +139,7 @@ export const upsertTrackerProjectSchema = z
       example: "in_progress",
     }),
     customerId: z.string().uuid().nullable().optional().openapi({
-      description:
-        "Unique identifier of the customer associated with this project",
+      description: "Unique identifier of the customer associated with this project",
       example: "a1b2c3d4-e5f6-7890-abcd-1234567890ef",
     }),
     tags: z
@@ -217,8 +209,7 @@ export const trackerProjectResponseSchema = z
       example: "USD",
     }),
     createdAt: z.string().openapi({
-      description:
-        "Date and time when the project was created in ISO 8601 format",
+      description: "Date and time when the project was created in ISO 8601 format",
       example: "2024-05-01T12:00:00.000Z",
     }),
     totalDuration: z.number().nullable().openapi({
@@ -293,13 +284,11 @@ export const trackerProjectsResponseSchema = z
     meta: z
       .object({
         hasNextPage: z.boolean().openapi({
-          description:
-            "Whether there are more projects available on the next page",
+          description: "Whether there are more projects available on the next page",
           example: true,
         }),
         hasPreviousPage: z.boolean().openapi({
-          description:
-            "Whether there are more projects available on the previous page",
+          description: "Whether there are more projects available on the previous page",
           example: false,
         }),
       })

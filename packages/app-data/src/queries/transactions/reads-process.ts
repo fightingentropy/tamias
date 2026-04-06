@@ -19,10 +19,7 @@ import {
   getPendingSuggestionTransactionIdsForTransactions,
   getTransactionDerivedState,
 } from "./shared";
-import {
-  buildEmptyProcessedTransactionPage,
-  buildTransactionsPageMeta,
-} from "./reads-shared";
+import { buildEmptyProcessedTransactionPage, buildTransactionsPageMeta } from "./reads-shared";
 
 type CategoryContext = Awaited<ReturnType<typeof getTransactionCategoryContext>>;
 type TeamMembers = Awaited<ReturnType<typeof getTeamMembersFromConvexIdentity>>;
@@ -45,23 +42,15 @@ export function buildProcessedTransactionLookups(args: {
   transactionTagAssignments: TransactionTagAssignments;
 }) {
   const assignedUserById = buildAssignedUserLookup(args.teamMembers);
-  const bankAccountsById = new Map(
-    args.bankAccounts.map((account) => [account.id, account]),
-  );
-  const {
-    syncedByTransactionId,
-    errorByTransactionId,
-    syncedTransactionIds,
-    errorTransactionIds,
-  } = buildAccountingSyncLookups(args.accountingSyncRecords);
+  const bankAccountsById = new Map(args.bankAccounts.map((account) => [account.id, account]));
+  const { syncedByTransactionId, errorByTransactionId, syncedTransactionIds, errorTransactionIds } =
+    buildAccountingSyncLookups(args.accountingSyncRecords);
   const syncedTransactionIdSet = new Set(syncedTransactionIds);
   const errorTransactionIdSet = new Set(errorTransactionIds);
   const { attachmentsByTransactionId } = buildTransactionAttachmentLookups(
     args.transactionAttachments,
   );
-  const { tagsByTransactionId } = buildTransactionTagLookups(
-    args.transactionTagAssignments,
-  );
+  const { tagsByTransactionId } = buildTransactionTagLookups(args.transactionTagAssignments);
   const derivedStateByTransactionId = new Map(
     args.transactions.map((transaction) => [
       transaction.id,
@@ -87,9 +76,7 @@ export function buildProcessedTransactionLookups(args: {
   };
 }
 
-export type ProcessedTransactionLookups = ReturnType<
-  typeof buildProcessedTransactionLookups
->;
+export type ProcessedTransactionLookups = ReturnType<typeof buildProcessedTransactionLookups>;
 
 export async function loadTransactionPageDecorations(args: {
   teamId: string;
@@ -107,11 +94,9 @@ export async function loadTransactionPageDecorations(args: {
   ]);
 
   return {
-    attachmentsByTransactionId: buildTransactionAttachmentLookups(
-      transactionAttachments,
-    ).attachmentsByTransactionId,
-    tagsByTransactionId: buildTransactionTagLookups(transactionTagAssignments)
-      .tagsByTransactionId,
+    attachmentsByTransactionId:
+      buildTransactionAttachmentLookups(transactionAttachments).attachmentsByTransactionId,
+    tagsByTransactionId: buildTransactionTagLookups(transactionTagAssignments).tagsByTransactionId,
   };
 }
 
@@ -173,8 +158,7 @@ export function buildProcessedTransactions(args: {
       : null;
     const syncedRecord = args.lookups.syncedByTransactionId.get(transaction.id);
     const errorRecord = args.lookups.errorByTransactionId.get(transaction.id);
-    const currentAttachments =
-      args.lookups.attachmentsByTransactionId.get(transaction.id) ?? [];
+    const currentAttachments = args.lookups.attachmentsByTransactionId.get(transaction.id) ?? [];
     const category = buildTransactionCategorySummary(
       args.lookups.categoryContext.bySlug.get(transaction.categorySlug ?? ""),
     );
@@ -204,8 +188,7 @@ export function buildProcessedTransactions(args: {
     return {
       ...transaction,
       hasPendingSuggestion:
-        args.lookups.derivedStateByTransactionId.get(transaction.id)
-          ?.hasPendingSuggestion ?? false,
+        args.lookups.derivedStateByTransactionId.get(transaction.id)?.hasPendingSuggestion ?? false,
       attachments: currentAttachments.map((attachment) => ({
         id: attachment.id,
         filename: attachment.name,

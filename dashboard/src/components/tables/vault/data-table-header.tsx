@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  horizontalListSortingStrategy,
-  SortableContext,
-} from "@dnd-kit/sortable";
+import { horizontalListSortingStrategy, SortableContext } from "@dnd-kit/sortable";
 import { Checkbox } from "@tamias/ui/checkbox";
 import { TableHead, TableHeader, TableRow } from "@tamias/ui/table";
 import type { Header, Table } from "@tanstack/react-table";
@@ -25,11 +22,7 @@ interface Props<TData> {
   tableScroll?: TableScrollState;
 }
 
-export function DataTableHeader<TData>({
-  table,
-  loading,
-  tableScroll,
-}: Props<TData>) {
+export function DataTableHeader<TData>({ table, loading, tableScroll }: Props<TData>) {
   // Use the reusable sticky columns hook
   const { getStickyStyle, getStickyClassName, isVisible } = useStickyColumns({
     table,
@@ -57,10 +50,7 @@ export function DataTableHeader<TData>({
           key={headerGroup.id}
           className="h-[45px] hover:bg-transparent flex items-center !border-b-0 min-w-full"
         >
-          <SortableContext
-            items={sortableColumnIds}
-            strategy={horizontalListSortingStrategy}
-          >
+          <SortableContext items={sortableColumnIds} strategy={horizontalListSortingStrategy}>
             {headerGroup.headers.map((header, headerIndex, headers) => {
               const columnId = header.column.id;
               const meta = header.column.columnDef.meta as
@@ -76,9 +66,7 @@ export function DataTableHeader<TData>({
               const hasNonStickyVisible = headers.some((h) => {
                 if (h.column.id === "actions") return false;
                 if (!isVisible(h.column.id)) return false;
-                const hMeta = h.column.columnDef.meta as
-                  | { sticky?: boolean }
-                  | undefined;
+                const hMeta = h.column.columnDef.meta as { sticky?: boolean } | undefined;
                 return !hMeta?.sticky;
               });
               const actionsFullWidth = isActions && !hasNonStickyVisible;
@@ -87,8 +75,7 @@ export function DataTableHeader<TData>({
               const isLastBeforeActions =
                 headerIndex === headers.length - 2 &&
                 headers[headers.length - 1]?.column.id === "actions";
-              const shouldFlex =
-                (isLastBeforeActions && !isSticky) || actionsFullWidth;
+              const shouldFlex = (isLastBeforeActions && !isSticky) || actionsFullWidth;
 
               const headerStyle = {
                 width: actionsFullWidth ? undefined : header.getSize(),
@@ -97,11 +84,7 @@ export function DataTableHeader<TData>({
                   : isSticky
                     ? header.getSize()
                     : header.column.columnDef.minSize,
-                maxWidth: actionsFullWidth
-                  ? undefined
-                  : isSticky
-                    ? header.getSize()
-                    : undefined,
+                maxWidth: actionsFullWidth ? undefined : isSticky ? header.getSize() : undefined,
                 ...(!actionsFullWidth && getStickyStyle(columnId)),
                 ...(shouldFlex && { flex: 1 }),
               };
@@ -119,32 +102,20 @@ export function DataTableHeader<TData>({
                   : `${stickyClass} bg-background z-10`;
 
                 return (
-                  <TableHead
-                    key={header.id}
-                    className={finalClassName}
-                    style={headerStyle}
-                  >
+                  <TableHead key={header.id} className={finalClassName} style={headerStyle}>
                     {renderHeaderContent(header, columnId, table, tableScroll)}
-                    {header.column.getCanResize() && (
-                      <ResizeHandle header={header} />
-                    )}
+                    {header.column.getCanResize() && <ResizeHandle header={header} />}
                   </TableHead>
                 );
               }
 
               // Draggable columns
               return (
-                <DraggableHeader
-                  key={header.id}
-                  id={columnId}
-                  style={headerStyle}
-                >
+                <DraggableHeader key={header.id} id={columnId} style={headerStyle}>
                   <div className="flex items-center flex-1 min-w-0 overflow-hidden">
                     {renderHeaderContent(header, columnId, table, tableScroll)}
                   </div>
-                  {header.column.getCanResize() && (
-                    <ResizeHandle header={header} />
-                  )}
+                  {header.column.getCanResize() && <ResizeHandle header={header} />}
                 </DraggableHeader>
               );
             })}
@@ -161,17 +132,14 @@ function renderHeaderContent<TData>(
   table: Table<TData>,
   tableScroll?: TableScrollState,
 ) {
-  const meta = header.column.columnDef.meta as
-    | { headerLabel?: string }
-    | undefined;
+  const meta = header.column.columnDef.meta as { headerLabel?: string } | undefined;
 
   // Select column - select all checkbox
   if (columnId === "select") {
     return (
       <Checkbox
         checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+          table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
       />
@@ -180,9 +148,7 @@ function renderHeaderContent<TData>(
 
   // Actions column - static text
   if (columnId === "actions") {
-    return (
-      <span className="text-muted-foreground w-full text-center">Actions</span>
-    );
+    return <span className="text-muted-foreground w-full text-center">Actions</span>;
   }
 
   // Title column - special case with horizontal pagination

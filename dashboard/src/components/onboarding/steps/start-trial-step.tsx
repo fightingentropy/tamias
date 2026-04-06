@@ -12,10 +12,7 @@ type NextStep = {
   description: string;
 };
 
-function getNextSteps(
-  hasBankConnected: boolean,
-  hasInboxConnected: boolean,
-): NextStep[] {
+function getNextSteps(hasBankConnected: boolean, hasInboxConnected: boolean): NextStep[] {
   const steps: NextStep[] = [];
 
   if (hasBankConnected) {
@@ -27,16 +24,14 @@ function getNextSteps(
   } else {
     steps.push({
       title: "Connect your bank account",
-      description:
-        "Transactions sync automatically and get categorized by AI — no manual entry.",
+      description: "Transactions sync automatically and get categorized by AI — no manual entry.",
     });
   }
 
   if (hasInboxConnected) {
     steps.push({
       title: "Forward a receipt to your inbox",
-      description:
-        "Tamias extracts the details and matches it to the right transaction instantly.",
+      description: "Tamias extracts the details and matches it to the right transaction instantly.",
     });
   } else {
     steps.push({
@@ -101,13 +96,7 @@ export function StartTrialStep({ hasBankConnected, hasInboxConnected }: Props) {
             className="flex items-start gap-3"
           >
             <div className="relative w-4 h-4 flex items-center justify-center shrink-0 mt-0.5 border border-border bg-secondary">
-              <svg
-                width="10"
-                height="10"
-                viewBox="0 0 10 10"
-                fill="none"
-                className="relative z-10"
-              >
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="relative z-10">
                 <path
                   d="M2 5L4.5 7.5L8 3"
                   stroke="currentColor"
@@ -118,9 +107,7 @@ export function StartTrialStep({ hasBankConnected, hasInboxConnected }: Props) {
               </svg>
             </div>
             <div>
-              <p className="text-sm font-medium text-primary leading-snug">
-                {step.title}
-              </p>
+              <p className="text-sm font-medium text-primary leading-snug">{step.title}</p>
               <p className="text-xs text-muted-foreground leading-relaxed mt-0.5">
                 {step.description}
               </p>

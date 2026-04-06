@@ -17,9 +17,7 @@ export function DataTableHeader({ table }: Props) {
         className="flex-1"
         placeholder="Search..."
         value={(table?.getColumn("team")?.getFilterValue() as string) ?? ""}
-        onChange={(event) =>
-          table?.getColumn("team")?.setFilterValue(event.target.value)
-        }
+        onChange={(event) => table?.getColumn("team")?.setFilterValue(event.target.value)}
         autoComplete="off"
         autoCapitalize="none"
         autoCorrect="off"

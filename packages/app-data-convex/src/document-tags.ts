@@ -57,10 +57,7 @@ export async function createDocumentTagInConvex(args: {
   ) as Promise<DocumentTagRecord>;
 }
 
-export async function deleteDocumentTagInConvex(args: {
-  teamId: string;
-  id: string;
-}) {
+export async function deleteDocumentTagInConvex(args: { teamId: string; id: string }) {
   return createClient().mutation(
     api.documentTags.serviceDeleteDocumentTag,
     serviceArgs({
@@ -70,9 +67,7 @@ export async function deleteDocumentTagInConvex(args: {
   ) as Promise<{ id: string } | null>;
 }
 
-export async function upsertDocumentTagsInConvex(args: {
-  tags: UpsertDocumentTagInput[];
-}) {
+export async function upsertDocumentTagsInConvex(args: { tags: UpsertDocumentTagInput[] }) {
   return createClient().mutation(
     api.documentTags.serviceUpsertDocumentTags,
     serviceArgs({

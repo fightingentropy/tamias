@@ -40,11 +40,7 @@ type InsightEligibleTeamCandidate = {
   team: Doc<"teams">;
 };
 
-function getTrialActive(team: {
-  plan?: string;
-  canceledAt?: string;
-  createdAt: string;
-}) {
+function getTrialActive(team: { plan?: string; canceledAt?: string; createdAt: string }) {
   if (team.plan === "starter" || team.plan === "pro") {
     return true;
   }
@@ -53,20 +49,14 @@ function getTrialActive(team: {
     return false;
   }
 
-  return (
-    Date.parse(team.createdAt) + TRIAL_PERIOD_DAYS * 24 * 60 * 60 * 1000 >
-    Date.now()
-  );
+  return Date.parse(team.createdAt) + TRIAL_PERIOD_DAYS * 24 * 60 * 60 * 1000 > Date.now();
 }
 
 function buildInviteCode() {
   return crypto.randomUUID().replaceAll("-", "");
 }
 
-async function serializeTeamMember(
-  ctx: IdentityCtx,
-  membership: Doc<"teamMembers">,
-) {
+async function serializeTeamMember(ctx: IdentityCtx, membership: Doc<"teamMembers">) {
   const [team, appUser] = await Promise.all([
     ctx.db.get(membership.teamId),
     ctx.db.get(membership.appUserId),
@@ -96,10 +86,7 @@ async function serializeTeamMember(
   };
 }
 
-async function serializeTeamInvite(
-  ctx: IdentityCtx,
-  invite: Doc<"teamInvites">,
-) {
+async function serializeTeamInvite(ctx: IdentityCtx, invite: Doc<"teamInvites">) {
   const [team, invitedByUser] = await Promise.all([
     ctx.db.get(invite.teamId),
     invite.invitedByAppUserId ? ctx.db.get(invite.invitedByAppUserId) : null,
@@ -142,9 +129,7 @@ async function pickFallbackTeamId(
     .withIndex("by_app_user_id", (q) => q.eq("appUserId", appUserId))
     .collect();
 
-  const nextMembership = memberships.find(
-    (membership) => membership.teamId !== excludedTeamId,
-  );
+  const nextMembership = memberships.find((membership) => membership.teamId !== excludedTeamId);
 
   return nextMembership?.teamId ?? null;
 }
@@ -221,10 +206,7 @@ export const currentSession = query({
         .filter((publicTeamId): publicTeamId is string => !!publicTeamId),
       convexTeamMembershipIds: membershipTeams
         .map((membershipTeam) => membershipTeam?._id)
-        .filter(
-          (membershipTeamId): membershipTeamId is Id<"teams"> =>
-            !!membershipTeamId,
-        ),
+        .filter((membershipTeamId): membershipTeamId is Id<"teams"> => !!membershipTeamId),
     };
   },
 });
@@ -368,13 +350,11 @@ export const updateCurrentTeam = mutation({
     }
 
     if (args.baseCurrency !== undefined) {
-      patch.baseCurrency =
-        normalizeOptionalString(args.baseCurrency) ?? undefined;
+      patch.baseCurrency = normalizeOptionalString(args.baseCurrency) ?? undefined;
     }
 
     if (args.countryCode !== undefined) {
-      patch.countryCode =
-        normalizeOptionalString(args.countryCode) ?? undefined;
+      patch.countryCode = normalizeOptionalString(args.countryCode) ?? undefined;
     }
 
     if (args.fiscalYearStartMonth !== undefined) {
@@ -382,8 +362,7 @@ export const updateCurrentTeam = mutation({
     }
 
     if (args.companyType !== undefined) {
-      patch.companyType =
-        normalizeOptionalString(args.companyType) ?? undefined;
+      patch.companyType = normalizeOptionalString(args.companyType) ?? undefined;
     }
 
     if (args.heardAbout !== undefined) {
@@ -666,13 +645,11 @@ export const serviceUpdateTeamByPublicTeamId = mutation({
     }
 
     if (args.baseCurrency !== undefined) {
-      patch.baseCurrency =
-        normalizeOptionalString(args.baseCurrency) ?? undefined;
+      patch.baseCurrency = normalizeOptionalString(args.baseCurrency) ?? undefined;
     }
 
     if (args.countryCode !== undefined) {
-      patch.countryCode =
-        normalizeOptionalString(args.countryCode) ?? undefined;
+      patch.countryCode = normalizeOptionalString(args.countryCode) ?? undefined;
     }
 
     if (args.fiscalYearStartMonth !== undefined) {
@@ -684,23 +661,19 @@ export const serviceUpdateTeamByPublicTeamId = mutation({
     }
 
     if (args.subscriptionStatus !== undefined) {
-      patch.subscriptionStatus =
-        normalizeOptionalString(args.subscriptionStatus) ?? undefined;
+      patch.subscriptionStatus = normalizeOptionalString(args.subscriptionStatus) ?? undefined;
     }
 
     if (args.stripeAccountId !== undefined) {
-      patch.stripeAccountId =
-        normalizeOptionalString(args.stripeAccountId) ?? undefined;
+      patch.stripeAccountId = normalizeOptionalString(args.stripeAccountId) ?? undefined;
     }
 
     if (args.stripeConnectStatus !== undefined) {
-      patch.stripeConnectStatus =
-        normalizeOptionalString(args.stripeConnectStatus) ?? undefined;
+      patch.stripeConnectStatus = normalizeOptionalString(args.stripeConnectStatus) ?? undefined;
     }
 
     if (args.companyType !== undefined) {
-      patch.companyType =
-        normalizeOptionalString(args.companyType) ?? undefined;
+      patch.companyType = normalizeOptionalString(args.companyType) ?? undefined;
     }
 
     if (args.heardAbout !== undefined) {
@@ -758,10 +731,7 @@ export const serviceListAllTeams = query({
 
     return (await ctx.db.query("teams").collect())
       .map((team) => serializeTeam(team))
-      .filter(
-        (team): team is Exclude<ReturnType<typeof serializeTeam>, null> =>
-          team !== null,
-      )
+      .filter((team): team is Exclude<ReturnType<typeof serializeTeam>, null> => team !== null)
       .sort((left, right) => left.id.localeCompare(right.id));
   },
 });
@@ -777,9 +747,7 @@ export const serviceListInsightEligibleTeams = query({
   async handler(ctx, args) {
     requireServiceKey(args.serviceKey);
 
-    const teamIdFilter = args.enabledTeamIds
-      ? new Set(args.enabledTeamIds)
-      : null;
+    const teamIdFilter = args.enabledTeamIds ? new Set(args.enabledTeamIds) : null;
     const cursor = args.cursor ?? null;
     const limit = args.limit ?? 100;
     const trialEligibilityDays = args.trialEligibilityDays ?? 30;
@@ -790,9 +758,7 @@ export const serviceListInsightEligibleTeams = query({
         publicId: publicTeamId(team),
         team,
       }))
-      .filter(
-        (entry): entry is InsightEligibleTeamCandidate => !!entry.publicId,
-      )
+      .filter((entry): entry is InsightEligibleTeamCandidate => !!entry.publicId)
       .filter(({ publicId, team }) => {
         if (!team.baseCurrency) {
           return false;
@@ -811,9 +777,7 @@ export const serviceListInsightEligibleTeams = query({
         }
 
         return (
-          team.plan === "trial" &&
-          !team.canceledAt &&
-          Date.parse(team.createdAt) >= trialCutoff
+          team.plan === "trial" && !team.canceledAt && Date.parse(team.createdAt) >= trialCutoff
         );
       })
       .sort((left, right) => left.publicId.localeCompare(right.publicId))
@@ -823,9 +787,7 @@ export const serviceListInsightEligibleTeams = query({
       teams.map(async ({ publicId, team }) => {
         const memberships = await getTeamMembershipsByTeamId(ctx, team._id);
         const ownerMembership = memberships[0];
-        const owner = ownerMembership
-          ? await ctx.db.get(ownerMembership.appUserId)
-          : null;
+        const owner = ownerMembership ? await ctx.db.get(ownerMembership.appUserId) : null;
 
         return {
           id: publicId,
@@ -908,9 +870,7 @@ export const serviceCreateTeamForUserId = mutation({
       .collect();
 
     const teams = (
-      await Promise.all(
-        memberships.map((membership) => ctx.db.get(membership.teamId)),
-      )
+      await Promise.all(memberships.map((membership) => ctx.db.get(membership.teamId)))
     ).filter((team): team is NonNullable<typeof team> => team !== null);
 
     const activeTeamCount = teams.filter(getTrialActive).length;
@@ -1030,10 +990,7 @@ export const serviceDeleteUserById = mutation({
       .collect();
 
     for (const membership of memberships) {
-      const teamMemberships = await getTeamMembershipsByTeamId(
-        ctx,
-        membership.teamId,
-      );
+      const teamMemberships = await getTeamMembershipsByTeamId(ctx, membership.teamId);
 
       if (teamMemberships.length <= 1) {
         const teamInvites = await ctx.db
@@ -1183,9 +1140,7 @@ export const serviceGetInvitesByEmail = query({
       .withIndex("by_email", (q) => q.eq("email", normalizedEmail))
       .collect();
 
-    return Promise.all(
-      invites.map((invite) => serializeTeamInvite(ctx, invite)),
-    );
+    return Promise.all(invites.map((invite) => serializeTeamInvite(ctx, invite)));
   },
 });
 
@@ -1208,9 +1163,7 @@ export const serviceGetTeamInvitesByPublicTeamId = query({
       .withIndex("by_team_id", (q) => q.eq("teamId", team._id))
       .collect();
 
-    return Promise.all(
-      invites.map((invite) => serializeTeamInvite(ctx, invite)),
-    );
+    return Promise.all(invites.map((invite) => serializeTeamInvite(ctx, invite)));
   },
 });
 
@@ -1245,10 +1198,7 @@ export const serviceCreateTeamInvites = mutation({
 
       return (
         !!normalizedEmail &&
-        index ===
-          self.findIndex(
-            (candidate) => normalizeEmail(candidate.email) === normalizedEmail,
-          )
+        index === self.findIndex((candidate) => normalizeEmail(candidate.email) === normalizedEmail)
       );
     });
 
@@ -1271,9 +1221,7 @@ export const serviceCreateTeamInvites = mutation({
       .collect();
 
     const pendingInviteEmails = new Set(
-      pendingInvites
-        .map((invite) => normalizeEmail(invite.email))
-        .filter(Boolean),
+      pendingInvites.map((invite) => normalizeEmail(invite.email)).filter(Boolean),
     );
 
     const skippedInvites: {
@@ -1289,11 +1237,7 @@ export const serviceCreateTeamInvites = mutation({
         continue;
       }
 
-      if (
-        !uniqueInvites.some(
-          (candidate) => normalizeEmail(candidate.email) === normalizedEmail,
-        )
-      ) {
+      if (!uniqueInvites.some((candidate) => normalizeEmail(candidate.email) === normalizedEmail)) {
         skippedInvites.push({
           email: invite.email,
           reason: "duplicate",
@@ -1317,11 +1261,7 @@ export const serviceCreateTeamInvites = mutation({
         continue;
       }
 
-      if (
-        !validInvites.some(
-          (candidate) => normalizeEmail(candidate.email) === normalizedEmail,
-        )
-      ) {
+      if (!validInvites.some((candidate) => normalizeEmail(candidate.email) === normalizedEmail)) {
         validInvites.push({
           ...invite,
           email: normalizedEmail,
@@ -1436,10 +1376,7 @@ export const serviceDeclineTeamInvite = mutation({
   async handler(ctx, args) {
     requireServiceKey(args.serviceKey);
 
-    const invite = await getTeamInviteByPublicInviteId(
-      ctx,
-      args.publicInviteId,
-    );
+    const invite = await getTeamInviteByPublicInviteId(ctx, args.publicInviteId);
 
     if (!invite) {
       return null;

@@ -1,11 +1,7 @@
 import { ExportTransactionsProcessor } from "./export-transactions";
 import { SyncAttachmentsProcessor } from "./sync-attachments";
 
-export type {
-  AccountingProviderId,
-  InitializedProvider,
-  TransactionForMapping,
-} from "./base";
+export type { AccountingProviderId, InitializedProvider, TransactionForMapping } from "./base";
 // Re-export base class for extension
 export { AccountingProcessorBase } from "./base";
 

@@ -3,9 +3,7 @@ import { isInsightSummaryRequest } from "./shared";
 
 describe("isInsightSummaryRequest", () => {
   test("matches explicit weekly summary prompts", () => {
-    expect(
-      isInsightSummaryRequest("Show me my weekly summary for Week 11, 2026"),
-    ).toBe(true);
+    expect(isInsightSummaryRequest("Show me my weekly summary for Week 11, 2026")).toBe(true);
   });
 
   test("matches business overview prompts", () => {
@@ -13,8 +11,6 @@ describe("isInsightSummaryRequest", () => {
   });
 
   test("does not match detailed report prompts", () => {
-    expect(
-      isInsightSummaryRequest("Show me a revenue breakdown by month"),
-    ).toBe(false);
+    expect(isInsightSummaryRequest("Show me a revenue breakdown by month")).toBe(false);
   });
 });

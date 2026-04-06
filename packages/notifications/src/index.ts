@@ -6,12 +6,7 @@ import {
   updateActivityMetadata,
 } from "@tamias/app-data/queries";
 import { getTeamById, getTeamMembers } from "@tamias/app-data/queries";
-import type {
-  EmailInput,
-  NotificationOptions,
-  NotificationResult,
-  UserData,
-} from "./base";
+import type { EmailInput, NotificationOptions, NotificationResult, UserData } from "./base";
 import { createActivitySchema, type NotificationTypes } from "./schemas";
 import { EmailService } from "./services/email-service";
 import { documentProcessed } from "./types/document-processed";
@@ -298,28 +293,15 @@ export class Notifications {
           name: teamInfo?.name || "Team",
           inboxId: teamInfo?.inboxId || "",
         };
-        const sampleEmail = handler.createEmail(
-          validatedData,
-          firstUser,
-          teamContext,
-        );
+        const sampleEmail = handler.createEmail(validatedData, firstUser, teamContext);
 
         if (sampleEmail.emailType === "customer") {
           // Customer-facing email: send regardless of team preferences
           const emailInputs = [
-            this.#createEmailInput(
-              handler,
-              validatedData,
-              firstUser,
-              teamContext,
-              options,
-            ),
+            this.#createEmailInput(handler, validatedData, firstUser, teamContext, options),
           ];
 
-          emails = await this.#emailService.sendBulk(
-            emailInputs,
-            type as string,
-          );
+          emails = await this.#emailService.sendBulk(emailInputs, type as string);
 
           console.log("📨 Email result for customer:", {
             sent: emails.sent,
@@ -328,26 +310,15 @@ export class Notifications {
           });
         } else if (sampleEmail.emailType === "owners") {
           // Owners-only email: send to team owners only
-          const ownerUsers = validatedData.users.filter(
-            (user: UserData) => user.role === "owner",
-          );
+          const ownerUsers = validatedData.users.filter((user: UserData) => user.role === "owner");
 
           const emailInputs = ownerUsers.map((user: UserData) =>
-            this.#createEmailInput(
-              handler,
-              validatedData,
-              user,
-              teamContext,
-              options,
-            ),
+            this.#createEmailInput(handler, validatedData, user, teamContext, options),
           );
 
           console.log("📨 Email inputs for owners:", emailInputs.length);
 
-          emails = await this.#emailService.sendBulk(
-            emailInputs,
-            type as string,
-          );
+          emails = await this.#emailService.sendBulk(emailInputs, type as string);
 
           console.log("📨 Email result for owners:", {
             sent: emails.sent,
@@ -357,21 +328,12 @@ export class Notifications {
         } else {
           // Team-facing email: send to all team members
           const emailInputs = validatedData.users.map((user: UserData) =>
-            this.#createEmailInput(
-              handler,
-              validatedData,
-              user,
-              teamContext,
-              options,
-            ),
+            this.#createEmailInput(handler, validatedData, user, teamContext, options),
           );
 
           console.log("📨 Email inputs for team:", emailInputs.length);
 
-          emails = await this.#emailService.sendBulk(
-            emailInputs,
-            type as string,
-          );
+          emails = await this.#emailService.sendBulk(emailInputs, type as string);
 
           console.log("📨 Email result for team:", {
             sent: emails.sent,

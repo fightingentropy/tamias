@@ -10,13 +10,15 @@ import {
 import { resolveTaxValues } from "@tamias/utils/tax";
 import type { Database } from "../../../client";
 import { getTransactionCategoryContext } from "../../transaction-categories";
-import { buildAssignedTransactionUser, buildAssignedUserLookup, buildTransactionAttachmentLookups, buildTransactionTagLookups } from "./lookups";
+import {
+  buildAssignedTransactionUser,
+  buildAssignedUserLookup,
+  buildTransactionAttachmentLookups,
+  buildTransactionTagLookups,
+} from "./lookups";
 import { buildTransactionCategorySummary } from "./types";
 
-export async function getPendingSuggestionTransactionIds(
-  _db: Database,
-  teamId: string,
-) {
+export async function getPendingSuggestionTransactionIds(_db: Database, teamId: string) {
   const rows = await getTransactionMatchSuggestionsFromConvex({
     teamId,
     statuses: ["pending"],
@@ -80,11 +82,7 @@ export async function getPendingSuggestionForTransaction(
   };
 }
 
-export async function getFullTransactionData(
-  db: Database,
-  transactionId: string,
-  teamId: string,
-) {
+export async function getFullTransactionData(db: Database, transactionId: string, teamId: string) {
   const [teamMembers, result, suggestion, bankAccounts] = await Promise.all([
     getTeamMembersFromConvexIdentity({ teamId }),
     getTransactionByIdFromConvex({
@@ -152,15 +150,13 @@ export async function getFullTransactionData(
     ...result,
     hasPendingSuggestion: Boolean(suggestion),
     suggestion,
-    attachments: (attachmentsByTransactionId.get(result.id) ?? []).map(
-      (attachment) => ({
-        id: attachment.id,
-        filename: attachment.name,
-        path: attachment.path,
-        type: attachment.type,
-        size: attachment.size,
-      }),
-    ),
+    attachments: (attachmentsByTransactionId.get(result.id) ?? []).map((attachment) => ({
+      id: attachment.id,
+      filename: attachment.name,
+      path: attachment.path,
+      type: attachment.type,
+      size: attachment.size,
+    })),
     isFulfilled: result.hasAttachment || result.status === "completed",
     account: normalizedAccount,
     assigned: buildAssignedTransactionUser(

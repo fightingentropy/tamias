@@ -20,9 +20,7 @@ export async function toggleCustomerPortalInConvex(args: {
   }>;
 }
 
-export async function getCustomerByPortalIdFromConvex(args: {
-  portalId: string;
-}) {
+export async function getCustomerByPortalIdFromConvex(args: { portalId: string }) {
   return createClient().query(
     api.customers.serviceGetCustomerByPortalId,
     serviceArgs({

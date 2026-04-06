@@ -2,10 +2,7 @@ import type { DatabaseOrTransaction } from "../../../client";
 import { getInvoiceById } from "../reads";
 import { upsertProjectedInvoiceRecord } from "../shared";
 
-export async function markInvoiceViewed(
-  db: DatabaseOrTransaction,
-  params: { id: string },
-) {
+export async function markInvoiceViewed(db: DatabaseOrTransaction, params: { id: string }) {
   const existing = await getInvoiceById(db, { id: params.id });
 
   if (!existing) {

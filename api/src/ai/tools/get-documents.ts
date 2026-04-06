@@ -16,13 +16,9 @@ const getDocumentsSchema = z.object({
 });
 
 export const getDocumentsTool = tool({
-  description:
-    "Retrieve and filter documents with pagination, sorting, and search.",
+  description: "Retrieve and filter documents with pagination, sorting, and search.",
   inputSchema: getDocumentsSchema,
-  execute: async function* (
-    { cursor, pageSize = 10, q, tags, start, end },
-    executionOptions,
-  ) {
+  execute: async function* ({ cursor, pageSize = 10, q, tags, start, end }, executionOptions) {
     const appContext = getToolAppContext(executionOptions);
     const teamId = getToolTeamId(appContext);
 
@@ -59,8 +55,7 @@ export const getDocumentsTool = tool({
         return {
           id: document.id,
           name: document.name?.split("/").pop() || "Untitled",
-          title:
-            document.title || document.name?.split("/").pop() || "Untitled",
+          title: document.title || document.name?.split("/").pop() || "Untitled",
           date: document.date ? formatDate(document.date) : "N/A",
           tags: tagNames,
           status: document.processingStatus || "unknown",

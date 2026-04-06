@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Elements,
-  PaymentElement,
-  useElements,
-  useStripe,
-} from "@stripe/react-stripe-js";
+import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import type { Appearance } from "@stripe/stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { fromStripeAmount } from "@tamias/invoice/currency";
@@ -92,12 +87,7 @@ interface PaymentFormProps {
   currency: string;
 }
 
-function PaymentForm({
-  onSuccess,
-  onCancel,
-  amount,
-  currency,
-}: PaymentFormProps) {
+function PaymentForm({ onSuccess, onCancel, amount, currency }: PaymentFormProps) {
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -192,9 +182,7 @@ function PaymentForm({
         </motion.div>
 
         {error && (
-          <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md">
-            {error}
-          </div>
+          <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md">{error}</div>
         )}
       </div>
 
@@ -370,25 +358,17 @@ export function PaymentModal({
     setError(null);
 
     try {
-      const response = await fetch(
-        `${apiUrl}/invoice-payments/payment-intent`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ token: invoiceToken }),
+      const response = await fetch(`${apiUrl}/invoice-payments/payment-intent`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({ token: invoiceToken }),
+      });
 
       if (!response.ok) {
         const errorData: unknown = await response.json().catch(() => ({}));
-        throw new Error(
-          errorMessageFromUnknownJson(
-            errorData,
-            "Failed to initialize payment",
-          ),
-        );
+        throw new Error(errorMessageFromUnknownJson(errorData, "Failed to initialize payment"));
       }
 
       const data: unknown = await response.json();
@@ -397,9 +377,7 @@ export function PaymentModal({
       }
       setPaymentData(data);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to initialize payment",
-      );
+      setError(err instanceof Error ? err.message : "Failed to initialize payment");
     } finally {
       setIsLoading(false);
     }
@@ -499,17 +477,11 @@ export function PaymentModal({
           {paymentData && (
             <div className="bg-muted/50 rounded-lg p-4 mb-6 text-center">
               <p className="text-sm text-muted-foreground mb-1">Amount paid</p>
-              <p className="text-xl">
-                {formatAmount(paymentData.amount, paymentData.currency)}
-              </p>
+              <p className="text-xl">{formatAmount(paymentData.amount, paymentData.currency)}</p>
             </div>
           )}
 
-          <Button
-            variant="outline"
-            onClick={handleDownloadReceipt}
-            disabled={isDownloading}
-          >
+          <Button variant="outline" onClick={handleDownloadReceipt} disabled={isDownloading}>
             {isDownloading ? (
               <>
                 <Spinner className="size-4 mr-2" />
@@ -529,9 +501,7 @@ export function PaymentModal({
 
   // Shared content component
   const PaymentContent = ({ isMobile = false }: { isMobile?: boolean }) => (
-    <div
-      className={cn("flex flex-col", isMobile ? "h-full" : "flex-1 min-h-0")}
-    >
+    <div className={cn("flex flex-col", isMobile ? "h-full" : "flex-1 min-h-0")}>
       {/* Success screen */}
       {paymentSuccess ? (
         <SuccessScreen isMobile={isMobile} />
@@ -571,9 +541,7 @@ export function PaymentModal({
 
           {/* Stripe footer - always at bottom */}
           <div className="flex items-center justify-center gap-2 py-2 border-t border-border mt-auto">
-            <span className="text-xs text-muted-foreground">
-              Secure payment handled by
-            </span>
+            <span className="text-xs text-muted-foreground">Secure payment handled by</span>
             <StripeLogo className="text-muted-foreground" />
           </div>
         </>
@@ -614,9 +582,7 @@ export function PaymentModal({
             "overflow-x-hidden transition-all duration-300 ease-in-out",
             "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[520px] max-w-[90vw]",
             "max-h-[90vh] shadow-lg",
-            open
-              ? "opacity-100 scale-100"
-              : "opacity-0 scale-95 pointer-events-none",
+            open ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none",
             // Hide on mobile (Drawer handles it)
             !isDesktop && "hidden",
           )}

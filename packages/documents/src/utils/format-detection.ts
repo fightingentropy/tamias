@@ -41,22 +41,14 @@ export function detectInvoiceFormat(data: InvoiceData): DocumentFormat {
   // Detect tax term from tax_type
   if (data.tax_type) {
     // Map tax types to our format categories
-    if (
-      data.tax_type === "vat" ||
-      data.tax_type === "sales_tax" ||
-      data.tax_type === "gst"
-    ) {
+    if (data.tax_type === "vat" || data.tax_type === "sales_tax" || data.tax_type === "gst") {
       format.taxTerm = data.tax_type;
     } else {
       format.taxTerm = "unknown";
     }
   } else {
     // Infer from currency/language
-    if (
-      data.currency === "EUR" ||
-      data.language === "german" ||
-      data.language === "french"
-    ) {
+    if (data.currency === "EUR" || data.language === "german" || data.language === "french") {
       format.taxTerm = "vat";
     } else if (data.currency === "USD" || data.currency === "CAD") {
       format.taxTerm = "sales_tax";
@@ -106,22 +98,14 @@ export function detectReceiptFormat(data: ReceiptData): DocumentFormat {
   // Detect tax term from tax_type
   if (data.tax_type) {
     // Map tax types to our format categories
-    if (
-      data.tax_type === "vat" ||
-      data.tax_type === "sales_tax" ||
-      data.tax_type === "gst"
-    ) {
+    if (data.tax_type === "vat" || data.tax_type === "sales_tax" || data.tax_type === "gst") {
       format.taxTerm = data.tax_type;
     } else {
       format.taxTerm = "unknown";
     }
   } else {
     // Infer from currency/language
-    if (
-      data.currency === "EUR" ||
-      data.language === "german" ||
-      data.language === "french"
-    ) {
+    if (data.currency === "EUR" || data.language === "german" || data.language === "french") {
       format.taxTerm = "vat";
     } else if (data.currency === "USD" || data.currency === "CAD") {
       format.taxTerm = "sales_tax";
@@ -177,13 +161,9 @@ export function getFormatSpecificHints(format: DocumentFormat): string {
       "TAX TERM: This document uses VAT (Value Added Tax). Look for 'VAT', 'MwSt', 'TVA', 'IVA' labels.",
     );
   } else if (format.taxTerm === "sales_tax") {
-    hints.push(
-      "TAX TERM: This document uses Sales Tax. Look for 'Sales Tax', 'Tax' labels.",
-    );
+    hints.push("TAX TERM: This document uses Sales Tax. Look for 'Sales Tax', 'Tax' labels.");
   } else if (format.taxTerm === "gst") {
-    hints.push(
-      "TAX TERM: This document uses GST (Goods and Services Tax). Look for 'GST' labels.",
-    );
+    hints.push("TAX TERM: This document uses GST (Goods and Services Tax). Look for 'GST' labels.");
   }
 
   return hints.join("\n");

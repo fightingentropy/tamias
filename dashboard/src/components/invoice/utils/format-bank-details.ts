@@ -2,8 +2,7 @@ import type { AppRouter } from "@tamias/trpc";
 import type { inferRouterOutputs } from "@trpc/server";
 
 type RouterOutputs = inferRouterOutputs<AppRouter>;
-type BankAccountWithPaymentInfo =
-  RouterOutputs["bankAccounts"]["getWithPaymentInfo"][number];
+type BankAccountWithPaymentInfo = RouterOutputs["bankAccounts"]["getWithPaymentInfo"][number];
 
 /**
  * Format IBAN with spaces every 4 characters for readability
@@ -41,9 +40,7 @@ function maskAccountNumber(accountNumber: string): string {
  * Format bank account payment details for insertion into invoice
  * Returns a formatted string based on the type of account (EU/US/UK)
  */
-export function formatBankPaymentDetails(
-  account: BankAccountWithPaymentInfo,
-): string {
+export function formatBankPaymentDetails(account: BankAccountWithPaymentInfo): string {
   const lines: string[] = [];
 
   // EU/International format (IBAN-based)
@@ -63,10 +60,7 @@ export function formatBankPaymentDetails(
     lines.push(`Account: ${account.accountNumber}`);
     lines.push(`Routing: ${account.routingNumber}`);
     // Include wire routing only if different from ACH routing
-    if (
-      account.wireRoutingNumber &&
-      account.wireRoutingNumber !== account.routingNumber
-    ) {
+    if (account.wireRoutingNumber && account.wireRoutingNumber !== account.routingNumber) {
       lines.push(`Wire Routing: ${account.wireRoutingNumber}`);
     }
   }

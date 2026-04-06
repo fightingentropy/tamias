@@ -59,10 +59,7 @@ function DownloadFileMenuItem({
   };
 
   return (
-    <DropdownMenuItem
-      onClick={handleDownload}
-      disabled={!downloadUrl || isDownloading}
-    >
+    <DropdownMenuItem onClick={handleDownload} disabled={!downloadUrl || isDownloading}>
       Download
     </DropdownMenuItem>
   );
@@ -112,22 +109,16 @@ export const columns: ColumnDef<Document>[] = [
         "w-[250px] min-w-[180px] md:sticky md:left-[50px] bg-background group-hover:bg-[#F2F1EF] group-hover:dark:bg-[#0f0f0f] z-20",
     },
     cell: ({ row }) => {
-      const metadata = row.original.metadata as
-        | { mimetype?: string }
-        | undefined
-        | null;
+      const metadata = row.original.metadata as { mimetype?: string } | undefined | null;
       const mimetype = metadata?.mimetype;
-      const isSupported = mimetype
-        ? isMimeTypeSupportedForProcessing(mimetype)
-        : false;
+      const isSupported = mimetype ? isMimeTypeSupportedForProcessing(mimetype) : false;
 
       const isFailed = row.original.processingStatus === "failed";
       // Document completed but AI classification failed - title is null
       const needsClassification =
         row.original.processingStatus === "completed" && !row.original.title;
       // Get display name - fallback to filename from path
-      const displayName =
-        row.original.title ?? row.original.name?.split("/").at(-1);
+      const displayName = row.original.title ?? row.original.name?.split("/").at(-1);
 
       // Check if document is stuck in processing (pending for >10 minutes since creation)
       const staleProcessing = isStaleProcessing(
@@ -136,8 +127,7 @@ export const columns: ColumnDef<Document>[] = [
       );
 
       // Show skeleton only for recently pending documents (not stale ones)
-      const isLoading =
-        row.original.processingStatus === "pending" && !staleProcessing;
+      const isLoading = row.original.processingStatus === "pending" && !staleProcessing;
 
       if (isLoading) {
         return <Skeleton className="w-52 h-4" />;
@@ -181,8 +171,7 @@ export const columns: ColumnDef<Document>[] = [
       );
 
       // Show skeleton only for recently pending documents (not stale ones)
-      const isLoading =
-        row.original.processingStatus === "pending" && !staleProcessing;
+      const isLoading = row.original.processingStatus === "pending" && !staleProcessing;
 
       if (isLoading) {
         return (
@@ -247,15 +236,8 @@ export const columns: ColumnDef<Document>[] = [
       className: "w-[100px] min-w-[80px]",
     },
     cell: ({ row }) => {
-      const metadata = row.original.metadata as
-        | { size?: number }
-        | undefined
-        | null;
-      return (
-        <span>
-          {metadata?.size == null ? "-" : formatSize(metadata.size)}
-        </span>
-      );
+      const metadata = row.original.metadata as { size?: number } | undefined | null;
+      return <span>{metadata?.size == null ? "-" : formatSize(metadata.size)}</span>;
     },
   },
   {
@@ -276,14 +258,9 @@ export const columns: ColumnDef<Document>[] = [
     cell: ({ row, table }) => {
       const { setParams } = useDocumentParams();
 
-      const metadata = row.original.metadata as
-        | { mimetype?: string }
-        | undefined
-        | null;
+      const metadata = row.original.metadata as { mimetype?: string } | undefined | null;
       const mimetype = metadata?.mimetype;
-      const isSupported = mimetype
-        ? isMimeTypeSupportedForProcessing(mimetype)
-        : false;
+      const isSupported = mimetype ? isMimeTypeSupportedForProcessing(mimetype) : false;
 
       const isFailed = row.original.processingStatus === "failed";
       // Document completed but AI classification failed - title is null
@@ -295,8 +272,7 @@ export const columns: ColumnDef<Document>[] = [
         row.original.createdAt,
       );
       // Show retry option only for supported file types
-      const showRetry =
-        isSupported && (isFailed || needsClassification || staleProcessing);
+      const showRetry = isSupported && (isFailed || needsClassification || staleProcessing);
 
       if (!table.options.meta) {
         return null;

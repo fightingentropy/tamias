@@ -2,12 +2,7 @@
 
 import { useArtifacts } from "@ai-sdk-tools/artifacts/client";
 import { Icons } from "@tamias/ui/icons";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { parseAsString, useQueryState } from "nuqs";
 import { useCallback } from "react";
 import type { ArtifactType } from "@/lib/artifact-config";
@@ -17,10 +12,7 @@ interface ArtifactToggleIconProps {
 }
 
 export function ArtifactToggleIcon({ artifactType }: ArtifactToggleIconProps) {
-  const [selectedType, setSelectedType] = useQueryState(
-    "artifact-type",
-    parseAsString,
-  );
+  const [selectedType, setSelectedType] = useQueryState("artifact-type", parseAsString);
 
   const [data, actions] = useArtifacts({
     value: selectedType ?? undefined,
@@ -30,8 +22,7 @@ export function ArtifactToggleIcon({ artifactType }: ArtifactToggleIconProps) {
 
   const { available, activeType } = data;
   const isArtifactAvailable = available.includes(artifactType);
-  const isCurrentlyOpen =
-    activeType === artifactType || selectedType === artifactType;
+  const isCurrentlyOpen = activeType === artifactType || selectedType === artifactType;
 
   const handleToggle = useCallback(() => {
     if (isCurrentlyOpen) {

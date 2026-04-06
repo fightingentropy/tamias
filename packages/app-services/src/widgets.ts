@@ -25,11 +25,7 @@ import {
 } from "@tamias/app-data/queries";
 import { getPaymentStatus } from "@tamias/app-data/queries/invoices";
 import type { WidgetType } from "@tamias/domain";
-import {
-  createConvexClient,
-  getConvexServiceKey,
-  getSharedConvexClient,
-} from "./convex-client";
+import { createConvexClient, getConvexServiceKey, getSharedConvexClient } from "./convex-client";
 
 function serviceArgs<T extends Record<string, unknown>>(args: T) {
   return {
@@ -379,13 +375,8 @@ export async function getHydratableStandaloneWidgetData(args: {
         from: args.from,
         to: args.to,
       });
-      const topCategories = categoryExpenses
-        .sort((a, b) => b.amount - a.amount)
-        .slice(0, 3);
-      const totalAmount = topCategories.reduce(
-        (sum, category) => sum + category.amount,
-        0,
-      );
+      const topCategories = categoryExpenses.sort((a, b) => b.amount - a.amount).slice(0, 3);
+      const totalAmount = topCategories.reduce((sum, category) => sum + category.amount, 0);
 
       return {
         result: {
@@ -494,9 +485,7 @@ export async function getHydratableStandaloneWidgetsData(args: {
     ),
   );
 
-  return Object.fromEntries(
-    entries.flatMap(([widget, data]) => (data ? [[widget, data]] : [])),
-  );
+  return Object.fromEntries(entries.flatMap(([widget, data]) => (data ? [[widget, data]] : [])));
 }
 
 export async function getContextualHydratableWidgetData(args: {
@@ -529,9 +518,7 @@ export async function getContextualHydratableWidgetData(args: {
       return {
         result: await getTrackedTime(args.db, {
           teamId: args.teamId,
-          assignedId: args.assignedId as Parameters<
-            typeof getTrackedTime
-          >[1]["assignedId"],
+          assignedId: args.assignedId as Parameters<typeof getTrackedTime>[1]["assignedId"],
           from: args.trackedTimeFrom,
           to: args.trackedTimeTo,
         }),
@@ -576,24 +563,17 @@ export async function getContextualHydratableWidgetsData(args: {
     ),
   );
 
-  return Object.fromEntries(
-    entries.flatMap(([widget, data]) => (data ? [[widget, data]] : [])),
-  );
+  return Object.fromEntries(entries.flatMap(([widget, data]) => (data ? [[widget, data]] : [])));
 }
 
 export async function getWidgetPreferencesFromConvex(args: {
   userId: Id<"appUsers">;
   teamId: string;
 }) {
-  return getSharedConvexClient().query(
-    api.widgets.serviceGetWidgetPreferences,
-    serviceArgs(args),
-  );
+  return getSharedConvexClient().query(api.widgets.serviceGetWidgetPreferences, serviceArgs(args));
 }
 
-export async function getWidgetPreferencesFromConvexAsAuthUser(
-  accessToken?: string,
-) {
+export async function getWidgetPreferencesFromConvexAsAuthUser(accessToken?: string) {
   if (!accessToken) {
     return null;
   }

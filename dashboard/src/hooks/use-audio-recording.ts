@@ -115,10 +115,7 @@ export function useAudioRecording(): UseAudioRecordingReturn {
         // Convert blob to base64
         const arrayBuffer = await audioBlob.arrayBuffer();
         const base64Audio = btoa(
-          new Uint8Array(arrayBuffer).reduce(
-            (data, byte) => data + String.fromCharCode(byte),
-            "",
-          ),
+          new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), ""),
         );
 
         const response = await fetch(`${apiUrl}/transcription`, {
@@ -140,9 +137,7 @@ export function useAudioRecording(): UseAudioRecordingReturn {
             statusText: response.statusText,
             body: errorText,
           });
-          throw new Error(
-            `Failed to transcribe audio: ${response.status} ${response.statusText}`,
-          );
+          throw new Error(`Failed to transcribe audio: ${response.status} ${response.statusText}`);
         }
 
         const data: unknown = await response.json();
@@ -152,9 +147,7 @@ export function useAudioRecording(): UseAudioRecordingReturn {
         const payload = data as Record<string, unknown>;
         if (payload.success !== true) {
           throw new Error(
-            typeof payload.error === "string"
-              ? payload.error
-              : "Transcription failed",
+            typeof payload.error === "string" ? payload.error : "Transcription failed",
           );
         }
         if (typeof payload.text !== "string") {

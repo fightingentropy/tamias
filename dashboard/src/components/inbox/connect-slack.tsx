@@ -12,8 +12,7 @@ export function ConnectSlack() {
 
   // Check if Slack is installed
   const { data: installedApps } = useQuery(trpc.apps.get.queryOptions());
-  const isInstalled =
-    installedApps?.some((app) => app.app_id === "slack") ?? false;
+  const isInstalled = installedApps?.some((app) => app.app_id === "slack") ?? false;
 
   const disconnectMutation = useMutation(
     trpc.apps.disconnect.mutationOptions({

@@ -14,18 +14,13 @@ const DocumentSheet = dynamic(
 );
 
 const TransactionSheet = dynamic(
-  () =>
-    import("@/components/sheets/transaction-sheet").then(
-      (mod) => mod.TransactionSheet,
-    ),
+  () => import("@/components/sheets/transaction-sheet").then((mod) => mod.TransactionSheet),
   { ssr: false },
 );
 
 function DocumentSheetMount() {
   const { params } = useDocumentParams();
-  const shouldMount = useDeferredSheetMount(
-    Boolean(params.filePath || params.documentId),
-  );
+  const shouldMount = useDeferredSheetMount(Boolean(params.filePath || params.documentId));
 
   return shouldMount ? <DocumentSheet /> : null;
 }

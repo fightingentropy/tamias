@@ -19,20 +19,13 @@ export const getSlackInstaller = (): InstallProvider => {
       clientId: SLACK_CLIENT_ID,
       clientSecret: SLACK_CLIENT_SECRET,
       stateSecret: process.env.SLACK_STATE_SECRET,
-      logLevel:
-        process.env.NODE_ENV === "development" ? LogLevel.DEBUG : undefined,
+      logLevel: process.env.NODE_ENV === "development" ? LogLevel.DEBUG : undefined,
     });
   }
   return slackInstaller;
 };
 
-export const createSlackApp = ({
-  token,
-  botId,
-}: {
-  token: string;
-  botId: string;
-}) => {
+export const createSlackApp = ({ token, botId }: { token: string; botId: string }) => {
   if (!SLACK_SIGNING_SECRET) {
     throw new Error("SLACK_SIGNING_SECRET is required");
   }
@@ -121,13 +114,10 @@ export async function ensureBotInChannel({
     // The message sending will handle these errors appropriately
     if (errorMessage !== "channel_not_found") {
       // Log unexpected errors but don't fail - let chat.postMessage handle it
-      logger.warn(
-        "Failed to auto-join channel (will try to send message anyway)",
-        {
-          channel: channelId,
-          error: errorMessage,
-        },
-      );
+      logger.warn("Failed to auto-join channel (will try to send message anyway)", {
+        channel: channelId,
+        error: errorMessage,
+      });
     }
   }
 }

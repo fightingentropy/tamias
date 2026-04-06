@@ -84,9 +84,7 @@ export type CloudflareWorkflowInstanceRequest = {
   instanceId: string;
 };
 
-export type CloudflareRecurringScheduleTask =
-  | "inbox-sync-scheduler"
-  | "bank-sync-scheduler";
+export type CloudflareRecurringScheduleTask = "inbox-sync-scheduler" | "bank-sync-scheduler";
 
 export type CloudflareRecurringScheduleRequest = {
   scheduleId: string;
@@ -195,8 +193,7 @@ export function isSupportedCloudflareMessage(message: CloudflareAsyncMessage) {
         message.jobName === "whatsapp-upload")) ||
     (message.queue === "capture" &&
       message.queueName === "inbox-provider" &&
-      (message.jobName === "initial-setup" ||
-        message.jobName === "sync-scheduler")) ||
+      (message.jobName === "initial-setup" || message.jobName === "sync-scheduler")) ||
     (message.queue === "capture" &&
       message.queueName === "documents" &&
       (message.jobName === "process-document" ||
@@ -240,8 +237,7 @@ export function isSupportedCloudflareMessage(message: CloudflareAsyncMessage) {
         message.jobName === "schedule-invoice")) ||
     (message.queue === "ledger" &&
       message.queueName === "insights" &&
-      (message.jobName === "dispatch-insights" ||
-        message.jobName === "generate-team-insights")) ||
+      (message.jobName === "dispatch-insights" || message.jobName === "generate-team-insights")) ||
     (message.queue === "ledger" &&
       message.queueName === "customers" &&
       message.jobName === "enrich-customer") ||
@@ -262,10 +258,7 @@ function getBridgeTokenFromRequest(request: Request) {
   return request.headers.get("x-tamias-async-token")?.trim() ?? null;
 }
 
-export function isBridgeAuthorized(
-  request: Request,
-  env: CloudflareBridgeAuthEnv,
-) {
+export function isBridgeAuthorized(request: Request, env: CloudflareBridgeAuthEnv) {
   const configuredToken = env.CLOUDFLARE_ASYNC_BRIDGE_TOKEN?.trim();
 
   if (!configuredToken) {
@@ -291,8 +284,7 @@ export function isCloudflareWorkflowStartRequest(
   if (
     candidate.workflow === "team-cancellation-email" &&
     typeof candidate.instanceId === "string" &&
-    (typeof candidate.runId === "string" ||
-      typeof candidate.runId === "undefined") &&
+    (typeof candidate.runId === "string" || typeof candidate.runId === "undefined") &&
     !!payload &&
     typeof payload.teamId === "string" &&
     typeof payload.email === "string" &&
@@ -304,8 +296,7 @@ export function isCloudflareWorkflowStartRequest(
   if (
     candidate.workflow === "bank-initial-setup" &&
     typeof candidate.instanceId === "string" &&
-    (typeof candidate.runId === "string" ||
-      typeof candidate.runId === "undefined") &&
+    (typeof candidate.runId === "string" || typeof candidate.runId === "undefined") &&
     !!payload &&
     typeof payload.teamId === "string" &&
     typeof payload.connectionId === "string"
@@ -316,8 +307,7 @@ export function isCloudflareWorkflowStartRequest(
   return (
     candidate.workflow === "onboard-team" &&
     typeof candidate.instanceId === "string" &&
-    (typeof candidate.runId === "string" ||
-      typeof candidate.runId === "undefined") &&
+    (typeof candidate.runId === "string" || typeof candidate.runId === "undefined") &&
     !!payload &&
     typeof payload.email === "string"
   );
@@ -335,16 +325,11 @@ export function isCloudflareWorkflowInstanceRequest(
 }
 
 export function isAlreadyExistingWorkflowError(error: unknown) {
-  return (
-    error instanceof Error &&
-    error.message.toLowerCase().includes("already exists")
-  );
+  return error instanceof Error && error.message.toLowerCase().includes("already exists");
 }
 
 export function isWorkflowNotFoundError(error: unknown) {
-  return (
-    error instanceof Error && error.message.toLowerCase().includes("not found")
-  );
+  return error instanceof Error && error.message.toLowerCase().includes("not found");
 }
 
 export function buildCloudflareRecurringScheduleId(
@@ -403,13 +388,10 @@ export function isCloudflareRecurringScheduleRequest(
 
   return (
     typeof candidate.scheduleId === "string" &&
-    (candidate.taskId === "inbox-sync-scheduler" ||
-      candidate.taskId === "bank-sync-scheduler") &&
+    (candidate.taskId === "inbox-sync-scheduler" || candidate.taskId === "bank-sync-scheduler") &&
     typeof candidate.cron === "string" &&
-    (typeof candidate.timezone === "string" ||
-      typeof candidate.timezone === "undefined") &&
-    (typeof candidate.externalId === "string" ||
-      typeof candidate.externalId === "undefined") &&
+    (typeof candidate.timezone === "string" || typeof candidate.timezone === "undefined") &&
+    (typeof candidate.externalId === "string" || typeof candidate.externalId === "undefined") &&
     typeof candidate.deduplicationKey === "string" &&
     !!candidate.message &&
     isSupportedCloudflareMessage(candidate.message as CloudflareAsyncMessage)
@@ -427,21 +409,10 @@ export function isCloudflareRecurringScheduleCancelRequest(
   return typeof candidate.scheduleId === "string";
 }
 
-export function getNextRecurringScheduleAlarmAt(
-  cron: string,
-  nowMs = Date.now(),
-) {
-  const [minuteField, hourField, dayOfMonth, month, dayOfWeek] = cron
-    .trim()
-    .split(/\s+/);
+export function getNextRecurringScheduleAlarmAt(cron: string, nowMs = Date.now()) {
+  const [minuteField, hourField, dayOfMonth, month, dayOfWeek] = cron.trim().split(/\s+/);
 
-  if (
-    !minuteField ||
-    !hourField ||
-    dayOfMonth !== "*" ||
-    month !== "*" ||
-    dayOfWeek !== "*"
-  ) {
+  if (!minuteField || !hourField || dayOfMonth !== "*" || month !== "*" || dayOfWeek !== "*") {
     return null;
   }
 
@@ -456,9 +427,7 @@ export function getNextRecurringScheduleAlarmAt(
       : hourField
           .split(",")
           .map((value) => Number.parseInt(value, 10))
-          .filter(
-            (value) => Number.isInteger(value) && value >= 0 && value <= 23,
-          );
+          .filter((value) => Number.isInteger(value) && value >= 0 && value <= 23);
 
   if (!hours.length) {
     return null;
@@ -492,14 +461,9 @@ export function getNextRecurringScheduleAlarmAt(
   return Math.min(...candidates);
 }
 
-export function getScheduledCloudflareMessages(
-  cron: string,
-  scheduledTime?: number,
-) {
+export function getScheduledCloudflareMessages(cron: string, scheduledTime?: number) {
   const scheduledMinute =
-    typeof scheduledTime === "number"
-      ? new Date(scheduledTime).getUTCMinutes()
-      : null;
+    typeof scheduledTime === "number" ? new Date(scheduledTime).getUTCMinutes() : null;
 
   return scheduledCloudflareJobs
     .filter((job) => {

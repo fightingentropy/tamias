@@ -25,17 +25,14 @@ export class SyncInstitutionsProcessor extends BaseProcessor<SyncInstitutionsPay
     _job: Job<SyncInstitutionsPayload>,
   ): Promise<{ upserted: number; removed: number }> {
     if (!isProduction()) {
-      this.logger.info(
-        "Skipping institution sync in non-production environment",
-      );
+      this.logger.info("Skipping institution sync in non-production environment");
       return { upserted: 0, removed: 0 };
     }
 
     this.logger.info("Starting institution sync");
 
     // 1. Fetch from all providers
-    const { institutions, errors, succeededProviders } =
-      await fetchAllInstitutions();
+    const { institutions, errors, succeededProviders } = await fetchAllInstitutions();
 
     for (const error of errors) {
       this.logger.error(`Failed to fetch ${error.provider} institutions`, {
@@ -44,9 +41,7 @@ export class SyncInstitutionsProcessor extends BaseProcessor<SyncInstitutionsPay
     }
 
     if (institutions.length === 0) {
-      this.logger.warn(
-        "No institutions fetched from any provider, skipping sync",
-      );
+      this.logger.warn("No institutions fetched from any provider, skipping sync");
       return { upserted: 0, removed: 0 };
     }
 
@@ -61,17 +56,11 @@ export class SyncInstitutionsProcessor extends BaseProcessor<SyncInstitutionsPay
     }
 
     // 2. Sync logos to R2 for new institutions only
-    const existingIds = new Set(
-      await getActiveInstitutionIds(undefined, succeededProviders),
-    );
-    const newInstitutions = institutions.filter(
-      (inst) => !existingIds.has(inst.id),
-    );
+    const existingIds = new Set(await getActiveInstitutionIds(undefined, succeededProviders));
+    const newInstitutions = institutions.filter((inst) => !existingIds.has(inst.id));
 
     if (newInstitutions.length > 0) {
-      this.logger.info(
-        `Syncing logos for ${newInstitutions.length} new institutions`,
-      );
+      this.logger.info(`Syncing logos for ${newInstitutions.length} new institutions`);
 
       const logoResult = await syncInstitutionLogos(newInstitutions, {
         concurrency: 5,

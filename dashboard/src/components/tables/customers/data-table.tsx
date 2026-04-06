@@ -5,13 +5,7 @@ import { Table, TableBody, TableCell, TableRow } from "@tamias/ui/table";
 import { useMutation, useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { useVirtualizer, type VirtualItem } from "@tanstack/react-virtual";
-import {
-  useCallback,
-  useDeferredValue,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef } from "react";
 import { VirtualRow } from "@/components/tables/core";
 import { useCustomerFilterParams } from "@/hooks/use-customer-filter-params";
 import { useCustomerParams } from "@/hooks/use-customer-params";
@@ -73,23 +67,18 @@ export function DataTable({ initialSettings }: Props) {
     search: deferredSearch,
   });
 
-  const infiniteQueryOptions = trpc.customers.get.infiniteQueryOptions(
-    customerQueryFilter,
-    {
-      getNextPageParam: ({ meta }) => meta?.cursor,
-    },
-  );
+  const infiniteQueryOptions = trpc.customers.get.infiniteQueryOptions(customerQueryFilter, {
+    getNextPageParam: ({ meta }) => meta?.cursor,
+  });
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } =
     useSuspenseInfiniteQuery({
       ...infiniteQueryOptions,
       refetchInterval: (query) => {
-        const customers =
-          query.state.data?.pages.flatMap((page) => page.data) ?? [];
+        const customers = query.state.data?.pages.flatMap((page) => page.data) ?? [];
         const hasInFlightEnrichment = customers.some(
           (customer) =>
-            customer.enrichmentStatus === "pending" ||
-            customer.enrichmentStatus === "processing",
+            customer.enrichmentStatus === "pending" || customer.enrichmentStatus === "processing",
         );
 
         return hasInFlightEnrichment ? 10_000 : false;
@@ -225,14 +214,11 @@ export function DataTable({ initialSettings }: Props) {
         <div
           ref={(el) => {
             if (parentRef) {
-              (
-                parentRef as React.MutableRefObject<HTMLDivElement | null>
-              ).current = el;
+              (parentRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
             }
             if (tableScroll.containerRef) {
-              (
-                tableScroll.containerRef as React.MutableRefObject<HTMLDivElement | null>
-              ).current = el;
+              (tableScroll.containerRef as React.MutableRefObject<HTMLDivElement | null>).current =
+                el;
             }
           }}
           className="overflow-auto overscroll-contain border-l border-r border-b border-border scrollbar-hide"
@@ -279,10 +265,7 @@ export function DataTable({ initialSettings }: Props) {
                   })
                 ) : (
                   <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center"
-                    >
+                    <TableCell colSpan={columns.length} className="h-24 text-center">
                       No results.
                     </TableCell>
                   </TableRow>
@@ -291,10 +274,7 @@ export function DataTable({ initialSettings }: Props) {
             </Table>
           </DndContext>
           {/* Spacer ensures scrolling works when content barely overflows */}
-          <div
-            style={{ height: "var(--header-offset, 0px)", flexShrink: 0 }}
-            aria-hidden
-          />
+          <div style={{ height: "var(--header-offset, 0px)", flexShrink: 0 }} aria-hidden />
         </div>
       </div>
     </div>

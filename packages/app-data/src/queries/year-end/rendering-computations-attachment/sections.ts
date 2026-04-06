@@ -1,8 +1,5 @@
 import { HMRC_CT_COMPUTATIONS_2024_ENTRY_POINT } from "../constants";
-import {
-  escapeXml,
-  formatDraftAmount,
-} from "../formatting";
+import { escapeXml, formatDraftAmount } from "../formatting";
 import {
   formatIxbrlAmount,
   formatIxbrlWholeNumber,
@@ -36,9 +33,7 @@ function renderAssociatedCompaniesRows(data: ComputationsAttachmentRenderData) {
   return "";
 }
 
-export function renderComputationsAttachmentHeader(
-  data: ComputationsAttachmentRenderData,
-) {
+export function renderComputationsAttachmentHeader(data: ComputationsAttachmentRenderData) {
   return `<div style="display:none">
       <ix:header>
         <ix:references>
@@ -125,9 +120,7 @@ export function renderComputationsAttachmentHeader(
     </div>`;
 }
 
-export function renderTaxComputationSummary(
-  data: ComputationsAttachmentRenderData,
-) {
+export function renderTaxComputationSummary(data: ComputationsAttachmentRenderData) {
   return `<div class="section">
       <h2>Tax computation summary</h2>
       <table>
@@ -204,9 +197,7 @@ export function renderTaxComputationSummary(
     </div>`;
 }
 
-export function renderRateBreakdownSection(
-  data: ComputationsAttachmentRenderData,
-) {
+export function renderRateBreakdownSection(data: ComputationsAttachmentRenderData) {
   if (!data.rateBreakdownRows.length) {
     return "";
   }
@@ -220,9 +211,7 @@ export function renderRateBreakdownSection(
     </div>`;
 }
 
-export function renderAdjustmentMappingSection(
-  draft: Ct600Draft,
-) {
+export function renderAdjustmentMappingSection(draft: Ct600Draft) {
   return `<div class="section">
       <h2>Adjustment category mapping</h2>
       <table>
@@ -265,10 +254,7 @@ export function renderAdjustmentMappingSection(
           },
           {
             label: "Group relief claimed",
-            value: formatDraftAmount(
-              draft.computationBreakdown.groupReliefClaimed,
-              draft.currency,
-            ),
+            value: formatDraftAmount(draft.computationBreakdown.groupReliefClaimed, draft.currency),
           },
         ])}</tbody>
       </table>

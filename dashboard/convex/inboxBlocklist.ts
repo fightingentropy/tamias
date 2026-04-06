@@ -88,10 +88,7 @@ export const serviceCreateInboxBlocklist = mutation({
     const existing = await ctx.db
       .query("inboxBlocklist")
       .withIndex("by_team_type_value", (q) =>
-        q
-          .eq("teamId", team._id)
-          .eq("type", args.type)
-          .eq("normalizedValue", normalizedValue),
+        q.eq("teamId", team._id).eq("type", args.type).eq("normalizedValue", normalizedValue),
       )
       .unique();
 

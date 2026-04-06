@@ -1,11 +1,7 @@
 import { UTCDate } from "@date-fns/utc";
 import { runwayArtifact } from "@tamias/ai-artifacts/runway";
 import { db } from "@tamias/app-data/client";
-import {
-  getBurnRate,
-  getCashBalance,
-  getRunway,
-} from "@tamias/app-data/queries";
+import { getBurnRate, getCashBalance, getRunway } from "@tamias/app-data/queries";
 import { tool } from "ai";
 import { endOfMonth, format, startOfMonth, subMonths } from "date-fns";
 import { z } from "zod";
@@ -29,13 +25,9 @@ const getRunwaySchema = z.object({
 });
 
 export const getRunwayTool = tool({
-  description:
-    "Calculate cash runway - months the business can operate with current cash.",
+  description: "Calculate cash runway - months the business can operate with current cash.",
   inputSchema: getRunwaySchema,
-  execute: async function* (
-    { period, from, to, currency, showCanvas },
-    executionOptions,
-  ) {
+  execute: async function* ({ period, from, to, currency, showCanvas }, executionOptions) {
     const appContext = getToolAppContext(executionOptions);
     const teamId = getToolTeamId(appContext);
 
@@ -52,12 +44,11 @@ export const getRunwayTool = tool({
     throwIfBankAccountsRequired(appContext);
 
     try {
-      const { finalFrom, finalTo, finalCurrency, description } =
-        resolveReportToolParams({
-          toolName: "getRunway",
-          appContext,
-          aiParams: { period, from, to, currency },
-        });
+      const { finalFrom, finalTo, finalCurrency, description } = resolveReportToolParams({
+        toolName: "getRunway",
+        appContext,
+        aiParams: { period, from, to, currency },
+      });
       const analysis = startArtifactStream({
         enabled: showCanvas,
         executionOptions,
@@ -104,8 +95,7 @@ export const getRunwayTool = tool({
       const averageBurnRate =
         burnRateData.length > 0
           ? burnRateData.reduce(
-              (sum: number, item: { value: number | string }) =>
-                sum + Number(item.value),
+              (sum: number, item: { value: number | string }) => sum + Number(item.value),
               0,
             ) / burnRateData.length
           : 0;
@@ -122,20 +112,12 @@ export const getRunwayTool = tool({
       }> = [];
 
       // Only generate projections if we have valid data
-      if (
-        averageBurnRate > 0 &&
-        Number.isFinite(cashBalance) &&
-        Number.isFinite(averageBurnRate)
-      ) {
+      if (averageBurnRate > 0 && Number.isFinite(cashBalance) && Number.isFinite(averageBurnRate)) {
         // Generate projections for up to 8 months or until runway reaches 0
         for (let i = 0; i <= 8; i++) {
           const monthsFromNow = i;
-          const remainingCash = Math.max(
-            0,
-            cashBalance - averageBurnRate * monthsFromNow,
-          );
-          const projectedRunwayMonths =
-            averageBurnRate > 0 ? remainingCash / averageBurnRate : 0;
+          const remainingCash = Math.max(0, cashBalance - averageBurnRate * monthsFromNow);
+          const projectedRunwayMonths = averageBurnRate > 0 ? remainingCash / averageBurnRate : 0;
 
           // Skip if runwayMonths is invalid
           if (!Number.isFinite(projectedRunwayMonths)) continue;
@@ -212,8 +194,7 @@ export const getRunwayTool = tool({
         responseText +=
           "Cash runway represents how many months your business can operate with current cash reserves at the current spending rate. ";
         if (status === "healthy") {
-          responseText +=
-            "You have a healthy cash position with 12+ months of runway.";
+          responseText += "You have a healthy cash position with 12+ months of runway.";
         } else if (status === "concerning") {
           responseText +=
             "Consider monitoring your burn rate and cash flow closely. You may want to focus on increasing revenue or reducing expenses.";
@@ -226,33 +207,19 @@ export const getRunwayTool = tool({
       // Generate recommendations based on status
       const recommendations: string[] = [];
       if (runway === 0) {
-        recommendations.push(
-          "Ensure transactions are properly categorized to calculate runway",
-        );
-        recommendations.push(
-          "Check that bank accounts are connected and synced",
-        );
+        recommendations.push("Ensure transactions are properly categorized to calculate runway");
+        recommendations.push("Check that bank accounts are connected and synced");
       } else if (status === "critical") {
-        recommendations.push(
-          "Immediately reduce expenses or increase revenue to extend runway",
-        );
-        recommendations.push(
-          "Consider securing additional funding or investment",
-        );
+        recommendations.push("Immediately reduce expenses or increase revenue to extend runway");
+        recommendations.push("Consider securing additional funding or investment");
         recommendations.push("Review and optimize all recurring expenses");
       } else if (status === "concerning") {
-        recommendations.push(
-          "Monitor burn rate and cash flow closely each month",
-        );
-        recommendations.push(
-          "Focus on increasing revenue or reducing expenses",
-        );
+        recommendations.push("Monitor burn rate and cash flow closely each month");
+        recommendations.push("Focus on increasing revenue or reducing expenses");
         recommendations.push("Build a plan to extend runway to 12+ months");
       } else {
         recommendations.push("Maintain current cash management practices");
-        recommendations.push(
-          "Continue monitoring runway monthly to ensure healthy position",
-        );
+        recommendations.push("Continue monitoring runway monthly to ensure healthy position");
       }
 
       // Generate summary for artifact

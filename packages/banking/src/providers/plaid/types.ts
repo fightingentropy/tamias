@@ -58,8 +58,7 @@ export type GetAccountsResponse = AccountWithInstitution[];
 
 export type TransformAccount = AccountWithInstitution;
 
-export type TransformAccountBalance =
-  AccountsGetResponse["accounts"][0]["balances"];
+export type TransformAccountBalance = AccountsGetResponse["accounts"][0]["balances"];
 
 export type TransformTransaction = Transaction;
 

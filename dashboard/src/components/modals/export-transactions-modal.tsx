@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@tamias/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@tamias/ui/accordion";
 import { Button } from "@tamias/ui/button";
 import {
   Dialog,
@@ -14,13 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@tamias/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@tamias/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@tamias/ui/form";
 import { Input } from "@tamias/ui/input";
 import { Label } from "@tamias/ui/label";
 import { RadioGroup, RadioGroupItem } from "@tamias/ui/radio-group";
@@ -54,8 +43,7 @@ const exportSettingsSchema = z
         if (!data.accountantEmail || data.accountantEmail.trim() === "") {
           return false;
         }
-        return z.string().email().safeParse(data.accountantEmail.trim())
-          .success;
+        return z.string().email().safeParse(data.accountantEmail.trim()).success;
       }
       return true;
     },
@@ -82,10 +70,7 @@ interface ExportTransactionsModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function ExportTransactionsModal({
-  isOpen,
-  onOpenChange,
-}: ExportTransactionsModalProps) {
+export function ExportTransactionsModal({ isOpen, onOpenChange }: ExportTransactionsModalProps) {
   const { exportData, setExportData, setIsExporting } = useExportStore();
   const { rowSelectionByTab, setRowSelection } = useTransactionsStore();
   // Export modal is used from review tab, so use review tab selection
@@ -214,10 +199,7 @@ export function ExportTransactionsModal({
           </DialogHeader>
 
           <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onFileExport)}
-              className="space-y-4"
-            >
+            <form onSubmit={form.handleSubmit(onFileExport)} className="space-y-4">
               <div className="space-y-3">
                 <FormField
                   control={form.control}
@@ -226,18 +208,11 @@ export function ExportTransactionsModal({
                     <FormItem>
                       <div className="flex items-center justify-between">
                         <div className="space-y-0.5">
-                          <FormLabel className="text-sm font-normal">
-                            CSV
-                          </FormLabel>
-                          <p className="text-xs text-[#878787]">
-                            Export as comma-separated values
-                          </p>
+                          <FormLabel className="text-sm font-normal">CSV</FormLabel>
+                          <p className="text-xs text-[#878787]">Export as comma-separated values</p>
                         </div>
                         <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
+                          <Switch checked={field.value} onCheckedChange={field.onChange} />
                         </FormControl>
                       </div>
                     </FormItem>
@@ -250,22 +225,14 @@ export function ExportTransactionsModal({
                     name="csvDelimiter"
                     render={({ field }) => (
                       <Accordion type="single" collapsible className="-mx-4">
-                        <AccordionItem
-                          value="csv-settings"
-                          className="border-0"
-                        >
+                        <AccordionItem value="csv-settings" className="border-0">
                           <AccordionTrigger className="py-3 px-4 hover:no-underline hover:bg-accent/50">
-                            <span className="text-sm text-[#878787]">
-                              CSV Settings
-                            </span>
+                            <span className="text-sm text-[#878787]">CSV Settings</span>
                           </AccordionTrigger>
                           <AccordionContent className="px-4">
                             <FormItem>
                               <div className="space-y-2 pt-2">
-                                <FormLabel
-                                  htmlFor="delimiter"
-                                  className="text-sm"
-                                >
+                                <FormLabel htmlFor="delimiter" className="text-sm">
                                   Delimiter
                                 </FormLabel>
                                 <FormControl>
@@ -276,31 +243,19 @@ export function ExportTransactionsModal({
                                   >
                                     <div className="flex items-center space-x-2">
                                       <RadioGroupItem value="," id="comma" />
-                                      <Label
-                                        htmlFor="comma"
-                                        className="text-sm font-normal"
-                                      >
+                                      <Label htmlFor="comma" className="text-sm font-normal">
                                         Comma (,)
                                       </Label>
                                     </div>
                                     <div className="flex items-center space-x-2">
-                                      <RadioGroupItem
-                                        value=";"
-                                        id="semicolon"
-                                      />
-                                      <Label
-                                        htmlFor="semicolon"
-                                        className="text-sm font-normal"
-                                      >
+                                      <RadioGroupItem value=";" id="semicolon" />
+                                      <Label htmlFor="semicolon" className="text-sm font-normal">
                                         Semicolon (;)
                                       </Label>
                                     </div>
                                     <div className="flex items-center space-x-2">
                                       <RadioGroupItem value="\t" id="tab" />
-                                      <Label
-                                        htmlFor="tab"
-                                        className="text-sm font-normal"
-                                      >
+                                      <Label htmlFor="tab" className="text-sm font-normal">
                                         Tab
                                       </Label>
                                     </div>
@@ -322,18 +277,11 @@ export function ExportTransactionsModal({
                     <FormItem>
                       <div className="flex items-center justify-between">
                         <div className="space-y-0.5">
-                          <FormLabel className="text-sm font-normal">
-                            Excel (XLSX)
-                          </FormLabel>
-                          <p className="text-xs text-[#878787]">
-                            Export as Excel spreadsheet
-                          </p>
+                          <FormLabel className="text-sm font-normal">Excel (XLSX)</FormLabel>
+                          <p className="text-xs text-[#878787]">Export as Excel spreadsheet</p>
                         </div>
                         <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
+                          <Switch checked={field.value} onCheckedChange={field.onChange} />
                         </FormControl>
                       </div>
                     </FormItem>
@@ -351,18 +299,13 @@ export function ExportTransactionsModal({
                     <FormItem>
                       <div className="flex items-center justify-between">
                         <div className="space-y-0.5">
-                          <FormLabel className="text-sm font-normal">
-                            Send via email
-                          </FormLabel>
+                          <FormLabel className="text-sm font-normal">Send via email</FormLabel>
                           <p className="text-xs text-[#878787]">
                             Email the export to your accountant
                           </p>
                         </div>
                         <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
+                          <Switch checked={field.value} onCheckedChange={field.onChange} />
                         </FormControl>
                       </div>
                     </FormItem>
@@ -376,11 +319,7 @@ export function ExportTransactionsModal({
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <Input
-                            type="email"
-                            placeholder="accountant@example.com"
-                            {...field}
-                          />
+                          <Input type="email" placeholder="accountant@example.com" {...field} />
                         </FormControl>
                       </FormItem>
                     )}
@@ -394,14 +333,9 @@ export function ExportTransactionsModal({
                     render={({ field }) => (
                       <FormItem>
                         <div className="flex items-center justify-between">
-                          <FormLabel className="text-sm font-normal">
-                            Send a copy to me
-                          </FormLabel>
+                          <FormLabel className="text-sm font-normal">Send a copy to me</FormLabel>
                           <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
+                            <Switch checked={field.value} onCheckedChange={field.onChange} />
                           </FormControl>
                         </div>
                       </FormItem>

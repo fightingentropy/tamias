@@ -4,10 +4,7 @@ import {
   updateTeamMemberInConvex,
 } from "@tamias/app-services/identity";
 import { TRPCError } from "@trpc/server";
-import {
-  deleteTeamMemberSchema,
-  updateTeamMemberSchema,
-} from "../../schemas/team";
+import { deleteTeamMemberSchema, updateTeamMemberSchema } from "../../schemas/team";
 import { protectedProcedure } from "../init";
 import {
   getTeamMemberByPublicId,
@@ -28,10 +25,7 @@ export const teamMemberProcedures = {
       }
 
       const teamMembers = await getTeamMembersFromConvex(teamId!);
-      const callerRole = getTeamMemberRoleByConvexId(
-        teamMembers,
-        session.user.id,
-      );
+      const callerRole = getTeamMemberRoleByConvexId(teamMembers, session.user.id);
 
       if (callerRole !== "owner") {
         throw new TRPCError({
@@ -74,10 +68,7 @@ export const teamMemberProcedures = {
       }
 
       const teamMembers = await getTeamMembersFromConvex(teamId!);
-      const callerRole = getTeamMemberRoleByConvexId(
-        teamMembers,
-        session.user.id,
-      );
+      const callerRole = getTeamMemberRoleByConvexId(teamMembers, session.user.id);
 
       if (callerRole !== "owner") {
         throw new TRPCError({
@@ -87,10 +78,7 @@ export const teamMemberProcedures = {
       }
 
       if (input.role === "member") {
-        const targetRole = getTeamMemberRoleByPublicId(
-          teamMembers,
-          input.userId,
-        );
+        const targetRole = getTeamMemberRoleByPublicId(teamMembers, input.userId);
 
         if (targetRole === "owner" && getTeamOwnerCount(teamMembers) === 1) {
           throw new TRPCError({

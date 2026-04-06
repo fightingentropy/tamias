@@ -86,21 +86,16 @@ export function CustomerEditSheet() {
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        Are you absolutely sure?
-                      </AlertDialogTitle>
+                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This action cannot be undone. This will permanently
-                        delete the customer and remove their data from our
-                        servers.
+                        This action cannot be undone. This will permanently delete the customer and
+                        remove their data from our servers.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction
-                        onClick={() =>
-                          deleteCustomerMutation.mutate({ id: customerId })
-                        }
+                        onClick={() => deleteCustomerMutation.mutate({ id: customerId })}
                       >
                         Delete
                       </AlertDialogAction>

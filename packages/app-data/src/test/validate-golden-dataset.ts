@@ -13,11 +13,7 @@ import {
   calculateDateScore,
   isCrossCurrencyMatch,
 } from "../utils/transaction-matching";
-import {
-  GOLDEN_DATASET,
-  getDatasetStats,
-  validateGoldenDataset,
-} from "./golden-dataset";
+import { GOLDEN_DATASET, getDatasetStats, validateGoldenDataset } from "./golden-dataset";
 
 console.log("Validating Golden Dataset...\n");
 
@@ -50,12 +46,8 @@ for (const [category, count] of Object.entries(stats.byCategory)) {
   console.log(`     - ${category}: ${count}`);
 }
 console.log("   Average confidence:");
-console.log(
-  `     - Confirmed: ${stats.avgConfidenceByFeedback.confirmed.toFixed(3)}`,
-);
-console.log(
-  `     - Declined: ${stats.avgConfidenceByFeedback.declined.toFixed(3)}`,
-);
+console.log(`     - Confirmed: ${stats.avgConfidenceByFeedback.confirmed.toFixed(3)}`);
+console.log(`     - Declined: ${stats.avgConfidenceByFeedback.declined.toFixed(3)}`);
 console.log();
 
 // 3. Test algorithm performance on golden dataset
@@ -70,18 +62,12 @@ GOLDEN_DATASET.forEach((goldenCase, _index) => {
 
   // Calculate actual scores
   const amountScore = calculateAmountScore(inbox, transaction);
-  const currencyScore = calculateCurrencyScore(
-    inbox.currency,
-    transaction.currency,
-  );
+  const currencyScore = calculateCurrencyScore(inbox.currency, transaction.currency);
   const dateScore = calculateDateScore(inbox.date, transaction.date);
   const mockNameScore = expectedScores.nameScore;
 
   const actualConfidence =
-    amountScore * 0.3 +
-    currencyScore * 0.2 +
-    dateScore * 0.2 +
-    mockNameScore * 0.3;
+    amountScore * 0.3 + currencyScore * 0.2 + dateScore * 0.2 + mockNameScore * 0.3;
 
   // Check prediction accuracy
   const predictedMatch = actualConfidence > 0.6;
@@ -98,9 +84,7 @@ GOLDEN_DATASET.forEach((goldenCase, _index) => {
   totalPredictions++;
 
   // Track confidence gap from expected
-  const confidenceGap = Math.abs(
-    actualConfidence - expectedScores.confidenceScore,
-  );
+  const confidenceGap = Math.abs(actualConfidence - expectedScores.confidenceScore);
   confidenceGaps.push(confidenceGap);
 
   if (confidenceGap > 0.1) {
@@ -111,8 +95,7 @@ GOLDEN_DATASET.forEach((goldenCase, _index) => {
 });
 
 const accuracy = correctPredictions / totalPredictions;
-const avgConfidenceGap =
-  confidenceGaps.reduce((a, b) => a + b, 0) / confidenceGaps.length;
+const avgConfidenceGap = confidenceGaps.reduce((a, b) => a + b, 0) / confidenceGaps.length;
 
 console.log(
   `   Prediction accuracy: ${(accuracy * 100).toFixed(1)}% (${correctPredictions}/${totalPredictions})`,
@@ -137,9 +120,7 @@ console.log();
 // 4. Test cross-currency logic
 console.log("Testing Cross-Currency Logic:");
 
-const crossCurrencyCases = GOLDEN_DATASET.filter(
-  (item) => item.matchType === "cross_currency",
-);
+const crossCurrencyCases = GOLDEN_DATASET.filter((item) => item.matchType === "cross_currency");
 let crossCurrencyCorrect = 0;
 
 for (const goldenCase of crossCurrencyCases) {
@@ -211,8 +192,7 @@ if (validation.valid && accuracy >= 0.85 && avgConfidenceGap <= 0.05) {
   console.log("Issues detected - address before making algorithm changes:");
   if (!validation.valid) console.log("   - Fix dataset validation errors");
   if (accuracy < 0.85) console.log("   - Improve algorithm accuracy");
-  if (avgConfidenceGap > 0.05)
-    console.log("   - Calibrate expected confidence scores");
+  if (avgConfidenceGap > 0.05) console.log("   - Calibrate expected confidence scores");
 }
 
 console.log("\nNext steps:");

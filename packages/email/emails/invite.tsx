@@ -1,13 +1,5 @@
 import { getAppUrl } from "@tamias/utils/envs";
-import {
-  Body,
-  Container,
-  Heading,
-  Link,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
+import { Body, Container, Heading, Link, Preview, Section, Text } from "@react-email/components";
 import { Footer } from "../components/footer";
 import { Logo } from "../components/logo";
 import {
@@ -43,13 +35,8 @@ export const InviteEmail = ({
   const lightStyles = getEmailInlineStyles("light");
 
   return (
-    <EmailThemeProvider
-      preview={<Preview>{t("invite.preview", { teamName })}</Preview>}
-    >
-      <Body
-        className={`my-auto mx-auto font-sans ${themeClasses.body}`}
-        style={lightStyles.body}
-      >
+    <EmailThemeProvider preview={<Preview>{t("invite.preview", { teamName })}</Preview>}>
+      <Body className={`my-auto mx-auto font-sans ${themeClasses.body}`} style={lightStyles.body}>
         <Container
           className={`my-[40px] mx-auto p-[20px] max-w-[600px] ${themeClasses.container}`}
           style={{
@@ -63,8 +50,8 @@ export const InviteEmail = ({
             className={`font-serif mx-0 my-[30px] p-0 text-[24px] font-normal text-center ${themeClasses.heading}`}
             style={{ color: lightStyles.text.color }}
           >
-            {t("invite.title1")} <strong>{teamName}</strong>{" "}
-            {t("invite.title2")} <strong>Tamias</strong>
+            {t("invite.title1")} <strong>{teamName}</strong> {t("invite.title2")}{" "}
+            <strong>Tamias</strong>
           </Heading>
 
           <Text
@@ -79,8 +66,8 @@ export const InviteEmail = ({
             >
               {invitedByEmail}
             </Link>
-            ) {t("invite.link1")} <strong>{teamName}</strong>{" "}
-            {t("invite.link2")} <strong>Tamias</strong>.
+            ) {t("invite.link1")} <strong>{teamName}</strong> {t("invite.link2")}{" "}
+            <strong>Tamias</strong>.
           </Text>
           <Section className="mb-[42px] mt-[32px] text-center">
             <Button href={inviteLink}>{t("invite.join")}</Button>
@@ -107,17 +94,11 @@ export const InviteEmail = ({
               style={{ color: lightStyles.mutedText.color }}
             >
               {t("invite.footer1")}{" "}
-              <span
-                className={themeClasses.text}
-                style={{ color: lightStyles.text.color }}
-              >
+              <span className={themeClasses.text} style={{ color: lightStyles.text.color }}>
                 {email}
               </span>
               . {t("invite.footer2")}{" "}
-              <span
-                className={themeClasses.text}
-                style={{ color: lightStyles.text.color }}
-              >
+              <span className={themeClasses.text} style={{ color: lightStyles.text.color }}>
                 {ip}
               </span>{" "}
               . {t("invite.footer4")}

@@ -24,9 +24,7 @@ import { type ChartId, DEFAULT_CHART_ORDER } from "./utils/chart-types";
 export function MetricsView() {
   const trpc = useTRPC();
   const { data: user } = useUserQuery();
-  const { data: connections } = useQuery(
-    trpc.bankConnections.get.queryOptions(),
-  );
+  const { data: connections } = useQuery(trpc.bankConnections.get.queryOptions());
   const { from, to, currency, revenueType } = useMetricsFilter();
   const { isCustomizing, setIsCustomizing } = useMetricsCustomize();
   const [chartOrder, setChartOrder] = useLocalStorage<ChartId[]>(

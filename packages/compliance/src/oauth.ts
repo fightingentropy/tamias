@@ -1,9 +1,6 @@
 import { decryptOAuthState, encryptOAuthState } from "@tamias/encryption";
 import type { GenericId } from "convex/values";
-import {
-  type AuthorityProviderId,
-  AuthorityProviderIdSchema,
-} from "./types";
+import { type AuthorityProviderId, AuthorityProviderIdSchema } from "./types";
 
 export interface ComplianceOAuthStatePayload {
   teamId: string;
@@ -12,9 +9,7 @@ export interface ComplianceOAuthStatePayload {
   source: "apps" | "settings";
 }
 
-function isValidComplianceOAuthState(
-  parsed: unknown,
-): parsed is ComplianceOAuthStatePayload {
+function isValidComplianceOAuthState(parsed: unknown): parsed is ComplianceOAuthStatePayload {
   if (typeof parsed !== "object" || parsed === null) {
     return false;
   }
@@ -29,9 +24,7 @@ function isValidComplianceOAuthState(
   );
 }
 
-export function encryptComplianceOAuthState(
-  payload: ComplianceOAuthStatePayload,
-): string {
+export function encryptComplianceOAuthState(payload: ComplianceOAuthStatePayload): string {
   return encryptOAuthState(payload);
 }
 

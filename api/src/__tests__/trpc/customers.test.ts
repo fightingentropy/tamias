@@ -43,9 +43,7 @@ describe("tRPC: customers.get", () => {
   });
 
   test("handles empty list", async () => {
-    mocks.getCustomers.mockImplementation(() =>
-      createCustomersListResponse([]),
-    );
+    mocks.getCustomers.mockImplementation(() => createCustomersListResponse([]));
 
     const caller = createCaller(createTestContext());
     const result = await caller.get({});
@@ -54,9 +52,7 @@ describe("tRPC: customers.get", () => {
   });
 
   test("passes query to DB", async () => {
-    mocks.getCustomers.mockImplementation(() =>
-      createCustomersListResponse([]),
-    );
+    mocks.getCustomers.mockImplementation(() => createCustomersListResponse([]));
 
     const caller = createCaller(createTestContext());
     await caller.get({ q: "Acme" });
@@ -71,9 +67,7 @@ describe("tRPC: customers.getById", () => {
   });
 
   test("returns single customer", async () => {
-    mocks.getCustomerById.mockImplementation(() =>
-      createValidCustomerResponse(),
-    );
+    mocks.getCustomerById.mockImplementation(() => createValidCustomerResponse());
 
     const caller = createCaller(createTestContext());
     const result = await caller.getById({
@@ -95,9 +89,7 @@ describe("tRPC: customers.getById", () => {
   });
 
   test("passes correct parameters to DB query", async () => {
-    mocks.getCustomerById.mockImplementation(() =>
-      createValidCustomerResponse(),
-    );
+    mocks.getCustomerById.mockImplementation(() => createValidCustomerResponse());
 
     const caller = createCaller(createTestContext());
     await caller.getById({ id: "c3d4e5f6-7a8b-4c9d-0e1f-2a3b4c5d6e7f" });

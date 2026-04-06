@@ -1,8 +1,5 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import {
-  encryptComplianceOAuthState,
-  HmrcVatProvider,
-} from "@tamias/compliance";
+import { encryptComplianceOAuthState, HmrcVatProvider } from "@tamias/compliance";
 import { HTTPException } from "hono/http-exception";
 import { protectedMiddleware } from "../../../middleware";
 import type { Context } from "../../../types";
@@ -21,8 +18,7 @@ app.openapi(
     path: "/",
     summary: "Get HMRC VAT install URL",
     operationId: "getHmrcVatInstallUrl",
-    description:
-      "Generates OAuth install URL for HMRC VAT integration. Requires authentication.",
+    description: "Generates OAuth install URL for HMRC VAT integration. Requires authentication.",
     tags: ["Integrations"],
     responses: {
       200: {
@@ -75,10 +71,7 @@ app.openapi(
       return c.json({ url });
     } catch (error) {
       throw new HTTPException(500, {
-        message:
-          error instanceof Error
-            ? error.message
-            : "HMRC VAT OAuth configuration missing",
+        message: error instanceof Error ? error.message : "HMRC VAT OAuth configuration missing",
       });
     }
   },

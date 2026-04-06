@@ -16,11 +16,7 @@ const POPUP_HEIGHT = 800;
 const TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 const apiUrl = getApiUrl();
 
-export function useAppOAuth({
-  installUrlEndpoint,
-  onSuccess,
-  onError,
-}: UseAppOAuthOptions) {
+export function useAppOAuth({ installUrlEndpoint, onSuccess, onError }: UseAppOAuthOptions) {
   const token = useAuthToken();
   const [isLoading, setIsLoading] = useState(false);
   const cleanupRef = useRef<(() => void) | null>(null);

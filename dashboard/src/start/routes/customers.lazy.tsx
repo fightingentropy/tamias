@@ -23,10 +23,7 @@ function CustomersPage() {
   const loaderData = Route.useLoaderData() as CustomersLoaderData;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <ScrollableContent>
         <div className="flex flex-col gap-6">
           <CollapsibleSummary>

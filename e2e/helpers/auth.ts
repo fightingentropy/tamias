@@ -21,9 +21,7 @@ export function createSmokeUserCredentials(): SmokeUserCredentials {
   };
 }
 
-export async function saveSmokeUserCredentials(
-  credentials: SmokeUserCredentials,
-): Promise<void> {
+export async function saveSmokeUserCredentials(credentials: SmokeUserCredentials): Promise<void> {
   await mkdir(path.dirname(CREDENTIALS_PATH), { recursive: true });
   await writeFile(CREDENTIALS_PATH, JSON.stringify(credentials, null, 2));
 }
@@ -40,9 +38,7 @@ export async function signUpWithPassword(
 ): Promise<void> {
   await page.goto("/login", { waitUntil: "networkidle" });
   await page.waitForTimeout(2000);
-  await page
-    .getByRole("button", { name: "Need an account? Create one" })
-    .click();
+  await page.getByRole("button", { name: "Need an account? Create one" }).click();
   await page.getByLabel("Email").fill(credentials.email);
   await page.getByLabel("Password").fill(credentials.password);
   await page.getByRole("button", { name: "Create account" }).click();
@@ -54,19 +50,13 @@ export async function signUpWithPassword(
     .not.toBe("/login");
 }
 
-async function selectOptionByTestId(
-  page: Page,
-  testId: string,
-  optionLabel: string,
-) {
+async function selectOptionByTestId(page: Page, testId: string, optionLabel: string) {
   await page.getByTestId(testId).click();
   await page.getByRole("option", { name: optionLabel }).click();
 }
 
 export async function completeOnboarding(page: Page): Promise<void> {
-  await expect(
-    page.getByRole("heading", { name: "Complete your profile" }),
-  ).toBeVisible({
+  await expect(page.getByRole("heading", { name: "Complete your profile" })).toBeVisible({
     timeout: 30_000,
   });
   const nameInput = page.getByTestId("onboarding-full-name");
@@ -75,9 +65,7 @@ export async function completeOnboarding(page: Page): Promise<void> {
   await nameInput.fill("Playwright Smoke", { timeout: 60_000 });
   await page.getByRole("button", { name: "Continue" }).click();
 
-  await expect(
-    page.getByRole("heading", { name: "Business details" }),
-  ).toBeVisible({
+  await expect(page.getByRole("heading", { name: "Business details" })).toBeVisible({
     timeout: 30_000,
   });
   await page.getByTestId("onboarding-company-name").fill("Playwright Ltd");
@@ -85,9 +73,7 @@ export async function completeOnboarding(page: Page): Promise<void> {
   await selectOptionByTestId(page, "onboarding-heard-about", "GitHub");
   await page.getByRole("button", { name: "Continue" }).click();
 
-  await expect(
-    page.getByRole("heading", { name: "Connect your bank" }),
-  ).toBeVisible({
+  await expect(page.getByRole("heading", { name: "Connect your bank" })).toBeVisible({
     timeout: 30_000,
   });
   await page.getByRole("button", { name: "Skip for now" }).click();
@@ -110,9 +96,7 @@ export async function completeOnboarding(page: Page): Promise<void> {
   });
   await page.getByRole("button", { name: "Next" }).click();
 
-  await expect(
-    page.getByRole("heading", { name: "You're ready to go" }),
-  ).toBeVisible({
+  await expect(page.getByRole("heading", { name: "You're ready to go" })).toBeVisible({
     timeout: 30_000,
   });
   await page.getByRole("button", { name: "Get started" }).click();

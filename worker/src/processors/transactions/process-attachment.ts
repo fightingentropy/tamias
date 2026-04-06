@@ -1,11 +1,7 @@
 import { updateTransaction } from "@tamias/app-data/queries";
 import { DocumentClient } from "@tamias/documents";
 import { enqueue } from "@tamias/job-client";
-import {
-  downloadVaultFile,
-  getVaultSignedUrl,
-  uploadVaultFile,
-} from "@tamias/storage";
+import { downloadVaultFile, getVaultSignedUrl, uploadVaultFile } from "@tamias/storage";
 import type { WorkerJob as Job } from "../../types/job";
 import type { ProcessTransactionAttachmentPayload } from "../../schemas/transactions";
 import { getDb } from "../../utils/db";

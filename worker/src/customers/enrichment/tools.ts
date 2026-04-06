@@ -71,9 +71,7 @@ export function normalizeUrl(url: string | null | undefined): string | null {
  * Extract LinkedIn URL from text or results.
  */
 export function extractLinkedInUrl(text: string): string | null {
-  const match = text.match(
-    /(?:https?:\/\/)?(?:www\.)?linkedin\.com\/company\/[\w-]+/i,
-  );
+  const match = text.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/company\/[\w-]+/i);
   return match ? normalizeUrl(match[0]) : null;
 }
 
@@ -81,9 +79,7 @@ export function extractLinkedInUrl(text: string): string | null {
  * Extract Twitter/X URL from text.
  */
 export function extractTwitterUrl(text: string): string | null {
-  const match = text.match(
-    /(?:https?:\/\/)?(?:www\.)?(?:twitter\.com|x\.com)\/[\w-]+/i,
-  );
+  const match = text.match(/(?:https?:\/\/)?(?:www\.)?(?:twitter\.com|x\.com)\/[\w-]+/i);
   return match ? normalizeUrl(match[0]) : null;
 }
 
@@ -91,9 +87,7 @@ export function extractTwitterUrl(text: string): string | null {
  * Extract Instagram URL from text.
  */
 export function extractInstagramUrl(text: string): string | null {
-  const match = text.match(
-    /(?:https?:\/\/)?(?:www\.)?instagram\.com\/[\w.-]+/i,
-  );
+  const match = text.match(/(?:https?:\/\/)?(?:www\.)?instagram\.com\/[\w.-]+/i);
   return match ? normalizeUrl(match[0]) : null;
 }
 

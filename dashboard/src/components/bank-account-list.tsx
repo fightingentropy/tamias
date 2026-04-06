@@ -27,9 +27,7 @@ function EmptyState() {
 export function BankAccountList() {
   const trpc = useTRPC();
 
-  const { data: connections } = useSuspenseQuery(
-    trpc.bankConnections.get.queryOptions(),
-  );
+  const { data: connections } = useSuspenseQuery(trpc.bankConnections.get.queryOptions());
 
   const { data: manualAccounts } = useSuspenseQuery(
     trpc.bankAccounts.get.queryOptions({

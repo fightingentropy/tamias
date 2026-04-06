@@ -57,7 +57,7 @@ describe("HmrcCtProvider", () => {
   test("submits XML to the HMRC CT transaction-engine test endpoint", async () => {
     const provider = createProvider();
     const response = await provider.submitSubmissionXml(
-      "<?xml version=\"1.0\" encoding=\"UTF-8\"?><GovTalkMessage/>",
+      '<?xml version="1.0" encoding="UTF-8"?><GovTalkMessage/>',
     );
 
     expect(response.qualifier).toBe("acknowledgement");
@@ -83,9 +83,7 @@ describe("HmrcCtProvider", () => {
       productVersion: "0.1.0",
     });
 
-    await provider.submitSubmissionXml(
-      "<?xml version=\"1.0\" encoding=\"UTF-8\"?><GovTalkMessage/>",
-    );
+    await provider.submitSubmissionXml('<?xml version="1.0" encoding="UTF-8"?><GovTalkMessage/>');
 
     const [url] = mockFetchFn.mock.calls[0]!;
     expect(url).toBe("https://transaction-engine.tax.service.gov.uk/submission");

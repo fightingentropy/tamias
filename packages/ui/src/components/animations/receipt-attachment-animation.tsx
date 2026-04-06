@@ -4,11 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { MdCheck, MdDeleteOutline, MdOutlineMoreVert } from "react-icons/md";
 
-export function ReceiptAttachmentAnimation({
-  shouldPlay = true,
-}: {
-  shouldPlay?: boolean;
-}) {
+export function ReceiptAttachmentAnimation({ shouldPlay = true }: { shouldPlay?: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [showReceipt, setShowReceipt] = useState(false);
   const [showLogo, setShowLogo] = useState(false);
@@ -60,10 +56,7 @@ export function ReceiptAttachmentAnimation({
                   height={14}
                   className="object-contain w-3 h-3 md:w-3.5 md:h-3.5"
                 />
-                <MdOutlineMoreVert
-                  className="text-muted-foreground"
-                  size={14}
-                />
+                <MdOutlineMoreVert className="text-muted-foreground" size={14} />
               </div>
             </div>
 
@@ -78,9 +71,7 @@ export function ReceiptAttachmentAnimation({
                     transition={{ duration: 0.25 }}
                     className="w-6 h-6 md:w-7 md:h-7 rounded-full bg-primary/10 text-primary border border-border flex items-center justify-center flex-shrink-0 overflow-hidden"
                   >
-                    <span className="font-sans text-[9px] md:text-[10px] font-medium">
-                      NC
-                    </span>
+                    <span className="font-sans text-[9px] md:text-[10px] font-medium">NC</span>
                   </motion.div>
                   <div className="flex-1 min-w-0">
                     <p className="font-sans text-[11px] md:text-[12px] text-foreground font-medium">
@@ -231,9 +222,7 @@ export function ReceiptAttachmentAnimation({
                 type="button"
                 className="flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors border border-primary"
               >
-                <span className="font-sans text-[10px] md:text-[11px]">
-                  Confirm
-                </span>
+                <span className="font-sans text-[10px] md:text-[11px]">Confirm</span>
                 <MdCheck className="text-primary-foreground" size={14} />
               </button>
             </div>

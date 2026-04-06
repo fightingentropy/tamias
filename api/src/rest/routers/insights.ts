@@ -63,8 +63,7 @@ app.openapi(
     const db = c.get("db");
     const teamId = c.get("teamId");
     const session = c.get("session");
-    const { limit, cursor, periodType, includeDismissed } =
-      c.req.valid("query");
+    const { limit, cursor, periodType, includeDismissed } = c.req.valid("query");
 
     if (!session.user.convexId) {
       throw new HTTPException(500, {
@@ -93,8 +92,7 @@ app.openapi(
     summary: "Get latest insight",
     operationId: "getLatestInsight",
     "x-speakeasy-name-override": "latest",
-    description:
-      "Get the most recent completed insight, optionally filtered by period type.",
+    description: "Get the most recent completed insight, optionally filtered by period type.",
     tags: ["Insights"],
     request: {
       query: latestInsightSchema,

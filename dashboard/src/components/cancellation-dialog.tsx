@@ -18,10 +18,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTheme } from "@/components/theme-provider";
 import { useUserQuery } from "@/hooks/use-user";
-import {
-  getPolarEmbedCheckout,
-  type PolarCheckout,
-} from "@/lib/polar-checkout";
+import { getPolarEmbedCheckout, type PolarCheckout } from "@/lib/polar-checkout";
 import { useTRPC } from "@/trpc/client";
 
 type CancellationReason =
@@ -46,10 +43,7 @@ type CancellationDialogProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-export function CancellationDialog({
-  open,
-  onOpenChange,
-}: CancellationDialogProps) {
+export function CancellationDialog({ open, onOpenChange }: CancellationDialogProps) {
   const [step, setStep] = useState<Step>(1);
   const [reason, setReason] = useState<CancellationReason | null>(null);
   const [comment, setComment] = useState("");
@@ -67,14 +61,10 @@ export function CancellationDialog({
     };
   }, []);
 
-  const { data: subscription } = useQuery(
-    trpc.billing.getActiveSubscription.queryOptions(),
-  );
+  const { data: subscription } = useQuery(trpc.billing.getActiveSubscription.queryOptions());
   const isYearly = subscription?.isYearly ?? false;
 
-  const [checkoutCurrency, setCheckoutCurrency] = useState<"USD" | "EUR">(
-    "USD",
-  );
+  const [checkoutCurrency, setCheckoutCurrency] = useState<"USD" | "EUR">("USD");
 
   useEffect(() => {
     try {
@@ -85,9 +75,7 @@ export function CancellationDialog({
     } catch {}
   }, []);
 
-  const createCheckoutMutation = useMutation(
-    trpc.billing.createCheckout.mutationOptions(),
-  );
+  const createCheckoutMutation = useMutation(trpc.billing.createCheckout.mutationOptions());
 
   const cancelMutation = useMutation(
     trpc.billing.cancelSubscription.mutationOptions({
@@ -234,9 +222,7 @@ function StepOne({
         <DialogTitle className="text-base font-medium mb-0">
           We'd love to understand why
         </DialogTitle>
-        <DialogDescription>
-          Your feedback helps us improve Tamias for everyone.
-        </DialogDescription>
+        <DialogDescription>Your feedback helps us improve Tamias for everyone.</DialogDescription>
       </DialogHeader>
 
       <div className="grid gap-2">
@@ -282,17 +268,15 @@ function StepTwo({
   return (
     <div>
       <DialogHeader className="mb-6">
-        <DialogTitle className="text-base font-medium mb-0">
-          Before you go
-        </DialogTitle>
+        <DialogTitle className="text-base font-medium mb-0">Before you go</DialogTitle>
       </DialogHeader>
 
       {reason === "too_expensive" && (
         <div className="space-y-4">
           {isYearly ? (
             <p className="text-sm text-[#878787]">
-              We're sorry to hear that. You're already on annual billing — our
-              best rate. Is there anything else we could do to make it work?
+              We're sorry to hear that. You're already on annual billing — our best rate. Is there
+              anything else we could do to make it work?
             </p>
           ) : (
             <p className="text-sm text-[#878787]">
@@ -322,11 +306,7 @@ function StepTwo({
             <Button variant="outline" className="flex-1" onClick={onBack}>
               Back
             </Button>
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={onStillCancel}
-            >
+            <Button variant="outline" className="flex-1" onClick={onStillCancel}>
               Still cancel
             </Button>
           </div>
@@ -336,8 +316,7 @@ function StepTwo({
       {reason === "missing_features" && (
         <div className="space-y-4">
           <p className="text-sm text-[#878787]">
-            What feature would have made Tamias work for you? We read every
-            response.
+            What feature would have made Tamias work for you? We read every response.
           </p>
           <Textarea
             placeholder="Tell us what you need..."
@@ -349,11 +328,7 @@ function StepTwo({
             <Button variant="outline" className="flex-1" onClick={onBack}>
               Back
             </Button>
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={onStillCancel}
-            >
+            <Button variant="outline" className="flex-1" onClick={onStillCancel}>
               Still cancel
             </Button>
           </div>
@@ -362,38 +337,30 @@ function StepTwo({
 
       {reason === "unused" && (
         <div className="space-y-4">
-          <p className="text-sm text-[#878787]">
-            A few things you might not have tried yet:
-          </p>
+          <p className="text-sm text-[#878787]">A few things you might not have tried yet:</p>
           <ul className="space-y-2 text-sm">
             <li className="flex gap-2">
               <span className="text-[#878787] shrink-0">-</span>
               <span>
                 <span className="text-foreground font-medium">Inbox</span>{" "}
                 <span className="text-[#878787]">
-                  — forward receipts from Gmail or Outlook and match them
-                  automatically
+                  — forward receipts from Gmail or Outlook and match them automatically
                 </span>
               </span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#878787] shrink-0">-</span>
               <span>
-                <span className="text-foreground font-medium">
-                  Weekly insights
-                </span>{" "}
+                <span className="text-foreground font-medium">Weekly insights</span>{" "}
                 <span className="text-[#878787]">
-                  — AI-powered summaries of your spending and revenue, delivered
-                  every Monday
+                  — AI-powered summaries of your spending and revenue, delivered every Monday
                 </span>
               </span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#878787] shrink-0">-</span>
               <span>
-                <span className="text-foreground font-medium">
-                  Time tracking
-                </span>{" "}
+                <span className="text-foreground font-medium">Time tracking</span>{" "}
                 <span className="text-[#878787]">
                   — track billable hours and turn them into invoices
                 </span>
@@ -404,11 +371,7 @@ function StepTwo({
             <Button variant="outline" className="flex-1" onClick={onBack}>
               Back
             </Button>
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={onStillCancel}
-            >
+            <Button variant="outline" className="flex-1" onClick={onStillCancel}>
               Still cancel
             </Button>
           </div>
@@ -418,8 +381,7 @@ function StepTwo({
       {reason === "switched_service" && (
         <div className="space-y-4">
           <p className="text-sm text-[#878787]">
-            Which tool are you switching to? This helps us understand where we
-            can improve.
+            Which tool are you switching to? This helps us understand where we can improve.
           </p>
           <Textarea
             placeholder="e.g. QuickBooks, Xero, Wave..."
@@ -431,11 +393,7 @@ function StepTwo({
             <Button variant="outline" className="flex-1" onClick={onBack}>
               Back
             </Button>
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={onStillCancel}
-            >
+            <Button variant="outline" className="flex-1" onClick={onStillCancel}>
               Submit and cancel
             </Button>
           </div>
@@ -457,11 +415,7 @@ function StepTwo({
             <Button variant="outline" className="flex-1" onClick={onBack}>
               Back
             </Button>
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={onStillCancel}
-            >
+            <Button variant="outline" className="flex-1" onClick={onStillCancel}>
               Submit and cancel
             </Button>
           </div>
@@ -485,12 +439,10 @@ function StepThree({
   return (
     <div>
       <DialogHeader className="mb-6">
-        <DialogTitle className="text-base font-medium mb-0">
-          Confirm cancellation
-        </DialogTitle>
+        <DialogTitle className="text-base font-medium mb-0">Confirm cancellation</DialogTitle>
         <DialogDescription>
-          Your plan will remain active until the end of your current billing
-          period. You won't be charged again.
+          Your plan will remain active until the end of your current billing period. You won't be
+          charged again.
         </DialogDescription>
       </DialogHeader>
 
@@ -505,20 +457,10 @@ function StepThree({
         </SubmitButton>
 
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            className="flex-1"
-            onClick={onBack}
-            disabled={isSubmitting}
-          >
+          <Button variant="outline" className="flex-1" onClick={onBack} disabled={isSubmitting}>
             Back
           </Button>
-          <Button
-            variant="outline"
-            className="flex-1"
-            onClick={onKeepPlan}
-            disabled={isSubmitting}
-          >
+          <Button variant="outline" className="flex-1" onClick={onKeepPlan} disabled={isSubmitting}>
             Keep my plan
           </Button>
         </div>
@@ -531,12 +473,10 @@ function StepDone({ onClose }: { onClose: () => void }) {
   return (
     <div>
       <DialogHeader className="mb-6">
-        <DialogTitle className="text-base font-medium mb-0">
-          Subscription canceled
-        </DialogTitle>
+        <DialogTitle className="text-base font-medium mb-0">Subscription canceled</DialogTitle>
         <DialogDescription>
-          Your plan remains active until the end of your billing period. Your
-          data will be kept safe — you can resubscribe anytime.
+          Your plan remains active until the end of your billing period. Your data will be kept safe
+          — you can resubscribe anytime.
         </DialogDescription>
       </DialogHeader>
 

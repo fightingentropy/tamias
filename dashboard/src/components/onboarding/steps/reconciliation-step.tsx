@@ -20,8 +20,8 @@ export function ReconciliationStep() {
         transition={{ duration: 0.4, delay: 0.2 }}
         className="text-sm text-muted-foreground leading-relaxed"
       >
-        Export matched transactions and receipts to your accountant or
-        accounting system in one click, saving time every month.
+        Export matched transactions and receipts to your accountant or accounting system in one
+        click, saving time every month.
       </motion.p>
 
       <motion.ul
@@ -44,13 +44,7 @@ export function ReconciliationStep() {
             className="flex items-start gap-3"
           >
             <div className="relative w-4 h-4 flex items-center justify-center shrink-0 mt-0.5 border border-border bg-secondary">
-              <svg
-                width="10"
-                height="10"
-                viewBox="0 0 10 10"
-                fill="none"
-                className="relative z-10"
-              >
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="relative z-10">
                 <path
                   d="M2 5L4.5 7.5L8 3"
                   stroke="currentColor"
@@ -60,9 +54,7 @@ export function ReconciliationStep() {
                 />
               </svg>
             </div>
-            <span className="text-sm text-muted-foreground leading-relaxed">
-              {feature}
-            </span>
+            <span className="text-sm text-muted-foreground leading-relaxed">{feature}</span>
           </motion.li>
         ))}
       </motion.ul>

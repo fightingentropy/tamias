@@ -20,24 +20,22 @@ export async function confirmSuggestedMatch(
   },
 ) {
   const { teamId, suggestionId, inboxId, transactionId, userId } = params;
-  const [suggestion] = (
-    await upsertTransactionMatchSuggestionsInConvex({
-      suggestions: (
-        await getTransactionMatchSuggestionsFromConvex({
-          teamId,
-          inboxId,
-        })
-      )
-        .filter((row) => row.id === suggestionId)
-        .map((row) => ({
-          ...row,
-          status: "confirmed" as const,
-          userActionAt: new Date().toISOString(),
-          userId: userId ?? null,
-          updatedAt: new Date().toISOString(),
-        })),
-    })
-  );
+  const [suggestion] = await upsertTransactionMatchSuggestionsInConvex({
+    suggestions: (
+      await getTransactionMatchSuggestionsFromConvex({
+        teamId,
+        inboxId,
+      })
+    )
+      .filter((row) => row.id === suggestionId)
+      .map((row) => ({
+        ...row,
+        status: "confirmed" as const,
+        userActionAt: new Date().toISOString(),
+        userId: userId ?? null,
+        updatedAt: new Date().toISOString(),
+      })),
+  });
 
   const result = await matchTransaction(db, {
     id: inboxId,

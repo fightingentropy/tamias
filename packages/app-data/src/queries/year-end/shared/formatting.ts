@@ -1,9 +1,7 @@
 import type { SummaryLine } from "./types";
 
 export function coerceDate(date: Date) {
-  return new Date(
-    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
-  );
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
 }
 
 export function parsePackArray<T>(value: unknown): T[] {

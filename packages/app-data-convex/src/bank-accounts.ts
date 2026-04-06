@@ -2,12 +2,7 @@ import type { BankConnectionRecord } from "./bank-connections";
 import type { ConvexUserId } from "./base";
 import { api, createClient, serviceArgs } from "./base";
 
-export type BankAccountType =
-  | "credit"
-  | "depository"
-  | "other_asset"
-  | "loan"
-  | "other_liability";
+export type BankAccountType = "credit" | "depository" | "other_asset" | "loan" | "other_liability";
 
 export type BankAccountRecord = {
   id: string;
@@ -127,10 +122,7 @@ export async function getBankAccountsFromConvex(args: {
   ) as Promise<BankAccountRecord[]>;
 }
 
-export async function getBankAccountByIdFromConvex(args: {
-  id: string;
-  teamId: string;
-}) {
+export async function getBankAccountByIdFromConvex(args: { id: string; teamId: string }) {
   return createClient().query(
     api.bankAccounts.serviceGetBankAccountById,
     serviceArgs({
@@ -149,9 +141,7 @@ export async function getBankAccountTeamIdFromConvex(args: { id: string }) {
   ) as Promise<string | null>;
 }
 
-export async function getBankAccountsCurrenciesFromConvex(args: {
-  teamId: string;
-}) {
+export async function getBankAccountsCurrenciesFromConvex(args: { teamId: string }) {
   return createClient().query(
     api.bankAccounts.serviceGetBankAccountsCurrencies,
     serviceArgs({
@@ -160,9 +150,7 @@ export async function getBankAccountsCurrenciesFromConvex(args: {
   ) as Promise<BankAccountCurrencyRecord[]>;
 }
 
-export async function getBankAccountsBalancesFromConvex(args: {
-  teamId: string;
-}) {
+export async function getBankAccountsBalancesFromConvex(args: { teamId: string }) {
   return createClient().query(
     api.bankAccounts.serviceGetBankAccountsBalances,
     serviceArgs({
@@ -171,9 +159,7 @@ export async function getBankAccountsBalancesFromConvex(args: {
   ) as Promise<BankAccountBalanceRecord[]>;
 }
 
-export async function createBankAccountInConvex(
-  args: CreateBankAccountInConvexInput,
-) {
+export async function createBankAccountInConvex(args: CreateBankAccountInConvexInput) {
   return createClient().mutation(
     api.bankAccounts.serviceCreateBankAccount,
     serviceArgs({
@@ -189,9 +175,7 @@ export async function createBankAccountInConvex(
   ) as Promise<BankAccountRecord>;
 }
 
-export async function updateBankAccountInConvex(
-  args: UpdateBankAccountInConvexInput,
-) {
+export async function updateBankAccountInConvex(args: UpdateBankAccountInConvexInput) {
   return createClient().mutation(
     api.bankAccounts.servicePatchBankAccountByLegacyId,
     serviceArgs({
@@ -204,16 +188,11 @@ export async function updateBankAccountInConvex(
   ) as Promise<BankAccountRecord | null>;
 }
 
-export async function patchBankAccountInConvex(
-  args: PatchBankAccountInConvexInput,
-) {
+export async function patchBankAccountInConvex(args: PatchBankAccountInConvexInput) {
   return updateBankAccountInConvex(args);
 }
 
-export async function deleteBankAccountInConvex(args: {
-  id: string;
-  teamId: string;
-}) {
+export async function deleteBankAccountInConvex(args: { id: string; teamId: string }) {
   return createClient().mutation(
     api.bankAccounts.serviceDeleteBankAccount,
     serviceArgs({
@@ -223,10 +202,7 @@ export async function deleteBankAccountInConvex(args: {
   ) as Promise<BankAccountRecord | null>;
 }
 
-export async function getBankAccountDetailsFromConvex(args: {
-  accountId: string;
-  teamId: string;
-}) {
+export async function getBankAccountDetailsFromConvex(args: { accountId: string; teamId: string }) {
   return createClient().query(
     api.bankAccounts.serviceGetBankAccountDetails,
     serviceArgs({
@@ -236,9 +212,7 @@ export async function getBankAccountDetailsFromConvex(args: {
   ) as Promise<BankAccountDetailsRecord | null>;
 }
 
-export async function getBankAccountsWithPaymentInfoFromConvex(args: {
-  teamId: string;
-}) {
+export async function getBankAccountsWithPaymentInfoFromConvex(args: { teamId: string }) {
   return createClient().query(
     api.bankAccounts.serviceGetBankAccountsWithPaymentInfo,
     serviceArgs({

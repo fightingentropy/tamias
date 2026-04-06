@@ -24,10 +24,7 @@ function escapeXml(value: string) {
 }
 
 function readXmlTagValue(xml: string, tagName: string) {
-  const match = new RegExp(
-    `<${tagName}(?:\\s[^>]*)?>([\\s\\S]*?)</${tagName}>`,
-    "i",
-  ).exec(xml);
+  const match = new RegExp(`<${tagName}(?:\\s[^>]*)?>([\\s\\S]*?)</${tagName}>`, "i").exec(xml);
 
   return match?.[1]?.trim() ?? null;
 }
@@ -38,36 +35,30 @@ function readXmlTagValues(xml: string, tagName: string) {
     .filter((value): value is string => Boolean(value));
 }
 
-function readXmlElementAttribute(
-  xml: string,
-  tagName: string,
-  attributeName: string,
-) {
-  const match = new RegExp(
-    `<${tagName}\\b[^>]*\\b${attributeName}="([^"]*)"[^>]*>`,
-    "i",
-  ).exec(xml);
+function readXmlElementAttribute(xml: string, tagName: string, attributeName: string) {
+  const match = new RegExp(`<${tagName}\\b[^>]*\\b${attributeName}="([^"]*)"[^>]*>`, "i").exec(xml);
 
   return match?.[1] ?? null;
 }
 
 function stripXmlMarkup(value: string) {
-  return value.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  return value
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function parseHmrcCtErrors(xml: string): HmrcCtGatewayError[] {
-  return [...xml.matchAll(/<Error\b[^>]*>([\s\S]*?)<\/Error>/gi)].map(
-    (match) => {
-      const errorXml = match[1] ?? "";
-      return {
-        raisedBy: readXmlTagValue(errorXml, "RaisedBy"),
-        number: readXmlTagValue(errorXml, "Number"),
-        type: readXmlTagValue(errorXml, "Type"),
-        text: readXmlTagValue(errorXml, "Text"),
-        location: readXmlTagValue(errorXml, "Location"),
-      };
-    },
-  );
+  return [...xml.matchAll(/<Error\b[^>]*>([\s\S]*?)<\/Error>/gi)].map((match) => {
+    const errorXml = match[1] ?? "";
+    return {
+      raisedBy: readXmlTagValue(errorXml, "RaisedBy"),
+      number: readXmlTagValue(errorXml, "Number"),
+      type: readXmlTagValue(errorXml, "Type"),
+      text: readXmlTagValue(errorXml, "Text"),
+      location: readXmlTagValue(errorXml, "Location"),
+    };
+  });
 }
 
 function buildHmrcCtSummary(args: {
@@ -102,15 +93,12 @@ function buildHmrcCtSummary(args: {
   );
 }
 
-export function parseHmrcCtTransactionEngineMessage(
-  xml: string,
-): HmrcCtTransactionEngineMessage {
+export function parseHmrcCtTransactionEngineMessage(xml: string): HmrcCtTransactionEngineMessage {
   const qualifier = readXmlTagValue(xml, "Qualifier");
   const bodyXml = readXmlTagValue(xml, "Body");
   const errors = parseHmrcCtErrors(xml);
   const bodyStatus =
-    (bodyXml ? readXmlTagValue(bodyXml, "Status") : null) ??
-    readXmlTagValue(xml, "Status");
+    (bodyXml ? readXmlTagValue(bodyXml, "Status") : null) ?? readXmlTagValue(xml, "Status");
   const bodyStatusText =
     (bodyXml ? readXmlTagValue(bodyXml, "StatusText") : null) ??
     (bodyXml ? readXmlTagValue(bodyXml, "Text") : null) ??
@@ -125,10 +113,7 @@ export function parseHmrcCtTransactionEngineMessage(
   const notices = [
     ...new Set(
       (bodyXml
-        ? [
-            ...readXmlTagValues(bodyXml, "Message"),
-            ...readXmlTagValues(bodyXml, "Text"),
-          ]
+        ? [...readXmlTagValues(bodyXml, "Message"), ...readXmlTagValues(bodyXml, "Text")]
         : readXmlTagValues(xml, "Message")
       )
         .map((value) => stripXmlMarkup(value))
@@ -142,8 +127,7 @@ export function parseHmrcCtTransactionEngineMessage(
     normalizedBodyStatus === "failed"
       ? "rejected"
       : qualifier === "response" &&
-          (normalizedBodyStatus === "accepted" ||
-            normalizedResponseType === "success")
+          (normalizedBodyStatus === "accepted" || normalizedResponseType === "success")
         ? "accepted"
         : qualifier === "response"
           ? "submitted"
@@ -155,10 +139,9 @@ export function parseHmrcCtTransactionEngineMessage(
     correlationId: readXmlTagValue(xml, "CorrelationID"),
     transactionId: readXmlTagValue(xml, "TransactionID"),
     responseEndpoint: readXmlTagValue(xml, "ResponseEndPoint"),
-    pollInterval: Number.parseInt(
-      readXmlElementAttribute(xml, "ResponseEndPoint", "PollInterval") ?? "",
-      10,
-    ) || null,
+    pollInterval:
+      Number.parseInt(readXmlElementAttribute(xml, "ResponseEndPoint", "PollInterval") ?? "", 10) ||
+      null,
     gatewayTimestamp: readXmlTagValue(xml, "GatewayTimestamp"),
     bodyXml,
     bodyStatus,
@@ -182,10 +165,7 @@ export function parseHmrcCtTransactionEngineMessage(
   };
 }
 
-export function buildHmrcCtSubmissionPollXml(args: {
-  correlationId: string;
-  className?: string;
-}) {
+export function buildHmrcCtSubmissionPollXml(args: { correlationId: string; className?: string }) {
   const className = args.className ?? "HMRC-CT-CT600";
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -233,10 +213,7 @@ export class HmrcCtProvider {
         productVersion: process.env.HMRC_CT_PRODUCT_VERSION ?? "0.1.0",
       },
       {
-        environment:
-          process.env.HMRC_CT_ENVIRONMENT === "production"
-            ? "production"
-            : "test",
+        environment: process.env.HMRC_CT_ENVIRONMENT === "production" ? "production" : "test",
       },
     );
   }

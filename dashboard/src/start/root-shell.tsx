@@ -5,10 +5,7 @@ import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 import type { ReactNode } from "react";
 import { Provider as Analytics } from "@/lib/telemetry/client";
 import { AppRuntimeProviders } from "@/start/app-runtime-providers";
-import {
-  DEFAULT_ROOT_BOOTSTRAP,
-  type RootBootstrapData,
-} from "@/start/root-bootstrap";
+import { DEFAULT_ROOT_BOOTSTRAP, type RootBootstrapData } from "@/start/root-bootstrap";
 
 function getThemeFallbackColors(theme: "light" | "dark") {
   if (theme === "dark") {
@@ -54,10 +51,7 @@ globalThis.__name=globalThis.__name||function(target){return target;};
 })();
 `;
 
-export function StartRootShell(props: {
-  children: ReactNode;
-  bootstrap?: RootBootstrapData;
-}) {
+export function StartRootShell(props: { children: ReactNode; bootstrap?: RootBootstrapData }) {
   const bootstrap = props.bootstrap ?? DEFAULT_ROOT_BOOTSTRAP;
   const initialThemeFallback = getThemeFallbackColors("dark");
 
@@ -66,11 +60,7 @@ export function StartRootShell(props: {
       <head>
         <HeadContent />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           href="https://fonts.googleapis.com/css2?family=Hedvig+Letters+Sans&family=Hedvig+Letters+Serif&display=swap"
           rel="stylesheet"
@@ -89,15 +79,9 @@ export function StartRootShell(props: {
           }}
         />
       </head>
-      <body
-        className={cn(
-          "font-sans whitespace-pre-line overscroll-none antialiased",
-        )}
-      >
+      <body className={cn("font-sans whitespace-pre-line overscroll-none antialiased")}>
         <NuqsAdapter>
-          <AppRuntimeProviders bootstrap={bootstrap}>
-            {props.children}
-          </AppRuntimeProviders>
+          <AppRuntimeProviders bootstrap={bootstrap}>{props.children}</AppRuntimeProviders>
           <Analytics />
         </NuqsAdapter>
         <Scripts />

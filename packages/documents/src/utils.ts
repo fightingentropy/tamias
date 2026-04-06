@@ -11,9 +11,7 @@ export const allowedMimeTypes = [
 ];
 
 export function getAllowedAttachments(attachments?: Attachments) {
-  return attachments?.filter((attachment) =>
-    allowedMimeTypes.includes(attachment.ContentType),
-  );
+  return attachments?.filter((attachment) => allowedMimeTypes.includes(attachment.ContentType));
 }
 
 /**
@@ -49,16 +47,7 @@ export function getDomainFromEmail(email?: string | null): string | null {
   const domainParts = domain.toLowerCase().split(".");
 
   // Handle special cases like .co.uk, .com.au, etc.
-  const twoPartTLDs = [
-    "co.uk",
-    "com.au",
-    "co.nz",
-    "co.za",
-    "com.br",
-    "com.mx",
-    "co.jp",
-    "com.cn",
-  ];
+  const twoPartTLDs = ["co.uk", "com.au", "co.nz", "co.za", "com.br", "com.mx", "co.jp", "com.cn"];
 
   // Check if it's a two-part TLD
   if (domainParts.length >= 3) {
@@ -100,16 +89,7 @@ export function removeProtocolFromDomain(domain: string | null): string | null {
   const domainParts = cleaned.split(".");
 
   // Handle special cases like .co.uk, .com.au, etc.
-  const twoPartTLDs = [
-    "co.uk",
-    "com.au",
-    "co.nz",
-    "co.za",
-    "com.br",
-    "com.mx",
-    "co.jp",
-    "com.cn",
-  ];
+  const twoPartTLDs = ["co.uk", "com.au", "co.nz", "co.za", "com.br", "com.mx", "co.jp", "com.cn"];
 
   if (domainParts.length >= 3) {
     const lastTwo = domainParts.slice(-2).join(".");
@@ -164,10 +144,7 @@ export async function extractWebsite(
   // Third priority: lookup domain by company name using Gemini Grounding
   if (vendorName) {
     try {
-      const lookedUpDomain = await lookupDomainByCompanyName(
-        vendorName,
-        logger,
-      );
+      const lookedUpDomain = await lookupDomainByCompanyName(vendorName, logger);
       if (lookedUpDomain) {
         return lookedUpDomain;
       }
@@ -242,10 +219,7 @@ export function extractTextFromRtf(buffer: Buffer): string {
   let rtfContent = buffer.toString("utf-8");
 
   // Remove font tables, color tables, and other metadata groups
-  rtfContent = rtfContent.replace(
-    /{\\(?:fonttbl|colortbl|stylesheet)[^}]*}/gi,
-    "",
-  );
+  rtfContent = rtfContent.replace(/{\\(?:fonttbl|colortbl|stylesheet)[^}]*}/gi, "");
 
   // Remove RTF header
   rtfContent = rtfContent.replace(/^{\\rtf1[^}]*}/i, "");

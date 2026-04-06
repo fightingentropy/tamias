@@ -98,10 +98,7 @@ export const INVOICE_SEARCH_STATUSES = new Set<InvoiceStatus>([
   "refunded",
 ]);
 
-export const TRACKER_PROJECT_SEARCH_STATUSES = new Set([
-  "in_progress",
-  "completed",
-]);
+export const TRACKER_PROJECT_SEARCH_STATUSES = new Set(["in_progress", "completed"]);
 
 export const TRANSACTION_SEARCH_STATUS_VALUES = [
   "posted",
@@ -112,6 +109,4 @@ export const TRANSACTION_SEARCH_STATUS_VALUES = [
   "exported",
 ] as const;
 
-export const TRANSACTION_SEARCH_STATUSES = new Set<string>(
-  TRANSACTION_SEARCH_STATUS_VALUES,
-);
+export const TRANSACTION_SEARCH_STATUSES = new Set<string>(TRANSACTION_SEARCH_STATUS_VALUES);

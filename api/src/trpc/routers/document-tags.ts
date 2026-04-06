@@ -6,10 +6,7 @@ import {
   getDocumentTags,
 } from "@tamias/app-data/queries";
 import { Embed } from "@tamias/documents/embed";
-import {
-  createDocumentTagSchema,
-  deleteDocumentTagSchema,
-} from "../../schemas/document-tags";
+import { createDocumentTagSchema, deleteDocumentTagSchema } from "../../schemas/document-tags";
 import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const documentTagsRouter = createTRPCRouter({

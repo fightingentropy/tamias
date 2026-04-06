@@ -45,11 +45,7 @@ export function BurnRateCanvas() {
         {
           id: "current-burn",
           title: "Current Monthly Burn",
-          value: formatCurrencyAmount(
-            data.metrics.currentMonthlyBurn || 0,
-            currency,
-            locale,
-          ),
+          value: formatCurrencyAmount(data.metrics.currentMonthlyBurn || 0, currency, locale),
           subtitle: data.analysis?.burnRateChange
             ? `${data.analysis.burnRateChange.percentage}% vs ${data.analysis.burnRateChange.period}`
             : stage === "loading"
@@ -60,18 +56,12 @@ export function BurnRateCanvas() {
           id: "runway-remaining",
           title: "Runway Remaining",
           value: `${data.metrics.runway || 0} months`,
-          subtitle:
-            data.metrics.runwayStatus ||
-            (stage === "loading" ? "Loading..." : "No data"),
+          subtitle: data.metrics.runwayStatus || (stage === "loading" ? "Loading..." : "No data"),
         },
         {
           id: "average-burn",
           title: "Average Burn Rate",
-          value: formatCurrencyAmount(
-            data.metrics.averageBurnRate || 0,
-            currency,
-            locale,
-          ),
+          value: formatCurrencyAmount(data.metrics.averageBurnRate || 0, currency, locale),
           subtitle: `Over last ${data.chart?.monthlyData?.length || 0} months`,
         },
         {

@@ -48,11 +48,7 @@ export function InlineSelectCategory({ selected, onChange }: Props) {
         }}
       >
         <div className="w-[286px] h-[270px]">
-          <SelectCategory
-            headless
-            selected={selected}
-            onChange={handleSelect}
-          />
+          <SelectCategory headless selected={selected} onChange={handleSelect} />
         </div>
       </PopoverContent>
     </Popover>

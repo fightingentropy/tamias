@@ -19,8 +19,7 @@ import { parseDateAsUTC } from "./date";
 export const NEW_EVENT_ID = "new-event";
 
 // API Response type from the router
-type ApiTrackerRecord =
-  RouterOutputs["trackerEntries"]["byDate"]["data"][number];
+type ApiTrackerRecord = RouterOutputs["trackerEntries"]["byDate"]["data"][number];
 
 // Internal tracker record type with consistent Date handling
 export interface TrackerRecord {
@@ -83,10 +82,7 @@ export const createSafeDate = (
 /**
  * Format time from date with optional timezone support
  */
-export const formatTimeFromDate = (
-  date: Date | string | null,
-  timezone?: string,
-): string => {
+export const formatTimeFromDate = (date: Date | string | null, timezone?: string): string => {
   const safeDate = createSafeDate(date);
 
   if (timezone && timezone !== "UTC") {
@@ -156,10 +152,7 @@ export const parseTimeWithMidnightCrossing = (
 /**
  * Get slot from date with timezone support (already updated)
  */
-export const getSlotFromDate = (
-  date: Date | string | null,
-  timezone?: string,
-): number => {
+export const getSlotFromDate = (date: Date | string | null, timezone?: string): number => {
   const safeDate = createSafeDate(date);
 
   if (timezone && timezone !== "UTC") {
@@ -201,11 +194,7 @@ export const calculateDuration = (
 /**
  * Format hour with timezone support
  */
-export const formatHour = (
-  hour: number,
-  timeFormat?: number | null,
-  _timezone?: string,
-) => {
+export const formatHour = (hour: number, timeFormat?: number | null, _timezone?: string) => {
   // Create a simple date with the hour - no timezone conversion needed for labels
   const date = new Date(2024, 0, 1, hour, 0, 0, 0); // Use arbitrary date, just set the hour
   return format(date, timeFormat === 12 ? "hh:mm a" : "HH:mm");
@@ -230,10 +219,7 @@ export const createNewEvent = (
       const createTZDate = tz(timezone);
       const tzBaseDate = createTZDate(baseDate);
 
-      const startDate = setMinutes(
-        setHours(tzBaseDate, Math.floor(slot / 4)),
-        (slot % 4) * 15,
-      );
+      const startDate = setMinutes(setHours(tzBaseDate, Math.floor(slot / 4)), (slot % 4) * 15);
       const endDate = addMinutes(startDate, 15);
 
       // When selectedDate is null, compute date from tzBaseDate (user's local date)
@@ -264,10 +250,7 @@ export const createNewEvent = (
   }
 
   // Fallback to UTC creation
-  const startDate = setMinutes(
-    setHours(baseDate, Math.floor(slot / 4)),
-    (slot % 4) * 15,
-  );
+  const startDate = setMinutes(setHours(baseDate, Math.floor(slot / 4)), (slot % 4) * 15);
   const endDate = addMinutes(startDate, 15);
 
   return {
@@ -309,9 +292,7 @@ export const transformApiRecord = (
     description: apiRecord.description,
     duration: apiRecord.duration,
     start: isValid(start) ? start : new Date(),
-    stop: isValid(stop)
-      ? stop
-      : addMinutes(isValid(start) ? start : new Date(), 15),
+    stop: isValid(stop) ? stop : addMinutes(isValid(start) ? start : new Date(), 15),
     user: apiRecord.user,
     trackerProject: apiRecord.trackerProject
       ? {
@@ -325,11 +306,7 @@ export const transformApiRecord = (
   };
 };
 
-export const updateEventTime = (
-  event: TrackerRecord,
-  start: Date,
-  stop: Date,
-): TrackerRecord => {
+export const updateEventTime = (event: TrackerRecord, start: Date, stop: Date): TrackerRecord => {
   return {
     ...event,
     start: isValid(start) ? start : event.start,
@@ -343,10 +320,7 @@ export function sortDates(dates: string[]) {
   return dates.sort((a, b) => parseISO(a).getTime() - parseISO(b).getTime());
 }
 
-export function getTrackerDates(
-  range: string[] | null,
-  selectedDate: string | null,
-): Date[] {
+export function getTrackerDates(range: string[] | null, selectedDate: string | null): Date[] {
   if (range) {
     // Parse as UTC calendar dates to avoid timezone shift
     return sortDates(range).map((dateString) => parseDateAsUTC(dateString));
@@ -360,10 +334,7 @@ export function getTrackerDates(
   return [new Date()];
 }
 
-export const getDates = (
-  selectedDate: string | null,
-  sortedRange: string[] | null,
-): string[] => {
+export const getDates = (selectedDate: string | null, sortedRange: string[] | null): string[] => {
   if (selectedDate) return [selectedDate];
   if (sortedRange && sortedRange.length === 2) {
     const [start, end] = sortedRange;
@@ -425,12 +396,7 @@ export const convertFromFormData = (
     start: startDate,
     stop: stopDate,
     duration,
-  } = parseTimeWithMidnightCrossing(
-    formData.start,
-    formData.stop,
-    baseDate,
-    timezone,
-  );
+  } = parseTimeWithMidnightCrossing(formData.start, formData.stop, baseDate, timezone);
 
   return {
     id: formData.id === NEW_EVENT_ID ? undefined : formData.id,

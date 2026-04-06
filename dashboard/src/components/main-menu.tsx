@@ -136,12 +136,7 @@ const ChildItem = ({
   const showChild = isExpanded && shouldShow;
 
   return (
-    <Link
-      href={child.path}
-      prefetch
-      onClick={() => onSelect?.()}
-      className="block group/child"
-    >
+    <Link href={child.path} prefetch onClick={() => onSelect?.()} className="block group/child">
       <div className="relative">
         {/* Child item text */}
         <div
@@ -149,14 +144,10 @@ const ChildItem = ({
             "ml-[35px] mr-[15px] h-[32px] flex items-center",
             "border-l border-[#e6e6e6] dark:border-[#1d1d1d] pl-3",
             "transition-all duration-200 ease-out",
-            showChild
-              ? "opacity-100 translate-x-0"
-              : "opacity-0 -translate-x-2",
+            showChild ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2",
           )}
           style={{
-            transitionDelay: showChild
-              ? `${40 + index * 20}ms`
-              : `${index * 20}ms`,
+            transitionDelay: showChild ? `${40 + index * 20}ms` : `${index * 20}ms`,
           }}
         >
           <span
@@ -175,14 +166,7 @@ const ChildItem = ({
   );
 };
 
-const Item = ({
-  item,
-  isActive,
-  isExpanded,
-  isItemExpanded,
-  onToggle,
-  onSelect,
-}: ItemProps) => {
+const Item = ({ item, isActive, isExpanded, isItemExpanded, onToggle, onSelect }: ItemProps) => {
   const Icon = icons[item.path as keyof typeof icons];
   const pathname = usePathname();
   const hasChildren = item.children && item.children.length > 0;
@@ -198,19 +182,13 @@ const Item = ({
 
   return (
     <div className="group">
-      <Link
-        href={item.path}
-        prefetch
-        onClick={() => onSelect?.()}
-        className="group"
-      >
+      <Link href={item.path} prefetch onClick={() => onSelect?.()} className="group">
         <div className="relative">
           {/* Background that expands */}
           <div
             className={cn(
               "border border-transparent h-[40px] transition-all duration-200 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb; ml-[15px] mr-[15px]",
-              isActive &&
-                "bg-[#f7f7f7] dark:bg-[#131313] border-[#e6e6e6] dark:border-[#1d1d1d]",
+              isActive && "bg-[#f7f7f7] dark:bg-[#131313] border-[#e6e6e6] dark:border-[#1d1d1d]",
               isExpanded ? "w-[calc(100%-30px)]" : "w-[40px]",
             )}
           />
@@ -321,9 +299,7 @@ export function MainMenu({ onSelect, isExpanded = false }: Props) {
             const isActive =
               (pathname === "/dashboard" && item.path === "/dashboard") ||
               (item.path === "/dashboard" && isChatPage) ||
-              (pathname !== "/dashboard" &&
-                !isChatPage &&
-                item.path.startsWith(`/${part}`));
+              (pathname !== "/dashboard" && !isChatPage && item.path.startsWith(`/${part}`));
 
             return (
               <Item

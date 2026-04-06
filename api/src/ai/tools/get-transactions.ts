@@ -37,23 +37,11 @@ const getTransactionsSchema = z.object({
     .nullable()
     .optional()
     .describe("Status filter"),
-  categories: z
-    .array(z.string())
-    .nullable()
-    .optional()
-    .describe("Category slugs"),
+  categories: z.array(z.string()).nullable().optional().describe("Category slugs"),
   tags: z.array(z.string()).nullable().optional().describe("Tag IDs"),
-  accounts: z
-    .array(z.string())
-    .nullable()
-    .optional()
-    .describe("Bank account IDs"),
+  accounts: z.array(z.string()).nullable().optional().describe("Bank account IDs"),
   assignees: z.array(z.string()).nullable().optional().describe("User IDs"),
-  type: z
-    .enum(["income", "expense"])
-    .nullable()
-    .optional()
-    .describe("Transaction type"),
+  type: z.enum(["income", "expense"]).nullable().optional().describe("Transaction type"),
   recurring: z
     .array(z.enum(["weekly", "monthly", "annually", "irregular", "all"]))
     .nullable()
@@ -65,21 +53,9 @@ const getTransactionsSchema = z.object({
     .nullable()
     .optional()
     .describe("Amount range ([min, max] as numbers)"),
-  amount: z
-    .array(z.string())
-    .nullable()
-    .optional()
-    .describe("Specific amounts"),
-  currency: z
-    .string()
-    .nullable()
-    .optional()
-    .describe("Currency code (ISO 4217, e.g. 'USD')"),
-  attachments: z
-    .enum(["include", "exclude"])
-    .nullable()
-    .optional()
-    .describe("Attachment filter"),
+  amount: z.array(z.string()).nullable().optional().describe("Specific amounts"),
+  currency: z.string().nullable().optional().describe("Currency code (ISO 4217, e.g. 'USD')"),
+  attachments: z.enum(["include", "exclude"]).nullable().optional().describe("Attachment filter"),
   manual: z
     .enum(["include", "exclude"])
     .nullable()
@@ -88,8 +64,7 @@ const getTransactionsSchema = z.object({
 });
 
 export const getTransactionsTool = tool({
-  description:
-    "Retrieve financial transactions with filtering, search, and sorting.",
+  description: "Retrieve financial transactions with filtering, search, and sorting.",
   inputSchema: getTransactionsSchema,
   execute: async function* (
     {
@@ -143,8 +118,7 @@ export const getTransactionsTool = tool({
         assignees: assignees ?? null,
         type: type ?? null,
         recurring: recurring ?? null,
-        amountRange:
-          amountRange?.filter((val): val is number => val !== null) ?? null,
+        amountRange: amountRange?.filter((val): val is number => val !== null) ?? null,
         amount: amount ?? null,
         currency: currency ?? null,
         manual: manual ?? null,
@@ -185,9 +159,7 @@ export const getTransactionsTool = tool({
         .filter((t) => t.amount > 0)
         .reduce((sum, t) => sum + t.amount, 0);
       const expenseAmount = Math.abs(
-        result.data
-          .filter((t) => t.amount < 0)
-          .reduce((sum, t) => sum + t.amount, 0),
+        result.data.filter((t) => t.amount < 0).reduce((sum, t) => sum + t.amount, 0),
       );
 
       const formattedTotalAmount = formatAmount({

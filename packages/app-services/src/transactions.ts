@@ -34,10 +34,7 @@ export async function getTransactionsPage(args: {
   });
 }
 
-export async function getTransactionsReviewCount(args: {
-  db: Database;
-  teamId: string;
-}) {
+export async function getTransactionsReviewCount(args: { db: Database; teamId: string }) {
   return getTransactionsReadyForExportCount(args.db, args.teamId);
 }
 

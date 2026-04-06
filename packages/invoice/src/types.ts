@@ -44,14 +44,7 @@ export type Invoice = {
   vat: number | null;
   tax: number | null;
   filePath: string[] | null;
-  status:
-    | "draft"
-    | "overdue"
-    | "paid"
-    | "unpaid"
-    | "canceled"
-    | "scheduled"
-    | "refunded";
+  status: "draft" | "overdue" | "paid" | "unpaid" | "canceled" | "scheduled" | "refunded";
   viewedAt: string | null;
   fromDetails: EditorDoc | null;
   issueDate: string | null;

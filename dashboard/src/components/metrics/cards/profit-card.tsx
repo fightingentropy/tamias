@@ -35,8 +35,7 @@ export function ProfitCard({
   revenueType = "net",
 }: ProfitCardProps) {
   const trpc = useTRPC();
-  const { isCustomizing: metricsIsCustomizing, setIsCustomizing } =
-    useMetricsCustomize();
+  const { isCustomizing: metricsIsCustomizing, setIsCustomizing } = useMetricsCustomize();
   const setInput = useChatStore((state) => state.setInput);
   const [isSelecting, setIsSelecting] = useState(false);
 
@@ -60,8 +59,7 @@ export function ProfitCard({
     if (!profitData?.result || profitData.result.length === 0) return [];
 
     const currentValues = profitData.result.map((item) => item.current.value);
-    const average =
-      currentValues.reduce((sum, val) => sum + val, 0) / currentValues.length;
+    const average = currentValues.reduce((sum, val) => sum + val, 0) / currentValues.length;
 
     const totalMonths = profitData.result.length;
 
@@ -96,16 +94,9 @@ export function ProfitCard({
     >
       <div className="mb-4 min-h-[140px]">
         <div className="flex items-start justify-between h-7">
-          <h3 className="text-sm font-normal text-muted-foreground">
-            Profit & Loss
-          </h3>
+          <h3 className="text-sm font-normal text-muted-foreground">Profit & Loss</h3>
           <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 group-has-[*[data-state=open]]:opacity-100 transition-opacity">
-            <ShareMetricButton
-              type="profit"
-              from={from}
-              to={to}
-              currency={currency}
-            />
+            <ShareMetricButton type="profit" from={from} to={to} currency={currency} />
           </div>
         </div>
         <p className="text-3xl font-normal">
@@ -125,11 +116,7 @@ export function ProfitCard({
           enableSelection={true}
           onSelectionStateChange={setIsSelecting}
           onSelectionComplete={(startDate, endDate) => {
-            const message = generateChartSelectionMessage(
-              startDate,
-              endDate,
-              "profit",
-            );
+            const message = generateChartSelectionMessage(startDate, endDate, "profit");
             setInput(message);
           }}
         >

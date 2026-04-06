@@ -1,14 +1,9 @@
 import { escapeXml } from "../../formatting";
 import { HMRC_ACCEPTED_FRC_2025_FRS_102_ENTRY_POINT } from "../../constants";
-import {
-  renderInlineXbrlContext,
-  renderInlineXbrlUnit,
-} from "../../rendering-ixbrl";
+import { renderInlineXbrlContext, renderInlineXbrlUnit } from "../../rendering-ixbrl";
 import type { AccountsAttachmentRenderData } from "../types";
 
-export function renderAccountsAttachmentHeader(
-  data: AccountsAttachmentRenderData,
-) {
+export function renderAccountsAttachmentHeader(data: AccountsAttachmentRenderData) {
   const { draft, entity } = data;
 
   return `<div class="hidden">
@@ -83,10 +78,7 @@ export function renderAccountsAttachmentHeader(
               }),
             )
             .join("")}
-          ${renderInlineXbrlUnit(
-            data.monetaryUnitId,
-            `iso4217:${draft.currency.toUpperCase()}`,
-          )}
+          ${renderInlineXbrlUnit(data.monetaryUnitId, `iso4217:${draft.currency.toUpperCase()}`)}
           ${renderInlineXbrlUnit(data.pureUnitId, "xbrli:pure")}
           ${renderInlineXbrlUnit(data.sharesUnitId, "xbrli:shares")}
         </ix:resources>

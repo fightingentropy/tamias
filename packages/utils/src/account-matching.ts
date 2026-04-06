@@ -34,8 +34,7 @@ export function findMatchingAccount(
 
   if (apiAccount.resource_id) {
     const byRef = available.filter(
-      (db) =>
-        db.account_reference && db.account_reference === apiAccount.resource_id,
+      (db) => db.account_reference && db.account_reference === apiAccount.resource_id,
     );
     if (byRef.length === 1) return byRef[0]!;
     if (byRef.length > 1) {
@@ -44,9 +43,7 @@ export function findMatchingAccount(
   }
 
   if (apiAccount.iban) {
-    const byIban = available.filter(
-      (db) => db.iban && db.iban === apiAccount.iban,
-    );
+    const byIban = available.filter((db) => db.iban && db.iban === apiAccount.iban);
     if (byIban.length === 1) return byIban[0]!;
     if (byIban.length > 1) {
       return pickBestCandidate(byIban, apiAccount);
@@ -80,13 +77,9 @@ export function findMatchingAccount(
   return null;
 }
 
-function pickBestCandidate(
-  candidates: DbAccount[],
-  apiAccount: ApiAccount,
-): DbAccount {
+function pickBestCandidate(candidates: DbAccount[], apiAccount: ApiAccount): DbAccount {
   const nameMatch = candidates.find(
-    (candidate) =>
-      candidate.name?.toLowerCase() === apiAccount.name?.toLowerCase(),
+    (candidate) => candidate.name?.toLowerCase() === apiAccount.name?.toLowerCase(),
   );
 
   return nameMatch ?? candidates[0]!;

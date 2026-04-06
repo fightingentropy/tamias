@@ -19,11 +19,7 @@ type Option = {
   name: string;
 };
 
-export function TrackerSelectProject({
-  selectedId,
-  onSelect,
-  onCreate,
-}: Props) {
+export function TrackerSelectProject({ selectedId, onSelect, onCreate }: Props) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -71,9 +67,7 @@ export function TrackerSelectProject({
   const options =
     data?.data.map((project) => ({
       id: project.id,
-      name: project.customer?.name
-        ? `${project.name} · ${project.customer.name}`
-        : project.name,
+      name: project.customer?.name ? `${project.name} · ${project.customer.name}` : project.name,
     })) ?? [];
 
   useEffect(() => {

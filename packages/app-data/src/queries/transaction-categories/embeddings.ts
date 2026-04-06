@@ -16,10 +16,9 @@ export async function generateCategoryEmbedding(
   const { name, system = false } = params;
 
   try {
-    const [existingEmbedding] =
-      await getTransactionCategoryEmbeddingsByNamesFromConvex({
-        names: [name],
-      });
+    const [existingEmbedding] = await getTransactionCategoryEmbeddingsByNamesFromConvex({
+      names: [name],
+    });
 
     if (existingEmbedding) {
       logger.info(`Embedding already exists for category: "${name}"`);

@@ -25,8 +25,7 @@ export function OAuthApplicationEditSheet() {
   const [, copy] = useCopyToClipboard();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const queryClient = useQueryClient();
-  const { setParams, applicationId, editApplication } =
-    useOAuthApplicationParams();
+  const { setParams, applicationId, editApplication } = useOAuthApplicationParams();
 
   const isOpen = Boolean(applicationId && editApplication);
 
@@ -124,9 +123,7 @@ export function OAuthApplicationEditSheet() {
           <h2 className="text-xl">Edit OAuth Application</h2>
 
           <div className="flex items-center gap-2">
-            {application?.status && (
-              <OAuthApplicationStatusBadge status={application.status} />
-            )}
+            {application?.status && <OAuthApplicationStatusBadge status={application.status} />}
 
             {applicationId && (
               <DropdownMenu>
@@ -136,17 +133,13 @@ export function OAuthApplicationEditSheet() {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent sideOffset={10} align="end">
-                  <DropdownMenuItem onClick={handleCopyClientId}>
-                    Copy Client ID
-                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleCopyClientId}>Copy Client ID</DropdownMenuItem>
                   {application?.status === "draft" && (
                     <DropdownMenuItem
                       onClick={handleSubmitForReview}
                       disabled={submitForReviewMutation.isPending}
                     >
-                      {submitForReviewMutation.isPending
-                        ? "Submitting..."
-                        : "Submit for review"}
+                      {submitForReviewMutation.isPending ? "Submitting..." : "Submit for review"}
                     </DropdownMenuItem>
                   )}
                   {application?.status === "pending" && (
@@ -154,9 +147,7 @@ export function OAuthApplicationEditSheet() {
                       onClick={handleMakeDraft}
                       disabled={makeDraftMutation.isPending}
                     >
-                      {makeDraftMutation.isPending
-                        ? "Cancelling review..."
-                        : "Cancel review"}
+                      {makeDraftMutation.isPending ? "Cancelling review..." : "Cancel review"}
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuItem

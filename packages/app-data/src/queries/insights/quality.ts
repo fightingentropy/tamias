@@ -48,41 +48,35 @@ export async function checkInsightDataQuality(
   const issueDateFrom = periodStart.slice(0, 10);
   const issueDateTo = periodEnd.slice(0, 10);
 
-  const [transactionResult, invoiceResult, bankConnectionResult] =
-    await Promise.all([
-      countTransactionsFromConvex({
-        teamId,
-        dateGte: transactionDateFrom,
-        dateLte: transactionDateTo,
-      }),
-      getInvoiceDateAggregateRowsFromConvex({
-        teamId,
-        statuses: [...ALL_INVOICE_STATUSES],
-        dateField: "issueDate",
-        dateFrom: issueDateFrom,
-        dateTo: issueDateTo,
-      }).then((rows) => rows.reduce((sum, row) => sum + row.invoiceCount, 0)),
-      getBankConnectionsFromConvex({
-        teamId,
-        enabled: true,
-      }).then(
-        (connections) =>
-          connections
-            .filter(
-              (connection) =>
-                !!connection.lastAccessed && connection.bankAccounts.length > 0,
-            )
-            .map((connection) => connection.lastAccessed)
-            .filter(isDefined)
-            .sort((left, right) => right.localeCompare(left))[0] ?? null,
-      ),
-    ]);
+  const [transactionResult, invoiceResult, bankConnectionResult] = await Promise.all([
+    countTransactionsFromConvex({
+      teamId,
+      dateGte: transactionDateFrom,
+      dateLte: transactionDateTo,
+    }),
+    getInvoiceDateAggregateRowsFromConvex({
+      teamId,
+      statuses: [...ALL_INVOICE_STATUSES],
+      dateField: "issueDate",
+      dateFrom: issueDateFrom,
+      dateTo: issueDateTo,
+    }).then((rows) => rows.reduce((sum, row) => sum + row.invoiceCount, 0)),
+    getBankConnectionsFromConvex({
+      teamId,
+      enabled: true,
+    }).then(
+      (connections) =>
+        connections
+          .filter((connection) => !!connection.lastAccessed && connection.bankAccounts.length > 0)
+          .map((connection) => connection.lastAccessed)
+          .filter(isDefined)
+          .sort((left, right) => right.localeCompare(left))[0] ?? null,
+    ),
+  ]);
 
   const transactionCount = transactionResult;
   const invoiceCount = invoiceResult;
-  const lastBankSync = bankConnectionResult
-    ? new Date(bankConnectionResult)
-    : null;
+  const lastBankSync = bankConnectionResult ? new Date(bankConnectionResult) : null;
 
   const bankSyncAgeDays = lastBankSync
     ? Math.floor((Date.now() - lastBankSync.getTime()) / (1000 * 60 * 60 * 24))

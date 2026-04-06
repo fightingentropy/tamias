@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router";
 import { createAppPublicFileRoute } from "@/start/route-hosts";
 import { TZDate } from "@date-fns/tz";
 import { format } from "date-fns";
@@ -32,8 +32,7 @@ export const Route = createAppPublicFileRoute("/i/$token/opengraph-image")({
         const customerName =
           invoice.customerName || invoice.customer?.name || invoice.template.title;
         const logoDataUri = await fetchDataUri(
-          invoice.template.logoUrl ||
-            getWebsiteFaviconUrl(invoice.customer?.website, 128),
+          invoice.template.logoUrl || getWebsiteFaviconUrl(invoice.customer?.website, 128),
         );
         const [sansFontCss, serifFontCss] = await Promise.all([
           loadHedvigSansFontCss(),

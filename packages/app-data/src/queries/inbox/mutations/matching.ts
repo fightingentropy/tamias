@@ -6,7 +6,10 @@ import {
   type TransactionRecord,
 } from "@tamias/app-data-convex";
 import type { Database, DatabaseOrTransaction } from "../../../client";
-import { createAttachments, deleteTransactionAttachmentsByIds } from "../../transaction-attachments";
+import {
+  createAttachments,
+  deleteTransactionAttachmentsByIds,
+} from "../../transaction-attachments";
 import {
   clearInboxSuggestions,
   getRelatedInboxItems,
@@ -26,10 +29,7 @@ export type MatchTransactionParams = {
   teamId: string;
 };
 
-export async function matchTransaction(
-  db: DatabaseOrTransaction,
-  params: MatchTransactionParams,
-) {
+export async function matchTransaction(db: DatabaseOrTransaction, params: MatchTransactionParams) {
   const { id, transactionId, teamId } = params;
   const [result, targetTransaction] = await Promise.all([
     getInboxItemByIdFromConvex({ teamId, inboxId: id }),
@@ -88,19 +88,14 @@ export async function matchTransaction(
     }
   }
 
-  const primaryItem =
-    relatedItems.find((item) => item.id === primaryItemId) || result;
+  const primaryItem = relatedItems.find((item) => item.id === primaryItemId) || result;
   const taxUpdates: Partial<TransactionRecord> = {};
 
   if (primaryItem.taxAmount !== null && primaryItem.taxAmount !== undefined) {
     taxUpdates.taxAmount = primaryItem.taxAmount;
   }
 
-  if (
-    primaryItem.taxRate !== null &&
-    primaryItem.taxRate !== undefined &&
-    primaryItem.taxType
-  ) {
+  if (primaryItem.taxRate !== null && primaryItem.taxRate !== undefined && primaryItem.taxType) {
     taxUpdates.taxRate = primaryItem.taxRate;
     taxUpdates.taxType = primaryItem.taxType;
   }
@@ -139,17 +134,14 @@ export async function unmatchTransaction(
   }
 
   const relatedItems = await getRelatedInboxItems(teamId, result);
-  const transactionId = relatedItems.find(
-    (item) => item.transactionId,
-  )?.transactionId;
+  const transactionId = relatedItems.find((item) => item.transactionId)?.transactionId;
 
   if (transactionId) {
-    const transactionSuggestions =
-      await getTransactionMatchSuggestionsFromConvex({
-        teamId,
-        transactionId,
-        statuses: ["confirmed"],
-      });
+    const transactionSuggestions = await getTransactionMatchSuggestionsFromConvex({
+      teamId,
+      transactionId,
+      statuses: ["confirmed"],
+    });
     const originalSuggestions = relatedItems.flatMap((item) =>
       transactionSuggestions.filter(
         (suggestion) =>

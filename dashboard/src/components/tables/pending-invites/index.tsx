@@ -51,10 +51,7 @@ export function DataTable() {
                 {row.getAllCells().map((cell) => (
                   <TableCell
                     key={cell.id}
-                    className={cn(
-                      "border-r-[0px] py-4",
-                      cell.column.columnDef.meta?.className,
-                    )}
+                    className={cn("border-r-[0px] py-4", cell.column.columnDef.meta?.className)}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
@@ -63,13 +60,8 @@ export function DataTable() {
             ))
           ) : (
             <TableRow className="hover:bg-transparent">
-              <TableCell
-                colSpan={columns.length}
-                className="h-[360px] text-center"
-              >
-                <h2 className="font-medium mb-1">
-                  No Pending Invitations Found
-                </h2>
+              <TableCell colSpan={columns.length} className="h-[360px] text-center">
+                <h2 className="font-medium mb-1">No Pending Invitations Found</h2>
                 <span className="text-[#606060]">
                   Use the button above to invite a Team Member.
                 </span>

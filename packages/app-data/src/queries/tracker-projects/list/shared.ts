@@ -1,9 +1,7 @@
 import type { TrackerProjectRecord } from "@tamias/app-data-convex";
 import type { GetTrackerProjectsParams } from "../types";
 
-export function serializeTrackerProjectListParams(
-  params: GetTrackerProjectsParams,
-) {
+export function serializeTrackerProjectListParams(params: GetTrackerProjectsParams) {
   return [
     params.teamId,
     params.cursor ?? "",
@@ -18,10 +16,7 @@ export function serializeTrackerProjectListParams(
   ].join(":");
 }
 
-export function matchesProjectSearch(
-  project: TrackerProjectRecord,
-  query?: string | null,
-) {
+export function matchesProjectSearch(project: TrackerProjectRecord, query?: string | null) {
   if (!query) {
     return true;
   }
@@ -40,10 +35,7 @@ export function matchesProjectSearch(
 export function paginate<T>(items: T[], cursor?: string | null, pageSize = 25) {
   const offset = cursor ? Number.parseInt(cursor, 10) : 0;
   const data = items.slice(offset, offset + pageSize);
-  const nextCursor =
-    offset + pageSize < items.length
-      ? (offset + pageSize).toString()
-      : undefined;
+  const nextCursor = offset + pageSize < items.length ? (offset + pageSize).toString() : undefined;
 
   return {
     meta: {

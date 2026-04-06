@@ -11,11 +11,7 @@ export const serviceUpsertChatFeedback = mutation({
     messageId: v.string(),
     userId: v.id("appUsers"),
     teamId: v.string(),
-    type: v.union(
-      v.literal("positive"),
-      v.literal("negative"),
-      v.literal("other"),
-    ),
+    type: v.union(v.literal("positive"), v.literal("negative"), v.literal("other")),
     comment: v.optional(v.union(v.string(), v.null())),
   },
   async handler(ctx, args) {
@@ -34,10 +30,7 @@ export const serviceUpsertChatFeedback = mutation({
     const existing = await ctx.db
       .query("chatFeedback")
       .withIndex("by_chat_message_user", (q) =>
-        q
-          .eq("chatId", args.chatId)
-          .eq("messageId", args.messageId)
-          .eq("appUserId", appUser._id),
+        q.eq("chatId", args.chatId).eq("messageId", args.messageId).eq("appUserId", appUser._id),
       )
       .unique();
 
@@ -84,10 +77,7 @@ export const serviceDeleteChatFeedback = mutation({
     const existing = await ctx.db
       .query("chatFeedback")
       .withIndex("by_chat_message_user", (q) =>
-        q
-          .eq("chatId", args.chatId)
-          .eq("messageId", args.messageId)
-          .eq("appUserId", appUser._id),
+        q.eq("chatId", args.chatId).eq("messageId", args.messageId).eq("appUserId", appUser._id),
       )
       .unique();
 

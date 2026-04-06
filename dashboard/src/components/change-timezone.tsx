@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@tamias/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@tamias/ui/card";
 import { ComboboxDropdown } from "@tamias/ui/combobox-dropdown";
 import { Label } from "@tamias/ui/label";
 import { Switch } from "@tamias/ui/switch";
@@ -24,8 +18,7 @@ export function ChangeTimezone() {
   const t = useI18n();
   const { data: user } = useUserQuery();
   const updateUserMutation = useUserMutation();
-  const [currentBrowserTimezone, setCurrentBrowserTimezone] =
-    useState<string>("");
+  const [currentBrowserTimezone, setCurrentBrowserTimezone] = useState<string>("");
   const [timezoneItems, setTimezoneItems] = useState<TimezoneItem[]>([]);
 
   // Get browser timezone on mount
@@ -117,13 +110,9 @@ export function ChangeTimezone() {
             <div className="w-full">
               <ComboboxDropdown
                 placeholder={
-                  timezoneItems.length
-                    ? t("timezone.placeholder")
-                    : "Loading timezones..."
+                  timezoneItems.length ? t("timezone.placeholder") : "Loading timezones..."
                 }
-                selectedItem={timezoneItems.find(
-                  (item) => item.value === currentTimezone,
-                )}
+                selectedItem={timezoneItems.find((item) => item.value === currentTimezone)}
                 searchPlaceholder={t("timezone.searchPlaceholder")}
                 items={timezoneItems}
                 className="text-xs py-1"

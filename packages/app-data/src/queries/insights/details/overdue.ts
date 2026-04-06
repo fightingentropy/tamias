@@ -25,17 +25,13 @@ export async function getOverdueInvoiceDetails(
     })
   )
     .filter((invoice) => !!invoice.dueDate)
-    .sort((left, right) =>
-      (left.dueDate ?? "").localeCompare(right.dueDate ?? ""),
-    );
+    .sort((left, right) => (left.dueDate ?? "").localeCompare(right.dueDate ?? ""));
 
   const now = new Date();
 
   return result.map((invoice) => {
     const dueDate = new Date(invoice.dueDate!);
-    const daysOverdue = Math.floor(
-      (now.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24),
-    );
+    const daysOverdue = Math.floor((now.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
 
     return {
       id: invoice.id,
@@ -83,8 +79,7 @@ export async function getOverdueInvoicesWithBehavior(
     }
 
     const avgDaysToPay =
-      (new Date(invoice.paidAt).getTime() -
-        new Date(invoice.dueDate).getTime()) /
+      (new Date(invoice.paidAt).getTime() - new Date(invoice.dueDate).getTime()) /
       (1000 * 60 * 60 * 24);
     const current = paidDaysByCustomer.get(invoice.customerName) ?? [];
 
@@ -97,8 +92,7 @@ export async function getOverdueInvoicesWithBehavior(
       continue;
     }
 
-    const averageDays =
-      dayValues.reduce((sum, value) => sum + value, 0) / dayValues.length;
+    const averageDays = dayValues.reduce((sum, value) => sum + value, 0) / dayValues.length;
 
     behaviorByCustomer.set(customerName, {
       avgDays: Math.max(0, Math.round(averageDays) + 14),
@@ -113,19 +107,14 @@ export async function getOverdueInvoicesWithBehavior(
       return { ...invoice, isUnusual: false };
     }
 
-    const unusualThreshold = Math.max(
-      behavior.avgDays * 1.5,
-      behavior.avgDays + 7,
-    );
+    const unusualThreshold = Math.max(behavior.avgDays * 1.5, behavior.avgDays + 7);
     const isUnusual = invoice.daysOverdue > unusualThreshold;
 
     return {
       ...invoice,
       typicalPayDays: behavior.avgDays,
       isUnusual,
-      unusualReason: isUnusual
-        ? `usually pays within ${behavior.avgDays} days`
-        : undefined,
+      unusualReason: isUnusual ? `usually pays within ${behavior.avgDays} days` : undefined,
     };
   });
 }

@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  getFrequencyLabel,
-  localDateToUTCMidnight,
-} from "@tamias/invoice/recurring";
+import { getFrequencyLabel, localDateToUTCMidnight } from "@tamias/invoice/recurring";
 import { Badge } from "@tamias/ui/badge";
 import { Button } from "@tamias/ui/button";
 import { Calendar } from "@tamias/ui/calendar";
@@ -65,18 +62,16 @@ export function SubmitButton({ isSubmitting, disabled, className }: Props) {
     return nextHour;
   };
 
-  const [scheduleDate, setScheduleDate] = React.useState<Date | undefined>(
-    () => {
-      const existingScheduledAt = watch("scheduledAt");
-      if (existingScheduledAt) {
-        // Parse and normalize to start of day for calendar display
-        const parsed = new Date(existingScheduledAt);
-        return startOfDay(parsed);
-      }
-      // Use start of day for calendar display
-      return startOfDay(getDefaultScheduleDateTime());
-    },
-  );
+  const [scheduleDate, setScheduleDate] = React.useState<Date | undefined>(() => {
+    const existingScheduledAt = watch("scheduledAt");
+    if (existingScheduledAt) {
+      // Parse and normalize to start of day for calendar display
+      const parsed = new Date(existingScheduledAt);
+      return startOfDay(parsed);
+    }
+    // Use start of day for calendar display
+    return startOfDay(getDefaultScheduleDateTime());
+  });
 
   const [scheduleTime, setScheduleTime] = React.useState<string>(() => {
     const existingScheduledAt = watch("scheduledAt");
@@ -99,8 +94,7 @@ export function SubmitButton({ isSubmitting, disabled, className }: Props) {
   // Get recurring config from form state or use default
   const formRecurringConfig = watch("recurringConfig");
   const recurringConfig =
-    formRecurringConfig ||
-    getDefaultRecurringConfig(issueDate ? new Date(issueDate) : new Date());
+    formRecurringConfig || getDefaultRecurringConfig(issueDate ? new Date(issueDate) : new Date());
 
   const setRecurringConfig = (config: RecurringConfig) => {
     setValue("recurringConfig", config, {
@@ -115,14 +109,10 @@ export function SubmitButton({ isSubmitting, disabled, className }: Props) {
   // Initialize recurring config when not set
   React.useEffect(() => {
     if (!formRecurringConfig && issueDate) {
-      setValue(
-        "recurringConfig",
-        getDefaultRecurringConfig(new Date(issueDate)),
-        {
-          shouldValidate: false,
-          shouldDirty: false,
-        },
-      );
+      setValue("recurringConfig", getDefaultRecurringConfig(new Date(issueDate)), {
+        shouldValidate: false,
+        shouldDirty: false,
+      });
     }
   }, [issueDate, formRecurringConfig, setValue]);
 
@@ -145,8 +135,7 @@ export function SubmitButton({ isSubmitting, disabled, className }: Props) {
 
       // Frequencies that use day of week
       const usesWeekday =
-        formRecurringConfig.frequency === "weekly" ||
-        formRecurringConfig.frequency === "biweekly";
+        formRecurringConfig.frequency === "weekly" || formRecurringConfig.frequency === "biweekly";
 
       // Frequencies that use day of month (quarterly, semi_annual, annual work like monthly_date)
       const usesDayOfMonth =
@@ -217,10 +206,7 @@ export function SubmitButton({ isSubmitting, disabled, className }: Props) {
       const dueDateTime = parseISO(currentDueDate);
 
       // Calculate the payment period
-      const paymentPeriodMs = differenceInMilliseconds(
-        dueDateTime,
-        issueDateTime,
-      );
+      const paymentPeriodMs = differenceInMilliseconds(dueDateTime, issueDateTime);
 
       // Set issue date to the scheduled date (normalize to UTC midnight)
       const newIssueDateStr = localDateToUTCMidnight(date);
@@ -270,16 +256,10 @@ export function SubmitButton({ isSubmitting, disabled, className }: Props) {
   const trpc = useTRPC();
   const { updateTemplate } = useTemplateUpdate();
 
-  const cancelScheduleMutation = useMutation(
-    trpc.invoice.cancelSchedule.mutationOptions(),
-  );
+  const cancelScheduleMutation = useMutation(trpc.invoice.cancelSchedule.mutationOptions());
 
   const handleOptionChange = (value: string) => {
-    const deliveryType = value as
-      | "create"
-      | "create_and_send"
-      | "scheduled"
-      | "recurring";
+    const deliveryType = value as "create" | "create_and_send" | "scheduled" | "recurring";
     const currentDeliveryType = watch("template.deliveryType");
     const invoiceId = watch("id");
 
@@ -460,9 +440,7 @@ export function SubmitButton({ isSubmitting, disabled, className }: Props) {
                   return (
                     <DropdownMenuSub key={option.value}>
                       <DropdownMenuSubTrigger>
-                        <div className="flex items-center pl-2">
-                          {option.label}
-                        </div>
+                        <div className="flex items-center pl-2">{option.label}</div>
                       </DropdownMenuSubTrigger>
                       <DropdownMenuPortal>
                         <DropdownMenuSubContent className="p-4 space-y-4 min-w-[230px] mb-2">
@@ -503,10 +481,7 @@ export function SubmitButton({ isSubmitting, disabled, className }: Props) {
                       <DropdownMenuSubTrigger>
                         <div className="flex items-center gap-2 pl-2">
                           {option.label}
-                          <Badge
-                            variant="tag"
-                            className="text-[10px] px-1.5 py-0 h-4 font-medium"
-                          >
+                          <Badge variant="tag" className="text-[10px] px-1.5 py-0 h-4 font-medium">
                             Beta
                           </Badge>
                         </div>
@@ -514,9 +489,7 @@ export function SubmitButton({ isSubmitting, disabled, className }: Props) {
                       <DropdownMenuPortal>
                         <DropdownMenuSubContent className="p-4 mb-2">
                           <RecurringConfigPanel
-                            issueDate={
-                              issueDate ? new Date(issueDate) : new Date()
-                            }
+                            issueDate={issueDate ? new Date(issueDate) : new Date()}
                             amount={amount}
                             currency={currency}
                             config={recurringConfig}

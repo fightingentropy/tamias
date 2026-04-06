@@ -76,8 +76,7 @@ export function computeChangeDescription(
 
   // Sign change (profit to loss or vice versa) - use descriptive text for extreme swings
   const signChanged =
-    (previousValue > 0 && currentValue < 0) ||
-    (previousValue < 0 && currentValue > 0);
+    (previousValue > 0 && currentValue < 0) || (previousValue < 0 && currentValue > 0);
 
   if (signChanged && absChange > 200) {
     return changePercent > 0 ? "turned positive" : "turned negative";
@@ -105,11 +104,7 @@ export function createMetric(
   const unit = getMetricUnit(type);
   const isPercentageMetric = unit === "percentage";
 
-  const change = calculatePercentageChange(
-    currentValue,
-    previousValue,
-    isPercentageMetric,
-  );
+  const change = calculatePercentageChange(currentValue, previousValue, isPercentageMetric);
   const roundedChange = Math.round(change * 10) / 10;
 
   return {
@@ -141,12 +136,7 @@ export function calculateAllMetrics(
   const metrics: Record<string, InsightMetric> = {};
 
   // Financial metrics
-  metrics.revenue = createMetric(
-    "revenue",
-    currentData.revenue,
-    previousData.revenue,
-    currency,
-  );
+  metrics.revenue = createMetric("revenue", currentData.revenue, previousData.revenue, currency);
 
   metrics.expenses = createMetric(
     "expenses",

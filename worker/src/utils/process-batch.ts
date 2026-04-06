@@ -83,9 +83,7 @@ export async function processBatchParallel<T, R>(
   // Process batches with concurrency limit
   for (let i = 0; i < batches.length; i += concurrency) {
     const concurrentBatches = batches.slice(i, i + concurrency);
-    const batchResults = await Promise.all(
-      concurrentBatches.map((batch) => processor(batch)),
-    );
+    const batchResults = await Promise.all(concurrentBatches.map((batch) => processor(batch)));
     results.push(...batchResults.flat());
   }
 

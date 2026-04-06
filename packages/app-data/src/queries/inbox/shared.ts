@@ -7,21 +7,14 @@ export {
   normalizeText,
   shiftIsoDate,
 } from "./shared/utils";
-export {
-  buildInboxAccountMap,
-  getInboxAccountMap,
-} from "./shared/accounts";
+export { buildInboxAccountMap, getInboxAccountMap } from "./shared/accounts";
 export {
   buildInboxTransactionSummary,
   getInboxTransactionMap,
   patchTransactionFields,
 } from "./shared/transactions";
 export type { InboxTransactionSummary } from "./shared/transactions";
-export {
-  toUpsertInboxItem,
-  toUpsertSuggestion,
-  toUpsertTransaction,
-} from "./shared/serialization";
+export { toUpsertInboxItem, toUpsertSuggestion, toUpsertTransaction } from "./shared/serialization";
 export {
   getPendingSuggestionForInbox,
   getTeamMatchSuggestions,
@@ -29,8 +22,4 @@ export {
   clearInboxSuggestions,
 } from "./shared/suggestions";
 export type { InboxConvexUserId } from "./shared/suggestions";
-export {
-  getRelatedInboxItems,
-  hydrateInboxItems,
-  markInboxItems,
-} from "./shared/items";
+export { getRelatedInboxItems, hydrateInboxItems, markInboxItems } from "./shared/items";

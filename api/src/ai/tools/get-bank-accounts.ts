@@ -16,8 +16,7 @@ const getBankAccountsSchema = z.object({
 });
 
 export const getBankAccountsTool = tool({
-  description:
-    "Retrieve bank accounts with filtering by enabled status and manual flag.",
+  description: "Retrieve bank accounts with filtering by enabled status and manual flag.",
   inputSchema: getBankAccountsSchema,
   execute: async function* ({ enabled, manual }, executionOptions) {
     const appContext = getToolAppContext(executionOptions);
@@ -65,10 +64,7 @@ export const getBankAccountsTool = tool({
         };
       });
 
-      const totalBalance = accounts.reduce(
-        (sum, acc) => sum + (Number(acc.balance) || 0),
-        0,
-      );
+      const totalBalance = accounts.reduce((sum, acc) => sum + (Number(acc.balance) || 0), 0);
       const formattedTotalBalance = formatAmount({
         amount: totalBalance,
         currency: baseCurrency,

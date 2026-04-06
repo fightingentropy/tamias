@@ -18,12 +18,9 @@ export function TransactionShortcuts({ isFulfilled, status }: Props) {
   const { transactionId, setParams } = useTransactionParams();
   const transactionIds = useTransactionsStore((s) => s.transactionIds);
 
-  const updateTransactionMutation = useMutation(
-    trpc.transactions.update.mutationOptions(),
-  );
+  const updateTransactionMutation = useMutation(trpc.transactions.update.mutationOptions());
 
-  const canToggleReviewReady =
-    !isFulfilled && status !== "excluded" && status !== "archived";
+  const canToggleReviewReady = !isFulfilled && status !== "excluded" && status !== "archived";
 
   const isReviewReadyFromStatus = status === "completed" && !isFulfilled;
 

@@ -16,8 +16,7 @@ export function ChatNavigation() {
   const handleBack = () => {
     reset();
     // Preserve tab query parameter when navigating back
-    const backPath =
-      tab && tab !== "overview" ? `/dashboard?tab=${tab}` : "/dashboard";
+    const backPath = tab && tab !== "overview" ? `/dashboard?tab=${tab}` : "/dashboard";
     router.push(backPath);
   };
 

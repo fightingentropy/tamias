@@ -3,9 +3,7 @@
 import type { Virtualizer } from "@tanstack/react-virtual";
 import { type RefObject, useEffect } from "react";
 
-interface UseInfiniteScrollProps<
-  TScrollElement extends HTMLElement = HTMLElement,
-> {
+interface UseInfiniteScrollProps<TScrollElement extends HTMLElement = HTMLElement> {
   /** Ref to the scroll container element */
   scrollRef: RefObject<TScrollElement | null>;
   /** The virtualizer instance */
@@ -26,9 +24,7 @@ interface UseInfiniteScrollProps<
  * Hook for infinite scroll with virtualization
  * Automatically fetches next page when scrolling near the bottom
  */
-export function useInfiniteScroll<
-  TScrollElement extends HTMLElement = HTMLElement,
->({
+export function useInfiniteScroll<TScrollElement extends HTMLElement = HTMLElement>({
   scrollRef,
   rowVirtualizer,
   rowCount,

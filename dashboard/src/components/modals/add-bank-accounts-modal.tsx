@@ -2,13 +2,7 @@
 
 import type { RouterOutputs } from "@tamias/trpc";
 import { Avatar, AvatarFallback } from "@tamias/ui/avatar";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@tamias/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@tamias/ui/dialog";
 import { Skeleton } from "@tamias/ui/skeleton";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { Switch } from "@tamias/ui/switch";
@@ -62,10 +56,7 @@ type Props = {
   onAccountsAdded?: () => void;
 };
 
-function isExistingAccount(
-  providerAccountId: string,
-  existing: ExistingAccount[],
-): boolean {
+function isExistingAccount(providerAccountId: string, existing: ExistingAccount[]): boolean {
   return existing.some((e) => e.accountId === providerAccountId);
 }
 
@@ -208,8 +199,7 @@ export function AddBankAccountsModal({
 
             {isError && (
               <p className="text-sm text-[#878787] text-center py-8">
-                Failed to load accounts from bank provider. Please try
-                reconnecting.
+                Failed to load accounts from bank provider. Please try reconnecting.
               </p>
             )}
 
@@ -220,10 +210,7 @@ export function AddBankAccountsModal({
             )}
 
             {newAccounts.map((account) => (
-              <div
-                key={account.id}
-                className="flex justify-between items-center"
-              >
+              <div key={account.id} className="flex justify-between items-center">
                 <div className="flex items-center space-x-4 mr-8 flex-1 min-w-0">
                   <Avatar className="size-[34px]">
                     <AvatarFallback className="text-[11px]">
@@ -232,9 +219,7 @@ export function AddBankAccountsModal({
                   </Avatar>
                   <div className="flex flex-col flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <p className="font-medium leading-none text-sm truncate">
-                        {account.name}
-                      </p>
+                      <p className="font-medium leading-none text-sm truncate">{account.name}</p>
                     </div>
                     <div className="flex items-center justify-between mt-1">
                       <span className="text-xs text-[#878787]">
@@ -246,9 +231,7 @@ export function AddBankAccountsModal({
                       <span className="text-sm font-medium">
                         <FormatAmount
                           amount={
-                            Number.isFinite(account.balance?.amount)
-                              ? account.balance.amount
-                              : 0
+                            Number.isFinite(account.balance?.amount) ? account.balance.amount : 0
                           }
                           currency={account.balance?.currency ?? "USD"}
                         />
@@ -268,11 +251,7 @@ export function AddBankAccountsModal({
             <SubmitButton
               className="w-full"
               isSubmitting={addAccountsMutation.isPending}
-              disabled={
-                addAccountsMutation.isPending ||
-                selectedCount === 0 ||
-                isLoading
-              }
+              disabled={addAccountsMutation.isPending || selectedCount === 0 || isLoading}
               onClick={handleCreate}
             >
               {selectedCount > 0

@@ -4,10 +4,7 @@ import { reuseQueryResult } from "../../utils/request-cache";
 import { enrichProjects } from "./enrich";
 import type { GetTrackerProjectByIdParams } from "./types";
 
-async function getTrackerProjectByIdImpl(
-  db: Database,
-  params: GetTrackerProjectByIdParams,
-) {
+async function getTrackerProjectByIdImpl(db: Database, params: GetTrackerProjectByIdParams) {
   const project = await getTrackerProjectByIdFromConvex({
     teamId: params.teamId,
     id: params.id,
@@ -24,7 +21,6 @@ async function getTrackerProjectByIdImpl(
 
 export const getTrackerProjectById = reuseQueryResult({
   keyPrefix: "tracker-project-by-id",
-  keyFn: (params: GetTrackerProjectByIdParams) =>
-    [params.teamId, params.id].join(":"),
+  keyFn: (params: GetTrackerProjectByIdParams) => [params.teamId, params.id].join(":"),
   load: getTrackerProjectByIdImpl,
 });

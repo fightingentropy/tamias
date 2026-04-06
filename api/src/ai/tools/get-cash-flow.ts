@@ -30,8 +30,7 @@ const getCashFlowSchema = z.object({
 });
 
 export const getCashFlowTool = tool({
-  description:
-    "Calculate net cash flow (income minus expenses) with monthly trends.",
+  description: "Calculate net cash flow (income minus expenses) with monthly trends.",
   inputSchema: getCashFlowSchema,
   execute: async function* (
     { dateRange, from, to, currency, period, showCanvas },
@@ -54,26 +53,20 @@ export const getCashFlowTool = tool({
     throwIfBankAccountsRequired(appContext);
 
     try {
-      const {
-        resolved,
-        finalFrom,
-        finalTo,
-        finalCurrency,
-        description,
-        locale,
-      } = resolveReportToolParams({
-        toolName: "getCashFlow",
-        appContext,
-        aiParams: {
-          dateRange,
-          from,
-          to,
-          currency,
-          // Pass through other params
-          period,
-          showCanvas,
-        },
-      });
+      const { resolved, finalFrom, finalTo, finalCurrency, description, locale } =
+        resolveReportToolParams({
+          toolName: "getCashFlow",
+          appContext,
+          aiParams: {
+            dateRange,
+            from,
+            to,
+            currency,
+            // Pass through other params
+            period,
+            showCanvas,
+          },
+        });
 
       // Initialize artifact only if showCanvas is true
       const analysis = startArtifactStream({
@@ -97,8 +90,7 @@ export const getCashFlowTool = tool({
         period: period ?? "monthly",
       });
 
-      const targetCurrency =
-        result.summary.currency || appContext.baseCurrency || "USD";
+      const targetCurrency = result.summary.currency || appContext.baseCurrency || "USD";
       const periodType = result.summary.period;
 
       // Calculate cumulative cash flow for chart
@@ -130,8 +122,7 @@ export const getCashFlowTool = tool({
       // Calculate metrics
       const currentMonthlyCashFlow =
         monthlyDataWithCumulative.length > 0
-          ? monthlyDataWithCumulative[monthlyDataWithCumulative.length - 1]
-              ?.netCashFlow || 0
+          ? monthlyDataWithCumulative[monthlyDataWithCumulative.length - 1]?.netCashFlow || 0
           : 0;
 
       const metrics = {
@@ -281,8 +272,7 @@ Provide a concise analysis (2-3 sentences) highlighting key insights about the c
         responseText +=
           "This indicates your business is generating sufficient revenue to cover expenses and potentially build cash reserves.";
       } else {
-        responseText +=
-          "A negative cash flow means you're spending more than you're earning. ";
+        responseText += "A negative cash flow means you're spending more than you're earning. ";
         responseText +=
           "This could be normal for growth-stage businesses investing heavily, but monitor your cash reserves and runway to ensure sustainability.";
       }

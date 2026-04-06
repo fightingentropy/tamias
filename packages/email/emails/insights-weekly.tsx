@@ -1,12 +1,5 @@
 import { getAppUrl } from "@tamias/utils/envs";
-import {
-  Body,
-  Container,
-  Heading,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
+import { Body, Container, Heading, Preview, Section, Text } from "@react-email/components";
 import { Footer } from "../components/footer";
 import { Logo } from "../components/logo";
 import {
@@ -47,10 +40,7 @@ export const InsightsWeeklyEmail = ({
 
   return (
     <EmailThemeProvider preview={<Preview>{previewText}</Preview>}>
-      <Body
-        className={`my-auto mx-auto font-sans ${themeClasses.body}`}
-        style={lightStyles.body}
-      >
+      <Body className={`my-auto mx-auto font-sans ${themeClasses.body}`} style={lightStyles.body}>
         <Container
           className={`my-[40px] mx-auto p-[20px] max-w-[600px] ${themeClasses.container}`}
           style={{
@@ -74,19 +64,12 @@ export const InsightsWeeklyEmail = ({
             className={`text-[14px] leading-[24px] ${themeClasses.text}`}
             style={{ color: lightStyles.text.color }}
           >
-            {firstName ? `Hi ${firstName},` : "Hi,"} here's your weekly summary:{" "}
-            {title}
+            {firstName ? `Hi ${firstName},` : "Hi,"} here's your weekly summary: {title}
           </Text>
 
           {/* CTA Buttons */}
           <Section className="text-center mt-[56px] mb-[56px]">
-            <table
-              align="center"
-              border={0}
-              cellPadding={0}
-              cellSpacing={0}
-              role="presentation"
-            >
+            <table align="center" border={0} cellPadding={0} cellSpacing={0} role="presentation">
               <tr>
                 <td style={{ paddingRight: audioUrl ? 8 : 0 }}>
                   <Button href={dashboardUrl}>View details</Button>
@@ -99,10 +82,7 @@ export const InsightsWeeklyEmail = ({
               </tr>
             </table>
             {audioUrl && (
-              <Text
-                className="text-[12px] mt-[16px] mb-0"
-                style={{ color: "#6b7280" }}
-              >
+              <Text className="text-[12px] mt-[16px] mb-0" style={{ color: "#6b7280" }}>
                 Audio link expires in 7 days
               </Text>
             )}

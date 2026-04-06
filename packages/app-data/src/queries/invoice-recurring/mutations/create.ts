@@ -1,6 +1,4 @@
-import {
-  calculateFirstScheduledDate,
-} from "@tamias/invoice/server-recurring";
+import { calculateFirstScheduledDate } from "@tamias/invoice/server-recurring";
 import type { DatabaseOrTransaction } from "../../../client";
 import { upsertProjectedInvoiceRecurringRecord } from "../shared";
 import type { CreateInvoiceRecurringParams } from "../shared";

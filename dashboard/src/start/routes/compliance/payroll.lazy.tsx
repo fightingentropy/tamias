@@ -8,15 +8,10 @@ export const Route = createLazyFileRoute("/compliance/payroll")({
 });
 
 function CompliancePayrollPage() {
-  const loaderData = Route.useLoaderData() as Awaited<
-    ReturnType<typeof loadCompliancePayrollData>
-  >;
+  const loaderData = Route.useLoaderData() as Awaited<ReturnType<typeof loadCompliancePayrollData>>;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <PayrollDashboard />
     </AppLayoutShell>
   );

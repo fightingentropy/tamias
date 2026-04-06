@@ -86,9 +86,7 @@ export const serviceListPayrollRuns = query({
       .collect()
       .then((records) =>
         records
-          .sort((left, right) =>
-            right.payPeriodEnd.localeCompare(left.payPeriodEnd),
-          )
+          .sort((left, right) => right.payPeriodEnd.localeCompare(left.payPeriodEnd))
           .map((record) => serializePayrollRun(args.publicTeamId, record)),
       );
   },

@@ -2,10 +2,7 @@ import type { CustomerRecord } from "@tamias/app-data-convex";
 import type { CustomerListRow } from "../types";
 import { compareCustomersByTags } from "./tags";
 
-export function matchesCustomerSearch(
-  customer: CustomerRecord,
-  query?: string | null,
-) {
+export function matchesCustomerSearch(customer: CustomerRecord, query?: string | null) {
   if (!query) {
     return true;
   }
@@ -63,43 +60,19 @@ export function sortCustomers(data: CustomerListRow[], sort?: string[] | null) {
         case "name":
           return compareNullableString(left.name, right.name, isAscending);
         case "created_at":
-          return compareNullableString(
-            left.createdAt,
-            right.createdAt,
-            isAscending,
-          );
+          return compareNullableString(left.createdAt, right.createdAt, isAscending);
         case "contact":
-          return compareNullableString(
-            left.contact,
-            right.contact,
-            isAscending,
-          );
+          return compareNullableString(left.contact, right.contact, isAscending);
         case "email":
           return compareNullableString(left.email, right.email, isAscending);
         case "invoices":
-          return compareNullableNumber(
-            left.invoiceCount,
-            right.invoiceCount,
-            isAscending,
-          );
+          return compareNullableNumber(left.invoiceCount, right.invoiceCount, isAscending);
         case "industry":
-          return compareNullableString(
-            left.industry,
-            right.industry,
-            isAscending,
-          );
+          return compareNullableString(left.industry, right.industry, isAscending);
         case "country":
-          return compareNullableString(
-            left.country,
-            right.country,
-            isAscending,
-          );
+          return compareNullableString(left.country, right.country, isAscending);
         case "total_revenue":
-          return compareNullableNumber(
-            left.totalRevenue,
-            right.totalRevenue,
-            isAscending,
-          );
+          return compareNullableNumber(left.totalRevenue, right.totalRevenue, isAscending);
         case "outstanding":
           return compareNullableNumber(
             left.outstandingAmount,
@@ -107,17 +80,9 @@ export function sortCustomers(data: CustomerListRow[], sort?: string[] | null) {
             isAscending,
           );
         case "last_invoice":
-          return compareNullableString(
-            left.lastInvoiceDate,
-            right.lastInvoiceDate,
-            isAscending,
-          );
+          return compareNullableString(left.lastInvoiceDate, right.lastInvoiceDate, isAscending);
         case "projects":
-          return compareNullableNumber(
-            left.projectCount,
-            right.projectCount,
-            isAscending,
-          );
+          return compareNullableNumber(left.projectCount, right.projectCount, isAscending);
         case "tags":
           return compareCustomersByTags(left, right, isAscending);
         default:

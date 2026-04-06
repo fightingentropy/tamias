@@ -1,19 +1,12 @@
 import { parseISO } from "date-fns";
 import { getCategoryInfo, REVENUE_CATEGORIES, CONTRA_REVENUE_CATEGORIES } from "../shared";
-import type {
-  BalanceSheetBankAccount,
-  BalanceSheetTransactionRow,
-  CurrencyPair,
-} from "./types";
+import type { BalanceSheetBankAccount, BalanceSheetTransactionRow, CurrencyPair } from "./types";
 
 export function roundMoney(value: number) {
   return Math.round(value * 100) / 100;
 }
 
-export function groupTransactionsByCategory(
-  rows: BalanceSheetTransactionRow[],
-  slugs: string[],
-) {
+export function groupTransactionsByCategory(rows: BalanceSheetTransactionRow[], slugs: string[]) {
   const totals = new Map<string, number>();
 
   for (const row of rows) {
@@ -67,8 +60,7 @@ export function calculateAccumulatedDepreciation(
     const asOfYear = asOfDate.getFullYear();
     const asOfMonth = asOfDate.getMonth();
 
-    const monthsSincePurchase =
-      (asOfYear - purchaseYear) * 12 + (asOfMonth - purchaseMonth);
+    const monthsSincePurchase = (asOfYear - purchaseYear) * 12 + (asOfMonth - purchaseMonth);
 
     if (monthsSincePurchase <= 0) continue;
 
@@ -76,10 +68,7 @@ export function calculateAccumulatedDepreciation(
     const category = asset.categorySlug || "";
 
     const usefulLifeMonths = category === "software" ? 36 : 60;
-    const depreciationPercentage = Math.min(
-      monthsSincePurchase / usefulLifeMonths,
-      1,
-    );
+    const depreciationPercentage = Math.min(monthsSincePurchase / usefulLifeMonths, 1);
 
     accumulatedDepreciation += assetAmount * depreciationPercentage;
   }
@@ -117,13 +106,7 @@ export function sumExpenseTransactions(rows: BalanceSheetTransactionRow[]) {
 
     if (
       slug &&
-      [
-        "prepaid-expenses",
-        "fixed-assets",
-        "software",
-        "inventory",
-        "equipment",
-      ].includes(slug)
+      ["prepaid-expenses", "fixed-assets", "software", "inventory", "equipment"].includes(slug)
     ) {
       return sum;
     }
@@ -136,10 +119,7 @@ export function uniqueCurrencyPairs(pairs: CurrencyPair[]) {
   return Array.from(new Map(pairs.map((pair) => [`${pair.base}:${pair.target}`, pair])).values());
 }
 
-export function mapBankAccountsByType(
-  accounts: BalanceSheetBankAccount[],
-  currency: string,
-) {
+export function mapBankAccountsByType(accounts: BalanceSheetBankAccount[], currency: string) {
   return accounts.reduce(
     (acc, account) => {
       const balance = Number(account.balance) || 0;

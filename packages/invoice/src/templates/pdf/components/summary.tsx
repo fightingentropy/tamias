@@ -171,9 +171,7 @@ export function Summary({
               currency,
               locale,
               maximumFractionDigits:
-                includeTax || includeVat || includeLineItemTax
-                  ? 2
-                  : maximumFractionDigits,
+                includeTax || includeVat || includeLineItemTax ? 2 : maximumFractionDigits,
             })}
         </Text>
       </View>

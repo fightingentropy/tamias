@@ -1,20 +1,13 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { createApp } from "@tamias/app-data/queries";
 import config from "@tamias/app-store/hmrc-vat";
-import {
-  decryptComplianceOAuthState,
-  HmrcVatProvider,
-} from "@tamias/compliance";
+import { decryptComplianceOAuthState, HmrcVatProvider } from "@tamias/compliance";
 import { logger } from "@tamias/logger";
 import { getAppUrl } from "@tamias/utils/envs";
 import { HTTPException } from "hono/http-exception";
 import { publicMiddleware } from "../../../middleware";
 import type { Context } from "../../../types";
-import {
-  buildErrorRedirect,
-  buildSuccessRedirect,
-  mapOAuthError,
-} from "../../../utils/oauth";
+import { buildErrorRedirect, buildSuccessRedirect, mapOAuthError } from "../../../utils/oauth";
 
 const app = new OpenAPIHono<Context>();
 
@@ -93,10 +86,7 @@ app.openapi(
     if (error || !code) {
       const errorCode = mapOAuthError(error);
       logger.info("HMRC VAT OAuth error or cancelled", { error, errorCode });
-      return c.redirect(
-        buildErrorRedirect(dashboardUrl, errorCode, "hmrc-vat", source),
-        302,
-      );
+      return c.redirect(buildErrorRedirect(dashboardUrl, errorCode, "hmrc-vat", source), 302);
     }
 
     if (!parsedState || parsedState.provider !== "hmrc-vat") {
@@ -122,10 +112,7 @@ app.openapi(
         environment: tokenSet.environment,
       });
 
-      return c.redirect(
-        buildSuccessRedirect(dashboardUrl, "hmrc-vat", parsedState.source),
-        302,
-      );
+      return c.redirect(buildSuccessRedirect(dashboardUrl, "hmrc-vat", parsedState.source), 302);
     } catch (err) {
       logger.error("HMRC VAT OAuth callback error", {
         error: err instanceof Error ? err.message : String(err),
@@ -133,12 +120,7 @@ app.openapi(
       });
 
       return c.redirect(
-        buildErrorRedirect(
-          dashboardUrl,
-          "token_exchange_failed",
-          "hmrc-vat",
-          parsedState.source,
-        ),
+        buildErrorRedirect(dashboardUrl, "token_exchange_failed", "hmrc-vat", parsedState.source),
         302,
       );
     }

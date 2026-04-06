@@ -4,10 +4,7 @@ import { getInvoiceByToken } from "@tamias/app-services/invoice-by-token";
 import { verifyFileKey } from "@tamias/encryption";
 import { PdfTemplate, renderToStream } from "@tamias/invoice";
 import { HTTPException } from "hono/http-exception";
-import {
-  downloadFileSchema,
-  downloadInvoiceSchema,
-} from "../../../schemas/files";
+import { downloadFileSchema, downloadInvoiceSchema } from "../../../schemas/files";
 import { downloadVaultFile } from "../../../services/storage";
 import { publicMiddleware } from "../../middleware";
 import { withDatabase } from "../../middleware/db";
@@ -101,10 +98,7 @@ app.openapi(
     // Try to get content type from blob, fallback to application/octet-stream
     const blob = await data.arrayBuffer();
     const contentType =
-      data.type ||
-      (filename
-        ? getContentTypeFromFilename(filename)
-        : "application/octet-stream");
+      data.type || (filename ? getContentTypeFromFilename(filename) : "application/octet-stream");
 
     const headers: Record<string, string> = {
       "Content-Type": contentType,
@@ -137,8 +131,7 @@ downloadInvoiceApp.use(async (c, next) => {
 
     if (!fk) {
       throw new HTTPException(401, {
-        message:
-          "File key (fk) query parameter is required when using invoice ID.",
+        message: "File key (fk) query parameter is required when using invoice ID.",
       });
     }
 
@@ -259,9 +252,7 @@ downloadInvoiceApp.openapi(
     }
 
     try {
-      const stream = await renderToStream(
-        await PdfTemplate(invoiceData, { isReceipt }),
-      );
+      const stream = await renderToStream(await PdfTemplate(invoiceData, { isReceipt }));
 
       // Convert stream to blob
       const blob = await new Response(stream as any).blob();

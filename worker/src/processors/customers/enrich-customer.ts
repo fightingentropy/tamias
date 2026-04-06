@@ -97,9 +97,7 @@ export class EnrichCustomerProcessor extends BaseProcessor<EnrichCustomerPayload
 
       // Store verified data (only update vatNumber if not already set)
       const { vatNumber: _, ...dataWithoutVat } = result.verified;
-      const dataToUpdate = customer.vatNumber
-        ? dataWithoutVat
-        : result.verified;
+      const dataToUpdate = customer.vatNumber ? dataWithoutVat : result.verified;
 
       await updateCustomerEnrichment(db, {
         customerId,
@@ -124,10 +122,8 @@ export class EnrichCustomerProcessor extends BaseProcessor<EnrichCustomerPayload
         stepsUsed: result.metrics.stepsUsed,
       };
     } catch (error) {
-      const isTimeout =
-        error instanceof Error && error.message.includes("timed out");
-      const isCancelled =
-        error instanceof Error && error.message.includes("cancelled");
+      const isTimeout = error instanceof Error && error.message.includes("timed out");
+      const isCancelled = error instanceof Error && error.message.includes("cancelled");
 
       this.logger.error("Failed to enrich customer", {
         customerId,
@@ -144,10 +140,7 @@ export class EnrichCustomerProcessor extends BaseProcessor<EnrichCustomerPayload
         this.logger.error("Failed to mark customer enrichment as failed", {
           customerId,
           teamId,
-          statusError:
-            statusError instanceof Error
-              ? statusError.message
-              : "Unknown error",
+          statusError: statusError instanceof Error ? statusError.message : "Unknown error",
         });
       }
 

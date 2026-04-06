@@ -20,11 +20,7 @@ type Props = {
   onSyncStarted?: (data: { runId: string }) => void;
 };
 
-export function ConnectBankStep({
-  onContinue,
-  defaultCountryCodePromise,
-  onSyncStarted,
-}: Props) {
+export function ConnectBankStep({ onContinue, defaultCountryCodePromise, onSyncStarted }: Props) {
   const countryCode = use(defaultCountryCodePromise);
   const { step: connectStep, setParams } = useConnectParams();
 
@@ -74,8 +70,7 @@ export function ConnectBankStep({
         transition={{ duration: 0.4, delay: 0.2 }}
         className="text-sm text-muted-foreground leading-relaxed"
       >
-        Get runway, burn rate, and weekly summaries automatically — just connect
-        your bank.
+        Get runway, burn rate, and weekly summaries automatically — just connect your bank.
       </motion.p>
 
       <motion.div

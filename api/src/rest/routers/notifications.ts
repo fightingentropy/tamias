@@ -31,8 +31,7 @@ app.openapi(
     },
     responses: {
       200: {
-        description:
-          "Retrieve a list of notifications for the authenticated team.",
+        description: "Retrieve a list of notifications for the authenticated team.",
         content: {
           "application/json": {
             schema: notificationsResponseSchema,
@@ -111,16 +110,9 @@ app.openapi(
     const { notificationId } = c.req.valid("param");
     const { status } = c.req.valid("json");
 
-    const result = await updateActivityStatus(
-      db,
-      notificationId,
-      status,
-      teamId,
-    );
+    const result = await updateActivityStatus(db, notificationId, status, teamId);
 
-    return c.json(
-      validateResponse({ data: result }, notificationResponseSchema),
-    );
+    return c.json(validateResponse({ data: result }, notificationResponseSchema));
   },
 );
 
@@ -131,8 +123,7 @@ app.openapi(
     summary: "Update status of all notifications",
     operationId: "updateAllNotificationsStatus",
     "x-speakeasy-name-override": "updateAllStatus",
-    description:
-      "Update the status of all notifications for the authenticated team.",
+    description: "Update the status of all notifications for the authenticated team.",
     tags: ["Notifications"],
     request: {
       body: {
@@ -169,12 +160,7 @@ app.openapi(
       userId: session.user.convexId,
     });
 
-    return c.json(
-      validateResponse(
-        { data: result },
-        updateAllNotificationsStatusResponseSchema,
-      ),
-    );
+    return c.json(validateResponse({ data: result }, updateAllNotificationsStatusResponseSchema));
   },
 );
 

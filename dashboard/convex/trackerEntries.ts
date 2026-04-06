@@ -44,9 +44,7 @@ async function getTrackerEntryByPublicId(
 ) {
   const byLegacyId = await ctx.db
     .query("trackerEntries")
-    .withIndex("by_public_tracker_entry_id", (q) =>
-      q.eq("publicTrackerEntryId", args.entryId),
-    )
+    .withIndex("by_public_tracker_entry_id", (q) => q.eq("publicTrackerEntryId", args.entryId))
     .unique();
 
   if (byLegacyId && byLegacyId.teamId === args.teamId) {
@@ -72,10 +70,7 @@ async function getTrackerEntryByPublicId(
   return null;
 }
 
-function serializeTrackerEntry(
-  teamId: string,
-  entry: Doc<"trackerEntries">,
-) {
+function serializeTrackerEntry(teamId: string, entry: Doc<"trackerEntries">) {
   return {
     id: publicTrackerEntryId(entry),
     teamId,
@@ -110,10 +105,7 @@ function sortTrackerEntries(left: Doc<"trackerEntries">, right: Doc<"trackerEntr
   return left.createdAt.localeCompare(right.createdAt);
 }
 
-async function getTeamEntries(
-  ctx: TrackerEntryCtx,
-  teamId: Id<"teams">,
-) {
+async function getTeamEntries(ctx: TrackerEntryCtx, teamId: Id<"teams">) {
   return ctx.db
     .query("trackerEntries")
     .withIndex("by_team_id", (q) => q.eq("teamId", teamId))
@@ -149,9 +141,7 @@ async function getTrackerEntriesByDateIndex(args: {
 
   return ctx.db
     .query("trackerEntries")
-    .withIndex("by_team_and_date", (q) =>
-      q.eq("teamId", teamId).eq("date", date),
-    )
+    .withIndex("by_team_and_date", (q) => q.eq("teamId", teamId).eq("date", date))
     .collect();
 }
 
@@ -182,20 +172,14 @@ async function getTrackerEntriesByRangeIndex(args: {
     return ctx.db
       .query("trackerEntries")
       .withIndex("by_team_assigned_date", (q) =>
-        q
-          .eq("teamId", teamId)
-          .eq("assignedId", assignedId)
-          .gte("date", from)
-          .lte("date", to),
+        q.eq("teamId", teamId).eq("assignedId", assignedId).gte("date", from).lte("date", to),
       )
       .collect();
   }
 
   return ctx.db
     .query("trackerEntries")
-    .withIndex("by_team_and_date", (q) =>
-      q.eq("teamId", teamId).gte("date", from).lte("date", to),
-    )
+    .withIndex("by_team_and_date", (q) => q.eq("teamId", teamId).gte("date", from).lte("date", to))
     .collect();
 }
 
@@ -210,9 +194,7 @@ async function getTrackerEntriesByProjectIdsIndex(args: {
     [...new Set(projectIds)].map((projectId) =>
       ctx.db
         .query("trackerEntries")
-        .withIndex("by_team_project_date", (q) =>
-          q.eq("teamId", teamId).eq("projectId", projectId),
-        )
+        .withIndex("by_team_project_date", (q) => q.eq("teamId", teamId).eq("projectId", projectId))
         .collect(),
     ),
   );
@@ -565,13 +547,15 @@ export const serviceStopTrackerTimer = mutation({
         : null) ??
       (await (async () => {
         const entries = await getTeamEntries(ctx, team._id);
-        return entries.find(
-          (candidate) =>
-            !candidate.stop &&
-            (args.assignedId === undefined || args.assignedId === null
-              ? true
-              : (candidate.assignedId ?? null) === args.assignedId),
-        ) ?? null;
+        return (
+          entries.find(
+            (candidate) =>
+              !candidate.stop &&
+              (args.assignedId === undefined || args.assignedId === null
+                ? true
+                : (candidate.assignedId ?? null) === args.assignedId),
+          ) ?? null
+        );
       })());
 
     if (!entry) {

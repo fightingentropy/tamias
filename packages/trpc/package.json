@@ -5,8 +5,6 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "scripts": {
-    "lint": "biome check .",
-    "lint:fix": "biome check --write .",
     "typecheck": "echo 'Types validated by @tamias/api and consumer packages'"
   },
   "exports": {

@@ -34,14 +34,13 @@ export const getSyncedTransactionsWithAttachmentChanges = async (
 ): Promise<TransactionWithAttachmentChanges[]> => {
   const { teamId, provider, sinceDaysAgo = 30, limit = 100 } = params;
 
-  const syncRecords = (await getAccountingSyncStatusFromConvex({
-    teamId,
-    provider,
-  }))
-    .filter(
-      (record) =>
-        record.status === "synced" && record.providerTransactionId !== null,
-    )
+  const syncRecords = (
+    await getAccountingSyncStatusFromConvex({
+      teamId,
+      provider,
+    })
+  )
+    .filter((record) => record.status === "synced" && record.providerTransactionId !== null)
     .sort((left, right) => right.syncedAt.localeCompare(left.syncedAt));
 
   if (syncRecords.length === 0) {
@@ -52,9 +51,7 @@ export const getSyncedTransactionsWithAttachmentChanges = async (
   sinceDate.setDate(sinceDate.getDate() - sinceDaysAgo);
   const sinceDateStr = sinceDate.toISOString().split("T")[0]!;
 
-  const transactionIds = [
-    ...new Set(syncRecords.map((record) => record.transactionId)),
-  ];
+  const transactionIds = [...new Set(syncRecords.map((record) => record.transactionId))];
   const currentTransactions = (
     await getTransactionsByIdsFromConvex({
       teamId,
@@ -62,10 +59,7 @@ export const getSyncedTransactionsWithAttachmentChanges = async (
     })
   )
     .filter((transaction) => transaction.date >= sinceDateStr)
-    .filter(
-      (transaction) =>
-        !ACCOUNTING_SYNC_EXCLUDED_STATUS_SET.has(transaction.status),
-    )
+    .filter((transaction) => !ACCOUNTING_SYNC_EXCLUDED_STATUS_SET.has(transaction.status))
     .sort(compareTransactionsByDateDesc)
     .map((transaction) => ({
       transactionId: transaction.id,

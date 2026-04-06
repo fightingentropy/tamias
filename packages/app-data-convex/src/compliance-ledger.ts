@@ -80,8 +80,7 @@ export async function rebuildDerivedComplianceJournalEntriesInConvex(args: {
   teamId?: string | null;
 }) {
   return createClient().mutation(
-    apiWithComplianceLedger.complianceLedger
-      .serviceRebuildDerivedComplianceJournalEntries,
+    apiWithComplianceLedger.complianceLedger.serviceRebuildDerivedComplianceJournalEntries,
     serviceArgs({
       publicTeamId: args.teamId ?? null,
     }),
@@ -100,8 +99,7 @@ export async function listComplianceJournalEntriesFromConvex(args: {
   sourceTypes?: ComplianceJournalSourceType[];
 }) {
   return createClient().query(
-    apiWithComplianceLedger.complianceLedger
-      .serviceListComplianceJournalEntries,
+    apiWithComplianceLedger.complianceLedger.serviceListComplianceJournalEntries,
     serviceArgs({
       publicTeamId: args.teamId,
       sourceTypes: args.sourceTypes,
@@ -114,8 +112,7 @@ export async function upsertComplianceJournalEntryInConvex(args: {
   entry: ComplianceJournalEntryRecord;
 }) {
   return createClient().mutation(
-    apiWithComplianceLedger.complianceLedger
-      .serviceUpsertComplianceJournalEntry,
+    apiWithComplianceLedger.complianceLedger.serviceUpsertComplianceJournalEntry,
     serviceArgs({
       publicTeamId: args.teamId,
       entry: {
@@ -149,8 +146,7 @@ export async function deleteComplianceJournalEntryBySourceInConvex(args: {
   sourceId: string;
 }) {
   return createClient().mutation(
-    apiWithComplianceLedger.complianceLedger
-      .serviceDeleteComplianceJournalEntryBySource,
+    apiWithComplianceLedger.complianceLedger.serviceDeleteComplianceJournalEntryBySource,
     serviceArgs({
       publicTeamId: args.teamId,
       sourceType: args.sourceType,
@@ -166,8 +162,7 @@ export async function getComplianceAdjustmentsForPeriodFromConvex(args: {
   periodEnd: string;
 }) {
   return createClient().query(
-    apiWithComplianceAdjustments.complianceAdjustments
-      .serviceListComplianceAdjustmentsForPeriod,
+    apiWithComplianceAdjustments.complianceAdjustments.serviceListComplianceAdjustmentsForPeriod,
     serviceArgs({
       publicTeamId: args.teamId,
       filingProfileId: args.filingProfileId,
@@ -206,8 +201,7 @@ export async function createComplianceAdjustmentInConvex(args: {
   meta?: Record<string, unknown> | null;
 }) {
   return createClient().mutation(
-    apiWithComplianceAdjustments.complianceAdjustments
-      .serviceCreateComplianceAdjustment,
+    apiWithComplianceAdjustments.complianceAdjustments.serviceCreateComplianceAdjustment,
     serviceArgs({
       publicTeamId: args.teamId,
       complianceAdjustmentId: args.id,

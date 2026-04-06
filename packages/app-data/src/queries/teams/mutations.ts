@@ -13,10 +13,7 @@ type UpdateTeamParams = {
   data: Omit<UpdateTeamInConvexIdentityInput, "teamId">;
 };
 
-export const updateTeamById = async (
-  _db: Database,
-  params: UpdateTeamParams,
-) => {
+export const updateTeamById = async (_db: Database, params: UpdateTeamParams) => {
   const { id, data } = params;
 
   return updateTeamByIdInConvexIdentity({

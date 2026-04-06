@@ -1,9 +1,5 @@
 import { escapeXml, formatDraftAmount } from "../../formatting";
-import {
-  formatIxbrlAmount,
-  formatIxbrlWholeNumber,
-  renderBulletList,
-} from "../../rendering-ixbrl";
+import { formatIxbrlAmount, formatIxbrlWholeNumber, renderBulletList } from "../../rendering-ixbrl";
 import type { AccountsAttachmentRenderData } from "../types";
 import { renderAccountsPageHeader } from "./common";
 
@@ -113,10 +109,7 @@ export function renderNotesPage(data: AccountsAttachmentRenderData) {
                   ? `<tr>
                 <td>Nominal value per ordinary share</td>
                 <td class="amount">${escapeXml(
-                  formatDraftAmount(
-                    draft.ordinaryShareNominalValue,
-                    draft.currency,
-                  ),
+                  formatDraftAmount(draft.ordinaryShareNominalValue, draft.currency),
                 )}</td>
               </tr>`
                   : ""

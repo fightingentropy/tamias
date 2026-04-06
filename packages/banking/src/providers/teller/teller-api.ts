@@ -1,9 +1,6 @@
 import { bankingCache, CacheTTL } from "@tamias/cache/banking-cache";
 import { getBankingRuntime } from "../../runtime";
-import type {
-  GetConnectionStatusRequest,
-  GetConnectionStatusResponse,
-} from "../../types";
+import type { GetConnectionStatusRequest, GetConnectionStatusResponse } from "../../types";
 import { ProviderError } from "../../utils/error";
 import { logger } from "../../utils/logger";
 import { withRateLimitRetry } from "../../utils/retry";
@@ -33,13 +30,8 @@ export class TellerApi {
     }
   }
 
-  async getAccounts({
-    accessToken,
-  }: AuthenticatedRequest): Promise<GetAccountsResponse> {
-    const accounts: GetAccountsResponse = await this.#get(
-      "/accounts",
-      accessToken,
-    );
+  async getAccounts({ accessToken }: AuthenticatedRequest): Promise<GetAccountsResponse> {
+    const accounts: GetAccountsResponse = await this.#get("/accounts", accessToken);
 
     return Promise.all(
       accounts?.map(async (account) => {
@@ -104,10 +96,8 @@ export class TellerApi {
   }
 
   async getInstitutions(): Promise<GetInstitutionsResponse> {
-    return bankingCache.getOrSet(
-      "teller_institutions",
-      CacheTTL.TWENTY_FOUR_HOURS,
-      () => this.#get<GetInstitutionsResponse>("/institutions"),
+    return bankingCache.getOrSet("teller_institutions", CacheTTL.TWENTY_FOUR_HOURS, () =>
+      this.#get<GetInstitutionsResponse>("/institutions"),
     );
   }
 
@@ -135,10 +125,7 @@ export class TellerApi {
     accessToken,
   }: GetConnectionStatusRequest): Promise<GetConnectionStatusResponse> {
     try {
-      const accounts = await this.#get<{ id: string }[]>(
-        "/accounts",
-        accessToken,
-      );
+      const accounts = await this.#get<{ id: string }[]>("/accounts", accessToken);
 
       if (!Array.isArray(accounts) || accounts.length === 0) {
         return { status: "disconnected" };
@@ -146,13 +133,9 @@ export class TellerApi {
 
       // Teller returns accounts even for inactive enrollments, so probe
       // a single account's transactions to verify the enrollment is healthy.
-      await this.#get(
-        `/accounts/${accounts[0]!.id}/transactions`,
-        accessToken,
-        {
-          count: 1,
-        },
-      );
+      await this.#get(`/accounts/${accounts[0]!.id}/transactions`, accessToken, {
+        count: 1,
+      });
 
       return { status: "connected" };
     } catch (error) {
@@ -168,9 +151,7 @@ export class TellerApi {
     }
   }
 
-  async deleteAccounts({
-    accessToken,
-  }: DisconnectAccountRequest): Promise<void> {
+  async deleteAccounts({ accessToken }: DisconnectAccountRequest): Promise<void> {
     await this.#fetch(`${this.#baseUrl}/accounts`, {
       method: "delete",
       headers: {

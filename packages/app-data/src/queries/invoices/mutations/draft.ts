@@ -3,26 +3,15 @@ import type { EditorDoc, LineItem } from "@tamias/invoice/types";
 import type { DatabaseOrTransaction } from "../../../client";
 import type { Template } from "../../invoice-projections";
 import { getInvoiceById } from "../reads";
-import {
-  type DraftInvoiceParams,
-  hasOwnKey,
-  upsertProjectedInvoiceRecord,
-} from "../shared";
+import { type DraftInvoiceParams, hasOwnKey, upsertProjectedInvoiceRecord } from "../shared";
 
-export async function draftInvoice(
-  db: DatabaseOrTransaction,
-  params: DraftInvoiceParams,
-) {
+export async function draftInvoice(db: DatabaseOrTransaction, params: DraftInvoiceParams) {
   const { id, teamId, userId, token, template } = params;
 
   const useToken = token ?? (await generateToken(id));
   const existing = await getInvoiceById(db, { id, teamId });
   const timestamp = new Date().toISOString();
-  const {
-    paymentDetails: _ignoredPayment,
-    fromDetails: _ignoredFrom,
-    ...restTemplate
-  } = template;
+  const { paymentDetails: _ignoredPayment, fromDetails: _ignoredFrom, ...restTemplate } = template;
   const nextCustomerId = hasOwnKey(params, "customerId")
     ? (params.customerId ?? null)
     : (existing?.customerId ?? null);
@@ -32,8 +21,7 @@ export async function draftInvoice(
       ? null
       : (existing?.customerName ?? null);
   const status =
-    existing?.status === "overdue" &&
-    new Date(params.dueDate).getTime() >= Date.now()
+    existing?.status === "overdue" && new Date(params.dueDate).getTime() >= Date.now()
       ? "unpaid"
       : (existing?.status ?? "draft");
 
@@ -44,9 +32,7 @@ export async function draftInvoice(
       dueDate: params.dueDate,
       invoiceNumber: params.invoiceNumber,
       createdAt: existing?.createdAt ?? timestamp,
-      amount: hasOwnKey(params, "amount")
-        ? (params.amount ?? null)
-        : (existing?.amount ?? null),
+      amount: hasOwnKey(params, "amount") ? (params.amount ?? null) : (existing?.amount ?? null),
       currency: template.currency?.toUpperCase() ?? existing?.currency ?? null,
       lineItems: hasOwnKey(params, "lineItems")
         ? ((params.lineItems ?? []) as LineItem[])
@@ -62,12 +48,8 @@ export async function draftInvoice(
       note: existing?.note ?? null,
       internalNote: existing?.internalNote ?? null,
       paidAt: existing?.paidAt ?? null,
-      vat: hasOwnKey(params, "vat")
-        ? (params.vat ?? null)
-        : (existing?.vat ?? null),
-      tax: hasOwnKey(params, "tax")
-        ? (params.tax ?? null)
-        : (existing?.tax ?? null),
+      vat: hasOwnKey(params, "vat") ? (params.vat ?? null) : (existing?.vat ?? null),
+      tax: hasOwnKey(params, "tax") ? (params.tax ?? null) : (existing?.tax ?? null),
       filePath: existing?.filePath ?? null,
       status,
       fileSize: existing?.fileSize ?? null,

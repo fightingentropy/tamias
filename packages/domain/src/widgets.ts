@@ -42,48 +42,31 @@ export function isWidgetType(value: string): value is WidgetType {
 }
 
 export function validateWidgetPreferences(preferences: WidgetPreferences): void {
-  const allWidgets = [
-    ...preferences.primaryWidgets,
-    ...preferences.availableWidgets,
-  ];
+  const allWidgets = [...preferences.primaryWidgets, ...preferences.availableWidgets];
 
   if (allWidgets.length !== DEFAULT_WIDGET_ORDER.length) {
     throw new Error("Invalid widget preferences: incorrect number of widgets");
   }
 
-  const missingWidgets = DEFAULT_WIDGET_ORDER.filter(
-    (widget) => !allWidgets.includes(widget),
-  );
-  const extraWidgets = allWidgets.filter(
-    (widget) => !DEFAULT_WIDGET_ORDER.includes(widget),
-  );
+  const missingWidgets = DEFAULT_WIDGET_ORDER.filter((widget) => !allWidgets.includes(widget));
+  const extraWidgets = allWidgets.filter((widget) => !DEFAULT_WIDGET_ORDER.includes(widget));
 
   if (missingWidgets.length > 0) {
-    throw new Error(
-      `Invalid widget preferences: missing widgets ${missingWidgets.join(", ")}`,
-    );
+    throw new Error(`Invalid widget preferences: missing widgets ${missingWidgets.join(", ")}`);
   }
 
   if (extraWidgets.length > 0) {
-    throw new Error(
-      `Invalid widget preferences: unknown widgets ${extraWidgets.join(", ")}`,
-    );
+    throw new Error(`Invalid widget preferences: unknown widgets ${extraWidgets.join(", ")}`);
   }
 
   if (preferences.primaryWidgets.length > 7) {
-    throw new Error(
-      "Invalid widget preferences: primary widgets cannot exceed 7",
-    );
+    throw new Error("Invalid widget preferences: primary widgets cannot exceed 7");
   }
 
-  const duplicates = allWidgets.filter(
-    (widget, index) => allWidgets.indexOf(widget) !== index,
-  );
+  const duplicates = allWidgets.filter((widget, index) => allWidgets.indexOf(widget) !== index);
 
   if (duplicates.length > 0) {
-    throw new Error(
-      `Invalid widget preferences: duplicate widgets ${duplicates.join(", ")}`,
-    );
+    throw new Error(`Invalid widget preferences: duplicate widgets ${duplicates.join(", ")}`);
   }
 }
 
@@ -109,12 +92,8 @@ export function normalizeWidgetPreferences(preferences: {
     return true;
   }) as WidgetType[];
   const allWidgets = [...primaryWidgets, ...availableWidgets];
-  const missingWidgets = DEFAULT_WIDGET_ORDER.filter(
-    (widget) => !allWidgets.includes(widget),
-  );
-  const extraWidgets = allWidgets.filter(
-    (widget) => !DEFAULT_WIDGET_ORDER.includes(widget),
-  );
+  const missingWidgets = DEFAULT_WIDGET_ORDER.filter((widget) => !allWidgets.includes(widget));
+  const extraWidgets = allWidgets.filter((widget) => !DEFAULT_WIDGET_ORDER.includes(widget));
 
   if (missingWidgets.length === 0 && extraWidgets.length === 0) {
     return {
@@ -124,9 +103,7 @@ export function normalizeWidgetPreferences(preferences: {
   }
 
   return {
-    primaryWidgets: primaryWidgets.filter(
-      (widget) => !extraWidgets.includes(widget),
-    ),
+    primaryWidgets: primaryWidgets.filter((widget) => !extraWidgets.includes(widget)),
     availableWidgets: [
       ...availableWidgets.filter((widget) => !extraWidgets.includes(widget)),
       ...missingWidgets,
@@ -143,8 +120,6 @@ export function buildWidgetPreferencesFromPrimaryWidgets(
 
   return {
     primaryWidgets,
-    availableWidgets: DEFAULT_WIDGET_ORDER.filter(
-      (widget) => !primaryWidgets.includes(widget),
-    ),
+    availableWidgets: DEFAULT_WIDGET_ORDER.filter((widget) => !primaryWidgets.includes(widget)),
   };
 }

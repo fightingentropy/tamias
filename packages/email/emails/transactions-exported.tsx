@@ -1,11 +1,4 @@
-import {
-  Body,
-  Container,
-  Heading,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
+import { Body, Container, Heading, Preview, Section, Text } from "@react-email/components";
 import { getAppUrl } from "@tamias/utils/envs";
 import { Logo } from "../components/logo";
 import {
@@ -34,10 +27,7 @@ export const TransactionsExportedEmail = ({
 
   return (
     <EmailThemeProvider preview={<Preview>{preview}</Preview>}>
-      <Body
-        className={`my-auto mx-auto font-sans ${themeClasses.body}`}
-        style={lightStyles.body}
-      >
+      <Body className={`my-auto mx-auto font-sans ${themeClasses.body}`} style={lightStyles.body}>
         <Container
           className={`my-[40px] mx-auto p-[20px] max-w-[600px] ${themeClasses.container}`}
           style={{
@@ -56,13 +46,9 @@ export const TransactionsExportedEmail = ({
 
           <br />
 
-          <Text
-            className={themeClasses.text}
-            style={{ color: lightStyles.text.color }}
-          >
-            {teamName} has shared an export with you containing{" "}
-            {transactionCount} transaction{transactionCount !== 1 ? "s" : ""}.
-            Click the button below to download the file.
+          <Text className={themeClasses.text} style={{ color: lightStyles.text.color }}>
+            {teamName} has shared an export with you containing {transactionCount} transaction
+            {transactionCount !== 1 ? "s" : ""}. Click the button below to download the file.
           </Text>
 
           <Section className="text-center mt-[50px] mb-[50px]">
@@ -73,8 +59,8 @@ export const TransactionsExportedEmail = ({
             className={`text-[12px] ${themeClasses.text}`}
             style={{ color: lightStyles.text.color }}
           >
-            This link will expire in 7 days. If you have any questions about
-            this export, please contact {teamName}.
+            This link will expire in 7 days. If you have any questions about this export, please
+            contact {teamName}.
           </Text>
 
           <br />

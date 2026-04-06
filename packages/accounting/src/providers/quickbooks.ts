@@ -69,8 +69,7 @@ export class QuickBooksProvider extends BaseAccountingProvider {
 
     // Determine environment from redirect URI or default to production
     this.environment =
-      config.redirectUri.includes("localhost") ||
-      config.redirectUri.includes("sandbox")
+      config.redirectUri.includes("localhost") || config.redirectUri.includes("sandbox")
         ? "sandbox"
         : "production";
 
@@ -151,9 +150,7 @@ export class QuickBooksProvider extends BaseAccountingProvider {
       // QuickBooks Fault structure
       const fault = err.Fault as Record<string, unknown> | undefined;
       if (fault?.Error && Array.isArray(fault.Error)) {
-        const firstError = fault.Error[0] as
-          | Record<string, unknown>
-          | undefined;
+        const firstError = fault.Error[0] as Record<string, unknown> | undefined;
         if (firstError) {
           const detail = firstError.Detail ? ` - ${firstError.Detail}` : "";
           return `${firstError.Message || "QuickBooks error"}${detail}`;
@@ -204,8 +201,7 @@ export class QuickBooksProvider extends BaseAccountingProvider {
         return {
           type: "auth_expired",
           code: ACCOUNTING_ERROR_CODES.AUTH_EXPIRED,
-          message:
-            "Authentication failed. Please reconnect your QuickBooks account.",
+          message: "Authentication failed. Please reconnect your QuickBooks account.",
           providerCode: "401",
           retryable: false,
         };
@@ -441,9 +437,7 @@ export class QuickBooksProvider extends BaseAccountingProvider {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(
-        `QuickBooks upload failed (${response.status}): ${errorText}`,
-      );
+      throw new Error(`QuickBooks upload failed (${response.status}): ${errorText}`);
     }
 
     const result = (await response.json()) as {
@@ -463,8 +457,7 @@ export class QuickBooksProvider extends BaseAccountingProvider {
     // Check for top-level fault
     if (result.Fault?.Error?.length) {
       const firstError = result.Fault.Error[0];
-      const errorMsg =
-        firstError?.Detail || firstError?.Message || "Unknown upload error";
+      const errorMsg = firstError?.Detail || firstError?.Message || "Unknown upload error";
       throw new Error(`QuickBooks upload error: ${errorMsg}`);
     }
 
@@ -472,8 +465,7 @@ export class QuickBooksProvider extends BaseAccountingProvider {
     const attachableResponse = result.AttachableResponse?.[0];
     if (attachableResponse?.Fault?.Error?.length) {
       const firstError = attachableResponse.Fault.Error[0];
-      const errorMsg =
-        firstError?.Detail || firstError?.Message || "Unknown upload error";
+      const errorMsg = firstError?.Detail || firstError?.Message || "Unknown upload error";
       throw new Error(`QuickBooks upload error: ${errorMsg}`);
     }
 
@@ -533,9 +525,7 @@ export class QuickBooksProvider extends BaseAccountingProvider {
     const token = authResponse.getToken();
 
     if (!token.access_token || !token.refresh_token) {
-      throw new Error(
-        "Invalid token response from QuickBooks. Missing required token fields.",
-      );
+      throw new Error("Invalid token response from QuickBooks. Missing required token fields.");
     }
 
     // Calculate expiration time
@@ -846,12 +836,7 @@ export class QuickBooksProvider extends BaseAccountingProvider {
    * Always creates new transactions - user can re-export to create updated versions
    */
   async syncTransactions(params: SyncTransactionsParams): Promise<SyncResult> {
-    const {
-      transactions,
-      targetAccountId,
-      tenantId: _tenantId,
-      jobId,
-    } = params;
+    const { transactions, targetAccountId, tenantId: _tenantId, jobId } = params;
 
     // Sort by date ascending for consistent ordering
     // This ensures transactions appear in chronological order in QuickBooks
@@ -866,12 +851,11 @@ export class QuickBooksProvider extends BaseAccountingProvider {
     });
 
     // Get or create default accounts for categorization
-    const [defaultExpenseAccount, defaultIncomeAccount, expenseAccounts] =
-      await Promise.all([
-        this.getOrCreateDefaultExpenseAccount(),
-        this.getOrCreateDefaultIncomeAccount(),
-        this.getExpenseAccounts(),
-      ]);
+    const [defaultExpenseAccount, defaultIncomeAccount, expenseAccounts] = await Promise.all([
+      this.getOrCreateDefaultExpenseAccount(),
+      this.getOrCreateDefaultIncomeAccount(),
+      this.getExpenseAccounts(),
+    ]);
 
     // Build a map of expense account names to IDs for category matching
     const expenseAccountNameToId = new Map<string, string>();
@@ -892,17 +876,12 @@ export class QuickBooksProvider extends BaseAccountingProvider {
         const idempotencyKey = generateTransactionIdempotencyKey(tx.id, jobId);
 
         // Use the same description as shown in Tamias
-        const description =
-          tx.description || tx.counterpartyName || "Transaction";
+        const description = tx.description || tx.counterpartyName || "Transaction";
 
         // Resolve expense account: try to match by category name, fall back to default
-        const categoryName = this.getValidAccountName(
-          tx.categoryReportingCode,
-          tx.id,
-        );
+        const categoryName = this.getValidAccountName(tx.categoryReportingCode, tx.id);
         const expenseAccountId =
-          expenseAccountNameToId.get(categoryName.toLowerCase()) ||
-          defaultExpenseAccount.id;
+          expenseAccountNameToId.get(categoryName.toLowerCase()) || defaultExpenseAccount.id;
 
         if (tx.amount < 0) {
           // Expense transaction - create a Purchase
@@ -1030,16 +1009,8 @@ export class QuickBooksProvider extends BaseAccountingProvider {
    * Upload attachment to a QuickBooks transaction
    * Supports both Purchase (expenses) and Deposit (income) transactions
    */
-  async uploadAttachment(
-    params: UploadAttachmentParams,
-  ): Promise<AttachmentResult> {
-    const {
-      transactionId,
-      fileName,
-      mimeType,
-      content,
-      entityType: providedEntityType,
-    } = params;
+  async uploadAttachment(params: UploadAttachmentParams): Promise<AttachmentResult> {
+    const { transactionId, fileName, mimeType, content, entityType: providedEntityType } = params;
 
     // Ensure filename has proper extension based on mimeType
     const sanitizedFileName = ensureFileExtension(fileName, mimeType);
@@ -1056,10 +1027,7 @@ export class QuickBooksProvider extends BaseAccountingProvider {
 
       // Use provided entity type if available, otherwise look it up
       let entityType: "Purchase" | "Deposit" | null = null;
-      if (
-        providedEntityType === "Purchase" ||
-        providedEntityType === "Deposit"
-      ) {
+      if (providedEntityType === "Purchase" || providedEntityType === "Deposit") {
         entityType = providedEntityType;
       } else {
         entityType = await this.getEntityTypeForTransaction(transactionId);
@@ -1078,14 +1046,7 @@ export class QuickBooksProvider extends BaseAccountingProvider {
 
       // Upload the file using multipart form
       const result = await this.withRetry(
-        () =>
-          this.uploadFile(
-            entityType,
-            transactionId,
-            sanitizedFileName,
-            mimeType,
-            buffer,
-          ),
+        () => this.uploadFile(entityType, transactionId, sanitizedFileName, mimeType, buffer),
         `Failed to upload attachment "${sanitizedFileName}"`,
       );
 
@@ -1130,9 +1091,7 @@ export class QuickBooksProvider extends BaseAccountingProvider {
    * QuickBooks supports deleting attachables via the API.
    * DELETE /v3/company/{realmId}/attachable?operation=delete
    */
-  async deleteAttachment(
-    params: DeleteAttachmentParams,
-  ): Promise<DeleteAttachmentResult> {
+  async deleteAttachment(params: DeleteAttachmentParams): Promise<DeleteAttachmentResult> {
     const { transactionId, attachmentId } = params;
 
     logger.info("Deleting QuickBooks attachment", {
@@ -1145,18 +1104,13 @@ export class QuickBooksProvider extends BaseAccountingProvider {
       // First, get the attachable to retrieve SyncToken
       const getResponse = await this.withRetry(
         () =>
-          this.apiCall<{ Attachable: { SyncToken: string } }>(
-            "GET",
-            `/attachable/${attachmentId}`,
-          ),
+          this.apiCall<{ Attachable: { SyncToken: string } }>("GET", `/attachable/${attachmentId}`),
         "getAttachableForDelete",
       );
 
       const syncToken = getResponse?.Attachable?.SyncToken;
       if (!syncToken) {
-        throw new Error(
-          `Attachable ${attachmentId} not found or missing SyncToken`,
-        );
+        throw new Error(`Attachable ${attachmentId} not found or missing SyncToken`);
       }
 
       // Delete the attachable
@@ -1193,9 +1147,7 @@ export class QuickBooksProvider extends BaseAccountingProvider {
   /**
    * Get company/organization information
    */
-  async getTenantInfo(
-    tenantId: string,
-  ): Promise<{ id: string; name: string; currency?: string }> {
+  async getTenantInfo(tenantId: string): Promise<{ id: string; name: string; currency?: string }> {
     return this.withRetry(async () => {
       const response = await this.apiCall<{
         CompanyInfo: {
@@ -1222,9 +1174,7 @@ export class QuickBooksProvider extends BaseAccountingProvider {
   /**
    * Get tenants (companies) - QuickBooks only has one company per connection
    */
-  async getTenants(): Promise<
-    Array<{ tenantId: string; tenantName: string; tenantType: string }>
-  > {
+  async getTenants(): Promise<Array<{ tenantId: string; tenantName: string; tenantType: string }>> {
     const qbConfig = this.getQBConfig();
     const info = await this.getTenantInfo(qbConfig.realmId);
 

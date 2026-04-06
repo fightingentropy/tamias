@@ -10,11 +10,7 @@ interface UseTableScrollOptions {
 }
 
 export function useTableScroll(options: UseTableScrollOptions = {}) {
-  const {
-    scrollAmount = 120,
-    useColumnWidths = false,
-    startFromColumn = 0,
-  } = options;
+  const { scrollAmount = 120, useColumnWidths = false, startFromColumn = 0 } = options;
   const containerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -47,8 +43,7 @@ export function useTableScroll(options: UseTableScrollOptions = {}) {
 
   const syncColumnIndex = useCallback(() => {
     const container = containerRef.current;
-    if (!container || !useColumnWidths || isScrollingProgrammatically.current)
-      return;
+    if (!container || !useColumnWidths || isScrollingProgrammatically.current) return;
 
     const allColumnPositions = getColumnPositions();
     if (allColumnPositions.length === 0) return;
@@ -108,8 +103,7 @@ export function useTableScroll(options: UseTableScrollOptions = {}) {
       const maxColumnIndex = allColumnPositions.length - 1;
 
       const newCanScrollLeft =
-        currentColumnIndex.current > startFromColumn ||
-        container.scrollLeft > 10;
+        currentColumnIndex.current > startFromColumn || container.scrollLeft > 10;
       const newCanScrollRight = currentColumnIndex.current < maxColumnIndex;
 
       setIsScrollable(isScrollableTable);
@@ -132,17 +126,11 @@ export function useTableScroll(options: UseTableScrollOptions = {}) {
         const allColumnPositions = getColumnPositions();
         if (allColumnPositions.length === 0) return;
 
-        if (
-          currentColumnIndex.current <= startFromColumn &&
-          container.scrollLeft <= 0
-        ) {
+        if (currentColumnIndex.current <= startFromColumn && container.scrollLeft <= 0) {
           return;
         }
 
-        if (
-          currentColumnIndex.current <= startFromColumn &&
-          container.scrollLeft > 0
-        ) {
+        if (currentColumnIndex.current <= startFromColumn && container.scrollLeft > 0) {
           isScrollingProgrammatically.current = true;
           container.scrollTo({
             left: 0,
@@ -168,8 +156,7 @@ export function useTableScroll(options: UseTableScrollOptions = {}) {
         if (Math.abs(currentScrollLeft - maxScrollLeft) < 10) {
           const lastColumnStart = allColumnPositions[originalColumnIndex] ?? 0;
           const lastColumnEnd =
-            allColumnPositions[originalColumnIndex + 1] ??
-            lastColumnStart + 150;
+            allColumnPositions[originalColumnIndex + 1] ?? lastColumnStart + 150;
           const lastColumnWidth = lastColumnEnd - lastColumnStart;
 
           targetScrollLeft = Math.max(0, currentScrollLeft - lastColumnWidth);

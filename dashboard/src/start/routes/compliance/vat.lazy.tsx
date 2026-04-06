@@ -8,15 +8,10 @@ export const Route = createLazyFileRoute("/compliance/vat")({
 });
 
 function ComplianceVatPage() {
-  const loaderData = Route.useLoaderData() as Awaited<
-    ReturnType<typeof loadComplianceVatData>
-  >;
+  const loaderData = Route.useLoaderData() as Awaited<ReturnType<typeof loadComplianceVatData>>;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <VatDashboard />
     </AppLayoutShell>
   );

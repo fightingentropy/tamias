@@ -1,10 +1,5 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
-import {
-  createTag,
-  deleteTag,
-  getTagById,
-  updateTag,
-} from "@tamias/app-data/queries";
+import { createTag, deleteTag, getTagById, updateTag } from "@tamias/app-data/queries";
 import { getTags } from "@tamias/app-data/queries/tags";
 import {
   createTagSchema,

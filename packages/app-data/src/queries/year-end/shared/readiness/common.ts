@@ -54,19 +54,14 @@ export function groupCorporationTaxAdjustments(
     depreciationAmortisation: roundCurrency(totals.depreciationAmortisation),
     charitableDonations: roundCurrency(Math.abs(totals.charitableDonations)),
     capitalAllowances: roundCurrency(Math.abs(totals.capitalAllowances)),
-    capitalAllowancesBalancingCharges: roundCurrency(
-      totals.capitalAllowancesBalancingCharges,
-    ),
+    capitalAllowancesBalancingCharges: roundCurrency(totals.capitalAllowancesBalancingCharges),
     lossesBroughtForward: roundCurrency(Math.abs(totals.lossesBroughtForward)),
     groupRelief: roundCurrency(Math.abs(totals.groupRelief)),
     other: roundCurrency(totals.other),
   };
 }
 
-export function createFilingReadiness(
-  blockers: string[],
-  warnings: string[],
-): FilingReadiness {
+export function createFilingReadiness(blockers: string[], warnings: string[]): FilingReadiness {
   return {
     supportedPath: SUPPORTED_SMALL_COMPANY_FILING_PATH,
     isReady: blockers.length === 0,

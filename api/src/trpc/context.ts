@@ -45,8 +45,7 @@ function getHeader(headers: HeaderSource, name: string) {
 
 function getRequestTrace(headers: HeaderSource) {
   const cfRay = getHeader(headers, "cf-ray") ?? undefined;
-  const requestId =
-    getHeader(headers, "x-request-id") ?? cfRay ?? crypto.randomUUID();
+  const requestId = getHeader(headers, "x-request-id") ?? cfRay ?? crypto.randomUUID();
 
   return { requestId, cfRay };
 }
@@ -61,14 +60,8 @@ function getGeoContext(headers: HeaderSource): GeoContext {
     region: getHeader(headers, "cf-region") ?? null,
     continent: getHeader(headers, "cf-ipcontinent") ?? null,
     locale: getHeader(headers, "x-user-locale") ?? null,
-    timezone:
-      getHeader(headers, "x-user-timezone") ??
-      getHeader(headers, "cf-timezone") ??
-      null,
-    ip:
-      getHeader(headers, "cf-connecting-ip") ??
-      getHeader(headers, "x-forwarded-for") ??
-      null,
+    timezone: getHeader(headers, "x-user-timezone") ?? getHeader(headers, "cf-timezone") ?? null,
+    ip: getHeader(headers, "cf-connecting-ip") ?? getHeader(headers, "x-forwarded-for") ?? null,
   };
 }
 

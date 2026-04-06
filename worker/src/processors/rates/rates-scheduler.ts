@@ -17,9 +17,7 @@ export class RatesSchedulerProcessor extends BaseProcessor<RatesSchedulerPayload
   }> {
     // Only run in production
     if (!isProduction()) {
-      this.logger.info(
-        "Skipping rates scheduler in non-production environment",
-      );
+      this.logger.info("Skipping rates scheduler in non-production environment");
       return { totalProcessed: 0, batchesProcessed: 0 };
     }
 

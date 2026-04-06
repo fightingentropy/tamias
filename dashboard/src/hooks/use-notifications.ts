@@ -80,18 +80,17 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
   });
 
   // Separate query for archived notifications
-  const { data: archivedActivitiesData, isLoading: archivedIsLoading } =
-    useQuery({
-      ...trpc.notifications.list.queryOptions({
-        maxPriority: 3,
-        pageSize: 20,
-        status: "archived", // Only archived notifications
-      }),
-      enabled: isOpen,
-      staleTime: 60_000,
-      refetchInterval: isOpen && isPageVisible ? 30_000 : false,
-      refetchOnWindowFocus: true,
-    });
+  const { data: archivedActivitiesData, isLoading: archivedIsLoading } = useQuery({
+    ...trpc.notifications.list.queryOptions({
+      maxPriority: 3,
+      pageSize: 20,
+      status: "archived", // Only archived notifications
+    }),
+    enabled: isOpen,
+    staleTime: 60_000,
+    refetchInterval: isOpen && isPageVisible ? 30_000 : false,
+    refetchOnWindowFocus: true,
+  });
 
   // Mutations
   const updateStatusMutation = useMutation(
@@ -116,10 +115,8 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
         });
 
         // Snapshot both query states
-        const previousInboxData =
-          queryClient.getQueryData<NotificationsList>(inboxQueryKey);
-        const previousArchivedData =
-          queryClient.getQueryData<NotificationsList>(archivedQueryKey);
+        const previousInboxData = queryClient.getQueryData<NotificationsList>(inboxQueryKey);
+        const previousArchivedData = queryClient.getQueryData<NotificationsList>(archivedQueryKey);
 
         if (variables.status === "archived") {
           // Moving from inbox to archived
@@ -142,21 +139,18 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
 
           // Add to archived (if we found the notification)
           if (notificationToMove) {
-            queryClient.setQueryData<NotificationsList>(
-              archivedQueryKey,
-              (old) => {
-                if (!old?.data)
-                  return {
-                    data: [notificationToMove!],
-                    meta: old?.meta || {
-                      cursor: null,
-                      hasPreviousPage: false,
-                      hasNextPage: false,
-                    },
-                  };
-                return { ...old, data: [notificationToMove!, ...old.data] };
-              },
-            );
+            queryClient.setQueryData<NotificationsList>(archivedQueryKey, (old) => {
+              if (!old?.data)
+                return {
+                  data: [notificationToMove!],
+                  meta: old?.meta || {
+                    cursor: null,
+                    hasPreviousPage: false,
+                    hasNextPage: false,
+                  },
+                };
+              return { ...old, data: [notificationToMove!, ...old.data] };
+            });
           }
         } else {
           // For other status changes (like unread -> read), just update the inbox
@@ -185,16 +179,10 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
       onError: (_, __, context) => {
         // Rollback both queries if mutation fails
         if (context?.previousInboxData) {
-          queryClient.setQueryData(
-            context.inboxQueryKey,
-            context.previousInboxData,
-          );
+          queryClient.setQueryData(context.inboxQueryKey, context.previousInboxData);
         }
         if (context?.previousArchivedData) {
-          queryClient.setQueryData(
-            context.archivedQueryKey,
-            context.previousArchivedData,
-          );
+          queryClient.setQueryData(context.archivedQueryKey, context.previousArchivedData);
         }
       },
     }),
@@ -222,10 +210,8 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
         });
 
         // Snapshot both query states
-        const previousInboxData =
-          queryClient.getQueryData<NotificationsList>(inboxQueryKey);
-        const previousArchivedData =
-          queryClient.getQueryData<NotificationsList>(archivedQueryKey);
+        const previousInboxData = queryClient.getQueryData<NotificationsList>(inboxQueryKey);
+        const previousArchivedData = queryClient.getQueryData<NotificationsList>(archivedQueryKey);
 
         if (variables.status === "archived") {
           // Moving all inbox notifications to archived
@@ -245,21 +231,18 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
 
           // Add all to archived
           if (notificationsToMove.length > 0) {
-            queryClient.setQueryData<NotificationsList>(
-              archivedQueryKey,
-              (old) => {
-                if (!old?.data)
-                  return {
-                    data: notificationsToMove,
-                    meta: old?.meta || {
-                      cursor: null,
-                      hasPreviousPage: false,
-                      hasNextPage: false,
-                    },
-                  };
-                return { ...old, data: [...notificationsToMove, ...old.data] };
-              },
-            );
+            queryClient.setQueryData<NotificationsList>(archivedQueryKey, (old) => {
+              if (!old?.data)
+                return {
+                  data: notificationsToMove,
+                  meta: old?.meta || {
+                    cursor: null,
+                    hasPreviousPage: false,
+                    hasNextPage: false,
+                  },
+                };
+              return { ...old, data: [...notificationsToMove, ...old.data] };
+            });
           }
         } else if (variables.status === "read") {
           // Update all unread to read in inbox (don't move between queries)
@@ -287,16 +270,10 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
       onError: (_, __, context) => {
         // Rollback both queries if mutation fails
         if (context?.previousInboxData) {
-          queryClient.setQueryData(
-            context.inboxQueryKey,
-            context.previousInboxData,
-          );
+          queryClient.setQueryData(context.inboxQueryKey, context.previousInboxData);
         }
         if (context?.previousArchivedData) {
-          queryClient.setQueryData(
-            context.archivedQueryKey,
-            context.previousArchivedData,
-          );
+          queryClient.setQueryData(context.archivedQueryKey, context.previousArchivedData);
         }
       },
     }),
@@ -332,8 +309,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
   }, [updateAllStatusMutation]);
 
   const hasUnseenNotifications = useMemo(
-    () =>
-      notifications.some((notification) => notification.status === "unread"),
+    () => notifications.some((notification) => notification.status === "unread"),
     [notifications],
   );
 

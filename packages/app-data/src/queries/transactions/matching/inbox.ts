@@ -17,10 +17,7 @@ import {
   MATCHING_EXCLUDED_TRANSACTION_STATUSES,
   shiftIsoDate,
 } from "../shared";
-import {
-  roundMatchingScore,
-  type SearchTransactionMatchResult,
-} from "./common";
+import { roundMatchingScore, type SearchTransactionMatchResult } from "./common";
 
 export async function searchTransactionMatchByInbox(
   db: Database,
@@ -77,33 +74,22 @@ export async function searchTransactionMatchByInbox(
           (Boolean(transaction.baseCurrency) &&
             (item.baseCurrency ?? "") !== "" &&
             transaction.baseCurrency === item.baseCurrency &&
-            Math.abs(
-              Math.abs(transaction.baseAmount ?? 0) - inboxBaseAmount,
-            ) < Math.max(50, inboxBaseAmount * 0.15))
+            Math.abs(Math.abs(transaction.baseAmount ?? 0) - inboxBaseAmount) <
+              Math.max(50, inboxBaseAmount * 0.15))
         );
       })
       .sort((left, right) => {
-        const leftNameScore = calculateNameScore(
-          item.displayName,
-          left.name,
-          left.merchantName,
-        );
-        const rightNameScore = calculateNameScore(
-          item.displayName,
-          right.name,
-          right.merchantName,
-        );
+        const leftNameScore = calculateNameScore(item.displayName, left.name, left.merchantName);
+        const rightNameScore = calculateNameScore(item.displayName, right.name, right.merchantName);
 
         if (rightNameScore !== leftNameScore) {
           return rightNameScore - leftNameScore;
         }
 
         const leftAmountRatio =
-          Math.abs(Math.abs(left.amount) - inboxAmount) /
-          Math.max(1, inboxAmount);
+          Math.abs(Math.abs(left.amount) - inboxAmount) / Math.max(1, inboxAmount);
         const rightAmountRatio =
-          Math.abs(Math.abs(right.amount) - inboxAmount) /
-          Math.max(1, inboxAmount);
+          Math.abs(Math.abs(right.amount) - inboxAmount) / Math.max(1, inboxAmount);
 
         if (leftAmountRatio !== rightAmountRatio) {
           return leftAmountRatio - rightAmountRatio;
@@ -131,9 +117,7 @@ export async function searchTransactionMatchByInbox(
     const { attachmentsByTransactionId } = buildTransactionAttachmentLookups(
       await getTransactionAttachmentsForTransactionIdsFromConvex({
         teamId: params.teamId,
-        transactionIds: candidateTransactions.map(
-          (transaction) => transaction.transactionId,
-        ),
+        transactionIds: candidateTransactions.map((transaction) => transaction.transactionId),
       }),
     );
 
@@ -164,18 +148,12 @@ export async function searchTransactionMatchByInbox(
           item.baseCurrency || undefined,
           transaction.baseCurrency || undefined,
         );
-        const dateScore = calculateDateScore(
-          item.date!,
-          transaction.transactionDate,
-        );
+        const dateScore = calculateDateScore(item.date!, transaction.transactionDate);
         const isExactAmount =
           item.amount !== null &&
-          Math.abs(
-            Math.abs(item.amount || 0) -
-              Math.abs(transaction.transactionAmount || 0),
-          ) < 0.01;
-        const isSameCurrency =
-          item.currency === transaction.transactionCurrency;
+          Math.abs(Math.abs(item.amount || 0) - Math.abs(transaction.transactionAmount || 0)) <
+            0.01;
+        const isSameCurrency = item.currency === transaction.transactionCurrency;
         const confidence = scoreMatch({
           nameScore,
           amountScore,
@@ -186,8 +164,7 @@ export async function searchTransactionMatchByInbox(
         });
         const transactionAttachments =
           attachmentsByTransactionId.get(transaction.transactionId) ?? [];
-        const isAlreadyMatched =
-          transaction.hasAttachment || transaction.status === "completed";
+        const isAlreadyMatched = transaction.hasAttachment || transaction.status === "completed";
 
         return {
           transaction_id: transaction.transactionId,
@@ -201,14 +178,11 @@ export async function searchTransactionMatchByInbox(
           date_score: roundMatchingScore(dateScore),
           confidence_score: roundMatchingScore(confidence),
           is_already_matched: isAlreadyMatched,
-          matched_attachment_filename:
-            transactionAttachments[0]?.name ?? undefined,
+          matched_attachment_filename: transactionAttachments[0]?.name ?? undefined,
         };
       })
       .filter((result) => result.confidence_score >= params.minConfidenceScore)
-      .filter((result) =>
-        params.includeAlreadyMatched ? true : !result.is_already_matched,
-      )
+      .filter((result) => (params.includeAlreadyMatched ? true : !result.is_already_matched))
       .sort((left, right) => {
         if (left.confidence_score !== right.confidence_score) {
           return right.confidence_score - left.confidence_score;

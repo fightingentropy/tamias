@@ -2,20 +2,8 @@
 
 import type { AIProvider } from "@tamias/domain/identity";
 import { Button } from "@tamias/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@tamias/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@tamias/ui/select";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@tamias/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@tamias/ui/select";
 import Link from "@/framework/link";
 import { useUserMutation, useUserQuery } from "@/hooks/use-user";
 
@@ -47,17 +35,14 @@ export function AssistantProviderSettings() {
   const { data: user } = useUserQuery();
   const updateUserMutation = useUserMutation();
   const selectedProvider =
-    providerOptions.find((option) => option.value === user.aiProvider) ??
-    providerOptions[0]!;
+    providerOptions.find((option) => option.value === user.aiProvider) ?? providerOptions[0]!;
 
   return (
     <div className="space-y-6">
       <Card className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <CardHeader>
           <CardTitle>Assistant Provider</CardTitle>
-          <CardDescription>
-            Choose which model provider powers new chat requests.
-          </CardDescription>
+          <CardDescription>Choose which model provider powers new chat requests.</CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-2 lg:self-center">
@@ -88,8 +73,7 @@ export function AssistantProviderSettings() {
         <CardHeader>
           <CardTitle>Automation Integrations</CardTitle>
           <CardDescription>
-            Launch the existing OpenCode and Make MCP integrations from
-            settings.
+            Launch the existing OpenCode and Make MCP integrations from settings.
           </CardDescription>
         </CardHeader>
 

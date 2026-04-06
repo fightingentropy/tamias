@@ -1,12 +1,5 @@
 import { getFiscalYearDates } from "@tamias/utils";
-import {
-  format,
-  formatISO,
-  parseISO,
-  startOfYear,
-  subMonths,
-  subYears,
-} from "date-fns";
+import { format, formatISO, parseISO, startOfYear, subMonths, subYears } from "date-fns";
 
 export type PeriodOption =
   | "3-months"
@@ -21,11 +14,7 @@ export type PeriodOption =
 /**
  * Get display label for a period option
  */
-export function getPeriodLabel(
-  period: PeriodOption,
-  from?: string,
-  to?: string,
-): string {
+export function getPeriodLabel(period: PeriodOption, from?: string, to?: string): string {
   switch (period) {
     case "3-months":
       return "3 months";
@@ -106,10 +95,7 @@ export function getPeriodDateRange(
       };
     }
     case "fiscal-year": {
-      const { from: fiscalFrom, to: fiscalTo } = getFiscalYearDates(
-        fiscalYearStartMonth,
-        now,
-      );
+      const { from: fiscalFrom, to: fiscalTo } = getFiscalYearDates(fiscalYearStartMonth, now);
       return {
         from: formatISO(fiscalFrom, { representation: "date" }),
         to: formatISO(fiscalTo, { representation: "date" }),

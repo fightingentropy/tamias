@@ -71,22 +71,14 @@ function StreamingText({
   );
 }
 
-function formatMetricValue(
-  value: number,
-  type: string,
-  currency: string,
-): string {
+function formatMetricValue(value: number, type: string, currency: string): string {
   if (type.includes("margin") || type.includes("rate")) {
     return `${value.toFixed(1)}%`;
   }
   if (type === "runway_months") {
     return `${value.toFixed(1)} months`;
   }
-  if (
-    type.includes("hours") ||
-    type === "hours_tracked" ||
-    type === "unbilled_hours"
-  ) {
+  if (type.includes("hours") || type === "hours_tracked" || type === "unbilled_hours") {
     return `${value.toFixed(1)}h`;
   }
   if (
@@ -112,11 +104,7 @@ function formatChange(
   }
 
   // Current value is zero (went to zero from something)
-  if (
-    currentValue === 0 &&
-    previousValue !== undefined &&
-    previousValue !== 0
-  ) {
+  if (currentValue === 0 && previousValue !== undefined && previousValue !== 0) {
     return "no activity";
   }
 
@@ -129,8 +117,7 @@ function formatChange(
   const signChanged =
     previousValue !== undefined &&
     currentValue !== undefined &&
-    ((previousValue > 0 && currentValue < 0) ||
-      (previousValue < 0 && currentValue > 0));
+    ((previousValue > 0 && currentValue < 0) || (previousValue < 0 && currentValue > 0));
 
   if (signChanged && Math.abs(change) > 200) {
     return change > 0 ? "turned positive" : "turned negative";
@@ -169,8 +156,7 @@ const sectionVariants = {
 };
 
 export function InsightMessage({ insight }: InsightMessageProps) {
-  const { content, selectedMetrics, expenseAnomalies, predictions, currency } =
-    insight;
+  const { content, selectedMetrics, expenseAnomalies, predictions, currency } = insight;
 
   // Sheet hooks for opening details
   const { setParams: setInvoiceParams } = useInvoiceParams();
@@ -200,18 +186,13 @@ export function InsightMessage({ insight }: InsightMessageProps) {
 
   // Memoize callbacks
   const handleTitleComplete = useCallback(() => setTitleComplete(true), []);
-  const handleDescriptionComplete = useCallback(
-    () => setDescriptionComplete(true),
-    [],
-  );
+  const handleDescriptionComplete = useCallback(() => setDescriptionComplete(true), []);
   const handleStoryComplete = useCallback(() => setStoryComplete(true), []);
 
   // Show metrics after description completes (or title if no description)
   const hasDescription = content?.summary || insight.title;
   useEffect(() => {
-    const shouldShowMetrics = hasDescription
-      ? descriptionComplete
-      : titleComplete;
+    const shouldShowMetrics = hasDescription ? descriptionComplete : titleComplete;
     if (shouldShowMetrics && !showMetrics) {
       const timer = setTimeout(() => setShowMetrics(true), 150);
       return () => clearTimeout(timer);
@@ -270,11 +251,7 @@ export function InsightMessage({ insight }: InsightMessageProps) {
       {/* Key Metrics Grid (Highlights) */}
       <AnimatePresence>
         {showMetrics && selectedMetrics && selectedMetrics.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="space-y-2"
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-2">
             <p className="text-sm text-primary">Key Metrics</p>
             <div className="grid grid-cols-2 gap-3 pb-3">
               {selectedMetrics.slice(0, 4).map((metric, index) => {
@@ -295,19 +272,11 @@ export function InsightMessage({ insight }: InsightMessageProps) {
                     animate="visible"
                     className="border border-border bg-background p-3"
                   >
-                    <p className="text-xs text-muted-foreground mb-1">
-                      {metric.label}
-                    </p>
+                    <p className="text-xs text-muted-foreground mb-1">{metric.label}</p>
                     <p className="text-lg font-mono tabular-nums text-primary">
-                      {formatMetricValue(
-                        metric.value,
-                        metric.type,
-                        metric.currency || currency,
-                      )}
+                      {formatMetricValue(metric.value, metric.type, metric.currency || currency)}
                     </p>
-                    <p className="text-[10px] text-muted-foreground mt-1">
-                      {changeText}
-                    </p>
+                    <p className="text-[10px] text-muted-foreground mt-1">{changeText}</p>
                   </motion.div>
                 );
               })}
@@ -410,18 +379,17 @@ export function InsightMessage({ insight }: InsightMessageProps) {
               <span className="text-muted-foreground">
                 {insight.activity.invoicesOverdue} overdue invoice
                 {insight.activity.invoicesOverdue > 1 ? "s" : ""}
-                {insight.activity.overdueAmount != null &&
-                  insight.activity.overdueAmount > 0 && (
-                    <span>
-                      {" "}
-                      (
-                      {formatAmount({
-                        amount: insight.activity.overdueAmount,
-                        currency,
-                      })}
-                      )
-                    </span>
-                  )}
+                {insight.activity.overdueAmount != null && insight.activity.overdueAmount > 0 && (
+                  <span>
+                    {" "}
+                    (
+                    {formatAmount({
+                      amount: insight.activity.overdueAmount,
+                      currency,
+                    })}
+                    )
+                  </span>
+                )}
               </span>
             </motion.div>
           )}
@@ -443,11 +411,7 @@ export function InsightMessage({ insight }: InsightMessageProps) {
               <p className="text-sm text-primary">Expense alerts</p>
               <ul className="space-y-1">
                 {expenseAnomalies
-                  .filter(
-                    (ea) =>
-                      ea.type === "category_spike" ||
-                      ea.type === "new_category",
-                  )
+                  .filter((ea) => ea.type === "category_spike" || ea.type === "new_category")
                   .slice(0, 3)
                   .map((ea, i) => (
                     <motion.li
@@ -487,27 +451,25 @@ export function InsightMessage({ insight }: InsightMessageProps) {
 
       {/* Next Week Predictions */}
       <AnimatePresence>
-        {showActions &&
-          predictions?.invoicesDue &&
-          predictions.invoicesDue.count > 0 && (
-            <motion.div
-              variants={sectionVariants}
-              initial="hidden"
-              animate="visible"
-              className="space-y-2"
-            >
-              <p className="text-sm text-primary">Next week</p>
-              <p className="text-sm text-muted-foreground">
-                {predictions.invoicesDue.count} invoice
-                {predictions.invoicesDue.count > 1 ? "s" : ""} due (
-                {formatAmount({
-                  amount: predictions.invoicesDue.totalAmount,
-                  currency: predictions.invoicesDue.currency,
-                })}
-                )
-              </p>
-            </motion.div>
-          )}
+        {showActions && predictions?.invoicesDue && predictions.invoicesDue.count > 0 && (
+          <motion.div
+            variants={sectionVariants}
+            initial="hidden"
+            animate="visible"
+            className="space-y-2"
+          >
+            <p className="text-sm text-primary">Next week</p>
+            <p className="text-sm text-muted-foreground">
+              {predictions.invoicesDue.count} invoice
+              {predictions.invoicesDue.count > 1 ? "s" : ""} due (
+              {formatAmount({
+                amount: predictions.invoicesDue.totalAmount,
+                currency: predictions.invoicesDue.currency,
+              })}
+              )
+            </p>
+          </motion.div>
+        )}
       </AnimatePresence>
     </div>
   );

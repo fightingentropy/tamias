@@ -6,10 +6,9 @@ import { useFormContext } from "react-hook-form";
 import dynamic from "@/framework/dynamic";
 import { FormContext } from "@/components/invoice/form-context";
 
-const Form = dynamic(
-  () => import("@/components/invoice/form").then((mod) => mod.Form),
-  { ssr: false },
-);
+const Form = dynamic(() => import("@/components/invoice/form").then((mod) => mod.Form), {
+  ssr: false,
+});
 
 type Props = {
   data?: RouterOutputs["invoice"]["getById"];

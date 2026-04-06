@@ -1,12 +1,7 @@
 "use client";
 
 import type { RouterOutputs } from "@tamias/trpc";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@tamias/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@tamias/ui/accordion";
 import { Button } from "@tamias/ui/button";
 import { EmailTagInput } from "@tamias/ui/email-tag-input";
 import {
@@ -264,9 +259,7 @@ export function CustomerForm({ data }: Props) {
                       name="name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-xs text-[#878787] font-normal">
-                            Name
-                          </FormLabel>
+                          <FormLabel className="text-xs text-[#878787] font-normal">Name</FormLabel>
                           <FormControl>
                             <Input
                               {...field}
@@ -320,8 +313,8 @@ export function CustomerForm({ data }: Props) {
                             />
                           </FormControl>
                           <FormDescription>
-                            Additional emails to BCC when sending invoices.
-                            Press Enter or comma to add.
+                            Additional emails to BCC when sending invoices. Press Enter or comma to
+                            add.
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -557,9 +550,7 @@ export function CustomerForm({ data }: Props) {
                         onRemove={(tag) => {
                           form.setValue(
                             "tags",
-                            form
-                              .getValues("tags")
-                              ?.filter((t) => t.id !== tag.id),
+                            form.getValues("tags")?.filter((t) => t.id !== tag.id),
                             {
                               shouldDirty: true,
                               shouldValidate: true,
@@ -599,10 +590,7 @@ export function CustomerForm({ data }: Props) {
                               Tax ID / VAT Number
                             </FormLabel>
                             <FormControl>
-                              <VatNumberInput
-                                {...field}
-                                value={field.value ?? ""}
-                              />
+                              <VatNumberInput {...field} value={field.value ?? ""} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -615,9 +603,7 @@ export function CustomerForm({ data }: Props) {
                       name="note"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-xs text-[#878787] font-normal">
-                            Note
-                          </FormLabel>
+                          <FormLabel className="text-xs text-[#878787] font-normal">Note</FormLabel>
                           <FormControl>
                             <Textarea
                               {...field}
@@ -640,19 +626,13 @@ export function CustomerForm({ data }: Props) {
 
         <div className="absolute bottom-0 left-0 right-0 p-4">
           <div className="flex justify-end mt-auto space-x-4">
-            <Button
-              variant="outline"
-              onClick={() => setCustomerParams(null)}
-              type="button"
-            >
+            <Button variant="outline" onClick={() => setCustomerParams(null)} type="button">
               Cancel
             </Button>
 
             <SubmitButton
               isSubmitting={upsertCustomerMutation.isPending}
-              disabled={
-                upsertCustomerMutation.isPending || !form.formState.isDirty
-              }
+              disabled={upsertCustomerMutation.isPending || !form.formState.isDirty}
             >
               {isEdit ? "Update" : "Create"}
             </SubmitButton>

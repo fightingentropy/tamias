@@ -8,15 +8,10 @@ export const Route = createLazyFileRoute("/settings/accounts")({
 });
 
 function SettingsAccountsPage() {
-  const loaderData = Route.useLoaderData() as Awaited<
-    ReturnType<typeof loadSettingsAccountsData>
-  >;
+  const loaderData = Route.useLoaderData() as Awaited<ReturnType<typeof loadSettingsAccountsData>>;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <div className="space-y-12">
         <ConnectedAccounts />
       </div>

@@ -21,12 +21,9 @@ export const httpLogger = (): MiddlewareHandler => {
     const duration = Number(process.hrtime.bigint() - start) / 1000000; // Convert to ms
     const statusCode = context.res.status;
 
-    logger.info(
-      `${method} ${path} ${statusCode} - completed in ${duration.toFixed(2)}ms`,
-      {
-        requestId,
-        cfRay,
-      },
-    );
+    logger.info(`${method} ${path} ${statusCode} - completed in ${duration.toFixed(2)}ms`, {
+      requestId,
+      cfRay,
+    });
   };
 };

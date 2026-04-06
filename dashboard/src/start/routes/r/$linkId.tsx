@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router";
 import { createAppPublicFileRoute } from "@/start/route-hosts";
 import { createServerFn } from "@tanstack/react-start";
 import { getAppUrl } from "@tamias/utils/envs";
@@ -8,16 +8,12 @@ const appUrl = getAppUrl();
 const loadPublicReportData = createServerFn({ method: "GET" })
   .inputValidator((data: { linkId: string }) => data)
   .handler(async ({ data }) => {
-    const { buildPublicReportPageData } = await import(
-      "@/start/server/route-data/public"
-    );
+    const { buildPublicReportPageData } = await import("@/start/server/route-data/public");
 
-    return (await buildPublicReportPageData(data.linkId));
+    return await buildPublicReportPageData(data.linkId);
   });
 
-export type PublicReportLoaderData = Awaited<
-  ReturnType<typeof loadPublicReportData>
->;
+export type PublicReportLoaderData = Awaited<ReturnType<typeof loadPublicReportData>>;
 
 export const Route = createAppPublicFileRoute("/r/$linkId")({
   loader: ({ params }) =>
@@ -27,16 +23,11 @@ export const Route = createAppPublicFileRoute("/r/$linkId")({
       },
     }),
   head: ({ loaderData }) => {
-    const data = loaderData as Awaited<
-      ReturnType<typeof loadPublicReportData>
-    > | null | undefined;
+    const data = loaderData as Awaited<ReturnType<typeof loadPublicReportData>> | null | undefined;
 
     if (!data || data.status !== "ok") {
       return {
-        meta: [
-          { title: "Page not found" },
-          { name: "robots", content: "noindex,nofollow" },
-        ],
+        meta: [{ title: "Page not found" }, { name: "robots", content: "noindex,nofollow" }],
       };
     }
 

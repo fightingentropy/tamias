@@ -1,12 +1,5 @@
 import { Skeleton } from "@tamias/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@tamias/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@tamias/ui/table";
 import { Header } from "./header";
 
 export function CategoriesSkeleton() {
@@ -24,10 +17,7 @@ export function CategoriesSkeleton() {
 
         <TableBody>
           {[...Array(15)].map((_, index) => (
-            <TableRow
-              key={index.toString()}
-              className="hover:bg-transparent h-[49px]"
-            >
+            <TableRow key={index.toString()} className="hover:bg-transparent h-[49px]">
               <TableCell className="w-[50px]">
                 <Skeleton className="size-4 rounded-md" />
               </TableCell>

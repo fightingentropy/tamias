@@ -43,19 +43,14 @@ export function CashFlowCanvas() {
       };
     }) || [];
 
-  const lastMonthData =
-    cashFlowData.length > 0 ? cashFlowData[cashFlowData.length - 1] : null;
+  const lastMonthData = cashFlowData.length > 0 ? cashFlowData[cashFlowData.length - 1] : null;
 
   const cashFlowMetrics = data?.metrics
     ? [
         {
           id: "current-cash-flow",
           title: "Current Monthly Cash Flow",
-          value: formatCurrencyAmount(
-            Math.abs(lastMonthData?.netFlow ?? 0) || 0,
-            currency,
-            locale,
-          ),
+          value: formatCurrencyAmount(Math.abs(lastMonthData?.netFlow ?? 0) || 0, currency, locale),
           subtitle: lastMonthData
             ? lastMonthData.netFlow >= 0
               ? "Positive this month"
@@ -75,21 +70,13 @@ export function CashFlowCanvas() {
         {
           id: "total-income",
           title: "Total Income",
-          value: formatCurrencyAmount(
-            data.metrics.totalIncome || 0,
-            currency,
-            locale,
-          ),
+          value: formatCurrencyAmount(data.metrics.totalIncome || 0, currency, locale),
           subtitle: "All periods combined",
         },
         {
           id: "total-expenses",
           title: "Total Expenses",
-          value: formatCurrencyAmount(
-            data.metrics.totalExpenses || 0,
-            currency,
-            locale,
-          ),
+          value: formatCurrencyAmount(data.metrics.totalExpenses || 0, currency, locale),
           subtitle: "All periods combined",
         },
       ]

@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  useQueryClient,
-  useSuspenseInfiniteQuery,
-} from "@tanstack/react-query";
+import { useQueryClient, useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -27,12 +24,7 @@ export function InboxView() {
   const queryClient = useQueryClient();
   const { params, setParams } = useInboxParams();
   const { params: filter, hasFilter } = useInboxFilterParams();
-  const {
-    lastClickedIndex,
-    selectRange,
-    setLastClickedIndex,
-    toggleSelection,
-  } = useInboxStore();
+  const { lastClickedIndex, selectRange, setLastClickedIndex, toggleSelection } = useInboxStore();
   const { play: playMatchSound } = useMatchSound();
 
   const realtimeInsertIdsRef = useRef(new Set<string>());
@@ -47,9 +39,7 @@ export function InboxView() {
 
   // Capture the "just connected" state locally so it persists even after URL params are cleared
   // (AppConnectionToast clears params after 100ms, but we need this state for the 60s timeout)
-  const [wasJustConnected, setWasJustConnected] = useState(
-    () => params.connected === true,
-  );
+  const [wasJustConnected, setWasJustConnected] = useState(() => params.connected === true);
 
   // Update local state when params.connected becomes truthy
   useEffect(() => {
@@ -70,21 +60,17 @@ export function InboxView() {
     },
   );
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useSuspenseInfiniteQuery({
-      ...infiniteQueryOptions,
-      refetchInterval: (query) => {
-        const items =
-          query.state.data?.pages.flatMap((page) => page.data) ?? [];
-        const hasProcessingItems = items.some((item) =>
-          ["new", "processing", "pending", "analyzing"].includes(
-            item.status ?? "",
-          ),
-        );
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useSuspenseInfiniteQuery({
+    ...infiniteQueryOptions,
+    refetchInterval: (query) => {
+      const items = query.state.data?.pages.flatMap((page) => page.data) ?? [];
+      const hasProcessingItems = items.some((item) =>
+        ["new", "processing", "pending", "analyzing"].includes(item.status ?? ""),
+      );
 
-        return wasJustConnected || hasProcessingItems ? 5_000 : false;
-      },
-    });
+      return wasJustConnected || hasProcessingItems ? 5_000 : false;
+    },
+  });
 
   const tableData = useMemo(() => {
     return data?.pages.flatMap((page) => page.data) ?? [];
@@ -126,9 +112,7 @@ export function InboxView() {
   }, [filter.q, filter.status, filter.tab, params.order, params.sort]);
 
   useEffect(() => {
-    const currentItems = new Map(
-      tableData.map((item) => [item.id, item.status ?? null] as const),
-    );
+    const currentItems = new Map(tableData.map((item) => [item.id, item.status ?? null] as const));
 
     if (!hasInitializedSnapshotRef.current) {
       previousItemsRef.current = currentItems;
@@ -154,10 +138,7 @@ export function InboxView() {
         });
       }
 
-      if (
-        item.status === "suggested_match" &&
-        previousStatus !== "suggested_match"
-      ) {
+      if (item.status === "suggested_match" && previousStatus !== "suggested_match") {
         playMatchSound();
       }
 
@@ -194,21 +175,10 @@ export function InboxView() {
 
   useEffect(() => {
     const lastItem = virtualItems[virtualItems.length - 1];
-    if (
-      lastItem &&
-      lastItem.index >= tableData.length - 5 &&
-      hasNextPage &&
-      !isFetchingNextPage
-    ) {
+    if (lastItem && lastItem.index >= tableData.length - 5 && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [
-    virtualItems,
-    tableData.length,
-    hasNextPage,
-    isFetchingNextPage,
-    fetchNextPage,
-  ]);
+  }, [virtualItems, tableData.length, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const newItemIds = useMemo(() => {
     const newIds = new Set<string>();
@@ -230,9 +200,7 @@ export function InboxView() {
 
   useEffect(() => {
     if (tableData.length > 0) {
-      const currentInList = tableData.some(
-        (item) => item.id === params.inboxId,
-      );
+      const currentInList = tableData.some((item) => item.id === params.inboxId);
 
       // Auto-select first item if nothing selected or current selection isn't in the list
       if (!params.inboxId || !currentInList) {
@@ -261,9 +229,7 @@ export function InboxView() {
     "up",
     (event) => {
       event.preventDefault();
-      const currentIndex = tableData.findIndex(
-        (item) => item.id === params.inboxId,
-      );
+      const currentIndex = tableData.findIndex((item) => item.id === params.inboxId);
 
       if (currentIndex > 0) {
         const prevItem = tableData[currentIndex - 1];
@@ -281,9 +247,7 @@ export function InboxView() {
     "down",
     (event) => {
       event.preventDefault();
-      const currentIndex = tableData.findIndex(
-        (item) => item.id === params.inboxId,
-      );
+      const currentIndex = tableData.findIndex((item) => item.id === params.inboxId);
 
       if (currentIndex < tableData.length - 1) {
         const nextItem = tableData[currentIndex + 1];
@@ -368,8 +332,7 @@ export function InboxView() {
             {virtualItems.map((virtualRow) => {
               const item = tableData[virtualRow.index];
               if (!item) return null;
-              const shouldAnimate =
-                newItemIds.has(item.id) && !animatedIdsRef.current.has(item.id);
+              const shouldAnimate = newItemIds.has(item.id) && !animatedIdsRef.current.has(item.id);
 
               if (shouldAnimate) {
                 animatedIdsRef.current.add(item.id);
@@ -389,30 +352,19 @@ export function InboxView() {
                   }}
                 >
                   <motion.div
-                    initial={
-                      shouldAnimate
-                        ? { opacity: 0, y: -30, scale: 0.95 }
-                        : false
-                    }
+                    initial={shouldAnimate ? { opacity: 0, y: -30, scale: 0.95 } : false}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     transition={
                       shouldAnimate
                         ? {
                             duration: 0.4,
                             ease: [0.23, 1, 0.32, 1],
-                            delay:
-                              virtualRow.index < 5
-                                ? virtualRow.index * 0.05
-                                : 0,
+                            delay: virtualRow.index < 5 ? virtualRow.index * 0.05 : 0,
                           }
                         : { duration: 0 }
                     }
                   >
-                    <InboxItem
-                      item={item}
-                      index={virtualRow.index}
-                      onItemClick={handleItemClick}
-                    />
+                    <InboxItem item={item} index={virtualRow.index} onItemClick={handleItemClick} />
                   </motion.div>
                 </div>
               );

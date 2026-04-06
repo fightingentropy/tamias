@@ -11,10 +11,7 @@ type DeleteTransactionsParams = {
   ids: string[];
 };
 
-async function deleteTransactionRows(args: {
-  teamId: string;
-  transactionIds: string[];
-}) {
+async function deleteTransactionRows(args: { teamId: string; transactionIds: string[] }) {
   if (args.transactionIds.length === 0) {
     return;
   }
@@ -29,10 +26,7 @@ async function deleteTransactionRows(args: {
   });
 }
 
-export async function deleteTransactions(
-  _db: Database,
-  params: DeleteTransactionsParams,
-) {
+export async function deleteTransactions(_db: Database, params: DeleteTransactionsParams) {
   const deleted = (
     await getTransactionsByIdsFromConvex({
       teamId: params.teamId,
@@ -58,13 +52,13 @@ export async function deleteTransactionsByInternalIds(
     return [];
   }
 
-  const fullIds = new Set(
-    params.internalIds.map((id) => `${params.teamId}_${id}`),
-  );
-  const deleted = (await getTransactionsByInternalIdsFromConvex({
-    teamId: params.teamId,
-    internalIds: [...fullIds],
-  }))
+  const fullIds = new Set(params.internalIds.map((id) => `${params.teamId}_${id}`));
+  const deleted = (
+    await getTransactionsByInternalIdsFromConvex({
+      teamId: params.teamId,
+      internalIds: [...fullIds],
+    })
+  )
     .filter((transaction) => fullIds.has(transaction.internalId))
     .map((transaction) => ({ id: transaction.id }));
 

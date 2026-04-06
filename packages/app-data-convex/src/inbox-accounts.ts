@@ -70,10 +70,7 @@ export async function getInboxAccountsByIdsFromConvex(args: { ids: string[] }) {
   ) as Promise<InboxAccountListRecord[]>;
 }
 
-export async function getInboxAccountByIdFromConvex(args: {
-  id: string;
-  teamId: string;
-}) {
+export async function getInboxAccountByIdFromConvex(args: { id: string; teamId: string }) {
   return createClient().query(
     api.inboxAccounts.serviceGetInboxAccountById,
     serviceArgs({
@@ -83,10 +80,7 @@ export async function getInboxAccountByIdFromConvex(args: {
   ) as Promise<InboxAccountRecord | null>;
 }
 
-export async function deleteInboxAccountInConvex(args: {
-  id: string;
-  teamId: string;
-}) {
+export async function deleteInboxAccountInConvex(args: { id: string; teamId: string }) {
   return createClient().mutation(
     api.inboxAccounts.serviceDeleteInboxAccount,
     serviceArgs({
@@ -96,18 +90,14 @@ export async function deleteInboxAccountInConvex(args: {
   ) as Promise<{ id: string; scheduleId: string | null } | null>;
 }
 
-export async function updateInboxAccountInConvex(
-  args: UpdateInboxAccountInput,
-) {
+export async function updateInboxAccountInConvex(args: UpdateInboxAccountInput) {
   return createClient().mutation(
     api.inboxAccounts.serviceUpdateInboxAccount,
     serviceArgs(args),
   ) as Promise<{ id: string } | null>;
 }
 
-export async function upsertInboxAccountInConvex(
-  args: UpsertInboxAccountInput,
-) {
+export async function upsertInboxAccountInConvex(args: UpsertInboxAccountInput) {
   return createClient().mutation(
     api.inboxAccounts.serviceUpsertInboxAccount,
     serviceArgs({

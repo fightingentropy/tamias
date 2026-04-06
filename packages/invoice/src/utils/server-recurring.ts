@@ -1,12 +1,5 @@
 import { tz } from "@date-fns/tz";
-import {
-  addDays,
-  addMonths,
-  getDay,
-  lastDayOfMonth,
-  setDate,
-  setDay,
-} from "date-fns";
+import { addDays, addMonths, getDay, lastDayOfMonth, setDate, setDay } from "date-fns";
 import {
   type InvoiceRecurringEndType,
   type InvoiceRecurringFrequency,
@@ -75,13 +68,7 @@ export function calculateNextScheduledDate(
   params: RecurringInvoiceParams,
   currentDate: Date,
 ): Date {
-  const {
-    frequency,
-    frequencyDay,
-    frequencyWeek,
-    frequencyInterval,
-    timezone,
-  } = params;
+  const { frequency, frequencyDay, frequencyWeek, frequencyInterval, timezone } = params;
 
   const createTZDate = tz(timezone);
   const tzCurrentDate = createTZDate(currentDate);
@@ -196,9 +183,7 @@ export function calculateUpcomingDates(
   let count = 0;
   const maxIterations = endType === "never" ? limit : Math.min(limit, 100);
   const remaining =
-    endType === "after_count" && endCount !== null
-      ? endCount - alreadyGenerated
-      : null;
+    endType === "after_count" && endCount !== null ? endCount - alreadyGenerated : null;
 
   while (count < maxIterations) {
     if (endType === "on_date" && endDate && currentDate > endDate) {
@@ -256,11 +241,7 @@ export function shouldMarkCompleted(
     case "never":
       return false;
     case "on_date":
-      return (
-        endDate !== null &&
-        nextScheduledAt !== null &&
-        nextScheduledAt > endDate
-      );
+      return endDate !== null && nextScheduledAt !== null && nextScheduledAt > endDate;
     case "after_count":
       return endCount !== null && invoicesGenerated >= endCount;
     default:

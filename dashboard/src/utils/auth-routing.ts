@@ -3,14 +3,10 @@ export type AuthenticatedUserRedirectState = {
   teamId?: string | null;
 };
 
-export function hasCompletedOnboarding(
-  user: AuthenticatedUserRedirectState | null | undefined,
-) {
+export function hasCompletedOnboarding(user: AuthenticatedUserRedirectState | null | undefined) {
   return Boolean(user?.fullName && user?.teamId);
 }
 
-export function getPostAuthRedirectPath(
-  user: AuthenticatedUserRedirectState | null | undefined,
-) {
+export function getPostAuthRedirectPath(user: AuthenticatedUserRedirectState | null | undefined) {
   return hasCompletedOnboarding(user) ? "/dashboard" : "/onboarding";
 }

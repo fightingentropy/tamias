@@ -10,15 +10,10 @@ export const Route = createLazyFileRoute("/inbox/settings")({
 });
 
 function InboxSettingsPage() {
-  const loaderData = Route.useLoaderData() as Awaited<
-    ReturnType<typeof loadInboxSettingsData>
-  >;
+  const loaderData = Route.useLoaderData() as Awaited<ReturnType<typeof loadInboxSettingsData>>;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <div className="max-w-[800px]">
         <main className="mt-8">
           <div className="space-y-12">

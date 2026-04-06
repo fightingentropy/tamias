@@ -14,9 +14,7 @@ import { AccountingProcessorBase, type AccountingProviderId } from "./base";
  * Derive error code from error message for database storage
  * This allows the frontend to show appropriate error messages
  */
-function deriveErrorCodeFromMessage(
-  errorMessage: string | undefined,
-): string | undefined {
+function deriveErrorCodeFromMessage(errorMessage: string | undefined): string | undefined {
   if (!errorMessage) return undefined;
 
   const messageLower = errorMessage.toLowerCase();
@@ -79,10 +77,7 @@ const BATCH_SIZE = 50;
  * Example for Xero (60 calls/min, 2x buffer):
  * - Job 0 at 0ms, Job 1 at 2000ms, Job 2 at 4000ms, etc.
  */
-function calculateAttachmentJobDelay(
-  providerId: string,
-  jobIndex: number,
-): number {
+function calculateAttachmentJobDelay(providerId: string, jobIndex: number): number {
   const config = RATE_LIMITS[providerId as keyof typeof RATE_LIMITS];
   const callsPerMinute = config?.callsPerMinute ?? 60;
 
@@ -167,10 +162,7 @@ export class ExportTransactionsProcessor extends AccountingProcessorBase<Account
     await this.updateProgress(job, 2);
 
     // Initialize provider with valid tokens
-    const { provider, config, db } = await this.initializeProvider(
-      teamId,
-      providerId,
-    );
+    const { provider, config, db } = await this.initializeProvider(teamId, providerId);
 
     // Progress: 5% - Provider initialized
     await this.updateProgress(job, 5);
@@ -221,10 +213,7 @@ export class ExportTransactionsProcessor extends AccountingProcessorBase<Account
     }
 
     // Categorize transactions
-    const categorized = this.categorizeTransactions(
-      transactions,
-      syncRecordMap,
-    );
+    const categorized = this.categorizeTransactions(transactions, syncRecordMap);
 
     this.logger.info("Transactions categorized", {
       teamId,
@@ -254,11 +243,8 @@ export class ExportTransactionsProcessor extends AccountingProcessorBase<Account
 
     // Step 1: Export new transactions
     if (categorized.toExport.length > 0) {
-      const toExportTransactions = transactions.filter((t) =>
-        categorized.toExport.includes(t.id),
-      );
-      const mappedTransactions =
-        this.mapTransactionsToProvider(toExportTransactions);
+      const toExportTransactions = transactions.filter((t) => categorized.toExport.includes(t.id));
+      const mappedTransactions = this.mapTransactionsToProvider(toExportTransactions);
 
       for (let i = 0; i < mappedTransactions.length; i += BATCH_SIZE) {
         const batch = mappedTransactions.slice(i, i + BATCH_SIZE);
@@ -298,9 +284,7 @@ export class ExportTransactionsProcessor extends AccountingProcessorBase<Account
               // Add to errors array (dedupe by code or message)
               if (
                 !errors.some(
-                  (e) =>
-                    (errorCode && e.code === errorCode) ||
-                    e.message === errorMessage,
+                  (e) => (errorCode && e.code === errorCode) || e.message === errorMessage,
                 )
               ) {
                 errors.push({
@@ -312,20 +296,12 @@ export class ExportTransactionsProcessor extends AccountingProcessorBase<Account
 
             // Trigger attachment sync for successful transactions
             if (txResult.success && txResult.providerTransactionId) {
-              const originalTx = toExportTransactions.find(
-                (t) => t.id === txResult.transactionId,
-              );
-              const mappedTx = batch.find(
-                (t) => t.id === txResult.transactionId,
-              );
-              const attachments =
-                originalTx?.attachments?.filter((a) => a.name !== null) ?? [];
+              const originalTx = toExportTransactions.find((t) => t.id === txResult.transactionId);
+              const mappedTx = batch.find((t) => t.id === txResult.transactionId);
+              const attachments = originalTx?.attachments?.filter((a) => a.name !== null) ?? [];
 
               if (attachments.length > 0) {
-                const delay = calculateAttachmentJobDelay(
-                  providerId,
-                  attachmentJobIndex,
-                );
+                const delay = calculateAttachmentJobDelay(providerId, attachmentJobIndex);
                 await enqueue(
                   "sync-accounting-attachments",
                   {
@@ -363,10 +339,7 @@ export class ExportTransactionsProcessor extends AccountingProcessorBase<Account
                     "Failed to add history note for transaction without attachments",
                     {
                       transactionId: txResult.transactionId,
-                      error:
-                        error instanceof Error
-                          ? error.message
-                          : "Unknown error",
+                      error: error instanceof Error ? error.message : "Unknown error",
                     },
                   );
                 }
@@ -382,8 +355,7 @@ export class ExportTransactionsProcessor extends AccountingProcessorBase<Account
             failed: result.failedCount,
           });
         } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : "Unknown error";
+          const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
           this.logger.error("Export batch failed", {
             teamId,
@@ -410,11 +382,7 @@ export class ExportTransactionsProcessor extends AccountingProcessorBase<Account
           }
 
           // Add to errors array (dedupe by code)
-          if (
-            !errors.some(
-              (e) => e.code === errorCode && e.message === userMessage,
-            )
-          ) {
+          if (!errors.some((e) => e.code === errorCode && e.message === userMessage)) {
             errors.push({
               code: errorCode,
               message: userMessage,
@@ -437,8 +405,7 @@ export class ExportTransactionsProcessor extends AccountingProcessorBase<Account
         // Update progress within export range (10-70%)
         const batchProgress = (i + batch.length) / mappedTransactions.length;
         const exportProgress = Math.round(
-          exportProgressStart +
-            batchProgress * (exportProgressEnd - exportProgressStart),
+          exportProgressStart + batchProgress * (exportProgressEnd - exportProgressStart),
         );
         await this.updateProgress(job, exportProgress);
       }
@@ -449,10 +416,7 @@ export class ExportTransactionsProcessor extends AccountingProcessorBase<Account
       await this.updateProgress(job, attachmentProgressStart);
 
       for (const [i, item] of categorized.toSyncAttachments.entries()) {
-        const delay = calculateAttachmentJobDelay(
-          providerId,
-          attachmentJobIndex,
-        );
+        const delay = calculateAttachmentJobDelay(providerId, attachmentJobIndex);
         await enqueue(
           "sync-accounting-attachments",
           {
@@ -462,8 +426,7 @@ export class ExportTransactionsProcessor extends AccountingProcessorBase<Account
             providerTransactionId: item.providerTransactionId,
             attachmentIds: item.newAttachmentIds,
             removedAttachments: item.removedAttachments,
-            existingSyncedAttachmentMapping:
-              item.syncRecord.syncedAttachmentMapping,
+            existingSyncedAttachmentMapping: item.syncRecord.syncedAttachmentMapping,
             syncRecordId: item.syncRecord.id,
             providerEntityType: item.syncRecord.providerEntityType ?? undefined,
           },
@@ -541,9 +504,7 @@ export class ExportTransactionsProcessor extends AccountingProcessorBase<Account
       const syncedIds = new Set(Object.keys(syncedMapping));
 
       // Find new attachments (in current, not in synced)
-      const newAttachmentIds = [...currentAttachmentIds].filter(
-        (id) => !syncedIds.has(id),
-      );
+      const newAttachmentIds = [...currentAttachmentIds].filter((id) => !syncedIds.has(id));
 
       // Find removed attachments (in synced, not in current)
       const removedAttachments = [...syncedIds]

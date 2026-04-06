@@ -14,10 +14,7 @@ import {
   type CompaniesHouseUserProfile,
 } from "../types";
 
-export {
-  COMPANIES_HOUSE_PROFILE_SCOPE,
-  COMPANIES_HOUSE_PSC_DISCREPANCY_SCOPE,
-} from "../types";
+export { COMPANIES_HOUSE_PROFILE_SCOPE, COMPANIES_HOUSE_PSC_DISCREPANCY_SCOPE } from "../types";
 
 type OAuthCredentials = {
   clientId: string;
@@ -218,11 +215,9 @@ export const COMPANIES_HOUSE_SCOPE_KINDS = [
   COMPANIES_HOUSE_PSC_DISCREPANCY_SCOPE_KIND,
 ] as const;
 
-export type CompaniesHouseCompanyScopeKind =
-  (typeof COMPANIES_HOUSE_COMPANY_SCOPE_KINDS)[number];
+export type CompaniesHouseCompanyScopeKind = (typeof COMPANIES_HOUSE_COMPANY_SCOPE_KINDS)[number];
 
-export type CompaniesHouseScopeKind =
-  (typeof COMPANIES_HOUSE_SCOPE_KINDS)[number];
+export type CompaniesHouseScopeKind = (typeof COMPANIES_HOUSE_SCOPE_KINDS)[number];
 
 export type CompaniesHouseRegisteredOfficeAddress = {
   etag?: string;
@@ -301,18 +296,15 @@ function escapeXml(value: string) {
 }
 
 function readXmlTagValue(xml: string, tagName: string) {
-  const match = new RegExp(
-    `<${tagName}(?:\\s[^>]*)?>([\\s\\S]*?)</${tagName}>`,
-    "i",
-  ).exec(xml);
+  const match = new RegExp(`<${tagName}(?:\\s[^>]*)?>([\\s\\S]*?)</${tagName}>`, "i").exec(xml);
 
   return match?.[1]?.trim() ?? null;
 }
 
 function readXmlBlocks(xml: string, tagName: string) {
-  return [...xml.matchAll(new RegExp(`<${tagName}(?:\\s[^>]*)?>([\\s\\S]*?)</${tagName}>`, "gi"))].map(
-    (match) => match[1] ?? "",
-  );
+  return [
+    ...xml.matchAll(new RegExp(`<${tagName}(?:\\s[^>]*)?>([\\s\\S]*?)</${tagName}>`, "gi")),
+  ].map((match) => match[1] ?? "");
 }
 
 function stripUtf8ByteOrderMark(value: string) {
@@ -328,9 +320,7 @@ function applyMd5Hash(value: string) {
 }
 
 function sanitizeCustomerReference(value?: string | null) {
-  const normalized = (value ?? "")
-    .replaceAll(/[^A-Za-z0-9]/g, "")
-    .slice(0, 25);
+  const normalized = (value ?? "").replaceAll(/[^A-Za-z0-9]/g, "").slice(0, 25);
 
   return normalized.length ? normalized : null;
 }
@@ -342,15 +332,7 @@ function resolveCompaniesHouseCompanyHeader(companyNumber: string) {
   if (!prefixedMatch) {
     return {
       companyNumber: normalized.replaceAll(/\D/g, ""),
-      companyType: undefined as
-        | "EW"
-        | "SC"
-        | "NI"
-        | "R"
-        | "OC"
-        | "SO"
-        | "NC"
-        | undefined,
+      companyType: undefined as "EW" | "SC" | "NI" | "R" | "OC" | "SO" | "NC" | undefined,
     };
   }
 
@@ -397,9 +379,7 @@ function parseCompaniesHouseSubmissionStatus(statusXml: string) {
   } satisfies CompaniesHouseSubmissionStatus;
 }
 
-export function parseCompaniesHouseGatewayMessage(
-  xml: string,
-): CompaniesHouseGatewayMessage {
+export function parseCompaniesHouseGatewayMessage(xml: string): CompaniesHouseGatewayMessage {
   return {
     className: readXmlTagValue(xml, "Class"),
     qualifier: readXmlTagValue(xml, "Qualifier"),
@@ -411,9 +391,7 @@ export function parseCompaniesHouseGatewayMessage(
 }
 
 export function getCompaniesHouseXmlGatewayEnvironment(): CompaniesHouseXmlGatewayEnvironment {
-  return process.env.COMPANIES_HOUSE_XML_ENVIRONMENT === "production"
-    ? "production"
-    : "test";
+  return process.env.COMPANIES_HOUSE_XML_ENVIRONMENT === "production" ? "production" : "test";
 }
 
 export type CompaniesHouseRegisteredEmailEligibility = {
@@ -422,9 +400,7 @@ export type CompaniesHouseRegisteredEmailEligibility = {
   reasons?: string[];
 };
 
-export type CompaniesHousePscDiscrepancyReportStatus =
-  | "INCOMPLETE"
-  | "COMPLETE";
+export type CompaniesHousePscDiscrepancyReportStatus = "INCOMPLETE" | "COMPLETE";
 
 export type CompaniesHousePscDiscrepancyMaterialType =
   | "appears-to-conceal-details"
@@ -527,9 +503,7 @@ export function buildCompaniesHouseScope(params: {
   }
 
   if (!params.companyNumber) {
-    throw new Error(
-      "companyNumber is required for company-specific Companies House scopes",
-    );
+    throw new Error("companyNumber is required for company-specific Companies House scopes");
   }
 
   return buildCompaniesHouseCompanyScope(params.companyNumber, params.scopeKind);
@@ -701,8 +675,7 @@ function normalizeRegisteredEmailAddress(
     etag: resource.etag,
     kind: resource.kind,
     registeredEmailAddress: resource.registered_email_address,
-    acceptAppropriateEmailAddressStatement:
-      resource.accept_appropriate_email_address_statement,
+    acceptAppropriateEmailAddressStatement: resource.accept_appropriate_email_address_statement,
     links: resource.links
       ? {
           self: resource.links.self,
@@ -739,8 +712,7 @@ function normalizeValidationStatus(
           : undefined,
     errors: Array.isArray(resource.errors)
       ? resource.errors.filter(
-          (value): value is Record<string, unknown> =>
-            typeof value === "object" && value !== null,
+          (value): value is Record<string, unknown> => typeof value === "object" && value !== null,
         )
       : undefined,
   };
@@ -813,8 +785,7 @@ function normalizeDiscrepancy(
     pscName: resource.psc_name,
     pscDateOfBirth: resource.psc_date_of_birth,
     pscType: resource.psc_type as CompaniesHousePscType,
-    pscDiscrepancyTypes:
-      resource.psc_discrepancy_types as CompaniesHousePscDiscrepancyType[],
+    pscDiscrepancyTypes: resource.psc_discrepancy_types as CompaniesHousePscDiscrepancyType[],
     etag: resource.etag,
     kind: resource.kind,
     links: resource.links
@@ -973,8 +944,7 @@ export class CompaniesHouseXmlGatewayProvider {
       );
     }
 
-    const companyAuthenticationCode =
-      args.companyAuthenticationCode?.trim().toUpperCase() || null;
+    const companyAuthenticationCode = args.companyAuthenticationCode?.trim().toUpperCase() || null;
     const customerReference = sanitizeCustomerReference(args.customerReference);
     const encodedAccounts = Buffer.from(
       normalizeCompaniesHouseAccountsDocument(args.accountsIxbrl),
@@ -994,11 +964,7 @@ export class CompaniesHouseXmlGatewayProvider {
       <Class>Accounts</Class>
       <Qualifier>request</Qualifier>
       <TransactionID>${escapeXml(transactionId)}</TransactionID>
-      ${
-        this.environment === "test"
-          ? "<GatewayTest>1</GatewayTest>"
-          : ""
-      }
+      ${this.environment === "test" ? "<GatewayTest>1</GatewayTest>" : ""}
     </MessageDetails>
     <SenderDetails>
       <IDAuthentication>
@@ -1018,9 +984,7 @@ export class CompaniesHouseXmlGatewayProvider {
       <FormHeader>
         <CompanyNumber>${escapeXml(companyHeader.companyNumber)}</CompanyNumber>
         ${
-          companyHeader.companyType
-            ? `<CompanyType>${companyHeader.companyType}</CompanyType>`
-            : ""
+          companyHeader.companyType ? `<CompanyType>${companyHeader.companyType}</CompanyType>` : ""
         }
         <CompanyName>${escapeXml(args.companyName)}</CompanyName>
         ${
@@ -1084,11 +1048,7 @@ export class CompaniesHouseXmlGatewayProvider {
       <Class>GetSubmissionStatus</Class>
       <Qualifier>request</Qualifier>
       <TransactionID>${escapeXml(transactionId)}</TransactionID>
-      ${
-        this.environment === "test"
-          ? "<GatewayTest>1</GatewayTest>"
-          : ""
-      }
+      ${this.environment === "test" ? "<GatewayTest>1</GatewayTest>" : ""}
     </MessageDetails>
     <SenderDetails>
       <IDAuthentication>
@@ -1148,9 +1108,7 @@ export class CompaniesHouseXmlGatewayProvider {
     const text = await response.text();
 
     if (!response.ok) {
-      throw new Error(
-        `Companies House XML gateway request failed (${response.status}): ${text}`,
-      );
+      throw new Error(`Companies House XML gateway request failed (${response.status}): ${text}`);
     }
 
     return parseCompaniesHouseGatewayMessage(text);
@@ -1173,27 +1131,19 @@ export class CompaniesHouseProvider {
     const redirectUri = process.env.COMPANIES_HOUSE_OAUTH_REDIRECT_URL;
     const apiKey = process.env.COMPANIES_HOUSE_API_KEY;
     const credentials =
-      clientId && clientSecret && redirectUri
-        ? { clientId, clientSecret, redirectUri }
-        : undefined;
+      clientId && clientSecret && redirectUri ? { clientId, clientSecret, redirectUri } : undefined;
 
     if (!credentials && !apiKey) {
       throw new Error("Companies House configuration missing");
     }
 
-    return new CompaniesHouseProvider(
-      credentials,
-      config,
-      apiKey,
-    );
+    return new CompaniesHouseProvider(credentials, config, apiKey);
   }
 
   get environment(): CompaniesHouseEnvironment {
     return (
       this.config?.environment ??
-      (process.env.COMPANIES_HOUSE_ENVIRONMENT === "production"
-        ? "production"
-        : "sandbox")
+      (process.env.COMPANIES_HOUSE_ENVIRONMENT === "production" ? "production" : "sandbox")
     );
   }
 
@@ -1220,10 +1170,7 @@ export class CompaniesHouseProvider {
       response_type: "code",
       client_id: credentials.clientId,
       redirect_uri: credentials.redirectUri,
-      scope: (options?.scopes?.length
-        ? options.scopes
-        : [COMPANIES_HOUSE_PROFILE_SCOPE]
-      ).join(" "),
+      scope: (options?.scopes?.length ? options.scopes : [COMPANIES_HOUSE_PROFILE_SCOPE]).join(" "),
       state,
     });
 
@@ -1283,23 +1230,18 @@ export class CompaniesHouseProvider {
   }
 
   async getUserProfile(accessToken?: string) {
-    const profile =
-      await this.requestIdentity<CompaniesHouseUserProfileResponse>(
-        "/user/profile",
-        {
-          method: "GET",
-          accessToken,
-        },
-      );
+    const profile = await this.requestIdentity<CompaniesHouseUserProfileResponse>("/user/profile", {
+      method: "GET",
+      accessToken,
+    });
 
     return normalizeUserProfile(profile);
   }
 
   async getCompanyProfile(companyNumber: string) {
-    const profile =
-      await this.requestPublicData<CompaniesHouseCompanyProfileResponse>(
-        `/company/${companyNumber}`,
-      );
+    const profile = await this.requestPublicData<CompaniesHouseCompanyProfileResponse>(
+      `/company/${companyNumber}`,
+    );
 
     return normalizeCompanyProfile(profile);
   }
@@ -1319,10 +1261,9 @@ export class CompaniesHouseProvider {
       searchParams.set("category", params.category);
     }
 
-    const page =
-      await this.requestPublicData<CompaniesHouseFilingHistoryListResponse>(
-        `/company/${params.companyNumber}/filing-history?${searchParams.toString()}`,
-      );
+    const page = await this.requestPublicData<CompaniesHouseFilingHistoryListResponse>(
+      `/company/${params.companyNumber}/filing-history?${searchParams.toString()}`,
+    );
 
     return CompaniesHouseFilingHistoryPageSchema.parse({
       items: (page.items ?? []).map(normalizeFilingHistoryItem),
@@ -1333,22 +1274,20 @@ export class CompaniesHouseProvider {
   }
 
   async getPublicRegisteredOfficeAddress(companyNumber: string) {
-    const resource =
-      await this.requestPublicData<CompaniesHouseRegisteredOfficeAddressResponse>(
-        `/company/${companyNumber}/registered-office-address`,
-      );
+    const resource = await this.requestPublicData<CompaniesHouseRegisteredOfficeAddressResponse>(
+      `/company/${companyNumber}/registered-office-address`,
+    );
 
     return normalizeRegisteredOfficeAddress(resource);
   }
 
   async getRegisteredEmailAddressEligibility(companyNumber: string) {
-    const eligibility =
-      await this.requestApi<CompaniesHouseRegisteredEmailEligibilityResponse>(
-        `/registered-email-address/company/${companyNumber}/eligibility`,
-        {
-          method: "GET",
-        },
-      );
+    const eligibility = await this.requestApi<CompaniesHouseRegisteredEmailEligibilityResponse>(
+      `/registered-email-address/company/${companyNumber}/eligibility`,
+      {
+        method: "GET",
+      },
+    );
 
     return normalizeRegisteredEmailEligibility(eligibility);
   }
@@ -1357,14 +1296,13 @@ export class CompaniesHouseProvider {
     transactionId: string;
     accessToken?: string;
   }) {
-    const resource =
-      await this.requestApi<CompaniesHouseRegisteredOfficeAddressResponse>(
-        `/transactions/${params.transactionId}/registered-office-address`,
-        {
-          method: "GET",
-          accessToken: params.accessToken,
-        },
-      );
+    const resource = await this.requestApi<CompaniesHouseRegisteredOfficeAddressResponse>(
+      `/transactions/${params.transactionId}/registered-office-address`,
+      {
+        method: "GET",
+        accessToken: params.accessToken,
+      },
+    );
 
     return normalizeRegisteredOfficeAddress(resource);
   }
@@ -1373,14 +1311,13 @@ export class CompaniesHouseProvider {
     transactionId: string;
     accessToken?: string;
   }) {
-    const validation =
-      await this.requestApi<CompaniesHouseValidationStatusResponse>(
-        `/transactions/${params.transactionId}/registered-office-address/validation-status`,
-        {
-          method: "GET",
-          accessToken: params.accessToken,
-        },
-      );
+    const validation = await this.requestApi<CompaniesHouseValidationStatusResponse>(
+      `/transactions/${params.transactionId}/registered-office-address/validation-status`,
+      {
+        method: "GET",
+        accessToken: params.accessToken,
+      },
+    );
 
     return normalizeValidationStatus(validation);
   }
@@ -1400,8 +1337,7 @@ export class CompaniesHouseProvider {
   }) {
     const path = `/transactions/${params.transactionId}/registered-office-address`;
     const body = JSON.stringify({
-      accept_appropriate_office_address_statement:
-        params.acceptAppropriateOfficeAddressStatement,
+      accept_appropriate_office_address_statement: params.acceptAppropriateOfficeAddressStatement,
       premises: params.premises,
       address_line_1: params.addressLine1,
       address_line_2: params.addressLine2,
@@ -1413,15 +1349,11 @@ export class CompaniesHouseProvider {
     });
 
     try {
-      const resource =
-        await this.requestApi<CompaniesHouseRegisteredOfficeAddressResponse>(
-          path,
-          {
-            method: "POST",
-            accessToken: params.accessToken,
-            body,
-          },
-        );
+      const resource = await this.requestApi<CompaniesHouseRegisteredOfficeAddressResponse>(path, {
+        method: "POST",
+        accessToken: params.accessToken,
+        body,
+      });
 
       return normalizeRegisteredOfficeAddress(resource);
     } catch (error) {
@@ -1429,32 +1361,24 @@ export class CompaniesHouseProvider {
         throw error;
       }
 
-      const resource =
-        await this.requestApi<CompaniesHouseRegisteredOfficeAddressResponse>(
-          path,
-          {
-            method: "PUT",
-            accessToken: params.accessToken,
-            body,
-          },
-        );
+      const resource = await this.requestApi<CompaniesHouseRegisteredOfficeAddressResponse>(path, {
+        method: "PUT",
+        accessToken: params.accessToken,
+        body,
+      });
 
       return normalizeRegisteredOfficeAddress(resource);
     }
   }
 
-  async getRegisteredEmailAddressResource(params: {
-    transactionId: string;
-    accessToken?: string;
-  }) {
-    const resource =
-      await this.requestApi<CompaniesHouseRegisteredEmailAddressResponse>(
-        `/transactions/${params.transactionId}/registered-email-address`,
-        {
-          method: "GET",
-          accessToken: params.accessToken,
-        },
-      );
+  async getRegisteredEmailAddressResource(params: { transactionId: string; accessToken?: string }) {
+    const resource = await this.requestApi<CompaniesHouseRegisteredEmailAddressResponse>(
+      `/transactions/${params.transactionId}/registered-email-address`,
+      {
+        method: "GET",
+        accessToken: params.accessToken,
+      },
+    );
 
     return normalizeRegisteredEmailAddress(resource);
   }
@@ -1463,14 +1387,13 @@ export class CompaniesHouseProvider {
     transactionId: string;
     accessToken?: string;
   }) {
-    const validation =
-      await this.requestApi<CompaniesHouseValidationStatusResponse>(
-        `/transactions/${params.transactionId}/registered-email-address/validation-status`,
-        {
-          method: "GET",
-          accessToken: params.accessToken,
-        },
-      );
+    const validation = await this.requestApi<CompaniesHouseValidationStatusResponse>(
+      `/transactions/${params.transactionId}/registered-email-address/validation-status`,
+      {
+        method: "GET",
+        accessToken: params.accessToken,
+      },
+    );
 
     return normalizeValidationStatus(validation);
   }
@@ -1484,20 +1407,15 @@ export class CompaniesHouseProvider {
     const path = `/transactions/${params.transactionId}/registered-email-address`;
     const body = JSON.stringify({
       registered_email_address: params.registeredEmailAddress,
-      accept_appropriate_email_address_statement:
-        params.acceptAppropriateEmailAddressStatement,
+      accept_appropriate_email_address_statement: params.acceptAppropriateEmailAddressStatement,
     });
 
     try {
-      const resource =
-        await this.requestApi<CompaniesHouseRegisteredEmailAddressResponse>(
-          path,
-          {
-            method: "POST",
-            accessToken: params.accessToken,
-            body,
-          },
-        );
+      const resource = await this.requestApi<CompaniesHouseRegisteredEmailAddressResponse>(path, {
+        method: "POST",
+        accessToken: params.accessToken,
+        body,
+      });
 
       return normalizeRegisteredEmailAddress(resource);
     } catch (error) {
@@ -1505,15 +1423,11 @@ export class CompaniesHouseProvider {
         throw error;
       }
 
-      const resource =
-        await this.requestApi<CompaniesHouseRegisteredEmailAddressResponse>(
-          path,
-          {
-            method: "PUT",
-            accessToken: params.accessToken,
-            body,
-          },
-        );
+      const resource = await this.requestApi<CompaniesHouseRegisteredEmailAddressResponse>(path, {
+        method: "PUT",
+        accessToken: params.accessToken,
+        body,
+      });
 
       return normalizeRegisteredEmailAddress(resource);
     }
@@ -1529,24 +1443,22 @@ export class CompaniesHouseProvider {
     companyNumber?: string;
     status?: Extract<CompaniesHousePscDiscrepancyReportStatus, "INCOMPLETE">;
   }) {
-    const report =
-      await this.requestApi<CompaniesHouseDiscrepancyReportResponse>(
-        "/psc-discrepancy-reports",
-        {
-          method: "POST",
-          accessToken: params.accessToken,
-          body: JSON.stringify({
-            material_discrepancies: params.materialDiscrepancies,
-            obliged_entity_type: params.obligedEntityType,
-            obliged_entity_organisation_name:
-              params.obligedEntityOrganisationName,
-            obliged_entity_contact_name: params.obligedEntityContactName,
-            obliged_entity_email: params.obligedEntityEmail,
-            company_number: params.companyNumber,
-            status: params.status ?? "INCOMPLETE",
-          }),
-        },
-      );
+    const report = await this.requestApi<CompaniesHouseDiscrepancyReportResponse>(
+      "/psc-discrepancy-reports",
+      {
+        method: "POST",
+        accessToken: params.accessToken,
+        body: JSON.stringify({
+          material_discrepancies: params.materialDiscrepancies,
+          obliged_entity_type: params.obligedEntityType,
+          obliged_entity_organisation_name: params.obligedEntityOrganisationName,
+          obliged_entity_contact_name: params.obligedEntityContactName,
+          obliged_entity_email: params.obligedEntityEmail,
+          company_number: params.companyNumber,
+          status: params.status ?? "INCOMPLETE",
+        }),
+      },
+    );
 
     return normalizeDiscrepancyReport(report);
   }
@@ -1560,21 +1472,20 @@ export class CompaniesHouseProvider {
     pscName?: string;
     pscType: CompaniesHousePscType;
   }) {
-    const discrepancy =
-      await this.requestApi<CompaniesHouseDiscrepancyResponse>(
-        `/psc-discrepancy-reports/${params.reportId}/discrepancies`,
-        {
-          method: "POST",
-          accessToken: params.accessToken,
-          body: JSON.stringify({
-            details: params.details,
-            psc_date_of_birth: params.pscDateOfBirth,
-            psc_discrepancy_types: params.pscDiscrepancyTypes,
-            psc_name: params.pscName,
-            psc_type: params.pscType,
-          }),
-        },
-      );
+    const discrepancy = await this.requestApi<CompaniesHouseDiscrepancyResponse>(
+      `/psc-discrepancy-reports/${params.reportId}/discrepancies`,
+      {
+        method: "POST",
+        accessToken: params.accessToken,
+        body: JSON.stringify({
+          details: params.details,
+          psc_date_of_birth: params.pscDateOfBirth,
+          psc_discrepancy_types: params.pscDiscrepancyTypes,
+          psc_name: params.pscName,
+          psc_type: params.pscType,
+        }),
+      },
+    );
 
     return normalizeDiscrepancy(discrepancy);
   }
@@ -1590,24 +1501,22 @@ export class CompaniesHouseProvider {
     companyNumber: string;
     status: CompaniesHousePscDiscrepancyReportStatus;
   }) {
-    const report =
-      await this.requestApi<CompaniesHouseDiscrepancyReportResponse>(
-        `/psc-discrepancy-reports/${params.reportId}`,
-        {
-          method: "PUT",
-          accessToken: params.accessToken,
-          body: JSON.stringify({
-            material_discrepancies: params.materialDiscrepancies,
-            obliged_entity_type: params.obligedEntityType,
-            obliged_entity_organisation_name:
-              params.obligedEntityOrganisationName,
-            obliged_entity_contact_name: params.obligedEntityContactName,
-            obliged_entity_email: params.obligedEntityEmail,
-            company_number: params.companyNumber,
-            status: params.status,
-          }),
-        },
-      );
+    const report = await this.requestApi<CompaniesHouseDiscrepancyReportResponse>(
+      `/psc-discrepancy-reports/${params.reportId}`,
+      {
+        method: "PUT",
+        accessToken: params.accessToken,
+        body: JSON.stringify({
+          material_discrepancies: params.materialDiscrepancies,
+          obliged_entity_type: params.obligedEntityType,
+          obliged_entity_organisation_name: params.obligedEntityOrganisationName,
+          obliged_entity_contact_name: params.obligedEntityContactName,
+          obliged_entity_email: params.obligedEntityEmail,
+          company_number: params.companyNumber,
+          status: params.status,
+        }),
+      },
+    );
 
     return normalizeDiscrepancyReport(report);
   }
@@ -1619,33 +1528,28 @@ export class CompaniesHouseProvider {
     resumeJourneyUri?: string;
     accessToken?: string;
   }) {
-    const transaction =
-      await this.requestApi<CompaniesHouseTransactionResponse>("/transactions", {
-        method: "POST",
-        accessToken: params.accessToken,
-        body: JSON.stringify({
-          company_number: params.companyNumber,
-          description: params.description,
-          reference: params.reference,
-          resume_journey_uri: params.resumeJourneyUri,
-        }),
-      });
+    const transaction = await this.requestApi<CompaniesHouseTransactionResponse>("/transactions", {
+      method: "POST",
+      accessToken: params.accessToken,
+      body: JSON.stringify({
+        company_number: params.companyNumber,
+        description: params.description,
+        reference: params.reference,
+        resume_journey_uri: params.resumeJourneyUri,
+      }),
+    });
 
     return normalizeTransaction(transaction);
   }
 
-  async getTransaction(params: {
-    transactionId: string;
-    accessToken?: string;
-  }) {
-    const transaction =
-      await this.requestApi<CompaniesHouseTransactionResponse>(
-        `/transactions/${params.transactionId}`,
-        {
-          method: "GET",
-          accessToken: params.accessToken,
-        },
-      );
+  async getTransaction(params: { transactionId: string; accessToken?: string }) {
+    const transaction = await this.requestApi<CompaniesHouseTransactionResponse>(
+      `/transactions/${params.transactionId}`,
+      {
+        method: "GET",
+        accessToken: params.accessToken,
+      },
+    );
 
     return normalizeTransaction(transaction);
   }
@@ -1657,27 +1561,23 @@ export class CompaniesHouseProvider {
     status?: "open" | "closed";
     accessToken?: string;
   }) {
-    const transaction =
-      await this.requestApi<CompaniesHouseTransactionResponse>(
-        `/transactions/${params.transactionId}`,
-        {
-          method: "PUT",
-          accessToken: params.accessToken,
-          body: JSON.stringify({
-            reference: params.reference,
-            resume_journey_uri: params.resumeJourneyUri,
-            status: params.status,
-          }),
-        },
-      );
+    const transaction = await this.requestApi<CompaniesHouseTransactionResponse>(
+      `/transactions/${params.transactionId}`,
+      {
+        method: "PUT",
+        accessToken: params.accessToken,
+        body: JSON.stringify({
+          reference: params.reference,
+          resume_journey_uri: params.resumeJourneyUri,
+          status: params.status,
+        }),
+      },
+    );
 
     return normalizeTransaction(transaction);
   }
 
-  async closeTransaction(params: {
-    transactionId: string;
-    accessToken?: string;
-  }) {
+  async closeTransaction(params: { transactionId: string; accessToken?: string }) {
     return this.updateTransaction({
       transactionId: params.transactionId,
       status: "closed",
@@ -1685,10 +1585,7 @@ export class CompaniesHouseProvider {
     });
   }
 
-  async deleteTransaction(params: {
-    transactionId: string;
-    accessToken?: string;
-  }) {
+  async deleteTransaction(params: { transactionId: string; accessToken?: string }) {
     await this.requestApi<void>(`/transactions/${params.transactionId}`, {
       method: "DELETE",
       accessToken: params.accessToken,
@@ -1721,16 +1618,13 @@ export class CompaniesHouseProvider {
     }
 
     const tokenData = (await response.json()) as CompaniesHouseTokenResponse;
-    const scope =
-      tokenData.scope?.split(" ").filter(Boolean) ?? [COMPANIES_HOUSE_PROFILE_SCOPE];
+    const scope = tokenData.scope?.split(" ").filter(Boolean) ?? [COMPANIES_HOUSE_PROFILE_SCOPE];
 
     return CompaniesHouseProviderConfigSchema.parse({
       provider: "companies-house",
       accessToken: tokenData.access_token,
       refreshToken: tokenData.refresh_token,
-      expiresAt: new Date(
-        Date.now() + tokenData.expires_in * 1000,
-      ).toISOString(),
+      expiresAt: new Date(Date.now() + tokenData.expires_in * 1000).toISOString(),
       scope,
       tokenType: tokenData.token_type,
       environment: this.environment,
@@ -1763,9 +1657,7 @@ export class CompaniesHouseProvider {
 
     if (!response.ok) {
       const text = await response.text();
-      throw new Error(
-        `Companies House identity request failed (${response.status}): ${text}`,
-      );
+      throw new Error(`Companies House identity request failed (${response.status}): ${text}`);
     }
 
     if (response.status === 204) {
@@ -1788,9 +1680,7 @@ export class CompaniesHouseProvider {
 
     if (!response.ok) {
       const text = await response.text();
-      throw new Error(
-        `Companies House public data request failed (${response.status}): ${text}`,
-      );
+      throw new Error(`Companies House public data request failed (${response.status}): ${text}`);
     }
 
     return (await response.json()) as T;
@@ -1822,9 +1712,7 @@ export class CompaniesHouseProvider {
 
     if (!response.ok) {
       const text = await response.text();
-      throw new Error(
-        `Companies House API request failed (${response.status}): ${text}`,
-      );
+      throw new Error(`Companies House API request failed (${response.status}): ${text}`);
     }
 
     if (response.status === 204) {

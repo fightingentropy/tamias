@@ -1,15 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router";
 import { createAppFileRoute } from "@/start/route-hosts";
 import { createServerFn } from "@tanstack/react-start";
 
 export const loadOAuthAuthorizeData = createServerFn({ method: "GET" })
   .inputValidator((data: { href: string }) => data)
   .handler(async ({ data }) => {
-    const { buildOAuthAuthorizePageData } = await import(
-      "@/start/server/route-data/public"
-    );
+    const { buildOAuthAuthorizePageData } = await import("@/start/server/route-data/public");
 
-    return (await buildOAuthAuthorizePageData(data.href));
+    return await buildOAuthAuthorizePageData(data.href);
   });
 
 export const Route = createAppFileRoute("/oauth/authorize")({

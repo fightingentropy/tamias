@@ -6,10 +6,7 @@ export type GetAverageDaysToPaymentParams = {
   teamId: string;
 };
 
-async function getAverageDaysToPaymentImpl(
-  _db: Database,
-  params: GetAverageDaysToPaymentParams,
-) {
+async function getAverageDaysToPaymentImpl(_db: Database, params: GetAverageDaysToPaymentParams) {
   const { teamId } = params;
   const thirtyDaysAgo = new Date();
 
@@ -21,10 +18,7 @@ async function getAverageDaysToPaymentImpl(
     statuses: ["paid"],
     dateFrom: thirtyDaysAgo.toISOString(),
   });
-  const validCount = rows.reduce(
-    (sum, row) => sum + row.sentToPaidValidCount,
-    0,
-  );
+  const validCount = rows.reduce((sum, row) => sum + row.sentToPaidValidCount, 0);
   const totalDays = rows.reduce((sum, row) => sum + row.sentToPaidTotalDays, 0);
 
   if (validCount === 0) {
@@ -44,10 +38,7 @@ export type GetAverageInvoiceSizeParams = {
   teamId: string;
 };
 
-async function getAverageInvoiceSizeImpl(
-  _db: Database,
-  params: GetAverageInvoiceSizeParams,
-) {
+async function getAverageInvoiceSizeImpl(_db: Database, params: GetAverageInvoiceSizeParams) {
   const { teamId } = params;
   const thirtyDaysAgo = new Date();
 
@@ -83,9 +74,7 @@ async function getAverageInvoiceSizeImpl(
   return [...grouped.values()].map((entry) => ({
     currency: entry.currency,
     averageAmount:
-      entry.invoiceCount > 0
-        ? Math.round((entry.totalAmount / entry.invoiceCount) * 100) / 100
-        : 0,
+      entry.invoiceCount > 0 ? Math.round((entry.totalAmount / entry.invoiceCount) * 100) / 100 : 0,
     invoiceCount: entry.invoiceCount,
   }));
 }

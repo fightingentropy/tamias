@@ -3,12 +3,7 @@
 import { Command as CommandPrimitive } from "cmdk";
 import { useCallback, useRef, useState } from "react";
 import { cn } from "../utils";
-import {
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "./command";
+import { CommandGroup, CommandInput, CommandItem, CommandList } from "./command";
 import { Icons } from "./icons";
 import { Spinner } from "./spinner";
 
@@ -137,15 +132,10 @@ export const Combobox = ({
           autoFocus={autoFocus}
         />
 
-        {isLoading && (
-          <Spinner className="w-[16px] h-[16px] absolute right-2 text-dark-gray" />
-        )}
+        {isLoading && <Spinner className="w-[16px] h-[16px] absolute right-2 text-dark-gray" />}
 
         {!isLoading && selected && onRemove && (
-          <Icons.Close
-            className="w-[18px] h-[18px] absolute right-2"
-            onClick={handleOnRemove}
-          />
+          <Icons.Close className="w-[18px] h-[18px] absolute right-2" onClick={handleOnRemove} />
         )}
       </div>
 
@@ -180,9 +170,7 @@ export const Combobox = ({
 
               {onCreate &&
                 (inputValue.trim() || options?.length === 0) &&
-                !options?.find(
-                  (o) => o.name.toLowerCase() === inputValue.toLowerCase(),
-                ) && (
+                !options?.find((o) => o.name.toLowerCase() === inputValue.toLowerCase()) && (
                   <CommandItem
                     key={inputValue || "create-new"}
                     value={inputValue || "create-new"}

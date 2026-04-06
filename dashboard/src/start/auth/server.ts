@@ -80,10 +80,7 @@ async function fetchConvexAction<Action extends FunctionReference<"action">>(
   args?: Record<string, unknown>,
   opts?: { token?: string },
 ): Promise<FunctionReturnType<Action>> {
-  return (createConvexHttpClient(opts?.token) as any).action(
-    action,
-    args ?? {},
-  );
+  return (createConvexHttpClient(opts?.token) as any).action(action, args ?? {});
 }
 
 function convexSignInErrorResponseBody(error: unknown) {
@@ -105,9 +102,7 @@ function convexSignInErrorResponseBody(error: unknown) {
     return {
       error: error.message,
       ...(withData.data !== undefined ? { details: withData.data } : {}),
-      ...(error.cause !== undefined
-        ? { cause: String(error.cause) }
-        : {}),
+      ...(error.cause !== undefined ? { cause: String(error.cause) } : {}),
     };
   }
 
@@ -129,8 +124,7 @@ function shouldRefreshToken(token: string) {
     return true;
   }
 
-  const totalTokenLifetimeMs =
-    decodedToken.exp * 1000 - decodedToken.iat * 1000;
+  const totalTokenLifetimeMs = decodedToken.exp * 1000 - decodedToken.iat * 1000;
   const minimumExpiration =
     Date.now() +
     Math.min(
@@ -152,11 +146,7 @@ function getCookieOptions(host: string) {
   };
 }
 
-function buildAuthCookieHeaders(
-  host: string,
-  auth: AuthTokens | null,
-  verifier?: string | null,
-) {
+function buildAuthCookieHeaders(host: string, auth: AuthTokens | null, verifier?: string | null) {
   const names = getAuthCookieNames(host);
   const cookieOptions = getCookieOptions(host);
 
@@ -179,9 +169,7 @@ function buildAuthCookieHeaders(
     );
   } else if (auth) {
     headers.push(serialize(names.token, auth.token, cookieOptions));
-    headers.push(
-      serialize(names.refreshToken, auth.refreshToken, cookieOptions),
-    );
+    headers.push(serialize(names.refreshToken, auth.refreshToken, cookieOptions));
   }
 
   if (verifier === undefined) {
@@ -203,10 +191,7 @@ function buildAuthCookieHeaders(
   return headers;
 }
 
-export function appendCookieHeaders(
-  response: Response,
-  cookieHeaders: string[],
-) {
+export function appendCookieHeaders(response: Response, cookieHeaders: string[]) {
   for (const headerValue of cookieHeaders) {
     response.headers.append("set-cookie", headerValue);
   }
@@ -242,9 +227,7 @@ function isCrossOriginRequest(request: Request) {
 function getCurrentStartAuthContext() {
   const startContext = getStartContext({ throwIfNotFound: false });
 
-  return startContext?.contextAfterGlobalMiddlewares?.auth as
-    | RequestAuthContext
-    | undefined;
+  return startContext?.contextAfterGlobalMiddlewares?.auth as RequestAuthContext | undefined;
 }
 
 export async function getConvexAuthToken() {
@@ -283,11 +266,7 @@ async function refreshTokensIfNeeded(
       token: null,
       refreshToken: null,
       verifier: authState.verifier,
-      cookieHeaders: buildAuthCookieHeaders(
-        getRequestHost(request),
-        null,
-        null,
-      ),
+      cookieHeaders: buildAuthCookieHeaders(getRequestHost(request), null, null),
     };
   }
 
@@ -316,11 +295,7 @@ async function refreshTokensIfNeeded(
         token: null,
         refreshToken: null,
         verifier: null,
-        cookieHeaders: buildAuthCookieHeaders(
-          getRequestHost(request),
-          null,
-          null,
-        ),
+        cookieHeaders: buildAuthCookieHeaders(getRequestHost(request), null, null),
       };
     }
 
@@ -328,22 +303,14 @@ async function refreshTokensIfNeeded(
       token: result.tokens.token,
       refreshToken: result.tokens.refreshToken,
       verifier: null,
-      cookieHeaders: buildAuthCookieHeaders(
-        getRequestHost(request),
-        result.tokens,
-        null,
-      ),
+      cookieHeaders: buildAuthCookieHeaders(getRequestHost(request), result.tokens, null),
     };
   } catch {
     return {
       token: null,
       refreshToken: null,
       verifier: null,
-      cookieHeaders: buildAuthCookieHeaders(
-        getRequestHost(request),
-        null,
-        null,
-      ),
+      cookieHeaders: buildAuthCookieHeaders(getRequestHost(request), null, null),
     };
   }
 }
@@ -370,9 +337,7 @@ export async function proxyAuthActionRequest(request: Request) {
   const body = bodyRaw as { action?: unknown; args?: unknown };
   const action = body.action;
   const args: Record<string, unknown> =
-    body.args !== undefined &&
-    body.args !== null &&
-    typeof body.args === "object"
+    body.args !== undefined && body.args !== null && typeof body.args === "object"
       ? { ...(body.args as Record<string, unknown>) }
       : {};
 
@@ -411,11 +376,7 @@ export async function proxyAuthActionRequest(request: Request) {
         const response = jsonResponse({ redirect: result.redirect });
         return appendCookieHeaders(
           response,
-          buildAuthCookieHeaders(
-            host,
-            undefined as never,
-            result.verifier ?? null,
-          ),
+          buildAuthCookieHeaders(host, undefined as never, result.verifier ?? null),
         );
       }
 
@@ -430,20 +391,13 @@ export async function proxyAuthActionRequest(request: Request) {
                 },
         });
 
-        return appendCookieHeaders(
-          response,
-          buildAuthCookieHeaders(host, result.tokens, null),
-        );
+        return appendCookieHeaders(response, buildAuthCookieHeaders(host, result.tokens, null));
       }
 
       return jsonResponse(result);
     }
 
-    await fetchConvexAction(
-      "auth:signOut" as any,
-      args,
-      token ? { token } : undefined,
-    );
+    await fetchConvexAction("auth:signOut" as any, args, token ? { token } : undefined);
   } catch (error) {
     if (action === "auth:signIn") {
       if (process.env.NODE_ENV !== "production") {
@@ -451,17 +405,11 @@ export async function proxyAuthActionRequest(request: Request) {
       }
 
       const response = jsonResponse(convexSignInErrorResponseBody(error), 400);
-      return appendCookieHeaders(
-        response,
-        buildAuthCookieHeaders(host, null, null),
-      );
+      return appendCookieHeaders(response, buildAuthCookieHeaders(host, null, null));
     }
   }
 
-  return appendCookieHeaders(
-    jsonResponse(null),
-    buildAuthCookieHeaders(host, null, null),
-  );
+  return appendCookieHeaders(jsonResponse(null), buildAuthCookieHeaders(host, null, null));
 }
 
 export function middlewareRedirect(request: Request, route: string) {

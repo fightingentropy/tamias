@@ -10,10 +10,7 @@ import {
   sortRecurringByNextScheduledAtAsc,
 } from "./shared";
 
-export async function getDueInvoiceRecurring(
-  _db: Database,
-  options?: { limit?: number },
-) {
+export async function getDueInvoiceRecurring(_db: Database, options?: { limit?: number }) {
   const now = new Date().toISOString();
   const limit = options?.limit ?? DEFAULT_BATCH_SIZE;
   const data = (
@@ -73,9 +70,7 @@ export async function getUpcomingDueRecurring(
 
       const notificationSentAt = new Date(record.upcomingNotificationSentAt);
       const nextScheduledAt = new Date(record.nextScheduledAt);
-      const cutoff = new Date(
-        nextScheduledAt.getTime() - (hoursAhead + 1) * 60 * 60 * 1000,
-      );
+      const cutoff = new Date(nextScheduledAt.getTime() - (hoursAhead + 1) * 60 * 60 * 1000);
 
       return notificationSentAt <= cutoff;
     })

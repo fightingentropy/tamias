@@ -34,9 +34,7 @@ export async function getReportInvoiceDateAggregateRows(
       statuses: normalizedStatuses,
       dateField: params.dateField,
       inputCurrency: params.inputCurrency ?? null,
-      from: params.from
-        ? normalizeTimestampBoundary(params.from, "start")
-        : null,
+      from: params.from ? normalizeTimestampBoundary(params.from, "start") : null,
       to: params.to ? normalizeTimestampBoundary(params.to, "end") : null,
       recurring: params.recurring ?? null,
     }),
@@ -45,9 +43,7 @@ export async function getReportInvoiceDateAggregateRows(
         teamId: params.teamId,
         statuses: normalizedStatuses,
         dateField: params.dateField,
-        dateFrom: params.from
-          ? normalizeTimestampBoundary(params.from, "start")
-          : null,
+        dateFrom: params.from ? normalizeTimestampBoundary(params.from, "start") : null,
         dateTo: params.to ? normalizeTimestampBoundary(params.to, "end") : null,
         currency: params.inputCurrency ?? null,
         recurring: params.recurring,

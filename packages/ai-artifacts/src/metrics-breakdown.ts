@@ -12,14 +12,8 @@ const baseBreakdownSchema = z.object({
     .describe(
       "Date for display purposes (ISO 8601, typically start of month for monthly breakdowns)",
     ),
-  description: z
-    .string()
-    .optional()
-    .describe("Generated description based on date range"),
-  chartType: z
-    .string()
-    .optional()
-    .describe("Type of chart that triggered this breakdown"),
+  description: z.string().optional().describe("Generated description based on date range"),
+  chartType: z.string().optional().describe("Type of chart that triggered this breakdown"),
 });
 
 const summaryMetricsSchema = z.object({

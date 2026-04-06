@@ -115,11 +115,7 @@ function FilterMenuItem({ icon: Icon, label, children }: FilterMenuItemProps) {
           <span>{label}</span>
         </DropdownMenuSubTrigger>
         <DropdownMenuPortal>
-          <DropdownMenuSubContent
-            sideOffset={14}
-            alignOffset={-4}
-            className="p-0"
-          >
+          <DropdownMenuSubContent sideOffset={14} alignOffset={-4} className="p-0">
             {children}
           </DropdownMenuSubContent>
         </DropdownMenuPortal>
@@ -218,8 +214,7 @@ export function TransactionsSearchFilter() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const { filter = defaultSearch, setFilter } =
-    useTransactionFilterParamsWithPersistence();
+  const { filter = defaultSearch, setFilter } = useTransactionFilterParamsWithPersistence();
   const { tags, accounts, categories } = useFilterData(isOpen, isFocused);
   const [input, setInput] = useState(filter.q ?? "");
 
@@ -260,13 +255,9 @@ export function TransactionsSearchFilter() {
     setFilter({ q: input.length > 0 ? input : null });
   };
 
-  const validFilters = Object.fromEntries(
-    Object.entries(filter).filter(([key]) => key !== "q"),
-  );
+  const validFilters = Object.fromEntries(Object.entries(filter).filter(([key]) => key !== "q"));
 
-  const hasValidFilters = Object.values(validFilters).some(
-    (value) => value !== null,
-  );
+  const hasValidFilters = Object.values(validFilters).some((value) => value !== null);
 
   const processFiltersForList = () => {
     const processed = {
@@ -288,9 +279,7 @@ export function TransactionsSearchFilter() {
 
     // Filter out undefined and null values
     return Object.fromEntries(
-      Object.entries(processed).filter(
-        ([_, value]) => value !== undefined && value !== null,
-      ),
+      Object.entries(processed).filter(([_, value]) => value !== undefined && value !== null),
     );
   };
 
@@ -367,11 +356,7 @@ export function TransactionsSearchFilter() {
         side="top"
       >
         <FilterMenuItem icon={Icons.CalendarMonth} label="Date">
-          <DateRangeFilter
-            start={filter.start}
-            end={filter.end}
-            onSelect={setFilter}
-          />
+          <DateRangeFilter start={filter.start} end={filter.end} onSelect={setFilter} />
         </FilterMenuItem>
 
         <FilterMenuItem icon={Icons.Amount} label="Amount">
@@ -387,9 +372,7 @@ export function TransactionsSearchFilter() {
               id={id}
               name={name}
               checked={filter?.statuses?.includes(id)}
-              onCheckedChange={() =>
-                updateArrayFilter(id, filter.statuses, setFilter, "statuses")
-              }
+              onCheckedChange={() => updateArrayFilter(id, filter.statuses, setFilter, "statuses")}
             />
           ))}
         </FilterMenuItem>
@@ -415,12 +398,7 @@ export function TransactionsSearchFilter() {
             <SelectCategory
               headless
               onChange={(selected) =>
-                updateArrayFilter(
-                  selected.slug,
-                  filter.categories,
-                  setFilter,
-                  "categories",
-                )
+                updateArrayFilter(selected.slug, filter.categories, setFilter, "categories")
               }
             />
           </div>
@@ -435,9 +413,7 @@ export function TransactionsSearchFilter() {
                   id={tag.id}
                   name={tag.name}
                   checked={filter?.tags?.includes(tag.id)}
-                  onCheckedChange={() =>
-                    updateArrayFilter(tag.id, filter.tags, setFilter, "tags")
-                  }
+                  onCheckedChange={() => updateArrayFilter(tag.id, filter.tags, setFilter, "tags")}
                 />
               ))
             ) : (
@@ -457,12 +433,7 @@ export function TransactionsSearchFilter() {
               })}
               checked={filter?.accounts?.includes(account.id)}
               onCheckedChange={() =>
-                updateArrayFilter(
-                  account.id,
-                  filter.accounts,
-                  setFilter,
-                  "accounts",
-                )
+                updateArrayFilter(account.id, filter.accounts, setFilter, "accounts")
               }
             />
           ))}

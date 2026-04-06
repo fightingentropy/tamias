@@ -69,9 +69,7 @@ function publicBankConnectionId(
   return connection.publicBankConnectionId ?? connection._id;
 }
 
-function publicBankAccountId(
-  account: Pick<Doc<"bankAccounts">, "_id" | "publicBankAccountId">,
-) {
+function publicBankAccountId(account: Pick<Doc<"bankAccounts">, "_id" | "publicBankAccountId">) {
   return account.publicBankAccountId ?? account._id;
 }
 
@@ -85,10 +83,7 @@ async function getTeamOrThrow(ctx: BankConnectionCtx, publicTeamId: string) {
   return team;
 }
 
-async function getBankConnectionByPublicId(
-  ctx: BankConnectionCtx,
-  bankConnectionId: string,
-) {
+async function getBankConnectionByPublicId(ctx: BankConnectionCtx, bankConnectionId: string) {
   const byLegacyId = await ctx.db
     .query("bankConnections")
     .withIndex("by_public_bank_connection_id", (q) =>
@@ -103,30 +98,21 @@ async function getBankConnectionByPublicId(
   return ctx.db.get(bankConnectionId as Id<"bankConnections">);
 }
 
-async function getBankConnectionsByTeamId(
-  ctx: BankConnectionCtx,
-  teamId: Id<"teams">,
-) {
+async function getBankConnectionsByTeamId(ctx: BankConnectionCtx, teamId: Id<"teams">) {
   return ctx.db
     .query("bankConnections")
     .withIndex("by_team_id", (q) => q.eq("teamId", teamId))
     .collect();
 }
 
-async function getBankAccountsByTeamId(
-  ctx: BankConnectionCtx,
-  teamId: Id<"teams">,
-) {
+async function getBankAccountsByTeamId(ctx: BankConnectionCtx, teamId: Id<"teams">) {
   return ctx.db
     .query("bankAccounts")
     .withIndex("by_team_id", (q) => q.eq("teamId", teamId))
     .collect();
 }
 
-function serializeBankAccountListItem(
-  account: Doc<"bankAccounts">,
-  publicTeamId: string,
-) {
+function serializeBankAccountListItem(account: Doc<"bankAccounts">, publicTeamId: string) {
   return {
     id: publicBankAccountId(account),
     createdAt: account.createdAt,
@@ -226,14 +212,15 @@ async function upsertConnectionAccount(
 
   const existing =
     byLegacyId ??
-    (await ctx.db
-      .query("bankAccounts")
-      .withIndex("by_team_and_account_id", (q) =>
-        q.eq("teamId", args.teamId).eq("accountId", args.account.accountId),
-      )
-      .collect()).find(
-        (account) => account.bankConnectionId === args.connection._id,
-      ) ?? null;
+    (
+      await ctx.db
+        .query("bankAccounts")
+        .withIndex("by_team_and_account_id", (q) =>
+          q.eq("teamId", args.teamId).eq("accountId", args.account.accountId),
+        )
+        .collect()
+    ).find((account) => account.bankConnectionId === args.connection._id) ??
+    null;
 
   const payload = {
     teamId: args.teamId,
@@ -377,9 +364,7 @@ export const serviceCreateBankConnection = mutation({
     }
 
     const team = await getTeamOrThrow(ctx, args.publicTeamId);
-    const appUser = args.userId
-      ? await getAppUserById(ctx, args.userId)
-      : null;
+    const appUser = args.userId ? await getAppUserById(ctx, args.userId) : null;
     const timestamp = nowIso();
 
     const existing = await ctx.db
@@ -465,9 +450,7 @@ export const serviceCreateBankConnection = mutation({
     return serializeBankConnectionRecord(
       args.publicTeamId,
       connection,
-      accounts.map((account) =>
-        serializeBankAccountListItem(account, args.publicTeamId),
-      ),
+      accounts.map((account) => serializeBankAccountListItem(account, args.publicTeamId)),
     );
   },
 });
@@ -530,9 +513,7 @@ export const serviceAddProviderAccounts = mutation({
     }
 
     const team = await getTeamByPublicTeamId(ctx, args.publicTeamId);
-    const appUser = args.userId
-      ? await getAppUserById(ctx, args.userId)
-      : null;
+    const appUser = args.userId ? await getAppUserById(ctx, args.userId) : null;
 
     if (!team) {
       return [];
@@ -554,9 +535,7 @@ export const serviceAddProviderAccounts = mutation({
         )
         .collect()
         .then((accounts) =>
-          accounts.find(
-            (candidate) => candidate.bankConnectionId === connection._id,
-          ),
+          accounts.find((candidate) => candidate.bankConnectionId === connection._id),
         );
 
       if (existing) {
@@ -589,9 +568,7 @@ export const serviceAddProviderAccounts = mutation({
       });
 
       if (created) {
-        inserted.push(
-          serializeBankAccountListItem(created, args.publicTeamId),
-        );
+        inserted.push(serializeBankAccountListItem(created, args.publicTeamId));
       }
     }
 

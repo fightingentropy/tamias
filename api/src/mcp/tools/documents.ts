@@ -15,8 +15,7 @@ export const registerDocumentTools: RegisterTools = (server, ctx) => {
     "documents_list",
     {
       title: "List Documents",
-      description:
-        "List documents and files stored in the vault with filtering",
+      description: "List documents and files stored in the vault with filtering",
       inputSchema: getDocumentsSchema.shape,
       annotations: READ_ONLY_ANNOTATIONS,
     },

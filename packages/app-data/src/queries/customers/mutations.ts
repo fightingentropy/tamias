@@ -15,10 +15,7 @@ import type {
   UpsertCustomerParams,
 } from "./types";
 
-export const upsertCustomer = async (
-  db: Database,
-  params: UpsertCustomerParams,
-) => {
+export const upsertCustomer = async (db: Database, params: UpsertCustomerParams) => {
   const { id, tags: inputTags, teamId, userId, ...rest } = params;
   const customerId = id ?? crypto.randomUUID();
   const isNewCustomer = !id;
@@ -64,10 +61,7 @@ export const upsertCustomer = async (
   return result;
 };
 
-export const deleteCustomer = async (
-  db: Database,
-  params: DeleteCustomerParams,
-) => {
+export const deleteCustomer = async (db: Database, params: DeleteCustomerParams) => {
   const { id, teamId } = params;
   const customerToDelete = await getCustomerById(db, { id, teamId });
 
@@ -88,10 +82,7 @@ export const deleteCustomer = async (
   return customerToDelete;
 };
 
-export async function toggleCustomerPortal(
-  _db: Database,
-  params: ToggleCustomerPortalParams,
-) {
+export async function toggleCustomerPortal(_db: Database, params: ToggleCustomerPortalParams) {
   return toggleCustomerPortalInConvex({
     teamId: params.teamId,
     customerId: params.customerId,

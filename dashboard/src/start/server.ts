@@ -1,8 +1,5 @@
 import "@/start/html-element-shim";
-import {
-  createStartHandler,
-  defaultStreamHandler,
-} from "@tanstack/react-start/server";
+import { createStartHandler, defaultStreamHandler } from "@tanstack/react-start/server";
 import type {
   DashboardCloudflareEnv,
   DashboardRequestContext,
@@ -33,14 +30,9 @@ export function createServerEntry(
   },
 ) {
   return {
-    async fetch(
-      request: Request,
-      env: DashboardCloudflareEnv,
-      executionCtx: ExecutionContext,
-    ) {
+    async fetch(request: Request, env: DashboardCloudflareEnv, executionCtx: ExecutionContext) {
       const internalApiFetch = options?.internalApiEntry
-        ? (incoming: Request) =>
-            options.internalApiEntry!(incoming, env, executionCtx)
+        ? (incoming: Request) => options.internalApiEntry!(incoming, env, executionCtx)
         : undefined;
 
       return (entry.fetch as any)(request, {

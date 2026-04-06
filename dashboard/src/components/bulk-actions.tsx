@@ -199,10 +199,7 @@ export function BulkActions({ ids }: Props) {
               <span>Categories</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
-              <DropdownMenuSubContent
-                sideOffset={14}
-                className="p-0 w-[250px] h-[270px]"
-              >
+              <DropdownMenuSubContent sideOffset={14} className="p-0 w-[250px] h-[270px]">
                 <SelectCategory
                   onChange={(selected) => {
                     updateTransactionsMutation.mutate({
@@ -259,10 +256,7 @@ export function BulkActions({ ids }: Props) {
               <span>Assign</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
-              <DropdownMenuSubContent
-                sideOffset={14}
-                className="w-[230px] h-[170px] p-4 space-y-4"
-              >
+              <DropdownMenuSubContent sideOffset={14} className="w-[230px] h-[170px] p-4 space-y-4">
                 <SelectUser
                   onSelect={(selected) => {
                     updateTransactionsMutation.mutate({
@@ -307,11 +301,7 @@ export function BulkActions({ ids }: Props) {
                     onCheckedChange={() => {
                       updateTransactionsMutation.mutate({
                         ids,
-                        frequency: item.value as
-                          | "weekly"
-                          | "monthly"
-                          | "annually"
-                          | "irregular",
+                        frequency: item.value as "weekly" | "monthly" | "annually" | "irregular",
                         recurring: item.value !== null,
                       });
                     }}

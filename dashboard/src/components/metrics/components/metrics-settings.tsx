@@ -25,14 +25,10 @@ export function MetricsSettings({
   onCurrencyChange,
 }: MetricsSettingsProps) {
   const trpc = useTRPC();
-  const { data: currencies } = useQuery(
-    trpc.bankAccounts.currencies.queryOptions(),
-  );
+  const { data: currencies } = useQuery(trpc.bankAccounts.currencies.queryOptions());
 
   // Get unique currencies from bank accounts
-  const uniqueCurrencies = currencies
-    ? [...new Set(currencies.map((c) => c.currency))].sort()
-    : [];
+  const uniqueCurrencies = currencies ? [...new Set(currencies.map((c) => c.currency))].sort() : [];
 
   return (
     <DropdownMenu>

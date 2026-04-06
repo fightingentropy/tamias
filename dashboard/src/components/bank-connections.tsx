@@ -3,12 +3,7 @@
 import type { RouterOutputs } from "@tamias/trpc";
 import { Button } from "@tamias/ui/button";
 import { Icons } from "@tamias/ui/icons";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { differenceInDays, formatDistanceToNow } from "date-fns";
 import { Plus } from "lucide-react";
@@ -36,9 +31,7 @@ function getProviderName(provider: string | null) {
   }
 }
 
-type BankConnection = NonNullable<
-  RouterOutputs["bankConnections"]["get"]
->[number];
+type BankConnection = NonNullable<RouterOutputs["bankConnections"]["get"]>[number];
 
 function ConnectionState({
   connection,
@@ -65,11 +58,7 @@ function ConnectionState({
           <span>Connection issue</span>
         </div>
 
-        <TooltipContent
-          className="px-3 py-1.5 text-xs max-w-[430px]"
-          sideOffset={20}
-          side="left"
-        >
+        <TooltipContent className="px-3 py-1.5 text-xs max-w-[430px]" sideOffset={20} side="left">
           Please reconnect to restore the connection to a good state.
         </TooltipContent>
       </>
@@ -85,14 +74,10 @@ function ConnectionState({
         </div>
 
         {connection.expiresAt && (
-          <TooltipContent
-            className="px-3 py-1.5 text-xs max-w-[430px]"
-            sideOffset={20}
-            side="left"
-          >
+          <TooltipContent className="px-3 py-1.5 text-xs max-w-[430px]" sideOffset={20} side="left">
             We only have access to your bank for another{" "}
-            {differenceInDays(new Date(connection.expiresAt), new Date())} days.
-            Please update the connection to keep everything in sync.
+            {differenceInDays(new Date(connection.expiresAt), new Date())} days. Please update the
+            connection to keep everything in sync.
           </TooltipContent>
         )}
       </>
@@ -159,10 +144,7 @@ export function BankConnection({ connection }: { connection: BankConnection }) {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div>
-                    <ConnectionState
-                      connection={connection}
-                      isSyncing={isSyncing}
-                    />
+                    <ConnectionState connection={connection} isSyncing={isSyncing} />
                   </div>
                 </TooltipTrigger>
               </Tooltip>
@@ -210,20 +192,14 @@ export function BankConnection({ connection }: { connection: BankConnection }) {
                         <Plus size={16} />
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent
-                      className="px-3 py-1.5 text-xs"
-                      sideOffset={10}
-                    >
+                    <TooltipContent className="px-3 py-1.5 text-xs" sideOffset={10}>
                       Add accounts
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               )}
 
-              <SyncTransactions
-                disabled={isSyncing}
-                onClick={triggerManualSync}
-              />
+              <SyncTransactions disabled={isSyncing} onClick={triggerManualSync} />
               <DeleteConnection connection={connection} />
             </>
           )}
@@ -232,13 +208,7 @@ export function BankConnection({ connection }: { connection: BankConnection }) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
         {connection.bankAccounts.map((account) => {
-          return (
-            <BankAccount
-              key={account.id}
-              data={account}
-              provider={connection.provider}
-            />
-          );
+          return <BankAccount key={account.id} data={account} provider={connection.provider} />;
         })}
       </div>
 

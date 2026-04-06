@@ -1,11 +1,4 @@
-import {
-  Body,
-  Container,
-  Heading,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
+import { Body, Container, Heading, Preview, Section, Text } from "@react-email/components";
 import { getAppUrl } from "@tamias/utils/envs";
 import { Footer } from "../components/footer";
 import { Logo } from "../components/logo";
@@ -30,10 +23,7 @@ export const TrialEndedEmail = ({ fullName = "" }: Props) => {
 
   return (
     <EmailThemeProvider preview={<Preview>{text}</Preview>}>
-      <Body
-        className={`my-auto mx-auto font-sans ${themeClasses.body}`}
-        style={lightStyles.body}
-      >
+      <Body className={`my-auto mx-auto font-sans ${themeClasses.body}`} style={lightStyles.body}>
         <Container
           className={`my-[40px] mx-auto p-[20px] max-w-[600px] ${themeClasses.container}`}
           style={{
@@ -58,20 +48,15 @@ export const TrialEndedEmail = ({ fullName = "" }: Props) => {
           >
             {firstName ? `Hi ${firstName},` : "Hello,"}
           </span>
-          <Text
-            className={themeClasses.text}
-            style={{ color: lightStyles.text.color }}
-          >
-            Your Tamias trial has ended. Your account is now in read-only mode,
-            but all your data — transactions, invoices, reports — is still there
-            waiting for you.
+          <Text className={themeClasses.text} style={{ color: lightStyles.text.color }}>
+            Your Tamias trial has ended. Your account is now in read-only mode, but all your data —
+            transactions, invoices, reports — is still there waiting for you.
           </Text>
           <Text
             className={`text-[14px] ${themeClasses.text}`}
             style={{ color: lightStyles.text.color }}
           >
-            Upgrade to pick up right where you left off. It takes less than a
-            minute.
+            Upgrade to pick up right where you left off. It takes less than a minute.
           </Text>
           <Section className="text-center mt-[50px] mb-[50px]">
             <Button href={`${baseAppUrl}/upgrade`}>Upgrade now</Button>
@@ -80,8 +65,8 @@ export const TrialEndedEmail = ({ fullName = "" }: Props) => {
             className={`text-[14px] ${themeClasses.text}`}
             style={{ color: lightStyles.text.color }}
           >
-            If Tamias isn't the right fit, we'd genuinely appreciate your
-            feedback — just reply and let us know. We read every response.
+            If Tamias isn't the right fit, we'd genuinely appreciate your feedback — just reply and
+            let us know. We read every response.
           </Text>
           <Text
             className={`text-[14px] ${themeClasses.text}`}

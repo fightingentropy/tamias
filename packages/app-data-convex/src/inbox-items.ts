@@ -219,10 +219,7 @@ export async function getInboxItemsPageFromConvex(args: {
   }>;
 }
 
-export async function getInboxItemByIdFromConvex(args: {
-  teamId: string;
-  inboxId: string;
-}) {
+export async function getInboxItemByIdFromConvex(args: { teamId: string; inboxId: string }) {
   return createClient().query(
     api.inbox.serviceGetInboxItemById,
     serviceArgs({
@@ -294,9 +291,7 @@ export async function getPendingInboxItemsToNoMatchFromConvex(args: {
   }>;
 }
 
-export async function upsertInboxItemsInConvex(args: {
-  items: UpsertInboxItemInConvexInput[];
-}) {
+export async function upsertInboxItemsInConvex(args: { items: UpsertInboxItemInConvexInput[] }) {
   return createClient().mutation(
     api.inbox.serviceUpsertInboxItems,
     serviceArgs({
@@ -336,9 +331,7 @@ export async function upsertInboxItemsInConvex(args: {
   ) as Promise<InboxItemRecord[]>;
 }
 
-export async function rebuildInboxLiabilityAggregatesInConvex(args: {
-  teamId?: string | null;
-}) {
+export async function rebuildInboxLiabilityAggregatesInConvex(args: { teamId?: string | null }) {
   return createClient().mutation(
     convexApi.inbox.serviceRebuildInboxLiabilityAggregates,
     serviceArgs({
@@ -353,9 +346,7 @@ export async function rebuildInboxLiabilityAggregatesInConvex(args: {
   >;
 }
 
-export async function rebuildInboxStatusAggregatesInConvex(args: {
-  teamId?: string | null;
-}) {
+export async function rebuildInboxStatusAggregatesInConvex(args: { teamId?: string | null }) {
   return createClient().mutation(
     convexApi.inbox.serviceRebuildInboxStatusAggregates,
     serviceArgs({

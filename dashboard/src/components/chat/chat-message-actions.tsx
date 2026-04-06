@@ -3,12 +3,7 @@
 import { useChatActions, useChatId } from "@ai-sdk-tools/store";
 import { cn } from "@tamias/ui/cn";
 import { Icons } from "@tamias/ui/icons";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { useToast } from "@tamias/ui/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useRef, useState } from "react";
@@ -29,9 +24,7 @@ export function ChatMessageActions({
 }: ChatMessageActionsProps) {
   const chatId = useChatId();
   const { regenerate } = useChatActions();
-  const [feedbackGiven, setFeedbackGiven] = useState<
-    "positive" | "negative" | null
-  >(null);
+  const [feedbackGiven, setFeedbackGiven] = useState<"positive" | "negative" | null>(null);
   const [copied, setCopied] = useState(false);
 
   const trpc = useTRPC();
@@ -40,13 +33,9 @@ export function ChatMessageActions({
   const { toast } = useToast();
   const audioFetchingRef = useRef(false);
 
-  const createFeedbackMutation = useMutation(
-    trpc.chatFeedback.create.mutationOptions(),
-  );
+  const createFeedbackMutation = useMutation(trpc.chatFeedback.create.mutationOptions());
 
-  const deleteFeedbackMutation = useMutation(
-    trpc.chatFeedback.delete.mutationOptions(),
-  );
+  const deleteFeedbackMutation = useMutation(trpc.chatFeedback.delete.mutationOptions());
 
   const handleRegenerate = () => {
     regenerate?.();
@@ -219,14 +208,10 @@ export function ChatMessageActions({
               <button
                 type="button"
                 onClick={handlePositive}
-                disabled={
-                  createFeedbackMutation.isPending ||
-                  deleteFeedbackMutation.isPending
-                }
+                disabled={createFeedbackMutation.isPending || deleteFeedbackMutation.isPending}
                 className={cn(
                   "flex items-center justify-center w-6 h-6 transition-colors duration-200 hover:bg-muted",
-                  (createFeedbackMutation.isPending ||
-                    deleteFeedbackMutation.isPending) &&
+                  (createFeedbackMutation.isPending || deleteFeedbackMutation.isPending) &&
                     "opacity-50 cursor-not-allowed",
                 )}
               >
@@ -242,9 +227,7 @@ export function ChatMessageActions({
             </TooltipTrigger>
             <TooltipContent className="px-2 py-1 text-xs">
               <p>
-                {feedbackGiven === "positive"
-                  ? "Remove positive feedback"
-                  : "Positive feedback"}
+                {feedbackGiven === "positive" ? "Remove positive feedback" : "Positive feedback"}
               </p>
             </TooltipContent>
           </Tooltip>
@@ -259,14 +242,10 @@ export function ChatMessageActions({
               <button
                 type="button"
                 onClick={handleNegative}
-                disabled={
-                  createFeedbackMutation.isPending ||
-                  deleteFeedbackMutation.isPending
-                }
+                disabled={createFeedbackMutation.isPending || deleteFeedbackMutation.isPending}
                 className={cn(
                   "flex items-center justify-center w-6 h-6 transition-colors duration-200 hover:bg-muted",
-                  (createFeedbackMutation.isPending ||
-                    deleteFeedbackMutation.isPending) &&
+                  (createFeedbackMutation.isPending || deleteFeedbackMutation.isPending) &&
                     "opacity-50 cursor-not-allowed",
                 )}
               >
@@ -282,9 +261,7 @@ export function ChatMessageActions({
             </TooltipTrigger>
             <TooltipContent className="px-2 py-1 text-xs">
               <p>
-                {feedbackGiven === "negative"
-                  ? "Remove negative feedback"
-                  : "Negative feedback"}
+                {feedbackGiven === "negative" ? "Remove negative feedback" : "Negative feedback"}
               </p>
             </TooltipContent>
           </Tooltip>

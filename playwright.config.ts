@@ -4,18 +4,14 @@ import { defineConfig, devices } from "@playwright/test";
 
 const repoRoot = path.dirname(fileURLToPath(import.meta.url));
 
-const appBaseURL =
-  process.env.PLAYWRIGHT_BASE_URL ?? "http://app.tamias.test:3001";
-const localBaseURL =
-  process.env.PLAYWRIGHT_LOCAL_BASE_URL ?? "http://127.0.0.1:3001";
+const appBaseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://app.tamias.test:3001";
+const localBaseURL = process.env.PLAYWRIGHT_LOCAL_BASE_URL ?? "http://127.0.0.1:3001";
 const webServerURL =
-  process.env.PLAYWRIGHT_WEB_SERVER_URL ??
-  new URL("/login", localBaseURL).toString();
+  process.env.PLAYWRIGHT_WEB_SERVER_URL ?? new URL("/login", localBaseURL).toString();
 const authStatePath = path.join(repoRoot, "e2e", ".auth", "user.json");
 const sharedApiUrl = "https://api.tamias.xyz";
 const webServerCommand = `DASHBOARD_URL=${appBaseURL} API_URL=${sharedApiUrl} bun run --cwd dashboard build:start && DASHBOARD_URL=${appBaseURL} API_URL=${sharedApiUrl} bun run --cwd dashboard preview:start`;
-const hostResolverRules =
-  "MAP tamias.test 127.0.0.1, MAP *.tamias.test 127.0.0.1";
+const hostResolverRules = "MAP tamias.test 127.0.0.1, MAP *.tamias.test 127.0.0.1";
 
 export default defineConfig({
   testDir: "./e2e",

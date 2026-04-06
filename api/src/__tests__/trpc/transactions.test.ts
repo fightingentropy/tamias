@@ -18,9 +18,7 @@ const createCaller = createCallerFactory(transactionsRouter);
 describe("tRPC: transactions.get", () => {
   beforeEach(() => {
     mocks.getTransactions.mockReset();
-    mocks.getTransactions.mockImplementation(() =>
-      createTransactionsListResponse(),
-    );
+    mocks.getTransactions.mockImplementation(() => createTransactionsListResponse());
   });
 
   test("returns transactions list", async () => {
@@ -47,9 +45,7 @@ describe("tRPC: transactions.get", () => {
   });
 
   test("handles empty list", async () => {
-    mocks.getTransactions.mockImplementation(() =>
-      createTransactionsListResponse([]),
-    );
+    mocks.getTransactions.mockImplementation(() => createTransactionsListResponse([]));
 
     const caller = createCaller(createTestContext());
     const result = await caller.get({});
@@ -58,9 +54,7 @@ describe("tRPC: transactions.get", () => {
   });
 
   test("filters by type", async () => {
-    mocks.getTransactions.mockImplementation(() =>
-      createTransactionsListResponse([]),
-    );
+    mocks.getTransactions.mockImplementation(() => createTransactionsListResponse([]));
 
     const caller = createCaller(createTestContext());
     await caller.get({ type: "expense" });
@@ -107,9 +101,7 @@ describe("tRPC: transactions.getById", () => {
   });
 
   test("returns single transaction", async () => {
-    mocks.getTransactionById.mockImplementation(() =>
-      createValidTransactionResponse(),
-    );
+    mocks.getTransactionById.mockImplementation(() => createValidTransactionResponse());
 
     const caller = createCaller(createTestContext());
     const result = await caller.getById({
@@ -146,9 +138,7 @@ describe("tRPC: transactions.getById", () => {
   });
 
   test("passes correct parameters to DB query", async () => {
-    mocks.getTransactionById.mockImplementation(() =>
-      createValidTransactionResponse(),
-    );
+    mocks.getTransactionById.mockImplementation(() => createValidTransactionResponse());
 
     const caller = createCaller(createTestContext());
     await caller.getById({ id: "d5d9e0f4-3a4c-6e5f-af6b-7c8d9e0f1a2b" });
@@ -185,9 +175,7 @@ describe("tRPC: transactions.getById", () => {
 describe("tRPC: transactions.create", () => {
   beforeEach(() => {
     mocks.createTransaction.mockReset();
-    mocks.createTransaction.mockImplementation(() =>
-      createValidTransactionResponse(),
-    );
+    mocks.createTransaction.mockImplementation(() => createValidTransactionResponse());
   });
 
   test("creates transaction with valid data", async () => {
@@ -214,9 +202,7 @@ describe("tRPC: transactions.create", () => {
 describe("tRPC: transactions.update", () => {
   beforeEach(() => {
     mocks.updateTransaction.mockReset();
-    mocks.updateTransaction.mockImplementation(() =>
-      createValidTransactionResponse(),
-    );
+    mocks.updateTransaction.mockImplementation(() => createValidTransactionResponse());
   });
 
   test("updates transaction successfully", async () => {
@@ -349,9 +335,7 @@ describe("tRPC: transactions.getSimilarTransactions", () => {
   });
 
   test("returns similar transactions", async () => {
-    mocks.getSimilarTransactions.mockImplementation(() => [
-      createValidTransactionResponse(),
-    ]);
+    mocks.getSimilarTransactions.mockImplementation(() => [createValidTransactionResponse()]);
 
     const caller = createCaller(createTestContext());
     const result = await caller.getSimilarTransactions({ name: "Office" });

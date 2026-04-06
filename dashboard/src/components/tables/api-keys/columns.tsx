@@ -49,9 +49,7 @@ export const columns: ColumnDef<ApiKey>[] = [
               {user.fullName?.charAt(0)?.toUpperCase() ?? "?"}
             </AvatarFallback>
           </Avatar>
-          <span className="truncate">
-            {user.fullName?.split(" ").at(0) ?? "Unknown"}
-          </span>
+          <span className="truncate">{user.fullName?.split(" ").at(0) ?? "Unknown"}</span>
         </div>
       );
     },
@@ -61,9 +59,7 @@ export const columns: ColumnDef<ApiKey>[] = [
     accessorKey: "scopes",
     header: "Permissions",
     cell: ({ row }) => {
-      return (
-        <Badge variant="tag">{scopesToName(row.original.scopes).name}</Badge>
-      );
+      return <Badge variant="tag">{scopesToName(row.original.scopes).name}</Badge>;
     },
   },
   {
@@ -77,11 +73,7 @@ export const columns: ColumnDef<ApiKey>[] = [
         return <span className="text-muted-foreground">-</span>;
       }
 
-      return (
-        <span>
-          {formatDistanceToNow(new Date(createdAt), { addSuffix: true })}
-        </span>
-      );
+      return <span>{formatDistanceToNow(new Date(createdAt), { addSuffix: true })}</span>;
     },
   },
   {
@@ -98,11 +90,7 @@ export const columns: ColumnDef<ApiKey>[] = [
         return <span className="text-muted-foreground">Never</span>;
       }
 
-      return (
-        <span>
-          {formatDistanceToNow(new Date(lastUsedAt), { addSuffix: true })}
-        </span>
-      );
+      return <span>{formatDistanceToNow(new Date(lastUsedAt), { addSuffix: true })}</span>;
     },
   },
   {

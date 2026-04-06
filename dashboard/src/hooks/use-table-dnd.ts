@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  type DragEndEvent,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
+import { type DragEndEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import type { Table } from "@tanstack/react-table";
 import { useCallback } from "react";

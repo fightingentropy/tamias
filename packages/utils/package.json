@@ -10,8 +10,6 @@
   },
   "scripts": {
     "clean": "rm -rf node_modules",
-    "lint": "biome check .",
-    "lint:fix": "biome format --write .",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

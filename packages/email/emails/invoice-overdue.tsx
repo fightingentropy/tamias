@@ -1,11 +1,4 @@
-import {
-  Body,
-  Container,
-  Heading,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
+import { Body, Container, Heading, Preview, Section, Text } from "@react-email/components";
 import { getAppUrl } from "@tamias/utils/envs";
 import { Footer } from "../components/footer";
 import { Logo } from "../components/logo";
@@ -35,10 +28,7 @@ export const InvoiceOverdueEmail = ({
 
   return (
     <EmailThemeProvider preview={<Preview>{text}</Preview>}>
-      <Body
-        className={`my-auto mx-auto font-sans ${themeClasses.body}`}
-        style={lightStyles.body}
-      >
+      <Body className={`my-auto mx-auto font-sans ${themeClasses.body}`} style={lightStyles.body}>
         <Container
           className={`my-[40px] mx-auto p-[20px] max-w-[600px] ${themeClasses.container}`}
           style={{
@@ -58,21 +48,18 @@ export const InvoiceOverdueEmail = ({
 
           <br />
 
-          <Text
-            className={themeClasses.text}
-            style={{ color: lightStyles.text.color }}
-          >
+          <Text className={themeClasses.text} style={{ color: lightStyles.text.color }}>
             Invoice <span className="font-medium">{invoiceNumber}</span> to{" "}
-            <span className="font-medium">{customerName}</span> is now overdue.
-            We've checked your account but haven't found a matching transaction.
+            <span className="font-medium">{customerName}</span> is now overdue. We've checked your
+            account but haven't found a matching transaction.
             <br />
             <br />
-            Please review the invoice details page to verify if payment has been
-            made through another method.
+            Please review the invoice details page to verify if payment has been made through
+            another method.
             <br />
             <br />
-            If needed, you can send a payment reminder to your customer or
-            update the invoice status manually if it has already been paid.
+            If needed, you can send a payment reminder to your customer or update the invoice status
+            manually if it has already been paid.
             <br />
             <br />
           </Text>

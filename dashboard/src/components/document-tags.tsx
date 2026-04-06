@@ -5,9 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { VaultSelectTags } from "@/components/vault/vault-select-tags";
 import { useTRPC } from "@/trpc/client";
 
-type Tag = NonNullable<
-  RouterOutputs["documents"]["getById"]
->["documentTagAssignments"][number];
+type Tag = NonNullable<RouterOutputs["documents"]["getById"]>["documentTagAssignments"][number];
 
 interface Props {
   id: string;

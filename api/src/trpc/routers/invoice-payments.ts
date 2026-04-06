@@ -53,46 +53,44 @@ export const invoicePaymentsRouter = createTRPCRouter({
   }),
 
   // Disconnect Stripe account
-  disconnectStripe: protectedProcedure.mutation(
-    async ({ ctx: { db, teamId } }) => {
-      if (!teamId) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "Team not found",
+  disconnectStripe: protectedProcedure.mutation(async ({ ctx: { db, teamId } }) => {
+    if (!teamId) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "Team not found",
+      });
+    }
+
+    const team = await getTeamById(db, teamId);
+
+    if (team?.stripeAccountId) {
+      try {
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
+        // Deauthorize the connected account
+        await stripe.oauth.deauthorize({
+          client_id: process.env.STRIPE_CONNECT_CLIENT_ID!,
+          stripe_user_id: team.stripeAccountId,
+        });
+      } catch (err) {
+        // Log but don't fail
+        logger.warn("Failed to deauthorize Stripe account", {
+          error: err instanceof Error ? err.message : String(err),
         });
       }
+    }
 
-      const team = await getTeamById(db, teamId);
+    // Clear Stripe fields from team
+    await updateTeamById(db, {
+      id: teamId,
+      data: {
+        stripeAccountId: null,
+        stripeConnectStatus: null,
+      },
+    });
 
-      if (team?.stripeAccountId) {
-        try {
-          const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
-          // Deauthorize the connected account
-          await stripe.oauth.deauthorize({
-            client_id: process.env.STRIPE_CONNECT_CLIENT_ID!,
-            stripe_user_id: team.stripeAccountId,
-          });
-        } catch (err) {
-          // Log but don't fail
-          logger.warn("Failed to deauthorize Stripe account", {
-            error: err instanceof Error ? err.message : String(err),
-          });
-        }
-      }
-
-      // Clear Stripe fields from team
-      await updateTeamById(db, {
-        id: teamId,
-        data: {
-          stripeAccountId: null,
-          stripeConnectStatus: null,
-        },
-      });
-
-      return { success: true };
-    },
-  ),
+    return { success: true };
+  }),
 
   // Refund a Stripe payment for an invoice
   refundPayment: protectedProcedure

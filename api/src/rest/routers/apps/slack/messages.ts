@@ -124,10 +124,7 @@ export async function sendWelcomeMessage({
         }
       } catch (webhookErr) {
         logger.warn("Failed to send welcome message via webhook", {
-          error:
-            webhookErr instanceof Error
-              ? webhookErr.message
-              : String(webhookErr),
+          error: webhookErr instanceof Error ? webhookErr.message : String(webhookErr),
           channelId,
         });
         // Don't throw - welcome message is non-critical

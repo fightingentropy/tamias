@@ -10,8 +10,7 @@ async function zipAndDownloadFiles(
   signedUrls: string[],
   originalFilePaths: string[],
 ): Promise<void> {
-  const validSignedFiles: { path: string; signedUrl: string; name: string }[] =
-    [];
+  const validSignedFiles: { path: string; signedUrl: string; name: string }[] = [];
 
   for (const signedUrl of signedUrls) {
     let foundMatch = false;

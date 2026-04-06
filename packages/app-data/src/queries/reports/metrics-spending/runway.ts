@@ -1,9 +1,4 @@
-import {
-  endOfMonth,
-  format,
-  startOfMonth,
-  subMonths,
-} from "date-fns";
+import { endOfMonth, format, startOfMonth, subMonths } from "date-fns";
 import { UTCDate } from "@date-fns/utc";
 import type { Database } from "../../../client";
 import { reuseQueryResult } from "../../../utils/request-cache";
@@ -21,11 +16,7 @@ async function getRunwayImpl(db: Database, params: GetRunwayParams) {
   const fromDate = startOfMonth(subMonths(toDate, 5));
   const burnRateFrom = format(fromDate, "yyyy-MM-dd");
   const burnRateTo = format(toDate, "yyyy-MM-dd");
-  const targetCurrency = await getTargetCurrency(
-    db,
-    params.teamId,
-    params.currency,
-  );
+  const targetCurrency = await getTargetCurrency(db, params.teamId, params.currency);
 
   if (!targetCurrency) {
     return 0;
@@ -61,7 +52,6 @@ async function getRunwayImpl(db: Database, params: GetRunwayParams) {
 
 export const getRunway = reuseQueryResult({
   keyPrefix: "runway",
-  keyFn: (params: GetRunwayParams) =>
-    [params.teamId, params.currency ?? ""].join(":"),
+  keyFn: (params: GetRunwayParams) => [params.teamId, params.currency ?? ""].join(":"),
   load: getRunwayImpl,
 });

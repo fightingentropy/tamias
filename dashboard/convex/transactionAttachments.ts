@@ -1,12 +1,7 @@
 import { ConvexError, v } from "convex/values";
 import { nowIso } from "../../packages/domain/src/identity";
 import type { Id } from "./_generated/dataModel";
-import {
-  type MutationCtx,
-  mutation,
-  type QueryCtx,
-  query,
-} from "./_generated/server";
+import { type MutationCtx, mutation, type QueryCtx, query } from "./_generated/server";
 import { getTeamByPublicTeamId } from "./lib/identity";
 import { requireServiceKey } from "./lib/service";
 
@@ -50,10 +45,7 @@ function pathKeyFromPath(path: string[]) {
 }
 
 function publicTransactionAttachmentId(
-  record: Pick<
-    TransactionAttachmentDoc,
-    "_id" | "publicTransactionAttachmentId"
-  >,
+  record: Pick<TransactionAttachmentDoc, "_id" | "publicTransactionAttachmentId">,
 ) {
   return record.publicTransactionAttachmentId ?? record._id;
 }
@@ -74,10 +66,7 @@ function serializeTransactionAttachment(
   };
 }
 
-async function getTeamOrThrow(
-  ctx: TransactionAttachmentCtx,
-  publicTeamId: string,
-) {
+async function getTeamOrThrow(ctx: TransactionAttachmentCtx, publicTeamId: string) {
   const team = await getTeamByPublicTeamId(ctx, publicTeamId);
 
   if (!team) {
@@ -148,17 +137,13 @@ async function getTransactionAttachmentByPublicId(
     )
     .collect();
 
-  const matchingLegacyRecord = byLegacyId.find(
-    (record: any) => record.teamId === team._id,
-  );
+  const matchingLegacyRecord = byLegacyId.find((record: any) => record.teamId === team._id);
 
   if (matchingLegacyRecord) {
     return matchingLegacyRecord;
   }
 
-  const byDocId = (await db.get(
-    args.attachmentId as any,
-  )) as TransactionAttachmentDoc | null;
+  const byDocId = (await db.get(args.attachmentId as any)) as TransactionAttachmentDoc | null;
 
   if (byDocId && byDocId.teamId === team._id) {
     return byDocId;
@@ -284,9 +269,7 @@ export const serviceCreateTransactionAttachments = mutation({
         )
         .collect();
 
-      const matchingExisting = existing.find(
-        (record: any) => record.teamId === team._id,
-      );
+      const matchingExisting = existing.find((record: any) => record.teamId === team._id);
 
       if (matchingExisting) {
         if (matchingExisting.transactionId) {
@@ -310,16 +293,12 @@ export const serviceCreateTransactionAttachments = mutation({
           throw new ConvexError("Failed to update transaction attachment");
         }
 
-        results.push(
-          serializeTransactionAttachment(args.publicTeamId, updated),
-        );
+        results.push(serializeTransactionAttachment(args.publicTeamId, updated));
         continue;
       }
 
       if (existing.length > 0) {
-        throw new ConvexError(
-          "Transaction attachment legacy id already exists",
-        );
+        throw new ConvexError("Transaction attachment legacy id already exists");
       }
 
       const insertedId = await db.insert("transactionAttachments", {
@@ -413,10 +392,7 @@ export const serviceGetTransactionAttachmentsByIds = query({
         continue;
       }
 
-      const serialized = serializeTransactionAttachment(
-        args.publicTeamId,
-        attachment,
-      );
+      const serialized = serializeTransactionAttachment(args.publicTeamId, attachment);
 
       if (seen.has(serialized.id)) {
         continue;
@@ -449,16 +425,10 @@ export const serviceGetTransactionAttachmentsForTransactionIds = query({
       return [];
     }
 
-    const attachments = await getAttachmentsByTransactionIds(
-      ctx,
-      team._id,
-      args.transactionIds,
-    );
+    const attachments = await getAttachmentsByTransactionIds(ctx, team._id, args.transactionIds);
 
     return attachments
-      .map((attachment) =>
-        serializeTransactionAttachment(args.publicTeamId, attachment),
-      )
+      .map((attachment) => serializeTransactionAttachment(args.publicTeamId, attachment))
       .sort(sortAttachments);
   },
 });
@@ -489,9 +459,7 @@ export const serviceGetTransactionAttachmentsByPathKeys = query({
     );
 
     return attachments
-      .map((attachment) =>
-        serializeTransactionAttachment(args.publicTeamId, attachment),
-      )
+      .map((attachment) => serializeTransactionAttachment(args.publicTeamId, attachment))
       .sort(sortAttachments);
   },
 });
@@ -648,9 +616,7 @@ export const serviceRebuildTransactionAttachmentFlags = mutation({
 
     const teams = args.publicTeamId
       ? [await getTeamByPublicTeamId(ctx, args.publicTeamId)]
-      : (await ctx.db.query("teams").collect()).filter(
-          (team) => !!team.publicTeamId,
-        );
+      : (await ctx.db.query("teams").collect()).filter((team) => !!team.publicTeamId);
 
     const validTeams = teams.filter(
       (team): team is NonNullable<(typeof teams)[number]> => team !== null,
@@ -676,13 +642,9 @@ export const serviceRebuildTransactionAttachmentFlags = mutation({
 
       const attachedTransactionIds = new Set<string>(
         attachments
-          .map(
-            (attachment: { transactionId?: string }) =>
-              attachment.transactionId,
-          )
-          .filter(
-            (transactionId: string | undefined): transactionId is string =>
-              Boolean(transactionId),
+          .map((attachment: { transactionId?: string }) => attachment.transactionId)
+          .filter((transactionId: string | undefined): transactionId is string =>
+            Boolean(transactionId),
           ),
       );
       let updatedTransactionCount = 0;
@@ -690,8 +652,7 @@ export const serviceRebuildTransactionAttachmentFlags = mutation({
       for (const transaction of transactions) {
         const publicId = transaction.publicTransactionId ?? transaction._id;
         const hasAttachment =
-          attachedTransactionIds.has(publicId) ||
-          attachedTransactionIds.has(transaction._id);
+          attachedTransactionIds.has(publicId) || attachedTransactionIds.has(transaction._id);
 
         if ((transaction.hasAttachment ?? false) === hasAttachment) {
           continue;

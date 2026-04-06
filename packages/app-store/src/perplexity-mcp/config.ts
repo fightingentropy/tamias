@@ -6,8 +6,7 @@ export default {
   category: "ai-automation",
   active: true,
   logo: Logo,
-  short_description:
-    "Connect Perplexity to your Tamias data with AI-powered search.",
+  short_description: "Connect Perplexity to your Tamias data with AI-powered search.",
   description: `Connect Perplexity to your Tamias account using the Model Context Protocol (MCP).
 
 **What you can do:**

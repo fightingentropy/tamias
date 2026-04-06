@@ -124,19 +124,10 @@ export const recurringConfigSchema = z
     // monthly_last_day doesn't require frequencyDay
 
     // Frequencies that require frequencyDay as day of month (1-31)
-    const dayOfMonthFrequencies = [
-      "monthly_date",
-      "quarterly",
-      "semi_annual",
-      "annual",
-    ] as const;
+    const dayOfMonthFrequencies = ["monthly_date", "quarterly", "semi_annual", "annual"] as const;
 
     // Validate frequencyDay is required for day-of-month frequencies
-    if (
-      dayOfMonthFrequencies.includes(
-        data.frequency as (typeof dayOfMonthFrequencies)[number],
-      )
-    ) {
+    if (dayOfMonthFrequencies.includes(data.frequency as (typeof dayOfMonthFrequencies)[number])) {
       if (data.frequencyDay === null || data.frequencyDay === undefined) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -248,11 +239,7 @@ type FormContextProps = {
   defaultSettings?: RouterOutputs["invoice"]["defaultSettings"];
 };
 
-export function FormContext({
-  children,
-  data,
-  defaultSettings,
-}: FormContextProps) {
+export function FormContext({ children, data, defaultSettings }: FormContextProps) {
   const form = useZodForm(invoiceFormSchema, {
     // @ts-expect-error
     defaultValues: defaultSettings,

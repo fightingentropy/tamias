@@ -5,9 +5,7 @@ describe("getPasswordAuthErrorMessage", () => {
   it("maps invalid account ids to a generic credential error", () => {
     expect(
       getPasswordAuthErrorMessage(
-        new Error(
-          "[Request ID] Server Error\nUncaught Error: InvalidAccountId",
-        ),
+        new Error("[Request ID] Server Error\nUncaught Error: InvalidAccountId"),
         "signIn",
       ),
     ).toBe("Incorrect email or password.");
@@ -32,16 +30,14 @@ describe("getPasswordAuthErrorMessage", () => {
   });
 
   it("maps transport failures to a Convex / dev setup message", () => {
-    expect(
-      getPasswordAuthErrorMessage(new Error("fetch failed"), "signIn"),
-    ).toBe(
+    expect(getPasswordAuthErrorMessage(new Error("fetch failed"), "signIn")).toBe(
       "Could not reach Convex (password auth uses it). Run the full stack with `bun run dev` from the repo root, set CONVEX_URL in the repo root `.env`, and run Convex dev (`bun run convex:dev` from `dashboard`, or `bunx convex dev` with root env loaded) if you use a dev deployment.",
     );
   });
 
   it("falls back to the mode-specific default message", () => {
-    expect(
-      getPasswordAuthErrorMessage(new Error("Unexpected failure"), "signUp"),
-    ).toBe("Unable to create your account.");
+    expect(getPasswordAuthErrorMessage(new Error("Unexpected failure"), "signUp")).toBe(
+      "Unable to create your account.",
+    );
   });
 });

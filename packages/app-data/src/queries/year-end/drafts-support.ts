@@ -21,29 +21,21 @@ function getWorkingPaperSection(
   return workingPapers.find((section) => section.key === key) ?? null;
 }
 
-function getWorkingPaperLineAmount(
-  section: WorkingPaperSection | null,
-  accountCode: string,
-) {
-  return (
-    section?.lines.find((line) => line.accountCode === accountCode)?.balance ??
-    0
-  );
+function getWorkingPaperLineAmount(section: WorkingPaperSection | null, accountCode: string) {
+  return section?.lines.find((line) => line.accountCode === accountCode)?.balance ?? 0;
 }
 
 function parseDraftPackData(pack: YearEndPackRecord) {
   const profitAndLoss = parsePackArray<SummaryLine>(pack.profitAndLoss);
   const balanceSheet = parsePackArray<SummaryLine>(pack.balanceSheet);
   const workingPapers = parsePackArray<WorkingPaperSection>(pack.workingPapers);
-  const retainedEarnings = (pack
-    .retainedEarnings as RetainedEarningsRollforward | null) ?? {
+  const retainedEarnings = (pack.retainedEarnings as RetainedEarningsRollforward | null) ?? {
     openingBalance: 0,
     currentPeriodProfit: 0,
     manualEquityAdjustments: 0,
     closingBalance: 0,
   };
-  const corporationTax =
-    (pack.corporationTax as CorporationTaxSummary | null) ?? null;
+  const corporationTax = (pack.corporationTax as CorporationTaxSummary | null) ?? null;
 
   return {
     profitAndLoss,
@@ -68,12 +60,8 @@ export function buildYearEndDraftEvaluation(args: {
   const assets = getSummaryAmount(parsed.balanceSheet, "assets");
   const liabilities = getSummaryAmount(parsed.balanceSheet, "liabilities");
   const balanceSheetEquity = getSummaryAmount(parsed.balanceSheet, "equity");
-  const otherReserves = roundCurrency(
-    balanceSheetEquity - shareCapital - retainedReserve,
-  );
-  const totalEquity = roundCurrency(
-    shareCapital + retainedReserve + otherReserves,
-  );
+  const otherReserves = roundCurrency(balanceSheetEquity - shareCapital - retainedReserve);
+  const totalEquity = roundCurrency(shareCapital + retainedReserve + otherReserves);
   const netAssets = roundCurrency(assets - liabilities);
   const accountingProfitBeforeTax =
     parsed.corporationTax?.accountingProfitBeforeTax ??

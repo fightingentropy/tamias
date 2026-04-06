@@ -21,10 +21,7 @@ function slugifyCategoryName(name: string) {
   );
 }
 
-function serializeTransactionCategory(
-  publicTeamId: string,
-  record: TransactionCategoryRecord,
-) {
+function serializeTransactionCategory(publicTeamId: string, record: TransactionCategoryRecord) {
   return {
     id: record.publicTransactionCategoryId ?? record._id,
     teamId: publicTeamId,
@@ -43,10 +40,7 @@ function serializeTransactionCategory(
   };
 }
 
-async function getTeamOrThrow(
-  ctx: TransactionCategoryCtx,
-  publicTeamId: string,
-) {
+async function getTeamOrThrow(ctx: TransactionCategoryCtx, publicTeamId: string) {
   const team = await getTeamByPublicTeamId(ctx, publicTeamId);
 
   if (!team) {
@@ -89,9 +83,7 @@ async function findUniqueSlug(
   while (true) {
     const existing = await ctx.db
       .query("transactionCategories")
-      .withIndex("by_team_and_slug", (q) =>
-        q.eq("teamId", args.teamId).eq("slug", slug),
-      )
+      .withIndex("by_team_and_slug", (q) => q.eq("teamId", args.teamId).eq("slug", slug))
       .unique();
 
     if (!existing || existing._id === args.excludeCategoryId) {
@@ -122,15 +114,11 @@ async function upsertTransactionCategoryRecord(
   },
 ) {
   const existing =
-    (args.id
-      ? await getCategoryByExternalId(ctx, args.teamId, args.id)
-      : null) ??
+    (args.id ? await getCategoryByExternalId(ctx, args.teamId, args.id) : null) ??
     (args.slug
       ? await ctx.db
           .query("transactionCategories")
-          .withIndex("by_team_and_slug", (q) =>
-            q.eq("teamId", args.teamId).eq("slug", args.slug!),
-          )
+          .withIndex("by_team_and_slug", (q) => q.eq("teamId", args.teamId).eq("slug", args.slug!))
           .unique()
       : null);
 
@@ -165,9 +153,7 @@ async function upsertTransactionCategoryRecord(
       taxType: args.taxType ?? undefined,
       taxReportingCode: args.taxReportingCode ?? undefined,
       excluded: args.excluded ?? undefined,
-      parentId: parent
-        ? (parent.publicTransactionCategoryId ?? parent._id)
-        : undefined,
+      parentId: parent ? (parent.publicTransactionCategoryId ?? parent._id) : undefined,
       updatedAt: timestamp,
     });
 
@@ -197,9 +183,7 @@ async function upsertTransactionCategoryRecord(
     taxType: args.taxType ?? undefined,
     taxReportingCode: args.taxReportingCode ?? undefined,
     excluded: args.excluded ?? undefined,
-    parentId: parent
-      ? (parent.publicTransactionCategoryId ?? parent._id)
-      : undefined,
+    parentId: parent ? (parent.publicTransactionCategoryId ?? parent._id) : undefined,
     createdAt: timestamp,
     updatedAt: timestamp,
   });
@@ -233,13 +217,8 @@ export const serviceListTransactionCategories = query({
       .collect();
 
     return categories
-      .sort(
-        (a, b) =>
-          Number(b.system) - Number(a.system) || a.name.localeCompare(b.name),
-      )
-      .map((category) =>
-        serializeTransactionCategory(args.publicTeamId, category),
-      );
+      .sort((a, b) => Number(b.system) - Number(a.system) || a.name.localeCompare(b.name))
+      .map((category) => serializeTransactionCategory(args.publicTeamId, category));
   },
 });
 
@@ -258,11 +237,7 @@ export const serviceGetTransactionCategoryById = query({
       return null;
     }
 
-    const category = await getCategoryByExternalId(
-      ctx,
-      team._id,
-      args.categoryId,
-    );
+    const category = await getCategoryByExternalId(ctx, team._id, args.categoryId);
 
     if (!category) {
       return null;
@@ -343,17 +318,12 @@ export const serviceUpdateTransactionCategory = mutation({
         .withIndex("by_team_and_parent", (q) =>
           q
             .eq("teamId", team._id)
-            .eq(
-              "parentId",
-              category.publicTransactionCategoryId ?? category._id,
-            ),
+            .eq("parentId", category.publicTransactionCategoryId ?? category._id),
         )
         .collect();
 
       if (children.length > 0) {
-        throw new ConvexError(
-          "Cannot change parent of a category that has children",
-        );
+        throw new ConvexError("Cannot change parent of a category that has children");
       }
     }
 
@@ -365,26 +335,16 @@ export const serviceUpdateTransactionCategory = mutation({
       slug: category.slug,
       color: args.color !== undefined ? args.color : (category.color ?? null),
       description:
-        args.description !== undefined
-          ? args.description
-          : (category.description ?? null),
-      taxRate:
-        args.taxRate !== undefined ? args.taxRate : (category.taxRate ?? null),
-      taxType:
-        args.taxType !== undefined ? args.taxType : (category.taxType ?? null),
+        args.description !== undefined ? args.description : (category.description ?? null),
+      taxRate: args.taxRate !== undefined ? args.taxRate : (category.taxRate ?? null),
+      taxType: args.taxType !== undefined ? args.taxType : (category.taxType ?? null),
       taxReportingCode:
         args.taxReportingCode !== undefined
           ? args.taxReportingCode
           : (category.taxReportingCode ?? null),
-      parentId:
-        args.parentId !== undefined
-          ? args.parentId
-          : (category.parentId ?? null),
+      parentId: args.parentId !== undefined ? args.parentId : (category.parentId ?? null),
       system: category.system,
-      excluded:
-        args.excluded !== undefined
-          ? args.excluded
-          : (category.excluded ?? false),
+      excluded: args.excluded !== undefined ? args.excluded : (category.excluded ?? false),
     });
 
     await rebuildDerivedComplianceJournalEntriesForTeam(ctx, team);
@@ -417,9 +377,7 @@ export const serviceDeleteTransactionCategory = mutation({
     const publicId = category.publicTransactionCategoryId ?? category._id;
     const children = await ctx.db
       .query("transactionCategories")
-      .withIndex("by_team_and_parent", (q) =>
-        q.eq("teamId", team._id).eq("parentId", publicId),
-      )
+      .withIndex("by_team_and_parent", (q) => q.eq("teamId", team._id).eq("parentId", publicId))
       .collect();
 
     for (const child of children) {

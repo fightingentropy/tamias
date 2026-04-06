@@ -11,9 +11,7 @@ type CanvasExportMenuProps = {
 
 type CanvasExportMenuComponent = React.ComponentType<CanvasExportMenuProps>;
 
-let canvasExportMenuPromise:
-  | Promise<{ CanvasExportMenu: CanvasExportMenuComponent }>
-  | undefined;
+let canvasExportMenuPromise: Promise<{ CanvasExportMenu: CanvasExportMenuComponent }> | undefined;
 let loadedCanvasExportMenu: CanvasExportMenuComponent | undefined;
 
 async function loadCanvasExportMenu() {
@@ -31,11 +29,7 @@ async function loadCanvasExportMenu() {
 
 function MoreVerticalIcon() {
   return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      className="h-[15px] w-[15px] fill-current"
-    >
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[15px] w-[15px] fill-current">
       <path d="M12 7.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm0 6a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm0 6a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
     </svg>
   );
@@ -46,14 +40,10 @@ interface CanvasExportTriggerProps {
   title: string;
 }
 
-export function CanvasExportTrigger({
-  filename,
-  title,
-}: CanvasExportTriggerProps) {
-  const [MenuComponent, setMenuComponent] =
-    useState<CanvasExportMenuComponent | null>(
-      loadedCanvasExportMenu ?? null,
-    );
+export function CanvasExportTrigger({ filename, title }: CanvasExportTriggerProps) {
+  const [MenuComponent, setMenuComponent] = useState<CanvasExportMenuComponent | null>(
+    loadedCanvasExportMenu ?? null,
+  );
   const [defaultOpen, setDefaultOpen] = useState(false);
 
   const ensureMenuLoaded = async () => {

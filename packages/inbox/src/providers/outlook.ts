@@ -1,7 +1,4 @@
-import {
-  type AuthenticationProvider,
-  Client,
-} from "@microsoft/microsoft-graph-client";
+import { type AuthenticationProvider, Client } from "@microsoft/microsoft-graph-client";
 import { updateInboxAccount } from "@tamias/app-data/queries";
 import { encrypt } from "@tamias/encryption";
 import { ensureFileExtension } from "@tamias/utils";
@@ -64,8 +61,7 @@ export class OutlookProvider implements OAuthProviderInterface {
   ];
 
   #tokenEndpoint = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
-  #authorizeEndpoint =
-    "https://login.microsoftonline.com/common/oauth2/v2.0/authorize";
+  #authorizeEndpoint = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize";
 
   constructor() {
     const clientId = process.env.OUTLOOK_CLIENT_ID;
@@ -126,9 +122,7 @@ export class OutlookProvider implements OAuthProviderInterface {
 
       if (!response.ok) {
         const errorData = await response.text();
-        throw new Error(
-          `Token exchange failed: ${response.status} ${errorData}`,
-        );
+        throw new Error(`Token exchange failed: ${response.status} ${errorData}`);
       }
 
       const tokenResponse = (await response.json()) as MicrosoftTokenResponse;
@@ -168,9 +162,7 @@ export class OutlookProvider implements OAuthProviderInterface {
 
     // Initialize Microsoft Graph client with custom auth provider
     // This provider is called before every request, allowing proactive token refresh
-    const authProvider = new OutlookAuthProvider(() =>
-      this.#ensureValidAccessToken(),
-    );
+    const authProvider = new OutlookAuthProvider(() => this.#ensureValidAccessToken());
 
     this.#graphClient = Client.initWithMiddleware({
       authProvider,
@@ -363,26 +355,22 @@ export class OutlookProvider implements OAuthProviderInterface {
 
     // Determine error type based on patterns
     const isMfaRequired = mfaRequiredPatterns.some(
-      (pattern) =>
-        errorBody.includes(pattern) || errorDescription?.includes(pattern),
+      (pattern) => errorBody.includes(pattern) || errorDescription?.includes(pattern),
     );
     const isConsentRequired = consentRequiredPatterns.some(
-      (pattern) =>
-        errorBody.includes(pattern) || errorDescription?.includes(pattern),
+      (pattern) => errorBody.includes(pattern) || errorDescription?.includes(pattern),
     );
     const isTokenExpired =
       invalidRefreshTokenErrors.includes(errorCode ?? "") ||
       tokenExpiredPatterns.some(
-        (pattern) =>
-          errorBody.includes(pattern) || errorDescription?.includes(pattern),
+        (pattern) => errorBody.includes(pattern) || errorDescription?.includes(pattern),
       );
 
     if (isMfaRequired) {
       throw new InboxAuthError({
         code: "mfa_required",
         provider: "outlook",
-        message:
-          "Multi-factor authentication required. Re-authentication needed.",
+        message: "Multi-factor authentication required. Re-authentication needed.",
         requiresReauth: true,
       });
     }
@@ -400,16 +388,13 @@ export class OutlookProvider implements OAuthProviderInterface {
       throw new InboxAuthError({
         code: "refresh_token_expired",
         provider: "outlook",
-        message:
-          "Refresh token is invalid or expired. Re-authentication required.",
+        message: "Refresh token is invalid or expired. Re-authentication required.",
         requiresReauth: true,
       });
     }
 
     // For other errors, include the error code if available
-    const errorInfo = errorCode
-      ? `${errorCode}: ${errorDescription}`
-      : errorBody;
+    const errorInfo = errorCode ? `${errorCode}: ${errorDescription}` : errorBody;
     throw new InboxAuthError({
       code: "token_invalid",
       provider: "outlook",
@@ -534,11 +519,7 @@ export class OutlookProvider implements OAuthProviderInterface {
       pagesFetched++;
 
       // Pagination
-      while (
-        nextLink &&
-        allMessages.length < maxResults &&
-        pagesFetched < maxPagesToFetch
-      ) {
+      while (nextLink && allMessages.length < maxResults && pagesFetched < maxPagesToFetch) {
         response = await this.#graphClient.api(nextLink).get();
 
         if (response.value) {
@@ -558,9 +539,7 @@ export class OutlookProvider implements OAuthProviderInterface {
         .slice(0, maxResults);
 
       if (!messages || messages.length === 0) {
-        console.log(
-          "No emails found with PDF attachments matching the criteria.",
-        );
+        console.log("No emails found with PDF attachments matching the criteria.");
         return [];
       }
 
@@ -588,8 +567,7 @@ export class OutlookProvider implements OAuthProviderInterface {
 
       const statusCode = graphError.statusCode;
       const errorCode = graphError.code;
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
       console.error("Microsoft Graph API error:", {
         statusCode,
@@ -606,8 +584,7 @@ export class OutlookProvider implements OAuthProviderInterface {
         throw new InboxAuthError({
           code: "token_expired",
           provider: "outlook",
-          message:
-            "Access token is invalid or expired. Authentication required.",
+          message: "Access token is invalid or expired. Authentication required.",
           requiresReauth: true,
           cause: error instanceof Error ? error : undefined,
         });
@@ -629,8 +606,7 @@ export class OutlookProvider implements OAuthProviderInterface {
         throw new InboxSyncError({
           code: "rate_limited",
           provider: "outlook",
-          message:
-            "Microsoft Graph API rate limit exceeded. Please try again later.",
+          message: "Microsoft Graph API rate limit exceeded. Please try again later.",
           cause: error instanceof Error ? error : undefined,
         });
       }
@@ -644,9 +620,7 @@ export class OutlookProvider implements OAuthProviderInterface {
     }
   }
 
-  async #processMessageToAttachments(
-    message: OutlookMessage,
-  ): Promise<Attachment[]> {
+  async #processMessageToAttachments(message: OutlookMessage): Promise<Attachment[]> {
     if (!message.id || !this.#graphClient) {
       console.warn(`Skipping message ${message.id} due to missing ID.`);
       return [];
@@ -677,8 +651,7 @@ export class OutlookProvider implements OAuthProviderInterface {
         .api(`/me/messages/${message.id}/attachments`)
         .get();
 
-      const rawAttachments: OutlookAttachment[] =
-        attachmentsResponse.value || [];
+      const rawAttachments: OutlookAttachment[] = attachmentsResponse.value || [];
       const pdfAttachments: EmailAttachment[] = [];
       const maxAttachments = 5;
 
@@ -696,15 +669,13 @@ export class OutlookProvider implements OAuthProviderInterface {
         // We check for application/octet-stream + .pdf extension to avoid false positives
         // (e.g., .docx, .xlsx files that also use application/octet-stream).
         const mimeType = att.contentType ?? "application/octet-stream";
-        const hasPdfExtension =
-          att.name?.toLowerCase().endsWith(".pdf") ?? false;
+        const hasPdfExtension = att.name?.toLowerCase().endsWith(".pdf") ?? false;
         const isPdf =
           mimeType === "application/pdf" ||
           (mimeType === "application/octet-stream" && hasPdfExtension);
 
         // Skip inline attachments (they have @odata.type of #microsoft.graph.itemAttachment)
-        const isFileAttachment =
-          att["@odata.type"] === "#microsoft.graph.fileAttachment";
+        const isFileAttachment = att["@odata.type"] === "#microsoft.graph.fileAttachment";
 
         if (att.name && isPdf && isFileAttachment) {
           // Fetch the individual attachment to get contentBytes
@@ -715,10 +686,7 @@ export class OutlookProvider implements OAuthProviderInterface {
           if (fullAttachment.contentBytes) {
             pdfAttachments.push({
               filename: att.name,
-              mimeType:
-                mimeType === "application/octet-stream"
-                  ? "application/pdf"
-                  : mimeType,
+              mimeType: mimeType === "application/octet-stream" ? "application/pdf" : mimeType,
               size: att.size,
               data: fullAttachment.contentBytes,
             });
@@ -728,9 +696,7 @@ export class OutlookProvider implements OAuthProviderInterface {
 
       const attachments: Attachment[] = pdfAttachments.map((att) => {
         const filename = ensureFileExtension(att.filename, att.mimeType);
-        const referenceId = generateDeterministicId(
-          `${message.id}_${filename}`,
-        );
+        const referenceId = generateDeterministicId(`${message.id}_${filename}`);
 
         return {
           id: referenceId,
@@ -746,11 +712,8 @@ export class OutlookProvider implements OAuthProviderInterface {
 
       return attachments;
     } catch (error: unknown) {
-      const messageText =
-        error instanceof Error ? error.message : "Unknown error";
-      console.error(
-        `Failed to process attachments for message ${message.id}: ${messageText}`,
-      );
+      const messageText = error instanceof Error ? error.message : "Unknown error";
+      console.error(`Failed to process attachments for message ${message.id}: ${messageText}`);
       return [];
     }
   }

@@ -126,10 +126,7 @@ function formatAmountForSpeech(amount: number, currency: string): string {
 /**
  * Get overdue alert text if there are overdue invoices
  */
-function getOverdueAlert(
-  activity?: InsightActivity,
-  currency?: string,
-): string | null {
+function getOverdueAlert(activity?: InsightActivity, currency?: string): string | null {
   if (!activity?.invoicesOverdue || activity.invoicesOverdue === 0) {
     return null;
   }

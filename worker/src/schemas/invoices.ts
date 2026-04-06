@@ -31,9 +31,7 @@ export const invoiceNotificationSchema = z.object({
   recurringTotalCount: z.number().optional(),
 });
 
-export type InvoiceNotificationPayload = z.infer<
-  typeof invoiceNotificationSchema
->;
+export type InvoiceNotificationPayload = z.infer<typeof invoiceNotificationSchema>;
 
 /**
  * Invoice recurring scheduler job schema
@@ -41,9 +39,7 @@ export type InvoiceNotificationPayload = z.infer<
  */
 export const invoiceRecurringSchedulerSchema = z.object({});
 
-export type InvoiceRecurringSchedulerPayload = z.infer<
-  typeof invoiceRecurringSchedulerSchema
->;
+export type InvoiceRecurringSchedulerPayload = z.infer<typeof invoiceRecurringSchedulerSchema>;
 
 /**
  * Invoice status scheduler job schema
@@ -51,9 +47,7 @@ export type InvoiceRecurringSchedulerPayload = z.infer<
  */
 export const invoiceStatusSchedulerSchema = z.object({});
 
-export type InvoiceStatusSchedulerPayload = z.infer<
-  typeof invoiceStatusSchedulerSchema
->;
+export type InvoiceStatusSchedulerPayload = z.infer<typeof invoiceStatusSchedulerSchema>;
 
 /**
  * Generate invoice job schema
@@ -86,9 +80,7 @@ export const sendInvoiceReminderSchema = z.object({
   invoiceId: z.string().uuid(),
 });
 
-export type SendInvoiceReminderPayload = z.infer<
-  typeof sendInvoiceReminderSchema
->;
+export type SendInvoiceReminderPayload = z.infer<typeof sendInvoiceReminderSchema>;
 
 /**
  * Schedule invoice job schema
@@ -107,6 +99,4 @@ export type ScheduleInvoicePayload = z.infer<typeof scheduleInvoiceSchema>;
  */
 export const invoiceUpcomingNotificationSchema = z.object({});
 
-export type InvoiceUpcomingNotificationPayload = z.infer<
-  typeof invoiceUpcomingNotificationSchema
->;
+export type InvoiceUpcomingNotificationPayload = z.infer<typeof invoiceUpcomingNotificationSchema>;

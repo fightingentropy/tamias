@@ -29,10 +29,7 @@ export function InvoiceDetailsSkeleton() {
 
       <div className="mt-6 flex flex-col space-y-4 border-t border-border pt-6">
         {[...Array(4)].map((_, index) => (
-          <div
-            key={index.toString()}
-            className="flex justify-between items-center"
-          >
+          <div key={index.toString()} className="flex justify-between items-center">
             <Skeleton className="h-4 w-24" />
             <Skeleton className="h-4 w-32" />
           </div>

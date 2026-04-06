@@ -8,11 +8,7 @@ import type {
   GetTransactionsRequest,
 } from "../../types";
 import { TellerApi } from "./teller-api";
-import {
-  transformAccount,
-  transformInstitution,
-  transformTransaction,
-} from "./transform";
+import { transformAccount, transformInstitution, transformTransaction } from "./transform";
 
 export class TellerProvider implements Provider {
   #api: TellerApi;
@@ -25,12 +21,7 @@ export class TellerProvider implements Provider {
     return this.#api.getHealthCheck();
   }
 
-  async getTransactions({
-    accountId,
-    accessToken,
-    accountType,
-    latest,
-  }: GetTransactionsRequest) {
+  async getTransactions({ accountId, accessToken, accountType, latest }: GetTransactionsRequest) {
     if (!accessToken) {
       throw Error("accessToken missing");
     }
@@ -71,10 +62,7 @@ export class TellerProvider implements Provider {
     return accountsWithDetails.map(transformAccount);
   }
 
-  async getAccountBalance({
-    accessToken,
-    accountId,
-  }: GetAccountBalanceRequest) {
+  async getAccountBalance({ accessToken, accountId }: GetAccountBalanceRequest) {
     if (!accessToken || !accountId) {
       throw Error("Missing params");
     }

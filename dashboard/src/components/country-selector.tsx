@@ -40,10 +40,7 @@ export function CountrySelector({ defaultValue, onSelect, className }: Props) {
         <Button
           variant="outline"
           aria-expanded={open}
-          className={cn(
-            "w-full justify-between font-normal truncate",
-            className,
-          )}
+          className={cn("w-full justify-between font-normal truncate", className)}
         >
           {value ? selected?.name : "Select country"}
           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -55,11 +52,7 @@ export function CountrySelector({ defaultValue, onSelect, className }: Props) {
         portal={true}
       >
         <Command loop>
-          <CommandInput
-            placeholder="Search country..."
-            className="h-9 px-2"
-            autoComplete="off"
-          />
+          <CommandInput placeholder="Search country..." className="h-9 px-2" autoComplete="off" />
           <CommandEmpty>No country found.</CommandEmpty>
           <CommandGroup>
             <CommandList className="overflow-y-auto max-h-[230px] pt-2">

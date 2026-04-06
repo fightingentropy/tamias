@@ -129,11 +129,9 @@ export function buildTeamDefaults(input: {
     createdAt: input.createdAt ?? nowIso(),
     canceledAt: normalizeOptionalString(input.canceledAt) ?? undefined,
     plan: normalizeOptionalString(input.plan) ?? "trial",
-    subscriptionStatus:
-      normalizeOptionalString(input.subscriptionStatus) ?? undefined,
+    subscriptionStatus: normalizeOptionalString(input.subscriptionStatus) ?? undefined,
     stripeAccountId: normalizeOptionalString(input.stripeAccountId) ?? undefined,
-    stripeConnectStatus:
-      normalizeOptionalString(input.stripeConnectStatus) ?? undefined,
+    stripeConnectStatus: normalizeOptionalString(input.stripeConnectStatus) ?? undefined,
     companyType: normalizeOptionalString(input.companyType) ?? undefined,
     heardAbout: normalizeOptionalString(input.heardAbout) ?? undefined,
   };

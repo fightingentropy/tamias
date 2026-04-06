@@ -62,8 +62,7 @@ export const noExclamationMarks = createScorer<InsightSlots, string>({
  */
 export const noEnthusiasticLanguage = createScorer<InsightSlots, string>({
   name: "Tone: no enthusiastic language",
-  description:
-    "Should avoid words like amazing, fantastic, incredible, awesome",
+  description: "Should avoid words like amazing, fantastic, incredible, awesome",
   scorer: ({ output }) => {
     const banned =
       /\b(amazing|fantastic|incredible|awesome|wonderful|brilliant|excellent|terrific|superb|phenomenal|extraordinary|stunning|spectacular|magnificent|fabulous|marvelous|tremendous|sensational|exceptional)\b/i;
@@ -76,8 +75,7 @@ export const noEnthusiasticLanguage = createScorer<InsightSlots, string>({
  */
 export const noCelebratoryPhrases = createScorer<InsightSlots, string>({
   name: "Tone: no celebratory phrases",
-  description:
-    "Should avoid celebratory phrases like 'congrats', 'well done', 'great job'",
+  description: "Should avoid celebratory phrases like 'congrats', 'well done', 'great job'",
   scorer: ({ output }) => {
     const banned =
       /\b(congrat(ulation)?s?|well done|great job|nice work|keep it up|way to go|you did it|pat yourself|celebrate|celebrating|cheers to|hats off|bravo|kudos)\b/i;
@@ -103,8 +101,7 @@ export const noThankingCustomers = createScorer<InsightSlots, string>({
  */
 export const noOverlyPositiveQualifiers = createScorer<InsightSlots, string>({
   name: "Tone: no overly positive qualifiers",
-  description:
-    "Should avoid qualifiers like 'really', 'very', 'incredibly', 'extremely'",
+  description: "Should avoid qualifiers like 'really', 'very', 'incredibly', 'extremely'",
   scorer: ({ output }) => {
     // Only flag when combined with positive words
     const overlyPositive =
@@ -136,10 +133,7 @@ export const startsWithPeriod = createScorer<InsightSlots, string>({
       return 1;
     }
     // Check if period label from input appears at start
-    if (
-      input.periodLabel &&
-      output.toLowerCase().startsWith(input.periodLabel.toLowerCase())
-    ) {
+    if (input.periodLabel && output.toLowerCase().startsWith(input.periodLabel.toLowerCase())) {
       return 1;
     }
 
@@ -154,8 +148,7 @@ export const noGreetings = createScorer<InsightSlots, string>({
   name: "Format: no greetings",
   description: "Should not start with generic greetings",
   scorer: ({ output }) => {
-    const greetings =
-      /^(hi|hello|hey|good\s+(morning|afternoon|evening)|greetings|welcome)\b/i;
+    const greetings = /^(hi|hello|hey|good\s+(morning|afternoon|evening)|greetings|welcome)\b/i;
     return greetings.test(output.trim()) ? 0 : 1;
   },
 });
@@ -206,20 +199,12 @@ function extractNumbers(text: string): number[] {
  * Check if a number appears in text (with tolerance)
  * Handles both numeric and written forms
  */
-function numberAppearsInText(
-  num: number,
-  text: string,
-  tolerance = 0.15,
-): boolean {
+function numberAppearsInText(num: number, text: string, tolerance = 0.15): boolean {
   const extracted = extractNumbers(text);
   const absNum = Math.abs(num);
 
   // Check for extracted numeric values first
-  if (
-    extracted.some(
-      (n) => Math.abs(n - absNum) / Math.max(absNum, 1) < tolerance,
-    )
-  ) {
+  if (extracted.some((n) => Math.abs(n - absNum) / Math.max(absNum, 1) < tolerance)) {
     return true;
   }
 
@@ -268,10 +253,7 @@ function numberAppearsInText(
     if (match) {
       try {
         const value = parse(match);
-        if (
-          value > 0 &&
-          Math.abs(value - absNum) / Math.max(absNum, 1) < tolerance
-        ) {
+        if (value > 0 && Math.abs(value - absNum) / Math.max(absNum, 1) < tolerance) {
           return true;
         }
       } catch {
@@ -416,8 +398,7 @@ const openai = createOpenAI({
  */
 export const audioProfessionalTone = createScorer<InsightSlots, string>({
   name: "Tone: professional (LLM judge)",
-  description:
-    "Audio should sound like a professional financial analyst, not a cheerleader",
+  description: "Audio should sound like a professional financial analyst, not a cheerleader",
   scorer: async ({ input, output }) => {
     const prompt = `You are evaluating if a financial audio summary has an appropriate professional tone.
 
@@ -506,11 +487,7 @@ export const formatScorers = [
 /**
  * Accuracy scorers
  */
-export const accuracyScorers = [
-  audioHasProfit,
-  audioMentionsOverdue,
-  audioNoFalseGrowth,
-];
+export const accuracyScorers = [audioHasProfit, audioMentionsOverdue, audioNoFalseGrowth];
 
 /**
  * All deterministic scorers
@@ -525,7 +502,4 @@ export const deterministicAudioScorers = [
 /**
  * All audio scorers including LLM judge
  */
-export const audioScorers = [
-  ...deterministicAudioScorers,
-  audioProfessionalTone,
-];
+export const audioScorers = [...deterministicAudioScorers, audioProfessionalTone];

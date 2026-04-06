@@ -25,10 +25,7 @@ function keyToIndex(key: string | null): number {
 }
 
 export function useOnboardingStep(opts: OnboardingStepOptions) {
-  const [stepKey, setStepKey] = useQueryState(
-    "s",
-    parseAsString.withOptions({ history: "push" }),
-  );
+  const [stepKey, setStepKey] = useQueryState("s", parseAsString.withOptions({ history: "push" }));
 
   const minKey: OnboardingStepKey = !opts.hasFullName
     ? "set-name"
@@ -47,9 +44,7 @@ export function useOnboardingStep(opts: OnboardingStepOptions) {
   const requestedIndex = keyToIndex(stepKey);
 
   const safeIndex =
-    requestedIndex === -1
-      ? minIndex
-      : Math.max(minIndex, Math.min(requestedIndex, maxIndex));
+    requestedIndex === -1 ? minIndex : Math.max(minIndex, Math.min(requestedIndex, maxIndex));
 
   const safeKey = STEP_KEYS[safeIndex] as OnboardingStepKey;
 

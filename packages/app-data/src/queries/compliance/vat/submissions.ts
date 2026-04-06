@@ -1,8 +1,5 @@
 import { createHash } from "node:crypto";
-import {
-  HmrcVatProvider,
-  roundCurrency,
-} from "@tamias/compliance";
+import { HmrcVatProvider, roundCurrency } from "@tamias/compliance";
 import {
   createSubmissionEventInConvex,
   getEvidencePackByIdFromConvex,
@@ -24,9 +21,7 @@ async function buildEvidencePack(params: {
   createdBy: ConvexUserId;
   payload: Record<string, unknown>;
 }) {
-  const checksum = createHash("sha256")
-    .update(JSON.stringify(params.payload))
-    .digest("hex");
+  const checksum = createHash("sha256").update(JSON.stringify(params.payload)).digest("hex");
 
   return upsertEvidencePackInConvex({
     teamId: params.teamId,
@@ -38,10 +33,7 @@ async function buildEvidencePack(params: {
   });
 }
 
-export async function submitVatReturn(
-  db: Database,
-  params: SubmitVatReturnParams,
-) {
+export async function submitVatReturn(db: Database, params: SubmitVatReturnParams) {
   const { team, profile } = await getRequiredVatContext(db, params.teamId);
 
   if (!profile.vrn) {
@@ -101,10 +93,7 @@ export async function submitVatReturn(
     vatReturnId: params.vatReturnId,
     submittedAt,
     externalSubmissionId:
-      receipt.formBundleNumber ??
-      receipt.chargeRefNumber ??
-      receipt.processingDate ??
-      null,
+      receipt.formBundleNumber ?? receipt.chargeRefNumber ?? receipt.processingDate ?? null,
   });
 
   await createSubmissionEventInConvex({
@@ -146,10 +135,7 @@ export async function submitVatReturn(
   };
 }
 
-async function listVatSubmissionsImpl(
-  db: Database,
-  params: { teamId: string },
-) {
+async function listVatSubmissionsImpl(db: Database, params: { teamId: string }) {
   void db;
 
   return listVatSubmissionsFromConvex({

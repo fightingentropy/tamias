@@ -3,27 +3,16 @@ import type { z } from "zod/v4";
 import { invoiceConfig } from "../../config/extraction-config";
 import type { GetDocumentRequest } from "../../types";
 import { extractWebsite } from "../../utils";
-import {
-  applyInvoiceFixes,
-  validateInvoiceConsistency,
-} from "../../utils/cross-field-validation";
+import { applyInvoiceFixes, validateInvoiceConsistency } from "../../utils/cross-field-validation";
 import type { DocumentFormat } from "../../utils/format-detection";
 import { detectInvoiceFormat } from "../../utils/format-detection";
-import {
-  calculateExtractionConfidence,
-  mergeInvoiceResults,
-} from "../../utils/merging";
-import {
-  calculateQualityScore,
-  getFieldsNeedingReExtraction,
-} from "../../utils/validation";
+import { calculateExtractionConfidence, mergeInvoiceResults } from "../../utils/merging";
+import { calculateQualityScore, getFieldsNeedingReExtraction } from "../../utils/validation";
 import { BaseExtractionEngine } from "../base-extraction-engine";
 
 type InvoiceData = z.infer<typeof invoiceConfig.schema>;
 
-export class InvoiceProcessor extends BaseExtractionEngine<
-  typeof invoiceConfig.schema
-> {
+export class InvoiceProcessor extends BaseExtractionEngine<typeof invoiceConfig.schema> {
   constructor() {
     super(invoiceConfig, createLoggerWithContext("InvoiceProcessor"));
   }
@@ -45,10 +34,7 @@ export class InvoiceProcessor extends BaseExtractionEngine<
     return getFieldsNeedingReExtraction(result);
   }
 
-  protected mergeResults(
-    primary: InvoiceData,
-    secondary: Partial<InvoiceData>,
-  ): InvoiceData {
+  protected mergeResults(primary: InvoiceData, secondary: Partial<InvoiceData>): InvoiceData {
     return mergeInvoiceResults(primary, secondary);
   }
 
@@ -95,12 +81,7 @@ export class InvoiceProcessor extends BaseExtractionEngine<
     primaryConfidence: number,
     secondaryConfidence: number,
   ): InvoiceData {
-    return mergeInvoiceResults(
-      primary,
-      secondary,
-      primaryConfidence,
-      secondaryConfidence,
-    );
+    return mergeInvoiceResults(primary, secondary, primaryConfidence, secondaryConfidence);
   }
 
   async #getWebsite({

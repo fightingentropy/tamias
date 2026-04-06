@@ -3,23 +3,11 @@
 import { Checkbox } from "@tamias/ui/checkbox";
 import { Badge } from "@tamias/ui/badge";
 import { Button } from "@tamias/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@tamias/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@tamias/ui/card";
 import { Input } from "@tamias/ui/input";
 import { Label } from "@tamias/ui/label";
 import { SubmitButton } from "@tamias/ui/submit-button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@tamias/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@tamias/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,14 +19,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@tamias/ui/alert-dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@tamias/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@tamias/ui/table";
 import { useToast } from "@tamias/ui/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "@/framework/link";
@@ -96,68 +77,44 @@ export function YearEndDashboard() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const [journalDate, setJournalDate] = useState(
-    new Date().toISOString().slice(0, 10),
-  );
+  const [journalDate, setJournalDate] = useState(new Date().toISOString().slice(0, 10));
   const [journalDescription, setJournalDescription] = useState("");
   const [journalReference, setJournalReference] = useState("");
-  const [journalLines, setJournalLines] = useState<EditableJournalLine[]>(
-    emptyLines(),
-  );
-  const [ctCategory, setCtCategory] =
-    useState<CorporationTaxAdjustmentCategory>("other");
+  const [journalLines, setJournalLines] = useState<EditableJournalLine[]>(emptyLines());
+  const [ctCategory, setCtCategory] = useState<CorporationTaxAdjustmentCategory>("other");
   const [ctLabel, setCtLabel] = useState("");
   const [ctAmount, setCtAmount] = useState("");
   const [ctNote, setCtNote] = useState("");
   const [ctRateUseSplitYears, setCtRateUseSplitYears] = useState(false);
-  const [
-    ctRateAssociatedCompaniesThisPeriod,
-    setCtRateAssociatedCompaniesThisPeriod,
-  ] = useState("");
-  const [
-    ctRateAssociatedCompaniesFirstYear,
-    setCtRateAssociatedCompaniesFirstYear,
-  ] = useState("");
-  const [
-    ctRateAssociatedCompaniesSecondYear,
-    setCtRateAssociatedCompaniesSecondYear,
-  ] = useState("");
-  const [ctRateExemptDistributions, setCtRateExemptDistributions] =
+  const [ctRateAssociatedCompaniesThisPeriod, setCtRateAssociatedCompaniesThisPeriod] =
     useState("");
-  const [closeCompanyBeforeEndPeriod, setCloseCompanyBeforeEndPeriod] =
-    useState(false);
-  const [closeCompanyLoansMade, setCloseCompanyLoansMade] = useState<
-    LoanRowState[]
-  >([createLoanRow()]);
-  const [closeCompanyTaxChargeable, setCloseCompanyTaxChargeable] =
+  const [ctRateAssociatedCompaniesFirstYear, setCtRateAssociatedCompaniesFirstYear] = useState("");
+  const [ctRateAssociatedCompaniesSecondYear, setCtRateAssociatedCompaniesSecondYear] =
     useState("");
-  const [closeCompanyReliefEarlierThan, setCloseCompanyReliefEarlierThan] =
-    useState<LoanReliefRowState[]>([createLoanReliefRow()]);
-  const [closeCompanyReliefEarlierDue, setCloseCompanyReliefEarlierDue] =
-    useState("");
-  const [closeCompanyLoanLaterReliefNow, setCloseCompanyLoanLaterReliefNow] =
-    useState<LoanReliefRowState[]>([createLoanReliefRow()]);
-  const [closeCompanyReliefLaterDue, setCloseCompanyReliefLaterDue] =
-    useState("");
-  const [
-    closeCompanyTotalLoansOutstanding,
-    setCloseCompanyTotalLoansOutstanding,
-  ] = useState("");
+  const [ctRateExemptDistributions, setCtRateExemptDistributions] = useState("");
+  const [closeCompanyBeforeEndPeriod, setCloseCompanyBeforeEndPeriod] = useState(false);
+  const [closeCompanyLoansMade, setCloseCompanyLoansMade] = useState<LoanRowState[]>([
+    createLoanRow(),
+  ]);
+  const [closeCompanyTaxChargeable, setCloseCompanyTaxChargeable] = useState("");
+  const [closeCompanyReliefEarlierThan, setCloseCompanyReliefEarlierThan] = useState<
+    LoanReliefRowState[]
+  >([createLoanReliefRow()]);
+  const [closeCompanyReliefEarlierDue, setCloseCompanyReliefEarlierDue] = useState("");
+  const [closeCompanyLoanLaterReliefNow, setCloseCompanyLoanLaterReliefNow] = useState<
+    LoanReliefRowState[]
+  >([createLoanReliefRow()]);
+  const [closeCompanyReliefLaterDue, setCloseCompanyReliefLaterDue] = useState("");
+  const [closeCompanyTotalLoansOutstanding, setCloseCompanyTotalLoansOutstanding] = useState("");
   const [ctDeclarationAccepted, setCtDeclarationAccepted] = useState(false);
-  const [ctLiveConfirmationAccepted, setCtLiveConfirmationAccepted] =
-    useState(false);
-  const [selectedCtSubmissionId, setSelectedCtSubmissionId] = useState<
-    string | null
-  >(null);
-  const [accountsDeclarationAccepted, setAccountsDeclarationAccepted] =
-    useState(false);
+  const [ctLiveConfirmationAccepted, setCtLiveConfirmationAccepted] = useState(false);
+  const [selectedCtSubmissionId, setSelectedCtSubmissionId] = useState<string | null>(null);
+  const [accountsDeclarationAccepted, setAccountsDeclarationAccepted] = useState(false);
   const [taxDetailsExpanded, setTaxDetailsExpanded] = useState(false);
   const [manualJournalsExpanded, setManualJournalsExpanded] = useState(false);
 
   const dashboardQuery = useQuery(trpc.yearEnd.getDashboard.queryOptions());
-  const companiesHouseStatusQuery = useQuery(
-    trpc.companiesHouse.getAccountsStatus.queryOptions(),
-  );
+  const companiesHouseStatusQuery = useQuery(trpc.companiesHouse.getAccountsStatus.queryOptions());
   const dashboard = dashboardQuery.data;
   const companiesHouseStatus = companiesHouseStatusQuery.data;
   const packQuery = useQuery({
@@ -170,8 +127,7 @@ export function YearEndDashboard() {
     null) as CloseCompanyLoansSchedule | null;
   const corporationTaxRateSchedule = (workspace?.corporationTaxRateSchedule ??
     null) as CorporationTaxRateSchedule | null;
-  const filingReadiness = (workspace?.filingReadiness ??
-    null) as FilingReadiness | null;
+  const filingReadiness = (workspace?.filingReadiness ?? null) as FilingReadiness | null;
   const ct600Draft = (workspace?.ct600Draft ?? null) as {
     computationBreakdown?: CtComputationBreakdown;
     grossCorporationTax?: number;
@@ -187,13 +143,11 @@ export function YearEndDashboard() {
     financialYearBreakdown?: CtFinancialYearBreakdown[];
   } | null;
   const period = dashboard?.period ?? null;
-  const ctPeriodUsesSmallProfitsRules = periodUsesSmallProfitsRules(
-    period?.periodEnd,
-  );
+  const ctPeriodUsesSmallProfitsRules = periodUsesSmallProfitsRules(period?.periodEnd);
   const ctPeriodSpansTwoFinancialYears = Boolean(
     period &&
-      getCorporationTaxFinancialYear(period.periodStart) !==
-        getCorporationTaxFinancialYear(period.periodEnd),
+    getCorporationTaxFinancialYear(period.periodStart) !==
+      getCorporationTaxFinancialYear(period.periodEnd),
   );
   const ctSubmissionsQuery = useQuery({
     ...trpc.yearEnd.listSubmissions.queryOptions(
@@ -205,11 +159,9 @@ export function YearEndDashboard() {
     ? (ctSubmissionsQuery.data as SubmissionEvent[])
     : [];
   const latestCtSubmission = ctSubmissions[0] ?? null;
-  const latestCtPollTarget =
-    ctSubmissions.find((event) => Boolean(event.correlationId)) ?? null;
+  const latestCtPollTarget = ctSubmissions.find((event) => Boolean(event.correlationId)) ?? null;
   const selectedCtSubmission =
-    ctSubmissions.find((event) => event.id === selectedCtSubmissionId) ??
-    latestCtSubmission;
+    ctSubmissions.find((event) => event.id === selectedCtSubmissionId) ?? latestCtSubmission;
   const selectedCtArtifactBundle = payloadObject(
     selectedCtSubmission?.requestPayload,
     "artifactBundle",
@@ -233,11 +185,9 @@ export function YearEndDashboard() {
   const ctEnvironmentLabel = describeHmrcCtEnvironment(ctEnvironment);
   const ctRuntimeConfigured = ctRuntime?.configured === true;
   const ctSubmissionReferenceReady = ctRuntime?.submissionReference != null;
-  const ctSubmissionTargetReady =
-    ctRuntimeConfigured && ctSubmissionReferenceReady;
+  const ctSubmissionTargetReady = ctRuntimeConfigured && ctSubmissionReferenceReady;
   const ctIsProduction = ctEnvironment === "production";
-  const companiesHouseXmlGatewayReady =
-    companiesHouseStatus?.xmlGatewayConfigured === true;
+  const companiesHouseXmlGatewayReady = companiesHouseStatus?.xmlGatewayConfigured === true;
   const companiesHouseAuthCodeReady =
     companiesHouseStatus?.companyAuthenticationCodeConfigured === true;
   const annualAccountsSubmissionReady =
@@ -260,9 +210,7 @@ export function YearEndDashboard() {
     }
 
     if (!ctRuntimeConfigured) {
-      actions.push(
-        "Add HMRC CT sender credentials on the API runtime before CT submission.",
-      );
+      actions.push("Add HMRC CT sender credentials on the API runtime before CT submission.");
     }
 
     if (!companiesHouseXmlGatewayReady) {
@@ -272,9 +220,7 @@ export function YearEndDashboard() {
     }
 
     if (!companiesHouseAuthCodeReady) {
-      actions.push(
-        "Save the Companies House authentication code in compliance settings.",
-      );
+      actions.push("Save the Companies House authentication code in compliance settings.");
     }
 
     return Array.from(new Set(actions)).slice(0, 4);
@@ -299,14 +245,8 @@ export function YearEndDashboard() {
       payloadString(selectedCtArtifactBundle ?? undefined, "fileName")
       ? {
           type: "download",
-          filePath: payloadString(
-            selectedCtArtifactBundle ?? undefined,
-            "filePath",
-          )!,
-          filename: payloadString(
-            selectedCtArtifactBundle ?? undefined,
-            "fileName",
-          )!,
+          filePath: payloadString(selectedCtArtifactBundle ?? undefined, "filePath")!,
+          filename: payloadString(selectedCtArtifactBundle ?? undefined, "fileName")!,
         }
       : null,
   );
@@ -366,8 +306,7 @@ export function YearEndDashboard() {
         setJournalLines(emptyLines());
         toast({
           title: "Manual journal saved",
-          description:
-            "The year-end pack has been rebuilt to include the new journal entry.",
+          description: "The year-end pack has been rebuilt to include the new journal entry.",
         });
       },
     }),
@@ -526,9 +465,7 @@ export function YearEndDashboard() {
         toast({
           title: "HMRC response polled",
           description:
-            result.receipt.summary ??
-            result.receipt.qualifier ??
-            "Submission poll completed.",
+            result.receipt.summary ?? result.receipt.qualifier ?? "Submission poll completed.",
         });
       },
       onError: (error) => {
@@ -548,8 +485,7 @@ export function YearEndDashboard() {
         toast({
           title: "Annual accounts submitted to Companies House",
           description:
-            result.request.submissionNumber ??
-            "Companies House acknowledged the submission.",
+            result.request.submissionNumber ?? "Companies House acknowledged the submission.",
         });
       },
       onError: (error) => {
@@ -567,14 +503,13 @@ export function YearEndDashboard() {
       onSuccess: async (result) => {
         await invalidateYearEnd();
         const selectedStatus =
-          Array.isArray(
-            (result.receipt as { statuses?: unknown[] }).statuses,
-          ) &&
-          typeof (result.receipt as { statuses?: unknown[] }).statuses?.[0] ===
-            "object" &&
+          Array.isArray((result.receipt as { statuses?: unknown[] }).statuses) &&
+          typeof (result.receipt as { statuses?: unknown[] }).statuses?.[0] === "object" &&
           (result.receipt as { statuses?: unknown[] }).statuses?.[0] !== null
-            ? ((result.receipt as { statuses?: unknown[] })
-                .statuses?.[0] as Record<string, unknown>)
+            ? ((result.receipt as { statuses?: unknown[] }).statuses?.[0] as Record<
+                string,
+                unknown
+              >)
             : null;
 
         toast({
@@ -595,17 +530,11 @@ export function YearEndDashboard() {
   );
 
   const trialBalance = useMemo(
-    () =>
-      Array.isArray(pack?.trialBalance)
-        ? (pack.trialBalance as TrialBalanceLine[])
-        : [],
+    () => (Array.isArray(pack?.trialBalance) ? (pack.trialBalance as TrialBalanceLine[]) : []),
     [pack?.trialBalance],
   );
   const workingPapers = useMemo(
-    () =>
-      Array.isArray(pack?.workingPapers)
-        ? (pack.workingPapers as WorkingPaperSection[])
-        : [],
+    () => (Array.isArray(pack?.workingPapers) ? (pack.workingPapers as WorkingPaperSection[]) : []),
     [pack?.workingPapers],
   );
   const selectedCtCategory =
@@ -620,9 +549,7 @@ export function YearEndDashboard() {
   const ctRateAssociatedCompaniesSecondYearValue = toNullableInteger(
     ctRateAssociatedCompaniesSecondYear,
   );
-  const ctRateExemptDistributionsValue = toNullableNumber(
-    ctRateExemptDistributions,
-  );
+  const ctRateExemptDistributionsValue = toNullableNumber(ctRateExemptDistributions);
   const ctRateHasValidInputs = ctPeriodUsesSmallProfitsRules
     ? ctRateUseSplitYears && ctPeriodSpansTwoFinancialYears
       ? ctRateAssociatedCompaniesFirstYearValue != null &&
@@ -649,9 +576,7 @@ export function YearEndDashboard() {
         .map((row) => ({
           name: row.name.trim(),
           amountRepaid: toNullableInteger(row.amountRepaid),
-          amountReleasedOrWrittenOff: toNullableInteger(
-            row.amountReleasedOrWrittenOff,
-          ),
+          amountReleasedOrWrittenOff: toNullableInteger(row.amountReleasedOrWrittenOff),
           date: row.date,
         })),
     [closeCompanyReliefEarlierThan],
@@ -663,32 +588,22 @@ export function YearEndDashboard() {
         .map((row) => ({
           name: row.name.trim(),
           amountRepaid: toNullableInteger(row.amountRepaid),
-          amountReleasedOrWrittenOff: toNullableInteger(
-            row.amountReleasedOrWrittenOff,
-          ),
+          amountReleasedOrWrittenOff: toNullableInteger(row.amountReleasedOrWrittenOff),
           date: row.date,
         })),
     [closeCompanyLoanLaterReliefNow],
   );
   const closeCompanyHasIncompleteRows =
-    closeCompanyLoansMade.some(
-      (row) => !isBlankLoanRow(row) && !isCompleteLoanRow(row),
-    ) ||
+    closeCompanyLoansMade.some((row) => !isBlankLoanRow(row) && !isCompleteLoanRow(row)) ||
     closeCompanyReliefEarlierThan.some(
       (row) => !isBlankLoanReliefRow(row) && !isCompleteLoanReliefRow(row),
     ) ||
     closeCompanyLoanLaterReliefNow.some(
       (row) => !isBlankLoanReliefRow(row) && !isCompleteLoanReliefRow(row),
     );
-  const closeCompanyTaxChargeableValue = toNullableNumber(
-    closeCompanyTaxChargeable,
-  );
-  const closeCompanyReliefEarlierDueValue = toNullableNumber(
-    closeCompanyReliefEarlierDue,
-  );
-  const closeCompanyReliefLaterDueValue = toNullableNumber(
-    closeCompanyReliefLaterDue,
-  );
+  const closeCompanyTaxChargeableValue = toNullableNumber(closeCompanyTaxChargeable);
+  const closeCompanyReliefEarlierDueValue = toNullableNumber(closeCompanyReliefEarlierDue);
+  const closeCompanyReliefLaterDueValue = toNullableNumber(closeCompanyReliefLaterDue);
   const closeCompanyTotalLoansOutstandingValue = toNullableInteger(
     closeCompanyTotalLoansOutstanding,
   );
@@ -696,18 +611,14 @@ export function YearEndDashboard() {
     (total, row) => total + (row.amountOfLoan ?? 0),
     0,
   );
-  const closeCompanyReliefEarlierTotal =
-    normalizedCloseCompanyReliefEarlierThan.reduce(
-      (total, row) =>
-        total + (row.amountRepaid ?? 0) + (row.amountReleasedOrWrittenOff ?? 0),
-      0,
-    );
-  const closeCompanyReliefLaterTotal =
-    normalizedCloseCompanyLoanLaterReliefNow.reduce(
-      (total, row) =>
-        total + (row.amountRepaid ?? 0) + (row.amountReleasedOrWrittenOff ?? 0),
-      0,
-    );
+  const closeCompanyReliefEarlierTotal = normalizedCloseCompanyReliefEarlierThan.reduce(
+    (total, row) => total + (row.amountRepaid ?? 0) + (row.amountReleasedOrWrittenOff ?? 0),
+    0,
+  );
+  const closeCompanyReliefLaterTotal = normalizedCloseCompanyLoanLaterReliefNow.reduce(
+    (total, row) => total + (row.amountRepaid ?? 0) + (row.amountReleasedOrWrittenOff ?? 0),
+    0,
+  );
   const closeCompanyDerivedTaxPayable = Math.max(
     (closeCompanyTaxChargeableValue ?? 0) -
       (closeCompanyReliefEarlierDueValue ?? 0) -
@@ -749,19 +660,11 @@ export function YearEndDashboard() {
         ? String(corporationTaxRateSchedule.exemptDistributions)
         : "",
     );
-  }, [
-    corporationTaxRateSchedule,
-    ctPeriodSpansTwoFinancialYears,
-    period?.periodKey,
-  ]);
+  }, [corporationTaxRateSchedule, ctPeriodSpansTwoFinancialYears, period?.periodKey]);
 
   useEffect(() => {
-    setCloseCompanyBeforeEndPeriod(
-      closeCompanyLoansSchedule?.beforeEndPeriod ?? false,
-    );
-    setCloseCompanyLoansMade(
-      buildLoanRows(closeCompanyLoansSchedule?.loansMade),
-    );
+    setCloseCompanyBeforeEndPeriod(closeCompanyLoansSchedule?.beforeEndPeriod ?? false);
+    setCloseCompanyLoansMade(buildLoanRows(closeCompanyLoansSchedule?.loansMade));
     setCloseCompanyTaxChargeable(
       closeCompanyLoansSchedule?.taxChargeable != null
         ? String(closeCompanyLoansSchedule.taxChargeable)
@@ -826,11 +729,7 @@ export function YearEndDashboard() {
     companiesHouseStatusQuery.isLoading ||
     ctSubmissionsQuery.isLoading
   ) {
-    return (
-      <div className="text-sm text-[#606060]">
-        Loading year-end workspace...
-      </div>
-    );
+    return <div className="text-sm text-[#606060]">Loading year-end workspace...</div>;
   }
 
   if (!dashboard?.profile || !period) {
@@ -839,8 +738,8 @@ export function YearEndDashboard() {
         <CardHeader>
           <CardTitle>Set up your UK filing profile first</CardTitle>
           <CardDescription>
-            Year-end packs use the shared UK filing profile for year-end dates,
-            base currency, and filing defaults.
+            Year-end packs use the shared UK filing profile for year-end dates, base currency, and
+            filing defaults.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -864,9 +763,7 @@ export function YearEndDashboard() {
             <div className="text-lg font-medium">
               {period.periodStart} to {period.periodEnd}
             </div>
-            <div className="text-sm text-[#606060]">
-              Period key {period.periodKey}
-            </div>
+            <div className="text-sm text-[#606060]">Period key {period.periodKey}</div>
           </CardContent>
         </Card>
 
@@ -876,12 +773,8 @@ export function YearEndDashboard() {
             <CardDescription>Companies House prep deadline</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            <div className="text-lg font-medium">
-              {formatDate(period.accountsDueDate)}
-            </div>
-            <Badge variant="outline">
-              {period.obligations.accounts.status}
-            </Badge>
+            <div className="text-lg font-medium">{formatDate(period.accountsDueDate)}</div>
+            <Badge variant="outline">{period.obligations.accounts.status}</Badge>
           </CardContent>
         </Card>
 
@@ -891,12 +784,8 @@ export function YearEndDashboard() {
             <CardDescription>HMRC CT prep deadline</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            <div className="text-lg font-medium">
-              {formatDate(period.corporationTaxDueDate)}
-            </div>
-            <Badge variant="outline">
-              {period.obligations.corporationTax.status}
-            </Badge>
+            <div className="text-lg font-medium">{formatDate(period.corporationTaxDueDate)}</div>
+            <Badge variant="outline">{period.obligations.corporationTax.status}</Badge>
           </CardContent>
         </Card>
 
@@ -906,9 +795,7 @@ export function YearEndDashboard() {
             <CardDescription>Snapshot and export state</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Badge variant={pack ? "default" : "secondary"}>
-              {pack?.status ?? "Not built"}
-            </Badge>
+            <Badge variant={pack ? "default" : "secondary"}>{pack?.status ?? "Not built"}</Badge>
             <div className="text-sm text-[#606060]">
               {pack?.latestExportedAt
                 ? `Latest export ${formatDate(pack.latestExportedAt)}`
@@ -922,17 +809,14 @@ export function YearEndDashboard() {
         <CardHeader>
           <CardTitle>Year-end pack</CardTitle>
           <CardDescription>
-            Rebuild the annual pack from the shared ledger, then export working
-            papers, CT prep schedules, a statutory accounts review pack, and the
-            filing-ready CT600/iXBRL output for the supported small-company
-            path, including saved CT rate inputs and CT600A where applicable.
+            Rebuild the annual pack from the shared ledger, then export working papers, CT prep
+            schedules, a statutory accounts review pack, and the filing-ready CT600/iXBRL output for
+            the supported small-company path, including saved CT rate inputs and CT600A where
+            applicable.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap items-center gap-2">
-          <SubmitButton
-            isSubmitting={rebuildPack.isPending}
-            onClick={() => rebuildPack.mutate({})}
-          >
+          <SubmitButton isSubmitting={rebuildPack.isPending} onClick={() => rebuildPack.mutate({})}>
             Rebuild pack
           </SubmitButton>
           <SubmitButton
@@ -955,20 +839,15 @@ export function YearEndDashboard() {
         <CardHeader>
           <CardTitle>Filing readiness</CardTitle>
           <CardDescription>
-            Server-side gate for the supported small-company FRS 102 Section 1A
-            accounts and CT600 path. Submission stays blocked until every
-            blocker is cleared.
+            Server-side gate for the supported small-company FRS 102 Section 1A accounts and CT600
+            path. Submission stays blocked until every blocker is cleared.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-wrap items-center gap-3">
             <Badge
               variant={
-                filingReadiness?.isReady
-                  ? "default"
-                  : filingReadiness
-                    ? "secondary"
-                    : "outline"
+                filingReadiness?.isReady ? "default" : filingReadiness ? "secondary" : "outline"
               }
             >
               {filingReadiness
@@ -1021,8 +900,8 @@ export function YearEndDashboard() {
             </div>
           ) : (
             <div className="text-sm text-[#606060]">
-              Rebuild the pack to calculate filing readiness from the latest
-              ledger, filing profile, and CT adjustment categories.
+              Rebuild the pack to calculate filing readiness from the latest ledger, filing profile,
+              and CT adjustment categories.
             </div>
           )}
         </CardContent>
@@ -1032,17 +911,13 @@ export function YearEndDashboard() {
         <CardHeader>
           <CardTitle>Next actions</CardTitle>
           <CardDescription>
-            The shortest path from the current pack state to a filing-ready
-            year-end.
+            The shortest path from the current pack state to a filing-ready year-end.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           {nextActions.length ? (
             nextActions.map((item, index) => (
-              <div
-                key={item}
-                className="flex items-start gap-3 rounded-lg border p-3"
-              >
+              <div key={item} className="flex items-start gap-3 rounded-lg border p-3">
                 <Badge variant="outline" className="mt-0.5 shrink-0">
                   {index + 1}
                 </Badge>
@@ -1051,8 +926,7 @@ export function YearEndDashboard() {
             ))
           ) : (
             <div className="rounded-lg border p-3 text-sm text-[#606060]">
-              Core setup blockers are clear. Review the submission sections
-              below before filing.
+              Core setup blockers are clear. Review the submission sections below before filing.
             </div>
           )}
         </CardContent>
@@ -1062,11 +936,10 @@ export function YearEndDashboard() {
         <CardHeader>
           <CardTitle>Corporation tax submission</CardTitle>
           <CardDescription>
-            Sends the current filing-ready CT600 XML to the {ctEnvironmentLabel}{" "}
-            Transaction Engine using the sender credentials configured on the
-            API runtime, then lets you poll the latest response using the stored
-            correlation ID. Runtime defaults to test until you explicitly switch
-            `HMRC_CT_ENVIRONMENT` to `production`.
+            Sends the current filing-ready CT600 XML to the {ctEnvironmentLabel} Transaction Engine
+            using the sender credentials configured on the API runtime, then lets you poll the
+            latest response using the stored correlation ID. Runtime defaults to test until you
+            explicitly switch `HMRC_CT_ENVIRONMENT` to `production`.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -1115,26 +988,22 @@ export function YearEndDashboard() {
                 {ctRuntime?.submissionReference ?? "Not configured"}
               </div>
               <div className="text-xs text-[#606060]">
-                {describeHmrcCtReferenceSource(
-                  ctRuntime?.submissionReferenceSource,
-                )}
+                {describeHmrcCtReferenceSource(ctRuntime?.submissionReferenceSource)}
               </div>
             </div>
             <div className="space-y-2 rounded-lg border p-3">
               <div className="text-sm text-[#606060]">Latest poll target</div>
               <div className="text-xs font-medium break-all">
-                {payloadString(
-                  latestCtPollTarget?.responsePayload,
-                  "responseEndpoint",
-                ) ?? "Falls back to the default submission endpoint"}
+                {payloadString(latestCtPollTarget?.responsePayload, "responseEndpoint") ??
+                  "Falls back to the default submission endpoint"}
               </div>
             </div>
           </div>
 
           {!ctRuntimeConfigured ? (
             <div className="rounded-lg border border-dashed p-3 text-sm text-[#606060]">
-              Set `HMRC_CT_SENDER_ID`, `HMRC_CT_SENDER_PASSWORD`, and
-              `HMRC_CT_VENDOR_ID` on the API runtime before CT submission.
+              Set `HMRC_CT_SENDER_ID`, `HMRC_CT_SENDER_PASSWORD`, and `HMRC_CT_VENDOR_ID` on the API
+              runtime before CT submission.
             </div>
           ) : null}
 
@@ -1150,21 +1019,18 @@ export function YearEndDashboard() {
             <Checkbox
               id="ct-declaration"
               checked={ctDeclarationAccepted}
-              onCheckedChange={(checked) =>
-                setCtDeclarationAccepted(checked === true)
-              }
+              onCheckedChange={(checked) => setCtDeclarationAccepted(checked === true)}
             />
             <div className="space-y-1">
               <Label htmlFor="ct-declaration">
-                I have reviewed the current year-end pack and want to submit the
-                CT600 to {ctEnvironmentLabel}.
+                I have reviewed the current year-end pack and want to submit the CT600 to{" "}
+                {ctEnvironmentLabel}.
               </Label>
               <p className="text-xs text-[#606060]">
                 {ctIsProduction
                   ? "This uses the filing profile UTR and the live sender credentials from runtime config."
                   : "This uses the SDS test UTR when configured, otherwise the filing profile UTR, together with the test sender credentials from runtime config."}{" "}
-                Submission is only enabled when the supported filing-ready path
-                is complete.
+                Submission is only enabled when the supported filing-ready path is complete.
               </p>
             </div>
           </div>
@@ -1187,14 +1053,11 @@ export function YearEndDashboard() {
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>
-                    Submit CT600 to {ctEnvironmentLabel}
-                  </AlertDialogTitle>
+                  <AlertDialogTitle>Submit CT600 to {ctEnvironmentLabel}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Tamias will send the current CT600 XML, including encoded
-                    iXBRL attachments, to {ctEnvironmentLabel} using the sender
-                    credentials configured on the API runtime, but only when the
-                    supported filing-ready path is complete.
+                    Tamias will send the current CT600 XML, including encoded iXBRL attachments, to{" "}
+                    {ctEnvironmentLabel} using the sender credentials configured on the API runtime,
+                    but only when the supported filing-ready path is complete.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 {ctIsProduction ? (
@@ -1203,9 +1066,8 @@ export function YearEndDashboard() {
                       Live filing confirmation required
                     </div>
                     <p className="text-sm text-red-700">
-                      This submission will target the HMRC live service using
-                      the filing profile UTR. Only continue if this company and
-                      return are ready for a real filing.
+                      This submission will target the HMRC live service using the filing profile
+                      UTR. Only continue if this company and return are ready for a real filing.
                     </p>
                     <div className="flex items-start gap-3">
                       <Checkbox
@@ -1215,12 +1077,8 @@ export function YearEndDashboard() {
                           setCtLiveConfirmationAccepted(checked === true)
                         }
                       />
-                      <Label
-                        htmlFor="ct-live-confirmation"
-                        className="text-sm text-red-700"
-                      >
-                        I understand this targets HMRC live and is not a test
-                        submission.
+                      <Label htmlFor="ct-live-confirmation" className="text-sm text-red-700">
+                        I understand this targets HMRC live and is not a test submission.
                       </Label>
                     </div>
                   </div>
@@ -1235,8 +1093,7 @@ export function YearEndDashboard() {
                       })
                     }
                     disabled={
-                      submitCt600.isPending ||
-                      (ctIsProduction && !ctLiveConfirmationAccepted)
+                      submitCt600.isPending || (ctIsProduction && !ctLiveConfirmationAccepted)
                     }
                   >
                     Submit
@@ -1247,9 +1104,7 @@ export function YearEndDashboard() {
 
             <SubmitButton
               isSubmitting={pollCt600.isPending}
-              disabled={
-                pollCt600.isPending || !latestCtPollTarget?.correlationId
-              }
+              disabled={pollCt600.isPending || !latestCtPollTarget?.correlationId}
               onClick={() =>
                 pollCt600.mutate({
                   periodKey: period.periodKey,
@@ -1309,30 +1164,21 @@ export function YearEndDashboard() {
                 <div className="space-y-4 rounded-lg border p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="space-y-1">
-                      <div className="text-sm font-medium">
-                        CT submission details
-                      </div>
+                      <div className="text-sm font-medium">CT submission details</div>
                       <div className="text-sm text-[#606060]">
                         {humanizeToken(selectedCtSubmission.eventType)} on{" "}
                         {formatDateTime(selectedCtSubmission.createdAt)}
                       </div>
                       <div className="text-xs text-[#606060]">
                         Bundle contents:{" "}
-                        {payloadArray(
-                          selectedCtSubmission.requestPayload,
-                          "artifactFiles",
-                        )
-                          .filter(
-                            (item): item is string => typeof item === "string",
-                          )
+                        {payloadArray(selectedCtSubmission.requestPayload, "artifactFiles")
+                          .filter((item): item is string => typeof item === "string")
                           .join(", ") || "Not available"}
                       </div>
                     </div>
                     {ctSubmissionArtifactDownload.url ? (
                       <Button asChild size="sm" variant="outline">
-                        <a href={ctSubmissionArtifactDownload.url}>
-                          Download sent bundle
-                        </a>
+                        <a href={ctSubmissionArtifactDownload.url}>Download sent bundle</a>
                       </Button>
                     ) : null}
                   </div>
@@ -1342,17 +1188,12 @@ export function YearEndDashboard() {
                       <div className="text-sm text-[#606060]">Environment</div>
                       <div className="mt-1 font-medium">
                         {humanizeToken(
-                          payloadString(
-                            selectedCtSubmission.requestPayload,
-                            "environment",
-                          ),
+                          payloadString(selectedCtSubmission.requestPayload, "environment"),
                         )}
                       </div>
                     </div>
                     <div className="rounded-lg border p-3">
-                      <div className="text-sm text-[#606060]">
-                        Submission reference
-                      </div>
+                      <div className="text-sm text-[#606060]">Submission reference</div>
                       <div className="mt-1 font-mono text-xs">
                         {payloadString(
                           selectedCtSubmission.requestPayload,
@@ -1361,9 +1202,7 @@ export function YearEndDashboard() {
                       </div>
                     </div>
                     <div className="rounded-lg border p-3">
-                      <div className="text-sm text-[#606060]">
-                        Correlation ID
-                      </div>
+                      <div className="text-sm text-[#606060]">Correlation ID</div>
                       <div className="mt-1 font-mono text-xs">
                         {selectedCtSubmission.correlationId ?? "Not available"}
                       </div>
@@ -1375,68 +1214,47 @@ export function YearEndDashboard() {
                       </div>
                     </div>
                     <div className="rounded-lg border p-3">
-                      <div className="text-sm text-[#606060]">
-                        Response endpoint
-                      </div>
+                      <div className="text-sm text-[#606060]">Response endpoint</div>
                       <div className="mt-1 text-xs break-all">
-                        {payloadString(
-                          selectedCtSubmission.responsePayload,
-                          "responseEndpoint",
-                        ) ?? "Not available"}
+                        {payloadString(selectedCtSubmission.responsePayload, "responseEndpoint") ??
+                          "Not available"}
                       </div>
                     </div>
                     <div className="rounded-lg border p-3">
-                      <div className="text-sm text-[#606060]">
-                        Poll interval
-                      </div>
+                      <div className="text-sm text-[#606060]">Poll interval</div>
                       <div className="mt-1 font-medium">
-                        {payloadNumber(
-                          selectedCtSubmission.responsePayload,
-                          "pollInterval",
-                        ) ?? "Not available"}
+                        {payloadNumber(selectedCtSubmission.responsePayload, "pollInterval") ??
+                          "Not available"}
                       </div>
                     </div>
                     <div className="rounded-lg border p-3">
-                      <div className="text-sm text-[#606060]">
-                        Gateway timestamp
-                      </div>
+                      <div className="text-sm text-[#606060]">Gateway timestamp</div>
                       <div className="mt-1 text-sm">
                         {formatDateTime(
-                          payloadString(
-                            selectedCtSubmission.responsePayload,
-                            "gatewayTimestamp",
-                          ),
+                          payloadString(selectedCtSubmission.responsePayload, "gatewayTimestamp"),
                         )}
                       </div>
                     </div>
                     <div className="rounded-lg border p-3">
-                      <div className="text-sm text-[#606060]">
-                        Form bundle number
-                      </div>
+                      <div className="text-sm text-[#606060]">Form bundle number</div>
                       <div className="mt-1 font-mono text-xs">
-                        {payloadString(
-                          selectedCtSubmission.responsePayload,
-                          "formBundleNumber",
-                        ) ?? "Not available"}
+                        {payloadString(selectedCtSubmission.responsePayload, "formBundleNumber") ??
+                          "Not available"}
                       </div>
                     </div>
                   </div>
 
                   {getHmrcCtErrors(selectedCtSubmission).length ? (
                     <div className="space-y-2 rounded-lg border border-red-200 bg-red-50 p-3">
-                      <div className="text-sm font-medium text-red-700">
-                        HMRC errors
-                      </div>
+                      <div className="text-sm font-medium text-red-700">HMRC errors</div>
                       <div className="space-y-2 text-sm text-red-700">
-                        {getHmrcCtErrors(selectedCtSubmission).map(
-                          (error, index) => (
-                            <div key={`${error.number ?? "error"}-${index}`}>
-                              {(error.number ? `${error.number}: ` : "") +
-                                (error.text ?? "Unknown HMRC error")}
-                              {error.location ? ` (${error.location})` : ""}
-                            </div>
-                          ),
-                        )}
+                        {getHmrcCtErrors(selectedCtSubmission).map((error, index) => (
+                          <div key={`${error.number ?? "error"}-${index}`}>
+                            {(error.number ? `${error.number}: ` : "") +
+                              (error.text ?? "Unknown HMRC error")}
+                            {error.location ? ` (${error.location})` : ""}
+                          </div>
+                        ))}
                       </div>
                     </div>
                   ) : null}
@@ -1445,11 +1263,9 @@ export function YearEndDashboard() {
                     <div className="space-y-2 rounded-lg border p-3">
                       <div className="text-sm font-medium">HMRC notices</div>
                       <div className="space-y-2 text-sm text-[#606060]">
-                        {getHmrcCtNotices(selectedCtSubmission).map(
-                          (notice) => (
-                            <div key={notice}>{notice}</div>
-                          ),
-                        )}
+                        {getHmrcCtNotices(selectedCtSubmission).map((notice) => (
+                          <div key={notice}>{notice}</div>
+                        ))}
                       </div>
                     </div>
                   ) : null}
@@ -1474,26 +1290,19 @@ export function YearEndDashboard() {
         <CardHeader>
           <CardTitle>Companies House status</CardTitle>
           <CardDescription>
-            Combines the public-register checks for the filing-profile company
-            with the XML-gateway annual-accounts filing path. Public register
-            lookups use the API key and optional OAuth app connection; direct
-            annual accounts submission uses the Companies House presenter
-            credentials configured on the API runtime plus the company
-            authentication code saved in compliance settings.
+            Combines the public-register checks for the filing-profile company with the XML-gateway
+            annual-accounts filing path. Public register lookups use the API key and optional OAuth
+            app connection; direct annual accounts submission uses the Companies House presenter
+            credentials configured on the API runtime plus the company authentication code saved in
+            compliance settings.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-5">
             <div className="space-y-2 rounded-lg border p-3">
               <div className="text-sm text-[#606060]">XML gateway</div>
-              <Badge
-                variant={
-                  companiesHouseXmlGatewayReady ? "default" : "secondary"
-                }
-              >
-                {companiesHouseXmlGatewayReady
-                  ? "Configured"
-                  : "Missing config"}
+              <Badge variant={companiesHouseXmlGatewayReady ? "default" : "secondary"}>
+                {companiesHouseXmlGatewayReady ? "Configured" : "Missing config"}
               </Badge>
               <div className="text-xs text-[#606060]">
                 {companiesHouseStatus?.xmlGatewayEnvironment
@@ -1504,14 +1313,10 @@ export function YearEndDashboard() {
 
             <div className="space-y-2 rounded-lg border p-3">
               <div className="text-sm text-[#606060]">Company auth code</div>
-              <Badge
-                variant={companiesHouseAuthCodeReady ? "default" : "secondary"}
-              >
+              <Badge variant={companiesHouseAuthCodeReady ? "default" : "secondary"}>
                 {companiesHouseAuthCodeReady ? "Saved" : "Missing"}
               </Badge>
-              <div className="text-xs text-[#606060]">
-                Required for XML annual-accounts filing
-              </div>
+              <div className="text-xs text-[#606060]">Required for XML annual-accounts filing</div>
             </div>
 
             <div className="space-y-2 rounded-lg border p-3">
@@ -1530,18 +1335,10 @@ export function YearEndDashboard() {
 
             <div className="space-y-2 rounded-lg border p-3">
               <div className="text-sm text-[#606060]">OAuth app</div>
-              <Badge
-                variant={
-                  companiesHouseStatus?.connected ? "default" : "secondary"
-                }
-              >
-                {companiesHouseStatus?.connected
-                  ? "Connected"
-                  : "Not connected"}
+              <Badge variant={companiesHouseStatus?.connected ? "default" : "secondary"}>
+                {companiesHouseStatus?.connected ? "Connected" : "Not connected"}
               </Badge>
-              <div className="text-xs text-[#606060]">
-                Optional for the Apps-sheet workflows
-              </div>
+              <div className="text-xs text-[#606060]">Optional for the Apps-sheet workflows</div>
             </div>
 
             <div className="space-y-2 rounded-lg border p-3">
@@ -1558,13 +1355,7 @@ export function YearEndDashboard() {
 
             <div className="space-y-2 rounded-lg border p-3">
               <div className="text-sm text-[#606060]">Current pack</div>
-              <Badge
-                variant={
-                  companiesHouseStatus?.currentPeriodFiled
-                    ? "default"
-                    : "outline"
-                }
-              >
+              <Badge variant={companiesHouseStatus?.currentPeriodFiled ? "default" : "outline"}>
                 {companiesHouseStatus?.currentPeriodFiled
                   ? "Already reflected on register"
                   : companiesHouseStatus?.currentPeriodEnd
@@ -1584,15 +1375,11 @@ export function YearEndDashboard() {
               <div className="rounded-lg border p-3">
                 <div className="text-sm text-[#606060]">Register status</div>
                 <div className="mt-1 font-medium">
-                  {humanizeToken(
-                    companiesHouseStatus.companyProfile.companyStatus,
-                  )}
+                  {humanizeToken(companiesHouseStatus.companyProfile.companyStatus)}
                 </div>
               </div>
               <div className="rounded-lg border p-3">
-                <div className="text-sm text-[#606060]">
-                  Latest accounts made up to
-                </div>
+                <div className="text-sm text-[#606060]">Latest accounts made up to</div>
                 <div className="mt-1 font-medium">
                   {formatDate(companiesHouseStatus.latestAccountsMadeUpTo)}
                 </div>
@@ -1612,15 +1399,15 @@ export function YearEndDashboard() {
 
           {!companiesHouseStatus?.profileCompanyNumber ? (
             <div className="rounded-lg border border-dashed p-3 text-sm text-[#606060]">
-              Add the company number in compliance settings before comparing the
-              year-end pack with the Companies House register.
+              Add the company number in compliance settings before comparing the year-end pack with
+              the Companies House register.
             </div>
           ) : null}
 
           {!companiesHouseStatus?.apiKeyConfigured ? (
             <div className="rounded-lg border border-dashed p-3 text-sm text-[#606060]">
-              Set `COMPANIES_HOUSE_API_KEY` on the API runtime to enable public
-              register checks and recent filing history.
+              Set `COMPANIES_HOUSE_API_KEY` on the API runtime to enable public register checks and
+              recent filing history.
             </div>
           ) : null}
 
@@ -1633,29 +1420,26 @@ export function YearEndDashboard() {
           {!companiesHouseXmlGatewayReady ? (
             <div className="rounded-lg border border-dashed p-3 text-sm text-[#606060]">
               Set `COMPANIES_HOUSE_XML_PRESENTER_ID`,
-              `COMPANIES_HOUSE_XML_PRESENTER_AUTHENTICATION_CODE`, and
-              optionally `COMPANIES_HOUSE_XML_PACKAGE_REFERENCE` on the API
-              runtime to enable annual accounts filing through the Companies
-              House XML gateway.
+              `COMPANIES_HOUSE_XML_PRESENTER_AUTHENTICATION_CODE`, and optionally
+              `COMPANIES_HOUSE_XML_PACKAGE_REFERENCE` on the API runtime to enable annual accounts
+              filing through the Companies House XML gateway.
             </div>
           ) : null}
 
           {!companiesHouseAuthCodeReady ? (
             <div className="rounded-lg border border-dashed p-3 text-sm text-[#606060]">
-              Save the Companies House authentication code in compliance
-              settings before sending annual accounts through the XML gateway.
+              Save the Companies House authentication code in compliance settings before sending
+              annual accounts through the XML gateway.
             </div>
           ) : null}
 
           <div className="space-y-4 rounded-lg border p-4">
             <div className="space-y-1">
-              <div className="text-sm font-medium">
-                Annual accounts submission
-              </div>
+              <div className="text-sm font-medium">Annual accounts submission</div>
               <div className="text-sm text-[#606060]">
-                Sends the current filing-ready accounts attachment to Companies
-                House through the XML gateway. The public-register API and OAuth
-                app are separate from this submission path.
+                Sends the current filing-ready accounts attachment to Companies House through the
+                XML gateway. The public-register API and OAuth app are separate from this submission
+                path.
               </div>
             </div>
 
@@ -1663,20 +1447,16 @@ export function YearEndDashboard() {
               <Checkbox
                 id="accounts-declaration"
                 checked={accountsDeclarationAccepted}
-                onCheckedChange={(checked) =>
-                  setAccountsDeclarationAccepted(Boolean(checked))
-                }
+                onCheckedChange={(checked) => setAccountsDeclarationAccepted(Boolean(checked))}
               />
               <div className="space-y-1">
                 <Label htmlFor="accounts-declaration" className="font-medium">
-                  I confirm this annual accounts pack is approved for Companies
-                  House submission
+                  I confirm this annual accounts pack is approved for Companies House submission
                 </Label>
                 <p className="text-xs text-[#606060]">
-                  Tamias will send the current iXBRL accounts attachment
-                  using the Companies House presenter credentials configured on
-                  the API runtime. Submission is only enabled when the supported
-                  filing-ready path is complete and the company authentication
+                  Tamias will send the current iXBRL accounts attachment using the Companies House
+                  presenter credentials configured on the API runtime. Submission is only enabled
+                  when the supported filing-ready path is complete and the company authentication
                   code is saved.
                 </p>
               </div>
@@ -1698,15 +1478,11 @@ export function YearEndDashboard() {
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Submit annual accounts to Companies House
-                    </AlertDialogTitle>
+                    <AlertDialogTitle>Submit annual accounts to Companies House</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Tamias will send the current iXBRL annual accounts
-                      attachment through the Companies House XML gateway using
-                      the presenter credentials configured on the API runtime
-                      and the company authentication code saved in compliance
-                      settings.
+                      Tamias will send the current iXBRL annual accounts attachment through the
+                      Companies House XML gateway using the presenter credentials configured on the
+                      API runtime and the company authentication code saved in compliance settings.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -1732,10 +1508,7 @@ export function YearEndDashboard() {
                 isSubmitting={pollAccounts.isPending}
                 disabled={
                   pollAccounts.isPending ||
-                  !payloadString(
-                    latestAccountsPollTarget?.requestPayload,
-                    "submissionNumber",
-                  )
+                  !payloadString(latestAccountsPollTarget?.requestPayload, "submissionNumber")
                 }
                 onClick={() =>
                   period
@@ -1775,22 +1548,17 @@ export function YearEndDashboard() {
                         <Badge variant="outline">{event.status}</Badge>
                       </TableCell>
                       <TableCell className="font-mono text-xs">
-                        {payloadString(
-                          event.requestPayload,
-                          "submissionNumber",
-                        ) ?? "Not available"}
+                        {payloadString(event.requestPayload, "submissionNumber") ?? "Not available"}
                       </TableCell>
-                      <TableCell>
-                        {describeCompaniesHouseAccountsOutcome(event)}
-                      </TableCell>
+                      <TableCell>{describeCompaniesHouseAccountsOutcome(event)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             ) : (
               <div className="text-sm text-[#606060]">
-                No Companies House annual accounts submission events have been
-                recorded for this period yet.
+                No Companies House annual accounts submission events have been recorded for this
+                period yet.
               </div>
             )}
           </div>
@@ -1818,15 +1586,9 @@ export function YearEndDashboard() {
               </TableHeader>
               <TableBody>
                 {companiesHouseStatus.recentAccountsFilings.map((item) => (
-                  <TableRow
-                    key={
-                      item.transactionId ?? `${item.date}-${item.description}`
-                    }
-                  >
+                  <TableRow key={item.transactionId ?? `${item.date}-${item.description}`}>
                     <TableCell>{formatDate(item.date)}</TableCell>
-                    <TableCell>
-                      {humanizeToken(item.description ?? item.category)}
-                    </TableCell>
+                    <TableCell>{humanizeToken(item.description ?? item.category)}</TableCell>
                     <TableCell>{item.type ?? "Unknown"}</TableCell>
                     <TableCell className="font-mono text-xs">
                       {item.transactionId ?? "Unknown"}
@@ -1838,8 +1600,7 @@ export function YearEndDashboard() {
           ) : companiesHouseStatus?.apiKeyConfigured &&
             companiesHouseStatus?.profileCompanyNumber ? (
             <div className="text-sm text-[#606060]">
-              No recent Companies House accounts filings were returned for this
-              company.
+              No recent Companies House accounts filings were returned for this company.
             </div>
           ) : null}
         </CardContent>
@@ -1850,9 +1611,8 @@ export function YearEndDashboard() {
           <div className="space-y-1">
             <CardTitle>Tax calculations and supporting schedules</CardTitle>
             <CardDescription>
-              Trial balance, CT adjustments, CT rate inputs, CT600A data, and
-              working papers. Expand this when you need to review or edit the
-              underlying numbers.
+              Trial balance, CT adjustments, CT rate inputs, CT600A data, and working papers. Expand
+              this when you need to review or edit the underlying numbers.
             </CardDescription>
           </div>
           <Button
@@ -1868,9 +1628,7 @@ export function YearEndDashboard() {
           <div className="grid gap-3 md:grid-cols-4">
             <div className="rounded-lg border p-3">
               <div className="text-sm text-[#606060]">Trial balance lines</div>
-              <div className="mt-1 text-lg font-medium">
-                {trialBalance.length}
-              </div>
+              <div className="mt-1 text-lg font-medium">{trialBalance.length}</div>
             </div>
             <div className="rounded-lg border p-3">
               <div className="text-sm text-[#606060]">CT adjustments</div>
@@ -1897,9 +1655,7 @@ export function YearEndDashboard() {
               <Card>
                 <CardHeader>
                   <CardTitle>Trial balance</CardTitle>
-                  <CardDescription>
-                    Snapshot stored with the current pack rebuild.
-                  </CardDescription>
+                  <CardDescription>Snapshot stored with the current pack rebuild.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {trialBalance.length ? (
@@ -1917,12 +1673,8 @@ export function YearEndDashboard() {
                         {trialBalance.map((line) => (
                           <TableRow key={line.accountCode}>
                             <TableCell>
-                              <div className="font-medium">
-                                {line.accountName}
-                              </div>
-                              <div className="text-xs text-[#606060]">
-                                {line.accountCode}
-                              </div>
+                              <div className="font-medium">{line.accountName}</div>
+                              <div className="text-xs text-[#606060]">{line.accountCode}</div>
                             </TableCell>
                             <TableCell className="capitalize">
                               {line.accountType.replace("_", " ")}
@@ -1962,8 +1714,8 @@ export function YearEndDashboard() {
                   <CardHeader>
                     <CardTitle>Corporation tax summary</CardTitle>
                     <CardDescription>
-                      Structured HMRC computation categories used by the
-                      supported filing-ready path.
+                      Structured HMRC computation categories used by the supported filing-ready
+                      path.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3">
@@ -2015,17 +1767,12 @@ export function YearEndDashboard() {
 
                     {ct600Draft?.computationBreakdown ? (
                       <div className="space-y-2 border-t pt-3">
-                        <div className="text-sm font-medium">
-                          Supported-path computation
-                        </div>
+                        <div className="text-sm font-medium">Supported-path computation</div>
                         <div className="flex items-center justify-between text-sm">
                           <span>Profit or loss per accounts</span>
                           <span className="font-medium">
                             <FormatAmount
-                              amount={
-                                ct600Draft.computationBreakdown
-                                  .profitLossPerAccounts
-                              }
+                              amount={ct600Draft.computationBreakdown.profitLossPerAccounts}
                               currency={pack?.currency ?? "GBP"}
                             />
                           </span>
@@ -2035,8 +1782,7 @@ export function YearEndDashboard() {
                           <span className="font-medium">
                             <FormatAmount
                               amount={
-                                ct600Draft.computationBreakdown
-                                  .depreciationAmortisationAdjustments
+                                ct600Draft.computationBreakdown.depreciationAmortisationAdjustments
                               }
                               currency={pack?.currency ?? "GBP"}
                             />
@@ -2046,10 +1792,7 @@ export function YearEndDashboard() {
                           <span>Capital allowances</span>
                           <span className="font-medium">
                             <FormatAmount
-                              amount={
-                                ct600Draft.computationBreakdown
-                                  .totalCapitalAllowances
-                              }
+                              amount={ct600Draft.computationBreakdown.totalCapitalAllowances}
                               currency={pack?.currency ?? "GBP"}
                             />
                           </span>
@@ -2058,10 +1801,7 @@ export function YearEndDashboard() {
                           <span>Qualifying donations</span>
                           <span className="font-medium">
                             <FormatAmount
-                              amount={
-                                ct600Draft.computationBreakdown
-                                  .qualifyingDonations
-                              }
+                              amount={ct600Draft.computationBreakdown.qualifyingDonations}
                               currency={pack?.currency ?? "GBP"}
                             />
                           </span>
@@ -2070,10 +1810,7 @@ export function YearEndDashboard() {
                           <span>Losses brought forward</span>
                           <span className="font-medium">
                             <FormatAmount
-                              amount={
-                                ct600Draft.computationBreakdown
-                                  .lossesBroughtForward
-                              }
+                              amount={ct600Draft.computationBreakdown.lossesBroughtForward}
                               currency={pack?.currency ?? "GBP"}
                             />
                           </span>
@@ -2082,10 +1819,7 @@ export function YearEndDashboard() {
                           <span>Group relief claimed</span>
                           <span className="font-medium">
                             <FormatAmount
-                              amount={
-                                ct600Draft.computationBreakdown
-                                  .groupReliefClaimed
-                              }
+                              amount={ct600Draft.computationBreakdown.groupReliefClaimed}
                               currency={pack?.currency ?? "GBP"}
                             />
                           </span>
@@ -2111,9 +1845,7 @@ export function YearEndDashboard() {
                         <Select
                           value={ctCategory}
                           onValueChange={(value) =>
-                            setCtCategory(
-                              value as CorporationTaxAdjustmentCategory,
-                            )
+                            setCtCategory(value as CorporationTaxAdjustmentCategory)
                           }
                         >
                           <SelectTrigger>
@@ -2127,9 +1859,7 @@ export function YearEndDashboard() {
                             ))}
                           </SelectContent>
                         </Select>
-                        <div className="text-xs text-[#606060]">
-                          {selectedCtCategory.guidance}
-                        </div>
+                        <div className="text-xs text-[#606060]">{selectedCtCategory.guidance}</div>
                       </div>
                       <div className="space-y-1">
                         <Label>Adjustment label</Label>
@@ -2175,46 +1905,40 @@ export function YearEndDashboard() {
 
                     <div className="space-y-2 border-t pt-3">
                       {workspace?.corporationTaxAdjustments?.length ? (
-                        workspace.corporationTaxAdjustments.map(
-                          (adjustment) => (
-                            <div
-                              key={adjustment.id}
-                              className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2"
-                            >
-                              <div>
-                                <div className="text-sm font-medium">
-                                  {adjustment.label}
-                                </div>
-                                <div className="text-xs text-[#606060]">
-                                  {humanizeToken(adjustment.category)}
-                                  {adjustment.note
-                                    ? ` · ${adjustment.note}`
-                                    : ""}
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <div className="text-sm font-medium">
-                                  <FormatAmount
-                                    amount={adjustment.amount}
-                                    currency={pack?.currency ?? "GBP"}
-                                  />
-                                </div>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() =>
-                                    deleteCtAdjustment.mutate({
-                                      adjustmentId: adjustment.id,
-                                      periodKey: workspace.period.periodKey,
-                                    })
-                                  }
-                                >
-                                  Delete
-                                </Button>
+                        workspace.corporationTaxAdjustments.map((adjustment) => (
+                          <div
+                            key={adjustment.id}
+                            className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2"
+                          >
+                            <div>
+                              <div className="text-sm font-medium">{adjustment.label}</div>
+                              <div className="text-xs text-[#606060]">
+                                {humanizeToken(adjustment.category)}
+                                {adjustment.note ? ` · ${adjustment.note}` : ""}
                               </div>
                             </div>
-                          ),
-                        )
+                            <div className="flex items-center gap-3">
+                              <div className="text-sm font-medium">
+                                <FormatAmount
+                                  amount={adjustment.amount}
+                                  currency={pack?.currency ?? "GBP"}
+                                />
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() =>
+                                  deleteCtAdjustment.mutate({
+                                    adjustmentId: adjustment.id,
+                                    periodKey: workspace.period.periodKey,
+                                  })
+                                }
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          </div>
+                        ))
                       ) : (
                         <div className="text-sm text-[#606060]">
                           No corporation-tax adjustments yet.
@@ -2228,19 +1952,17 @@ export function YearEndDashboard() {
                   <CardHeader>
                     <CardTitle>CT rate inputs</CardTitle>
                     <CardDescription>
-                      Confirm the associated-companies counts and qualifying
-                      exempt distributions used for small-profits-rate and
-                      marginal-relief calculations.
+                      Confirm the associated-companies counts and qualifying exempt distributions
+                      used for small-profits-rate and marginal-relief calculations.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {ctPeriodUsesSmallProfitsRules ? (
                       <>
                         <div className="rounded-lg border p-3 text-sm text-[#606060]">
-                          Enter the number of associated companies excluding
-                          this company. Use `0` when there are none. Leave
-                          exempt distributions blank if none were received from
-                          non-group companies in the period.
+                          Enter the number of associated companies excluding this company. Use `0`
+                          when there are none. Leave exempt distributions blank if none were
+                          received from non-group companies in the period.
                         </div>
 
                         {ctPeriodSpansTwoFinancialYears ? (
@@ -2254,12 +1976,11 @@ export function YearEndDashboard() {
                             />
                             <div className="space-y-1">
                               <Label htmlFor="ct-rate-split-years">
-                                Associated-companies count changes across the
-                                two CT financial years
+                                Associated-companies count changes across the two CT financial years
                               </Label>
                               <p className="text-xs text-[#606060]">
-                                Leave this unticked when the same count applies
-                                across the whole return period.
+                                Leave this unticked when the same count applies across the whole
+                                return period.
                               </p>
                             </div>
                           </div>
@@ -2267,29 +1988,23 @@ export function YearEndDashboard() {
 
                         <div
                           className={`grid gap-3 ${
-                            ctRateUseSplitYears &&
-                            ctPeriodSpansTwoFinancialYears
+                            ctRateUseSplitYears && ctPeriodSpansTwoFinancialYears
                               ? "md:grid-cols-3"
                               : "md:grid-cols-2"
                           }`}
                         >
-                          {ctRateUseSplitYears &&
-                          ctPeriodSpansTwoFinancialYears ? (
+                          {ctRateUseSplitYears && ctPeriodSpansTwoFinancialYears ? (
                             <>
                               <div className="space-y-1">
                                 <Label>
                                   Associated companies in FY{" "}
-                                  {getCorporationTaxFinancialYear(
-                                    period.periodStart,
-                                  )}
+                                  {getCorporationTaxFinancialYear(period.periodStart)}
                                 </Label>
                                 <Input
                                   inputMode="numeric"
                                   value={ctRateAssociatedCompaniesFirstYear}
                                   onChange={(event) =>
-                                    setCtRateAssociatedCompaniesFirstYear(
-                                      event.target.value,
-                                    )
+                                    setCtRateAssociatedCompaniesFirstYear(event.target.value)
                                   }
                                   placeholder="0"
                                 />
@@ -2297,17 +2012,13 @@ export function YearEndDashboard() {
                               <div className="space-y-1">
                                 <Label>
                                   Associated companies in FY{" "}
-                                  {getCorporationTaxFinancialYear(
-                                    period.periodStart,
-                                  ) + 1}
+                                  {getCorporationTaxFinancialYear(period.periodStart) + 1}
                                 </Label>
                                 <Input
                                   inputMode="numeric"
                                   value={ctRateAssociatedCompaniesSecondYear}
                                   onChange={(event) =>
-                                    setCtRateAssociatedCompaniesSecondYear(
-                                      event.target.value,
-                                    )
+                                    setCtRateAssociatedCompaniesSecondYear(event.target.value)
                                   }
                                   placeholder="0"
                                 />
@@ -2320,9 +2031,7 @@ export function YearEndDashboard() {
                                 inputMode="numeric"
                                 value={ctRateAssociatedCompaniesThisPeriod}
                                 onChange={(event) =>
-                                  setCtRateAssociatedCompaniesThisPeriod(
-                                    event.target.value,
-                                  )
+                                  setCtRateAssociatedCompaniesThisPeriod(event.target.value)
                                 }
                                 placeholder="0"
                               />
@@ -2334,9 +2043,7 @@ export function YearEndDashboard() {
                             <Input
                               inputMode="decimal"
                               value={ctRateExemptDistributions}
-                              onChange={(event) =>
-                                setCtRateExemptDistributions(event.target.value)
-                              }
+                              onChange={(event) => setCtRateExemptDistributions(event.target.value)}
                               placeholder="Leave blank if none"
                             />
                           </div>
@@ -2344,9 +2051,7 @@ export function YearEndDashboard() {
 
                         <div className="grid gap-3 md:grid-cols-4">
                           <div className="rounded-lg border p-3">
-                            <div className="text-sm text-[#606060]">
-                              Gross CT chargeable
-                            </div>
+                            <div className="text-sm text-[#606060]">Gross CT chargeable</div>
                             <div className="mt-1 font-medium">
                               <FormatAmount
                                 amount={ct600Draft?.grossCorporationTax ?? 0}
@@ -2355,9 +2060,7 @@ export function YearEndDashboard() {
                             </div>
                           </div>
                           <div className="rounded-lg border p-3">
-                            <div className="text-sm text-[#606060]">
-                              Marginal relief
-                            </div>
+                            <div className="text-sm text-[#606060]">Marginal relief</div>
                             <div className="mt-1 font-medium">
                               <FormatAmount
                                 amount={ct600Draft?.marginalRelief ?? 0}
@@ -2366,22 +2069,16 @@ export function YearEndDashboard() {
                             </div>
                           </div>
                           <div className="rounded-lg border p-3">
-                            <div className="text-sm text-[#606060]">
-                              Net CT chargeable
-                            </div>
+                            <div className="text-sm text-[#606060]">Net CT chargeable</div>
                             <div className="mt-1 font-medium">
                               <FormatAmount
-                                amount={
-                                  ct600Draft?.netCorporationTaxChargeable ?? 0
-                                }
+                                amount={ct600Draft?.netCorporationTaxChargeable ?? 0}
                                 currency={pack?.currency ?? "GBP"}
                               />
                             </div>
                           </div>
                           <div className="rounded-lg border p-3">
-                            <div className="text-sm text-[#606060]">
-                              Augmented profits
-                            </div>
+                            <div className="text-sm text-[#606060]">Augmented profits</div>
                             <div className="mt-1 font-medium">
                               <FormatAmount
                                 amount={ct600Draft?.augmentedProfits ?? 0}
@@ -2393,9 +2090,7 @@ export function YearEndDashboard() {
 
                         {ctRateBreakdown.length ? (
                           <div className="rounded-lg border p-3">
-                            <div className="mb-3 text-sm font-medium">
-                              Financial-year breakdown
-                            </div>
+                            <div className="mb-3 text-sm font-medium">Financial-year breakdown</div>
                             <div className="space-y-2">
                               {ctRateBreakdown.map((item) => (
                                 <div
@@ -2403,17 +2098,11 @@ export function YearEndDashboard() {
                                   className="grid gap-2 rounded-lg border px-3 py-2 md:grid-cols-6"
                                 >
                                   <div>
-                                    <div className="text-xs text-[#606060]">
-                                      FY
-                                    </div>
-                                    <div className="text-sm font-medium">
-                                      {item.financialYear}
-                                    </div>
+                                    <div className="text-xs text-[#606060]">FY</div>
+                                    <div className="text-sm font-medium">{item.financialYear}</div>
                                   </div>
                                   <div>
-                                    <div className="text-xs text-[#606060]">
-                                      Basis
-                                    </div>
+                                    <div className="text-xs text-[#606060]">Basis</div>
                                     <div className="text-sm font-medium">
                                       {humanizeToken(item.chargeType)}
                                     </div>
@@ -2427,9 +2116,7 @@ export function YearEndDashboard() {
                                     </div>
                                   </div>
                                   <div>
-                                    <div className="text-xs text-[#606060]">
-                                      Chargeable profits
-                                    </div>
+                                    <div className="text-xs text-[#606060]">Chargeable profits</div>
                                     <div className="text-sm font-medium">
                                       <FormatAmount
                                         amount={item.chargeableProfits}
@@ -2438,17 +2125,13 @@ export function YearEndDashboard() {
                                     </div>
                                   </div>
                                   <div>
-                                    <div className="text-xs text-[#606060]">
-                                      Tax rate
-                                    </div>
+                                    <div className="text-xs text-[#606060]">Tax rate</div>
                                     <div className="text-sm font-medium">
                                       {item.taxRate.toFixed(2)}%
                                     </div>
                                   </div>
                                   <div>
-                                    <div className="text-xs text-[#606060]">
-                                      Net CT
-                                    </div>
+                                    <div className="text-xs text-[#606060]">Net CT</div>
                                     <div className="text-sm font-medium">
                                       <FormatAmount
                                         amount={item.netCorporationTax}
@@ -2464,28 +2147,22 @@ export function YearEndDashboard() {
 
                         <div className="flex flex-wrap items-center gap-2">
                           <SubmitButton
-                            isSubmitting={
-                              upsertCorporationTaxRateScheduleMutation.isPending
-                            }
+                            isSubmitting={upsertCorporationTaxRateScheduleMutation.isPending}
                             disabled={!ctRateHasValidInputs}
                             onClick={() =>
                               upsertCorporationTaxRateScheduleMutation.mutate({
                                 periodKey: workspace?.period.periodKey,
-                                exemptDistributions:
-                                  ctRateExemptDistributionsValue,
+                                exemptDistributions: ctRateExemptDistributionsValue,
                                 associatedCompaniesThisPeriod:
-                                  ctRateUseSplitYears &&
-                                  ctPeriodSpansTwoFinancialYears
+                                  ctRateUseSplitYears && ctPeriodSpansTwoFinancialYears
                                     ? null
                                     : ctRateAssociatedCompaniesThisPeriodValue,
                                 associatedCompaniesFirstYear:
-                                  ctRateUseSplitYears &&
-                                  ctPeriodSpansTwoFinancialYears
+                                  ctRateUseSplitYears && ctPeriodSpansTwoFinancialYears
                                     ? ctRateAssociatedCompaniesFirstYearValue
                                     : null,
                                 associatedCompaniesSecondYear:
-                                  ctRateUseSplitYears &&
-                                  ctPeriodSpansTwoFinancialYears
+                                  ctRateUseSplitYears && ctPeriodSpansTwoFinancialYears
                                     ? ctRateAssociatedCompaniesSecondYearValue
                                     : null,
                               })
@@ -2497,11 +2174,9 @@ export function YearEndDashboard() {
                             <Button
                               variant="ghost"
                               onClick={() =>
-                                deleteCorporationTaxRateScheduleMutation.mutate(
-                                  {
-                                    periodKey: workspace?.period.periodKey,
-                                  },
-                                )
+                                deleteCorporationTaxRateScheduleMutation.mutate({
+                                  periodKey: workspace?.period.periodKey,
+                                })
                               }
                             >
                               Delete saved inputs
@@ -2511,9 +2186,8 @@ export function YearEndDashboard() {
                       </>
                     ) : (
                       <div className="rounded-lg border border-dashed p-3 text-sm text-[#606060]">
-                        Small profits rate and marginal relief do not apply to
-                        periods ending before 1 April 2023, so this schedule is
-                        not used for the current period.
+                        Small profits rate and marginal relief do not apply to periods ending before
+                        1 April 2023, so this schedule is not used for the current period.
                       </div>
                     )}
                   </CardContent>
@@ -2523,8 +2197,8 @@ export function YearEndDashboard() {
                   <CardHeader>
                     <CardTitle>CT600A close-company loans</CardTitle>
                     <CardDescription>
-                      Save the close-company loans schedule used to generate
-                      CT600A in the draft CT600 XML and export bundle.
+                      Save the close-company loans schedule used to generate CT600A in the draft
+                      CT600 XML and export bundle.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -2538,12 +2212,10 @@ export function YearEndDashboard() {
                       />
                       <div className="space-y-1">
                         <Label htmlFor="ct600a-before-end-period">
-                          Loans or arrangements remained outstanding at the
-                          period end
+                          Loans or arrangements remained outstanding at the period end
                         </Label>
                         <p className="text-xs text-[#606060]">
-                          HMRC box A5. Amount rows should be entered as whole
-                          pounds.
+                          HMRC box A5. Amount rows should be entered as whole pounds.
                         </p>
                       </div>
                     </div>
@@ -2554,18 +2226,13 @@ export function YearEndDashboard() {
                           <div className="text-sm font-medium">
                             Part 1: Outstanding loans and arrangements
                           </div>
-                          <div className="text-xs text-[#606060]">
-                            HMRC boxes A10 to A20.
-                          </div>
+                          <div className="text-xs text-[#606060]">HMRC boxes A10 to A20.</div>
                         </div>
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() =>
-                            setCloseCompanyLoansMade((current) => [
-                              ...current,
-                              createLoanRow(),
-                            ])
+                            setCloseCompanyLoansMade((current) => [...current, createLoanRow()])
                           }
                         >
                           Add row
@@ -2614,9 +2281,7 @@ export function YearEndDashboard() {
                                 setCloseCompanyLoansMade((current) =>
                                   current.length === 1
                                     ? [createLoanRow()]
-                                    : current.filter(
-                                        (item) => item.id !== row.id,
-                                      ),
+                                    : current.filter((item) => item.id !== row.id),
                                 )
                               }
                             >
@@ -2627,9 +2292,7 @@ export function YearEndDashboard() {
                       </div>
                       <div className="mt-3 grid gap-3 md:grid-cols-2">
                         <div className="rounded-lg border p-3">
-                          <div className="text-sm text-[#606060]">
-                            Total loans (A15)
-                          </div>
+                          <div className="text-sm text-[#606060]">Total loans (A15)</div>
                           <div className="mt-1 font-medium">
                             <FormatAmount
                               amount={closeCompanyLoansMadeTotal}
@@ -2642,9 +2305,7 @@ export function YearEndDashboard() {
                           <Input
                             inputMode="decimal"
                             value={closeCompanyTaxChargeable}
-                            onChange={(event) =>
-                              setCloseCompanyTaxChargeable(event.target.value)
-                            }
+                            onChange={(event) => setCloseCompanyTaxChargeable(event.target.value)}
                             placeholder="Leave blank if not applicable"
                           />
                         </div>
@@ -2654,12 +2315,8 @@ export function YearEndDashboard() {
                     <div className="rounded-lg border p-3">
                       <div className="mb-3 flex items-center justify-between gap-3">
                         <div>
-                          <div className="text-sm font-medium">
-                            Part 2: Relief within 9 months
-                          </div>
-                          <div className="text-xs text-[#606060]">
-                            HMRC boxes A25 to A45.
-                          </div>
+                          <div className="text-sm font-medium">Part 2: Relief within 9 months</div>
+                          <div className="text-xs text-[#606060]">HMRC boxes A25 to A45.</div>
                         </div>
                         <Button
                           size="sm"
@@ -2719,8 +2376,7 @@ export function YearEndDashboard() {
                                     item.id === row.id
                                       ? {
                                           ...item,
-                                          amountReleasedOrWrittenOff:
-                                            event.target.value,
+                                          amountReleasedOrWrittenOff: event.target.value,
                                         }
                                       : item,
                                   ),
@@ -2748,9 +2404,7 @@ export function YearEndDashboard() {
                                 setCloseCompanyReliefEarlierThan((current) =>
                                   current.length === 1
                                     ? [createLoanReliefRow()]
-                                    : current.filter(
-                                        (item) => item.id !== row.id,
-                                      ),
+                                    : current.filter((item) => item.id !== row.id),
                                 )
                               }
                             >
@@ -2761,9 +2415,7 @@ export function YearEndDashboard() {
                       </div>
                       <div className="mt-3 grid gap-3 md:grid-cols-2">
                         <div className="rounded-lg border p-3">
-                          <div className="text-sm text-[#606060]">
-                            Total relief base (A40)
-                          </div>
+                          <div className="text-sm text-[#606060]">Total relief base (A40)</div>
                           <div className="mt-1 font-medium">
                             <FormatAmount
                               amount={closeCompanyReliefEarlierTotal}
@@ -2777,9 +2429,7 @@ export function YearEndDashboard() {
                             inputMode="decimal"
                             value={closeCompanyReliefEarlierDue}
                             onChange={(event) =>
-                              setCloseCompanyReliefEarlierDue(
-                                event.target.value,
-                              )
+                              setCloseCompanyReliefEarlierDue(event.target.value)
                             }
                             placeholder="Leave blank if not applicable"
                           />
@@ -2793,9 +2443,7 @@ export function YearEndDashboard() {
                           <div className="text-sm font-medium">
                             Part 3: Relief due now after 9 months
                           </div>
-                          <div className="text-xs text-[#606060]">
-                            HMRC boxes A50 to A70.
-                          </div>
+                          <div className="text-xs text-[#606060]">HMRC boxes A50 to A70.</div>
                         </div>
                         <Button
                           size="sm"
@@ -2855,8 +2503,7 @@ export function YearEndDashboard() {
                                     item.id === row.id
                                       ? {
                                           ...item,
-                                          amountReleasedOrWrittenOff:
-                                            event.target.value,
+                                          amountReleasedOrWrittenOff: event.target.value,
                                         }
                                       : item,
                                   ),
@@ -2884,9 +2531,7 @@ export function YearEndDashboard() {
                                 setCloseCompanyLoanLaterReliefNow((current) =>
                                   current.length === 1
                                     ? [createLoanReliefRow()]
-                                    : current.filter(
-                                        (item) => item.id !== row.id,
-                                      ),
+                                    : current.filter((item) => item.id !== row.id),
                                 )
                               }
                             >
@@ -2897,9 +2542,7 @@ export function YearEndDashboard() {
                       </div>
                       <div className="mt-3 grid gap-3 md:grid-cols-2">
                         <div className="rounded-lg border p-3">
-                          <div className="text-sm text-[#606060]">
-                            Total relief base (A65)
-                          </div>
+                          <div className="text-sm text-[#606060]">Total relief base (A65)</div>
                           <div className="mt-1 font-medium">
                             <FormatAmount
                               amount={closeCompanyReliefLaterTotal}
@@ -2912,9 +2555,7 @@ export function YearEndDashboard() {
                           <Input
                             inputMode="decimal"
                             value={closeCompanyReliefLaterDue}
-                            onChange={(event) =>
-                              setCloseCompanyReliefLaterDue(event.target.value)
-                            }
+                            onChange={(event) => setCloseCompanyReliefLaterDue(event.target.value)}
                             placeholder="Leave blank if not applicable"
                           />
                         </div>
@@ -2928,17 +2569,13 @@ export function YearEndDashboard() {
                           inputMode="numeric"
                           value={closeCompanyTotalLoansOutstanding}
                           onChange={(event) =>
-                            setCloseCompanyTotalLoansOutstanding(
-                              event.target.value,
-                            )
+                            setCloseCompanyTotalLoansOutstanding(event.target.value)
                           }
                           placeholder="Leave blank if nil"
                         />
                       </div>
                       <div className="rounded-lg border p-3">
-                        <div className="text-sm text-[#606060]">
-                          Tax payable s455/s464C (A80)
-                        </div>
+                        <div className="text-sm text-[#606060]">Tax payable s455/s464C (A80)</div>
                         <div className="mt-1 font-medium">
                           <FormatAmount
                             amount={closeCompanyDerivedTaxPayable}
@@ -2947,59 +2584,45 @@ export function YearEndDashboard() {
                         </div>
                       </div>
                       <div className="rounded-lg border p-3">
-                        <div className="text-sm text-[#606060]">
-                          Saved schedule
-                        </div>
+                        <div className="text-sm text-[#606060]">Saved schedule</div>
                         <div className="mt-1 font-medium">
-                          {closeCompanyLoansSchedule
-                            ? "Present for this period"
-                            : "Not saved"}
+                          {closeCompanyLoansSchedule ? "Present for this period" : "Not saved"}
                         </div>
                       </div>
                     </div>
 
                     {closeCompanyHasIncompleteRows ? (
                       <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-                        Complete each CT600A row fully, or clear it, before
-                        saving.
+                        Complete each CT600A row fully, or clear it, before saving.
                       </div>
                     ) : null}
 
                     {!closeCompanyHasMeaningfulContent ? (
                       <div className="rounded-lg border border-dashed p-3 text-sm text-[#606060]">
-                        Save the schedule only when you have CT600A data for the
-                        current period.
+                        Save the schedule only when you have CT600A data for the current period.
                       </div>
                     ) : null}
 
                     <div className="flex flex-wrap items-center gap-2">
                       <SubmitButton
-                        isSubmitting={
-                          upsertCloseCompanyLoansScheduleMutation.isPending
-                        }
+                        isSubmitting={upsertCloseCompanyLoansScheduleMutation.isPending}
                         disabled={
-                          closeCompanyHasIncompleteRows ||
-                          !closeCompanyHasMeaningfulContent
+                          closeCompanyHasIncompleteRows || !closeCompanyHasMeaningfulContent
                         }
                         onClick={() =>
                           upsertCloseCompanyLoansScheduleMutation.mutate({
                             periodKey: workspace?.period.periodKey,
                             beforeEndPeriod: closeCompanyBeforeEndPeriod,
-                            loansMade: normalizedCloseCompanyLoansMade.map(
-                              (row) => ({
-                                name: row.name,
-                                amountOfLoan: row.amountOfLoan ?? 0,
-                              }),
-                            ),
+                            loansMade: normalizedCloseCompanyLoansMade.map((row) => ({
+                              name: row.name,
+                              amountOfLoan: row.amountOfLoan ?? 0,
+                            })),
                             taxChargeable: closeCompanyTaxChargeableValue,
-                            reliefEarlierThan:
-                              normalizedCloseCompanyReliefEarlierThan,
+                            reliefEarlierThan: normalizedCloseCompanyReliefEarlierThan,
                             reliefEarlierDue: closeCompanyReliefEarlierDueValue,
-                            loanLaterReliefNow:
-                              normalizedCloseCompanyLoanLaterReliefNow,
+                            loanLaterReliefNow: normalizedCloseCompanyLoanLaterReliefNow,
                             reliefLaterDue: closeCompanyReliefLaterDueValue,
-                            totalLoansOutstanding:
-                              closeCompanyTotalLoansOutstandingValue,
+                            totalLoansOutstanding: closeCompanyTotalLoansOutstandingValue,
                           })
                         }
                       >
@@ -3025,21 +2648,15 @@ export function YearEndDashboard() {
                   <CardHeader>
                     <CardTitle>Working papers</CardTitle>
                     <CardDescription>
-                      Current closing balances grouped into core year-end
-                      sections.
+                      Current closing balances grouped into core year-end sections.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     {workingPapers.length ? (
                       workingPapers.map((section) => (
-                        <div
-                          key={section.key}
-                          className="rounded-lg border p-3"
-                        >
+                        <div key={section.key} className="rounded-lg border p-3">
                           <div className="mb-2 flex items-center justify-between">
-                            <div className="text-sm font-medium">
-                              {section.label}
-                            </div>
+                            <div className="text-sm font-medium">{section.label}</div>
                             <div className="text-sm text-[#606060]">
                               <FormatAmount
                                 amount={section.total}
@@ -3089,8 +2706,8 @@ export function YearEndDashboard() {
           <div className="space-y-1">
             <CardTitle>Manual year-end journals</CardTitle>
             <CardDescription>
-              Add explicit debit and credit adjustments to the annual pack when
-              the ledger needs a year-end-only posting.
+              Add explicit debit and credit adjustments to the annual pack when the ledger needs a
+              year-end-only posting.
             </CardDescription>
           </div>
           <Button
@@ -3099,9 +2716,7 @@ export function YearEndDashboard() {
             size="sm"
             onClick={() => setManualJournalsExpanded((current) => !current)}
           >
-            {manualJournalsExpanded
-              ? "Hide journal editor"
-              : "Open journal editor"}
+            {manualJournalsExpanded ? "Hide journal editor" : "Open journal editor"}
           </Button>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -3143,9 +2758,7 @@ export function YearEndDashboard() {
                   <Label>Description</Label>
                   <Input
                     value={journalDescription}
-                    onChange={(event) =>
-                      setJournalDescription(event.target.value)
-                    }
+                    onChange={(event) => setJournalDescription(event.target.value)}
                     placeholder="Year-end accrual"
                   />
                 </div>
@@ -3153,9 +2766,7 @@ export function YearEndDashboard() {
                   <Label>Reference</Label>
                   <Input
                     value={journalReference}
-                    onChange={(event) =>
-                      setJournalReference(event.target.value)
-                    }
+                    onChange={(event) => setJournalReference(event.target.value)}
                     placeholder="YE-001"
                   />
                 </div>

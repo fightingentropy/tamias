@@ -91,10 +91,7 @@ async function recordTransactionEvent(args: {
       db: args.db,
       teamId: args.teamId,
       eventType: args.eventType,
-      status:
-        "status" in result && typeof result.status === "string"
-          ? result.status
-          : "deleted",
+      status: "status" in result && typeof result.status === "string" ? result.status : "deleted",
       correlationId: args.transactionId,
       requestPayload: {
         transactionId: args.transactionId,

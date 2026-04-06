@@ -46,9 +46,7 @@ export async function upsertPublicInvoiceInConvex(args: {
   ) as Promise<PublicInvoiceRecord>;
 }
 
-export async function getPublicInvoiceByPublicInvoiceIdFromConvex(args: {
-  invoiceId: string;
-}) {
+export async function getPublicInvoiceByPublicInvoiceIdFromConvex(args: { invoiceId: string }) {
   return createClient().query(
     convexApi.publicInvoices.serviceGetPublicInvoiceByPublicInvoiceId,
     serviceArgs({
@@ -57,9 +55,7 @@ export async function getPublicInvoiceByPublicInvoiceIdFromConvex(args: {
   ) as Promise<PublicInvoiceRecord | null>;
 }
 
-export async function getPublicInvoiceByTokenFromConvex(args: {
-  token: string;
-}) {
+export async function getPublicInvoiceByTokenFromConvex(args: { token: string }) {
   return createClient().query(
     convexApi.publicInvoices.serviceGetPublicInvoiceByToken,
     serviceArgs({
@@ -68,9 +64,7 @@ export async function getPublicInvoiceByTokenFromConvex(args: {
   ) as Promise<PublicInvoiceRecord | null>;
 }
 
-export async function getPublicInvoicesByTeamFromConvex(args: {
-  teamId: string;
-}) {
+export async function getPublicInvoicesByTeamFromConvex(args: { teamId: string }) {
   return createClient().query(
     convexApi.publicInvoices.serviceGetPublicInvoicesByTeam,
     serviceArgs({
@@ -215,9 +209,7 @@ export async function getPublicInvoicesByRecurringIdFromConvex(args: {
   ) as Promise<PublicInvoiceRecord[]>;
 }
 
-export async function getNextInvoiceNumberPreviewFromConvex(args: {
-  teamId: string;
-}) {
+export async function getNextInvoiceNumberPreviewFromConvex(args: { teamId: string }) {
   return createClient().query(
     convexApi.publicInvoices.serviceGetNextInvoiceNumberPreview,
     serviceArgs({
@@ -226,9 +218,7 @@ export async function getNextInvoiceNumberPreviewFromConvex(args: {
   ) as Promise<string>;
 }
 
-export async function allocateNextInvoiceNumberInConvex(args: {
-  teamId: string;
-}) {
+export async function allocateNextInvoiceNumberInConvex(args: { teamId: string }) {
   return createClient().mutation(
     convexApi.publicInvoices.serviceAllocateNextInvoiceNumber,
     serviceArgs({
@@ -237,9 +227,7 @@ export async function allocateNextInvoiceNumberInConvex(args: {
   ) as Promise<string>;
 }
 
-export async function getPublicInvoicesByStatusesFromConvex(args: {
-  statuses: string[];
-}) {
+export async function getPublicInvoicesByStatusesFromConvex(args: { statuses: string[] }) {
   return createClient().query(
     convexApi.publicInvoices.serviceGetPublicInvoicesByStatuses,
     serviceArgs({
@@ -259,10 +247,7 @@ export async function getPublicInvoiceByPaymentIntentIdFromConvex(args: {
   ) as Promise<PublicInvoiceRecord | null>;
 }
 
-export async function deletePublicInvoiceInConvex(args: {
-  teamId: string;
-  id: string;
-}) {
+export async function deletePublicInvoiceInConvex(args: { teamId: string; id: string }) {
   return createClient().mutation(
     convexApi.publicInvoices.serviceDeletePublicInvoice,
     serviceArgs({

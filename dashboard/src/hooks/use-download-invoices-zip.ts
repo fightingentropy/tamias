@@ -38,9 +38,7 @@ export function useDownloadInvoicesZip() {
 
           const response = await fetch(url.toString());
           if (!response.ok) {
-            throw new Error(
-              `Failed to fetch invoice ${invoice.id}: ${response.statusText}`,
-            );
+            throw new Error(`Failed to fetch invoice ${invoice.id}: ${response.statusText}`);
           }
 
           const blob = await response.blob();

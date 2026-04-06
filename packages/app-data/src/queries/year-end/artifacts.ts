@@ -7,9 +7,7 @@ export function buildCsvChecksum(value: string) {
   return createHash("sha256").update(value).digest("hex");
 }
 
-export async function buildZipBundle(
-  files: Array<{ name: string; data: Buffer }>,
-) {
+export async function buildZipBundle(files: Array<{ name: string; data: Buffer }>) {
   const { default: archiver } = await import("archiver");
 
   return new Promise<Buffer>((resolve, reject) => {

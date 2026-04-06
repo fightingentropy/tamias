@@ -4,10 +4,7 @@ import type { AddVatAdjustmentParams } from "../types";
 import { getDraftContext } from "./context";
 import { recalculateVatDraft } from "./recalculate";
 
-export async function addVatAdjustment(
-  db: Database,
-  params: AddVatAdjustmentParams,
-) {
+export async function addVatAdjustment(db: Database, params: AddVatAdjustmentParams) {
   const context = await getDraftContext(db, {
     teamId: params.teamId,
     obligationId: params.obligationId,

@@ -1,7 +1,4 @@
-import {
-  listSubmissionEventsFromConvex,
-  type YearEndPackRecord,
-} from "@tamias/app-data-convex";
+import { listSubmissionEventsFromConvex, type YearEndPackRecord } from "@tamias/app-data-convex";
 
 export function getSubmissionEventRequestPeriodKey(
   event: {
@@ -43,10 +40,7 @@ export async function listYearEndSubmissionEvents(args: {
   });
 
   return args.periodKey
-    ? events.filter(
-        (event) =>
-          getSubmissionEventRequestPeriodKey(event) === args.periodKey,
-      )
+    ? events.filter((event) => getSubmissionEventRequestPeriodKey(event) === args.periodKey)
     : events;
 }
 

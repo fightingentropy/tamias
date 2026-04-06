@@ -27,9 +27,7 @@ export function TransactionsColumnVisibility() {
                   <Checkbox
                     id={column.id}
                     checked={column.getIsVisible()}
-                    onCheckedChange={(checked) =>
-                      column.toggleVisibility(checked === true)
-                    }
+                    onCheckedChange={(checked) => column.toggleVisibility(checked === true)}
                   />
                   <label
                     htmlFor={column.id}

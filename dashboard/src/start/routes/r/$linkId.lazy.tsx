@@ -20,12 +20,7 @@ function PublicReportPage() {
 
   return (
     <HydrationBoundary
-      state={
-        loaderData.dehydratedState as unknown as
-          | DehydratedState
-          | null
-          | undefined
-      }
+      state={loaderData.dehydratedState as unknown as DehydratedState | null | undefined}
     >
       <div className="min-h-screen bg-background flex flex-col">
         <header className="border-b border-border">
@@ -62,10 +57,7 @@ function PublicReportPage() {
           <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-6">
             <p className="text-center text-xs text-muted-foreground">
               Powered by{" "}
-              <a
-                href="https://tamias.xyz"
-                className="hover:text-foreground transition-colors"
-              >
+              <a href="https://tamias.xyz" className="hover:text-foreground transition-colors">
                 Tamias
               </a>
             </p>

@@ -14,9 +14,8 @@ export function InboxEmailSettings() {
       <CardHeader>
         <CardTitle>Email Address</CardTitle>
         <CardDescription>
-          Use this unique email address for online purchases and receipts.
-          Emails sent to this address will automatically appear in your inbox
-          and can be matched against transactions.
+          Use this unique email address for online purchases and receipts. Emails sent to this
+          address will automatically appear in your inbox and can be matched against transactions.
         </CardDescription>
       </CardHeader>
 

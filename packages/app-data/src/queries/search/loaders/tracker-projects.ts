@@ -3,20 +3,11 @@ import {
   searchTrackerProjectsFromConvex,
 } from "@tamias/app-data-convex";
 import { toTrackerProjectCandidate } from "../candidates";
-import {
-  loadCandidatesForSource,
-  matchesSearchTerm,
-  matchesSemanticCandidate,
-} from "../helpers";
-import type {
-  RawSearchCandidateLoadParams,
-  SearchCandidateLoadParams,
-} from "../types";
+import { loadCandidatesForSource, matchesSearchTerm, matchesSemanticCandidate } from "../helpers";
+import type { RawSearchCandidateLoadParams, SearchCandidateLoadParams } from "../types";
 import { getTrackerProjectStatusFilter } from "./filters";
 
-export async function loadTrackerProjectCandidates(
-  params: SearchCandidateLoadParams,
-) {
+export async function loadTrackerProjectCandidates(params: SearchCandidateLoadParams) {
   const itemsPerTableLimit = params.itemsPerTableLimit ?? 5;
   const statusFilter = getTrackerProjectStatusFilter(params.status);
 
@@ -45,9 +36,7 @@ export async function loadTrackerProjectCandidates(
   });
 }
 
-export async function loadRawTrackerProjectCandidates(
-  params: RawSearchCandidateLoadParams,
-) {
+export async function loadRawTrackerProjectCandidates(params: RawSearchCandidateLoadParams) {
   return loadCandidatesForSource({
     searchTerm: params.searchTerm,
     itemsPerTableLimit: params.itemsPerTableLimit,
@@ -67,7 +56,6 @@ export async function loadRawTrackerProjectCandidates(
         order: "desc",
       }),
     toCandidate: (project) => toTrackerProjectCandidate(project),
-    matchesCandidate: (candidate) =>
-      matchesSearchTerm(candidate, params.searchTerm),
+    matchesCandidate: (candidate) => matchesSearchTerm(candidate, params.searchTerm),
   });
 }

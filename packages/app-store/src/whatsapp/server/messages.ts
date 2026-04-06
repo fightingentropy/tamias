@@ -213,9 +213,7 @@ export function formatDocumentProcessedSuccess(params: {
   }
 
   if (params.amount) {
-    const amountDisplay = params.currency
-      ? `${params.amount} ${params.currency}`
-      : params.amount;
+    const amountDisplay = params.currency ? `${params.amount} ${params.currency}` : params.amount;
     builder.keyValue("Amount", amountDisplay);
   }
 
@@ -372,9 +370,7 @@ export function formatMatchSuggestionNotFoundMessage(): string {
 /**
  * Format a match action error message
  */
-export function formatMatchActionErrorMessage(
-  action: "confirm" | "decline",
-): string {
+export function formatMatchActionErrorMessage(action: "confirm" | "decline"): string {
   const builder = new MessageBuilder();
   builder
     .header("Error")

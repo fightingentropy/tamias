@@ -11,11 +11,7 @@ type Props = Omit<NumericFormatProps, "value" | "onChange"> & {
   lineItemIndex: number;
 };
 
-export function ProductAwareAmountInput({
-  lineItemIndex,
-  name,
-  ...props
-}: Props) {
+export function ProductAwareAmountInput({ lineItemIndex, name, ...props }: Props) {
   const { watch } = useFormContext();
   const trpc = useTRPC();
   const queryClient = useQueryClient();

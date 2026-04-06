@@ -1,10 +1,5 @@
 import { useQueryStates } from "nuqs";
-import {
-  createLoader,
-  parseAsArrayOf,
-  parseAsBoolean,
-  parseAsString,
-} from "nuqs/server";
+import { createLoader, parseAsArrayOf, parseAsBoolean, parseAsString } from "nuqs/server";
 
 const invoiceFilterParamsSchema = {
   q: parseAsString,

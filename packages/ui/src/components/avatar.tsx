@@ -10,19 +10,13 @@ const Avatar = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AvatarPrimitive.Root
     ref={ref}
-    className={cn(
-      "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
-      className,
-    )}
+    className={cn("relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full", className)}
     {...props}
   />
 ));
 Avatar.displayName = AvatarPrimitive.Root.displayName;
 
-type AvatarImageNextProps = Omit<
-  React.ImgHTMLAttributes<HTMLImageElement>,
-  "src"
-> & {
+type AvatarImageNextProps = Omit<React.ImgHTMLAttributes<HTMLImageElement>, "src"> & {
   src?: string | { src: string; width?: number; height?: number };
   fill?: boolean;
   priority?: boolean;
@@ -31,10 +25,7 @@ type AvatarImageNextProps = Omit<
   onLoadingComplete?: (img: HTMLImageElement) => void;
 };
 
-export const AvatarImageNext = React.forwardRef<
-  HTMLImageElement,
-  AvatarImageNextProps
->(
+export const AvatarImageNext = React.forwardRef<HTMLImageElement, AvatarImageNextProps>(
   (
     {
       className,
@@ -50,30 +41,30 @@ export const AvatarImageNext = React.forwardRef<
     },
     ref,
   ) => {
-  const [hasError, setHasError] = React.useState(false);
-  const resolvedSrc = typeof src === "string" ? src : src?.src;
+    const [hasError, setHasError] = React.useState(false);
+    const resolvedSrc = typeof src === "string" ? src : src?.src;
 
-  if (hasError || !resolvedSrc) {
-    return null;
-  }
+    if (hasError || !resolvedSrc) {
+      return null;
+    }
 
-  return (
-    <img
-      ref={ref}
-      className={cn("aspect-square h-full w-full absolute z-10", className)}
-      src={resolvedSrc}
-      onError={(e) => {
-        setHasError(true);
-        onError?.(e);
-      }}
-      onLoad={(e) => {
-        onLoad?.(e);
-        onLoadingComplete?.(e.currentTarget);
-      }}
-      {...props}
-    />
-  );
-},
+    return (
+      <img
+        ref={ref}
+        className={cn("aspect-square h-full w-full absolute z-10", className)}
+        src={resolvedSrc}
+        onError={(e) => {
+          setHasError(true);
+          onError?.(e);
+        }}
+        onLoad={(e) => {
+          onLoad?.(e);
+          onLoadingComplete?.(e.currentTarget);
+        }}
+        {...props}
+      />
+    );
+  },
 );
 
 AvatarImageNext.displayName = "AvatarImageNext";

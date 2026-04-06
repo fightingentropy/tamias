@@ -16,20 +16,17 @@ import { prefetchSearchModule } from "@/lib/search-module";
 import { useSearchStore } from "@/store/search";
 
 const GlobalConnectSheets = dynamic(
-  () =>
-    import("./global-sheets-connect").then((mod) => mod.GlobalConnectSheets),
+  () => import("./global-sheets-connect").then((mod) => mod.GlobalConnectSheets),
   { ssr: false },
 );
 
 const GlobalEntitySheets = dynamic(
-  () =>
-    import("./global-sheets-entities").then((mod) => mod.GlobalEntitySheets),
+  () => import("./global-sheets-entities").then((mod) => mod.GlobalEntitySheets),
   { ssr: false },
 );
 
 const GlobalInvoiceSheets = dynamic(
-  () =>
-    import("./global-sheets-invoices").then((mod) => mod.GlobalInvoiceSheets),
+  () => import("./global-sheets-invoices").then((mod) => mod.GlobalInvoiceSheets),
   { ssr: false },
 );
 
@@ -39,16 +36,12 @@ const GlobalSearchSheets = dynamic(
 );
 
 const GlobalTrackerSheets = dynamic(
-  () =>
-    import("./global-sheets-tracker").then((mod) => mod.GlobalTrackerSheets),
+  () => import("./global-sheets-tracker").then((mod) => mod.GlobalTrackerSheets),
   { ssr: false },
 );
 
 const GlobalTransactionSheets = dynamic(
-  () =>
-    import("./global-sheets-transactions").then(
-      (mod) => mod.GlobalTransactionSheets,
-    ),
+  () => import("./global-sheets-transactions").then((mod) => mod.GlobalTransactionSheets),
   { ssr: false },
 );
 
@@ -72,8 +65,7 @@ export function GlobalSheetsProvider() {
   const transactionParams = useTransactionParams();
   const invoiceParams = useInvoiceParams();
   const trackerParams = useTrackerParams();
-  const { params: documentParams, setParams: setDocumentParams } =
-    useDocumentParams();
+  const { params: documentParams, setParams: setDocumentParams } = useDocumentParams();
   const { params: inboxParams, setParams: setInboxParams } = useInboxParams();
   const connectParams = useConnectParams();
 
@@ -111,18 +103,16 @@ export function GlobalSheetsProvider() {
     Boolean(trackerParams.update !== null && trackerParams.projectId) ||
     Boolean(
       !trackerParams.update &&
-        !trackerParams.create &&
-        (trackerParams.projectId ||
-          (trackerParams.range?.length ?? 0) === 2 ||
-          trackerParams.selectedDate ||
-          trackerParams.eventId),
+      !trackerParams.create &&
+      (trackerParams.projectId ||
+        (trackerParams.range?.length ?? 0) === 2 ||
+        trackerParams.selectedDate ||
+        trackerParams.eventId),
     );
 
   const shouldLoadSearchSheets = useStickyOverlayMount(hasOpenSearchSheets);
   const shouldLoadEntitySheets = useStickyOverlayMount(hasOpenEntitySheets);
-  const shouldLoadTransactionSheets = useStickyOverlayMount(
-    hasOpenTransactionSheets,
-  );
+  const shouldLoadTransactionSheets = useStickyOverlayMount(hasOpenTransactionSheets);
   const shouldLoadInvoiceSheets = useStickyOverlayMount(hasOpenInvoiceSheets);
   const shouldLoadConnectSheets = useStickyOverlayMount(hasOpenConnectSheets);
   const shouldLoadTrackerSheets = useStickyOverlayMount(hasOpenTrackerSheets);

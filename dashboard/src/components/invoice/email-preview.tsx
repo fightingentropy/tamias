@@ -148,8 +148,7 @@ export function EmailPreview() {
   const dateFormat = (watch("template.dateFormat") as string) || "MM/dd/yyyy";
   const dueDate = watch("dueDate") as string | null;
   const dueDateLabel = (watch("template.dueDateLabel") as string) || "Due";
-  const invoiceNoLabel =
-    (watch("template.invoiceNoLabel") as string) || "Invoice";
+  const invoiceNoLabel = (watch("template.invoiceNoLabel") as string) || "Invoice";
   const includePdf = watch("template.includePdf") as boolean;
   const token = watch("token") as string | null;
 
@@ -160,9 +159,7 @@ export function EmailPreview() {
 
   const formattedAmount =
     amount != null
-      ? new Intl.NumberFormat(locale, { style: "currency", currency }).format(
-          amount,
-        )
+      ? new Intl.NumberFormat(locale, { style: "currency", currency }).format(amount)
       : null;
 
   let formattedDueDate: string | null = null;
@@ -208,11 +205,7 @@ export function EmailPreview() {
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <SheetContent
-        stack
-        style={{ maxWidth: 580 }}
-        className="bg-white dark:bg-[#080808] p-0"
-      >
+      <SheetContent stack style={{ maxWidth: 580 }} className="bg-white dark:bg-[#080808] p-0">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
           <span className="text-sm font-medium">Email Preview</span>
@@ -241,10 +234,7 @@ export function EmailPreview() {
               </div>
               <div className="min-w-0">
                 <div className="text-sm font-medium">
-                  <EditableText
-                    value={displaySubject}
-                    onChange={handleSubjectChange}
-                  />
+                  <EditableText value={displaySubject} onChange={handleSubjectChange} />
                 </div>
                 <div className="text-xs text-[#878787]">to {customerName}</div>
               </div>
@@ -257,11 +247,7 @@ export function EmailPreview() {
               {/* Logo */}
               <div className="flex justify-center mb-8">
                 {invoiceLogoUrl ? (
-                  <img
-                    src={invoiceLogoUrl}
-                    alt={teamName}
-                    className="h-10 w-auto object-contain"
-                  />
+                  <img src={invoiceLogoUrl} alt={teamName} className="h-10 w-auto object-contain" />
                 ) : (
                   <img
                     src="https://tamias.xyz/email/logo.png"
@@ -273,11 +259,7 @@ export function EmailPreview() {
 
               {/* Heading */}
               <h2 className="text-[21px] font-normal text-center text-[#0e0e0e] dark:text-[#fefefe] mb-[30px]">
-                <EditableText
-                  tag="span"
-                  value={displayHeading}
-                  onChange={handleHeadingChange}
-                />
+                <EditableText tag="span" value={displayHeading} onChange={handleHeadingChange} />
               </h2>
 
               {/* Amount */}
@@ -306,10 +288,7 @@ export function EmailPreview() {
               {/* CTA Button */}
               <div className="text-center mt-[40px] mb-[40px]">
                 <span className="inline-block border border-[#0e0e0e] dark:border-[#fefefe] text-[#0e0e0e] dark:text-[#fefefe] px-6 py-3 text-sm font-medium no-underline">
-                  <EditableText
-                    value={displayButtonText}
-                    onChange={handleButtonTextChange}
-                  />
+                  <EditableText value={displayButtonText} onChange={handleButtonTextChange} />
                 </span>
               </div>
 
@@ -331,13 +310,8 @@ export function EmailPreview() {
               type="button"
               onClick={() => {
                 if (!token) return;
-                const filename = invoiceNumber
-                  ? `invoice-${invoiceNumber}.pdf`
-                  : "invoice.pdf";
-                downloadFile(
-                  `${apiUrl}/files/download/invoice?token=${token}`,
-                  filename,
-                );
+                const filename = invoiceNumber ? `invoice-${invoiceNumber}.pdf` : "invoice.pdf";
+                downloadFile(`${apiUrl}/files/download/invoice?token=${token}`, filename);
               }}
               className="mx-6 mb-4 flex items-center gap-2 px-3 py-2 border border-border hover:bg-accent transition-colors cursor-pointer text-left w-auto"
             >
@@ -350,9 +324,8 @@ export function EmailPreview() {
 
           {/* Description */}
           <p className="text-[11px] text-[#878787] mx-6 mb-6 text-center">
-            This is the email your customer will receive. Labels, dates and
-            currency are based on your invoice template. Click on any text to
-            customize it.
+            This is the email your customer will receive. Labels, dates and currency are based on
+            your invoice template. Click on any text to customize it.
           </p>
         </div>
 

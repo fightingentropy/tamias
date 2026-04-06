@@ -92,19 +92,17 @@ export const protectedProcedure = t.procedure
  * Used by the async worker, and other internal services.
  * Regular user sessions are NOT accepted — use protectedProcedure for browser-facing endpoints.
  */
-export const internalProcedure = t.procedure
-  .use(withTimingMiddleware)
-  .use(async (opts) => {
-    const { isInternalRequest } = opts.ctx;
+export const internalProcedure = t.procedure.use(withTimingMiddleware).use(async (opts) => {
+  const { isInternalRequest } = opts.ctx;
 
-    if (!isInternalRequest) {
-      throw new TRPCError({ code: "UNAUTHORIZED" });
-    }
+  if (!isInternalRequest) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
 
-    return opts.next({
-      ctx: opts.ctx,
-    });
+  return opts.next({
+    ctx: opts.ctx,
   });
+});
 
 /**
  * Procedure that accepts EITHER a valid user session OR a valid internal key.

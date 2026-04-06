@@ -1,11 +1,4 @@
-import {
-  Body,
-  Container,
-  Heading,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
+import { Body, Container, Heading, Preview, Section, Text } from "@react-email/components";
 import { getAppUrl } from "@tamias/utils/envs";
 import { format } from "date-fns";
 import { Logo } from "../components/logo";
@@ -43,10 +36,7 @@ export const ApiKeyCreatedEmail = ({
 
   return (
     <EmailThemeProvider preview={<Preview>{text}</Preview>}>
-      <Body
-        className={`my-auto mx-auto font-sans ${themeClasses.body}`}
-        style={lightStyles.body}
-      >
+      <Body className={`my-auto mx-auto font-sans ${themeClasses.body}`} style={lightStyles.body}>
         <Container
           className={`my-[40px] mx-auto p-[20px] max-w-[600px] ${themeClasses.container}`}
           style={{
@@ -71,20 +61,14 @@ export const ApiKeyCreatedEmail = ({
           >
             {greeting}
           </span>
-          <Text
-            className={themeClasses.text}
-            style={{ color: lightStyles.text.color }}
-          >
-            You've created a new API key with the name{" "}
-            <strong>{keyName}</strong> on{" "}
+          <Text className={themeClasses.text} style={{ color: lightStyles.text.color }}>
+            You've created a new API key with the name <strong>{keyName}</strong> on{" "}
             <strong>{format(new Date(createdAt), "MMM d, yyyy")}</strong>.
             <br />
           </Text>
 
           <Section className="text-center mt-[50px] mb-[50px]">
-            <Button href={`${baseAppUrl}/settings/developer`}>
-              View API Keys
-            </Button>
+            <Button href={`${baseAppUrl}/settings/developer`}>View API Keys</Button>
           </Section>
 
           <Section>
@@ -93,22 +77,16 @@ export const ApiKeyCreatedEmail = ({
               style={{ color: lightStyles.mutedText.color }}
             >
               This email was intended for{" "}
-              <span
-                className={themeClasses.text}
-                style={{ color: lightStyles.text.color }}
-              >
+              <span className={themeClasses.text} style={{ color: lightStyles.text.color }}>
                 {email}
               </span>
               . This email was sent from{" "}
-              <span
-                className={themeClasses.text}
-                style={{ color: lightStyles.text.color }}
-              >
+              <span className={themeClasses.text} style={{ color: lightStyles.text.color }}>
                 {ip}
               </span>
-              . If you were not expecting this email, you can ignore this email.
-              If you are concerned about your account's safety, please reply to
-              this email to get in touch with us.
+              . If you were not expecting this email, you can ignore this email. If you are
+              concerned about your account's safety, please reply to this email to get in touch with
+              us.
             </Text>
           </Section>
         </Container>

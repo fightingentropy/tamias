@@ -64,10 +64,7 @@ export async function getUserContext({
   }
 
   // If not cached, fetch team and user data in parallel
-  const [team, user] = await Promise.all([
-    getTeamById(db, teamId),
-    getUserByConvexId(db, userId),
-  ]);
+  const [team, user] = await Promise.all([getTeamById(db, teamId), getUserByConvexId(db, userId)]);
 
   if (!team || !user) {
     throw new HTTPException(404, {

@@ -1,20 +1,13 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { createApp } from "@tamias/app-data/queries";
 import config from "@tamias/app-store/companies-house";
-import {
-  CompaniesHouseProvider,
-  decryptComplianceOAuthState,
-} from "@tamias/compliance";
+import { CompaniesHouseProvider, decryptComplianceOAuthState } from "@tamias/compliance";
 import { logger } from "@tamias/logger";
 import { getAppUrl } from "@tamias/utils/envs";
 import { HTTPException } from "hono/http-exception";
 import { publicMiddleware } from "../../../middleware";
 import type { Context } from "../../../types";
-import {
-  buildErrorRedirect,
-  buildSuccessRedirect,
-  mapOAuthError,
-} from "../../../utils/oauth";
+import { buildErrorRedirect, buildSuccessRedirect, mapOAuthError } from "../../../utils/oauth";
 
 const app = new OpenAPIHono<Context>();
 
@@ -111,11 +104,8 @@ app.openapi(
     try {
       const provider = CompaniesHouseProvider.fromEnvironment();
       const tokenSet = await provider.exchangeCodeForTokens(code);
-      const providerWithToken =
-        CompaniesHouseProvider.fromEnvironment(tokenSet);
-      const userProfile = await providerWithToken.getUserProfile(
-        tokenSet.accessToken,
-      );
+      const providerWithToken = CompaniesHouseProvider.fromEnvironment(tokenSet);
+      const userProfile = await providerWithToken.getUserProfile(tokenSet.accessToken);
 
       await createApp(db, {
         teamId: parsedState.teamId,
@@ -135,11 +125,7 @@ app.openapi(
       });
 
       return c.redirect(
-        buildSuccessRedirect(
-          dashboardUrl,
-          "companies-house",
-          parsedState.source,
-        ),
+        buildSuccessRedirect(dashboardUrl, "companies-house", parsedState.source),
         302,
       );
     } catch (err) {

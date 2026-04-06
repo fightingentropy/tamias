@@ -12,13 +12,7 @@ import {
   AlertDialogTrigger,
 } from "@tamias/ui/alert-dialog";
 import { Button } from "@tamias/ui/button";
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@tamias/ui/card";
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@tamias/ui/card";
 import { Input } from "@tamias/ui/input";
 import { Label } from "@tamias/ui/label";
 import { useMutation } from "@tanstack/react-query";
@@ -34,8 +28,7 @@ export function DeleteTeam() {
   const { data: user } = useUserQuery();
   const router = useRouter();
 
-  const hasPaidPlan =
-    user?.team?.plan === "starter" || user?.team?.plan === "pro";
+  const hasPaidPlan = user?.team?.plan === "starter" || user?.team?.plan === "pro";
 
   const deleteTeamMutation = useMutation(
     trpc.team.delete.mutationOptions({
@@ -59,9 +52,8 @@ export function DeleteTeam() {
       <CardHeader>
         <CardTitle>Delete team</CardTitle>
         <CardDescription>
-          Permanently remove your Team and all of its contents from the Tamias
-          platform. This action is not reversible — please continue with
-          caution.
+          Permanently remove your Team and all of its contents from the Tamias platform. This action
+          is not reversible — please continue with caution.
         </CardDescription>
       </CardHeader>
       <CardFooter className="flex justify-between">
@@ -69,10 +61,7 @@ export function DeleteTeam() {
 
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button
-              variant="destructive"
-              className="hover:bg-destructive text-muted"
-            >
+            <Button variant="destructive" className="hover:bg-destructive text-muted">
               Delete
             </Button>
           </AlertDialogTrigger>
@@ -82,8 +71,8 @@ export function DeleteTeam() {
               <AlertDialogDescription asChild>
                 <div>
                   <p>
-                    This action cannot be undone. This will permanently delete
-                    your team and remove your data from our servers.
+                    This action cannot be undone. This will permanently delete your team and remove
+                    your data from our servers.
                   </p>
 
                   {hasPaidPlan && (
@@ -95,8 +84,7 @@ export function DeleteTeam() {
                             You have an active subscription
                           </p>
                           <p className="text-amber-700 dark:text-amber-300 mb-2">
-                            Cancel your subscription first to avoid further
-                            charges.
+                            Cancel your subscription first to avoid further charges.
                           </p>
                           <button
                             type="button"
@@ -123,11 +111,7 @@ export function DeleteTeam() {
               <Label htmlFor="confirm-delete">
                 Type <span className="font-medium">DELETE</span> to confirm.
               </Label>
-              <Input
-                id="confirm-delete"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-              />
+              <Input id="confirm-delete" value={value} onChange={(e) => setValue(e.target.value)} />
             </div>
 
             <AlertDialogFooter>

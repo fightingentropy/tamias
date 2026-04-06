@@ -20,9 +20,7 @@ export class NoMatchSchedulerProcessor extends BaseProcessor<NoMatchSchedulerPay
   }> {
     // Only run in production
     if (!isProduction()) {
-      this.logger.info(
-        "Skipping no-match scheduler in non-production environment",
-      );
+      this.logger.info("Skipping no-match scheduler in non-production environment");
       return { updatedCount: 0, cutoffDate: new Date().toISOString() };
     }
 

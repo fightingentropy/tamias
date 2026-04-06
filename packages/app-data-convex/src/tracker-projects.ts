@@ -149,9 +149,7 @@ export async function getTaggedTrackerProjectsFromConvex(args: {
   }
 }
 
-export async function rebuildTrackerProjectSearchTextsInConvex(args: {
-  teamId?: string | null;
-}) {
+export async function rebuildTrackerProjectSearchTextsInConvex(args: { teamId?: string | null }) {
   return createClient().mutation(
     convexApi.trackerProjects.serviceRebuildTrackerProjectSearchTexts,
     serviceArgs({
@@ -192,10 +190,7 @@ export async function getTrackerProjectsByCustomerIdsFromConvex(args: {
   ) as Promise<TrackerProjectRecord[]>;
 }
 
-export async function getTrackerProjectByIdFromConvex(args: {
-  teamId: string;
-  id: string;
-}) {
+export async function getTrackerProjectByIdFromConvex(args: { teamId: string; id: string }) {
   return createClient().query(
     convexApi.trackerProjects.serviceGetTrackerProjectById,
     serviceArgs({
@@ -205,9 +200,7 @@ export async function getTrackerProjectByIdFromConvex(args: {
   ) as Promise<TrackerProjectRecord | null>;
 }
 
-export async function upsertTrackerProjectInConvex(
-  args: UpsertTrackerProjectInput,
-) {
+export async function upsertTrackerProjectInConvex(args: UpsertTrackerProjectInput) {
   return createClient().mutation(
     convexApi.trackerProjects.serviceUpsertTrackerProject,
     serviceArgs({
@@ -225,10 +218,7 @@ export async function upsertTrackerProjectInConvex(
   ) as Promise<TrackerProjectRecord>;
 }
 
-export async function deleteTrackerProjectInConvex(args: {
-  teamId: string;
-  id: string;
-}) {
+export async function deleteTrackerProjectInConvex(args: { teamId: string; id: string }) {
   return createClient().mutation(
     convexApi.trackerProjects.serviceDeleteTrackerProject,
     serviceArgs({

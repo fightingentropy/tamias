@@ -329,10 +329,7 @@ describe("Real-World Scenarios", () => {
       };
 
       const amountScore = calculateAmountScore(invoice, payment);
-      const currencyScore = calculateCurrencyScore(
-        invoice.currency,
-        payment.currency,
-      );
+      const currencyScore = calculateCurrencyScore(invoice.currency, payment.currency);
       const dateScore = calculateDateScore(invoice.date, payment.date);
 
       expect(amountScore).toBeGreaterThan(0.99); // Perfect amount match
@@ -357,10 +354,7 @@ describe("Real-World Scenarios", () => {
       };
 
       const amountScore = calculateAmountScore(invoice, payment);
-      const currencyScore = calculateCurrencyScore(
-        invoice.currency,
-        payment.currency,
-      );
+      const currencyScore = calculateCurrencyScore(invoice.currency, payment.currency);
 
       expect(amountScore).toBeGreaterThan(0.99); // Perfect base amount match
       expect(currencyScore).toBe(0.3); // Conservative cross-currency score
@@ -383,15 +377,10 @@ describe("Real-World Scenarios", () => {
       };
 
       // Cross-currency check should fail
-      expect(isCrossCurrencyMatch(usdTransaction, wrongSekTransaction)).toBe(
-        false,
-      );
+      expect(isCrossCurrencyMatch(usdTransaction, wrongSekTransaction)).toBe(false);
 
       // Amount score should be very low
-      const amountScore = calculateAmountScore(
-        usdTransaction,
-        wrongSekTransaction,
-      );
+      const amountScore = calculateAmountScore(usdTransaction, wrongSekTransaction);
       expect(amountScore).toBe(0); // Should be 0 for >20% difference
     });
   });

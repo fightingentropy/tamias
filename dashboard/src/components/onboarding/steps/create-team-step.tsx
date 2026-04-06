@@ -48,16 +48,7 @@ const formSchema = z.object({
     { required_error: "Please select a company type." },
   ),
   heardAbout: z.enum(
-    [
-      "twitter",
-      "youtube",
-      "friend",
-      "google",
-      "blog",
-      "podcast",
-      "github",
-      "other",
-    ],
+    ["twitter", "youtube", "friend", "google", "blog", "podcast", "github", "other"],
     { required_error: "Please select an option." },
   ),
 });
@@ -129,8 +120,7 @@ export function CreateTeamStep({
 
   const selectedCountryCode = form.watch("countryCode");
   useEffect(() => {
-    const defaultFiscalYear =
-      getDefaultFiscalYearStartMonth(selectedCountryCode);
+    const defaultFiscalYear = getDefaultFiscalYearStartMonth(selectedCountryCode);
     if (defaultFiscalYear !== form.getValues("fiscalYearStartMonth")) {
       form.setValue("fiscalYearStartMonth", defaultFiscalYear);
     }
@@ -185,8 +175,8 @@ export function CreateTeamStep({
         transition={{ duration: 0.4, delay: 0.2 }}
         className="text-sm text-muted-foreground leading-relaxed"
       >
-        Add company details so amounts, currency, tax, and reporting periods
-        line up correctly across insights, invoices and exports.
+        Add company details so amounts, currency, tax, and reporting periods line up correctly
+        across insights, invoices and exports.
       </motion.p>
 
       <motion.div
@@ -195,19 +185,13 @@ export function CreateTeamStep({
         transition={{ duration: 0.35, delay: 0.3 }}
       >
         <Form {...form}>
-          <form
-            id="create-team-form"
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4"
-          >
+          <form id="create-team-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs text-primary font-normal">
-                    Company name
-                  </FormLabel>
+                  <FormLabel className="text-xs text-primary font-normal">Company name</FormLabel>
                   <FormControl>
                     <Input
                       autoFocus
@@ -231,9 +215,7 @@ export function CreateTeamStep({
               name="countryCode"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs text-primary font-normal">
-                    Country
-                  </FormLabel>
+                  <FormLabel className="text-xs text-primary font-normal">Country</FormLabel>
                   <FormControl className="w-full">
                     <CountrySelector
                       defaultValue={field.value ?? ""}
@@ -296,8 +278,7 @@ export function CreateTeamStep({
                 />
               </div>
               <FormDescription className="text-[11px] text-muted-foreground">
-                Used for reports and default date ranges. You can change these
-                later.
+                Used for reports and default date ranges. You can change these later.
               </FormDescription>
             </div>
 

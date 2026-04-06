@@ -13,10 +13,7 @@ function ComplianceSettingsPage() {
   >;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <ComplianceSettingsForm />
     </AppLayoutShell>
   );

@@ -6,8 +6,7 @@ export default {
   category: "ai-automation",
   active: true,
   logo: Logo,
-  short_description:
-    "Access Tamias financial data directly from Raycast via MCP.",
+  short_description: "Access Tamias financial data directly from Raycast via MCP.",
   description: `Connect Raycast to your Tamias account using the Model Context Protocol (MCP).
 
 **What you can do:**

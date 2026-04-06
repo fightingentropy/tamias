@@ -29,8 +29,7 @@ export function buildStatutoryAccountsDraft(args: {
 
   return {
     generatedAt,
-    companyName:
-      args.profile.companyName ?? args.team.name ?? "Unnamed company",
+    companyName: args.profile.companyName ?? args.team.name ?? "Unnamed company",
     companyNumber: args.profile.companyNumber,
     periodStart: args.pack.periodStart,
     periodEnd: args.pack.periodEnd,
@@ -47,8 +46,7 @@ export function buildStatutoryAccountsDraft(args: {
     dormant: args.profile.dormant,
     auditExemptionClaimed: args.profile.auditExemptionClaimed,
     membersDidNotRequireAudit: args.profile.membersDidNotRequireAudit,
-    directorsAcknowledgeResponsibilities:
-      args.profile.directorsAcknowledgeResponsibilities,
+    directorsAcknowledgeResponsibilities: args.profile.directorsAcknowledgeResponsibilities,
     accountsPreparedUnderSmallCompaniesRegime:
       args.profile.accountsPreparedUnderSmallCompaniesRegime,
     statementOfFinancialPosition: {

@@ -5,11 +5,7 @@ interface InboxState {
   lastClickedIndex: number | null;
   setSelectedIds: (ids: Record<string, boolean>) => void;
   toggleSelection: (id: string) => void;
-  selectRange: (
-    startIndex: number,
-    endIndex: number,
-    items: Array<{ id: string }>,
-  ) => void;
+  selectRange: (startIndex: number, endIndex: number, items: Array<{ id: string }>) => void;
   clearSelection: () => void;
   setLastClickedIndex: (index: number | null) => void;
 }

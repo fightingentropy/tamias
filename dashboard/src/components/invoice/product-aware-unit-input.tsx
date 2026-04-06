@@ -10,11 +10,7 @@ type Props = {
   lineItemIndex: number;
 };
 
-export function ProductAwareUnitInput({
-  lineItemIndex,
-  name,
-  ...props
-}: Props) {
+export function ProductAwareUnitInput({ lineItemIndex, name, ...props }: Props) {
   const { watch } = useFormContext();
   const trpc = useTRPC();
   const queryClient = useQueryClient();

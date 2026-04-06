@@ -20,12 +20,9 @@ export async function buildInvoicesPageData(href?: string) {
     sort,
   });
 
-  const invoiceListQuery = trpc.invoice.get.infiniteQueryOptions(
-    invoiceQueryFilter,
-    {
-      getNextPageParam: ({ meta }) => meta?.cursor,
-    },
-  );
+  const invoiceListQuery = trpc.invoice.get.infiniteQueryOptions(invoiceQueryFilter, {
+    getNextPageParam: ({ meta }) => meta?.cursor,
+  });
 
   await batchPrefetch([invoiceListQuery]);
 

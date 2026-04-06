@@ -5,10 +5,7 @@ import { LogoSmallIcon } from "@/start/components/app-shell-icons";
 import { PasswordAuthForm } from "@/components/password-auth-form";
 
 const LoginVideoBackground = dynamic(
-  () =>
-    import("@/components/login-video-background").then(
-      (mod) => mod.LoginVideoBackground,
-    ),
+  () => import("@/components/login-video-background").then((mod) => mod.LoginVideoBackground),
   {
     ssr: false,
   },
@@ -40,9 +37,7 @@ function LoginPage() {
         <div className="w-full max-w-md flex flex-col h-full">
           <div className="space-y-8 flex-1 flex flex-col justify-center">
             <div className="text-center space-y-2">
-              <h1 className="text-lg lg:text-xl mb-4 font-serif">
-                Welcome to Tamias
-              </h1>
+              <h1 className="text-lg lg:text-xl mb-4 font-serif">Welcome to Tamias</h1>
               <p className="font-sans text-sm text-[#878787]">
                 Sign in with your email and password
               </p>
@@ -53,8 +48,7 @@ function LoginPage() {
 
           <div className="text-center mt-auto">
             <p className="font-sans text-xs text-[#878787]">
-              By signing in you agree to Tamias&apos; terms of service and
-              privacy policy.
+              By signing in you agree to Tamias&apos; terms of service and privacy policy.
             </p>
           </div>
         </div>

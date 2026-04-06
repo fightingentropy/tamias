@@ -1,7 +1,4 @@
-export async function postAction<TInput, TOutput>(
-  path: string,
-  input: TInput,
-): Promise<TOutput> {
+export async function postAction<TInput, TOutput>(path: string, input: TInput): Promise<TOutput> {
   const response = await fetch(path, {
     method: "POST",
     headers: {
@@ -15,10 +12,7 @@ export async function postAction<TInput, TOutput>(
 
   if (!response.ok) {
     const message =
-      typeof data === "object" &&
-      data !== null &&
-      "error" in data &&
-      typeof data.error === "string"
+      typeof data === "object" && data !== null && "error" in data && typeof data.error === "string"
         ? data.error
         : text || "Action failed";
 

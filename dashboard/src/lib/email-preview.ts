@@ -52,10 +52,7 @@ function parseHeaders(headerText: string) {
     }
 
     if (/^\s/.test(line) && currentHeader) {
-      headers.set(
-        currentHeader,
-        `${headers.get(currentHeader) ?? ""} ${line.trim()}`.trim(),
-      );
+      headers.set(currentHeader, `${headers.get(currentHeader) ?? ""} ${line.trim()}`.trim());
       continue;
     }
 
@@ -208,9 +205,7 @@ function decodeHtmlEntities(value: string) {
     .replace(/&gt;/gi, ">")
     .replace(/&quot;/gi, '"')
     .replace(/&#39;/gi, "'")
-    .replace(/&#(\d+);/g, (_, codePoint) =>
-      String.fromCharCode(Number.parseInt(codePoint, 10)),
-    );
+    .replace(/&#(\d+);/g, (_, codePoint) => String.fromCharCode(Number.parseInt(codePoint, 10)));
 }
 
 function htmlToText(value: string) {
@@ -228,20 +223,13 @@ function htmlToText(value: string) {
     .trim();
 }
 
-function decodeMimeWord(
-  charset: string,
-  encoding: string,
-  value: string,
-) {
+function decodeMimeWord(charset: string, encoding: string, value: string) {
   try {
     if (encoding.toUpperCase() === "B") {
       return decodeBytes(base64ToBytes(value), charset);
     }
 
-    return decodeBytes(
-      quotedPrintableToBytes(value.replaceAll("_", " ")),
-      charset,
-    );
+    return decodeBytes(quotedPrintableToBytes(value.replaceAll("_", " ")), charset);
   } catch {
     return value;
   }
@@ -342,9 +330,7 @@ export function parseEmailPreview(rawEmail: string): EmailPreviewData {
   const { headers, body } = parseMimeSection(rawEmail);
   const extracted = extractBody(rawEmail);
   const plainTextBody =
-    extracted.text?.trim() ||
-    (extracted.html ? htmlToText(extracted.html) : "") ||
-    body.trim();
+    extracted.text?.trim() || (extracted.html ? htmlToText(extracted.html) : "") || body.trim();
 
   return {
     subject: decodeMimeWords(headers.get("subject")),

@@ -71,8 +71,7 @@ export function InboxWidget() {
 
   // Calculate key metrics for display
   const newItemsText = stats?.newItems === 1 ? "new item" : "new items";
-  const suggestionsText =
-    stats?.suggestedMatches === 1 ? "suggested match" : "suggested matches";
+  const suggestionsText = stats?.suggestedMatches === 1 ? "suggested match" : "suggested matches";
   const recentMatchesText = stats?.recentMatches === 1 ? "match" : "matches";
 
   const getStatusText = () => {
@@ -104,8 +103,7 @@ export function InboxWidget() {
     }
 
     // Fallback to other statuses only if no key metrics
-    const otherItems =
-      (stats?.pendingItems || 0) + (stats?.analyzingItems || 0);
+    const otherItems = (stats?.pendingItems || 0) + (stats?.analyzingItems || 0);
 
     if (otherItems > 0) {
       const itemText = otherItems === 1 ? "item" : "items";

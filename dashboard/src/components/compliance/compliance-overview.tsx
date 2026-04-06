@@ -2,13 +2,7 @@
 
 import { Badge } from "@tamias/ui/badge";
 import { Button } from "@tamias/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@tamias/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@tamias/ui/card";
 import { Icons } from "@tamias/ui/icons";
 import { useQuery } from "@tanstack/react-query";
 import Link from "@/framework/link";
@@ -33,9 +27,7 @@ export function ComplianceOverview() {
   const payrollQuery = useQuery(trpc.payroll.getDashboard.queryOptions());
 
   if (isLoading) {
-    return (
-      <div className="text-sm text-[#606060]">Loading compliance data...</div>
-    );
+    return <div className="text-sm text-[#606060]">Loading compliance data...</div>;
   }
 
   const cards = [
@@ -55,12 +47,9 @@ export function ComplianceOverview() {
     {
       href: "/compliance/settings",
       title: "Filing settings",
-      description:
-        "Set your VRN, UTR, accounting basis, year-end, and agent/client filing mode.",
+      description: "Set your VRN, UTR, accounting basis, year-end, and agent/client filing mode.",
       icon: <Icons.Settings size={18} />,
-      meta: data?.profile?.vrn
-        ? `VRN ${data.profile.vrn}`
-        : "Profile not configured",
+      meta: data?.profile?.vrn ? `VRN ${data.profile.vrn}` : "Profile not configured",
     },
     {
       href: "/compliance/year-end",
@@ -92,9 +81,8 @@ export function ComplianceOverview() {
         <div className="space-y-1 lg:min-w-0 lg:flex-1 lg:max-w-[620px]">
           <h1 className="text-2xl font-medium">Compliance</h1>
           <p className="text-sm text-[#606060]">
-            UK Ltd compliance now spans VAT, annual year-end packs with CT prep,
-            and payroll import workflows for GB teams and enabled UK filing
-            profiles.
+            UK Ltd compliance now spans VAT, annual year-end packs with CT prep, and payroll import
+            workflows for GB teams and enabled UK filing profiles.
           </p>
         </div>
 

@@ -10,9 +10,8 @@ export function VaultGetStarted() {
           </div>
 
           <p className="pb-6 text-sm text-[#878787]">
-            Drag & drop or upload your documents. We'll automatically organize
-            them with tags based on content, making them easy and secure to
-            find.
+            Drag & drop or upload your documents. We'll automatically organize them with tags based
+            on content, making them easy and secure to find.
           </p>
 
           <Button

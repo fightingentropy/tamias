@@ -19,15 +19,11 @@ export async function buildCustomersPageData(href?: string) {
     filter,
     sort,
   });
-  const customersQuery = trpc.customers.get.infiniteQueryOptions(
-    customersQueryFilter,
-    {
-      getNextPageParam: ({ meta }) => meta?.cursor,
-    },
-  );
+  const customersQuery = trpc.customers.get.infiniteQueryOptions(customersQueryFilter, {
+    getNextPageParam: ({ meta }) => meta?.cursor,
+  });
   const mostActiveClientQuery = trpc.invoice.mostActiveClient.queryOptions();
-  const inactiveClientsCountQuery =
-    trpc.invoice.inactiveClientsCount.queryOptions();
+  const inactiveClientsCountQuery = trpc.invoice.inactiveClientsCount.queryOptions();
   const topRevenueClientQuery = trpc.invoice.topRevenueClient.queryOptions();
   const newCustomersCountQuery = trpc.invoice.newCustomersCount.queryOptions();
 

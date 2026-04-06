@@ -118,8 +118,7 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
       "invoices_summary",
       {
         title: "Invoice Summary",
-        description:
-          "Get a summary of invoices including total amounts and counts by status",
+        description: "Get a summary of invoices including total amounts and counts by status",
         inputSchema: invoiceSummarySchema.shape,
         annotations: READ_ONLY_ANNOTATIONS,
       },
@@ -159,9 +158,7 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
             .datetime()
             .nullable()
             .optional()
-            .describe(
-              "Payment date in ISO 8601 format (required when marking as paid)",
-            ),
+            .describe("Payment date in ISO 8601 format (required when marking as paid)"),
           internalNote: z
             .string()
             .nullable()
@@ -219,9 +216,7 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
             .string()
             .datetime()
             .optional()
-            .describe(
-              "Payment date in ISO 8601 format (defaults to current time)",
-            ),
+            .describe("Payment date in ISO 8601 format (defaults to current time)"),
         },
         annotations: WRITE_ANNOTATIONS,
       },
@@ -271,8 +266,7 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
       "invoices_delete",
       {
         title: "Delete Invoice",
-        description:
-          "Delete an invoice. Only draft or canceled invoices can be deleted.",
+        description: "Delete an invoice. Only draft or canceled invoices can be deleted.",
         inputSchema: {
           id: deleteInvoiceSchema.shape.id,
         },
@@ -318,11 +312,7 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
           content: [
             {
               type: "text",
-              text: JSON.stringify(
-                { success: true, deletedId: result.id },
-                null,
-                2,
-              ),
+              text: JSON.stringify({ success: true, deletedId: result.id }, null, 2),
             },
           ],
         };
@@ -380,10 +370,7 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
             content: [
               {
                 type: "text",
-                text:
-                  error instanceof Error
-                    ? error.message
-                    : "Failed to duplicate invoice",
+                text: error instanceof Error ? error.message : "Failed to duplicate invoice",
               },
             ],
             isError: true,

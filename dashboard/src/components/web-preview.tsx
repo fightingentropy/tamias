@@ -3,29 +3,14 @@
 import { Button } from "@tamias/ui/button";
 import { cn } from "@tamias/ui/cn";
 import { Input } from "@tamias/ui/input";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import type { ComponentProps, ReactNode } from "react";
 
 export type WebPreviewProps = ComponentProps<"div">;
 
-export const WebPreview = ({
-  className,
-  children,
-  ...props
-}: WebPreviewProps) => {
+export const WebPreview = ({ className, children, ...props }: WebPreviewProps) => {
   return (
-    <div
-      className={cn(
-        "flex size-full flex-col rounded-lg border bg-card",
-        className,
-      )}
-      {...props}
-    >
+    <div className={cn("flex size-full flex-col rounded-lg border bg-card", className)} {...props}>
       {children}
     </div>
   );
@@ -38,10 +23,7 @@ export const WebPreviewNavigation = ({
   children,
   ...props
 }: WebPreviewNavigationProps) => (
-  <div
-    className={cn("flex items-center gap-1 border-b p-2", className)}
-    {...props}
-  >
+  <div className={cn("flex items-center gap-1 border-b p-2", className)} {...props}>
     {children}
   </div>
 );
@@ -116,13 +98,7 @@ export type WebPreviewBodyProps = ComponentProps<"iframe"> & {
   url?: string;
 };
 
-export const WebPreviewBody = ({
-  className,
-  loading,
-  src,
-  url,
-  ...props
-}: WebPreviewBodyProps) => {
+export const WebPreviewBody = ({ className, loading, src, url, ...props }: WebPreviewBodyProps) => {
   return (
     <div className="flex-1">
       <iframe

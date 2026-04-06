@@ -16,14 +16,10 @@ export function SortableChartCard({
   customizeMode: boolean;
   wiggleClass?: string;
 }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id, disabled: !customizeMode });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+    disabled: !customizeMode,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),

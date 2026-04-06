@@ -33,9 +33,7 @@ function publicBankConnectionId(
   return connection.publicBankConnectionId ?? connection._id;
 }
 
-function publicBankAccountId(
-  account: Pick<Doc<"bankAccounts">, "_id" | "publicBankAccountId">,
-) {
+function publicBankAccountId(account: Pick<Doc<"bankAccounts">, "_id" | "publicBankAccountId">) {
   return account.publicBankAccountId ?? account._id;
 }
 
@@ -49,10 +47,7 @@ async function getTeamOrThrow(ctx: BankAccountCtx, publicTeamId: string) {
   return team;
 }
 
-async function getBankConnectionByPublicId(
-  ctx: BankAccountCtx,
-  bankConnectionId: string,
-) {
+async function getBankConnectionByPublicId(ctx: BankAccountCtx, bankConnectionId: string) {
   const byLegacyId = await ctx.db
     .query("bankConnections")
     .withIndex("by_public_bank_connection_id", (q) =>
@@ -76,9 +71,7 @@ async function getBankAccountByPublicId(
 ) {
   const byLegacyId = await ctx.db
     .query("bankAccounts")
-    .withIndex("by_public_bank_account_id", (q) =>
-      q.eq("publicBankAccountId", args.accountId),
-    )
+    .withIndex("by_public_bank_account_id", (q) => q.eq("publicBankAccountId", args.accountId))
     .unique();
 
   if (byLegacyId && byLegacyId.teamId === args.teamId) {
@@ -183,12 +176,8 @@ export const serviceGetBankAccounts = query({
       .collect();
 
     const filtered = accounts
-      .filter((account) =>
-        args.enabled === undefined ? true : account.enabled === args.enabled,
-      )
-      .filter((account) =>
-        args.manual === undefined ? true : account.manual === args.manual,
-      )
+      .filter((account) => (args.enabled === undefined ? true : account.enabled === args.enabled))
+      .filter((account) => (args.manual === undefined ? true : account.manual === args.manual))
       .sort((left, right) => {
         const createdAtDiff = left.createdAt.localeCompare(right.createdAt);
 
@@ -253,9 +242,7 @@ export const serviceGetBankAccountTeamId = query({
 
     const byLegacyId = await ctx.db
       .query("bankAccounts")
-      .withIndex("by_public_bank_account_id", (q) =>
-        q.eq("publicBankAccountId", args.id),
-      )
+      .withIndex("by_public_bank_account_id", (q) => q.eq("publicBankAccountId", args.id))
       .unique();
 
     const account = byLegacyId ?? (await ctx.db.get(args.id as Id<"bankAccounts">));
@@ -285,9 +272,7 @@ export const serviceGetBankAccountsBalances = query({
 
     const accounts = await ctx.db
       .query("bankAccounts")
-      .withIndex("by_team_enabled", (q) =>
-        q.eq("teamId", team._id).eq("enabled", true),
-      )
+      .withIndex("by_team_enabled", (q) => q.eq("teamId", team._id).eq("enabled", true))
       .collect();
 
     const connections = await Promise.all(
@@ -328,9 +313,7 @@ export const serviceGetBankAccountsCurrencies = query({
 
     const accounts = await ctx.db
       .query("bankAccounts")
-      .withIndex("by_team_enabled", (q) =>
-        q.eq("teamId", team._id).eq("enabled", true),
-      )
+      .withIndex("by_team_enabled", (q) => q.eq("teamId", team._id).eq("enabled", true))
       .collect();
 
     return [...new Set(accounts.map((account) => account.currency).filter(Boolean))]
@@ -357,9 +340,7 @@ export const serviceCreateBankAccount = mutation({
     requireServiceKey(args.serviceKey);
 
     const team = await getTeamOrThrow(ctx, args.publicTeamId);
-    const appUser = args.userId
-      ? await getAppUserById(ctx, args.userId)
-      : null;
+    const appUser = args.userId ? await getAppUserById(ctx, args.userId) : null;
     const timestamp = nowIso();
 
     const insertedId = await ctx.db.insert("bankAccounts", {
@@ -535,15 +516,11 @@ export const servicePatchBankAccountByLegacyId = mutation({
       bankConnectionPublicId = undefined;
     } else if (args.bankConnectionId !== undefined) {
       if (args.bankConnectionId) {
-        const connection = await getBankConnectionByPublicId(
-          ctx,
-          args.bankConnectionId,
-        );
+        const connection = await getBankConnectionByPublicId(ctx, args.bankConnectionId);
 
         connectionDocId = connection?._id;
         bankConnectionPublicId =
-          (connection ? publicBankConnectionId(connection) : null) ??
-          args.bankConnectionId;
+          (connection ? publicBankConnectionId(connection) : null) ?? args.bankConnectionId;
       } else {
         connectionDocId = undefined;
         bankConnectionPublicId = undefined;
@@ -766,9 +743,7 @@ export const serviceGetBankAccountsWithPaymentInfo = query({
 
     const accounts = await ctx.db
       .query("bankAccounts")
-      .withIndex("by_team_enabled", (q) =>
-        q.eq("teamId", team._id).eq("enabled", true),
-      )
+      .withIndex("by_team_enabled", (q) => q.eq("teamId", team._id).eq("enabled", true))
       .collect();
 
     const withPaymentInfo = accounts.filter((account) => {
@@ -786,10 +761,7 @@ export const serviceGetBankAccountsWithPaymentInfo = query({
       }
 
       const connection = await ctx.db.get(account.bankConnectionId);
-      connectionById.set(
-        account.bankConnectionId,
-        connection?.name ?? null,
-      );
+      connectionById.set(account.bankConnectionId, connection?.name ?? null);
     }
 
     return withPaymentInfo.map((account) => ({

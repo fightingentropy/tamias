@@ -2,10 +2,7 @@ import { updateAsyncRunInConvex } from "@tamias/app-data-convex";
 import type { TellerMtlsFetcher } from "@tamias/banking";
 import { createLoggerWithContext } from "@tamias/logger";
 import type { WorkerJob, WorkerJobProgress } from "../types/job";
-import type {
-  CloudflareAsyncMessage,
-  CloudflareWorkflowPayload,
-} from "./bridge-helpers";
+import type { CloudflareAsyncMessage, CloudflareWorkflowPayload } from "./bridge-helpers";
 
 export type { CloudflareQueueGroup } from "./bridge-helpers";
 export { getQueueBinding } from "./queue-bindings";
@@ -61,16 +58,12 @@ function parseProgress(progress: WorkerJobProgress): {
   }
 
   return {
-    progress:
-      typeof progress?.progress === "number" ? progress.progress : undefined,
-    progressStep:
-      typeof progress?.step === "string" ? progress.step : undefined,
+    progress: typeof progress?.progress === "number" ? progress.progress : undefined,
+    progressStep: typeof progress?.step === "string" ? progress.step : undefined,
   };
 }
 
-export function createCloudflareJob(
-  message: Message<CloudflareAsyncMessage>,
-): WorkerJob {
+export function createCloudflareJob(message: Message<CloudflareAsyncMessage>): WorkerJob {
   const job: WorkerJob = {
     id: message.id,
     runId: message.body.runId,

@@ -4,14 +4,10 @@ import { createServerFn } from "@tanstack/react-start";
 import { NotFoundPage } from "@/start/components/not-found-page";
 import { StartRootShell } from "@/start/root-shell";
 
-export const loadRootBootstrap = createServerFn({ method: "GET" }).handler(
-  async () => {
-    const { resolveRootBootstrapData } = await import(
-      "@/start/server/root-bootstrap"
-    );
-    return resolveRootBootstrapData();
-  },
-);
+export const loadRootBootstrap = createServerFn({ method: "GET" }).handler(async () => {
+  const { resolveRootBootstrapData } = await import("@/start/server/root-bootstrap");
+  return resolveRootBootstrapData();
+});
 
 export const Route = createRootRoute({
   loader: () => loadRootBootstrap(),
@@ -22,8 +18,7 @@ export const Route = createRootRoute({
       },
       {
         name: "viewport",
-        content:
-          "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
+        content: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
       },
       {
         title: "Tamias",

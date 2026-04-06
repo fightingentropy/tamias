@@ -17,10 +17,7 @@ function TransactionCategoriesPage() {
   >;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <div className="max-w-screen-lg">
         <ErrorBoundary errorComponent={ErrorFallback}>
           <Suspense fallback={<CategoriesSkeleton />}>

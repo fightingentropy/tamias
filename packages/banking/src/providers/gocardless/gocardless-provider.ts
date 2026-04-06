@@ -28,11 +28,7 @@ export class GoCardLessProvider implements Provider {
     return this.#api.getHealthCheck();
   }
 
-  async getTransactions({
-    accountId,
-    latest,
-    accountType,
-  }: GetTransactionsRequest) {
+  async getTransactions({ accountId, latest, accountType }: GetTransactionsRequest) {
     const response = await this.#api.getTransactions({
       latest,
       accountId,
@@ -56,16 +52,12 @@ export class GoCardLessProvider implements Provider {
     return (response ?? []).map(transformAccount);
   }
 
-  async getAccountBalance({
-    accountId,
-    accountType,
-  }: GetAccountBalanceRequest) {
+  async getAccountBalance({ accountId, accountType }: GetAccountBalanceRequest) {
     if (!accountId) {
       throw Error("Missing params");
     }
 
-    const { primaryBalance, balances } =
-      await this.#api.getAccountBalances(accountId);
+    const { primaryBalance, balances } = await this.#api.getAccountBalances(accountId);
 
     return transformAccountBalance({
       balance: primaryBalance?.balanceAmount,

@@ -1,8 +1,5 @@
 import type { Database } from "../../../client";
-import type {
-  SearchTransactionMatchParams,
-  SearchTransactionMatchResult,
-} from "./common";
+import type { SearchTransactionMatchParams, SearchTransactionMatchResult } from "./common";
 import { searchTransactionMatchByInbox } from "./inbox";
 import { searchTransactionMatchByQuery } from "./query";
 

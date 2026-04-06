@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@tamias/ui/card";
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@tamias/ui/card";
 import { useUserQuery } from "@/hooks/use-user";
 import { AvatarUpload } from "./avatar-upload";
 
@@ -19,8 +13,7 @@ export function UserAvatar() {
         <CardHeader>
           <CardTitle>Avatar</CardTitle>
           <CardDescription>
-            This is your avatar. Click on the avatar to upload a custom one from
-            your files.
+            This is your avatar. Click on the avatar to upload a custom one from your files.
           </CardDescription>
         </CardHeader>
 

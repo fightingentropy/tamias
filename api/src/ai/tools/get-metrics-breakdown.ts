@@ -20,18 +20,12 @@ import {
   createMonthlyBreakdownData,
   getMetricsBreakdownPeriodData,
 } from "./metrics-breakdown/data";
-import {
-  spansMultipleMonths,
-  splitDateRangeByMonth,
-} from "./metrics-breakdown/periods";
+import { spansMultipleMonths, splitDateRangeByMonth } from "./metrics-breakdown/periods";
 import {
   buildMultiMonthBreakdownResponse,
   buildSinglePeriodBreakdownResponse,
 } from "./metrics-breakdown/responses";
-import type {
-  BreakdownSummary,
-  MonthlyBreakdownData,
-} from "./metrics-breakdown/types";
+import type { BreakdownSummary, MonthlyBreakdownData } from "./metrics-breakdown/types";
 
 const getMetricsBreakdownSchema = z.object({
   period: z
@@ -41,10 +35,7 @@ const getMetricsBreakdownSchema = z.object({
   from: z.string().optional().describe("Start date (yyyy-MM-dd)"),
   to: z.string().optional().describe("End date (yyyy-MM-dd)"),
   currency: z.string().nullable().optional().describe("Currency code"),
-  chartType: z
-    .string()
-    .optional()
-    .describe("Type of chart that triggered this breakdown"),
+  chartType: z.string().optional().describe("Type of chart that triggered this breakdown"),
   showCanvas: z.boolean().default(true).describe("Show visual analytics"),
 });
 
@@ -80,12 +71,11 @@ export const getMetricsBreakdownTool = tool({
     throwIfBankAccountsRequired(appContext);
 
     try {
-      const { finalFrom, finalTo, finalCurrency, description, locale } =
-        resolveReportToolParams({
-          toolName: "getMetricsBreakdown",
-          appContext,
-          aiParams: { period, from, to, currency },
-        });
+      const { finalFrom, finalTo, finalCurrency, description, locale } = resolveReportToolParams({
+        toolName: "getMetricsBreakdown",
+        appContext,
+        aiParams: { period, from, to, currency },
+      });
       const targetCurrency = finalCurrency || "USD";
 
       if (showCanvas && spansMultipleMonths(finalFrom, finalTo)) {

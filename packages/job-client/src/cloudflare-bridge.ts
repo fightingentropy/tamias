@@ -23,19 +23,12 @@ function getConfiguredCloudflareBridge() {
   return { bridgeUrl, bridgeToken };
 }
 
-async function throwCloudflareBridgeError(
-  response: Response,
-  label: string,
-): Promise<never> {
+async function throwCloudflareBridgeError(response: Response, label: string): Promise<never> {
   const errorText = await response.text().catch(() => "");
-  throw new Error(
-    `${label} (${response.status}): ${errorText || response.statusText}`,
-  );
+  throw new Error(`${label} (${response.status}): ${errorText || response.statusText}`);
 }
 
-export async function enqueueViaCloudflareBridge(
-  request: CloudflareBridgeRequest,
-): Promise<void> {
+export async function enqueueViaCloudflareBridge(request: CloudflareBridgeRequest): Promise<void> {
   const queueBinding = getCloudflareQueueBinding(request.queue);
 
   if (queueBinding) {
@@ -63,26 +56,20 @@ export async function enqueueViaCloudflareBridge(
   }
 
   const { bridgeUrl, bridgeToken } = getConfiguredCloudflareBridge();
-  const response = await fetch(
-    new URL("/internal/enqueue", bridgeUrl).toString(),
-    {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${bridgeToken}`,
-      },
-      body: JSON.stringify(request),
+  const response = await fetch(new URL("/internal/enqueue", bridgeUrl).toString(), {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${bridgeToken}`,
     },
-  );
+    body: JSON.stringify(request),
+  });
 
   if (response.ok) {
     return;
   }
 
-  return throwCloudflareBridgeError(
-    response,
-    "Cloudflare async bridge rejected enqueue",
-  );
+  return throwCloudflareBridgeError(response, "Cloudflare async bridge rejected enqueue");
 }
 
 export async function startCloudflareWorkflowViaBridge(
@@ -95,26 +82,20 @@ export async function startCloudflareWorkflowViaBridge(
   }
 
   const { bridgeUrl, bridgeToken } = getConfiguredCloudflareBridge();
-  const response = await fetch(
-    new URL("/internal/workflows/start", bridgeUrl).toString(),
-    {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${bridgeToken}`,
-      },
-      body: JSON.stringify(request),
+  const response = await fetch(new URL("/internal/workflows/start", bridgeUrl).toString(), {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${bridgeToken}`,
     },
-  );
+    body: JSON.stringify(request),
+  });
 
   if (response.ok) {
     return;
   }
 
-  return throwCloudflareBridgeError(
-    response,
-    "Cloudflare workflow bridge rejected start",
-  );
+  return throwCloudflareBridgeError(response, "Cloudflare workflow bridge rejected start");
 }
 
 export async function cancelCloudflareWorkflowViaBridge(
@@ -127,17 +108,14 @@ export async function cancelCloudflareWorkflowViaBridge(
   }
 
   const { bridgeUrl, bridgeToken } = getConfiguredCloudflareBridge();
-  const response = await fetch(
-    new URL("/internal/workflows/cancel", bridgeUrl).toString(),
-    {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${bridgeToken}`,
-      },
-      body: JSON.stringify(request),
+  const response = await fetch(new URL("/internal/workflows/cancel", bridgeUrl).toString(), {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${bridgeToken}`,
     },
-  );
+    body: JSON.stringify(request),
+  });
 
   if (response.ok) {
     const body = (await response.json().catch(() => null)) as {
@@ -146,10 +124,7 @@ export async function cancelCloudflareWorkflowViaBridge(
     return body?.canceled === true;
   }
 
-  return throwCloudflareBridgeError(
-    response,
-    "Cloudflare workflow bridge rejected cancel",
-  );
+  return throwCloudflareBridgeError(response, "Cloudflare workflow bridge rejected cancel");
 }
 
 export async function upsertCloudflareRecurringScheduleViaBridge(
@@ -168,31 +143,23 @@ export async function upsertCloudflareRecurringScheduleViaBridge(
   }
 
   const { bridgeUrl, bridgeToken } = getConfiguredCloudflareBridge();
-  const response = await fetch(
-    new URL("/internal/schedules/upsert", bridgeUrl).toString(),
-    {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${bridgeToken}`,
-      },
-      body: JSON.stringify(request),
+  const response = await fetch(new URL("/internal/schedules/upsert", bridgeUrl).toString(), {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${bridgeToken}`,
     },
-  );
+    body: JSON.stringify(request),
+  });
 
   if (response.ok) {
     return;
   }
 
-  return throwCloudflareBridgeError(
-    response,
-    "Cloudflare schedule bridge rejected upsert",
-  );
+  return throwCloudflareBridgeError(response, "Cloudflare schedule bridge rejected upsert");
 }
 
-export async function cancelCloudflareScheduleViaBridge(
-  scheduleId: string,
-): Promise<boolean> {
+export async function cancelCloudflareScheduleViaBridge(scheduleId: string): Promise<boolean> {
   const scheduleRuntime = getCloudflareScheduleRuntime();
   if (scheduleRuntime) {
     return scheduleRuntime.cancelRecurringSchedule(scheduleId);
@@ -205,17 +172,14 @@ export async function cancelCloudflareScheduleViaBridge(
   }
 
   const { bridgeUrl, bridgeToken } = getConfiguredCloudflareBridge();
-  const response = await fetch(
-    new URL("/internal/schedules/cancel", bridgeUrl).toString(),
-    {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${bridgeToken}`,
-      },
-      body: JSON.stringify({ scheduleId }),
+  const response = await fetch(new URL("/internal/schedules/cancel", bridgeUrl).toString(), {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${bridgeToken}`,
     },
-  );
+    body: JSON.stringify({ scheduleId }),
+  });
 
   if (response.ok) {
     const body = (await response.json().catch(() => null)) as {
@@ -224,10 +188,7 @@ export async function cancelCloudflareScheduleViaBridge(
     return body?.canceled === true;
   }
 
-  return throwCloudflareBridgeError(
-    response,
-    "Cloudflare schedule bridge rejected cancel",
-  );
+  return throwCloudflareBridgeError(response, "Cloudflare schedule bridge rejected cancel");
 }
 
 export async function getCloudflareWorkflowStatusViaBridge(
@@ -253,8 +214,5 @@ export async function getCloudflareWorkflowStatusViaBridge(
     return (await response.json()) as CloudflareWorkflowStatusResponse;
   }
 
-  return throwCloudflareBridgeError(
-    response,
-    "Cloudflare workflow bridge rejected status",
-  );
+  return throwCloudflareBridgeError(response, "Cloudflare workflow bridge rejected status");
 }

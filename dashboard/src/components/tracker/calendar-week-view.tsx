@@ -31,9 +31,7 @@ const HOUR_HEIGHT = 26; // Fill the available height (600px - header) / 24 hours
 const hours = Array.from({ length: 25 }, (_, i) => i); // 0-24 for cleaner display
 
 type ProcessedEntry = {
-  event: NonNullable<
-    RouterOutputs["trackerEntries"]["byRange"]["result"]
-  >[string][number];
+  event: NonNullable<RouterOutputs["trackerEntries"]["byRange"]["result"]>[string][number];
   eventIndex: string | number;
   displayStartSlot: number;
   displayEndSlot: number;
@@ -53,10 +51,7 @@ type PositionedEntry = ProcessedEntry & {
 /**
  * Detect if two events overlap in time
  */
-const eventsOverlap = (
-  event1: ProcessedEntry,
-  event2: ProcessedEntry,
-): boolean => {
+const eventsOverlap = (event1: ProcessedEntry, event2: ProcessedEntry): boolean => {
   return (
     event1.displayStartSlot < event2.displayEndSlot &&
     event2.displayStartSlot < event1.displayEndSlot
@@ -67,9 +62,7 @@ const eventsOverlap = (
  * Group overlapping events and calculate positioning
  * Optimized: Memoized and optimized for performance
  */
-const calculateEventPositions = (
-  entries: ProcessedEntry[],
-): PositionedEntry[] => {
+const calculateEventPositions = (entries: ProcessedEntry[]): PositionedEntry[] => {
   if (entries.length === 0) return [];
 
   // Sort events by start time, then by duration (longer events first)
@@ -78,11 +71,7 @@ const calculateEventPositions = (
       return a.displayStartSlot - b.displayStartSlot;
     }
     // If start times are the same, put longer events first
-    return (
-      b.displayEndSlot -
-      b.displayStartSlot -
-      (a.displayEndSlot - a.displayStartSlot)
-    );
+    return b.displayEndSlot - b.displayStartSlot - (a.displayEndSlot - a.displayStartSlot);
   });
 
   // Build overlap groups using a more robust algorithm
@@ -145,11 +134,7 @@ const calculateEventPositions = (
         if (a.displayStartSlot !== b.displayStartSlot) {
           return a.displayStartSlot - b.displayStartSlot;
         }
-        return (
-          b.displayEndSlot -
-          b.displayStartSlot -
-          (a.displayEndSlot - a.displayStartSlot)
-        );
+        return b.displayEndSlot - b.displayStartSlot - (a.displayEndSlot - a.displayStartSlot);
       });
 
       sortedGroup.forEach((entry, index) => {
@@ -162,10 +147,7 @@ const calculateEventPositions = (
         const totalEvents = sortedGroup.length;
 
         // First event (index 0) gets full width, others get progressively smaller
-        const width =
-          index === 0
-            ? 100
-            : Math.max(60, baseWidth - (index - 1) * widthReduction);
+        const width = index === 0 ? 100 : Math.max(60, baseWidth - (index - 1) * widthReduction);
 
         // Each event is offset to the right (except the first one)
         const leftOffset = index * offsetStep;
@@ -319,8 +301,7 @@ const DayEntries = memo(
       const previousDateObj = new Date(year, month - 1, dayNum - 1); // month is 0-indexed in JS Date
       const previousDayStr = format(previousDateObj, "yyyy-MM-dd");
 
-      const previousDayData =
-        (data && previousDayStr && data[previousDayStr]) || [];
+      const previousDayData = (data && previousDayStr && data[previousDayStr]) || [];
 
       previousDayData.forEach((event: any, eventIndex: number) => {
         const startDate = createSafeDate(event.start);
@@ -419,17 +400,12 @@ const DayEntries = memo(
                 "absolute text-xs p-2 overflow-hidden cursor-pointer transition-colors",
                 // Same styling for all events
                 "bg-[#F0F0F0] dark:bg-[#1D1D1D] text-[#606060] dark:text-[#878787] hover:bg-[#E8E8E8] dark:hover:bg-[#252525]",
-                entry.totalColumns > 1 && entry.column > 0
-                  ? "border border-border"
-                  : "",
+                entry.totalColumns > 1 && entry.column > 0 ? "border border-border" : "",
               )}
               style={{
                 top: `${top}px`,
                 height: `${height}px`,
-                left:
-                  entry.leftPx !== undefined
-                    ? `${entry.leftPx}px`
-                    : `${entry.left}%`,
+                left: entry.leftPx !== undefined ? `${entry.leftPx}px` : `${entry.left}%`,
                 width:
                   entry.leftPx !== undefined
                     ? `calc(${entry.width}% - ${entry.leftPx}px)`
@@ -439,9 +415,7 @@ const DayEntries = memo(
               onMouseDown={handleEventClick}
               onMouseEnter={() => {
                 if (entry.spansMidnight) {
-                  const allParts = document.querySelectorAll(
-                    `[data-event-id="${entry.event.id}"]`,
-                  );
+                  const allParts = document.querySelectorAll(`[data-event-id="${entry.event.id}"]`);
                   for (const part of allParts) {
                     part.classList.add("!bg-[#E8E8E8]", "dark:!bg-[#252525]");
                   }
@@ -450,14 +424,9 @@ const DayEntries = memo(
               }}
               onMouseLeave={() => {
                 if (entry.spansMidnight) {
-                  const allParts = document.querySelectorAll(
-                    `[data-event-id="${entry.event.id}"]`,
-                  );
+                  const allParts = document.querySelectorAll(`[data-event-id="${entry.event.id}"]`);
                   for (const part of allParts) {
-                    part.classList.remove(
-                      "!bg-[#E8E8E8]",
-                      "dark:!bg-[#252525]",
-                    );
+                    part.classList.remove("!bg-[#E8E8E8]", "dark:!bg-[#252525]");
                   }
                 }
               }}
@@ -493,9 +462,7 @@ const DayEntries = memo(
                         )
                       : secondsToHoursAndMinutes(
                           entry.spansMidnight || entry.isContinuation
-                            ? (entry.displayEndSlot - entry.displayStartSlot) *
-                                15 *
-                                60 // Use slot-based calculation for split events
+                            ? (entry.displayEndSlot - entry.displayStartSlot) * 15 * 60 // Use slot-based calculation for split events
                             : (entry.event.duration ?? 0), // Use original duration for normal events
                         )}
                     {")"}
@@ -510,17 +477,14 @@ const DayEntries = memo(
                         Math.max(
                           0,
                           Math.round(
-                            (currentTime.getTime() -
-                              createSafeDate(entry.event.start).getTime()) /
+                            (currentTime.getTime() - createSafeDate(entry.event.start).getTime()) /
                               1000,
                           ),
                         ),
                       )
                     : secondsToHoursAndMinutes(
                         entry.spansMidnight || entry.isContinuation
-                          ? (entry.displayEndSlot - entry.displayStartSlot) *
-                              15 *
-                              60 // Use slot-based calculation for split events
+                          ? (entry.displayEndSlot - entry.displayStartSlot) * 15 * 60 // Use slot-based calculation for split events
                           : (entry.event.duration ?? 0), // Use original duration for normal events
                       )}
                   )
@@ -576,9 +540,7 @@ export const CalendarWeekView = memo(
         <div
           className="grid gap-px bg-border border-b border-border"
           style={{
-            gridTemplateColumns: is24Hour
-              ? "55px repeat(7, 1fr)"
-              : "80px repeat(7, 1fr)",
+            gridTemplateColumns: is24Hour ? "55px repeat(7, 1fr)" : "80px repeat(7, 1fr)",
           }}
         >
           {/* Empty space above time column */}
@@ -592,9 +554,7 @@ export const CalendarWeekView = memo(
             >
               <div className="flex flex-row items-end justify-center gap-2">
                 <span className="uppercase">{format(day, "EEE")}</span>
-                <span className="text-foreground font-medium">
-                  {format(day, "d")}
-                </span>
+                <span className="text-foreground font-medium">{format(day, "d")}</span>
                 {day.getMonth() !== currentDate.getMonth() && (
                   <span className="text-[[10px] text-[#878787] uppercase">
                     {format(day, "MMM")}
@@ -609,9 +569,7 @@ export const CalendarWeekView = memo(
         <div
           className="grid gap-px bg-border flex-1"
           style={{
-            gridTemplateColumns: is24Hour
-              ? "55px repeat(7, 1fr)"
-              : "80px repeat(7, 1fr)",
+            gridTemplateColumns: is24Hour ? "55px repeat(7, 1fr)" : "80px repeat(7, 1fr)",
           }}
         >
           {/* Time labels column */}

@@ -35,9 +35,7 @@ export function useQueryState<T = string, HasDefault extends boolean = false>(
   const normalizedParser = normalizeParser(parser);
   const search = searchParams.toString();
   const query =
-    normalizedParser.type === "multi"
-      ? searchParams.getAll(key)
-      : searchParams.get(key);
+    normalizedParser.type === "multi" ? searchParams.getAll(key) : searchParams.get(key);
   const value = useMemo(
     () => parseQueryValue(normalizedParser, query),
     [normalizedParser, query, search],
@@ -53,19 +51,17 @@ export function useQueryState<T = string, HasDefault extends boolean = false>(
   return [value, setValue] as const;
 }
 
-export function useQueryStates<
-  TParsers extends Record<string, QueryStateParser<any, any>>,
->(parsers: TParsers, options?: QueryStateOptions) {
+export function useQueryStates<TParsers extends Record<string, QueryStateParser<any, any>>>(
+  parsers: TParsers,
+  options?: QueryStateOptions,
+) {
   const searchParams = useSearchParams();
   const search = searchParams.toString();
   const values = useMemo(() => {
     const result = {} as InferParserMap<TParsers>;
 
     for (const [key, parser] of Object.entries(parsers)) {
-      const query =
-        parser.type === "multi"
-          ? searchParams.getAll(key)
-          : searchParams.get(key);
+      const query = parser.type === "multi" ? searchParams.getAll(key) : searchParams.get(key);
 
       (result as Record<string, unknown>)[key] = parseQueryValue(parser, query);
     }
@@ -75,14 +71,9 @@ export function useQueryStates<
 
   const setValues = useCallback(
     (
-      nextValues:
-        | Partial<{
-            [TKey in keyof TParsers]:
-              | InferParserValue<TParsers[TKey]>
-              | null
-              | undefined;
-          }>
-        | null,
+      nextValues: Partial<{
+        [TKey in keyof TParsers]: InferParserValue<TParsers[TKey]> | null | undefined;
+      }> | null,
     ) => {
       updateQueryString(nextValues, parsers, options);
     },

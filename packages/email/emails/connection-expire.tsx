@@ -1,11 +1,4 @@
-import {
-  Body,
-  Container,
-  Heading,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
+import { Body, Container, Heading, Preview, Section, Text } from "@react-email/components";
 import { addDays, formatDistance } from "date-fns";
 import { Footer } from "../components/footer";
 import { Logo } from "../components/logo";
@@ -36,10 +29,7 @@ export const ConnectionExpireEmail = ({
 
   return (
     <EmailThemeProvider preview={<Preview>{text}</Preview>}>
-      <Body
-        className={`my-auto mx-auto font-sans ${themeClasses.body}`}
-        style={lightStyles.body}
-      >
+      <Body className={`my-auto mx-auto font-sans ${themeClasses.body}`} style={lightStyles.body}>
         <Container
           className={`my-[40px] mx-auto p-[20px] max-w-[600px] ${themeClasses.container}`}
           style={{
@@ -64,34 +54,26 @@ export const ConnectionExpireEmail = ({
           >
             {firstName ? `Hi ${firstName},` : "Hello,"}
           </span>
-          <Text
-            className={themeClasses.text}
-            style={{ color: lightStyles.text.color }}
-          >
+          <Text className={themeClasses.text} style={{ color: lightStyles.text.color }}>
             We hope you're having a great day!
             <br />
             <br />
-            We wanted to inform you that our connection to your bank{" "}
-            <strong>{bankName}</strong> for your team{" "}
-            <strong>{teamName}</strong> will expire in{" "}
-            {formatDistance(new Date(expiresAt), new Date())}. To ensure that
-            Tamias continues to run smoothly, please reconnect your bank.
+            We wanted to inform you that our connection to your bank <strong>{bankName}</strong> for
+            your team <strong>{teamName}</strong> will expire in{" "}
+            {formatDistance(new Date(expiresAt), new Date())}. To ensure that Tamias continues to
+            run smoothly, please reconnect your bank.
             <br />
             <br />
-            The good news? It only takes 60 seconds to get everything back on
-            track!
+            The good news? It only takes 60 seconds to get everything back on track!
           </Text>
 
           <Section className="text-center mt-[50px] mb-[50px]">
             <Button href="https://go.tamias.xyz/34Xt7XK">Reconnect</Button>
           </Section>
 
-          <Text
-            className={themeClasses.text}
-            style={{ color: lightStyles.text.color }}
-          >
-            If you have any questions, please don't hesitate to reach out by
-            just replying to this email.
+          <Text className={themeClasses.text} style={{ color: lightStyles.text.color }}>
+            If you have any questions, please don't hesitate to reach out by just replying to this
+            email.
           </Text>
 
           <br />

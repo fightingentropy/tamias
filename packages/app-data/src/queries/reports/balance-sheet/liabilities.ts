@@ -10,17 +10,11 @@ const LIABILITY_CATEGORY_SLUGS = [
 ];
 
 export function getLiabilityCurrencyPairs(context: BalanceSheetContext) {
-  const bankAccountMapping = mapBankAccountsByType(
-    context.bankAccounts,
-    context.currency,
-  );
+  const bankAccountMapping = mapBankAccountsByType(context.bankAccounts, context.currency);
 
   return uniqueCurrencyPairs([
     ...context.unmatchedBills
-      .filter(
-        (bill) =>
-          (bill.currency || context.currency) !== context.currency,
-      )
+      .filter((bill) => (bill.currency || context.currency) !== context.currency)
       .map((bill) => ({
         base: bill.currency || context.currency,
         target: context.currency,
@@ -45,8 +39,7 @@ export async function buildBalanceSheetLiabilities(
   }
 
   const loanProceeds: number = liabilityMap.get("loan-proceeds") || 0;
-  const loanRepayments: number =
-    liabilityMap.get("loan-principal-repayment") || 0;
+  const loanRepayments: number = liabilityMap.get("loan-principal-repayment") || 0;
   const deferredRevenue: number = liabilityMap.get("deferred-revenue") || 0;
   const leases: number = liabilityMap.get("leases") || 0;
   const leasesName: string = liabilityNameMap.get("leases") || "Leases";
@@ -106,10 +99,8 @@ export async function buildBalanceSheetLiabilities(
   }
 
   const totalLoanProceeds = loanProceeds || 1;
-  const shortTermProportion =
-    totalLoanProceeds > 0 ? shortTermLoanAmount / totalLoanProceeds : 0;
-  const longTermProportion =
-    totalLoanProceeds > 0 ? longTermLoanAmount / totalLoanProceeds : 0;
+  const shortTermProportion = totalLoanProceeds > 0 ? shortTermLoanAmount / totalLoanProceeds : 0;
+  const longTermProportion = totalLoanProceeds > 0 ? longTermLoanAmount / totalLoanProceeds : 0;
 
   const shortTermAfterRepayments = Math.max(
     0,
@@ -120,10 +111,7 @@ export async function buildBalanceSheetLiabilities(
     longTermLoanAmount - loanRepayments * longTermProportion,
   );
 
-  const longTermDebt: number = Math.max(
-    0,
-    longTermAfterRepayments + bankMapping.loanAccountDebt,
-  );
+  const longTermDebt: number = Math.max(0, longTermAfterRepayments + bankMapping.loanAccountDebt);
   const shortTermDebt: number = Math.max(0, shortTermAfterRepayments);
   const creditCardDebt: number = bankMapping.creditCardDebt;
   const otherLiabilities: number = bankMapping.otherLiabilities;
@@ -133,8 +121,7 @@ export async function buildBalanceSheetLiabilities(
 
   const currentLiabilitiesTotal =
     accountsPayable + accruedExpenses + shortTermDebt + creditCardDebt;
-  const nonCurrentLiabilitiesTotal =
-    longTermDebt + deferredRevenue + leases + otherLiabilities;
+  const nonCurrentLiabilitiesTotal = longTermDebt + deferredRevenue + leases + otherLiabilities;
 
   return {
     current: {

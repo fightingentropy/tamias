@@ -1,8 +1,4 @@
-import type {
-  GlobalSearchReturnType,
-  SearchCandidate,
-  SearchSourceType,
-} from "../types";
+import type { GlobalSearchReturnType, SearchCandidate, SearchSourceType } from "../types";
 import { calculateRelevance } from "./filters";
 
 export function rankAndLimitCandidates(
@@ -21,8 +17,7 @@ export function rankAndLimitCandidates(
     }))
     .filter((candidate) =>
       args.searchTerm
-        ? candidate.relevance >= (args.relevanceThreshold ?? 0) &&
-          candidate.relevance > 0
+        ? candidate.relevance >= (args.relevanceThreshold ?? 0) && candidate.relevance > 0
         : true,
     )
     .sort((left, right) => {

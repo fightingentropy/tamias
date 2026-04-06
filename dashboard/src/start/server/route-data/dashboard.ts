@@ -3,10 +3,7 @@ import { redirect } from "@tanstack/react-router";
 import { getQueryClient, trpc } from "@/trpc/server";
 import { hasCompletedOnboarding } from "@/utils/auth-routing";
 import { geolocation } from "@/utils/geo";
-import {
-  dehydrateQueryClient,
-  isUnauthorizedQueryError,
-} from "@/start/server/route-data/shared";
+import { dehydrateQueryClient, isUnauthorizedQueryError } from "@/start/server/route-data/shared";
 
 export async function buildDashboardPageData(href?: string) {
   void href;
@@ -40,18 +37,16 @@ export async function buildDashboardPageData(href?: string) {
   }
 
   const widgetPreferencesQuery = trpc.widgets.getWidgetPreferences.queryOptions();
-  const widgetPreferences = await queryClient
-    .fetchQuery(widgetPreferencesQuery)
-    .catch((error) => {
-      if (isUnauthorizedQueryError(error)) {
-        throw redirect({
-          to: "/login",
-          throw: true,
-        });
-      }
+  const widgetPreferences = await queryClient.fetchQuery(widgetPreferencesQuery).catch((error) => {
+    if (isUnauthorizedQueryError(error)) {
+      throw redirect({
+        to: "/login",
+        throw: true,
+      });
+    }
 
-      throw error;
-    });
+    throw error;
+  });
 
   return {
     dehydratedState: dehydrateQueryClient(queryClient),

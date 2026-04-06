@@ -1,9 +1,5 @@
 import { expect, test } from "bun:test";
-import {
-  transformAccount,
-  transformAccountBalance,
-  transformTransaction,
-} from "./transform";
+import { transformAccount, transformAccountBalance, transformTransaction } from "./transform";
 
 test("Transform expense transaction (depository)", () => {
   expect(

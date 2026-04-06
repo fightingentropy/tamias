@@ -58,9 +58,7 @@ export function AttachmentItem({ file, onDelete }: Props) {
 
         <div className="flex flex-col space-y-0.5 w-80 min-w-0">
           <span className="truncate">{file.name}</span>
-          <span className="text-xs text-[#606060]">
-            {file.size && formatSize(file.size)}
-          </span>
+          <span className="text-xs text-[#606060]">{file.size && formatSize(file.size)}</span>
         </div>
       </button>
 

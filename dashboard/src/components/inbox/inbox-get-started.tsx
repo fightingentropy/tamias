@@ -1,12 +1,7 @@
 "use client";
 
 import { getInboxEmail } from "@tamias/inbox";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@tamias/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@tamias/ui/accordion";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@/framework/navigation";
 import { useEffect, useRef } from "react";
@@ -81,9 +76,8 @@ export function InboxGetStarted() {
             <div className="pb-4 text-center">
               <h2 className="font-medium text-lg">Connect Your Inbox</h2>
               <p className="pb-6 text-sm text-[#878787]">
-                Connect your email or messaging apps to automatically import
-                receipts and invoices. We'll extract the data and match it to
-                your transactions.
+                Connect your email or messaging apps to automatically import receipts and invoices.
+                We'll extract the data and match it to your transactions.
               </p>
             </div>
 
@@ -91,11 +85,7 @@ export function InboxGetStarted() {
               <ConnectGmail />
               <ConnectOutlook />
 
-              <Accordion
-                type="single"
-                collapsible
-                className="border-t-[1px] pt-2 mt-6"
-              >
+              <Accordion type="single" collapsible className="border-t-[1px] pt-2 mt-6">
                 <AccordionItem value="item-1" className="border-0">
                   <AccordionTrigger className="justify-center space-x-2 flex text-sm">
                     <span>More options</span>
@@ -115,8 +105,7 @@ export function InboxGetStarted() {
 
             <div className="text-center mt-8">
               <p className="text-xs text-[#878787]">
-                You can also just drag and drop files here for automatic
-                reconciliation.
+                You can also just drag and drop files here for automatic reconciliation.
               </p>
             </div>
           </div>

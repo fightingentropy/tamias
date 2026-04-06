@@ -24,8 +24,7 @@ export function OrderStatus({
     <div
       className={cn(
         "px-2 py-0.5 rounded-full cursor-default inline-flex max-w-full text-[11px]",
-        status === "paid" &&
-          "text-[#00C969] bg-[#DDF1E4] dark:text-[#00C969] dark:bg-[#00C969]/10",
+        status === "paid" && "text-[#00C969] bg-[#DDF1E4] dark:text-[#00C969] dark:bg-[#00C969]/10",
         status === "pending" &&
           "bg-[#FFD02B]/10 text-[#FFD02B] dark:bg-[#FFD02B]/10 dark:text-[#FFD02B]",
         (status === "cancelled" || status === "canceled") &&
@@ -37,9 +36,7 @@ export function OrderStatus({
         className,
       )}
     >
-      <span className="line-clamp-1 truncate inline-block capitalize">
-        {status}
-      </span>
+      <span className="line-clamp-1 truncate inline-block capitalize">{status}</span>
     </div>
   );
 }

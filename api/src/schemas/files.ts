@@ -5,8 +5,7 @@ export const proxyFileSchema = z.object({
     .string()
     .min(1)
     .openapi({
-      description:
-        "Path to the file in storage. Can include or exclude 'vault/' prefix.",
+      description: "Path to the file in storage. Can include or exclude 'vault/' prefix.",
       example: "vault/documents/2024/invoice.pdf",
       param: {
         in: "query",
@@ -34,8 +33,7 @@ export const downloadFileSchema = z.object({
     .string()
     .min(1)
     .openapi({
-      description:
-        "Path to the file in storage. Can include or exclude 'vault/' prefix.",
+      description: "Path to the file in storage. Can include or exclude 'vault/' prefix.",
       example: "vault/documents/2024/invoice.pdf",
       param: {
         in: "query",
@@ -109,14 +107,10 @@ export const downloadInvoiceSchema = z.object({
       },
     }),
   preview: z
-    .preprocess(
-      (val) => val === "true" || val === true,
-      z.boolean().default(false),
-    )
+    .preprocess((val) => val === "true" || val === true, z.boolean().default(false))
     .optional()
     .openapi({
-      description:
-        "If true, the PDF will be displayed inline. If false, it will be downloaded.",
+      description: "If true, the PDF will be displayed inline. If false, it will be downloaded.",
       example: false,
       param: {
         in: "query",

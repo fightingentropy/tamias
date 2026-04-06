@@ -11,10 +11,7 @@ import {
 } from "./shared";
 
 function calculateInvoiceLimitForPeriod(
-  recurring: Pick<
-    InvoiceRecurringByIdResult,
-    "frequency" | "frequencyInterval"
-  >,
+  recurring: Pick<InvoiceRecurringByIdResult, "frequency" | "frequencyInterval">,
   forecastMonths: number,
 ): number {
   const buffer = 2;
@@ -36,9 +33,7 @@ function calculateInvoiceLimitForPeriod(
       return Math.ceil(forecastMonths / 12) + buffer;
     case "custom":
       if (recurring.frequencyInterval && recurring.frequencyInterval > 0) {
-        return (
-          Math.ceil(forecastMonths * (30.44 / recurring.frequencyInterval)) + buffer
-        );
+        return Math.ceil(forecastMonths * (30.44 / recurring.frequencyInterval)) + buffer;
       }
 
       return forecastMonths + buffer;
@@ -51,17 +46,12 @@ export async function getRecurringInvoiceProjection(
   _db: Database,
   params: GetRecurringInvoiceProjectionParams,
 ): Promise<RecurringInvoiceProjectionResult> {
-  const activeRecurring = (
-    await getProjectedInvoiceRecurringForTeam(params.teamId)
-  ).filter(
+  const activeRecurring = (await getProjectedInvoiceRecurringForTeam(params.teamId)).filter(
     (record) =>
-      record.status === "active" &&
-      (!params.currency || record.currency === params.currency),
+      record.status === "active" && (!params.currency || record.currency === params.currency),
   );
   const projection: RecurringInvoiceProjectionResult = new Map();
-  const forecastEndDate = endOfMonth(
-    addMonths(new UTCDate(), params.forecastMonths),
-  );
+  const forecastEndDate = endOfMonth(addMonths(new UTCDate(), params.forecastMonths));
 
   for (const recurring of activeRecurring) {
     if (!recurring.nextScheduledAt || !recurring.amount) {

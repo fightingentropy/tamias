@@ -3,9 +3,7 @@ import { renderBalanceSheetPage } from "./balance-sheet";
 import { renderCompanyInformationPage } from "./company-information";
 import { renderNotesPage } from "./notes";
 
-export function renderAccountsAttachmentBodySections(
-  data: AccountsAttachmentRenderData,
-) {
+export function renderAccountsAttachmentBodySections(data: AccountsAttachmentRenderData) {
   return `
     ${renderCompanyInformationPage(data)}
 

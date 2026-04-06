@@ -11,10 +11,7 @@ import { useUserQuery } from "@/hooks/use-user";
 import { useTRPC } from "@/trpc/client";
 
 const CancellationDialog = dynamic(
-  () =>
-    import("@/components/cancellation-dialog").then(
-      (mod) => mod.CancellationDialog,
-    ),
+  () => import("@/components/cancellation-dialog").then((mod) => mod.CancellationDialog),
   { ssr: false },
 );
 
@@ -47,9 +44,7 @@ export function ManageSubscription() {
 
   return (
     <div>
-      <h2 className="text-lg font-medium leading-none tracking-tight mb-4">
-        Subscription
-      </h2>
+      <h2 className="text-lg font-medium leading-none tracking-tight mb-4">Subscription</h2>
 
       <Card className="flex flex-col gap-4 p-4">
         <div className="flex justify-between">
@@ -93,15 +88,12 @@ export function ManageSubscription() {
 
         {isCanceling && (
           <p className="text-xs text-[#878787]">
-            Your subscription has been canceled and will end at the end of your
-            billing period.
+            Your subscription has been canceled and will end at the end of your billing period.
           </p>
         )}
       </Card>
 
-      {cancelOpen ? (
-        <CancellationDialog open={cancelOpen} onOpenChange={setCancelOpen} />
-      ) : null}
+      {cancelOpen ? <CancellationDialog open={cancelOpen} onOpenChange={setCancelOpen} /> : null}
     </div>
   );
 }

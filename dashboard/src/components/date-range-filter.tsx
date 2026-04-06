@@ -1,13 +1,7 @@
 "use client";
 
 import { Calendar } from "@tamias/ui/calendar";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@tamias/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@tamias/ui/select";
 import { formatISO, parseISO } from "date-fns";
 import { useUserQuery } from "@/hooks/use-user";
 import { getDatePresets } from "@/utils/date-presets";
@@ -18,11 +12,7 @@ interface DateRangeFilterProps {
   onSelect: (range: { start: string | null; end: string | null }) => void;
 }
 
-export function DateRangeFilter({
-  start,
-  end,
-  onSelect,
-}: DateRangeFilterProps) {
+export function DateRangeFilter({ start, end, onSelect }: DateRangeFilterProps) {
   const { data: user } = useUserQuery();
   const presets = getDatePresets();
 
@@ -52,11 +42,7 @@ export function DateRangeFilter({
           </SelectTrigger>
           <SelectContent>
             {presets.map((preset) => (
-              <SelectItem
-                key={preset.value}
-                value={preset.value}
-                className="text-xs"
-              >
+              <SelectItem key={preset.value} value={preset.value} className="text-xs">
                 {preset.label}
               </SelectItem>
             ))}
@@ -79,12 +65,8 @@ export function DateRangeFilter({
           if (!range) return;
 
           onSelect({
-            start: range.from
-              ? formatISO(range.from, { representation: "date" })
-              : null,
-            end: range.to
-              ? formatISO(range.to, { representation: "date" })
-              : null,
+            start: range.from ? formatISO(range.from, { representation: "date" }) : null,
+            end: range.to ? formatISO(range.to, { representation: "date" }) : null,
           });
         }}
       />

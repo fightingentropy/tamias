@@ -48,9 +48,7 @@ export function renderBalanceSheetPage(data: AccountsAttachmentRenderData) {
       ${renderAccountsPageHeader(data)}
 
       <div id="balancesheet" class="section">
-        <h3 class="middle">Balance Sheet as at ${escapeXml(
-          data.formattedPeriodEnd,
-        )}</h3>
+        <h3 class="middle">Balance Sheet as at ${escapeXml(data.formattedPeriodEnd)}</h3>
         <p class="dotted-line"></p>
         <table class="statement-table">
           <thead>

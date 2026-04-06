@@ -11,11 +11,7 @@ import { getAppUrl } from "@tamias/utils/envs";
 import { HTTPException } from "hono/http-exception";
 import { publicMiddleware } from "../../../middleware";
 import type { Context } from "../../../types";
-import {
-  buildErrorRedirect,
-  buildSuccessRedirect,
-  mapOAuthError,
-} from "../../../utils/oauth";
+import { buildErrorRedirect, buildSuccessRedirect, mapOAuthError } from "../../../utils/oauth";
 
 const app = new OpenAPIHono<Context>();
 
@@ -108,10 +104,7 @@ app.openapi(
     if (error || !code || !realmId) {
       const errorCode = mapOAuthError(error);
       logger.info("QuickBooks OAuth error or cancelled", { error, errorCode });
-      return c.redirect(
-        buildErrorRedirect(dashboardUrl, errorCode, "quickbooks", source),
-        302,
-      );
+      return c.redirect(buildErrorRedirect(dashboardUrl, errorCode, "quickbooks", source), 302);
     }
 
     // Validate state
@@ -128,9 +121,7 @@ app.openapi(
       const callbackUrl = new URL(c.req.url);
 
       // Exchange code for tokens
-      const tokenSet = await provider.exchangeCodeForTokens(
-        callbackUrl.toString(),
-      );
+      const tokenSet = await provider.exchangeCodeForTokens(callbackUrl.toString());
 
       // Get company information using provider with stored tokens
       const providerWithTokens = await getAccountingProvider("quickbooks", {
@@ -167,10 +158,7 @@ app.openapi(
       });
 
       // Redirect based on source
-      return c.redirect(
-        buildSuccessRedirect(dashboardUrl, "quickbooks", parsedState.source),
-        302,
-      );
+      return c.redirect(buildSuccessRedirect(dashboardUrl, "quickbooks", parsedState.source), 302);
     } catch (err) {
       logger.error("QuickBooks OAuth callback error", {
         error: err instanceof Error ? err.message : String(err),
@@ -178,12 +166,7 @@ app.openapi(
       });
 
       return c.redirect(
-        buildErrorRedirect(
-          dashboardUrl,
-          "token_exchange_failed",
-          "quickbooks",
-          parsedState.source,
-        ),
+        buildErrorRedirect(dashboardUrl, "token_exchange_failed", "quickbooks", parsedState.source),
         302,
       );
     }

@@ -31,9 +31,8 @@ async function createDashboardWorker() {
   );
 }
 
-let dashboardWorkerPromise: Promise<
-  Awaited<ReturnType<typeof createDashboardWorker>>
-> | null = null;
+let dashboardWorkerPromise: Promise<Awaited<ReturnType<typeof createDashboardWorker>>> | null =
+  null;
 
 function getDashboardWorker() {
   dashboardWorkerPromise ??= createDashboardWorker();
@@ -41,11 +40,7 @@ function getDashboardWorker() {
 }
 
 export default {
-  async fetch(
-    request: Request,
-    env: DashboardCloudflareEnv,
-    executionCtx: ExecutionContext,
-  ) {
+  async fetch(request: Request, env: DashboardCloudflareEnv, executionCtx: ExecutionContext) {
     if (shouldServeApi(request, env)) {
       return callApiEntryFetch(request, env, executionCtx);
     }

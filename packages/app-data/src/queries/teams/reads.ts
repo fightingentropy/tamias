@@ -11,28 +11,21 @@ import type { Database, QueryClient } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
 import type { TeamOwnerInfo } from "./shared";
 
-export async function getTeamByIdImpl(
-  _db: Database | QueryClient,
-  id: string,
-) {
+export async function getTeamByIdImpl(_db: Database | QueryClient, id: string) {
   return getTeamByIdFromConvexIdentity({ teamId: id });
 }
 
 const getTeamByIdReused = reuseQueryResult({
   keyPrefix: "team-by-id",
   keyFn: (id: string) => id,
-  load: async (_db: Database, id: string) =>
-    getTeamByIdImpl(_db as Database | QueryClient, id),
+  load: async (_db: Database, id: string) => getTeamByIdImpl(_db as Database | QueryClient, id),
 });
 
 export async function getTeamById(_db: Database | QueryClient, id: string) {
   return getTeamByIdReused(_db as Database, id);
 }
 
-export const getTeamByInboxId = async (
-  _db: Database | QueryClient,
-  inboxId: string,
-) => {
+export const getTeamByInboxId = async (_db: Database | QueryClient, inboxId: string) => {
   return getTeamByInboxIdFromConvexIdentity({ inboxId });
 };
 
@@ -85,10 +78,7 @@ export async function getAvailablePlans(
   };
 }
 
-export async function getTeamOwnerInfo(
-  _db: Database,
-  teamId: string,
-): Promise<TeamOwnerInfo> {
+export async function getTeamOwnerInfo(_db: Database, teamId: string): Promise<TeamOwnerInfo> {
   const [owner] = await getTeamMembers(_db, teamId);
 
   return {
@@ -97,10 +87,7 @@ export async function getTeamOwnerInfo(
   };
 }
 
-export async function getTeamOwnerTimezone(
-  db: Database,
-  teamId: string,
-): Promise<string> {
+export async function getTeamOwnerTimezone(db: Database, teamId: string): Promise<string> {
   const info = await getTeamOwnerInfo(db, teamId);
   return info.timezone;
 }

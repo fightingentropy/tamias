@@ -104,10 +104,7 @@ async function ensureUniqueInvoiceProductKey(
     )
     .unique();
 
-  if (
-    existing &&
-    existing.publicInvoiceProductId !== args.ignorePublicInvoiceProductId
-  ) {
+  if (existing && existing.publicInvoiceProductId !== args.ignorePublicInvoiceProductId) {
     throw new ConvexError("Invoice product already exists");
   }
 }
@@ -142,9 +139,7 @@ export const serviceGetInvoiceProducts = query({
           .collect()
       : await ctx.db
           .query("invoiceProducts")
-          .withIndex("by_team_active", (q) =>
-            q.eq("teamId", team._id).eq("isActive", true),
-          )
+          .withIndex("by_team_active", (q) => q.eq("teamId", team._id).eq("isActive", true))
           .collect();
 
     return records
@@ -309,14 +304,9 @@ export const serviceUpsertInvoiceProduct = mutation({
       return serializeInvoiceProduct(args.publicTeamId, {
         ...existing,
         description:
-          args.description !== undefined
-            ? (args.description ?? null)
-            : existing.description,
+          args.description !== undefined ? (args.description ?? null) : existing.description,
         unit: args.unit !== undefined ? (args.unit ?? null) : existing.unit,
-        taxRate:
-          args.taxRate !== undefined
-            ? (args.taxRate ?? null)
-            : existing.taxRate,
+        taxRate: args.taxRate !== undefined ? (args.taxRate ?? null) : existing.taxRate,
         usageCount: existing.usageCount + 1,
         lastUsedAt: timestamp,
         updatedAt: timestamp,
@@ -383,10 +373,8 @@ export const serviceUpdateInvoiceProduct = mutation({
     }
 
     const nextName = args.name ?? record.name;
-    const nextCurrency =
-      args.currency !== undefined ? (args.currency ?? null) : record.currency;
-    const nextPrice =
-      args.price !== undefined ? (args.price ?? null) : record.price;
+    const nextCurrency = args.currency !== undefined ? (args.currency ?? null) : record.currency;
+    const nextPrice = args.price !== undefined ? (args.price ?? null) : record.price;
 
     await ensureUniqueInvoiceProductKey(ctx, {
       teamId: team._id,
@@ -438,22 +426,14 @@ export const serviceUpdateInvoiceProduct = mutation({
     return serializeInvoiceProduct(args.publicTeamId, {
       ...record,
       name: args.name ?? record.name,
-      description:
-        args.description !== undefined
-          ? (args.description ?? null)
-          : record.description,
+      description: args.description !== undefined ? (args.description ?? null) : record.description,
       price: args.price !== undefined ? (args.price ?? null) : record.price,
-      currency:
-        args.currency !== undefined ? (args.currency ?? null) : record.currency,
+      currency: args.currency !== undefined ? (args.currency ?? null) : record.currency,
       unit: args.unit !== undefined ? (args.unit ?? null) : record.unit,
-      taxRate:
-        args.taxRate !== undefined ? (args.taxRate ?? null) : record.taxRate,
+      taxRate: args.taxRate !== undefined ? (args.taxRate ?? null) : record.taxRate,
       isActive: args.isActive ?? record.isActive,
       usageCount: args.usageCount ?? record.usageCount,
-      lastUsedAt:
-        args.lastUsedAt !== undefined
-          ? (args.lastUsedAt ?? null)
-          : record.lastUsedAt,
+      lastUsedAt: args.lastUsedAt !== undefined ? (args.lastUsedAt ?? null) : record.lastUsedAt,
       updatedAt,
     });
   },

@@ -3,13 +3,7 @@
 import { track } from "@/lib/telemetry/client";
 import { LogEvents } from "@/lib/telemetry/events";
 import { Avatar, AvatarFallback } from "@tamias/ui/avatar";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@tamias/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@tamias/ui/form";
 import { Icons } from "@tamias/ui/icons";
 import { Skeleton } from "@tamias/ui/skeleton";
 import { SubmitButton } from "@tamias/ui/submit-button";
@@ -57,10 +51,7 @@ function SelectBankAccountsTabFallback() {
 }
 
 const LoadingTransactionsEvent = dynamic(
-  () =>
-    import("./loading-transactions-event").then(
-      (mod) => mod.LoadingTransactionsEvent,
-    ),
+  () => import("./loading-transactions-event").then((mod) => mod.LoadingTransactionsEvent),
   {
     ssr: false,
     loading: SelectBankAccountsTabFallback,
@@ -69,9 +60,7 @@ const LoadingTransactionsEvent = dynamic(
 
 const SelectBankAccountsSupportForm = dynamic(
   () =>
-    import("./select-bank-accounts-support-form").then(
-      (mod) => mod.SelectBankAccountsSupportForm,
-    ),
+    import("./select-bank-accounts-support-form").then((mod) => mod.SelectBankAccountsSupportForm),
   {
     ssr: false,
     loading: SelectBankAccountsTabFallback,
@@ -96,13 +85,7 @@ const formSchema = z.object({
         enabled: z.boolean(),
         logoUrl: z.string().nullable().optional(),
         expiresAt: z.string().nullable().optional(),
-        type: z.enum([
-          "credit",
-          "depository",
-          "other_asset",
-          "loan",
-          "other_liability",
-        ]),
+        type: z.enum(["credit", "depository", "other_asset", "loan", "other_liability"]),
         iban: z.string().nullable().optional(),
         subtype: z.string().nullable().optional(),
         bic: z.string().nullable().optional(),
@@ -143,19 +126,12 @@ export function SelectBankAccountsContent({
   const t = useI18n();
 
   const [runId, setRunId] = useState<string>();
-  const [activeTab, setActiveTab] = useState<
-    "select-accounts" | "loading" | "support"
-  >("select-accounts");
+  const [activeTab, setActiveTab] = useState<"select-accounts" | "loading" | "support">(
+    "select-accounts",
+  );
 
-  const {
-    error,
-    setParams,
-    provider,
-    ref,
-    institution_id,
-    token,
-    enrollment_id,
-  } = useConnectParams();
+  const { error, setParams, provider, ref, institution_id, token, enrollment_id } =
+    useConnectParams();
 
   const {
     data: accountsData,
@@ -167,10 +143,7 @@ export function SelectBankAccountsContent({
         id: ref ?? undefined,
         accessToken: token ?? undefined,
         institutionId: institution_id ?? undefined,
-        provider: provider as
-          | "gocardless"
-          | "plaid"
-          | "teller",
+        provider: provider as "gocardless" | "plaid" | "teller",
       },
       {
         enabled: enabled && !!provider,
@@ -286,9 +259,8 @@ export function SelectBankAccountsContent({
         <div className="mb-8">
           <h2 className="text-lg font-serif">Select Accounts</h2>
           <p className="text-sm text-[#878787] mt-1">
-            Select the accounts to receive transactions. You can enable or
-            disable them later in settings if needed. Note: Initial loading may
-            take some time.
+            Select the accounts to receive transactions. You can enable or disable them later in
+            settings if needed. Note: Initial loading may take some time.
           </p>
         </div>
 
@@ -310,10 +282,7 @@ export function SelectBankAccountsContent({
                       name="accounts"
                       render={({ field }) => {
                         return (
-                          <FormItem
-                            key={account.id}
-                            className="flex justify-between"
-                          >
+                          <FormItem key={account.id} className="flex justify-between">
                             <FormLabel className="flex items-center space-x-4 w-full mr-8">
                               <Avatar className="size-[34px]">
                                 <AvatarFallback className="text-[11px]">
@@ -345,9 +314,7 @@ export function SelectBankAccountsContent({
                                           ? account.balance.amount
                                           : 0
                                       }
-                                      currency={
-                                        account.balance?.currency ?? "USD"
-                                      }
+                                      currency={account.balance?.currency ?? "USD"}
                                     />
                                   </span>
                                 </div>
@@ -358,9 +325,8 @@ export function SelectBankAccountsContent({
                               <FormControl>
                                 <Switch
                                   checked={
-                                    field.value?.find(
-                                      (value) => value.accountId === account.id,
-                                    )?.enabled
+                                    field.value?.find((value) => value.accountId === account.id)
+                                      ?.enabled
                                   }
                                   onCheckedChange={(checked) => {
                                     return field.onChange(
@@ -404,10 +370,7 @@ export function SelectBankAccountsContent({
                 className="w-full"
                 type="submit"
                 isSubmitting={connectBankConnectionMutation.isPending}
-                disabled={
-                  connectBankConnectionMutation.isPending ||
-                  !form.formState.isValid
-                }
+                disabled={connectBankConnectionMutation.isPending || !form.formState.isValid}
               >
                 Save
               </SubmitButton>

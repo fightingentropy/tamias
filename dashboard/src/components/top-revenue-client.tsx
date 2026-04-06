@@ -11,25 +11,19 @@ export function TopRevenueClient() {
   const trpc = useTRPC();
   const { data: team } = useTeamQuery();
   const { data: user } = useUserQuery();
-  const { data } = useSuspenseQuery(
-    trpc.invoice.topRevenueClient.queryOptions(),
-  );
+  const { data } = useSuspenseQuery(trpc.invoice.topRevenueClient.queryOptions());
 
   if (!data) {
     return (
       <Card className="hidden sm:block">
         <CardHeader className="pb-2">
-          <CardTitle className="font-medium text-2xl font-serif">
-            No Revenue Client
-          </CardTitle>
+          <CardTitle className="font-medium text-2xl font-serif">No Revenue Client</CardTitle>
         </CardHeader>
 
         <CardContent className="pb-5">
           <div className="flex flex-col gap-2">
             <div>Top Revenue Client</div>
-            <div className="text-sm text-muted-foreground">
-              No revenue generated past 30 days
-            </div>
+            <div className="text-sm text-muted-foreground">No revenue generated past 30 days</div>
           </div>
         </CardContent>
       </Card>
@@ -39,9 +33,7 @@ export function TopRevenueClient() {
   return (
     <Card className="hidden sm:block">
       <CardHeader className="pb-2">
-        <CardTitle className="font-medium text-2xl font-serif">
-          {data.customerName}
-        </CardTitle>
+        <CardTitle className="font-medium text-2xl font-serif">{data.customerName}</CardTitle>
       </CardHeader>
 
       <CardContent className="pb-5">
@@ -53,8 +45,7 @@ export function TopRevenueClient() {
               currency={data.currency || team?.baseCurrency || "USD"}
               locale={user?.locale ?? undefined}
             />{" "}
-            from {data.invoiceCount} invoice{data.invoiceCount !== 1 ? "s" : ""}{" "}
-            past 30 days
+            from {data.invoiceCount} invoice{data.invoiceCount !== 1 ? "s" : ""} past 30 days
           </div>
         </div>
       </CardContent>

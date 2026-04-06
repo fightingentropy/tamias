@@ -61,9 +61,7 @@ export function TeamInvite({ invite }: Props) {
             height={32}
           />
           <AvatarFallback className="rounded-none">
-            <span className="text-xs">
-              {invite.team?.name?.charAt(0)?.toUpperCase()}
-            </span>
+            <span className="text-xs">{invite.team?.name?.charAt(0)?.toUpperCase()}</span>
           </AvatarFallback>
         </Avatar>
 

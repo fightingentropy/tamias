@@ -1,7 +1,6 @@
 import { uniqueCurrencies } from "@tamias/location/currencies";
 
-const ENDPOINT =
-  "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1";
+const ENDPOINT = "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1";
 
 async function getCurrency(currency: string) {
   const response = await fetch(`${ENDPOINT}/currencies/${currency}.json`);
@@ -9,9 +8,7 @@ async function getCurrency(currency: string) {
   return response.json();
 }
 
-function transformKeysToUppercase(
-  obj: Record<string, number>,
-): Record<string, number> {
+function transformKeysToUppercase(obj: Record<string, number>): Record<string, number> {
   const entries = Object.entries(obj);
 
   const upperCaseEntries = entries

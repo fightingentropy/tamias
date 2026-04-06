@@ -13,8 +13,7 @@ export function registerResources(server: McpServer, ctx: McpContext): void {
       "team",
       "tamias://team/info",
       {
-        description:
-          "Current team information including name, base currency, and settings",
+        description: "Current team information including name, base currency, and settings",
         mimeType: "application/json",
       },
       async () => {
@@ -37,8 +36,7 @@ export function registerResources(server: McpServer, ctx: McpContext): void {
     "categories",
     "tamias://categories",
     {
-      description:
-        "List of all transaction categories with their hierarchy, colors, and slugs",
+      description: "List of all transaction categories with their hierarchy, colors, and slugs",
       mimeType: "application/json",
     },
     async () => {

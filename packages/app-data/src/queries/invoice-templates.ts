@@ -11,10 +11,7 @@ import {
   upsertInvoiceTemplateInConvex,
 } from "@tamias/app-data-convex";
 
-export type InvoiceTemplateParams = Omit<
-  InvoiceTemplateRecord,
-  "id" | "name" | "isDefault"
->;
+export type InvoiceTemplateParams = Omit<InvoiceTemplateRecord, "id" | "name" | "isDefault">;
 
 export type CreateInvoiceTemplateParams = {
   teamId: string;
@@ -40,10 +37,7 @@ export async function getInvoiceTemplates(teamId: string) {
   return getInvoiceTemplatesFromConvex({ teamId });
 }
 
-export async function getInvoiceTemplateById(params: {
-  id: string;
-  teamId: string;
-}) {
+export async function getInvoiceTemplateById(params: { id: string; teamId: string }) {
   return getInvoiceTemplateByIdFromConvex({
     id: params.id,
     teamId: params.teamId,
@@ -54,9 +48,7 @@ export async function getInvoiceTemplate(teamId: string) {
   return getDefaultInvoiceTemplateFromConvex({ teamId });
 }
 
-export async function createInvoiceTemplate(
-  params: CreateInvoiceTemplateParams,
-) {
+export async function createInvoiceTemplate(params: CreateInvoiceTemplateParams) {
   const { teamId, name, isDefault, ...templateData } = params;
 
   return createInvoiceTemplateInConvex({
@@ -67,9 +59,7 @@ export async function createInvoiceTemplate(
   });
 }
 
-export async function upsertInvoiceTemplate(
-  params: UpsertInvoiceTemplateParams,
-) {
+export async function upsertInvoiceTemplate(params: UpsertInvoiceTemplateParams) {
   const { id, teamId, name, ...templateData } = params;
 
   return upsertInvoiceTemplateInConvex({
@@ -80,10 +70,7 @@ export async function upsertInvoiceTemplate(
   });
 }
 
-export async function setDefaultTemplate(params: {
-  id: string;
-  teamId: string;
-}) {
+export async function setDefaultTemplate(params: { id: string; teamId: string }) {
   return setDefaultInvoiceTemplateInConvex({
     id: params.id,
     teamId: params.teamId,

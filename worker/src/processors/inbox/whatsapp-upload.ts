@@ -13,10 +13,7 @@ import {
 } from "@tamias/app-data/queries";
 import { DocumentClient } from "@tamias/documents";
 import { enqueue } from "@tamias/job-client";
-import {
-  getVaultSignedUrl,
-  uploadVaultFile,
-} from "@tamias/storage";
+import { getVaultSignedUrl, uploadVaultFile } from "@tamias/storage";
 import { getExtensionFromMimeType } from "@tamias/utils";
 import type { WorkerJob as Job } from "../../types/job";
 import { format, parseISO } from "date-fns";
@@ -28,15 +25,7 @@ import { BaseProcessor } from "../base";
 
 export class WhatsAppUploadProcessor extends BaseProcessor<WhatsAppUploadPayload> {
   async process(job: Job<WhatsAppUploadPayload>): Promise<void> {
-    const {
-      teamId,
-      phoneNumber,
-      messageId,
-      mediaId,
-      mimeType,
-      filename,
-      caption,
-    } = job.data;
+    const { teamId, phoneNumber, messageId, mediaId, mimeType, filename, caption } = job.data;
 
     this.logger.info("Starting WhatsApp upload processing", {
       teamId,
@@ -75,9 +64,7 @@ export class WhatsAppUploadProcessor extends BaseProcessor<WhatsAppUploadPayload
       const fileData = await whatsappClient.downloadMedia(mediaId);
 
       if (!fileData || fileData.byteLength === 0) {
-        throw new Error(
-          "Failed to download media from WhatsApp or file is empty",
-        );
+        throw new Error("Failed to download media from WhatsApp or file is empty");
       }
 
       // Validate file size (max 20MB)
@@ -159,11 +146,10 @@ export class WhatsAppUploadProcessor extends BaseProcessor<WhatsAppUploadPayload
 
       // Get signed URL for document processing
       const pathForSignedUrl = uploadData.path || filePathStr;
-      const { data: signedUrlData, error: signedUrlError } =
-        await getVaultSignedUrl({
-          path: pathForSignedUrl,
-          expireIn: 1800,
-        });
+      const { data: signedUrlData, error: signedUrlError } = await getVaultSignedUrl({
+        path: pathForSignedUrl,
+        expireIn: 1800,
+      });
 
       if (signedUrlError || !signedUrlData?.signedUrl) {
         throw new Error(
@@ -194,12 +180,9 @@ export class WhatsAppUploadProcessor extends BaseProcessor<WhatsAppUploadPayload
           status: "other",
         });
 
-        this.logger.info(
-          "Document classified as other (non-financial), skipping matching",
-          {
-            inboxId: inboxData.id,
-          },
-        );
+        this.logger.info("Document classified as other (non-financial), skipping matching", {
+          inboxId: inboxData.id,
+        });
 
         // Update reaction to indicate document received but not financial
         await updateReaction(REACTION_EMOJIS.SUCCESS);
@@ -211,12 +194,9 @@ export class WhatsAppUploadProcessor extends BaseProcessor<WhatsAppUploadPayload
             "This document doesn't appear to be an invoice or receipt. It has been saved to your inbox under 'Other' documents.",
           );
         } catch (error) {
-          this.logger.warn(
-            "Failed to send WhatsApp message for other document",
-            {
-              error: error instanceof Error ? error.message : "Unknown error",
-            },
-          );
+          this.logger.warn("Failed to send WhatsApp message for other document", {
+            error: error instanceof Error ? error.message : "Unknown error",
+          });
         }
 
         return; // Skip embedding and transaction matching for non-financial documents
@@ -265,8 +245,7 @@ export class WhatsAppUploadProcessor extends BaseProcessor<WhatsAppUploadPayload
             }).format(amount);
           };
 
-          const documentType =
-            updatedInbox.type === "invoice" ? "Invoice" : "Receipt";
+          const documentType = updatedInbox.type === "invoice" ? "Invoice" : "Receipt";
 
           const formattedDate = updatedInbox.date
             ? format(parseISO(updatedInbox.date), "MMM d, yyyy")
@@ -278,10 +257,8 @@ export class WhatsAppUploadProcessor extends BaseProcessor<WhatsAppUploadPayload
             : undefined;
 
           // Extract numeric amount and currency separately for the formatter
-          const amountValue =
-            formattedAmount?.replace(/[^\d.,]/g, "") || undefined;
-          const taxAmountValue =
-            formattedTaxAmount?.replace(/[^\d.,]/g, "") || undefined;
+          const amountValue = formattedAmount?.replace(/[^\d.,]/g, "") || undefined;
+          const taxAmountValue = formattedTaxAmount?.replace(/[^\d.,]/g, "") || undefined;
 
           const successMessage = formatDocumentProcessedSuccess({
             documentType,
@@ -334,8 +311,7 @@ export class WhatsAppUploadProcessor extends BaseProcessor<WhatsAppUploadPayload
         amount: updatedInbox?.amount,
       });
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       const isGeminiImageError =
         errorMessage.includes("Unable to process input image") ||
         errorMessage.includes("INVALID_ARGUMENT");
@@ -352,14 +328,11 @@ export class WhatsAppUploadProcessor extends BaseProcessor<WhatsAppUploadPayload
 
       // For Gemini image processing errors, mark as pending for manual review
       if (isGeminiImageError && inboxData) {
-        this.logger.info(
-          "Gemini failed to process image, marking as pending for manual review",
-          {
-            inboxId: inboxData.id,
-            mimeType,
-            error: errorMessage,
-          },
-        );
+        this.logger.info("Gemini failed to process image, marking as pending for manual review", {
+          inboxId: inboxData.id,
+          mimeType,
+          error: errorMessage,
+        });
 
         try {
           await updateInbox(db, {
@@ -368,17 +341,11 @@ export class WhatsAppUploadProcessor extends BaseProcessor<WhatsAppUploadPayload
             status: "pending",
           });
 
-          await whatsappClient.sendMessage(
-            phoneNumber,
-            formatExtractionFailedMessage(),
-          );
+          await whatsappClient.sendMessage(phoneNumber, formatExtractionFailedMessage());
         } catch (updateError) {
           this.logger.error("Failed to update inbox status to pending", {
             inboxId: inboxData.id,
-            error:
-              updateError instanceof Error
-                ? updateError.message
-                : "Unknown error",
+            error: updateError instanceof Error ? updateError.message : "Unknown error",
           });
         }
 
@@ -405,10 +372,7 @@ export class WhatsAppUploadProcessor extends BaseProcessor<WhatsAppUploadPayload
 
       // Notify user of error
       try {
-        await whatsappClient.sendMessage(
-          phoneNumber,
-          formatProcessingErrorMessage(),
-        );
+        await whatsappClient.sendMessage(phoneNumber, formatProcessingErrorMessage());
       } catch {
         // Ignore notification error
       }

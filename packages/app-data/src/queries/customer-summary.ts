@@ -1,9 +1,6 @@
 import type { Database } from "../client";
 import { reuseQueryResult } from "../utils/request-cache";
-import {
-  getRecentCustomerActivity,
-  getRecentCustomerCounts,
-} from "./customer-activity-shared";
+import { getRecentCustomerActivity, getRecentCustomerCounts } from "./customer-activity-shared";
 
 export type CustomerPageSummary = {
   mostActiveClient: {
@@ -41,22 +38,18 @@ async function getCustomerPageSummaryImpl(
     ...recentActivity.invoiceCountsByCustomerId.keys(),
     ...recentActivity.trackerTimeByCustomerId.keys(),
   ]);
-  const { inactiveClientsCount, newCustomersCount } =
-    await getRecentCustomerCounts({
-      teamId,
-      sinceIso: thirtyDaysAgoIso,
-      activeCustomerIds,
-    });
+  const { inactiveClientsCount, newCustomersCount } = await getRecentCustomerCounts({
+    teamId,
+    sinceIso: thirtyDaysAgoIso,
+    activeCustomerIds,
+  });
   const mostActiveClient =
     [...activeCustomerIds]
       .map((customerId) => ({
         customerId,
-        customerName:
-          recentActivity.customerNameById.get(customerId) ?? "Unknown Customer",
-        invoiceCount:
-          recentActivity.invoiceCountsByCustomerId.get(customerId) ?? 0,
-        totalTrackerTime:
-          recentActivity.trackerTimeByCustomerId.get(customerId) ?? 0,
+        customerName: recentActivity.customerNameById.get(customerId) ?? "Unknown Customer",
+        invoiceCount: recentActivity.invoiceCountsByCustomerId.get(customerId) ?? 0,
+        totalTrackerTime: recentActivity.trackerTimeByCustomerId.get(customerId) ?? 0,
       }))
       .filter((row) => row.invoiceCount > 0 || row.totalTrackerTime > 0)
       .sort(

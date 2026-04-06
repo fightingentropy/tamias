@@ -9,9 +9,7 @@ const ERROR_DAYS = 7;
 type ConnectionStatusData = RouterOutputs["team"]["connectionStatus"];
 
 // Connection status types
-type BankConnection = NonNullable<
-  RouterOutputs["bankConnections"]["get"]
->[number];
+type BankConnection = NonNullable<RouterOutputs["bankConnections"]["get"]>[number];
 type InboxAccount = NonNullable<RouterOutputs["inboxAccounts"]["get"]>[number];
 
 /**
@@ -33,9 +31,7 @@ export type ConnectionIssue = {
 /**
  * Get all connection issues from bank connections
  */
-export function getBankIssues(
-  connections: BankConnection[] | undefined,
-): ConnectionIssue[] {
+export function getBankIssues(connections: BankConnection[] | undefined): ConnectionIssue[] {
   if (!connections) return [];
 
   const issues: ConnectionIssue[] = [];
@@ -56,10 +52,7 @@ export function getBankIssues(
 
     // Check expiration status
     if (connection.expiresAt) {
-      const daysUntilExpiry = differenceInDays(
-        new Date(connection.expiresAt),
-        new Date(),
-      );
+      const daysUntilExpiry = differenceInDays(new Date(connection.expiresAt), new Date());
 
       if (daysUntilExpiry <= 0) {
         // Expired
@@ -101,9 +94,7 @@ export function getBankIssues(
 /**
  * Get all connection issues from inbox accounts
  */
-export function getInboxIssues(
-  accounts: InboxAccount[] | undefined,
-): ConnectionIssue[] {
+export function getInboxIssues(accounts: InboxAccount[] | undefined): ConnectionIssue[] {
   if (!accounts) return [];
 
   const issues: ConnectionIssue[] = [];
@@ -127,9 +118,7 @@ export function getInboxIssues(
 /**
  * Get the highest severity from a list of issues
  */
-export function getHighestSeverity(
-  issues: ConnectionIssue[],
-): "error" | "warning" | null {
+export function getHighestSeverity(issues: ConnectionIssue[]): "error" | "warning" | null {
   if (issues.length === 0) return null;
   if (issues.some((issue) => issue.severity === "error")) return "error";
   if (issues.some((issue) => issue.severity === "warning")) return "warning";
@@ -139,9 +128,7 @@ export function getHighestSeverity(
 /**
  * Build connection issues from unified connectionStatus endpoint data
  */
-export function buildConnectionIssues(
-  data: ConnectionStatusData | undefined,
-): ConnectionIssue[] {
+export function buildConnectionIssues(data: ConnectionStatusData | undefined): ConnectionIssue[] {
   if (!data) return [];
 
   const issues: ConnectionIssue[] = [];
@@ -166,10 +153,7 @@ export function buildConnectionIssues(
     }
 
     if (connection.expiresAt) {
-      const daysUntilExpiry = differenceInDays(
-        new Date(connection.expiresAt),
-        new Date(),
-      );
+      const daysUntilExpiry = differenceInDays(new Date(connection.expiresAt), new Date());
 
       if (daysUntilExpiry <= 0) {
         issues.push({
@@ -227,28 +211,24 @@ export function getConnectionsStatus(connections: Connection[]) {
   const warning = connections?.some(
     (connection) =>
       connection.expiresAt &&
-      differenceInDays(new Date(connection.expiresAt), new Date()) <=
-        WARNING_DAYS,
+      differenceInDays(new Date(connection.expiresAt), new Date()) <= WARNING_DAYS,
   );
 
   const error = connections?.some(
     (connection) =>
       connection.expiresAt &&
-      differenceInDays(new Date(connection.expiresAt), new Date()) <=
-        ERROR_DAYS,
+      differenceInDays(new Date(connection.expiresAt), new Date()) <= ERROR_DAYS,
   );
 
   const expired = connections?.some(
     (connection) =>
-      connection.expiresAt &&
-      differenceInDays(new Date(connection.expiresAt), new Date()) <= 0,
+      connection.expiresAt && differenceInDays(new Date(connection.expiresAt), new Date()) <= 0,
   );
 
   const show = connections?.some(
     (connection) =>
       connection.expiresAt &&
-      differenceInDays(new Date(connection.expiresAt), new Date()) <=
-        DISPLAY_DAYS,
+      differenceInDays(new Date(connection.expiresAt), new Date()) <= DISPLAY_DAYS,
   );
 
   return {
@@ -262,21 +242,18 @@ export function getConnectionsStatus(connections: Connection[]) {
 export function connectionStatus(connection: Connection) {
   const warning =
     connection.expiresAt &&
-    differenceInDays(new Date(connection.expiresAt), new Date()) <=
-      WARNING_DAYS;
+    differenceInDays(new Date(connection.expiresAt), new Date()) <= WARNING_DAYS;
 
   const error =
     connection.expiresAt &&
     differenceInDays(new Date(connection.expiresAt), new Date()) <= ERROR_DAYS;
 
   const expired =
-    connection.expiresAt &&
-    differenceInDays(new Date(connection.expiresAt), new Date()) <= 0;
+    connection.expiresAt && differenceInDays(new Date(connection.expiresAt), new Date()) <= 0;
 
   const show =
     connection.expiresAt &&
-    differenceInDays(new Date(connection.expiresAt), new Date()) <=
-      DISPLAY_DAYS;
+    differenceInDays(new Date(connection.expiresAt), new Date()) <= DISPLAY_DAYS;
 
   return {
     warning,

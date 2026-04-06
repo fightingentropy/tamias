@@ -15,8 +15,7 @@ export async function buildTrackerPageData(href?: string) {
   const requestUrl = getRequestUrl(href);
   const filter = loadTrackerFilterParams(requestUrl.searchParams);
   const { sort } = loadSortParams(requestUrl.searchParams);
-  const weeklyCalendar =
-    (await cookies()).get(Cookies.WeeklyCalendar)?.value === "true";
+  const weeklyCalendar = (await cookies()).get(Cookies.WeeklyCalendar)?.value === "true";
   const trackerProjectsQuery = trpc.trackerProjects.get.infiniteQueryOptions(
     buildTrackerProjectsQueryFilter({
       filter,

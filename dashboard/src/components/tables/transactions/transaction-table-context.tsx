@@ -24,9 +24,7 @@ interface TransactionTableContextValue {
   isLoadingTags: boolean;
 }
 
-const TransactionTableContext = createContext<
-  TransactionTableContextValue | undefined
->(undefined);
+const TransactionTableContext = createContext<TransactionTableContextValue | undefined>(undefined);
 
 interface TransactionTableProviderProps {
   children: ReactNode;
@@ -36,18 +34,14 @@ interface TransactionTableProviderProps {
  * Provider that fetches shared data (team members, tags) once for the entire
  * transaction table, avoiding duplicate subscriptions in each cell component.
  */
-export function TransactionTableProvider({
-  children,
-}: TransactionTableProviderProps) {
+export function TransactionTableProvider({ children }: TransactionTableProviderProps) {
   const trpc = useTRPC();
 
   const { data: teamMembers, isLoading: isLoadingMembers } = useQuery(
     trpc.team.members.queryOptions(),
   );
 
-  const { data: tags, isLoading: isLoadingTags } = useQuery(
-    trpc.tags.get.queryOptions(),
-  );
+  const { data: tags, isLoading: isLoadingTags } = useQuery(trpc.tags.get.queryOptions());
 
   const value = useMemo(
     () => ({
@@ -60,9 +54,7 @@ export function TransactionTableProvider({
   );
 
   return (
-    <TransactionTableContext.Provider value={value}>
-      {children}
-    </TransactionTableContext.Provider>
+    <TransactionTableContext.Provider value={value}>{children}</TransactionTableContext.Provider>
   );
 }
 
@@ -73,9 +65,7 @@ export function TransactionTableProvider({
 export function useTransactionTableContext() {
   const context = useContext(TransactionTableContext);
   if (context === undefined) {
-    throw new Error(
-      "useTransactionTableContext must be used within a TransactionTableProvider",
-    );
+    throw new Error("useTransactionTableContext must be used within a TransactionTableProvider");
   }
   return context;
 }

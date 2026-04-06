@@ -6,10 +6,7 @@ import {
 } from "@tamias/app-data-convex";
 import { createLoggerWithContext } from "@tamias/logger";
 import { deleteTransactionAttachmentsByIds } from "../../transaction-attachments";
-import {
-  buildInboxTransactionSummary,
-  patchTransactionFields,
-} from "../shared";
+import { buildInboxTransactionSummary, patchTransactionFields } from "../shared";
 
 export const logger = createLoggerWithContext("inbox");
 
@@ -48,10 +45,7 @@ export async function cleanupDeletedInboxArtifacts(
   });
 }
 
-export async function buildInboxItemWithTransaction(
-  teamId: string,
-  item: InboxItemRecord,
-) {
+export async function buildInboxItemWithTransaction(teamId: string, item: InboxItemRecord) {
   return {
     ...item,
     transaction: item.transactionId
@@ -65,10 +59,7 @@ export async function buildInboxItemWithTransaction(
   };
 }
 
-export async function getInboxItemWithTransaction(
-  teamId: string,
-  inboxId: string,
-) {
+export async function getInboxItemWithTransaction(teamId: string, inboxId: string) {
   const item = await getInboxItemByIdFromConvex({
     teamId,
     inboxId,

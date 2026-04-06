@@ -11,8 +11,7 @@ import { useForesightMetricsPrefetch } from "@/hooks/use-foresight-prefetch";
 import { useIsCustomizing } from "./widget-provider";
 
 function getTimeBasedGreeting(timezone?: string): string {
-  const userTimezone =
-    timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const userTimezone = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
   const now = new TZDate(new Date(), userTimezone);
   const hour = now.getHours();
 
@@ -29,9 +28,7 @@ function getTimeBasedGreeting(timezone?: string): string {
 export function WidgetsHeader() {
   const user = useCurrentUser();
   const isCustomizing = useIsCustomizing();
-  const [greeting, setGreeting] = useState(() =>
-    getTimeBasedGreeting(user?.timezone ?? undefined),
-  );
+  const [greeting, setGreeting] = useState(() => getTimeBasedGreeting(user?.timezone ?? undefined));
   const { elementRef: metricsTabRef } = useForesightMetricsPrefetch();
 
   useEffect(() => {
@@ -56,9 +53,7 @@ export function WidgetsHeader() {
       <div>
         <h1 className="text-[30px] font-serif leading-normal mb-1">
           <span>{greeting} </span>
-          <span className="text-[#666666]">
-            {user?.fullName?.split(" ")[0]},
-          </span>
+          <span className="text-[#666666]">{user?.fullName?.split(" ")[0]},</span>
         </h1>
         <p className="text-[#666666] text-[14px]">
           {isCustomizing

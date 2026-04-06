@@ -72,9 +72,9 @@ function decodeJwtExpiry(token: string) {
       return null;
     }
 
-    const payload = JSON.parse(
-      atob(encodedPayload.replace(/-/g, "+").replace(/_/g, "/")),
-    ) as { exp?: number };
+    const payload = JSON.parse(atob(encodedPayload.replace(/-/g, "+").replace(/_/g, "/"))) as {
+      exp?: number;
+    };
 
     return typeof payload.exp === "number" ? payload.exp * 1000 : null;
   } catch {
@@ -123,22 +123,13 @@ async function callAuthAction(
   return (body ?? {}) as AuthActionResponse;
 }
 
-export function AuthProvider(props: {
-  children: ReactNode;
-  bootstrap: RootBootstrapData;
-}) {
-  const [authState, setAuthState] = useState<AuthState>(() =>
-    getInitialAuthState(props.bootstrap),
-  );
+export function AuthProvider(props: { children: ReactNode; bootstrap: RootBootstrapData }) {
+  const [authState, setAuthState] = useState<AuthState>(() => getInitialAuthState(props.bootstrap));
   const refreshPromiseRef = useRef<Promise<string | null> | null>(null);
 
   useEffect(() => {
     setAuthState(getInitialAuthState(props.bootstrap));
-  }, [
-    props.bootstrap.auth.refreshToken,
-    props.bootstrap.auth.token,
-    props.bootstrap.fetchedAt,
-  ]);
+  }, [props.bootstrap.auth.refreshToken, props.bootstrap.auth.token, props.bootstrap.fetchedAt]);
 
   const clearAuthState = useCallback(() => {
     setAuthState({
@@ -238,8 +229,7 @@ export function AuthProvider(props: {
     };
 
     document.addEventListener("visibilitychange", refreshIfNeeded);
-    return () =>
-      document.removeEventListener("visibilitychange", refreshIfNeeded);
+    return () => document.removeEventListener("visibilitychange", refreshIfNeeded);
   }, [authState.hasRefreshToken, authState.token, refreshAccessToken]);
 
   const signIn = useCallback<AuthActions["signIn"]>(
@@ -247,8 +237,7 @@ export function AuthProvider(props: {
       const verifier =
         typeof window === "undefined"
           ? undefined
-          : window.sessionStorage.getItem(OAUTH_VERIFIER_STORAGE_KEY) ??
-            undefined;
+          : (window.sessionStorage.getItem(OAUTH_VERIFIER_STORAGE_KEY) ?? undefined);
 
       if (typeof window !== "undefined") {
         window.sessionStorage.removeItem(OAUTH_VERIFIER_STORAGE_KEY);
@@ -264,10 +253,7 @@ export function AuthProvider(props: {
         const redirect = new URL(result.redirect, window.location.origin);
 
         if (result.verifier) {
-          window.sessionStorage.setItem(
-            OAUTH_VERIFIER_STORAGE_KEY,
-            result.verifier,
-          );
+          window.sessionStorage.setItem(OAUTH_VERIFIER_STORAGE_KEY, result.verifier);
         }
 
         window.location.href = redirect.toString();

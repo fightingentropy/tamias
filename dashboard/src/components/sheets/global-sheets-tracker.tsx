@@ -7,10 +7,7 @@ import { useTrackerParams } from "@/hooks/use-tracker-params";
 import { useDeferredSheetMount } from "./global-sheet-mount";
 
 const TrackerUpdateSheet = dynamic(
-  () =>
-    import("@/components/sheets/tracker-update-sheet").then(
-      (mod) => mod.TrackerUpdateSheet,
-    ),
+  () => import("@/components/sheets/tracker-update-sheet").then((mod) => mod.TrackerUpdateSheet),
   { ssr: false },
 );
 

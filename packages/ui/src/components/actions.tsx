@@ -3,12 +3,7 @@
 import type { ComponentProps } from "react";
 import { cn } from "@/utils";
 import { Button } from "./button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "./tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip";
 
 export type ActionsProps = ComponentProps<"div">;
 
@@ -34,10 +29,7 @@ export const Action = ({
 }: ActionProps) => {
   const button = (
     <Button
-      className={cn(
-        "size-9 p-1.5 text-muted-foreground hover:text-foreground relative",
-        className,
-      )}
+      className={cn("size-9 p-1.5 text-muted-foreground hover:text-foreground relative", className)}
       size={size}
       type="button"
       variant={variant}

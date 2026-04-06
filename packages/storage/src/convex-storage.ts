@@ -39,11 +39,9 @@ type UploadVaultFileArgs = {
   upsert?: boolean;
 };
 
-const generateUploadUrlRef = makeFunctionReference<
-  "mutation",
-  { internalKey?: string },
-  string
->("files:generateUploadUrl");
+const generateUploadUrlRef = makeFunctionReference<"mutation", { internalKey?: string }, string>(
+  "files:generateUploadUrl",
+);
 
 const registerUploadRef = makeFunctionReference<
   "mutation",
@@ -51,17 +49,13 @@ const registerUploadRef = makeFunctionReference<
   { path: string; storageId: string; url: string | null }
 >("files:registerUpload");
 
-const getByPathRef = makeFunctionReference<
-  "query",
-  { path: string },
-  ConvexFileRecord | null
->("files:getByPath");
+const getByPathRef = makeFunctionReference<"query", { path: string }, ConvexFileRecord | null>(
+  "files:getByPath",
+);
 
-const getUrlByPathRef = makeFunctionReference<
-  "query",
-  { path: string },
-  string | null
->("files:getUrlByPath");
+const getUrlByPathRef = makeFunctionReference<"query", { path: string }, string | null>(
+  "files:getUrlByPath",
+);
 
 const deleteByPathRef = makeFunctionReference<
   "mutation",
@@ -117,10 +111,7 @@ function toStorageError(error: unknown, fallbackMessage: string) {
   return new Error(fallbackMessage);
 }
 
-function toBlob(
-  value: Blob | ArrayBuffer | Uint8Array,
-  contentType?: string | null,
-) {
+function toBlob(value: Blob | ArrayBuffer | Uint8Array, contentType?: string | null) {
   if (value instanceof Blob) {
     return value;
   }
@@ -318,12 +309,7 @@ export async function removeVaultFile(path: string | string[]) {
   }
 }
 
-export async function uploadVaultFile({
-  path,
-  blob,
-  contentType,
-  size,
-}: UploadVaultFileArgs) {
+export async function uploadVaultFile({ path, blob, contentType, size }: UploadVaultFileArgs) {
   try {
     const pathTokens = normalizePath(path);
     const registered = await uploadBlobToConvexStorage({

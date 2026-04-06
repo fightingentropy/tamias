@@ -9,13 +9,13 @@ Tamias is a Bun workspaces monorepo for the product workspace, API, Cloudflare a
 
 ## What lives here
 
-| Surface | Directory | Local URL | What it does |
-| --- | --- | --- | --- |
-| Dashboard | `dashboard` | `http://localhost:3001` | Main authenticated app, public invoice/customer/report links, auth, SSR, client providers, lightweight public homepage |
-| API | `api` | `http://localhost:3003` | Hono API on Cloudflare Workers with tRPC, REST, OpenAPI, MCP, webhooks, health/readiness endpoints |
-| Worker | `worker` | `http://127.0.0.1:8787` | Cloudflare async worker with queues, workflows, recurring schedules, notifications, and document processing |
-| Website | `dashboard` | `https://tamias.xyz` | Marketing site, integrations catalog, comparison pages, and MCP install guides served from the dashboard deployment |
-| Convex | `dashboard/convex` | external local deployment | Durable app data, auth/identity sync, chat memory, widgets, links, files, operational state |
+| Surface   | Directory          | Local URL                 | What it does                                                                                                           |
+| --------- | ------------------ | ------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Dashboard | `dashboard`        | `http://localhost:3001`   | Main authenticated app, public invoice/customer/report links, auth, SSR, client providers, lightweight public homepage |
+| API       | `api`              | `http://localhost:3003`   | Hono API on Cloudflare Workers with tRPC, REST, OpenAPI, MCP, webhooks, health/readiness endpoints                     |
+| Worker    | `worker`           | `http://127.0.0.1:8787`   | Cloudflare async worker with queues, workflows, recurring schedules, notifications, and document processing            |
+| Website   | `dashboard`        | `https://tamias.xyz`      | Marketing site, integrations catalog, comparison pages, and MCP install guides served from the dashboard deployment    |
+| Convex    | `dashboard/convex` | external local deployment | Durable app data, auth/identity sync, chat memory, widgets, links, files, operational state                            |
 
 ## Product areas
 
@@ -82,19 +82,19 @@ flowchart LR
 
 ## Feature map
 
-| Area | Main routes / entry points | Backing packages and services |
-| --- | --- | --- |
-| Overview and widgets | `/dashboard` | `api/src/trpc/routers/widgets.ts`, `dashboard/convex/widgets.ts`, `packages/insights` |
-| Transactions and banking | `/transactions`, `/settings/accounts` | `packages/banking`, `packages/import`, `packages/categories`, transaction/banking routers, worker transaction processors |
-| Inbox and document capture | `/inbox`, `/inbox/settings` | `packages/inbox`, `packages/documents`, inbox/document workers, Gmail/Outlook/Slack/WhatsApp integrations |
-| Invoicing and payments | `/invoices`, `/invoices/products`, public `/i/<token>` | `packages/invoice`, invoice/payment routers, Stripe and Stripe Payments integrations |
-| Time tracking | `/tracker` | tracker project/entry routers, export flows, Raycast and MCP integrations |
-| Customers and portal | `/customers`, public `/p/<portalId>` | customer analytics, `worker/src/customers`, enrichment jobs |
-| Vault and files | `/vault`, file download/proxy routes | `packages/storage`, file routes, document processing |
-| Reports and public links | `/dashboard`, public `/r/<linkId>` and `/s/<shortId>` | reports routers, short links, report links in Convex |
-| AI assistant and insights | `/chat/[id]`, insight notifications/audio | `api/src/ai`, `packages/insights`, MCP server/tools, suggested actions |
-| Compliance | `/compliance`, `/compliance/vat`, `/compliance/settings`, `/compliance/year-end`, `/compliance/payroll` | `packages/compliance`, HMRC VAT integration, year-end packs, payroll runs, evidence/export bundles |
-| Apps and developer tooling | `/apps`, `/settings/developer` | `packages/app-store`, OAuth applications, API keys, MCP, public integrations catalog |
+| Area                       | Main routes / entry points                                                                              | Backing packages and services                                                                                            |
+| -------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Overview and widgets       | `/dashboard`                                                                                            | `api/src/trpc/routers/widgets.ts`, `dashboard/convex/widgets.ts`, `packages/insights`                                    |
+| Transactions and banking   | `/transactions`, `/settings/accounts`                                                                   | `packages/banking`, `packages/import`, `packages/categories`, transaction/banking routers, worker transaction processors |
+| Inbox and document capture | `/inbox`, `/inbox/settings`                                                                             | `packages/inbox`, `packages/documents`, inbox/document workers, Gmail/Outlook/Slack/WhatsApp integrations                |
+| Invoicing and payments     | `/invoices`, `/invoices/products`, public `/i/<token>`                                                  | `packages/invoice`, invoice/payment routers, Stripe and Stripe Payments integrations                                     |
+| Time tracking              | `/tracker`                                                                                              | tracker project/entry routers, export flows, Raycast and MCP integrations                                                |
+| Customers and portal       | `/customers`, public `/p/<portalId>`                                                                    | customer analytics, `worker/src/customers`, enrichment jobs                                                              |
+| Vault and files            | `/vault`, file download/proxy routes                                                                    | `packages/storage`, file routes, document processing                                                                     |
+| Reports and public links   | `/dashboard`, public `/r/<linkId>` and `/s/<shortId>`                                                   | reports routers, short links, report links in Convex                                                                     |
+| AI assistant and insights  | `/chat/[id]`, insight notifications/audio                                                               | `api/src/ai`, `packages/insights`, MCP server/tools, suggested actions                                                   |
+| Compliance                 | `/compliance`, `/compliance/vat`, `/compliance/settings`, `/compliance/year-end`, `/compliance/payroll` | `packages/compliance`, HMRC VAT integration, year-end packs, payroll runs, evidence/export bundles                       |
+| Apps and developer tooling | `/apps`, `/settings/developer`                                                                          | `packages/app-store`, OAuth applications, API keys, MCP, public integrations catalog                                     |
 
 ## Tech stack
 
@@ -103,7 +103,7 @@ flowchart LR
 - Bun runtime and package manager
 - Bun workspaces (`dashboard`, `api`, `worker`, `packages/*`)
 - TypeScript across apps and packages
-- Biome for linting/formatting
+- ESLint and Prettier for linting and formatting (repo root)
 
 ### Frontend
 
@@ -325,6 +325,7 @@ There is no separate local Convex instance anymore.
 ```bash
 bun run dev:dashboard
 ```
+
 The current local setup uses the unified worker path in `dashboard`, so separate `api` and `worker` Cloudflare processes are no longer required.
 
 ### First login
@@ -335,20 +336,20 @@ The current local setup uses the unified worker path in `dashboard`, so separate
 
 ## Local URLs and surfaces
 
-| Surface | URL |
-| --- | --- |
-| Dashboard | `http://localhost:3001` |
-| Dashboard health | `http://localhost:3001/api/health` |
-| API | `http://localhost:3001` (routed by path) |
-| API health | `http://localhost:3001/health` |
-| API readiness | `http://localhost:3001/health/ready` |
-| OpenAPI spec | `http://localhost:3001/openapi` |
-| Scalar API docs | `http://localhost:3001/` |
-| MCP endpoint | `http://localhost:3001/mcp` |
-| Public invoice link | `http://localhost:3001/i/<token>` |
-| Customer portal | `http://localhost:3001/p/<portalId>` |
-| Public report | `http://localhost:3001/r/<linkId>` |
-| Short link redirect | `http://localhost:3001/s/<shortId>` |
+| Surface             | URL                                      |
+| ------------------- | ---------------------------------------- |
+| Dashboard           | `http://localhost:3001`                  |
+| Dashboard health    | `http://localhost:3001/api/health`       |
+| API                 | `http://localhost:3001` (routed by path) |
+| API health          | `http://localhost:3001/health`           |
+| API readiness       | `http://localhost:3001/health/ready`     |
+| OpenAPI spec        | `http://localhost:3001/openapi`          |
+| Scalar API docs     | `http://localhost:3001/`                 |
+| MCP endpoint        | `http://localhost:3001/mcp`              |
+| Public invoice link | `http://localhost:3001/i/<token>`        |
+| Customer portal     | `http://localhost:3001/p/<portalId>`     |
+| Public report       | `http://localhost:3001/r/<linkId>`       |
+| Short link redirect | `http://localhost:3001/s/<shortId>`      |
 
 ## Commands
 

@@ -9,12 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@tamias/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 import { getTaxTypeLabel } from "@tamias/utils/tax";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -143,20 +138,13 @@ export const columns: ColumnDef<any>[] = [
             </Button>
           )}
           {!hasChildren && !isChild && <div className="w-4" />}
-          <div
-            className="size-3"
-            style={{ backgroundColor: row.original.color ?? undefined }}
-          />
+          <div className="size-3" style={{ backgroundColor: row.original.color ?? undefined }} />
           {shouldShowCategoryTooltip(row.original) ? (
             <TooltipProvider delayDuration={0}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span
-                    className={cn(
-                      hasChildren && !isChild
-                        ? "cursor-pointer"
-                        : "cursor-default",
-                    )}
+                    className={cn(hasChildren && !isChild ? "cursor-pointer" : "cursor-default")}
                     onClick={
                       hasChildren && !isChild
                         ? (e) => {
@@ -169,20 +157,14 @@ export const columns: ColumnDef<any>[] = [
                     {row.getValue("name")}
                   </span>
                 </TooltipTrigger>
-                <TooltipContent
-                  className="px-3 py-1.5 text-xs"
-                  side="right"
-                  sideOffset={10}
-                >
+                <TooltipContent className="px-3 py-1.5 text-xs" side="right" sideOffset={10}>
                   <CategoryTooltip category={row.original} />
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           ) : (
             <span
-              className={cn(
-                hasChildren && !isChild ? "cursor-pointer" : "cursor-default",
-              )}
+              className={cn(hasChildren && !isChild ? "cursor-pointer" : "cursor-default")}
               onClick={
                 hasChildren && !isChild
                   ? (e) => {
@@ -210,14 +192,12 @@ export const columns: ColumnDef<any>[] = [
   {
     header: "Tax Type",
     accessorKey: "taxType",
-    cell: ({ row }) =>
-      row.getValue("taxType") ? getTaxTypeLabel(row.getValue("taxType")) : "-",
+    cell: ({ row }) => (row.getValue("taxType") ? getTaxTypeLabel(row.getValue("taxType")) : "-"),
   },
   {
     header: "Tax Rate",
     accessorKey: "taxRate",
-    cell: ({ row }) =>
-      row.getValue("taxRate") ? `${row.getValue("taxRate")}%` : "-",
+    cell: ({ row }) => (row.getValue("taxRate") ? `${row.getValue("taxRate")}%` : "-"),
   },
   {
     header: () => <span className="whitespace-nowrap">Report Code</span>,
@@ -233,26 +213,17 @@ export const columns: ColumnDef<any>[] = [
         <div className="text-right">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="h-8 w-8 p-0"
-                onClick={(e) => e.stopPropagation()}
-              >
+              <Button variant="ghost" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
                 <DotsHorizontalIcon className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              onClick={(e) => e.stopPropagation()}
-            >
+            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
               <DropdownMenuItem onClick={() => meta?.onEdit?.(row.original.id)}>
                 Edit
               </DropdownMenuItem>
 
               {!row.original.system && (
-                <DropdownMenuItem
-                  onClick={() => meta?.deleteCategory?.(row.original.id)}
-                >
+                <DropdownMenuItem onClick={() => meta?.deleteCategory?.(row.original.id)}>
                   Remove
                 </DropdownMenuItem>
               )}

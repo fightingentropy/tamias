@@ -1,28 +1,20 @@
 import { escapeHtml, formatDraftAmount, formatDraftDate } from "./formatting";
 import type { StatutoryAccountsDraft } from "./types";
 
-export function renderStatutoryAccountsDraftHtml(
-  draft: StatutoryAccountsDraft,
-) {
+export function renderStatutoryAccountsDraftHtml(draft: StatutoryAccountsDraft) {
   const renderMoneyTable = (lines: Array<{ label: string; amount: number }>) =>
     lines
       .map(
         (line) => `
           <tr>
             <td>${escapeHtml(line.label)}</td>
-            <td class="amount">${escapeHtml(
-              formatDraftAmount(line.amount, draft.currency),
-            )}</td>
+            <td class="amount">${escapeHtml(formatDraftAmount(line.amount, draft.currency))}</td>
           </tr>`,
       )
       .join("");
 
-  const reviewItems = draft.reviewItems
-    .map((item) => `<li>${escapeHtml(item)}</li>`)
-    .join("");
-  const limitations = draft.limitations
-    .map((item) => `<li>${escapeHtml(item)}</li>`)
-    .join("");
+  const reviewItems = draft.reviewItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+  const limitations = draft.limitations.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
   const workingPaperSections = draft.workingPaperNotes
     .map(
       (section) => `
@@ -78,9 +70,7 @@ export function renderStatutoryAccountsDraftHtml(
 
     <div class="banner">
       <strong>${escapeHtml(
-        draft.filingReadiness.isReady
-          ? "Supported-path filing ready."
-          : "Draft only.",
+        draft.filingReadiness.isReady ? "Supported-path filing ready." : "Draft only.",
       )}</strong>
       ${
         draft.filingReadiness.isReady

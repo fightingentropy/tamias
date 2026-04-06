@@ -2,20 +2,9 @@
 
 import { Button } from "@tamias/ui/button";
 import { cn } from "@tamias/ui/cn";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@tamias/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@tamias/ui/table";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { useTokenModalStore } from "@/store/token-modal";
 import { useTRPC } from "@/trpc/client";
 import { columns } from "./columns";
@@ -39,19 +28,14 @@ export function DataTable() {
     <div className="w-full">
       <div className="flex flex-col md:flex-row md:items-center pb-4 gap-4 md:gap-8">
         <div className="flex-1">
-          <h3 className="text-lg font-medium leading-none tracking-tight mb-2">
-            API Keys
-          </h3>
+          <h3 className="text-lg font-medium leading-none tracking-tight mb-2">API Keys</h3>
           <p className="text-sm text-[#606060]">
-            These API keys allow other apps to access your team. Use it with
-            caution – do not share your API key with others, or expose it in the
-            browser or other client-side code.
+            These API keys allow other apps to access your team. Use it with caution – do not share
+            your API key with others, or expose it in the browser or other client-side code.
           </p>
         </div>
         <div className="flex-shrink-0">
-          <Button onClick={() => setData(undefined, "create")}>
-            Create API Key
-          </Button>
+          <Button onClick={() => setData(undefined, "create")}>Create API Key</Button>
         </div>
       </div>
       {data.length > 0 ? (
@@ -61,16 +45,10 @@ export function DataTable() {
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead
-                      key={header.id}
-                      className={header.column.columnDef.meta?.className}
-                    >
+                    <TableHead key={header.id} className={header.column.columnDef.meta?.className}>
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   );
                 })}

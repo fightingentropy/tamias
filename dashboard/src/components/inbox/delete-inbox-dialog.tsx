@@ -25,12 +25,7 @@ type Props = {
   onOpenChange: (open: boolean) => void;
 };
 
-export function DeleteInboxDialog({
-  id,
-  filePath,
-  isOpen,
-  onOpenChange,
-}: Props) {
+export function DeleteInboxDialog({ id, filePath, isOpen, onOpenChange }: Props) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -84,16 +79,13 @@ export function DeleteInboxDialog({
         // If list had 0 or 1 item, or index not found, nextInboxId remains null
 
         // Optimistically update infinite query data
-        queryClient.setQueriesData(
-          { queryKey: trpc.inbox.get.infiniteQueryKey() },
-          (old: any) => ({
-            pages: old.pages.map((page: any) => ({
-              ...page,
-              data: page.data.filter((item: any) => item.id !== id),
-            })),
-            pageParams: old.pageParams,
-          }),
-        );
+        queryClient.setQueriesData({ queryKey: trpc.inbox.get.infiniteQueryKey() }, (old: any) => ({
+          pages: old.pages.map((page: any) => ({
+            ...page,
+            data: page.data.filter((item: any) => item.id !== id),
+          })),
+          pageParams: old.pageParams,
+        }));
 
         setParams({
           ...params,
@@ -123,13 +115,9 @@ export function DeleteInboxDialog({
 
         // Check if inbox is now empty after deletion
         // Use the optimistically updated data from onMutate
-        const remainingInboxes = (context?.allInboxes ?? []).filter(
-          (item) => item.id !== id,
-        );
+        const remainingInboxes = (context?.allInboxes ?? []).filter((item) => item.id !== id);
 
-        const hasFilters = Object.values(filter).some(
-          (value) => value !== null,
-        );
+        const hasFilters = Object.values(filter).some((value) => value !== null);
 
         // If inbox is empty and no filters, navigate to show empty state
         if (remainingInboxes.length === 0 && !hasFilters) {
@@ -176,9 +164,7 @@ export function DeleteInboxDialog({
           <AlertDialogDescription asChild>
             {hasAttachments ? (
               <div className="space-y-3">
-                <p>
-                  You are about to delete this file from your inbox and vault.
-                </p>
+                <p>You are about to delete this file from your inbox and vault.</p>
                 <div className="my-6 px-3 py-3 bg-amber-50 border border-amber-200 dark:bg-amber-900/10 dark:border-amber-800/30">
                   <div className="flex items-start gap-2">
                     <AlertTriangle className="size-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
@@ -195,18 +181,12 @@ export function DeleteInboxDialog({
                     </div>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Are you sure you want to continue?
-                </p>
+                <p className="text-sm text-muted-foreground">Are you sure you want to continue?</p>
               </div>
             ) : (
               <div>
-                <p>
-                  You are about to delete this file from your inbox and vault.
-                </p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  This action cannot be undone.
-                </p>
+                <p>You are about to delete this file from your inbox and vault.</p>
+                <p className="text-sm text-muted-foreground mt-2">This action cannot be undone.</p>
               </div>
             )}
           </AlertDialogDescription>

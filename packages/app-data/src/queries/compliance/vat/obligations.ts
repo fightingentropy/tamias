@@ -1,8 +1,4 @@
-import {
-  addYears,
-  format,
-  subYears,
-} from "date-fns";
+import { addYears, format, subYears } from "date-fns";
 import {
   listVatObligationsFromConvex,
   type FilingProfileRecord,
@@ -38,9 +34,7 @@ async function syncVatObligations(
 
   const from = format(subYears(new Date(), 1), "yyyy-MM-dd");
   const to = format(addYears(new Date(), 1), "yyyy-MM-dd");
-  let obligations: Awaited<
-    ReturnType<typeof providerData.provider.getObligations>
-  > = [];
+  let obligations: Awaited<ReturnType<typeof providerData.provider.getObligations>> = [];
 
   try {
     obligations = await providerData.provider.getObligations({
@@ -72,10 +66,7 @@ async function syncVatObligations(
   return obligations;
 }
 
-export async function listVatObligations(
-  db: Database,
-  params: ListVatObligationsParams,
-) {
+export async function listVatObligations(db: Database, params: ListVatObligationsParams) {
   const { team, profile } = await getVatTeamAndProfile(db, params.teamId);
 
   if (!profile) {

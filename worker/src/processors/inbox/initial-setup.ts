@@ -1,7 +1,4 @@
-import {
-  getInboxAccountInfo,
-  updateInboxAccount,
-} from "@tamias/app-data/queries";
+import { getInboxAccountInfo, updateInboxAccount } from "@tamias/app-data/queries";
 import { enqueue, scheduleRecurring } from "@tamias/job-client";
 import type { WorkerJob as Job } from "../../types/job";
 import type { InboxProviderInitialSetupPayload } from "../../schemas/inbox";
@@ -25,16 +22,12 @@ export class InitialSetupProcessor extends BaseProcessor<InboxProviderInitialSet
     const account = await getInboxAccountInfo({ id: inboxAccountId });
 
     try {
-      const schedule = await scheduleRecurring(
-        "inbox-sync-scheduler",
-        cronPattern,
-        {
-          publicTeamId: account?.teamId,
-          timezone: "UTC",
-          externalId: inboxAccountId,
-          deduplicationKey: `${inboxAccountId}-inbox-sync-scheduler`,
-        },
-      );
+      const schedule = await scheduleRecurring("inbox-sync-scheduler", cronPattern, {
+        publicTeamId: account?.teamId,
+        timezone: "UTC",
+        externalId: inboxAccountId,
+        deduplicationKey: `${inboxAccountId}-inbox-sync-scheduler`,
+      });
 
       this.logger.info("Recurring inbox sync registered", {
         inboxAccountId,

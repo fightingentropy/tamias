@@ -175,11 +175,7 @@ export type InsightContext = {
   };
   /** Consecutive week patterns */
   streak?: {
-    type:
-      | "revenue_growth"
-      | "revenue_decline"
-      | "profitable"
-      | "invoices_paid_on_time";
+    type: "revenue_growth" | "revenue_decline" | "profitable" | "invoices_paid_on_time";
     count: number;
     description: string; // "3 consecutive growth weeks"
   };

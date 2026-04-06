@@ -118,8 +118,7 @@ app.openapi(
     const { code, state } = query;
 
     // Verify state parameter
-    const verifiedState =
-      await getSlackInstaller().stateStore?.verifyStateParam(new Date(), state);
+    const verifiedState = await getSlackInstaller().stateStore?.verifyStateParam(new Date(), state);
 
     if (!verifiedState) {
       throw new HTTPException(400, {
@@ -127,9 +126,7 @@ app.openapi(
       });
     }
 
-    const parsedMetadata = metadataSchema.safeParse(
-      JSON.parse(verifiedState?.metadata ?? "{}"),
-    );
+    const parsedMetadata = metadataSchema.safeParse(JSON.parse(verifiedState?.metadata ?? "{}"));
 
     if (!parsedMetadata.success) {
       throw new HTTPException(400, {
@@ -183,8 +180,7 @@ app.openapi(
           team_name: parsedJson.data.team.name,
           channel: parsedJson.data.incoming_webhook.channel,
           channel_id: parsedJson.data.incoming_webhook.channel_id,
-          slack_configuration_url:
-            parsedJson.data.incoming_webhook.configuration_url,
+          slack_configuration_url: parsedJson.data.incoming_webhook.configuration_url,
           url: parsedJson.data.incoming_webhook.url,
           bot_user_id: parsedJson.data.bot_user_id,
         },
@@ -224,8 +220,7 @@ app.openapi(
             settings: createdSlackIntegration.settings,
           },
         }).catch((error) => {
-          const errorMessage =
-            error instanceof Error ? error.message : String(error);
+          const errorMessage = error instanceof Error ? error.message : String(error);
           // Only log if it's not the "not_enabled" error (which is handled gracefully in publishAppHome)
           if (!errorMessage.includes("not_enabled")) {
             logger.error("Failed to publish App Home on install", {

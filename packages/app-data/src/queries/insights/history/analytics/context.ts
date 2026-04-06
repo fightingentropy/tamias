@@ -1,10 +1,4 @@
-import {
-  differenceInDays,
-  endOfQuarter,
-  format,
-  getQuarter,
-  startOfQuarter,
-} from "date-fns";
+import { differenceInDays, endOfQuarter, format, getQuarter, startOfQuarter } from "date-fns";
 import type { HistoricalContext, InsightHistoryData } from "../types";
 
 export function computeHistoricalContext(
@@ -30,30 +24,24 @@ export function computeHistoricalContext(
     };
   }
 
-  const revenueRank =
-    validWeeks.filter((week) => week.revenue > currentWeek.revenue).length + 1;
+  const revenueRank = validWeeks.filter((week) => week.revenue > currentWeek.revenue).length + 1;
   const isAllTimeRevenueHigh = revenueRank === 1;
   let revenueHighestSince: string | undefined;
 
   if (revenueRank <= 3 && revenueRank > 1) {
-    const higherWeek = validWeeks.find(
-      (week) => week.revenue > currentWeek.revenue,
-    );
+    const higherWeek = validWeeks.find((week) => week.revenue > currentWeek.revenue);
 
     if (higherWeek) {
       revenueHighestSince = format(higherWeek.periodStart, "MMMM yyyy");
     }
   }
 
-  const profitRank =
-    validWeeks.filter((week) => week.profit > currentWeek.profit).length + 1;
+  const profitRank = validWeeks.filter((week) => week.profit > currentWeek.profit).length + 1;
   const isAllTimeProfitHigh = profitRank === 1 && currentWeek.profit > 0;
   let profitHighestSince: string | undefined;
 
   if (profitRank <= 3 && profitRank > 1 && currentWeek.profit > 0) {
-    const higherWeek = validWeeks.find(
-      (week) => week.profit > currentWeek.profit,
-    );
+    const higherWeek = validWeeks.find((week) => week.profit > currentWeek.profit);
 
     if (higherWeek) {
       profitHighestSince = format(higherWeek.periodStart, "MMMM yyyy");
@@ -61,8 +49,7 @@ export function computeHistoricalContext(
   }
 
   const isRecentRevenueHigh = revenueRank <= 3 && validWeeks.length >= 8;
-  const isRecentProfitHigh =
-    profitRank <= 3 && validWeeks.length >= 8 && currentWeek.profit > 0;
+  const isRecentProfitHigh = profitRank <= 3 && validWeeks.length >= 8 && currentWeek.profit > 0;
 
   let yearOverYear: HistoricalContext["yearOverYear"];
   const lastYearInsight = history.weeks.find(
@@ -76,15 +63,12 @@ export function computeHistoricalContext(
       lastYearRevenue: lastYearInsight.revenue,
       lastYearProfit: lastYearInsight.profit,
       revenueChangePercent: Math.round(
-        ((currentWeek.revenue - lastYearInsight.revenue) /
-          lastYearInsight.revenue) *
-          100,
+        ((currentWeek.revenue - lastYearInsight.revenue) / lastYearInsight.revenue) * 100,
       ),
       profitChangePercent:
         lastYearInsight.profit !== 0
           ? Math.round(
-              ((currentWeek.profit - lastYearInsight.profit) /
-                Math.abs(lastYearInsight.profit)) *
+              ((currentWeek.profit - lastYearInsight.profit) / Math.abs(lastYearInsight.profit)) *
                 100,
             )
           : 0,
@@ -106,13 +90,10 @@ export function computeHistoricalContext(
       week.periodYear === currentWeek.periodYear,
   );
   const qtdRevenue =
-    quarterWeeks.reduce((sum, week) => sum + week.revenue, 0) +
-    currentWeek.revenue;
+    quarterWeeks.reduce((sum, week) => sum + week.revenue, 0) + currentWeek.revenue;
 
   if (qtdRevenue > 0 && daysElapsed > 7) {
-    const projectedRevenue = Math.round(
-      (qtdRevenue / daysElapsed) * totalQuarterDays,
-    );
+    const projectedRevenue = Math.round((qtdRevenue / daysElapsed) * totalQuarterDays);
     const lastYearQuarterRevenue = history.weeks
       .filter(
         (week) =>
@@ -128,11 +109,7 @@ export function computeHistoricalContext(
       lastYearQuarterRevenue,
       vsLastYearPercent:
         lastYearQuarterRevenue > 0
-          ? Math.round(
-              ((projectedRevenue - lastYearQuarterRevenue) /
-                lastYearQuarterRevenue) *
-                100,
-            )
+          ? Math.round(((projectedRevenue - lastYearQuarterRevenue) / lastYearQuarterRevenue) * 100)
           : 0,
       hasComparison: lastYearQuarterRevenue > 0,
     };

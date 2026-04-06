@@ -94,9 +94,7 @@ export function CashFlowWidget() {
       icon={<Icons.Accounts className="size-4" />}
       description={
         <div className="flex flex-col gap-1">
-          <p className="text-sm text-[#666666]">
-            Net cash position · {periodLabel}
-          </p>
+          <p className="text-sm text-[#666666]">Net cash position · {periodLabel}</p>
         </div>
       }
       actions="View cash flow analysis"
@@ -104,8 +102,7 @@ export function CashFlowWidget() {
     >
       <div className="flex flex-col gap-2">
         <h2 className="text-2xl font-normal">
-          {data &&
-            formatCashFlow(data.result.netCashFlow ?? 0, currency || "USD")}
+          {data && formatCashFlow(data.result.netCashFlow ?? 0, currency || "USD")}
         </h2>
       </div>
     </BaseWidget>

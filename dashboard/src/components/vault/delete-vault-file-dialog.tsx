@@ -22,12 +22,7 @@ type Props = {
   onOpenChange: (open: boolean) => void;
 };
 
-export function DeleteVaultFileDialog({
-  id,
-  filePath,
-  isOpen,
-  onOpenChange,
-}: Props) {
+export function DeleteVaultFileDialog({ id, filePath, isOpen, onOpenChange }: Props) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -101,16 +96,12 @@ export function DeleteVaultFileDialog({
                     </div>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Are you sure you want to continue?
-                </p>
+                <p className="text-sm text-muted-foreground">Are you sure you want to continue?</p>
               </div>
             ) : (
               <div>
                 <p>You are about to delete this file from your vault.</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  This action cannot be undone.
-                </p>
+                <p className="text-sm text-muted-foreground mt-2">This action cannot be undone.</p>
               </div>
             )}
           </AlertDialogDescription>

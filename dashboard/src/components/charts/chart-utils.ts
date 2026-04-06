@@ -57,10 +57,7 @@ export const createCompactTickFormatter = () => {
 };
 
 // Currency-aware Y-axis tick formatter (e.g., "14k", "16k") - no currency symbol
-export const createYAxisTickFormatter = (
-  _currency: string,
-  _locale?: string,
-) => {
+export const createYAxisTickFormatter = (_currency: string, _locale?: string) => {
   return (value: number): string => {
     const absValue = Math.abs(value);
     const sign = value < 0 ? "-" : "";
@@ -93,20 +90,13 @@ export const createMonthsTickFormatter = () => {
 export const getZeroInclusiveDomain = (): [
   (dataMin: number) => number,
   (dataMax: number) => number,
-] => [
-  (dataMin: number) => Math.min(0, dataMin),
-  (dataMax: number) => Math.max(0, dataMax),
-];
+] => [(dataMin: number) => Math.min(0, dataMin), (dataMax: number) => Math.max(0, dataMax)];
 
 // Calculate Y-axis domain and ticks for forecast charts
-export const calculateYAxisDomain = <
-  T extends { actual?: number; forecasted?: number },
->(
+export const calculateYAxisDomain = <T extends { actual?: number; forecasted?: number }>(
   data: T[],
 ) => {
-  const allValues = data
-    .flatMap((d) => [d.actual ?? 0, d.forecasted ?? 0])
-    .filter((v) => v > 0);
+  const allValues = data.flatMap((d) => [d.actual ?? 0, d.forecasted ?? 0]).filter((v) => v > 0);
 
   if (allValues.length === 0) return { min: 0, max: 10000, ticks: [] };
 
@@ -171,9 +161,7 @@ export const useChartMargin = (
 
   // Format all ticks and find the longest one
   const formattedTicks = tickValues.map(tickFormatter);
-  const longestTick = formattedTicks.reduce((a, b) =>
-    a.length > b.length ? a : b,
-  );
+  const longestTick = formattedTicks.reduce((a, b) => (a.length > b.length ? a : b));
 
   // Calculate dynamic margin based on actual longest tick
   // Adjusted to match target values: 100k=28, 10k=35
@@ -203,11 +191,7 @@ export interface BaseChartProps {
 }
 
 // Get date from data index for chart selection
-export function getDateFromDataIndex(
-  data: any[],
-  index: number,
-  dateKey: string,
-): Date | null {
+export function getDateFromDataIndex(data: any[], index: number, dateKey: string): Date | null {
   if (index < 0 || index >= data.length) return null;
 
   const item = data[index];
@@ -228,11 +212,7 @@ export function getDateFromDataIndex(
 }
 
 // Format date range for display
-export function formatDateRange(
-  startDate: Date,
-  endDate: Date,
-  locale?: string,
-): string {
+export function formatDateRange(startDate: Date, endDate: Date, locale?: string): string {
   const startMonth = startDate.toLocaleString(locale || "en-US", {
     month: "long",
   });

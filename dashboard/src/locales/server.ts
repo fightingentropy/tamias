@@ -6,8 +6,7 @@ export async function getI18n(locale = "en") {
 
 export async function getScopedI18n(scope: string, locale = "en") {
   const t = createTranslator(locale);
-  return (key: string, params?: Record<string, unknown>) =>
-    t(`${scope}.${key}`, params);
+  return (key: string, params?: Record<string, unknown>) => t(`${scope}.${key}`, params);
 }
 
 export function getStaticParams() {

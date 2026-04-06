@@ -15,8 +15,7 @@ const messageSchema = z
     if (!["user", "assistant", "system"].includes(msg.role)) return false;
 
     // Must have either content or parts
-    const hasContent =
-      msg.content !== undefined && typeof msg.content === "string";
+    const hasContent = msg.content !== undefined && typeof msg.content === "string";
     const hasParts = msg.parts !== undefined && Array.isArray(msg.parts);
 
     if (!hasContent && !hasParts) return false;
@@ -33,8 +32,7 @@ const messageSchema = z
     return true;
   })
   .openapi({
-    description:
-      "UIMessage compatible chat message with tools and metadata support",
+    description: "UIMessage compatible chat message with tools and metadata support",
     example: {
       id: "msg_abc123",
       role: "user",
@@ -52,13 +50,10 @@ export const metricsFilterSchema = z
     from: z.string().describe("Start date in yyyy-MM-dd format"),
     to: z.string().describe("End date in yyyy-MM-dd format"),
     currency: z.string().optional().describe("Currency code (e.g., 'USD')"),
-    revenueType: z
-      .enum(["gross", "net"])
-      .describe("Revenue type for calculations"),
+    revenueType: z.enum(["gross", "net"]).describe("Revenue type for calculations"),
   })
   .openapi({
-    description:
-      "Current dashboard metrics filter state - used as defaults for AI tools",
+    description: "Current dashboard metrics filter state - used as defaults for AI tools",
     example: {
       period: "1-year",
       from: "2025-01-21",
@@ -91,8 +86,7 @@ export const chatRequestSchema = z.object({
   timezone: z
     .string()
     .refine(isValidTimezone, {
-      message:
-        "Invalid timezone. Use IANA timezone format (e.g., 'America/New_York', 'UTC')",
+      message: "Invalid timezone. Use IANA timezone format (e.g., 'America/New_York', 'UTC')",
     })
     .optional()
     .openapi({
@@ -112,8 +106,7 @@ export const chatRequestSchema = z.object({
     example: "openai",
   }),
   metricsFilter: metricsFilterSchema.optional().openapi({
-    description:
-      "Current dashboard metrics filter state - tools use this as default",
+    description: "Current dashboard metrics filter state - tools use this as default",
   }),
   files: z
     .array(

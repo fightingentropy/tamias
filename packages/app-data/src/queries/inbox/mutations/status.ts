@@ -6,10 +6,7 @@ import {
 } from "@tamias/app-data-convex";
 import type { Database, DatabaseOrTransaction } from "../../../client";
 import { markInboxItems } from "../shared";
-import {
-  cleanupDeletedInboxArtifacts,
-  getInboxItemWithTransaction,
-} from "./shared";
+import { cleanupDeletedInboxArtifacts, getInboxItemWithTransaction } from "./shared";
 
 export type UpdateInboxParams = {
   id: string;
@@ -27,10 +24,7 @@ export type UpdateInboxParams = {
   contentType?: string;
 };
 
-export async function updateInbox(
-  _db: DatabaseOrTransaction,
-  params: UpdateInboxParams,
-) {
+export async function updateInbox(_db: DatabaseOrTransaction, params: UpdateInboxParams) {
   const { id, teamId, ...data } = params;
   const current = await getInboxItemByIdFromConvex({
     teamId,
@@ -67,10 +61,7 @@ export type UpdateInboxStatusParams = {
     | "suggested_match";
 };
 
-export async function updateInboxStatus(
-  _db: Database,
-  params: UpdateInboxStatusParams,
-) {
+export async function updateInboxStatus(_db: Database, params: UpdateInboxStatusParams) {
   const current = await getInboxItemInfoFromConvex({
     inboxId: params.id,
   });

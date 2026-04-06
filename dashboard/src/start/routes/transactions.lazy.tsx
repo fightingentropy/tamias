@@ -21,10 +21,7 @@ function TransactionsPage() {
   const loaderData = Route.useLoaderData() as TransactionsLoaderData;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <ScrollableContent>
         <div className="flex justify-between items-center py-6">
           <TransactionsSearchFilter />

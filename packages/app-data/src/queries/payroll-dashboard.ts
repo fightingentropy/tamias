@@ -9,10 +9,7 @@ import {
   getTeamContext,
 } from "./payroll-shared";
 
-async function getPayrollDashboardImpl(
-  db: Database,
-  params: { teamId: string },
-) {
+async function getPayrollDashboardImpl(db: Database, params: { teamId: string }) {
   const team = await getTeamContext(db, params.teamId);
   const profile = await getFilingProfile(db, params.teamId);
 
@@ -46,10 +43,7 @@ export const getPayrollDashboard = reuseQueryResult({
   load: getPayrollDashboardImpl,
 });
 
-export async function listPayrollRuns(
-  db: Database,
-  params: { teamId: string },
-) {
+export async function listPayrollRuns(db: Database, params: { teamId: string }) {
   void db;
 
   return listPayrollRunsFromConvex({

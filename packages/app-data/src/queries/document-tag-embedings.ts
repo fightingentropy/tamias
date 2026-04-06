@@ -5,9 +5,7 @@ import {
 import type { Database } from "../client";
 
 function parseEmbedding(embedding: string | number[]) {
-  return Array.isArray(embedding)
-    ? embedding
-    : (JSON.parse(embedding) as number[]);
+  return Array.isArray(embedding) ? embedding : (JSON.parse(embedding) as number[]);
 }
 
 export type CreateDocumentTagEmbeddingParams = {

@@ -31,9 +31,7 @@ export function VaultUploadZone({ onUpload, children }: Props) {
   const { toast, dismiss, update } = useToast();
   const { uploadFile } = useUpload();
 
-  const processDocumentMutation = useMutation(
-    trpc.documents.processDocument.mutationOptions(),
-  );
+  const processDocumentMutation = useMutation(trpc.documents.processDocument.mutationOptions());
 
   useEffect(() => {
     if (!toastId && showProgress) {
@@ -89,12 +87,9 @@ export function VaultUploadZone({ onUpload, children }: Props) {
             onProgress: (bytesUploaded: number, bytesTotal: number) => {
               uploadProgress.current[idx] = (bytesUploaded / bytesTotal) * 100;
 
-              const _progress = uploadProgress.current.reduce(
-                (acc, currentValue) => {
-                  return acc + currentValue;
-                },
-                0,
-              );
+              const _progress = uploadProgress.current.reduce((acc, currentValue) => {
+                return acc + currentValue;
+              }, 0);
 
               setProgress(Math.round(_progress / files.length));
             },
@@ -169,17 +164,13 @@ export function VaultUploadZone({ onUpload, children }: Props) {
       "image/*": [".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif", ".avif"],
       "application/pdf": [".pdf"],
       "application/msword": [".doc"],
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        [".docx"],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
       "application/vnd.oasis.opendocument.text": [".odt"],
       "application/vnd.ms-excel": [".xls"],
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [
-        ".xlsx",
-      ],
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
       "application/vnd.oasis.opendocument.spreadsheet": [".ods"],
       "application/vnd.ms-powerpoint": [".ppt"],
-      "application/vnd.openxmlformats-officedocument.presentationml.presentation":
-        [".pptx"],
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation": [".pptx"],
       "application/vnd.oasis.opendocument.presentation": [".odp"],
       "text/plain": [".txt"],
       "text/csv": [".csv"],
@@ -190,10 +181,7 @@ export function VaultUploadZone({ onUpload, children }: Props) {
   });
 
   return (
-    <div
-      className="relative h-full"
-      {...getRootProps({ onClick: (evt) => evt.stopPropagation() })}
-    >
+    <div className="relative h-full" {...getRootProps({ onClick: (evt) => evt.stopPropagation() })}>
       <div className="absolute top-0 right-0 left-0 z-[51] w-full pointer-events-none h-[calc(100vh-150px)]">
         <div
           className={cn(

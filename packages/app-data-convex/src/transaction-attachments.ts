@@ -39,8 +39,7 @@ export async function createTransactionAttachmentsInConvex(args: {
   attachments: CreateTransactionAttachmentInput[];
 }) {
   return createClient().mutation(
-    apiWithTransactionAttachments.transactionAttachments
-      .serviceCreateTransactionAttachments,
+    apiWithTransactionAttachments.transactionAttachments.serviceCreateTransactionAttachments,
     serviceArgs({
       publicTeamId: args.teamId,
       attachments: args.attachments,
@@ -54,8 +53,7 @@ export async function getTransactionAttachmentFromConvex(args: {
   attachmentId: string;
 }) {
   return createClient().query(
-    apiWithTransactionAttachments.transactionAttachments
-      .serviceGetTransactionAttachment,
+    apiWithTransactionAttachments.transactionAttachments.serviceGetTransactionAttachment,
     serviceArgs({
       publicTeamId: args.teamId,
       transactionId: args.transactionId,
@@ -69,8 +67,7 @@ export async function getTransactionAttachmentsByIdsFromConvex(args: {
   attachmentIds: string[];
 }) {
   return createClient().query(
-    apiWithTransactionAttachments.transactionAttachments
-      .serviceGetTransactionAttachmentsByIds,
+    apiWithTransactionAttachments.transactionAttachments.serviceGetTransactionAttachmentsByIds,
     serviceArgs({
       publicTeamId: args.teamId,
       ids: args.attachmentIds,
@@ -97,8 +94,7 @@ export async function getTransactionAttachmentsByPathKeysFromConvex(args: {
   pathKeys: string[][];
 }) {
   return createClient().query(
-    apiWithTransactionAttachments.transactionAttachments
-      .serviceGetTransactionAttachmentsByPathKeys,
+    apiWithTransactionAttachments.transactionAttachments.serviceGetTransactionAttachmentsByPathKeys,
     serviceArgs({
       publicTeamId: args.teamId,
       pathKeys: args.pathKeys,
@@ -111,8 +107,7 @@ export async function deleteTransactionAttachmentInConvex(args: {
   attachmentId: string;
 }) {
   return createClient().mutation(
-    apiWithTransactionAttachments.transactionAttachments
-      .serviceDeleteTransactionAttachment,
+    apiWithTransactionAttachments.transactionAttachments.serviceDeleteTransactionAttachment,
     serviceArgs({
       publicTeamId: args.teamId,
       id: args.attachmentId,
@@ -125,8 +120,7 @@ export async function deleteTransactionAttachmentsByIdsInConvex(args: {
   attachmentIds: string[];
 }) {
   return createClient().mutation(
-    apiWithTransactionAttachments.transactionAttachments
-      .serviceDeleteTransactionAttachmentsByIds,
+    apiWithTransactionAttachments.transactionAttachments.serviceDeleteTransactionAttachmentsByIds,
     serviceArgs({
       publicTeamId: args.teamId,
       ids: args.attachmentIds,
@@ -148,12 +142,9 @@ export async function deleteTransactionAttachmentsByPathKeysInConvex(args: {
   ) as Promise<{ deletedIds: string[]; count: number }>;
 }
 
-export async function rebuildTransactionAttachmentFlagsInConvex(args: {
-  teamId?: string | null;
-}) {
+export async function rebuildTransactionAttachmentFlagsInConvex(args: { teamId?: string | null }) {
   return createClient().mutation(
-    apiWithTransactionAttachments.transactionAttachments
-      .serviceRebuildTransactionAttachmentFlags,
+    apiWithTransactionAttachments.transactionAttachments.serviceRebuildTransactionAttachmentFlags,
     serviceArgs({
       publicTeamId: args.teamId ?? null,
     }),

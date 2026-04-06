@@ -27,9 +27,7 @@ export function EditorCore({
   autoFocus = false,
 }: Props) {
   const [isFocused, setIsFocused] = useState(false);
-  const [content, setContent] = useState<JSONContent | null | undefined>(
-    initialContent,
-  );
+  const [content, setContent] = useState<JSONContent | null | undefined>(initialContent);
 
   const handleUpdate = useCallback(
     (editor: EditorInstance) => {

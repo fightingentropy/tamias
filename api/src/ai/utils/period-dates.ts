@@ -1,13 +1,7 @@
 import { format, startOfYear, subMonths, subYears } from "date-fns";
 import type { AppContext } from "../agents/config/shared";
 
-type PeriodOption =
-  | "3-months"
-  | "6-months"
-  | "this-year"
-  | "1-year"
-  | "2-years"
-  | "5-years";
+type PeriodOption = "3-months" | "6-months" | "this-year" | "1-year" | "2-years" | "5-years";
 
 /** Valid historical period options */
 const VALID_PERIOD_OPTIONS: ReadonlySet<string> = new Set([
@@ -76,9 +70,7 @@ export interface ResolveToolParamsOptions {
  * 3. Dashboard metricsFilter
  * 4. Fallback (1-year)
  */
-export function resolveToolParams(
-  options: ResolveToolParamsOptions,
-): ResolvedToolParams {
+export function resolveToolParams(options: ResolveToolParamsOptions): ResolvedToolParams {
   const { toolName, appContext, aiParams } = options;
   const { forcedToolCall, metricsFilter, baseCurrency } = appContext;
 
@@ -87,20 +79,10 @@ export function resolveToolParams(
     const forced = forcedToolCall.toolParams;
     return {
       ...forced,
-      from:
-        (forced.from as string) ??
-        metricsFilter?.from ??
-        getPeriodDates("1-year").from,
-      to:
-        (forced.to as string) ??
-        metricsFilter?.to ??
-        getPeriodDates("1-year").to,
-      currency:
-        (forced.currency as string) ?? metricsFilter?.currency ?? baseCurrency,
-      revenueType:
-        (forced.revenueType as "gross" | "net") ??
-        metricsFilter?.revenueType ??
-        "net",
+      from: (forced.from as string) ?? metricsFilter?.from ?? getPeriodDates("1-year").from,
+      to: (forced.to as string) ?? metricsFilter?.to ?? getPeriodDates("1-year").to,
+      currency: (forced.currency as string) ?? metricsFilter?.currency ?? baseCurrency,
+      revenueType: (forced.revenueType as "gross" | "net") ?? metricsFilter?.revenueType ?? "net",
     };
   }
 
@@ -151,9 +133,7 @@ export function resolveToolParams(
 
   // Revenue type: AI > metricsFilter > "net"
   const revenueType =
-    (aiParams.revenueType as "gross" | "net") ??
-    metricsFilter?.revenueType ??
-    "net";
+    (aiParams.revenueType as "gross" | "net") ?? metricsFilter?.revenueType ?? "net";
 
   // Return resolved params, passing through any other AI params
   return {

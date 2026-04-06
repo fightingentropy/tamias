@@ -102,31 +102,19 @@ export function ProfitCanvas() {
               {
                 id: "previous-revenue",
                 title: "Previous Period Revenue",
-                value: formatCurrencyAmount(
-                  previousPeriod.revenue,
-                  currency,
-                  locale,
-                ),
+                value: formatCurrencyAmount(previousPeriod.revenue, currency, locale),
                 subtitle: "For comparison",
               },
               {
                 id: "previous-expenses",
                 title: "Previous Period Expenses",
-                value: formatCurrencyAmount(
-                  previousPeriod.expenses,
-                  currency,
-                  locale,
-                ),
+                value: formatCurrencyAmount(previousPeriod.expenses, currency, locale),
                 subtitle: "For comparison",
               },
               {
                 id: "previous-profit",
                 title: "Previous Period Profit",
-                value: formatCurrencyAmount(
-                  previousPeriod.profit,
-                  currency,
-                  locale,
-                ),
+                value: formatCurrencyAmount(previousPeriod.profit, currency, locale),
                 subtitle: "For comparison",
               },
             ]

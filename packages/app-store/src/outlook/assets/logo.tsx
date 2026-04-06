@@ -1,10 +1,5 @@
 export const Logo = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={40}
-    height={40}
-    viewBox="0 0 48 48"
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" width={40} height={40} viewBox="0 0 48 48">
     <path
       fill="#40c4ff"
       d="M31.323,8.502L7.075,23.872l-2.085-3.29v-2.835c0-1.032,0.523-1.994,1.389-2.556l14.095-9.146c2.147-1.393,4.914-1.394,7.061-0.001L31.323,8.502z"

@@ -42,8 +42,7 @@ export function getFallbackContent(
   return {
     title: `${periodLabel} summary ready.`,
     summary: `Your ${periodLabel} summary is ready. Check the dashboard for detailed numbers and any items needing attention.`,
-    story:
-      "Check your dashboard for the detailed numbers and any items needing attention.",
+    story: "Check your dashboard for the detailed numbers and any items needing attention.",
     actions: [],
   };
 }

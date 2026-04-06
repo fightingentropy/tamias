@@ -19,15 +19,9 @@ import {
   matchesQuery,
   normalizeDocumentQuery,
 } from "./shared";
-import type {
-  GetDocumentQueryParams,
-  GetDocumentsParams,
-} from "./types";
+import type { GetDocumentQueryParams, GetDocumentsParams } from "./types";
 
-export async function getDocumentById(
-  _db: Database,
-  params: GetDocumentQueryParams,
-) {
+export async function getDocumentById(_db: Database, params: GetDocumentQueryParams) {
   const document = params.id
     ? await getDocumentByIdFromConvex({
         teamId: params.teamId,
@@ -48,24 +42,13 @@ export async function getDocumentById(
     return null;
   }
 
-  const [documentWithAssignments] = await attachAssignments(params.teamId, [
-    document,
-  ]);
+  const [documentWithAssignments] = await attachAssignments(params.teamId, [document]);
 
   return documentWithAssignments ?? null;
 }
 
 export async function getDocuments(_db: Database, params: GetDocumentsParams) {
-  const {
-    teamId,
-    pageSize = 20,
-    cursor,
-    tags,
-    q,
-    start,
-    end,
-    language,
-  } = params;
+  const { teamId, pageSize = 20, cursor, tags, q, start, end, language } = params;
   const normalizedQuery = normalizeDocumentQuery(q);
   const cursorState = decodeIndexedDocumentCursor(cursor);
   const hasTagFilter = Boolean(tags?.length);
@@ -99,9 +82,7 @@ export async function getDocuments(_db: Database, params: GetDocumentsParams) {
     });
 
     bufferedIds = bufferedIds.slice(takeCount);
-    eligibleDocuments.push(
-      ...bufferedDocuments.filter(matchesIndexedDocumentCandidate),
-    );
+    eligibleDocuments.push(...bufferedDocuments.filter(matchesIndexedDocumentCandidate));
   }
 
   if (
@@ -118,9 +99,7 @@ export async function getDocuments(_db: Database, params: GetDocumentsParams) {
       limit: getIndexedDocumentSearchLimit(pageSize),
     });
 
-    eligibleDocuments.push(
-      ...searchCandidates.filter(matchesIndexedDocumentCandidate),
-    );
+    eligibleDocuments.push(...searchCandidates.filter(matchesIndexedDocumentCandidate));
     sourceExhausted = true;
   }
 
@@ -143,17 +122,12 @@ export async function getDocuments(_db: Database, params: GetDocumentsParams) {
           order: "desc",
         });
 
-    eligibleDocuments.push(
-      ...result.page.filter(matchesIndexedDocumentCandidate),
-    );
+    eligibleDocuments.push(...result.page.filter(matchesIndexedDocumentCandidate));
 
     sourceCursor = result.isDone ? null : result.continueCursor;
     sourceExhausted = result.isDone;
 
-    if (
-      result.page.length === 0 &&
-      (result.isDone || sourceCursor === previousSourceCursor)
-    ) {
+    if (result.page.length === 0 && (result.isDone || sourceCursor === previousSourceCursor)) {
       break;
     }
   }

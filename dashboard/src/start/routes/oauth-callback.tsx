@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router";
 import { createAppPublicFileRoute } from "@/start/route-hosts";
 import { isOAuthErrorCode } from "@tamias/app-store/oauth-errors";
 import { createServerFn } from "@tanstack/react-start";

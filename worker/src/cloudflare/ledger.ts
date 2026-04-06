@@ -7,12 +7,7 @@ import "./runtime-shims";
 import type { CloudflareAsyncMessage } from "./bridge-helpers";
 import { isSupportedCloudflareMessage } from "./bridge-helpers";
 import { createCloudflareScheduleRuntime } from "./schedule-runtime";
-import {
-  type CloudflareAsyncEnv,
-  handleProcessorMessage,
-  logger,
-  updateRunStatus,
-} from "./shared";
+import { type CloudflareAsyncEnv, handleProcessorMessage, logger, updateRunStatus } from "./shared";
 
 function configureLedgerRuntime(env: CloudflareAsyncEnv) {
   configureCloudflareQueueRuntime({
@@ -25,119 +20,82 @@ function configureLedgerRuntime(env: CloudflareAsyncEnv) {
   });
 }
 
-async function processNotificationMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processNotificationMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { NotificationProcessor } = await import(
-      "../processors/notifications/notification"
-    );
+    const { NotificationProcessor } = await import("../processors/notifications/notification");
     return new NotificationProcessor();
   });
 }
 
-async function processInvoiceStatusSchedulerMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processInvoiceStatusSchedulerMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { InvoiceStatusSchedulerProcessor } = await import(
-      "../processors/invoices/invoice-status-scheduler"
-    );
+    const { InvoiceStatusSchedulerProcessor } =
+      await import("../processors/invoices/invoice-status-scheduler");
     return new InvoiceStatusSchedulerProcessor();
   });
 }
 
-async function processInvoiceRecurringSchedulerMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processInvoiceRecurringSchedulerMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { InvoiceRecurringSchedulerProcessor } = await import(
-      "../processors/invoices/generate-recurring"
-    );
+    const { InvoiceRecurringSchedulerProcessor } =
+      await import("../processors/invoices/generate-recurring");
     return new InvoiceRecurringSchedulerProcessor();
   });
 }
 
-async function processInvoiceUpcomingNotificationMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processInvoiceUpcomingNotificationMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { InvoiceUpcomingNotificationProcessor } = await import(
-      "../processors/invoices/upcoming-notification"
-    );
+    const { InvoiceUpcomingNotificationProcessor } =
+      await import("../processors/invoices/upcoming-notification");
     return new InvoiceUpcomingNotificationProcessor();
   });
 }
 
-async function processGenerateInvoiceMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processGenerateInvoiceMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { GenerateInvoiceProcessor } = await import(
-      "../processors/invoices/generate-invoice"
-    );
+    const { GenerateInvoiceProcessor } = await import("../processors/invoices/generate-invoice");
     return new GenerateInvoiceProcessor();
   });
 }
 
-async function processSendInvoiceEmailMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processSendInvoiceEmailMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { SendInvoiceEmailProcessor } = await import(
-      "../processors/invoices/send-invoice-email"
-    );
+    const { SendInvoiceEmailProcessor } = await import("../processors/invoices/send-invoice-email");
     return new SendInvoiceEmailProcessor();
   });
 }
 
-async function processSendInvoiceReminderMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processSendInvoiceReminderMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { SendInvoiceReminderProcessor } = await import(
-      "../processors/invoices/send-invoice-reminder"
-    );
+    const { SendInvoiceReminderProcessor } =
+      await import("../processors/invoices/send-invoice-reminder");
     return new SendInvoiceReminderProcessor();
   });
 }
 
-async function processScheduleInvoiceMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processScheduleInvoiceMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { ScheduleInvoiceProcessor } = await import(
-      "../processors/invoices/schedule-invoice"
-    );
+    const { ScheduleInvoiceProcessor } = await import("../processors/invoices/schedule-invoice");
     return new ScheduleInvoiceProcessor();
   });
 }
 
-async function processDispatchInsightsMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processDispatchInsightsMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { DispatchInsightsProcessor } = await import(
-      "../processors/insights/dispatch-insights"
-    );
+    const { DispatchInsightsProcessor } = await import("../processors/insights/dispatch-insights");
     return new DispatchInsightsProcessor();
   });
 }
 
-async function processGenerateTeamInsightsMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processGenerateTeamInsightsMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { GenerateInsightsProcessor } = await import(
-      "../processors/insights/generate-team-insights"
-    );
+    const { GenerateInsightsProcessor } =
+      await import("../processors/insights/generate-team-insights");
     return new GenerateInsightsProcessor();
   });
 }
 
-async function processBankSyncSchedulerMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processBankSyncSchedulerMessage(message: Message<CloudflareAsyncMessage>) {
   const payload = message.body.payload as { teamId?: string };
 
   if (!payload.teamId) {
@@ -148,57 +106,41 @@ async function processBankSyncSchedulerMessage(
   return runBankSyncScheduler(payload.teamId);
 }
 
-async function processDeleteConnectionMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processDeleteConnectionMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { DeleteConnectionProcessor } = await import(
-      "../processors/transactions/delete-connection"
-    );
+    const { DeleteConnectionProcessor } =
+      await import("../processors/transactions/delete-connection");
     return new DeleteConnectionProcessor();
   });
 }
 
-async function processReconnectConnectionMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processReconnectConnectionMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { ReconnectConnectionProcessor } = await import(
-      "../processors/transactions/reconnect-connection"
-    );
+    const { ReconnectConnectionProcessor } =
+      await import("../processors/transactions/reconnect-connection");
     return new ReconnectConnectionProcessor();
   });
 }
 
-async function processEnrichTransactionsMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processEnrichTransactionsMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { EnrichTransactionProcessor } = await import(
-      "../processors/transactions/enrich-transaction"
-    );
+    const { EnrichTransactionProcessor } =
+      await import("../processors/transactions/enrich-transaction");
     return new EnrichTransactionProcessor();
   });
 }
 
-async function processExportTransactionsMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processExportTransactionsMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { ExportTransactionsProcessor } = await import(
-      "../processors/transactions/export"
-    );
+    const { ExportTransactionsProcessor } = await import("../processors/transactions/export");
     return new ExportTransactionsProcessor();
   });
 }
 
-async function processImportTransactionsMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processImportTransactionsMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { ImportTransactionsProcessor } = await import(
-      "../processors/transactions/import-transactions"
-    );
+    const { ImportTransactionsProcessor } =
+      await import("../processors/transactions/import-transactions");
     return new ImportTransactionsProcessor();
   });
 }
@@ -207,119 +149,82 @@ async function processProcessTransactionAttachmentMessage(
   message: Message<CloudflareAsyncMessage>,
 ) {
   return handleProcessorMessage(message, async () => {
-    const { ProcessTransactionAttachmentProcessor } = await import(
-      "../processors/transactions/process-attachment"
-    );
+    const { ProcessTransactionAttachmentProcessor } =
+      await import("../processors/transactions/process-attachment");
     return new ProcessTransactionAttachmentProcessor();
   });
 }
 
-async function processSyncConnectionMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processSyncConnectionMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { SyncConnectionProcessor } = await import(
-      "../processors/transactions/sync-connection"
-    );
+    const { SyncConnectionProcessor } = await import("../processors/transactions/sync-connection");
     return new SyncConnectionProcessor();
   });
 }
 
-async function processTransactionNotificationsMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processTransactionNotificationsMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { TransactionNotificationsProcessor } = await import(
-      "../processors/transactions/transaction-notifications"
-    );
+    const { TransactionNotificationsProcessor } =
+      await import("../processors/transactions/transaction-notifications");
     return new TransactionNotificationsProcessor();
   });
 }
 
-async function processUpdateAccountBaseCurrencyMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processUpdateAccountBaseCurrencyMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { UpdateAccountBaseCurrencyProcessor } = await import(
-      "../processors/transactions/update-account-base-currency"
-    );
+    const { UpdateAccountBaseCurrencyProcessor } =
+      await import("../processors/transactions/update-account-base-currency");
     return new UpdateAccountBaseCurrencyProcessor();
   });
 }
 
-async function processUpdateBaseCurrencyMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processUpdateBaseCurrencyMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { UpdateBaseCurrencyProcessor } = await import(
-      "../processors/transactions/update-base-currency"
-    );
+    const { UpdateBaseCurrencyProcessor } =
+      await import("../processors/transactions/update-base-currency");
     return new UpdateBaseCurrencyProcessor();
   });
 }
 
-async function processExportToAccountingMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processExportToAccountingMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { ExportTransactionsProcessor } = await import(
-      "../processors/accounting/export-transactions"
-    );
+    const { ExportTransactionsProcessor } =
+      await import("../processors/accounting/export-transactions");
     return new ExportTransactionsProcessor();
   });
 }
 
-async function processSyncAccountingAttachmentsMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processSyncAccountingAttachmentsMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { SyncAttachmentsProcessor } = await import(
-      "../processors/accounting/sync-attachments"
-    );
+    const { SyncAttachmentsProcessor } = await import("../processors/accounting/sync-attachments");
     return new SyncAttachmentsProcessor();
   });
 }
 
-async function processEnrichCustomerMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processEnrichCustomerMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { EnrichCustomerProcessor } = await import(
-      "../processors/customers/enrich-customer"
-    );
+    const { EnrichCustomerProcessor } = await import("../processors/customers/enrich-customer");
     return new EnrichCustomerProcessor();
   });
 }
 
-async function processPaymentIssueMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processPaymentIssueMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { PaymentIssueProcessor } = await import(
-      "../processors/teams/payment-issue"
-    );
+    const { PaymentIssueProcessor } = await import("../processors/teams/payment-issue");
     return new PaymentIssueProcessor();
   });
 }
 
-async function processInviteTeamMembersMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processInviteTeamMembersMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { InviteTeamMembersProcessor } = await import(
-      "../processors/teams/invite-team-members"
-    );
+    const { InviteTeamMembersProcessor } = await import("../processors/teams/invite-team-members");
     return new InviteTeamMembersProcessor();
   });
 }
 
-async function processDeleteTeamMessage(
-  message: Message<CloudflareAsyncMessage>,
-) {
+async function processDeleteTeamMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
-    const { DeleteTeamProcessor } = await import(
-      "../processors/teams/delete-team"
-    );
+    const { DeleteTeamProcessor } = await import("../processors/teams/delete-team");
     return new DeleteTeamProcessor();
   });
 }
@@ -355,139 +260,68 @@ async function processQueueMessage(message: Message<CloudflareAsyncMessage>) {
   try {
     let result: unknown;
 
-    if (
-      body.queueName === "transactions" &&
-      body.jobName === "bank-sync-scheduler"
-    ) {
+    if (body.queueName === "transactions" && body.jobName === "bank-sync-scheduler") {
       result = await processBankSyncSchedulerMessage(message);
-    } else if (
-      body.queueName === "transactions" &&
-      body.jobName === "delete-connection"
-    ) {
+    } else if (body.queueName === "transactions" && body.jobName === "delete-connection") {
       result = await processDeleteConnectionMessage(message);
-    } else if (
-      body.queueName === "transactions" &&
-      body.jobName === "reconnect-connection"
-    ) {
+    } else if (body.queueName === "transactions" && body.jobName === "reconnect-connection") {
       result = await processReconnectConnectionMessage(message);
-    } else if (
-      body.queueName === "transactions" &&
-      body.jobName === "enrich-transactions"
-    ) {
+    } else if (body.queueName === "transactions" && body.jobName === "enrich-transactions") {
       result = await processEnrichTransactionsMessage(message);
-    } else if (
-      body.queueName === "transactions" &&
-      body.jobName === "export-transactions"
-    ) {
+    } else if (body.queueName === "transactions" && body.jobName === "export-transactions") {
       result = await processExportTransactionsMessage(message);
-    } else if (
-      body.queueName === "transactions" &&
-      body.jobName === "import-transactions"
-    ) {
+    } else if (body.queueName === "transactions" && body.jobName === "import-transactions") {
       result = await processImportTransactionsMessage(message);
     } else if (
       body.queueName === "transactions" &&
       body.jobName === "process-transaction-attachment"
     ) {
       result = await processProcessTransactionAttachmentMessage(message);
-    } else if (
-      body.queueName === "transactions" &&
-      body.jobName === "sync-connection"
-    ) {
+    } else if (body.queueName === "transactions" && body.jobName === "sync-connection") {
       result = await processSyncConnectionMessage(message);
-    } else if (
-      body.queueName === "transactions" &&
-      body.jobName === "transaction-notifications"
-    ) {
+    } else if (body.queueName === "transactions" && body.jobName === "transaction-notifications") {
       result = await processTransactionNotificationsMessage(message);
     } else if (
       body.queueName === "transactions" &&
       body.jobName === "update-account-base-currency"
     ) {
       result = await processUpdateAccountBaseCurrencyMessage(message);
-    } else if (
-      body.queueName === "transactions" &&
-      body.jobName === "update-base-currency"
-    ) {
+    } else if (body.queueName === "transactions" && body.jobName === "update-base-currency") {
       result = await processUpdateBaseCurrencyMessage(message);
-    } else if (
-      body.queueName === "accounting" &&
-      body.jobName === "export-to-accounting"
-    ) {
+    } else if (body.queueName === "accounting" && body.jobName === "export-to-accounting") {
       result = await processExportToAccountingMessage(message);
-    } else if (
-      body.queueName === "accounting" &&
-      body.jobName === "sync-accounting-attachments"
-    ) {
+    } else if (body.queueName === "accounting" && body.jobName === "sync-accounting-attachments") {
       result = await processSyncAccountingAttachmentsMessage(message);
-    } else if (
-      body.queueName === "invoices" &&
-      body.jobName === "invoice-recurring-scheduler"
-    ) {
+    } else if (body.queueName === "invoices" && body.jobName === "invoice-recurring-scheduler") {
       result = await processInvoiceRecurringSchedulerMessage(message);
-    } else if (
-      body.queueName === "invoices" &&
-      body.jobName === "invoice-status-scheduler"
-    ) {
+    } else if (body.queueName === "invoices" && body.jobName === "invoice-status-scheduler") {
       result = await processInvoiceStatusSchedulerMessage(message);
-    } else if (
-      body.queueName === "invoices" &&
-      body.jobName === "invoice-upcoming-notification"
-    ) {
+    } else if (body.queueName === "invoices" && body.jobName === "invoice-upcoming-notification") {
       result = await processInvoiceUpcomingNotificationMessage(message);
-    } else if (
-      body.queueName === "invoices" &&
-      body.jobName === "generate-invoice"
-    ) {
+    } else if (body.queueName === "invoices" && body.jobName === "generate-invoice") {
       result = await processGenerateInvoiceMessage(message);
-    } else if (
-      body.queueName === "invoices" &&
-      body.jobName === "send-invoice-email"
-    ) {
+    } else if (body.queueName === "invoices" && body.jobName === "send-invoice-email") {
       result = await processSendInvoiceEmailMessage(message);
-    } else if (
-      body.queueName === "invoices" &&
-      body.jobName === "send-invoice-reminder"
-    ) {
+    } else if (body.queueName === "invoices" && body.jobName === "send-invoice-reminder") {
       result = await processSendInvoiceReminderMessage(message);
-    } else if (
-      body.queueName === "invoices" &&
-      body.jobName === "schedule-invoice"
-    ) {
+    } else if (body.queueName === "invoices" && body.jobName === "schedule-invoice") {
       result = await processScheduleInvoiceMessage(message);
-    } else if (
-      body.queueName === "insights" &&
-      body.jobName === "dispatch-insights"
-    ) {
+    } else if (body.queueName === "insights" && body.jobName === "dispatch-insights") {
       result = await processDispatchInsightsMessage(message);
-    } else if (
-      body.queueName === "insights" &&
-      body.jobName === "generate-team-insights"
-    ) {
+    } else if (body.queueName === "insights" && body.jobName === "generate-team-insights") {
       result = await processGenerateTeamInsightsMessage(message);
-    } else if (
-      body.queueName === "customers" &&
-      body.jobName === "enrich-customer"
-    ) {
+    } else if (body.queueName === "customers" && body.jobName === "enrich-customer") {
       result = await processEnrichCustomerMessage(message);
-    } else if (
-      body.queueName === "notifications" &&
-      body.jobName === "notification"
-    ) {
+    } else if (body.queueName === "notifications" && body.jobName === "notification") {
       result = await processNotificationMessage(message);
-    } else if (
-      body.queueName === "teams" &&
-      body.jobName === "invite-team-members"
-    ) {
+    } else if (body.queueName === "teams" && body.jobName === "invite-team-members") {
       result = await processInviteTeamMembersMessage(message);
     } else if (body.queueName === "teams" && body.jobName === "delete-team") {
       result = await processDeleteTeamMessage(message);
     } else if (body.queueName === "teams" && body.jobName === "payment-issue") {
       result = await processPaymentIssueMessage(message);
     } else {
-      throw new Error(
-        `Missing Cloudflare ledger handler for ${body.queueName}:${body.jobName}`,
-      );
+      throw new Error(`Missing Cloudflare ledger handler for ${body.queueName}:${body.jobName}`);
     }
 
     await updateRunStatus(body.runId, {
@@ -499,10 +333,7 @@ async function processQueueMessage(message: Message<CloudflareAsyncMessage>) {
     });
     message.ack();
   } catch (error) {
-    const errorMessage =
-      error instanceof Error
-        ? error.message
-        : "Unknown Cloudflare worker error";
+    const errorMessage = error instanceof Error ? error.message : "Unknown Cloudflare worker error";
     const maxAttempts = body.maxAttempts ?? 4;
     const isFinalAttempt = message.attempts >= maxAttempts;
 
@@ -554,10 +385,7 @@ export default {
     });
   },
 
-  async queue(
-    batch: MessageBatch<CloudflareAsyncMessage>,
-    env: CloudflareAsyncEnv,
-  ) {
+  async queue(batch: MessageBatch<CloudflareAsyncMessage>, env: CloudflareAsyncEnv) {
     await handleLedgerQueueBatch(batch, env);
   },
 };

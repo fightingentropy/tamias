@@ -7,8 +7,7 @@ export const getNotificationsSchema = z
       .nullable()
       .optional()
       .openapi({
-        description:
-          "Cursor for pagination, representing the last item from the previous page",
+        description: "Cursor for pagination, representing the last item from the previous page",
         example: "20",
         param: {
           in: "query",
@@ -88,8 +87,7 @@ export const updateNotificationStatusSchema = z
 export const updateAllNotificationsStatusSchema = z
   .object({
     status: z.enum(["unread", "read", "archived"]).openapi({
-      description:
-        "The new status to apply to all notifications for the authenticated user",
+      description: "The new status to apply to all notifications for the authenticated user",
       example: "read",
     }),
   })
@@ -119,8 +117,7 @@ export const notificationSchema = z
       example: "transactions_created",
     }),
     priority: z.number().int().min(1).max(10).openapi({
-      description:
-        "Priority level of the notification (1-3 = user notifications, 4-10 = insights)",
+      description: "Priority level of the notification (1-3 = user notifications, 4-10 = insights)",
       example: 3,
     }),
     source: z.enum(["system", "user"]).openapi({
@@ -139,8 +136,7 @@ export const notificationSchema = z
       },
     }),
     lastUsedAt: z.string().nullable().openapi({
-      description:
-        "ISO timestamp when the notification was last used by the system",
+      description: "ISO timestamp when the notification was last used by the system",
       example: "2024-04-15T11:00:00.000Z",
     }),
   })

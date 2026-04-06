@@ -73,10 +73,7 @@ export function TopCustomerWidget() {
               Your top customer is{" "}
               <span className="text-primary">
                 {data.result.customerName} with{" "}
-                <FormatAmount
-                  amount={data.result.totalRevenue}
-                  currency={data.result.currency}
-                />{" "}
+                <FormatAmount amount={data.result.totalRevenue} currency={data.result.currency} />{" "}
                 from {data.result.invoiceCount} invoice
                 {data.result.invoiceCount !== 1 ? "s" : ""} past 30 days
               </span>

@@ -139,9 +139,7 @@ export class XeroProvider extends BaseAccountingProvider {
       }
     } else if (remaining <= XERO_SAFE_THRESHOLD) {
       // Approaching limit - add increasing delay
-      const delayMs = Math.round(
-        (1000 * (XERO_SAFE_THRESHOLD - remaining)) / XERO_SAFE_THRESHOLD,
-      );
+      const delayMs = Math.round((1000 * (XERO_SAFE_THRESHOLD - remaining)) / XERO_SAFE_THRESHOLD);
       if (delayMs > 0) {
         logger.debug("Xero adaptive delay applied", {
           provider: "xero",
@@ -157,10 +155,7 @@ export class XeroProvider extends BaseAccountingProvider {
   /**
    * Override withRetry to include adaptive rate limiting
    */
-  protected override async withRetry<T>(
-    operation: () => Promise<T>,
-    context: string,
-  ): Promise<T> {
+  protected override async withRetry<T>(operation: () => Promise<T>, context: string): Promise<T> {
     // Apply adaptive delay before the call
     await this.applyAdaptiveDelay();
 
@@ -222,9 +217,7 @@ export class XeroProvider extends BaseAccountingProvider {
         response?: { body?: { Message?: string; Detail?: string } };
       };
       if (xeroError.response?.body?.Message) {
-        const detail = xeroError.response.body.Detail
-          ? ` - ${xeroError.response.body.Detail}`
-          : "";
+        const detail = xeroError.response.body.Detail ? ` - ${xeroError.response.body.Detail}` : "";
         return {
           type: "unknown",
           code: ACCOUNTING_ERROR_CODES.UNKNOWN,
@@ -292,9 +285,7 @@ export class XeroProvider extends BaseAccountingProvider {
 
       // Extract from response.body (Xero SDK pattern)
       const response = err.response as Record<string, unknown> | undefined;
-      const body = (response?.body ?? err.body) as
-        | Record<string, unknown>
-        | undefined;
+      const body = (response?.body ?? err.body) as Record<string, unknown> | undefined;
 
       if (body) {
         // Xero validation errors: Elements[0].ValidationErrors[0].Message
@@ -379,9 +370,7 @@ export class XeroProvider extends BaseAccountingProvider {
     const isExpense = tx.amount < 0;
 
     return {
-      type: isExpense
-        ? BankTransaction.TypeEnum.SPEND
-        : BankTransaction.TypeEnum.RECEIVE,
+      type: isExpense ? BankTransaction.TypeEnum.SPEND : BankTransaction.TypeEnum.RECEIVE,
       // Bank transactions are gross amounts (tax-inclusive)
       // Let Xero calculate tax using the account's default tax rate
       lineAmountTypes: LineAmountTypes.Inclusive,
@@ -397,11 +386,7 @@ export class XeroProvider extends BaseAccountingProvider {
           quantity: 1,
           unitAmount: Math.abs(tx.amount),
           // Use category's reporting code if valid, otherwise default based on type
-          accountCode: this.getValidAccountCode(
-            tx.categoryReportingCode,
-            tx.id,
-            isExpense,
-          ),
+          accountCode: this.getValidAccountCode(tx.categoryReportingCode, tx.id, isExpense),
         },
       ],
       bankAccount: {
@@ -476,14 +461,8 @@ export class XeroProvider extends BaseAccountingProvider {
       );
     }
 
-    if (
-      !tokenSet.access_token ||
-      !tokenSet.refresh_token ||
-      !tokenSet.expires_at
-    ) {
-      throw new Error(
-        "Invalid token response from Xero. Missing required token fields.",
-      );
+    if (!tokenSet.access_token || !tokenSet.refresh_token || !tokenSet.expires_at) {
+      throw new Error("Invalid token response from Xero. Missing required token fields.");
     }
 
     return {
@@ -511,11 +490,7 @@ export class XeroProvider extends BaseAccountingProvider {
         refreshToken,
       );
 
-      if (
-        !tokenSet.access_token ||
-        !tokenSet.refresh_token ||
-        !tokenSet.expires_at
-      ) {
+      if (!tokenSet.access_token || !tokenSet.refresh_token || !tokenSet.expires_at) {
         throw new Error(
           "Invalid token response from Xero during refresh. Please reconnect your account.",
         );
@@ -597,10 +572,9 @@ export class XeroProvider extends BaseAccountingProvider {
         }
 
         // If creation failed, return all accounts (including inactive)
-        logger.warn(
-          "Failed to create default bank account, returning all accounts",
-          { provider: "xero" },
-        );
+        logger.warn("Failed to create default bank account, returning all accounts", {
+          provider: "xero",
+        });
       }
 
       return accounts.map((account) => ({
@@ -609,8 +583,7 @@ export class XeroProvider extends BaseAccountingProvider {
         code: account.code,
         type: account.type?.toString() || "BANK",
         currency: account.currencyCode?.toString(),
-        status:
-          account.status === Account.StatusEnum.ACTIVE ? "active" : "archived",
+        status: account.status === Account.StatusEnum.ACTIVE ? "active" : "archived",
       }));
     }, "Failed to get accounts from Xero");
   }
@@ -619,9 +592,7 @@ export class XeroProvider extends BaseAccountingProvider {
    * Create a default bank account in Xero
    * Used when no bank accounts exist
    */
-  private async createDefaultBankAccount(
-    tenantId: string,
-  ): Promise<AccountingAccount | null> {
+  private async createDefaultBankAccount(tenantId: string): Promise<AccountingAccount | null> {
     try {
       const account: Account = {
         name: "Business Account",
@@ -631,10 +602,7 @@ export class XeroProvider extends BaseAccountingProvider {
         bankAccountNumber: "000000000", // Placeholder - user can update in Xero
       };
 
-      const response = await this.client.accountingApi.createAccount(
-        tenantId,
-        account,
-      );
+      const response = await this.client.accountingApi.createAccount(tenantId, account);
 
       const createdAccount = response.body.accounts?.[0];
 
@@ -748,14 +716,13 @@ export class XeroProvider extends BaseAccountingProvider {
           ? generateTransactionIdempotencyKey(firstTx.id, jobId)
           : undefined;
 
-        const response =
-          await this.client.accountingApi.updateOrCreateBankTransactions(
-            tenantId,
-            { bankTransactions },
-            undefined, // summarizeErrors
-            undefined, // unitdp
-            idempotencyKey,
-          );
+        const response = await this.client.accountingApi.updateOrCreateBankTransactions(
+          tenantId,
+          { bankTransactions },
+          undefined, // summarizeErrors
+          undefined, // unitdp
+          idempotencyKey,
+        );
 
         const createdTransactions = response.body.bankTransactions || [];
 
@@ -844,8 +811,7 @@ export class XeroProvider extends BaseAccountingProvider {
     taxType?: string;
     note?: string;
   }): Promise<void> {
-    const { tenantId, transactionId, taxAmount, taxRate, taxType, note } =
-      params;
+    const { tenantId, transactionId, taxAmount, taxRate, taxType, note } = params;
 
     await this.ensureClientReady();
 
@@ -900,9 +866,7 @@ export class XeroProvider extends BaseAccountingProvider {
   /**
    * Upload attachment to a Xero bank transaction
    */
-  async uploadAttachment(
-    params: UploadAttachmentParams,
-  ): Promise<AttachmentResult> {
+  async uploadAttachment(params: UploadAttachmentParams): Promise<AttachmentResult> {
     const { tenantId, transactionId, fileName, mimeType, content } = params;
 
     // Ensure filename has proper extension based on mimeType
@@ -922,26 +886,22 @@ export class XeroProvider extends BaseAccountingProvider {
       // Convert content to Buffer if it's a stream
       const buffer = await streamToBuffer(content);
 
-      const idempotencyKey = generateAttachmentIdempotencyKey(
-        transactionId,
-        sanitizedFileName,
-      );
+      const idempotencyKey = generateAttachmentIdempotencyKey(transactionId, sanitizedFileName);
 
       // Call API directly without withRetry - processor handles retries
       // This gives us raw error details instead of wrapped "Unknown error"
-      const response =
-        await this.client.accountingApi.createBankTransactionAttachmentByFileName(
-          tenantId,
-          transactionId,
-          sanitizedFileName,
-          buffer,
-          idempotencyKey,
-          {
-            headers: {
-              "Content-Type": mimeType,
-            },
+      const response = await this.client.accountingApi.createBankTransactionAttachmentByFileName(
+        tenantId,
+        transactionId,
+        sanitizedFileName,
+        buffer,
+        idempotencyKey,
+        {
+          headers: {
+            "Content-Type": mimeType,
           },
-        );
+        },
+      );
 
       const attachments = response.body.attachments || [];
       const attachment = attachments[0];
@@ -997,17 +957,14 @@ export class XeroProvider extends BaseAccountingProvider {
    * This is a no-op that returns success, as Xero attachments cannot be deleted via API.
    * The attachment remains in Xero but we update our tracking to reflect the removal.
    */
-  async deleteAttachment(
-    params: DeleteAttachmentParams,
-  ): Promise<DeleteAttachmentResult> {
+  async deleteAttachment(params: DeleteAttachmentParams): Promise<DeleteAttachmentResult> {
     const { transactionId, attachmentId } = params;
 
     logger.warn("Xero attachment deletion not supported via API", {
       provider: "xero",
       transactionId,
       attachmentId,
-      message:
-        "Xero does not support attachment deletion via API. Attachment remains in Xero.",
+      message: "Xero does not support attachment deletion via API. Attachment remains in Xero.",
     });
 
     // Return success as we'll update our tracking, even though Xero keeps the file
@@ -1018,14 +975,11 @@ export class XeroProvider extends BaseAccountingProvider {
   /**
    * Get tenant/organization information
    */
-  async getTenantInfo(
-    tenantId: string,
-  ): Promise<{ id: string; name: string; currency?: string }> {
+  async getTenantInfo(tenantId: string): Promise<{ id: string; name: string; currency?: string }> {
     await this.ensureClientReady();
 
     return this.withRetry(async () => {
-      const response =
-        await this.client.accountingApi.getOrganisations(tenantId);
+      const response = await this.client.accountingApi.getOrganisations(tenantId);
       const org = response.body.organisations?.[0];
 
       if (!org) {
@@ -1043,9 +997,7 @@ export class XeroProvider extends BaseAccountingProvider {
   /**
    * Get tenants (organizations) connected to this Xero app
    */
-  async getTenants(): Promise<
-    Array<{ tenantId: string; tenantName: string; tenantType: string }>
-  > {
+  async getTenants(): Promise<Array<{ tenantId: string; tenantName: string; tenantType: string }>> {
     await this.ensureClientReady();
 
     await this.client.updateTenants();

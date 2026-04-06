@@ -12,10 +12,7 @@ function DashboardPage() {
   const loaderData = Route.useLoaderData() as DashboardLoaderData;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <Widgets initialPreferences={loaderData.initialPreferences} />
       <DeferredHomeChat />
     </AppLayoutShell>

@@ -92,15 +92,10 @@ export function CategoryExpensesWidget() {
         hasCategories ? (
           <div className="flex flex-col gap-2 w-full">
             {categories.map((category, index) => {
-              const percentage =
-                maxAmount > 0 ? (category.amount / maxAmount) * 100 : 0;
+              const percentage = maxAmount > 0 ? (category.amount / maxAmount) * 100 : 0;
 
               const barColor =
-                index === 0
-                  ? "bg-primary"
-                  : index === 1
-                    ? "bg-[#A0A0A0]"
-                    : "bg-[#606060]";
+                index === 0 ? "bg-primary" : index === 1 ? "bg-[#A0A0A0]" : "bg-[#606060]";
 
               return (
                 <div key={category.slug} className="flex items-center gap-3">
@@ -124,9 +119,7 @@ export function CategoryExpensesWidget() {
           </div>
         ) : (
           <div className="py-8">
-            <p className="text-sm text-muted-foreground">
-              No expenses tracked yet
-            </p>
+            <p className="text-sm text-muted-foreground">No expenses tracked yet</p>
           </div>
         )
       }

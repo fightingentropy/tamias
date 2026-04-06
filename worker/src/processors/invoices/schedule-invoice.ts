@@ -45,20 +45,16 @@ export class ScheduleInvoiceProcessor extends BaseProcessor<ScheduleInvoicePaylo
     // Skip if this is a recurring invoice - those are handled by the recurring scheduler
     // This is a defensive check since recurring invoices shouldn't have scheduled jobs
     if (invoice.invoiceRecurringId && !invoice.scheduledJobId) {
-      this.logger.info(
-        "Invoice is part of recurring series without scheduledJobId, skipping",
-        {
-          invoiceId,
-          invoiceRecurringId: invoice.invoiceRecurringId,
-        },
-      );
+      this.logger.info("Invoice is part of recurring series without scheduledJobId, skipping", {
+        invoiceId,
+        invoiceRecurringId: invoice.invoiceRecurringId,
+      });
       return;
     }
 
     // Verify this job is the currently scheduled one for this invoice.
     if (invoice.scheduledJobId) {
-      const currentRunId =
-        typeof job.runId === "string" ? job.runId : undefined;
+      const currentRunId = typeof job.runId === "string" ? job.runId : undefined;
 
       if (currentRunId) {
         if (invoice.scheduledJobId !== currentRunId) {

@@ -5,14 +5,8 @@ import { getCogsCategorySlugsFromStaticTaxonomy } from "./category-taxonomy";
 
 const CACHE_TTL = 5 * 60 * 1000;
 
-const teamCurrencyCache = new Map<
-  string,
-  { currency: string | null; timestamp: number }
->();
-const cogsSlugsCache = new Map<
-  string,
-  { slugs: string[]; timestamp: number }
->();
+const teamCurrencyCache = new Map<string, { currency: string | null; timestamp: number }>();
+const cogsSlugsCache = new Map<string, { slugs: string[]; timestamp: number }>();
 
 export type TeamReportContext = {
   currency: string | null;
@@ -55,10 +49,7 @@ export async function getTeamReportContext(
   );
 }
 
-export async function getCogsCategorySlugs(
-  _db: Database,
-  teamId: string,
-): Promise<string[]> {
+export async function getCogsCategorySlugs(_db: Database, teamId: string): Promise<string[]> {
   const cached = cogsSlugsCache.get(teamId);
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
     return cached.slugs;

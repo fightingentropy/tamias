@@ -8,10 +8,7 @@ const NETWORK_ERROR_PATTERN =
   /fetch failed|Failed to fetch|NetworkError|ECONNREFUSED|connection refused|Load failed|networkerror|not connected|ECONNRESET/i;
 const MISSING_CONVEX_URL_PATTERN = /CONVEX_URL is not set/i;
 
-export function getPasswordAuthErrorMessage(
-  authError: unknown,
-  mode: PasswordAuthMode,
-): string {
+export function getPasswordAuthErrorMessage(authError: unknown, mode: PasswordAuthMode): string {
   const fallbackMessage =
     mode === "signIn" ? "Unable to sign in." : "Unable to create your account.";
 

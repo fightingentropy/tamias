@@ -3,11 +3,7 @@ import { z } from "zod";
 /**
  * Supported provider IDs (currently implemented)
  */
-export const accountingProviderIdSchema = z.enum([
-  "xero",
-  "quickbooks",
-  "fortnox",
-]);
+export const accountingProviderIdSchema = z.enum(["xero", "quickbooks", "fortnox"]);
 
 /**
  * Provider entity types
@@ -43,9 +39,7 @@ export const accountingAttachmentSyncSchema = z.object({
   // Attachments to remove/unlink from the provider
   removedAttachments: z.array(removedAttachmentSchema).optional(),
   // Current mapping from DB (Tamias ID -> Provider ID)
-  existingSyncedAttachmentMapping: z
-    .record(z.string(), z.string().nullable())
-    .optional(),
+  existingSyncedAttachmentMapping: z.record(z.string(), z.string().nullable()).optional(),
   // Entity type for QuickBooks - avoids extra API call to determine Purchase vs Deposit
   providerEntityType: providerEntityTypeSchema.optional(),
   // Tax info for history note (Xero only) - added after last attachment
@@ -57,9 +51,7 @@ export const accountingAttachmentSyncSchema = z.object({
   addHistoryNote: z.boolean().optional(),
 });
 
-export type AccountingAttachmentSyncPayload = z.infer<
-  typeof accountingAttachmentSyncSchema
->;
+export type AccountingAttachmentSyncPayload = z.infer<typeof accountingAttachmentSyncSchema>;
 
 /**
  * Schema for export-to-accounting job (manual export)

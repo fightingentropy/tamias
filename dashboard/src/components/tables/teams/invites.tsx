@@ -2,11 +2,7 @@
 
 import { Avatar, AvatarFallback, AvatarImageNext } from "@tamias/ui/avatar";
 import { SubmitButton } from "@tamias/ui/submit-button";
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useI18n } from "@/locales/client";
 import { useTRPC } from "@/trpc/client";
 
@@ -63,18 +59,12 @@ export function Invites() {
                     height={32}
                   />
                   <AvatarFallback>
-                    <span className="text-xs">
-                      {invite.team?.name?.charAt(0)?.toUpperCase()}
-                    </span>
+                    <span className="text-xs">{invite.team?.name?.charAt(0)?.toUpperCase()}</span>
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col">
-                  <span className="font-medium text-sm">
-                    {invite.team?.name}
-                  </span>
-                  <span className="text-sm text-[#606060]">
-                    {t(`roles.${invite.role}`)}
-                  </span>
+                  <span className="font-medium text-sm">{invite.team?.name}</span>
+                  <span className="text-sm text-[#606060]">{t(`roles.${invite.role}`)}</span>
                 </div>
               </div>
             </div>

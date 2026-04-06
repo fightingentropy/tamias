@@ -1,10 +1,5 @@
 import { Icons } from "@tamias/ui/icons";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@tamias/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
 
 type InboxSource = "gmail" | "outlook" | "slack" | "whatsapp" | null;
 
@@ -88,9 +83,7 @@ export function InboxSourceIcon({
               )}
             </span>
           </TooltipTrigger>
-          <TooltipContent className="text-xs px-3 py-1.5">
-            {tooltip}
-          </TooltipContent>
+          <TooltipContent className="text-xs px-3 py-1.5">{tooltip}</TooltipContent>
         </Tooltip>
       </TooltipProvider>
     </div>

@@ -160,9 +160,7 @@ export const serviceUpdateInsight = mutation({
 
     const existing = await ctx.db
       .query("insightRecords")
-      .withIndex("by_public_insight_id", (q) =>
-        q.eq("publicInsightId", args.insightId),
-      )
+      .withIndex("by_public_insight_id", (q) => q.eq("publicInsightId", args.insightId))
       .unique();
 
     if (!existing || existing.teamId !== team._id) {
@@ -175,31 +173,17 @@ export const serviceUpdateInsight = mutation({
       ...(args.selectedMetrics !== undefined
         ? { selectedMetrics: args.selectedMetrics ?? undefined }
         : {}),
-      ...(args.allMetrics !== undefined
-        ? { allMetrics: args.allMetrics ?? undefined }
-        : {}),
-      ...(args.anomalies !== undefined
-        ? { anomalies: args.anomalies ?? undefined }
-        : {}),
+      ...(args.allMetrics !== undefined ? { allMetrics: args.allMetrics ?? undefined } : {}),
+      ...(args.anomalies !== undefined ? { anomalies: args.anomalies ?? undefined } : {}),
       ...(args.expenseAnomalies !== undefined
         ? { expenseAnomalies: args.expenseAnomalies ?? undefined }
         : {}),
-      ...(args.milestones !== undefined
-        ? { milestones: args.milestones ?? undefined }
-        : {}),
-      ...(args.activity !== undefined
-        ? { activity: args.activity ?? undefined }
-        : {}),
+      ...(args.milestones !== undefined ? { milestones: args.milestones ?? undefined } : {}),
+      ...(args.activity !== undefined ? { activity: args.activity ?? undefined } : {}),
       ...(args.content !== undefined ? { content: args.content ?? undefined } : {}),
-      ...(args.predictions !== undefined
-        ? { predictions: args.predictions ?? undefined }
-        : {}),
-      ...(args.audioPath !== undefined
-        ? { audioPath: args.audioPath ?? undefined }
-        : {}),
-      ...(args.generatedAt !== undefined
-        ? { generatedAt: args.generatedAt ?? undefined }
-        : {}),
+      ...(args.predictions !== undefined ? { predictions: args.predictions ?? undefined } : {}),
+      ...(args.audioPath !== undefined ? { audioPath: args.audioPath ?? undefined } : {}),
+      ...(args.generatedAt !== undefined ? { generatedAt: args.generatedAt ?? undefined } : {}),
       updatedAt: nowIso(),
     });
 
@@ -253,9 +237,7 @@ export const serviceGetInsightById = query({
 
     const record = await ctx.db
       .query("insightRecords")
-      .withIndex("by_public_insight_id", (q) =>
-        q.eq("publicInsightId", args.insightId),
-      )
+      .withIndex("by_public_insight_id", (q) => q.eq("publicInsightId", args.insightId))
       .unique();
 
     if (!record || record.teamId !== team._id) {

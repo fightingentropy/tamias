@@ -30,9 +30,7 @@ export async function searchTransactionMatchByQuery(params: {
   const numericQuery = Number(normalizedQuery);
   const candidateLimit = Math.max(params.maxResults * 20, 100);
   const amountSearchValue = Math.round(Math.abs(numericQuery) * 100);
-  const amountTolerance = Math.ceil(
-    Math.max(1, Math.abs(numericQuery)) * 0.65 * 100,
-  );
+  const amountTolerance = Math.ceil(Math.max(1, Math.abs(numericQuery)) * 0.65 * 100);
   const indexedCandidates = dedupeTransactionsById([
     ...(await searchTransactionsFromConvex({
       teamId: params.teamId,
@@ -69,10 +67,7 @@ export async function searchTransactionMatchByQuery(params: {
           ? 0
           : amountDelta < 0.01
             ? 1
-            : Math.max(
-                0,
-                1 - amountDelta / Math.max(1, Math.abs(numericQuery)),
-              );
+            : Math.max(0, 1 - amountDelta / Math.max(1, Math.abs(numericQuery)));
       const confidence = Math.max(nameScore, textScore, amountScore);
 
       return {
@@ -88,29 +83,22 @@ export async function searchTransactionMatchByQuery(params: {
         return right.confidence - left.confidence;
       }
 
-      return compareTransactionsByDateDesc(
-        left.transaction,
-        right.transaction,
-      );
+      return compareTransactionsByDateDesc(left.transaction, right.transaction);
     })
     .slice(0, Math.max(params.maxResults * 3, 30));
 
   const { attachmentsByTransactionId } = buildTransactionAttachmentLookups(
     await getTransactionAttachmentsForTransactionIdsFromConvex({
       teamId: params.teamId,
-      transactionIds: candidateTransactions.map(
-        (candidate) => candidate.transaction.id,
-      ),
+      transactionIds: candidateTransactions.map((candidate) => candidate.transaction.id),
     }),
   );
 
   return candidateTransactions
     .map((candidate) => {
-      const transactionAttachments =
-        attachmentsByTransactionId.get(candidate.transaction.id) ?? [];
+      const transactionAttachments = attachmentsByTransactionId.get(candidate.transaction.id) ?? [];
       const isAlreadyMatched =
-        candidate.transaction.hasAttachment ||
-        candidate.transaction.status === "completed";
+        candidate.transaction.hasAttachment || candidate.transaction.status === "completed";
 
       return {
         transaction_id: candidate.transaction.id,
@@ -124,12 +112,9 @@ export async function searchTransactionMatchByQuery(params: {
         date_score: 0,
         confidence_score: roundMatchingScore(candidate.confidence),
         is_already_matched: isAlreadyMatched,
-        matched_attachment_filename:
-          transactionAttachments[0]?.name ?? undefined,
+        matched_attachment_filename: transactionAttachments[0]?.name ?? undefined,
       };
     })
-    .filter((result) =>
-      params.includeAlreadyMatched ? true : !result.is_already_matched,
-    )
+    .filter((result) => (params.includeAlreadyMatched ? true : !result.is_already_matched))
     .slice(0, params.maxResults);
 }

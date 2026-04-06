@@ -12,12 +12,7 @@ type ProviderProps = {
 export function SiteProviders({ locale, children }: ProviderProps) {
   return (
     <I18nProviderClient locale={locale}>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
         {children}
       </ThemeProvider>
     </I18nProviderClient>

@@ -7,9 +7,7 @@ export type OAuthApplicationInfoInput = {
   state?: string;
 };
 
-export async function getOAuthApplicationInfo(
-  input: OAuthApplicationInfoInput,
-) {
+export async function getOAuthApplicationInfo(input: OAuthApplicationInfoInput) {
   const { clientId, redirectUri, scope, state } = input;
   const application = await getOAuthApplicationByClientIdFromConvex(clientId);
 

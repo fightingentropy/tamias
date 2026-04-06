@@ -127,15 +127,12 @@ export async function listTeamsForUserFromConvexIdentity(args: {
 }
 
 export async function listAllTeamsFromConvexIdentity() {
-  return createClient().query(
-    api.identity.serviceListAllTeams,
-    serviceArgs({}),
-  ) as Promise<TeamIdentityRecord[]>;
+  return createClient().query(api.identity.serviceListAllTeams, serviceArgs({})) as Promise<
+    TeamIdentityRecord[]
+  >;
 }
 
-export async function getUserByIdFromConvexIdentity(args: {
-  userId: ConvexUserId;
-}) {
+export async function getUserByIdFromConvexIdentity(args: { userId: ConvexUserId }) {
   return createClient().query(
     api.identity.serviceGetUserById,
     serviceArgs({
@@ -144,9 +141,7 @@ export async function getUserByIdFromConvexIdentity(args: {
   ) as Promise<CurrentUserIdentityRecord | null>;
 }
 
-export async function getUserByEmailFromConvexIdentity(args: {
-  email: string;
-}) {
+export async function getUserByEmailFromConvexIdentity(args: { email: string }) {
   return createClient().query(
     api.identity.serviceGetUserById,
     serviceArgs({
@@ -155,9 +150,7 @@ export async function getUserByEmailFromConvexIdentity(args: {
   ) as Promise<CurrentUserIdentityRecord | null>;
 }
 
-export async function updateUserInConvexIdentity(
-  args: UpdateUserInConvexIdentityInput,
-) {
+export async function updateUserInConvexIdentity(args: UpdateUserInConvexIdentityInput) {
   return createClient().mutation(
     api.identity.serviceUpdateUserById,
     serviceArgs({
@@ -185,9 +178,7 @@ export async function getTeamByIdFromConvexIdentity(args: { teamId: string }) {
   ) as Promise<TeamIdentityRecord | null>;
 }
 
-export async function updateTeamByIdInConvexIdentity(
-  args: UpdateTeamInConvexIdentityInput,
-) {
+export async function updateTeamByIdInConvexIdentity(args: UpdateTeamInConvexIdentityInput) {
   return createClient().mutation(
     api.identity.serviceUpdateTeamByPublicTeamId,
     serviceArgs({
@@ -210,9 +201,7 @@ export async function updateTeamByIdInConvexIdentity(
   ) as Promise<TeamIdentityRecord | null>;
 }
 
-export async function getTeamByInboxIdFromConvexIdentity(args: {
-  inboxId: string;
-}) {
+export async function getTeamByInboxIdFromConvexIdentity(args: { inboxId: string }) {
   return createClient().query(
     api.identity.serviceGetTeamByInboxId,
     serviceArgs({
@@ -249,9 +238,7 @@ export async function listInsightEligibleTeamsFromConvexIdentity(args?: {
   ) as Promise<InsightEligibleTeamRecord[]>;
 }
 
-export async function getTeamMembersFromConvexIdentity(args: {
-  teamId: string;
-}) {
+export async function getTeamMembersFromConvexIdentity(args: { teamId: string }) {
   return createClient().query(
     api.identity.serviceGetTeamMembersByPublicTeamId,
     serviceArgs({

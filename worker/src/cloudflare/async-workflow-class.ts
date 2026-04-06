@@ -1,8 +1,4 @@
-import {
-  WorkflowEntrypoint,
-  type WorkflowEvent,
-  type WorkflowStep,
-} from "cloudflare:workers";
+import { WorkflowEntrypoint, type WorkflowEvent, type WorkflowStep } from "cloudflare:workers";
 import {
   configureCloudflareQueueRuntime,
   configureCloudflareScheduleRuntime,
@@ -15,24 +11,16 @@ export class AsyncWorkflow extends WorkflowEntrypoint<
   CloudflareAsyncEnv,
   CloudflareWorkflowPayload
 > {
-  async run(
-    event: Readonly<WorkflowEvent<CloudflareWorkflowPayload>>,
-    step: WorkflowStep,
-  ) {
+  async run(event: Readonly<WorkflowEvent<CloudflareWorkflowPayload>>, step: WorkflowStep) {
     configureCloudflareQueueRuntime({
       captureQueue: this.env.CAPTURE_QUEUE,
       ledgerQueue: this.env.LEDGER_QUEUE,
     });
-    configureCloudflareScheduleRuntime(
-      createCloudflareScheduleRuntime(this.env),
-    );
+    configureCloudflareScheduleRuntime(createCloudflareScheduleRuntime(this.env));
 
     try {
-      const {
-        runBankInitialSetupWorkflow,
-        runOnboardTeamWorkflow,
-        runTeamCancellationWorkflow,
-      } = await import("./workflow-runs");
+      const { runBankInitialSetupWorkflow, runOnboardTeamWorkflow, runTeamCancellationWorkflow } =
+        await import("./workflow-runs");
 
       switch (event.payload.workflow) {
         case "team-cancellation-email":

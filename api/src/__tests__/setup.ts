@@ -428,8 +428,7 @@ mock.module("@tamias/app-services/invoice-by-token", () => ({
 mock.module("@tamias/app-data/queries/transactions", () => ({
   getTransactions: dbQueriesMock.getTransactions,
   getTransactionById: dbQueriesMock.getTransactionById,
-  getTransactionsReadyForExportCount:
-    dbQueriesMock.getTransactionsReadyForExportCount,
+  getTransactionsReadyForExportCount: dbQueriesMock.getTransactionsReadyForExportCount,
 }));
 mock.module("@tamias/app-data/queries/transaction-categories", () => ({
   getCategories: dbQueriesMock.getCategories,
@@ -455,14 +454,8 @@ mock.module("@tamias/import", () => ({
 // Mock @tamias/invoice
 mock.module("@tamias/invoice/calculate", () => ({
   calculateTotal: mock(({ lineItems }: { lineItems: any[] }) => ({
-    subTotal: lineItems.reduce(
-      (sum: number, item: any) => sum + item.price * item.quantity,
-      0,
-    ),
-    total: lineItems.reduce(
-      (sum: number, item: any) => sum + item.price * item.quantity,
-      0,
-    ),
+    subTotal: lineItems.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0),
+    total: lineItems.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0),
     vat: 0,
     tax: 0,
   })),
@@ -538,18 +531,15 @@ mock.module("@tamias/auth-session", () => ({
 mock.module("@tamias/app-data/client", () => ({
   createDatabase: mock(() => mockDb),
   createQueryCacheKey: mock(
-    (namespace: string, input: unknown) =>
-      `${namespace}:${JSON.stringify(input)}`,
+    (namespace: string, input: unknown) => `${namespace}:${JSON.stringify(input)}`,
   ),
   db: mockDb,
-  getOrSetQueryCacheValue: mock(
-    async (_db: unknown, _key: string, load: () => Promise<unknown>) => load(),
+  getOrSetQueryCacheValue: mock(async (_db: unknown, _key: string, load: () => Promise<unknown>) =>
+    load(),
   ),
 }));
 
 // Set required environment variables for tests
 process.env.CONVEX_URL = process.env.CONVEX_URL || "http://127.0.0.1:3210";
-process.env.CONVEX_SITE_URL =
-  process.env.CONVEX_SITE_URL || "http://127.0.0.1:3211";
-process.env.TAMIAS_DASHBOARD_URL =
-  process.env.TAMIAS_DASHBOARD_URL || "https://tamias.xyz";
+process.env.CONVEX_SITE_URL = process.env.CONVEX_SITE_URL || "http://127.0.0.1:3211";
+process.env.TAMIAS_DASHBOARD_URL = process.env.TAMIAS_DASHBOARD_URL || "https://tamias.xyz";

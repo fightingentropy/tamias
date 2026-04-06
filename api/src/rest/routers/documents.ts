@@ -70,8 +70,7 @@ app.openapi(
     summary: "Retrieve a document",
     operationId: "getDocumentById",
     "x-speakeasy-name-override": "get",
-    description:
-      "Retrieve a document by its unique identifier for the authenticated team.",
+    description: "Retrieve a document by its unique identifier for the authenticated team.",
     tags: ["Documents"],
     request: {
       params: getDocumentSchema.pick({ id: true }),
@@ -142,8 +141,7 @@ app.openapi(
         },
       },
       500: {
-        description:
-          "Internal server error - Failed to generate pre-signed URL",
+        description: "Internal server error - Failed to generate pre-signed URL",
         content: {
           "application/json": {
             schema: errorResponseSchema,
@@ -196,10 +194,7 @@ app.openapi(
       const result = {
         url: data.signedUrl,
         expiresAt,
-        fileName:
-          document.pathTokens?.at(-1) ||
-          document.name?.split("/").at(-1) ||
-          null,
+        fileName: document.pathTokens?.at(-1) || document.name?.split("/").at(-1) || null,
       };
 
       return c.json(validateResponse(result, preSignedUrlResponseSchema), 200);
@@ -216,8 +211,7 @@ app.openapi(
     summary: "Delete a document",
     operationId: "deleteDocument",
     "x-speakeasy-name-override": "delete",
-    description:
-      "Delete a document by its unique identifier for the authenticated team.",
+    description: "Delete a document by its unique identifier for the authenticated team.",
     tags: ["Documents"],
     request: {
       params: deleteDocumentSchema,

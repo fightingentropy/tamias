@@ -9,9 +9,7 @@ export const batchProcessMatchingSchema = z.object({
   inboxIds: z.array(z.string().uuid()),
 });
 
-export type BatchProcessMatchingPayload = z.infer<
-  typeof batchProcessMatchingSchema
->;
+export type BatchProcessMatchingPayload = z.infer<typeof batchProcessMatchingSchema>;
 
 export const matchTransactionsBidirectionalSchema = z.object({
   teamId: z.string().uuid(),
@@ -75,15 +73,11 @@ export const inboxProviderInitialSetupSchema = z.object({
   inboxAccountId: z.string().uuid(),
 });
 
-export type InboxProviderInitialSetupPayload = z.infer<
-  typeof inboxProviderInitialSetupSchema
->;
+export type InboxProviderInitialSetupPayload = z.infer<typeof inboxProviderInitialSetupSchema>;
 
 export const inboxProviderSyncAccountSchema = z.object({
   id: z.string().uuid(), // Inbox account ID
   manualSync: z.boolean().optional(),
 });
 
-export type InboxProviderSyncAccountPayload = z.infer<
-  typeof inboxProviderSyncAccountSchema
->;
+export type InboxProviderSyncAccountPayload = z.infer<typeof inboxProviderSyncAccountSchema>;

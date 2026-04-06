@@ -14,9 +14,7 @@ export function useSliderWithInput({
   defaultValue = [minValue],
 }: UseSliderWithInputProps) {
   const [sliderValue, setSliderValue] = useState(initialValue);
-  const [inputValues, setInputValues] = useState(
-    initialValue.map((v) => v.toString()),
-  );
+  const [inputValues, setInputValues] = useState(initialValue.map((v) => v.toString()));
 
   const setValues = useCallback((values: number[]) => {
     setSliderValue(values);

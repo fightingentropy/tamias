@@ -25,10 +25,7 @@ export {
   type GetTransactionCountByBankAccountIdParams,
 } from "./reads-records";
 
-export async function getTransactions(
-  db: Database,
-  params: GetTransactionsParams,
-) {
+export async function getTransactions(db: Database, params: GetTransactionsParams) {
   const {
     teamId,
     sort,

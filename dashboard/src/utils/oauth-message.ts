@@ -1,7 +1,4 @@
-import {
-  OAUTH_ERROR_CODES,
-  type OAuthErrorCode,
-} from "@tamias/app-store/oauth-errors";
+import { OAUTH_ERROR_CODES, type OAuthErrorCode } from "@tamias/app-store/oauth-errors";
 
 export const OAUTH_CHANNEL_NAME = "tamias_oauth_complete";
 

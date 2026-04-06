@@ -13,9 +13,7 @@ import {
   listYearEndSubmissionEvents,
   requireReadyYearEndPack,
 } from "../submission-common";
-import {
-  allocateCompaniesHouseSubmissionIdentifiers,
-} from "./identifiers";
+import { allocateCompaniesHouseSubmissionIdentifiers } from "./identifiers";
 import {
   buildCompaniesHouseAccountsSubmissionRequestSummary,
   findCompaniesHouseSubmissionStatus,
@@ -46,24 +44,23 @@ export async function submitAnnualAccountsToCompaniesHouse(
   },
 ) {
   const context = await getYearEndContext(db, params.teamId, params.periodKey);
-  const [packRecord, closeCompanyLoansSchedule, corporationTaxRateSchedule] =
-    await Promise.all([
-      getYearEndPackByPeriodFromConvex({
-        teamId: params.teamId,
-        filingProfileId: context.profile.id,
-        periodKey: context.period.periodKey,
-      }),
-      getCloseCompanyLoansScheduleByPeriodFromConvex({
-        teamId: params.teamId,
-        filingProfileId: context.profile.id,
-        periodKey: context.period.periodKey,
-      }),
-      getCorporationTaxRateScheduleByPeriodFromConvex({
-        teamId: params.teamId,
-        filingProfileId: context.profile.id,
-        periodKey: context.period.periodKey,
-      }),
-    ]);
+  const [packRecord, closeCompanyLoansSchedule, corporationTaxRateSchedule] = await Promise.all([
+    getYearEndPackByPeriodFromConvex({
+      teamId: params.teamId,
+      filingProfileId: context.profile.id,
+      periodKey: context.period.periodKey,
+    }),
+    getCloseCompanyLoansScheduleByPeriodFromConvex({
+      teamId: params.teamId,
+      filingProfileId: context.profile.id,
+      periodKey: context.period.periodKey,
+    }),
+    getCorporationTaxRateScheduleByPeriodFromConvex({
+      teamId: params.teamId,
+      filingProfileId: context.profile.id,
+      periodKey: context.period.periodKey,
+    }),
+  ]);
   const pack = requireReadyYearEndPack(packRecord);
   const submissionArtifacts = buildCtSubmissionArtifacts({
     team: context.team,
@@ -76,9 +73,7 @@ export async function submitAnnualAccountsToCompaniesHouse(
     context.profile.companyAuthenticationCode?.trim().toUpperCase() ?? null;
 
   if (!params.declarationAccepted) {
-    throw new Error(
-      "Declaration must be accepted before Companies House accounts submission",
-    );
+    throw new Error("Declaration must be accepted before Companies House accounts submission");
   }
 
   if (!submissionArtifacts.statutoryAccountsDraft.filingReadiness.isReady) {
@@ -116,13 +111,10 @@ export async function submitAnnualAccountsToCompaniesHouse(
     throw error;
   }
 
-  let identifiers: Awaited<
-    ReturnType<typeof allocateCompaniesHouseSubmissionIdentifiers>
-  > | null = null;
+  let identifiers: Awaited<ReturnType<typeof allocateCompaniesHouseSubmissionIdentifiers>> | null =
+    null;
   let requestSummary:
-    | (ReturnType<
-        typeof buildCompaniesHouseAccountsSubmissionRequestSummary
-      > & {
+    | (ReturnType<typeof buildCompaniesHouseAccountsSubmissionRequestSummary> & {
         submittedBy: string;
       })
     | null = null;
@@ -148,8 +140,7 @@ export async function submitAnnualAccountsToCompaniesHouse(
         "",
       companyAuthenticationCode,
       dateSigned:
-        submissionArtifacts.statutoryAccountsDraft.approvalDate ??
-        context.period.periodEnd,
+        submissionArtifacts.statutoryAccountsDraft.approvalDate ?? context.period.periodEnd,
       accountsIxbrl: submissionArtifacts.accountsAttachmentIxbrl,
       submissionNumber: identifiers.submissionNumber,
       transactionId: identifiers.transactionId,
@@ -166,10 +157,7 @@ export async function submitAnnualAccountsToCompaniesHouse(
       filingProfileId: context.profile.id,
       provider: "companies-house",
       obligationType: "accounts",
-      status: resolveCompaniesHouseAccountsSubmissionStatus(
-        receipt,
-        identifiers.submissionNumber,
-      ),
+      status: resolveCompaniesHouseAccountsSubmissionStatus(receipt, identifiers.submissionNumber),
       eventType: "annual_accounts_submitted",
       correlationId: identifiers.submissionNumber,
       requestPayload: requestSummary,
@@ -220,21 +208,14 @@ export async function pollAnnualAccountsSubmission(
   });
   const targetEvent = params.submissionNumber
     ? (events.find(
-        (event) =>
-          getSubmissionEventRequestSubmissionNumber(event) ===
-          params.submissionNumber,
+        (event) => getSubmissionEventRequestSubmissionNumber(event) === params.submissionNumber,
       ) ?? null)
-    : (events.find((event) =>
-        Boolean(getSubmissionEventRequestSubmissionNumber(event)),
-      ) ?? null);
+    : (events.find((event) => Boolean(getSubmissionEventRequestSubmissionNumber(event))) ?? null);
   const submissionNumber =
-    params.submissionNumber ??
-    getSubmissionEventRequestSubmissionNumber(targetEvent);
+    params.submissionNumber ?? getSubmissionEventRequestSubmissionNumber(targetEvent);
 
   if (!submissionNumber) {
-    throw new Error(
-      "No Companies House annual accounts submission is available to poll",
-    );
+    throw new Error("No Companies House annual accounts submission is available to poll");
   }
 
   const provider = CompaniesHouseXmlGatewayProvider.fromEnvironment();
@@ -250,20 +231,14 @@ export async function pollAnnualAccountsSubmission(
       submissionNumber,
       companyNumber: context.profile.companyNumber ?? undefined,
     });
-    const selectedStatus = findCompaniesHouseSubmissionStatus(
-      receipt,
-      submissionNumber,
-    );
+    const selectedStatus = findCompaniesHouseSubmissionStatus(receipt, submissionNumber);
 
     await createSubmissionEventInConvex({
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       provider: "companies-house",
       obligationType: "accounts",
-      status: resolveCompaniesHouseAccountsSubmissionStatus(
-        receipt,
-        submissionNumber,
-      ),
+      status: resolveCompaniesHouseAccountsSubmissionStatus(receipt, submissionNumber),
       eventType: "annual_accounts_polled",
       correlationId: submissionNumber,
       requestPayload,

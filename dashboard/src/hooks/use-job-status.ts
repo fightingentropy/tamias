@@ -12,10 +12,7 @@ type UseJobStatusProps = {
 /**
  * Hook for polling async run status through the API.
  */
-export function useJobStatus({
-  runId,
-  enabled = true,
-}: UseJobStatusProps = {}) {
+export function useJobStatus({ runId, enabled = true }: UseJobStatusProps = {}) {
   const trpc = useTRPC();
   const shouldQuery = enabled && !!runId;
   const query = useQuery({
@@ -30,11 +27,7 @@ export function useJobStatus({
         return false;
       }
 
-      if (
-        status === "completed" ||
-        status === "failed" ||
-        status === "canceled"
-      ) {
+      if (status === "completed" || status === "failed" || status === "canceled") {
         return false;
       }
 

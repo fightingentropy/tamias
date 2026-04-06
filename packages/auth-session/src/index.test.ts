@@ -26,15 +26,11 @@ function createDependencies(
 ): ResolveRequestAuthDependencies {
   return {
     internalApiKey: "internal-key",
-    resolveUserSession: mock(
-      async (_token?: string): Promise<Session | null> => null,
-    ),
+    resolveUserSession: mock(async (_token?: string): Promise<Session | null> => null),
     getOAuthAccessTokenByToken: mock(
       async (_token: string): Promise<OAuthAccessTokenRecord | null> => null,
     ),
-    getApiKeyByToken: mock(
-      async (_token: string): Promise<ApiKeyRecord | null> => null,
-    ),
+    getApiKeyByToken: mock(async (_token: string): Promise<ApiKeyRecord | null> => null),
     touchOAuthAccessToken: mock(async (_id: string): Promise<void> => {}),
     touchApiKey: mock(async (_id: string): Promise<void> => {}),
     ...overrides,
@@ -64,9 +60,7 @@ describe("resolveRequestAuth", () => {
 
   test("accepts first-party bearer sessions", async () => {
     const dependencies = createDependencies({
-      resolveUserSession: mock(
-        async (_token?: string): Promise<Session | null> => baseSession,
-      ),
+      resolveUserSession: mock(async (_token?: string): Promise<Session | null> => baseSession),
     });
 
     const result = await resolveRequestAuth(

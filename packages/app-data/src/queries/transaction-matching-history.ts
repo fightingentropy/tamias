@@ -26,28 +26,16 @@ export function extractDomainToken(url: string | null | undefined): string {
   return cleaned?.split(".")[0]?.toLowerCase() ?? "";
 }
 
-async function loadTeamPairHistory(
-  _db: Database,
-  teamId: string,
-): Promise<TeamPairHistoryMap> {
-  const cutoff = new Date(
-    Date.now() - 180 * 24 * 60 * 60 * 1000,
-  ).toISOString();
-  const suggestions = await getTeamSuggestions(
-    teamId,
-    ["confirmed", "declined", "unmatched"],
-    {
-      createdAtFrom: cutoff,
-      limit: HISTORY_SUGGESTION_LIMIT,
-    },
-  );
+async function loadTeamPairHistory(_db: Database, teamId: string): Promise<TeamPairHistoryMap> {
+  const cutoff = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString();
+  const suggestions = await getTeamSuggestions(teamId, ["confirmed", "declined", "unmatched"], {
+    createdAtFrom: cutoff,
+    limit: HISTORY_SUGGESTION_LIMIT,
+  });
   const historyMap: TeamPairHistoryMap = new Map();
 
   for (const suggestion of suggestions) {
-    if (
-      !suggestion.normalizedInboxName ||
-      !suggestion.normalizedTransactionName
-    ) {
+    if (!suggestion.normalizedInboxName || !suggestion.normalizedTransactionName) {
       continue;
     }
 
@@ -144,14 +132,10 @@ export function computeMerchantPatterns(
   const accuracy = confirmed.length / historicalMatches.length;
   const avgConfidence =
     confirmed.length > 0
-      ? confirmed.reduce((sum, row) => sum + Number(row.confidenceScore), 0) /
-        confirmed.length
+      ? confirmed.reduce((sum, row) => sum + Number(row.confidenceScore), 0) / confirmed.length
       : 0;
   const canAutoMatch =
-    confirmed.length >= 3 &&
-    accuracy >= 0.9 &&
-    negative.length <= 1 &&
-    avgConfidence >= 0.85;
+    confirmed.length >= 3 && accuracy >= 0.9 && negative.length <= 1 && avgConfidence >= 0.85;
 
   return {
     canAutoMatch,
@@ -175,9 +159,7 @@ export function computeAliasScore(
     normalizedTransactionName,
   );
 
-  return historicalMatches.filter((row) => row.status === "confirmed").length >= 2
-    ? 0.9
-    : 0;
+  return historicalMatches.filter((row) => row.status === "confirmed").length >= 2 ? 0.9 : 0;
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -207,10 +189,7 @@ export function computeDeclinePenalty(
   let recentConfirmedCount = 0;
 
   for (const row of historicalMatches) {
-    const ageDays = Math.max(
-      0,
-      (now - new Date(row.createdAt).getTime()) / (1000 * 60 * 60 * 24),
-    );
+    const ageDays = Math.max(0, (now - new Date(row.createdAt).getTime()) / (1000 * 60 * 60 * 24));
     const decay = Math.exp(-ageDays / 45);
 
     if (row.status === "declined") declinedWeight += decay;

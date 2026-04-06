@@ -25,9 +25,7 @@ export function SuggestedActions() {
   );
 
   // Mutation for tracking action usage
-  const trackUsageMutation = useMutation(
-    trpc.suggestedActions.trackUsage.mutationOptions(),
-  );
+  const trackUsageMutation = useMutation(trpc.suggestedActions.trackUsage.mutationOptions());
 
   const handleToolCall = (params: {
     toolName: string;
@@ -161,8 +159,7 @@ export function SuggestedActions() {
 
   const suggestedActions = suggestedActionsData.actions;
 
-  type SuggestedAction =
-    RouterOutputs["suggestedActions"]["list"]["actions"][number];
+  type SuggestedAction = RouterOutputs["suggestedActions"]["list"]["actions"][number];
 
   return (
     <div className="w-[calc(100%+16px)] md:w-full -mx-4 md:mx-0 md:px-6 mt-10 mb-8 flex items-center justify-center">
@@ -171,8 +168,7 @@ export function SuggestedActions() {
           const config = uiConfig[action.id];
           const Icon = config?.icon;
           const title = config?.title || action.id;
-          const description =
-            config?.description || `Execute ${action.toolName}`;
+          const description = config?.description || `Execute ${action.toolName}`;
           const isLast = index === suggestedActions.length - 1;
 
           return (
@@ -197,12 +193,8 @@ export function SuggestedActions() {
                 });
               }}
             >
-              {Icon && (
-                <Icon className="w-4 h-4 text-[#707070] dark:text-[#666666]" />
-              )}
-              <span className="text-black dark:text-white text-[12px] font-medium">
-                {title}
-              </span>
+              {Icon && <Icon className="w-4 h-4 text-[#707070] dark:text-[#666666]" />}
+              <span className="text-black dark:text-white text-[12px] font-medium">{title}</span>
             </button>
           );
         })}

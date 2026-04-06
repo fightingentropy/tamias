@@ -66,10 +66,7 @@ export function assertUkComplianceEnabled(
   }
 }
 
-export async function getTeamContext(
-  db: Database,
-  teamId: string,
-): Promise<TeamContext> {
+export async function getTeamContext(db: Database, teamId: string): Promise<TeamContext> {
   const team = await getTeamById(db, teamId);
 
   if (!team) {
@@ -92,11 +89,7 @@ export async function getHmrcVatApp(db: Database, teamId: string) {
   });
 }
 
-export async function getHmrcProvider(
-  db: Database,
-  teamId: string,
-  profile: FilingProfileRecord,
-) {
+export async function getHmrcProvider(db: Database, teamId: string, profile: FilingProfileRecord) {
   const app = await getHmrcVatApp(db, teamId);
 
   if (!app?.config) {
@@ -142,16 +135,10 @@ export const getFilingProfile = reuseQueryResult({
   load: getFilingProfileImpl,
 });
 
-export async function upsertFilingProfile(
-  db: Database,
-  params: UpsertFilingProfileParams,
-) {
+export async function upsertFilingProfile(db: Database, params: UpsertFilingProfileParams) {
   const team = await getTeamContext(db, params.teamId);
 
-  if (
-    (params.legalEntityType ?? "uk_ltd") === "uk_ltd" &&
-    team.countryCode !== "GB"
-  ) {
+  if ((params.legalEntityType ?? "uk_ltd") === "uk_ltd" && team.countryCode !== "GB") {
     throw new Error("UK compliance currently requires a GB team");
   }
 
@@ -183,8 +170,7 @@ export async function upsertFilingProfile(
     dormant: params.dormant ?? null,
     auditExemptionClaimed: params.auditExemptionClaimed ?? null,
     membersDidNotRequireAudit: params.membersDidNotRequireAudit ?? null,
-    directorsAcknowledgeResponsibilities:
-      params.directorsAcknowledgeResponsibilities ?? null,
+    directorsAcknowledgeResponsibilities: params.directorsAcknowledgeResponsibilities ?? null,
     accountsPreparedUnderSmallCompaniesRegime:
       params.accountsPreparedUnderSmallCompaniesRegime ?? null,
   });

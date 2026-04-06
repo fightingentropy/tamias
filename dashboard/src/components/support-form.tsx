@@ -1,22 +1,9 @@
 "use client";
 
 import { Button } from "@tamias/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@tamias/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@tamias/ui/form";
 import { Input } from "@tamias/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@tamias/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@tamias/ui/select";
 import { Textarea } from "@tamias/ui/textarea";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@tamias/ui/use-toast";
@@ -88,10 +75,7 @@ export function SupportForm() {
             <FormItem>
               <FormLabel>Subject</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Summary of the problem you have"
-                  {...field}
-                />
+                <Input placeholder="Summary of the problem you have" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -105,10 +89,7 @@ export function SupportForm() {
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormLabel>Product</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select Product" />
@@ -134,10 +115,7 @@ export function SupportForm() {
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormLabel>Severity</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select severity" />
@@ -175,17 +153,8 @@ export function SupportForm() {
           )}
         />
 
-        <Button
-          type="submit"
-          disabled={
-            sendSupport.isPending || !form.formState.isValid
-          }
-        >
-          {sendSupport.isPending ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            "Submit"
-          )}
+        <Button type="submit" disabled={sendSupport.isPending || !form.formState.isValid}>
+          {sendSupport.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Submit"}
         </Button>
       </form>
     </Form>

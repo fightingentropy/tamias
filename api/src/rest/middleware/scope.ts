@@ -1,9 +1,7 @@
 import type { Scope } from "@tamias/auth-session/scopes";
 import type { MiddlewareHandler } from "hono";
 
-export const withRequiredScope = (
-  ...requiredScopes: Scope[]
-): MiddlewareHandler => {
+export const withRequiredScope = (...requiredScopes: Scope[]): MiddlewareHandler => {
   return async (c, next) => {
     const scopes = c.get("scopes") as Scope[] | undefined;
 
@@ -11,17 +9,14 @@ export const withRequiredScope = (
       return c.json(
         {
           error: "Unauthorized",
-          description:
-            "No scopes found for the current user. Authentication is required.",
+          description: "No scopes found for the current user. Authentication is required.",
         },
         401,
       );
     }
 
     // Check if user has at least one of the required scopes
-    const hasRequiredScope = requiredScopes.some((requiredScope) =>
-      scopes.includes(requiredScope),
-    );
+    const hasRequiredScope = requiredScopes.some((requiredScope) => scopes.includes(requiredScope));
 
     if (!hasRequiredScope) {
       return c.json(

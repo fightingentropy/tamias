@@ -10,10 +10,7 @@ export function DocumentSheet() {
   const isOpen = Boolean(params.filePath || params.documentId);
 
   return (
-    <Sheet
-      open={isOpen}
-      onOpenChange={() => setParams({ documentId: null, filePath: null })}
-    >
+    <Sheet open={isOpen} onOpenChange={() => setParams({ documentId: null, filePath: null })}>
       <SheetContent style={{ maxWidth: 647 }}>
         <DocumentDetails />
       </SheetContent>

@@ -20,11 +20,7 @@ export async function refreshTeamBaseCurrencyData(
   params: RefreshTeamBaseCurrencyDataParams,
 ) {
   const team = await getTeamById(db, params.teamId);
-  const baseCurrency = (
-    params.baseCurrency ??
-    team?.baseCurrency ??
-    ""
-  ).toUpperCase();
+  const baseCurrency = (params.baseCurrency ?? team?.baseCurrency ?? "").toUpperCase();
 
   if (!baseCurrency) {
     throw new Error("Base currency is required");
@@ -54,9 +50,7 @@ export async function refreshTeamBaseCurrencyData(
     });
 
     if (!result?.rate) {
-      throw new Error(
-        `Missing exchange rate from ${normalizedCurrency} to ${baseCurrency}`,
-      );
+      throw new Error(`Missing exchange rate from ${normalizedCurrency} to ${baseCurrency}`);
     }
 
     const rate = Number(result.rate);
@@ -78,9 +72,7 @@ export async function refreshTeamBaseCurrencyData(
         id: account.id,
         teamId: params.teamId,
         baseBalance:
-          accountCurrency === baseCurrency
-            ? balance
-            : roundBaseCurrencyAmount(balance, rate),
+          accountCurrency === baseCurrency ? balance : roundBaseCurrencyAmount(balance, rate),
         baseCurrency,
       });
 

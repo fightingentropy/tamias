@@ -8,9 +8,7 @@
  */
 export function shouldShowChart(stage: string | undefined): boolean {
   if (!stage) return false;
-  return ["loading", "chart_ready", "metrics_ready", "analysis_ready"].includes(
-    stage,
-  );
+  return ["loading", "chart_ready", "metrics_ready", "analysis_ready"].includes(stage);
 }
 
 /**

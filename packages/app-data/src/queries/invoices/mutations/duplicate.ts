@@ -2,16 +2,10 @@ import { generateToken } from "@tamias/invoice/token";
 import { addMonths } from "date-fns";
 import { v4 as uuidv4 } from "uuid";
 import type { Database } from "../../../client";
-import {
-  logActivity,
-  type InvoiceActivityType,
-} from "../../../utils/log-activity";
+import { logActivity, type InvoiceActivityType } from "../../../utils/log-activity";
 import { draftInvoice } from "./draft";
 import { getInvoiceById } from "../reads";
-import type {
-  DraftInvoiceTemplateParams,
-  InvoiceConvexUserId,
-} from "../shared";
+import type { DraftInvoiceTemplateParams, InvoiceConvexUserId } from "../shared";
 
 export type DuplicateInvoiceParams = {
   id: string;
@@ -20,10 +14,7 @@ export type DuplicateInvoiceParams = {
   teamId: string;
 };
 
-export async function duplicateInvoice(
-  db: Database,
-  params: DuplicateInvoiceParams,
-) {
+export async function duplicateInvoice(db: Database, params: DuplicateInvoiceParams) {
   const { id, userId, invoiceNumber, teamId } = params;
   const invoice = await getInvoiceById(db, {
     id,

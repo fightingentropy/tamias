@@ -16,16 +16,11 @@ export function buildInboxAccountMap(accounts: InboxAccountListRecord[]) {
   );
 }
 
-export async function getInboxAccountMap(
-  inboxAccountIds: Array<string | null | undefined>,
-) {
+export async function getInboxAccountMap(inboxAccountIds: Array<string | null | undefined>) {
   const uniqueIds = [...new Set(inboxAccountIds.filter(Boolean))] as string[];
 
   if (uniqueIds.length === 0) {
-    return new Map<
-      string,
-      { id: string; email: string; provider: "gmail" | "outlook" }
-    >();
+    return new Map<string, { id: string; email: string; provider: "gmail" | "outlook" }>();
   }
 
   const accounts = await getInboxAccountsByIdsFromConvex({

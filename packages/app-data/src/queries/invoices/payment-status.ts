@@ -1,6 +1,4 @@
-import {
-  getInvoiceAnalyticsAggregateRowsFromConvex,
-} from "@tamias/app-data-convex";
+import { getInvoiceAnalyticsAggregateRowsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
 
@@ -43,8 +41,7 @@ function getMostRecentPaymentStatusSamples(
       return false;
     })
     .sort((left, right) => {
-      const dueDateDelta =
-        new Date(right.dueDate!).getTime() - new Date(left.dueDate!).getTime();
+      const dueDateDelta = new Date(right.dueDate!).getTime() - new Date(left.dueDate!).getTime();
 
       if (dueDateDelta !== 0) {
         return dueDateDelta;
@@ -74,10 +71,7 @@ function getMostRecentPaymentStatusSamples(
   return samples;
 }
 
-async function getPaymentStatusImpl(
-  _db: Database,
-  teamId: string,
-): Promise<PaymentStatusResult> {
+async function getPaymentStatusImpl(_db: Database, teamId: string): Promise<PaymentStatusResult> {
   const currentDate = new Date();
   const [paidRows, openRows] = await Promise.all([
     getInvoiceAnalyticsAggregateRowsFromConvex({
@@ -115,19 +109,15 @@ async function getPaymentStatusImpl(
 
     if (invoice.status === "paid" && invoice.paidAt) {
       const paidDate = new Date(invoice.paidAt);
-      daysOverdue =
-        (paidDate.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24);
+      daysOverdue = (paidDate.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24);
     } else if (
       (invoice.status === "unpaid" || invoice.status === "overdue") &&
       invoice.paidAt === null
     ) {
-      daysOverdue =
-        (currentDate.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24);
+      daysOverdue = (currentDate.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24);
     }
 
-    const daysSinceDue = Math.abs(
-      (Date.now() - dueDate.getTime()) / (1000 * 60 * 60 * 24),
-    );
+    const daysSinceDue = Math.abs((Date.now() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
     const weight = daysSinceDue <= 90 ? 1.5 : 1.0;
 
     totalWeightedDays += daysOverdue * weight * invoice.count;

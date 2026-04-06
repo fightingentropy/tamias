@@ -72,9 +72,7 @@ export function createMinimalCustomerResponse(): CustomerResponse {
   });
 }
 
-export function createCustomerInput(
-  overrides: Partial<CustomerInput> = {},
-): CustomerInput {
+export function createCustomerInput(overrides: Partial<CustomerInput> = {}): CustomerInput {
   return {
     name: "New Customer",
     email: "contact@newcustomer.com",

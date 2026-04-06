@@ -15,14 +15,8 @@ import {
   getTeamPairHistory,
   normalizeNameForLearning,
 } from "../transaction-matching-history";
-import type {
-  FindInboxMatchesParams,
-  InboxMatchResult,
-} from "../transaction-matching-types";
-import {
-  getIsoDateDistanceInDays,
-  shiftIsoDate,
-} from "../transactions/shared";
+import type { FindInboxMatchesParams, InboxMatchResult } from "../transaction-matching-types";
+import { getIsoDateDistanceInDays, shiftIsoDate } from "../transactions/shared";
 import { getIndexedInboxMatchCandidates } from "./inbox-candidates";
 import {
   getDismissedInboxIds,
@@ -32,9 +26,7 @@ import {
   roundMatchMetric,
 } from "./shared";
 
-type TransactionItem = NonNullable<
-  Awaited<ReturnType<typeof getTransactionByIdFromConvex>>
->;
+type TransactionItem = NonNullable<Awaited<ReturnType<typeof getTransactionByIdFromConvex>>>;
 
 type InboxCandidateRecord =
   | Awaited<ReturnType<typeof getIndexedInboxMatchCandidates>>[number]
@@ -59,17 +51,10 @@ function isRelevantInboxCandidate(
 ) {
   const transactionAmount = Math.abs(transactionItem.amount || 0);
   const transactionBaseAmount = Math.abs(transactionItem.baseAmount || 0);
-  const lowerBound = shiftIsoDate(
-    transactionItem.date,
-    candidate.type === "invoice" ? -123 : -90,
-  );
+  const lowerBound = shiftIsoDate(transactionItem.date, candidate.type === "invoice" ? -123 : -90);
   const upperBound = shiftIsoDate(transactionItem.date, 30);
 
-  if (
-    !candidate.date ||
-    candidate.date < lowerBound ||
-    candidate.date > upperBound
-  ) {
+  if (!candidate.date || candidate.date < lowerBound || candidate.date > upperBound) {
     return false;
   }
 
@@ -113,11 +98,9 @@ function compareInboxCandidates(
   }
 
   const leftAmountRatio =
-    Math.abs(Math.abs(left.amount ?? 0) - transactionAmount) /
-    Math.max(1, transactionAmount);
+    Math.abs(Math.abs(left.amount ?? 0) - transactionAmount) / Math.max(1, transactionAmount);
   const rightAmountRatio =
-    Math.abs(Math.abs(right.amount ?? 0) - transactionAmount) /
-    Math.max(1, transactionAmount);
+    Math.abs(Math.abs(right.amount ?? 0) - transactionAmount) / Math.max(1, transactionAmount);
 
   if (leftAmountRatio !== rightAmountRatio) {
     return leftAmountRatio - rightAmountRatio;
@@ -173,10 +156,7 @@ export async function findInboxMatches(
   params: FindInboxMatchesParams & { excludeInboxIds?: Set<string> },
 ): Promise<InboxMatchResult | null> {
   const { teamId, transactionId, excludeInboxIds, candidateInboxItems } = params;
-  const { suggestedThreshold, autoThreshold } = await getMatchThresholds(
-    db,
-    teamId,
-  );
+  const { suggestedThreshold, autoThreshold } = await getMatchThresholds(db, teamId);
   const transactionItem = await getTransactionByIdFromConvex({
     teamId,
     transactionId,
@@ -203,14 +183,9 @@ export async function findInboxMatches(
     }));
   const candidates = inboxItems
     .filter((candidate) => candidate.transactionId == null)
-    .filter(
-      (candidate) =>
-        candidate.status === "pending" || candidate.status === "no_match",
-    )
+    .filter((candidate) => candidate.status === "pending" || candidate.status === "no_match")
     .filter((candidate) => candidate.date !== null)
-    .filter((candidate) =>
-      excludeInboxIds ? !excludeInboxIds.has(candidate.id) : true,
-    )
+    .filter((candidate) => (excludeInboxIds ? !excludeInboxIds.has(candidate.id) : true))
     .filter((candidate) => isRelevantInboxCandidate(transactionItem, candidate))
     .sort((left, right) => compareInboxCandidates(transactionItem, left, right))
     .slice(0, 30)
@@ -260,9 +235,7 @@ export async function findInboxMatches(
     );
     const isExactAmount =
       candidate.amount !== null &&
-      Math.abs(
-        Math.abs(candidate.amount || 0) - Math.abs(transactionItem.amount || 0),
-      ) < 0.01;
+      Math.abs(Math.abs(candidate.amount || 0) - Math.abs(transactionItem.amount || 0)) < 0.01;
     const isSameCurrency = candidate.currency === transactionItem.currency;
     const confidence = scoreMatch({
       nameScore,
@@ -289,19 +262,12 @@ export async function findInboxMatches(
       currencyScore: roundMatchMetric(currencyScore),
       dateScore: roundMatchMetric(dateScore),
       confidenceScore: roundMatchMetric(confidence),
-      matchType: resolveMatchType(
-        confidence,
-        pattern.canAutoMatch,
-        nameScore,
-        autoThreshold,
-      ),
+      matchType: resolveMatchType(confidence, pattern.canAutoMatch, nameScore, autoThreshold),
       isAlreadyMatched: false,
     });
   }
 
-  scoredCandidates.sort(
-    (left, right) => right.confidenceScore - left.confidenceScore,
-  );
+  scoredCandidates.sort((left, right) => right.confidenceScore - left.confidenceScore);
 
   const dismissedInboxIds = await getDismissedInboxIds({
     teamId,

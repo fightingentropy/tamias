@@ -13,8 +13,7 @@ export const registerBankAccountTools: RegisterTools = (server, ctx) => {
     "bank_accounts_list",
     {
       title: "List Bank Accounts",
-      description:
-        "List all bank accounts for the team including balances and connection status",
+      description: "List all bank accounts for the team including balances and connection status",
       inputSchema: getBankAccountsSchema.shape,
       annotations: READ_ONLY_ANNOTATIONS,
     },

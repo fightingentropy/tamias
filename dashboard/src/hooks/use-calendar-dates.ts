@@ -1,16 +1,7 @@
 import { TZDate } from "@date-fns/tz";
-import {
-  eachDayOfInterval,
-  endOfMonth,
-  endOfWeek,
-  startOfMonth,
-  startOfWeek,
-} from "date-fns";
+import { eachDayOfInterval, endOfMonth, endOfWeek, startOfMonth, startOfWeek } from "date-fns";
 
-export function useCalendarDates(
-  currentDate: TZDate,
-  weekStartsOnMonday: boolean,
-) {
+export function useCalendarDates(currentDate: TZDate, weekStartsOnMonday: boolean) {
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
   const calendarStart = startOfWeek(monthStart, {

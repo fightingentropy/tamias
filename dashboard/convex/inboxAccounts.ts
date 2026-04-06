@@ -5,10 +5,7 @@ import { requireServiceKey } from "./lib/service";
 import { nowIso } from "../../packages/domain/src/identity";
 
 const inboxAccountProvider = v.union(v.literal("gmail"), v.literal("outlook"));
-const inboxAccountStatus = v.union(
-  v.literal("connected"),
-  v.literal("disconnected"),
-);
+const inboxAccountStatus = v.union(v.literal("connected"), v.literal("disconnected"));
 
 function serializeInboxAccountListRecord(record: {
   _id: string;
@@ -105,9 +102,7 @@ export const serviceGetInboxAccountsByIds = query({
       args.ids.map((id) =>
         ctx.db
           .query("inboxAccounts")
-          .withIndex("by_public_inbox_account_id", (q) =>
-            q.eq("publicInboxAccountId", id),
-          )
+          .withIndex("by_public_inbox_account_id", (q) => q.eq("publicInboxAccountId", id))
           .unique(),
       ),
     );
@@ -217,9 +212,7 @@ export const serviceUpdateInboxAccount = mutation({
 
     const record = await ctx.db
       .query("inboxAccounts")
-      .withIndex("by_public_inbox_account_id", (q) =>
-        q.eq("publicInboxAccountId", args.id),
-      )
+      .withIndex("by_public_inbox_account_id", (q) => q.eq("publicInboxAccountId", args.id))
       .unique();
 
     if (!record) {
@@ -360,9 +353,7 @@ export const serviceGetInboxAccountInfo = query({
 
     const record = await ctx.db
       .query("inboxAccounts")
-      .withIndex("by_public_inbox_account_id", (q) =>
-        q.eq("publicInboxAccountId", args.id),
-      )
+      .withIndex("by_public_inbox_account_id", (q) => q.eq("publicInboxAccountId", args.id))
       .unique();
 
     if (!record) {

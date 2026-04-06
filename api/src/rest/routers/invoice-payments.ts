@@ -1,9 +1,5 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import {
-  getTeamById,
-  updateInvoice,
-  updateTeamById,
-} from "@tamias/app-data/queries";
+import { getTeamById, updateInvoice, updateTeamById } from "@tamias/app-data/queries";
 import { getInvoiceByToken } from "@tamias/app-services/invoice-by-token";
 import { decryptOAuthState, encryptOAuthState } from "@tamias/encryption";
 import { toStripeAmount } from "@tamias/invoice/currency";
@@ -25,9 +21,7 @@ interface InvoicePaymentOAuthState {
   source: "invoice-settings";
 }
 
-function isValidOAuthState(
-  parsed: unknown,
-): parsed is InvoicePaymentOAuthState {
+function isValidOAuthState(parsed: unknown): parsed is InvoicePaymentOAuthState {
   return (
     typeof parsed === "object" &&
     parsed !== null &&
@@ -438,10 +432,9 @@ app.openapi(
       // Check if there's an existing payment intent for this invoice
       if (invoice.paymentIntentId) {
         try {
-          const existingIntent = await stripe.paymentIntents.retrieve(
-            invoice.paymentIntentId,
-            { stripeAccount: team.stripeAccountId },
-          );
+          const existingIntent = await stripe.paymentIntents.retrieve(invoice.paymentIntentId, {
+            stripeAccount: team.stripeAccountId,
+          });
 
           // If payment already succeeded, reject - prevents double payments
           // This catches edge case where webhook hasn't updated invoice status yet

@@ -97,9 +97,7 @@ export const documentsRouter = createTRPCRouter({
       );
 
       if (unsupportedDocuments.length > 0) {
-        const unsupportedNames = unsupportedDocuments.map((doc) =>
-          doc.filePath.join("/"),
-        );
+        const unsupportedNames = unsupportedDocuments.map((doc) => doc.filePath.join("/"));
 
         await updateDocuments(db, {
           ids: unsupportedNames,
@@ -155,8 +153,7 @@ export const documentsRouter = createTRPCRouter({
 
       // Get mimetype from metadata
       const mimetype =
-        (document.metadata as { mimetype?: string })?.mimetype ??
-        "application/octet-stream";
+        (document.metadata as { mimetype?: string })?.mimetype ?? "application/octet-stream";
 
       // Validate pathTokens exists - required for job processing
       if (!document.pathTokens || document.pathTokens.length === 0) {
@@ -209,31 +206,25 @@ export const documentsRouter = createTRPCRouter({
       };
     }),
 
-  signedUrl: protectedProcedure
-    .input(signedUrlSchema)
-    .mutation(async ({ input }) => {
-      const { data } = await getVaultSignedUrl({
-        path: input.filePath,
-        expireIn: input.expireIn,
-      });
+  signedUrl: protectedProcedure.input(signedUrlSchema).mutation(async ({ input }) => {
+    const { data } = await getVaultSignedUrl({
+      path: input.filePath,
+      expireIn: input.expireIn,
+    });
 
-      return data;
-    }),
+    return data;
+  }),
 
-  signedUrls: protectedProcedure
-    .input(signedUrlsSchema)
-    .mutation(async ({ input }) => {
-      const results = await Promise.all(
-        input.map((filePath) =>
-          getVaultSignedUrl({
-            path: filePath,
-            expireIn: 60,
-          }),
-        ),
-      );
+  signedUrls: protectedProcedure.input(signedUrlsSchema).mutation(async ({ input }) => {
+    const results = await Promise.all(
+      input.map((filePath) =>
+        getVaultSignedUrl({
+          path: filePath,
+          expireIn: 60,
+        }),
+      ),
+    );
 
-      return results
-        .map((r) => r.data?.signedUrl)
-        .filter((url): url is string => !!url);
-    }),
+    return results.map((r) => r.data?.signedUrl).filter((url): url is string => !!url);
+  }),
 });

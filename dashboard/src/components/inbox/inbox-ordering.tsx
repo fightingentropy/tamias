@@ -37,27 +37,21 @@ export function InboxOrdering() {
 
         <DropdownMenuCheckboxItem
           checked={params.sort === "alphabetical"}
-          onCheckedChange={() =>
-            setParams({ sort: "alphabetical", order: "asc" })
-          }
+          onCheckedChange={() => setParams({ sort: "alphabetical", order: "asc" })}
         >
           Alphabetically
         </DropdownMenuCheckboxItem>
 
         <DropdownMenuCheckboxItem
           checked={params.sort === "document_date" && params.order === "desc"}
-          onCheckedChange={() =>
-            setParams({ sort: "document_date", order: "desc" })
-          }
+          onCheckedChange={() => setParams({ sort: "document_date", order: "desc" })}
         >
           Document date (newest first)
         </DropdownMenuCheckboxItem>
 
         <DropdownMenuCheckboxItem
           checked={params.sort === "document_date" && params.order === "asc"}
-          onCheckedChange={() =>
-            setParams({ sort: "document_date", order: "asc" })
-          }
+          onCheckedChange={() => setParams({ sort: "document_date", order: "asc" })}
         >
           Document date (oldest first)
         </DropdownMenuCheckboxItem>

@@ -18,9 +18,7 @@ export type PresetOption = {
   dateRange: DateRange;
 };
 
-export const getPresetOptions = (
-  fiscalYearStartMonth?: number | null,
-): PresetOption[] => {
+export const getPresetOptions = (fiscalYearStartMonth?: number | null): PresetOption[] => {
   const now = new Date();
   const to = now;
 
@@ -28,8 +26,7 @@ export const getPresetOptions = (
 
   // Add fiscal year preset if configured
   if (fiscalYearStartMonth != null) {
-    const { from: fiscalFrom, to: fiscalTo } =
-      getFiscalYearToDate(fiscalYearStartMonth);
+    const { from: fiscalFrom, to: fiscalTo } = getFiscalYearToDate(fiscalYearStartMonth);
     presets.push({
       label: "Fiscal Year",
       value: "fiscal-year",

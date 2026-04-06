@@ -11,11 +11,7 @@ import { getAppUrl } from "@tamias/utils/envs";
 import { HTTPException } from "hono/http-exception";
 import { publicMiddleware } from "../../../middleware";
 import type { Context } from "../../../types";
-import {
-  buildErrorRedirect,
-  buildSuccessRedirect,
-  mapOAuthError,
-} from "../../../utils/oauth";
+import { buildErrorRedirect, buildSuccessRedirect, mapOAuthError } from "../../../utils/oauth";
 
 const app = new OpenAPIHono<Context>();
 
@@ -97,10 +93,7 @@ app.openapi(
     if (error || !code) {
       const errorCode = mapOAuthError(error);
       logger.info("Xero OAuth error or cancelled", { error, errorCode });
-      return c.redirect(
-        buildErrorRedirect(dashboardUrl, errorCode, "xero", source),
-        302,
-      );
+      return c.redirect(buildErrorRedirect(dashboardUrl, errorCode, "xero", source), 302);
     }
 
     // Validate state
@@ -117,9 +110,7 @@ app.openapi(
       const callbackUrl = new URL(c.req.url);
 
       // Exchange code for tokens (also returns tenant info for Xero)
-      const tokenSet = await provider.exchangeCodeForTokens(
-        callbackUrl.toString(),
-      );
+      const tokenSet = await provider.exchangeCodeForTokens(callbackUrl.toString());
 
       // Xero returns tenant info with the token set
       if (!tokenSet.tenantId) {
@@ -150,10 +141,7 @@ app.openapi(
       });
 
       // Redirect based on source
-      return c.redirect(
-        buildSuccessRedirect(dashboardUrl, "xero", parsedState.source),
-        302,
-      );
+      return c.redirect(buildSuccessRedirect(dashboardUrl, "xero", parsedState.source), 302);
     } catch (err) {
       logger.error("Xero OAuth callback error", {
         error: err instanceof Error ? err.message : String(err),
@@ -161,12 +149,7 @@ app.openapi(
       });
 
       return c.redirect(
-        buildErrorRedirect(
-          dashboardUrl,
-          "token_exchange_failed",
-          "xero",
-          parsedState.source,
-        ),
+        buildErrorRedirect(dashboardUrl, "token_exchange_failed", "xero", parsedState.source),
         302,
       );
     }

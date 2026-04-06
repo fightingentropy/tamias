@@ -61,10 +61,8 @@ export function ActionsMenu({ row }: Props) {
   const canCancelSeries =
     row.invoiceRecurringId &&
     (row.recurring?.status === "active" || row.recurring?.status === "paused");
-  const canPauseSeries =
-    row.invoiceRecurringId && row.recurring?.status === "active";
-  const canResumeSeries =
-    row.invoiceRecurringId && row.recurring?.status === "paused";
+  const canPauseSeries = row.invoiceRecurringId && row.recurring?.status === "active";
+  const canResumeSeries = row.invoiceRecurringId && row.recurring?.status === "paused";
   const canEditSeries =
     row.invoiceRecurringId &&
     (row.recurring?.status === "active" || row.recurring?.status === "paused");
@@ -270,9 +268,7 @@ export function ActionsMenu({ row }: Props) {
             <OpenURL href={`${getUrl()}/i/${row.token}`}>Open invoice</OpenURL>
           </DropdownMenuItem>
 
-          <DropdownMenuItem onClick={handleCopyLink}>
-            Copy link
-          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleCopyLink}>Copy link</DropdownMenuItem>
 
           {row.status !== "draft" && (
             <DropdownMenuItem
@@ -284,10 +280,7 @@ export function ActionsMenu({ row }: Props) {
                 const url = new URL(`${apiUrl}/files/download/invoice`);
                 url.searchParams.set("id", row.id);
                 url.searchParams.set("fk", user.fileKey);
-                downloadFile(
-                  url.toString(),
-                  `${row.invoiceNumber || "invoice"}.pdf`,
-                );
+                downloadFile(url.toString(), `${row.invoiceNumber || "invoice"}.pdf`);
               }}
             >
               Download
@@ -297,19 +290,14 @@ export function ActionsMenu({ row }: Props) {
           {canDownloadReceipt && receiptUrl && (
             <DropdownMenuItem
               onClick={() => {
-                downloadFile(
-                  receiptUrl,
-                  `receipt-${row.invoiceNumber || "invoice"}.pdf`,
-                );
+                downloadFile(receiptUrl, `receipt-${row.invoiceNumber || "invoice"}.pdf`);
               }}
             >
               Download receipt
             </DropdownMenuItem>
           )}
 
-          <DropdownMenuItem
-            onClick={() => duplicateInvoiceMutation.mutate({ id: row.id })}
-          >
+          <DropdownMenuItem onClick={() => duplicateInvoiceMutation.mutate({ id: row.id })}>
             Duplicate
           </DropdownMenuItem>
 
@@ -399,17 +387,12 @@ export function ActionsMenu({ row }: Props) {
             </DropdownMenuItem>
           )}
 
-          {(canEditSeries ||
-            canPauseSeries ||
-            canResumeSeries ||
-            canCancelSeries) && (
+          {(canEditSeries || canPauseSeries || canResumeSeries || canCancelSeries) && (
             <>
               <DropdownMenuSeparator />
               {canEditSeries && (
                 <DropdownMenuItem
-                  onClick={() =>
-                    setParams({ editRecurringId: row.invoiceRecurringId })
-                  }
+                  onClick={() => setParams({ editRecurringId: row.invoiceRecurringId })}
                 >
                   Edit series
                 </DropdownMenuItem>
@@ -458,8 +441,8 @@ export function ActionsMenu({ row }: Props) {
           <AlertDialogHeader>
             <AlertDialogTitle>Cancel recurring series</AlertDialogTitle>
             <AlertDialogDescription>
-              This will stop all future invoices in this recurring series.
-              Invoices that have already been sent will not be affected.
+              This will stop all future invoices in this recurring series. Invoices that have
+              already been sent will not be affected.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

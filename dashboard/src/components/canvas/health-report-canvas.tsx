@@ -110,16 +110,15 @@ export function HealthReportCanvas() {
           </CanvasSection>
 
           {/* Show recommendations if available */}
-          {data?.analysis?.recommendations &&
-            data.analysis.recommendations.length > 0 && (
-              <CanvasSection title="Recommendations" isLoading={false}>
-                <ul className="list-disc list-inside space-y-2 text-[12px] leading-[17px] font-sans text-black dark:text-white">
-                  {data.analysis.recommendations.map((rec, _index) => (
-                    <li key={rec}>{rec}</li>
-                  ))}
-                </ul>
-              </CanvasSection>
-            )}
+          {data?.analysis?.recommendations && data.analysis.recommendations.length > 0 && (
+            <CanvasSection title="Recommendations" isLoading={false}>
+              <ul className="list-disc list-inside space-y-2 text-[12px] leading-[17px] font-sans text-black dark:text-white">
+                {data.analysis.recommendations.map((rec, _index) => (
+                  <li key={rec}>{rec}</li>
+                ))}
+              </ul>
+            </CanvasSection>
+          )}
         </div>
       </CanvasContent>
     </BaseCanvas>

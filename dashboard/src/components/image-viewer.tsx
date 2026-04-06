@@ -17,16 +17,13 @@ function ErrorImage() {
 }
 
 export function ImageViewer({ url }: { url: string }) {
-  const { isLoading, isError, imgRef, handleLoad, handleError } =
-    useImageLoadState(url);
+  const { isLoading, isError, imgRef, handleLoad, handleError } = useImageLoadState(url);
 
   if (!url) return <ErrorImage />;
 
   return (
     <div className="relative flex h-full w-full items-center justify-center bg-primary/10">
-      {isLoading && !isError && (
-        <Skeleton className="absolute inset-0 h-full w-full" />
-      )}
+      {isLoading && !isError && <Skeleton className="absolute inset-0 h-full w-full" />}
 
       {isError && <ErrorImage />}
 

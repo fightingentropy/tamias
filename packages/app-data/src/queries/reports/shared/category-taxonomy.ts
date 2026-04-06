@@ -40,9 +40,7 @@ function getCategoryLookup(countryCode: string | null) {
   const taxType = countryCode ? getTaxTypeForCountry(countryCode) : null;
 
   for (const parent of CATEGORIES) {
-    const parentTaxRate = countryCode
-      ? getTaxRateForCategory(countryCode, parent.slug)
-      : 0;
+    const parentTaxRate = countryCode ? getTaxRateForCategory(countryCode, parent.slug) : 0;
     lookup.set(parent.slug, {
       slug: parent.slug,
       name: parent.name,
@@ -55,9 +53,7 @@ function getCategoryLookup(countryCode: string | null) {
     });
 
     for (const child of parent.children) {
-      const childTaxRate = countryCode
-        ? getTaxRateForCategory(countryCode, child.slug)
-        : 0;
+      const childTaxRate = countryCode ? getTaxRateForCategory(countryCode, child.slug) : 0;
       lookup.set(child.slug, {
         slug: child.slug,
         name: child.name,
@@ -75,10 +71,7 @@ function getCategoryLookup(countryCode: string | null) {
   return lookup;
 }
 
-export function getCategoryInfo(
-  slug: string | null,
-  countryCode: string | null,
-) {
+export function getCategoryInfo(slug: string | null, countryCode: string | null) {
   if (!slug) {
     return null;
   }
@@ -103,9 +96,7 @@ export function getCategoryInfo(
 
 export function getExcludedCategorySlugs() {
   return CATEGORIES.flatMap((parent) =>
-    parent.children
-      .filter((child) => child.excluded)
-      .map((child) => child.slug),
+    parent.children.filter((child) => child.excluded).map((child) => child.slug),
   );
 }
 
@@ -115,9 +106,7 @@ export function getCogsCategorySlugsFromStaticTaxonomy() {
     return [];
   }
 
-  return cogsParent.children
-    .filter((child) => !child.excluded)
-    .map((child) => child.slug);
+  return cogsParent.children.filter((child) => !child.excluded).map((child) => child.slug);
 }
 
 export function getResolvedTransactionTaxRate(
@@ -125,9 +114,7 @@ export function getResolvedTransactionTaxRate(
   countryCode: string | null,
 ) {
   return (
-    transaction.taxRate ??
-    getCategoryInfo(transaction.categorySlug, countryCode)?.taxRate ??
-    0
+    transaction.taxRate ?? getCategoryInfo(transaction.categorySlug, countryCode)?.taxRate ?? 0
   );
 }
 
@@ -135,10 +122,7 @@ export function getResolvedTransactionTaxType(
   transaction: TransactionRecord,
   countryCode: string | null,
 ) {
-  return (
-    transaction.taxType ??
-    (countryCode ? getTaxTypeForCountry(countryCode) : null)
-  );
+  return transaction.taxType ?? (countryCode ? getTaxTypeForCountry(countryCode) : null);
 }
 
 export { CONTRA_REVENUE_CATEGORIES, REVENUE_CATEGORIES };

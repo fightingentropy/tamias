@@ -1,12 +1,5 @@
 import { getAppUrl } from "@tamias/utils/envs";
-import {
-  Body,
-  Container,
-  Heading,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
+import { Body, Container, Heading, Preview, Section, Text } from "@react-email/components";
 import { Footer } from "../components/footer";
 import { Logo } from "../components/logo";
 import {
@@ -34,13 +27,8 @@ export const AppInstalledEmail = ({
   const lightStyles = getEmailInlineStyles("light");
 
   return (
-    <EmailThemeProvider
-      preview={<Preview>An app has been added to your team</Preview>}
-    >
-      <Body
-        className={`my-auto mx-auto font-sans ${themeClasses.body}`}
-        style={lightStyles.body}
-      >
+    <EmailThemeProvider preview={<Preview>An app has been added to your team</Preview>}>
+      <Body className={`my-auto mx-auto font-sans ${themeClasses.body}`} style={lightStyles.body}>
         <Container
           className={`my-[40px] mx-auto p-[20px] max-w-[600px] ${themeClasses.container}`}
           style={{
@@ -75,15 +63,12 @@ export const AppInstalledEmail = ({
               style={{ color: lightStyles.mutedText.color }}
             >
               This email was intended for{" "}
-              <span
-                className={themeClasses.text}
-                style={{ color: lightStyles.text.color }}
-              >
+              <span className={themeClasses.text} style={{ color: lightStyles.text.color }}>
                 {email}
               </span>
-              . If you were not expecting this email, you can ignore this email.
-              If you are concerned about your account's safety, please reply to
-              this email to get in touch with us.
+              . If you were not expecting this email, you can ignore this email. If you are
+              concerned about your account's safety, please reply to this email to get in touch with
+              us.
             </Text>
           </Section>
 

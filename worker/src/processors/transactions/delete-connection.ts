@@ -1,9 +1,6 @@
 import { trpc } from "@tamias/trpc";
 import type { WorkerJob as Job } from "../../types/job";
-import {
-  deleteConnectionSchema,
-  type DeleteConnectionPayload,
-} from "../../schemas/transactions";
+import { deleteConnectionSchema, type DeleteConnectionPayload } from "../../schemas/transactions";
 import { BaseProcessor } from "../base";
 
 export class DeleteConnectionProcessor extends BaseProcessor<DeleteConnectionPayload> {

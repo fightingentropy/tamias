@@ -1,7 +1,4 @@
-export {
-  getFilingProfile,
-  upsertFilingProfile,
-} from "./compliance/shared";
+export { getFilingProfile, upsertFilingProfile } from "./compliance/shared";
 export { listDerivedLedgerEntries } from "./compliance/ledger";
 export {
   addVatAdjustment,

@@ -71,12 +71,7 @@ export function SelectCustomer() {
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent
-        className="w-[200px] p-0"
-        side="bottom"
-        sideOffset={10}
-        align="start"
-      >
+      <PopoverContent className="w-[200px] p-0" side="bottom" sideOffset={10} align="start">
         <Command>
           <CommandInput
             value={value}
@@ -88,9 +83,7 @@ export function SelectCustomer() {
             <CommandEmpty className="text-xs border-t-[1px] border-border p-2">
               <button
                 type="button"
-                onClick={() =>
-                  setCustomerParams({ createCustomer: true, name: value })
-                }
+                onClick={() => setCustomerParams({ createCustomer: true, name: value })}
               >
                 Create customer
               </button>

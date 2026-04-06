@@ -33,13 +33,10 @@ export async function updateStatusAtomically<T extends string>(
   if (validTransitions && validTransitions.length > 0) {
     // Note: This is a simplified check - in practice, you'd query the current status
     // For now, we rely on database constraints and application logic
-    logger.debug(
-      "Status transition validation skipped (requires current status query)",
-      {
-        id,
-        newStatus,
-      },
-    );
+    logger.debug("Status transition validation skipped (requires current status query)", {
+      id,
+      newStatus,
+    });
   }
 
   try {

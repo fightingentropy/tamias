@@ -23,9 +23,7 @@ async function getTransactionForTeamByExternalId(
 ) {
   const byLegacyId = await ctx.db
     .query("transactions")
-    .withIndex("by_public_transaction_id", (q) =>
-      q.eq("publicTransactionId", args.transactionId),
-    )
+    .withIndex("by_public_transaction_id", (q) => q.eq("publicTransactionId", args.transactionId))
     .unique();
 
   if (byLegacyId && byLegacyId.teamId === args.teamId) {
@@ -33,9 +31,7 @@ async function getTransactionForTeamByExternalId(
   }
 
   try {
-    const byDocId = await ctx.db.get(
-      args.transactionId as Id<"transactions">,
-    );
+    const byDocId = await ctx.db.get(args.transactionId as Id<"transactions">);
 
     if (byDocId && byDocId.teamId === args.teamId) {
       return byDocId;
@@ -87,10 +83,7 @@ function serializeTransactionTagAssignment(
   };
 }
 
-async function getTeamOrThrow(
-  ctx: TransactionTagCtx,
-  teamId: string,
-) {
+async function getTeamOrThrow(ctx: TransactionTagCtx, teamId: string) {
   const team = await getTeamByPublicTeamId(ctx, teamId);
 
   if (!team) {
@@ -137,12 +130,11 @@ async function hydrateAssignments(
   }
 
   const tags = await Promise.all(
-    [...new Set(assignments.map((assignment) => assignment.tagId))].map(
-      (tagId) =>
-        ctx.db
-          .query("tags")
-          .withIndex("by_public_tag_id", (q) => q.eq("publicTagId", tagId))
-          .unique(),
+    [...new Set(assignments.map((assignment) => assignment.tagId))].map((tagId) =>
+      ctx.db
+        .query("tags")
+        .withIndex("by_public_tag_id", (q) => q.eq("publicTagId", tagId))
+        .unique(),
     ),
   );
   const tagById = new Map(
@@ -159,15 +151,9 @@ async function hydrateAssignments(
         return null;
       }
 
-      return serializeTransactionTagAssignment(
-        teamId,
-        assignment,
-        tag,
-      );
+      return serializeTransactionTagAssignment(teamId, assignment, tag);
     })
-    .filter((assignment): assignment is NonNullable<typeof assignment> =>
-      Boolean(assignment),
-    );
+    .filter((assignment): assignment is NonNullable<typeof assignment> => Boolean(assignment));
 }
 
 async function upsertAssignment(
@@ -191,10 +177,7 @@ async function upsertAssignment(
   const existing = await ctx.db
     .query("transactionTags")
     .withIndex("by_team_transaction_tag", (q) =>
-      q
-        .eq("teamId", team._id)
-        .eq("transactionId", args.transactionId)
-        .eq("tagId", args.tagId),
+      q.eq("teamId", team._id).eq("transactionId", args.transactionId).eq("tagId", args.tagId),
     )
     .unique();
 
@@ -289,9 +272,7 @@ export const serviceRebuildTransactionTagSortFields = mutation({
 
     const teams = args.teamId
       ? [await getTeamByPublicTeamId(ctx, args.teamId)]
-      : (await ctx.db.query("teams").collect()).filter(
-          (team) => !!team.publicTeamId,
-        );
+      : (await ctx.db.query("teams").collect()).filter((team) => !!team.publicTeamId);
 
     const validTeams = teams.filter(
       (team): team is NonNullable<(typeof teams)[number]> => team !== null,
@@ -323,8 +304,7 @@ export const serviceRebuildTransactionTagSortFields = mutation({
           continue;
         }
 
-        const canonicalTransactionId =
-          transaction.publicTransactionId ?? transaction._id;
+        const canonicalTransactionId = transaction.publicTransactionId ?? transaction._id;
         const sortFields = getTransactionTagSortFields(transaction);
 
         if (
@@ -385,10 +365,7 @@ export const serviceDeleteTransactionTag = mutation({
     const existing = await ctx.db
       .query("transactionTags")
       .withIndex("by_team_transaction_tag", (q) =>
-        q
-          .eq("teamId", team._id)
-          .eq("transactionId", args.transactionId)
-          .eq("tagId", args.tagId),
+        q.eq("teamId", team._id).eq("transactionId", args.transactionId).eq("tagId", args.tagId),
       )
       .unique();
 
@@ -443,9 +420,7 @@ export const serviceDeleteTransactionTagsForTag = mutation({
 
     const assignments = await ctx.db
       .query("transactionTags")
-      .withIndex("by_team_and_tag", (q) =>
-        q.eq("teamId", team._id).eq("tagId", args.tagId),
-      )
+      .withIndex("by_team_and_tag", (q) => q.eq("teamId", team._id).eq("tagId", args.tagId))
       .collect();
 
     for (const assignment of assignments) {

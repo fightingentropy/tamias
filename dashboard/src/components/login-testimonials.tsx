@@ -10,20 +10,16 @@ const testimonials = [
     content:
       "Due to improved invoice reconciliation, we are now saving 1-2 man-days each month, and we have a better understanding of our finances thanks to dashboards.",
     highlighted: "We are now saving 1-2 man-days each month.",
-    firstPart:
-      "Due to improved invoice reconciliation, we are now saving 1-2 man-days each month",
-    secondPart:
-      ", and we have a better understanding of our finances thanks to dashboards.",
+    firstPart: "Due to improved invoice reconciliation, we are now saving 1-2 man-days each month",
+    secondPart: ", and we have a better understanding of our finances thanks to dashboards.",
   },
   {
     name: "Guy Solan",
     title: "Thetis Medical • United Kingdom",
     content:
       "Without Tamias I would've sold my company and lost loads of money. I never had the time to learn Quickbooks or Xero so had no idea what the company cash was doing without ringing up my accountant.",
-    highlighted:
-      "Without Tamias I would've sold my company and lost loads of money",
-    firstPart:
-      "Without Tamias I would've sold my company and lost loads of money",
+    highlighted: "Without Tamias I would've sold my company and lost loads of money",
+    firstPart: "Without Tamias I would've sold my company and lost loads of money",
     secondPart:
       ". I never had the time to learn Quickbooks or Xero so had no idea what the company cash was doing without ringing up my accountant.",
   },
@@ -32,8 +28,7 @@ const testimonials = [
     title: "Kundo Studio • Argentina",
     content:
       "It has completely transformed how I manage my day-to-day tasks. From generating invoices to tracking projects and having all the information centralized in one place, the change has been remarkable.",
-    highlighted:
-      "It has completely transformed how I manage my day-to-day tasks",
+    highlighted: "It has completely transformed how I manage my day-to-day tasks",
     firstPart: "It has completely transformed how I manage my day-to-day tasks",
     secondPart:
       ". From generating invoices to tracking projects and having all the information centralized in one place, the change has been remarkable.",
@@ -43,10 +38,8 @@ const testimonials = [
     title: "Conduct.bln • Germany",
     content:
       "I prefer to have one tool for finances, similar to what Deel is for HR. Tamias helped me find a compromise with my tax advisor: I'm not using one of his supported clunky tools but an actually UX-friendly tool and can provide him with acceptable .csv. That's a big one!",
-    highlighted:
-      "I prefer to have one tool for finances, similar to what Deel is for HR",
-    firstPart:
-      "I prefer to have one tool for finances, similar to what Deel is for HR",
+    highlighted: "I prefer to have one tool for finances, similar to what Deel is for HR",
+    firstPart: "I prefer to have one tool for finances, similar to what Deel is for HR",
     secondPart:
       ". Tamias helped me find a compromise with my tax advisor: I'm not using one of his supported clunky tools but an actually UX-friendly tool and can provide him with acceptable .csv. That's a big one!",
   },
@@ -115,9 +108,7 @@ export default function LoginTestimonials() {
                   <>
                     {testimonial?.firstPart}
                     {punctuation}
-                    <span className="text-white">
-                      {secondPartWithoutPunctuation}"
-                    </span>
+                    <span className="text-white">{secondPartWithoutPunctuation}"</span>
                   </>
                 ) : (
                   <>
@@ -139,8 +130,7 @@ export default function LoginTestimonials() {
             transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
             className="font-sans text-xs text-white/40"
           >
-            {testimonials[currentTestimonial]?.name},{" "}
-            {testimonials[currentTestimonial]?.title}
+            {testimonials[currentTestimonial]?.name}, {testimonials[currentTestimonial]?.title}
           </motion.p>
         </motion.div>
       </AnimatePresence>

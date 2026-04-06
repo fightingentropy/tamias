@@ -87,28 +87,26 @@ describe("QuickBooksProvider", () => {
     test("attaches file to Purchase", async () => {
       const provider = createProvider();
 
-      mockFetchFn.mockImplementation(
-        async (url: string, options?: RequestInit) => {
-          if (url.includes("/upload") && options?.method === "POST") {
-            return {
-              ok: true,
-              json: () =>
-                Promise.resolve({
-                  AttachableResponse: [
-                    {
-                      Attachable: {
-                        Id: "att-123",
-                        FileName: "receipt.pdf",
-                      },
+      mockFetchFn.mockImplementation(async (url: string, options?: RequestInit) => {
+        if (url.includes("/upload") && options?.method === "POST") {
+          return {
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                AttachableResponse: [
+                  {
+                    Attachable: {
+                      Id: "att-123",
+                      FileName: "receipt.pdf",
                     },
-                  ],
-                }),
-            };
-          }
+                  },
+                ],
+              }),
+          };
+        }
 
-          return { ok: true, json: () => Promise.resolve({}) };
-        },
-      );
+        return { ok: true, json: () => Promise.resolve({}) };
+      });
 
       const result = await provider.uploadAttachment({
         transactionId: "purchase-123",
@@ -126,28 +124,26 @@ describe("QuickBooksProvider", () => {
     test("attaches file to Deposit", async () => {
       const provider = createProvider();
 
-      mockFetchFn.mockImplementation(
-        async (url: string, options?: RequestInit) => {
-          if (url.includes("/upload") && options?.method === "POST") {
-            return {
-              ok: true,
-              json: () =>
-                Promise.resolve({
-                  AttachableResponse: [
-                    {
-                      Attachable: {
-                        Id: "att-456",
-                        FileName: "invoice.pdf",
-                      },
+      mockFetchFn.mockImplementation(async (url: string, options?: RequestInit) => {
+        if (url.includes("/upload") && options?.method === "POST") {
+          return {
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                AttachableResponse: [
+                  {
+                    Attachable: {
+                      Id: "att-456",
+                      FileName: "invoice.pdf",
                     },
-                  ],
-                }),
-            };
-          }
+                  },
+                ],
+              }),
+          };
+        }
 
-          return { ok: true, json: () => Promise.resolve({}) };
-        },
-      );
+        return { ok: true, json: () => Promise.resolve({}) };
+      });
 
       const result = await provider.uploadAttachment({
         transactionId: "deposit-456",
@@ -239,8 +235,7 @@ describe("QuickBooksProvider", () => {
 
       mockFetchFn.mockImplementation(async () => ({
         ok: true,
-        json: () =>
-          Promise.resolve({ CompanyInfo: { CompanyName: "Test Company" } }),
+        json: () => Promise.resolve({ CompanyInfo: { CompanyName: "Test Company" } }),
       }));
 
       const result = await provider.checkConnection();

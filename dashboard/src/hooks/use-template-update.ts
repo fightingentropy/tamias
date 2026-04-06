@@ -44,9 +44,7 @@ export function useTemplateUpdate() {
     }),
   );
 
-  const updateTemplate = (
-    data: Omit<Parameters<typeof mutation.mutate>[0], "id">,
-  ) => {
+  const updateTemplate = (data: Omit<Parameters<typeof mutation.mutate>[0], "id">) => {
     mutation.mutate({
       id: templateId,
       ...data,

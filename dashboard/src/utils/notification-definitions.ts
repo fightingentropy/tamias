@@ -21,10 +21,7 @@ export function getNotificationDisplayInfo(
 
     // If the translation keys don't exist, t() will return the key itself
     // Check if we got actual translations or just the keys back
-    if (
-      name.includes("notifications.") ||
-      description.includes("notifications.")
-    ) {
+    if (name.includes("notifications.") || description.includes("notifications.")) {
       return undefined;
     }
 
@@ -59,10 +56,7 @@ export function getNotificationDisplayInfoWithFallback(
 }
 
 // Helper function to get category display title from i18n
-export function getCategoryDisplayTitle(
-  category: string,
-  t: ReturnType<typeof useI18n>,
-): string {
+export function getCategoryDisplayTitle(category: string, t: ReturnType<typeof useI18n>): string {
   const translate = t as (key: string) => string;
 
   try {
@@ -72,16 +66,12 @@ export function getCategoryDisplayTitle(
     // Check if we got actual translation or just the key back
     if (categoryTitle.includes("notifications.categories.")) {
       // Fallback: capitalize first letter and replace underscores with spaces
-      return (
-        category.charAt(0).toUpperCase() + category.slice(1).replace(/_/g, " ")
-      );
+      return category.charAt(0).toUpperCase() + category.slice(1).replace(/_/g, " ");
     }
 
     return categoryTitle;
   } catch {
     // Fallback for unknown categories
-    return (
-      category.charAt(0).toUpperCase() + category.slice(1).replace(/_/g, " ")
-    );
+    return category.charAt(0).toUpperCase() + category.slice(1).replace(/_/g, " ");
   }
 }

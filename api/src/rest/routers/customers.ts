@@ -1,9 +1,6 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import { deleteCustomer, upsertCustomer } from "@tamias/app-data/queries";
-import {
-  getCustomerByIdForTeam,
-  getCustomersPage,
-} from "@tamias/app-services/customers";
+import { getCustomerByIdForTeam, getCustomersPage } from "@tamias/app-services/customers";
 import {
   customerResponseSchema,
   customersResponseSchema,

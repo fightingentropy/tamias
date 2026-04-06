@@ -50,13 +50,7 @@ export {
 } from "./utils";
 
 // Constants for easy reference
-export const TAX_TYPES = [
-  "vat",
-  "gst",
-  "sales_tax",
-  "income_tax",
-  "none",
-] as const;
+export const TAX_TYPES = ["vat", "gst", "sales_tax", "income_tax", "none"] as const;
 
 // Revenue category constants
 export const REVENUE_CATEGORIES = [
@@ -70,7 +64,4 @@ export const REVENUE_CATEGORIES = [
   "other-income",
 ] as const;
 
-export const CONTRA_REVENUE_CATEGORIES = [
-  "customer-refunds",
-  "chargebacks-disputes",
-] as const;
+export const CONTRA_REVENUE_CATEGORIES = ["customer-refunds", "chargebacks-disputes"] as const;

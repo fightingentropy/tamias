@@ -24,12 +24,7 @@ export const invoiceProductsRouter = createTRPCRouter({
   get: protectedProcedure
     .input(getInvoiceProductsSchema)
     .query(async ({ input, ctx: { teamId } }) => {
-      const {
-        sortBy = "popular",
-        limit = 50,
-        includeInactive = false,
-        currency,
-      } = input || {};
+      const { sortBy = "popular", limit = 50, includeInactive = false, currency } = input || {};
 
       return getInvoiceProducts(teamId!, {
         sortBy,

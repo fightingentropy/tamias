@@ -35,8 +35,7 @@ export function formatEditorContent(doc?: EditorDoc): React.ReactNode | null {
                   const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(content);
 
                   if (href || isEmail) {
-                    const linkHref =
-                      href || (isEmail ? `mailto:${content}` : content);
+                    const linkHref = href || (isEmail ? `mailto:${content}` : content);
                     return (
                       <a
                         key={`link-${nodeIndex}-${inlineIndex.toString()}`}
@@ -49,19 +48,14 @@ export function formatEditorContent(doc?: EditorDoc): React.ReactNode | null {
                   }
 
                   return (
-                    <span
-                      key={`text-${nodeIndex}-${inlineIndex.toString()}`}
-                      className={style}
-                    >
+                    <span key={`text-${nodeIndex}-${inlineIndex.toString()}`} className={style}>
                       {content}
                     </span>
                   );
                 }
 
                 if (inlineContent.type === "hardBreak") {
-                  return (
-                    <br key={`break-${nodeIndex}-${inlineIndex.toString()}`} />
-                  );
+                  return <br key={`break-${nodeIndex}-${inlineIndex.toString()}`} />;
                 }
                 return null;
               })}

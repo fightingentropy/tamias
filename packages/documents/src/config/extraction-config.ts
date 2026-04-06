@@ -28,10 +28,7 @@ export interface ExtractionConfig<T extends z.ZodSchema> {
   qualityThreshold: number;
   criticalFields: string[];
   fieldPriority: Record<string, number>; // Higher number = higher priority
-  promptFactory: (
-    companyName?: string | null,
-    format?: DocumentFormat,
-  ) => PromptComponents;
+  promptFactory: (companyName?: string | null, format?: DocumentFormat) => PromptComponents;
 }
 
 /**
@@ -49,13 +46,7 @@ export const invoiceConfig: ExtractionConfig<typeof invoiceSchema> = {
   contentType: "file",
   mediaType: "application/pdf",
   qualityThreshold: 70,
-  criticalFields: [
-    "total_amount",
-    "currency",
-    "vendor_name",
-    "invoice_date",
-    "due_date",
-  ],
+  criticalFields: ["total_amount", "currency", "vendor_name", "invoice_date", "due_date"],
   fieldPriority: {
     total_amount: 10,
     currency: 10,

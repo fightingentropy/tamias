@@ -122,9 +122,7 @@ export const getRevenueResponseSchema = z
       .openapi("RevenueSummary"),
     meta: z
       .object({
-        type: z
-          .literal("revenue")
-          .openapi({ description: "Type of metric", example: "revenue" }),
+        type: z.literal("revenue").openapi({ description: "Type of metric", example: "revenue" }),
         currency: z.string().openapi({
           description: "Currency code (ISO 4217)",
           example: "USD",
@@ -210,9 +208,7 @@ export const getProfitResponseSchema = z
       .openapi("ProfitSummary"),
     meta: z
       .object({
-        type: z
-          .literal("profit")
-          .openapi({ description: "Type of metric", example: "profit" }),
+        type: z.literal("profit").openapi({ description: "Type of metric", example: "profit" }),
         currency: z.string().openapi({
           description: "Currency code (ISO 4217)",
           example: "USD",
@@ -458,8 +454,7 @@ const forecastBreakdownSchema = z
       example: 1000,
     }),
     collections: z.number().openapi({
-      description:
-        "Expected collections from outstanding invoices (medium confidence)",
+      description: "Expected collections from outstanding invoices (medium confidence)",
       example: 3000,
     }),
     billableHours: z.number().openapi({
@@ -579,8 +574,7 @@ export const getRevenueForecastResponseSchema = z
           example: 72,
         }),
         warnings: z.array(z.string()).openapi({
-          description:
-            "Warnings about potential issues (e.g., double-counting)",
+          description: "Warnings about potential issues (e.g., double-counting)",
           example: [],
         }),
         recurringRevenueTotal: z.number().openapi({
@@ -686,14 +680,10 @@ export const getGrowthRateSchema = z
       description: "Type of revenue calculation",
       example: "net",
     }),
-    period: z
-      .enum(["monthly", "quarterly", "yearly"])
-      .optional()
-      .default("quarterly")
-      .openapi({
-        description: "Period for growth comparison",
-        example: "quarterly",
-      }),
+    period: z.enum(["monthly", "quarterly", "yearly"]).optional().default("quarterly").openapi({
+      description: "Period for growth comparison",
+      example: "quarterly",
+    }),
   })
   .openapi("GetGrowthRateSchema");
 
@@ -732,14 +722,10 @@ export const getCashFlowSchema = z
       description: "Currency code (ISO 4217)",
       example: "USD",
     }),
-    period: z
-      .enum(["monthly", "quarterly"])
-      .optional()
-      .default("monthly")
-      .openapi({
-        description: "Aggregation period for cash flow data",
-        example: "monthly",
-      }),
+    period: z.enum(["monthly", "quarterly"]).optional().default("monthly").openapi({
+      description: "Aggregation period for cash flow data",
+      example: "monthly",
+    }),
   })
   .openapi("GetCashFlowSchema");
 
@@ -763,8 +749,7 @@ export const getRecurringExpensesSchema = z
 export const getBalanceSheetSchema = z
   .object({
     asOf: z.string().optional().openapi({
-      description:
-        "Balance sheet as of date (ISO 8601 format), defaults to today",
+      description: "Balance sheet as of date (ISO 8601 format), defaults to today",
       example: "2023-12-31",
     }),
     currency: z.string().optional().openapi({

@@ -14,9 +14,7 @@ export function NoResults() {
         <Icons.Transactions2 className="mb-4" />
         <div className="text-center mb-6 space-y-2">
           <h2 className="font-medium text-lg">No results</h2>
-          <p className="text-[#606060] text-sm">
-            Try another search, or adjusting the filters
-          </p>
+          <p className="text-[#606060] text-sm">Try another search, or adjusting the filters</p>
         </div>
 
         <Button variant="outline" onClick={clearAllFilters}>
@@ -33,9 +31,8 @@ export function NoTransactions() {
       <div className="text-center max-w-sm mx-auto flex flex-col items-center justify-center">
         <h2 className="text-xl font-medium mb-2">No transactions</h2>
         <p className="text-sm text-[#878787] mb-6">
-          Connect your bank account to automatically import transactions and
-          unlock powerful financial insights to help you make smarter money
-          decisions.
+          Connect your bank account to automatically import transactions and unlock powerful
+          financial insights to help you make smarter money decisions.
         </p>
 
         <AddAccountButton />
@@ -50,8 +47,7 @@ export function ReviewComplete() {
       <div className="text-center max-w-sm mx-auto flex flex-col items-center justify-center">
         <h2 className="text-xl font-medium mb-2">All done</h2>
         <p className="text-sm text-[#878787]">
-          Everything is exported. New transactions will appear here when they
-          are ready to export.
+          Everything is exported. New transactions will appear here when they are ready to export.
         </p>
       </div>
     </div>

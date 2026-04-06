@@ -7,10 +7,7 @@ import { useEffect, useMemo } from "react";
 import { useAuthToken } from "@/framework/auth-client";
 import { useMetricsFilterStore } from "@/store/metrics-filter";
 import { useTRPC } from "@/trpc/client";
-import {
-  getPeriodDateRange,
-  type PeriodOption,
-} from "@/utils/metrics-date-utils";
+import { getPeriodDateRange, type PeriodOption } from "@/utils/metrics-date-utils";
 
 // Default values for metrics filters
 const DEFAULT_PERIOD: PeriodOption = "1-year";
@@ -27,9 +24,7 @@ export const metricsFilterSchema = {
 /**
  * Type guard to check if a string is a valid PeriodOption
  */
-function isPeriodOption(
-  value: string | null | undefined,
-): value is PeriodOption {
+function isPeriodOption(value: string | null | undefined): value is PeriodOption {
   if (!value) return false;
   const validPeriods: PeriodOption[] = [
     "3-months",
@@ -46,9 +41,7 @@ function isPeriodOption(
 /**
  * Type guard to check if a string is a valid RevenueType
  */
-function isRevenueType(
-  value: string | null | undefined,
-): value is "gross" | "net" {
+function isRevenueType(value: string | null | undefined): value is "gross" | "net" {
   return value === "gross" || value === "net";
 }
 
@@ -135,13 +128,7 @@ export function useMetricsFilter() {
       !params.from &&
       !params.to
     );
-  }, [
-    params.period,
-    params.revenueType,
-    params.currency,
-    params.from,
-    params.to,
-  ]);
+  }, [params.period, params.revenueType, params.currency, params.from, params.to]);
 
   /**
    * Determine effective values (URL params take precedence, otherwise use store/localStorage)
@@ -195,20 +182,8 @@ export function useMetricsFilter() {
     }
 
     // Otherwise, calculate from period
-    return getPeriodDateRange(
-      effectivePeriod,
-      fiscalYearStartMonth,
-      customFrom,
-      customTo,
-    );
-  }, [
-    effectivePeriod,
-    customFrom,
-    customTo,
-    params.from,
-    params.to,
-    fiscalYearStartMonth,
-  ]);
+    return getPeriodDateRange(effectivePeriod, fiscalYearStartMonth, customFrom, customTo);
+  }, [effectivePeriod, customFrom, customTo, params.from, params.to, fiscalYearStartMonth]);
 
   /**
    * Sync URL params to store when they change (but not when URL is at defaults)
@@ -218,13 +193,7 @@ export function useMetricsFilter() {
     if (!storeIsReady) return;
     if (isAtDefaults) return; // Don't sync if URL is at defaults (use localStorage values instead)
 
-    syncFromUrl(
-      params.period,
-      params.revenueType,
-      params.currency,
-      params.from,
-      params.to,
-    );
+    syncFromUrl(params.period, params.revenueType, params.currency, params.from, params.to);
   }, [
     params.period,
     params.revenueType,

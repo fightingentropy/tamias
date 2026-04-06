@@ -28,13 +28,8 @@ type Ct600aReliefSection = {
   reliefDue: number;
 };
 
-function renderOptionalMoneyElement(
-  elementName: string,
-  value: number | null | undefined,
-) {
-  return value != null
-    ? `<${elementName}>${formatMoney(value)}</${elementName}>`
-    : "";
+function renderOptionalMoneyElement(elementName: string, value: number | null | undefined) {
+  return value != null ? `<${elementName}>${formatMoney(value)}</${elementName}>` : "";
 }
 
 function renderLoansInformationXml(section: Ct600aLoansInformation) {
@@ -93,22 +88,14 @@ export function renderCt600aXml(draft: Ct600Draft) {
       : ""
   }${
     ct600aSupplement.reliefEarlierThan
-      ? renderReliefSectionXml(
-          "ReliefEarlierThan",
-          ct600aSupplement.reliefEarlierThan,
-        )
+      ? renderReliefSectionXml("ReliefEarlierThan", ct600aSupplement.reliefEarlierThan)
       : ""
   }${
     ct600aSupplement.loanLaterReliefNow
-      ? renderReliefSectionXml(
-          "LoanLaterReliefNow",
-          ct600aSupplement.loanLaterReliefNow,
-        )
+      ? renderReliefSectionXml("LoanLaterReliefNow", ct600aSupplement.loanLaterReliefNow)
       : ""
   }${renderOptionalMoneyElement(
     "TotalLoansOutstanding",
     ct600aSupplement.totalLoansOutstanding,
-  )}<TaxPayable>${formatMoney(
-    ct600aSupplement.taxPayable,
-  )}</TaxPayable></LoansByCloseCompanies>`;
+  )}<TaxPayable>${formatMoney(ct600aSupplement.taxPayable)}</TaxPayable></LoansByCloseCompanies>`;
 }

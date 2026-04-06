@@ -25,10 +25,8 @@
     --ring: 240 5.9% 10%;
     --radius: 0.5rem;
     /* Typography — Hedvig (matches Midday / next/font variable pattern) */
-    --font-hedvig-sans:
-      "Hedvig Letters Sans", ui-sans-serif, system-ui, sans-serif;
-    --font-hedvig-serif:
-      "Hedvig Letters Serif", ui-serif, Georgia, "Times New Roman", serif;
+    --font-hedvig-sans: "Hedvig Letters Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-hedvig-serif: "Hedvig Letters Serif", ui-serif, Georgia, "Times New Roman", serif;
     /* Chart colors */
     --chart-grid-stroke: #e6e6e6;
     --chart-axis-text: #707070;

@@ -38,17 +38,10 @@ export function TableRow({ row }: Props) {
         <div className="flex items-center space-x-4">
           <Avatar className="size-8 rounded-none">
             {row.logoUrl && (
-              <AvatarImageNext
-                src={row.logoUrl}
-                alt={row.name ?? ""}
-                width={32}
-                height={32}
-              />
+              <AvatarImageNext src={row.logoUrl} alt={row.name ?? ""} width={32} height={32} />
             )}
             <AvatarFallback className="rounded-none">
-              <span className="text-xs">
-                {row?.name?.charAt(0)?.toUpperCase()}
-              </span>
+              <span className="text-xs">{row?.name?.charAt(0)?.toUpperCase()}</span>
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col">

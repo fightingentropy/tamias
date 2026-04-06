@@ -10,14 +10,7 @@ export function InvoiceStatus({
   className,
   textOnly = false,
 }: {
-  status?:
-    | "draft"
-    | "overdue"
-    | "paid"
-    | "unpaid"
-    | "canceled"
-    | "scheduled"
-    | "refunded";
+  status?: "draft" | "overdue" | "paid" | "unpaid" | "canceled" | "scheduled" | "refunded";
   isLoading?: boolean;
   className?: string;
   textOnly?: boolean;
@@ -37,8 +30,7 @@ export function InvoiceStatus({
     return (
       <span
         className={cn(
-          (status === "draft" || status === "canceled") &&
-            "text-[#878787] dark:text-[#878787]",
+          (status === "draft" || status === "canceled") && "text-[#878787] dark:text-[#878787]",
           status === "overdue" && "text-[#FFD02B] dark:text-[#FFD02B]",
           status === "paid" && "text-[#00C969] dark:text-[#00C969]",
           status === "unpaid" && "text-[#1D1D1D] dark:text-[#F5F5F3]",
@@ -60,8 +52,7 @@ export function InvoiceStatus({
           "text-[#878787] bg-[#F2F1EF] text-[10px] dark:text-[#878787] dark:bg-[#1D1D1D]",
         status === "overdue" &&
           "bg-[#FFD02B]/10 text-[#FFD02B] dark:bg-[#FFD02B]/10 dark:text-[#FFD02B]",
-        status === "paid" &&
-          "text-[#00C969] bg-[#DDF1E4] dark:text-[#00C969] dark:bg-[#00C969]/10",
+        status === "paid" && "text-[#00C969] bg-[#DDF1E4] dark:text-[#00C969] dark:bg-[#00C969]/10",
         status === "unpaid" &&
           "text-[#1D1D1D] bg-[#878787]/10 dark:text-[#F5F5F3] dark:bg-[#F5F5F3]/10",
         status === "scheduled" &&
@@ -71,9 +62,7 @@ export function InvoiceStatus({
         className,
       )}
     >
-      <span className="line-clamp-1 truncate inline-block">
-        {t(`invoice_status.${status}`)}
-      </span>
+      <span className="line-clamp-1 truncate inline-block">{t(`invoice_status.${status}`)}</span>
     </div>
   );
 }

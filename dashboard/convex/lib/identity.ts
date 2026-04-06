@@ -89,27 +89,18 @@ export type SerializedCurrentUser = {
   team: SerializedTeam | null;
 };
 
-export async function getAppUserByAuthUserId(
-  ctx: IdentityCtx,
-  authUserId: Id<"users">,
-) {
+export async function getAppUserByAuthUserId(ctx: IdentityCtx, authUserId: Id<"users">) {
   return ctx.db
     .query("appUsers")
     .withIndex("by_auth_user_id", (q) => q.eq("authUserId", authUserId))
     .unique();
 }
 
-export async function getAppUserById(
-  ctx: IdentityCtx,
-  appUserId: Id<"appUsers">,
-) {
+export async function getAppUserById(ctx: IdentityCtx, appUserId: Id<"appUsers">) {
   return ctx.db.get(appUserId);
 }
 
-export async function getAppUserByEmail(
-  ctx: IdentityCtx,
-  email: string | null | undefined,
-) {
+export async function getAppUserByEmail(ctx: IdentityCtx, email: string | null | undefined) {
   const normalizedEmail = normalizeEmail(email);
 
   if (!normalizedEmail) {
@@ -146,10 +137,7 @@ export async function resolveAppUserByIdOrEmail(
   return null;
 }
 
-export async function getAppUsersByEmail(
-  ctx: IdentityCtx,
-  email: string | null | undefined,
-) {
+export async function getAppUsersByEmail(ctx: IdentityCtx, email: string | null | undefined) {
   const normalizedEmail = normalizeEmail(email);
 
   if (!normalizedEmail) {
@@ -162,71 +150,48 @@ export async function getAppUsersByEmail(
     .collect();
 }
 
-export async function getTeamByPublicTeamId(
-  ctx: IdentityCtx,
-  publicTeamId: string,
-) {
+export async function getTeamByPublicTeamId(ctx: IdentityCtx, publicTeamId: string) {
   return ctx.db
     .query("teams")
     .withIndex("by_public_team_id", (q) => q.eq("publicTeamId", publicTeamId))
     .unique();
 }
 
-export async function getTeamByInboxId(
-  ctx: IdentityCtx,
-  inboxId: string,
-) {
+export async function getTeamByInboxId(ctx: IdentityCtx, inboxId: string) {
   return ctx.db
     .query("teams")
     .withIndex("by_inbox_id", (q) => q.eq("inboxId", inboxId))
     .unique();
 }
 
-export async function getTeamByStripeAccountId(
-  ctx: IdentityCtx,
-  stripeAccountId: string,
-) {
+export async function getTeamByStripeAccountId(ctx: IdentityCtx, stripeAccountId: string) {
   return ctx.db
     .query("teams")
-    .withIndex("by_stripe_account_id", (q) =>
-      q.eq("stripeAccountId", stripeAccountId),
-    )
+    .withIndex("by_stripe_account_id", (q) => q.eq("stripeAccountId", stripeAccountId))
     .unique();
 }
 
-export async function getTeamMembershipsByTeamId(
-  ctx: IdentityCtx,
-  teamId: Id<"teams">,
-) {
+export async function getTeamMembershipsByTeamId(ctx: IdentityCtx, teamId: Id<"teams">) {
   const memberships = await ctx.db
     .query("teamMembers")
     .withIndex("by_team_id", (q) => q.eq("teamId", teamId))
     .collect();
 
-  return memberships.sort((left, right) =>
-    left.createdAt.localeCompare(right.createdAt),
-  );
+  return memberships.sort((left, right) => left.createdAt.localeCompare(right.createdAt));
 }
 
-export async function getTeamInviteByPublicInviteId(
-  ctx: IdentityCtx,
-  publicInviteId: string,
-) {
+export async function getTeamInviteByPublicInviteId(ctx: IdentityCtx, publicInviteId: string) {
   return ctx.db
     .query("teamInvites")
     .withIndex("by_public_invite_id", (q) => q.eq("publicInviteId", publicInviteId))
     .unique();
 }
 
-export function publicUserId(
-  appUser: Pick<Doc<"appUsers">, "_id"> | null | undefined,
-) {
+export function publicUserId(appUser: Pick<Doc<"appUsers">, "_id"> | null | undefined) {
   return appUser?._id ?? null;
 }
 
-export function publicTeamId(
-  team: Pick<Doc<"teams">, "_id" | "publicTeamId"> | null | undefined,
-) {
+export function publicTeamId(team: Pick<Doc<"teams">, "_id" | "publicTeamId"> | null | undefined) {
   return team?.publicTeamId ?? team?._id ?? null;
 }
 
@@ -236,9 +201,7 @@ export async function getOAuthApplicationByPublicApplicationId(
 ) {
   return ctx.db
     .query("oauthApplications")
-    .withIndex("by_public_application_id", (q) =>
-      q.eq("publicApplicationId", publicApplicationId),
-    )
+    .withIndex("by_public_application_id", (q) => q.eq("publicApplicationId", publicApplicationId))
     .unique();
 }
 
@@ -272,10 +235,7 @@ export async function ensureCurrentAppUserRecord(ctx: MutationCtx) {
   return ensureAppUserForAuthUser(ctx, authUserId);
 }
 
-export async function ensureAppUserForAuthUser(
-  ctx: MutationCtx,
-  authUserId: Id<"users">,
-) {
+export async function ensureAppUserForAuthUser(ctx: MutationCtx, authUserId: Id<"users">) {
   const existing = await getAppUserByAuthUserId(ctx, authUserId);
   const timestamp = nowIso();
 
@@ -298,22 +258,16 @@ export async function ensureAppUserForAuthUser(
     await ctx.db.patch(linkedByEmail._id, {
       authUserId,
       email:
-        normalizeEmail(
-          typeof authUser.email === "string" ? authUser.email : null,
-        ) ??
+        normalizeEmail(typeof authUser.email === "string" ? authUser.email : null) ??
         linkedByEmail.email,
       fullName:
         linkedByEmail.fullName ??
-        (normalizeOptionalString(
-          typeof authUser.name === "string" ? authUser.name : null,
-        ) ??
-          undefined),
+        normalizeOptionalString(typeof authUser.name === "string" ? authUser.name : null) ??
+        undefined,
       avatarUrl:
         linkedByEmail.avatarUrl ??
-        (normalizeOptionalString(
-          typeof authUser.image === "string" ? authUser.image : null,
-        ) ??
-          undefined),
+        normalizeOptionalString(typeof authUser.image === "string" ? authUser.image : null) ??
+        undefined,
       updatedAt: timestamp,
     });
 
@@ -351,9 +305,7 @@ export async function getMembership(
 ) {
   return ctx.db
     .query("teamMembers")
-    .withIndex("by_team_and_user", (q) =>
-      q.eq("teamId", teamId).eq("appUserId", appUserId),
-    )
+    .withIndex("by_team_and_user", (q) => q.eq("teamId", teamId).eq("appUserId", appUserId))
     .unique();
 }
 
@@ -371,10 +323,7 @@ export async function requireMembership(
   return membership;
 }
 
-export async function resolveCurrentTeam(
-  ctx: IdentityCtx,
-  appUser: Doc<"appUsers">,
-) {
+export async function resolveCurrentTeam(ctx: IdentityCtx, appUser: Doc<"appUsers">) {
   if (!appUser.currentTeamId) {
     return null;
   }
@@ -441,11 +390,9 @@ export async function serializeCurrentUser(
     email: appUser.email ?? null,
     avatarUrl: appUser.avatarUrl ?? null,
     locale: appUser.locale ?? DEFAULT_USER_PREFERENCES.locale,
-    weekStartsOnMonday:
-      appUser.weekStartsOnMonday ?? DEFAULT_USER_PREFERENCES.weekStartsOnMonday,
+    weekStartsOnMonday: appUser.weekStartsOnMonday ?? DEFAULT_USER_PREFERENCES.weekStartsOnMonday,
     timezone: appUser.timezone ?? DEFAULT_USER_PREFERENCES.timezone,
-    timezoneAutoSync:
-      appUser.timezoneAutoSync ?? DEFAULT_USER_PREFERENCES.timezoneAutoSync,
+    timezoneAutoSync: appUser.timezoneAutoSync ?? DEFAULT_USER_PREFERENCES.timezoneAutoSync,
     timeFormat: appUser.timeFormat ?? DEFAULT_USER_PREFERENCES.timeFormat,
     dateFormat: appUser.dateFormat ?? DEFAULT_USER_PREFERENCES.dateFormat,
     aiProvider: appUser.aiProvider ?? DEFAULT_USER_PREFERENCES.aiProvider,

@@ -5,11 +5,7 @@ import {
 } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import { markInboxItems } from "../shared";
-import {
-  logger,
-  toInboxFileResponse,
-  toProcessedInboxResponse,
-} from "./shared";
+import { logger, toInboxFileResponse, toProcessedInboxResponse } from "./shared";
 
 export type CreateInboxParams = {
   displayName: string;
@@ -23,14 +19,7 @@ export type CreateInboxParams = {
   senderEmail?: string;
   inboxAccountId?: string;
   meta?: Record<string, unknown>;
-  status?:
-    | "new"
-    | "analyzing"
-    | "pending"
-    | "done"
-    | "processing"
-    | "archived"
-    | "deleted";
+  status?: "new" | "analyzing" | "pending" | "done" | "processing" | "archived" | "deleted";
 };
 
 export async function createInbox(_db: Database, params: CreateInboxParams) {

@@ -7,10 +7,7 @@ import { updateRunStatus } from "./shared";
 
 export async function runTeamCancellationWorkflow(
   env: CloudflareAsyncEnv,
-  payload: Extract<
-    CloudflareWorkflowPayload,
-    { workflow: "team-cancellation-email" }
-  >,
+  payload: Extract<CloudflareWorkflowPayload, { workflow: "team-cancellation-email" }>,
   step: WorkflowStep,
 ) {
   const {
@@ -134,14 +131,7 @@ const INITIAL_BANK_SETUP_SYNC_TIMEOUT_MS = 3 * 60 * 1000;
 const INITIAL_BANK_SETUP_POLL_INTERVAL_MS = 5 * 1000;
 
 type WorkflowAsyncRunSnapshot = {
-  status:
-    | "waiting"
-    | "active"
-    | "completed"
-    | "failed"
-    | "delayed"
-    | "canceled"
-    | "unknown";
+  status: "waiting" | "active" | "completed" | "failed" | "delayed" | "canceled" | "unknown";
   error?: string;
   progress?: number;
   progressStep?: string;
@@ -153,10 +143,7 @@ async function waitForAsyncRunInWorkflow(
   label: string,
   timeoutMs: number,
 ): Promise<WorkflowAsyncRunSnapshot> {
-  const maxAttempts = Math.max(
-    1,
-    Math.ceil(timeoutMs / INITIAL_BANK_SETUP_POLL_INTERVAL_MS),
-  );
+  const maxAttempts = Math.max(1, Math.ceil(timeoutMs / INITIAL_BANK_SETUP_POLL_INTERVAL_MS));
 
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     const status = await step.do(`${label}-status-${attempt}`, async () => {
@@ -200,10 +187,7 @@ async function waitForAsyncRunInWorkflow(
 }
 
 export async function runBankInitialSetupWorkflow(
-  payload: Extract<
-    CloudflareWorkflowPayload,
-    { workflow: "bank-initial-setup" }
-  >,
+  payload: Extract<CloudflareWorkflowPayload, { workflow: "bank-initial-setup" }>,
   step: WorkflowStep,
 ) {
   await updateRunStatus(payload.runId, {
@@ -214,16 +198,12 @@ export async function runBankInitialSetupWorkflow(
   });
 
   await step.do("schedule-recurring-sync", async () => {
-    return scheduleRecurring(
-      "bank-sync-scheduler",
-      generateCronTag(payload.teamId),
-      {
-        publicTeamId: payload.teamId,
-        timezone: "UTC",
-        externalId: payload.teamId,
-        deduplicationKey: `${payload.teamId}-bank-sync-scheduler`,
-      },
-    );
+    return scheduleRecurring("bank-sync-scheduler", generateCronTag(payload.teamId), {
+      publicTeamId: payload.teamId,
+      timezone: "UTC",
+      externalId: payload.teamId,
+      deduplicationKey: `${payload.teamId}-bank-sync-scheduler`,
+    });
   });
 
   await updateRunStatus(payload.runId, {
@@ -261,8 +241,7 @@ export async function runBankInitialSetupWorkflow(
 
   if (initialSyncStatus.status !== "completed") {
     throw new Error(
-      initialSyncStatus.error ??
-        `Initial sync finished with status ${initialSyncStatus.status}`,
+      initialSyncStatus.error ?? `Initial sync finished with status ${initialSyncStatus.status}`,
     );
   }
 
@@ -410,17 +389,14 @@ export async function runOnboardTeamWorkflow(
 
   await step.sleep("wait-activation-nudge", "3 days");
 
-  const shouldSendActivationEmail = await step.do(
-    "evaluate-activation-nudge",
-    async () => {
-      const [shouldSend, hasBankConnections] = await Promise.all([
-        shouldSendTeamOnboardingEmail(user.teamId!),
-        hasBankConnectionsForOnboarding(user.teamId!),
-      ]);
+  const shouldSendActivationEmail = await step.do("evaluate-activation-nudge", async () => {
+    const [shouldSend, hasBankConnections] = await Promise.all([
+      shouldSendTeamOnboardingEmail(user.teamId!),
+      hasBankConnectionsForOnboarding(user.teamId!),
+    ]);
 
-      return shouldSend && !hasBankConnections;
-    },
-  );
+    return shouldSend && !hasBankConnections;
+  });
 
   if (shouldSendActivationEmail) {
     await updateRunStatus(payload.runId, {
@@ -452,12 +428,9 @@ export async function runOnboardTeamWorkflow(
 
   await step.sleep("wait-trial-expiring", "10 days");
 
-  const shouldSendTrialExpiringEmail = await step.do(
-    "evaluate-trial-expiring",
-    async () => {
-      return shouldSendTeamOnboardingEmail(user.teamId!);
-    },
-  );
+  const shouldSendTrialExpiringEmail = await step.do("evaluate-trial-expiring", async () => {
+    return shouldSendTeamOnboardingEmail(user.teamId!);
+  });
 
   if (shouldSendTrialExpiringEmail) {
     await updateRunStatus(payload.runId, {
@@ -489,12 +462,9 @@ export async function runOnboardTeamWorkflow(
 
   await step.sleep("wait-trial-ended", "1 day");
 
-  const shouldSendTrialEndedEmail = await step.do(
-    "evaluate-trial-ended",
-    async () => {
-      return shouldSendTeamOnboardingEmail(user.teamId!);
-    },
-  );
+  const shouldSendTrialEndedEmail = await step.do("evaluate-trial-ended", async () => {
+    return shouldSendTeamOnboardingEmail(user.teamId!);
+  });
 
   if (shouldSendTrialEndedEmail) {
     await updateRunStatus(payload.runId, {
@@ -526,17 +496,14 @@ export async function runOnboardTeamWorkflow(
 
   await step.sleep("wait-trial-deactivated", "3 days");
 
-  const shouldSendTrialDeactivatedEmail = await step.do(
-    "evaluate-trial-deactivated",
-    async () => {
-      const [shouldSend, hasBankConnections] = await Promise.all([
-        shouldSendTeamOnboardingEmail(user.teamId!),
-        hasBankConnectionsForOnboarding(user.teamId!),
-      ]);
+  const shouldSendTrialDeactivatedEmail = await step.do("evaluate-trial-deactivated", async () => {
+    const [shouldSend, hasBankConnections] = await Promise.all([
+      shouldSendTeamOnboardingEmail(user.teamId!),
+      hasBankConnectionsForOnboarding(user.teamId!),
+    ]);
 
-      return shouldSend && hasBankConnections;
-    },
-  );
+    return shouldSend && hasBankConnections;
+  });
 
   if (shouldSendTrialDeactivatedEmail) {
     await updateRunStatus(payload.runId, {

@@ -8,11 +8,7 @@ import {
   calculateNameScore as calculateUnifiedNameScore,
   scoreMatch,
 } from "../../../utils/transaction-matching";
-import {
-  compareNullableDates,
-  includesSearch,
-  shiftIsoDate,
-} from "../shared";
+import { compareNullableDates, includesSearch, shiftIsoDate } from "../shared";
 import {
   getIndexedInboxSearchCandidates,
   getRecentInboxSearchItems,
@@ -28,20 +24,14 @@ export type GetInboxSearchParams = {
   transactionId?: string;
 };
 
-export async function getInboxSearch(
-  _db: Database,
-  params: GetInboxSearchParams,
-) {
+export async function getInboxSearch(_db: Database, params: GetInboxSearchParams) {
   try {
     const { teamId, q, transactionId, limit = 10 } = params;
 
     if (q && q.trim().length > 0) {
       const searchTerm = q.trim();
-      const numericSearch = Number.parseFloat(
-        searchTerm.replace(/[^\d.-]/g, ""),
-      );
-      const isNumericSearch =
-        !Number.isNaN(numericSearch) && Number.isFinite(numericSearch);
+      const numericSearch = Number.parseFloat(searchTerm.replace(/[^\d.-]/g, ""));
+      const isNumericSearch = !Number.isNaN(numericSearch) && Number.isFinite(numericSearch);
       const candidateLimit = Math.max(limit * 20, 100);
       const [textCandidates, amountCandidates] = await Promise.all([
         getIndexedInboxSearchCandidates({
@@ -84,11 +74,7 @@ export async function getInboxSearch(
           );
         })
         .sort((left, right) => {
-          const dateComparison = compareNullableDates(
-            right.date,
-            left.date,
-            "desc",
-          );
+          const dateComparison = compareNullableDates(right.date, left.date, "desc");
           if (dateComparison !== 0) {
             return dateComparison;
           }
@@ -123,28 +109,19 @@ export async function getInboxSearch(
         }
 
         const unifiedTransactionAmount = Math.abs(transaction.amount || 0);
-        const unifiedTransactionBaseAmount = Math.abs(
-          transaction.baseAmount || 0,
-        );
+        const unifiedTransactionBaseAmount = Math.abs(transaction.baseAmount || 0);
         const dateGte = shiftIsoDate(transaction.date, -123);
         const dateLte = shiftIsoDate(transaction.date, 30);
         const items = await getIndexedInboxSearchCandidates({
           teamId,
-          searchTerms: [
-            transaction.name,
-            transaction.merchantName,
-            transaction.counterpartyName,
-          ],
+          searchTerms: [transaction.name, transaction.merchantName, transaction.counterpartyName],
           amount: transaction.amount,
           limit: Math.max(limit * 12, 120),
         });
 
         return items
           .filter((candidate) => candidate.date !== null)
-          .filter(
-            (candidate) =>
-              candidate.date! >= dateGte && candidate.date! <= dateLte,
-          )
+          .filter((candidate) => candidate.date! >= dateGte && candidate.date! <= dateLte)
           .filter((candidate) => {
             const nameScore = calculateUnifiedNameScore(
               candidate.displayName,
@@ -154,16 +131,13 @@ export async function getInboxSearch(
 
             return (
               (candidate.currency === (transaction.currency || "") &&
-                Math.abs(
-                  Math.abs(candidate.amount ?? 0) - unifiedTransactionAmount,
-                ) < Math.max(1, unifiedTransactionAmount * 0.25)) ||
+                Math.abs(Math.abs(candidate.amount ?? 0) - unifiedTransactionAmount) <
+                  Math.max(1, unifiedTransactionAmount * 0.25)) ||
               nameScore > 0.3 ||
               (candidate.baseCurrency === (transaction.baseCurrency || "") &&
                 candidate.baseCurrency !== null &&
-                Math.abs(
-                  Math.abs(candidate.baseAmount ?? 0) -
-                    unifiedTransactionBaseAmount,
-                ) < Math.max(50, unifiedTransactionBaseAmount * 0.15))
+                Math.abs(Math.abs(candidate.baseAmount ?? 0) - unifiedTransactionBaseAmount) <
+                  Math.max(50, unifiedTransactionBaseAmount * 0.15))
             );
           })
           .map((candidate) => {
@@ -172,10 +146,7 @@ export async function getInboxSearch(
               transaction.name,
               transaction.merchantName || transaction.counterpartyName,
             );
-            const amountScore = calculateUnifiedAmountScore(
-              candidate,
-              transaction,
-            );
+            const amountScore = calculateUnifiedAmountScore(candidate, transaction);
             const currencyScore = calculateUnifiedCurrencyScore(
               candidate.currency || undefined,
               transaction.currency || undefined,
@@ -189,10 +160,7 @@ export async function getInboxSearch(
             );
             const isExactAmount =
               candidate.amount !== null &&
-              Math.abs(
-                Math.abs(candidate.amount || 0) -
-                  Math.abs(transaction.amount || 0),
-              ) < 0.01;
+              Math.abs(Math.abs(candidate.amount || 0) - Math.abs(transaction.amount || 0)) < 0.01;
             const isSameCurrency = candidate.currency === transaction.currency;
 
             return {

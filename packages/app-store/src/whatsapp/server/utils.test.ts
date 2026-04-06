@@ -4,57 +4,37 @@ import { extractInboxIdFromMessage } from "./utils";
 describe("extractInboxIdFromMessage", () => {
   describe("Pattern 1: 'Connect to Tamias' / legacy 'Midday'", () => {
     test("should extract inbox ID from standard format", () => {
-      expect(extractInboxIdFromMessage("Connect to Tamias: abc123")).toBe(
-        "abc123",
-      );
+      expect(extractInboxIdFromMessage("Connect to Tamias: abc123")).toBe("abc123");
     });
 
     test("should extract inbox ID with case-insensitive matching", () => {
-      expect(extractInboxIdFromMessage("connect to tamias: xyz789")).toBe(
-        "xyz789",
-      );
-      expect(extractInboxIdFromMessage("CONNECT TO MIDDAY: def456")).toBe(
-        "def456",
-      );
-      expect(extractInboxIdFromMessage("CoNnEcT tO mIdDaY: ghi012")).toBe(
-        "ghi012",
-      );
+      expect(extractInboxIdFromMessage("connect to tamias: xyz789")).toBe("xyz789");
+      expect(extractInboxIdFromMessage("CONNECT TO MIDDAY: def456")).toBe("def456");
+      expect(extractInboxIdFromMessage("CoNnEcT tO mIdDaY: ghi012")).toBe("ghi012");
     });
 
     test("should extract inbox ID without space after colon", () => {
-      expect(extractInboxIdFromMessage("Connect to Tamias:abc123")).toBe(
-        "abc123",
-      );
+      expect(extractInboxIdFromMessage("Connect to Tamias:abc123")).toBe("abc123");
     });
 
     test("should extract inbox ID with multiple spaces", () => {
-      expect(extractInboxIdFromMessage("Connect to Tamias:  abc123")).toBe(
-        "abc123",
-      );
-      expect(extractInboxIdFromMessage("Connect   to   Tamias:   abc123")).toBe(
-        "abc123",
-      );
+      expect(extractInboxIdFromMessage("Connect to Tamias:  abc123")).toBe("abc123");
+      expect(extractInboxIdFromMessage("Connect   to   Tamias:   abc123")).toBe("abc123");
     });
 
     test("should extract inbox ID with leading/trailing whitespace", () => {
-      expect(extractInboxIdFromMessage("  Connect to Tamias: abc123  ")).toBe(
-        "abc123",
-      );
-      expect(extractInboxIdFromMessage("\tConnect to Tamias: abc123\n")).toBe(
-        "abc123",
-      );
+      expect(extractInboxIdFromMessage("  Connect to Tamias: abc123  ")).toBe("abc123");
+      expect(extractInboxIdFromMessage("\tConnect to Tamias: abc123\n")).toBe("abc123");
     });
 
     test("should extract inbox ID without colon", () => {
-      expect(extractInboxIdFromMessage("Connect to Tamias abc123")).toBe(
-        "abc123",
-      );
+      expect(extractInboxIdFromMessage("Connect to Tamias abc123")).toBe("abc123");
     });
 
     test("should handle longer inbox IDs", () => {
-      expect(
-        extractInboxIdFromMessage("Connect to Tamias: abc123def456ghi789"),
-      ).toBe("abc123def456ghi789");
+      expect(extractInboxIdFromMessage("Connect to Tamias: abc123def456ghi789")).toBe(
+        "abc123def456ghi789",
+      );
     });
   });
 
@@ -64,9 +44,7 @@ describe("extractInboxIdFromMessage", () => {
     });
 
     test("should extract inbox ID from 'My inbox ID is: xxx' format", () => {
-      expect(extractInboxIdFromMessage("My inbox ID is: xyz789")).toBe(
-        "xyz789",
-      );
+      expect(extractInboxIdFromMessage("My inbox ID is: xyz789")).toBe("xyz789");
     });
 
     test("should extract inbox ID with case-insensitive matching", () => {
@@ -83,9 +61,7 @@ describe("extractInboxIdFromMessage", () => {
     });
 
     test("should extract inbox ID with flexible spacing", () => {
-      expect(extractInboxIdFromMessage("inbox  ID  is:  xyz789")).toBe(
-        "xyz789",
-      );
+      expect(extractInboxIdFromMessage("inbox  ID  is:  xyz789")).toBe("xyz789");
     });
   });
 
@@ -104,9 +80,7 @@ describe("extractInboxIdFromMessage", () => {
     });
 
     test("should extract inbox ID up to 20 characters", () => {
-      expect(extractInboxIdFromMessage("abc123def456ghi789")).toBe(
-        "abc123def456ghi789",
-      );
+      expect(extractInboxIdFromMessage("abc123def456ghi789")).toBe("abc123def456ghi789");
     });
 
     test("should not extract if longer than 20 characters", () => {
@@ -139,12 +113,8 @@ describe("extractInboxIdFromMessage", () => {
     });
 
     test("should return null for messages with special characters", () => {
-      expect(extractInboxIdFromMessage("Connect to Tamias: abc-123")).toBe(
-        "abc",
-      ); // Only matches up to special char
-      expect(extractInboxIdFromMessage("Connect to Tamias: abc_123")).toBe(
-        "abc",
-      );
+      expect(extractInboxIdFromMessage("Connect to Tamias: abc-123")).toBe("abc"); // Only matches up to special char
+      expect(extractInboxIdFromMessage("Connect to Tamias: abc_123")).toBe("abc");
       expect(extractInboxIdFromMessage("abc-123")).toBeNull();
     });
 
@@ -155,9 +125,7 @@ describe("extractInboxIdFromMessage", () => {
     });
 
     test("should return null for messages with inbox ID containing special chars", () => {
-      expect(extractInboxIdFromMessage("Connect to Tamias: abc@123")).toBe(
-        "abc",
-      );
+      expect(extractInboxIdFromMessage("Connect to Tamias: abc@123")).toBe("abc");
     });
   });
 
@@ -170,9 +138,7 @@ describe("extractInboxIdFromMessage", () => {
 
     test("should handle URL-encoded messages (if decoded)", () => {
       // Simulating what might come from WhatsApp after URL decoding
-      expect(extractInboxIdFromMessage("Connect to Tamias: abc123")).toBe(
-        "abc123",
-      );
+      expect(extractInboxIdFromMessage("Connect to Tamias: abc123")).toBe("abc123");
     });
 
     test("should prioritize Pattern 1 over Pattern 3", () => {
@@ -181,16 +147,12 @@ describe("extractInboxIdFromMessage", () => {
     });
 
     test("should handle messages with extra text before pattern", () => {
-      expect(extractInboxIdFromMessage("Hi! Connect to Tamias: abc123")).toBe(
-        "abc123",
-      );
+      expect(extractInboxIdFromMessage("Hi! Connect to Tamias: abc123")).toBe("abc123");
     });
 
     test("should handle messages with extra text after pattern", () => {
       // Note: This will only match up to the first non-alphanumeric char
-      expect(
-        extractInboxIdFromMessage("Connect to Tamias: abc123 thanks!"),
-      ).toBe("abc123");
+      expect(extractInboxIdFromMessage("Connect to Tamias: abc123 thanks!")).toBe("abc123");
     });
   });
 });

@@ -171,9 +171,7 @@ export function BulkReconciliationAnimation({
   const [showActionBar, setShowActionBar] = useState(false);
 
   const selectedCount = transactions.filter((t) => t.checked).length;
-  const inReviewCount = transactions.filter(
-    (t) => t.status === "in_review",
-  ).length;
+  const inReviewCount = transactions.filter((t) => t.status === "in_review").length;
 
   useEffect(() => {
     if (!shouldPlay) return;
@@ -201,9 +199,7 @@ export function BulkReconciliationAnimation({
 
     const reviewTimer = setTimeout(() => {
       setTransactions((prev) =>
-        prev.map((t, idx) =>
-          idx < 12 ? { ...t, status: "in_review" as const } : t,
-        ),
+        prev.map((t, idx) => (idx < 12 ? { ...t, status: "in_review" as const } : t)),
       );
     }, 2200 + 200);
     reconcileTimers.push(reviewTimer);
@@ -215,9 +211,7 @@ export function BulkReconciliationAnimation({
         () => {
           setTransactions((prev) => {
             return prev.map((t, idx) =>
-              idx === index
-                ? { ...t, status: "in_review" as const, checked: true }
-                : t,
+              idx === index ? { ...t, status: "in_review" as const, checked: true } : t,
             );
           });
         },
@@ -262,9 +256,7 @@ export function BulkReconciliationAnimation({
       {/* Header */}
       <div className="px-2 md:px-3 pt-1 md:pt-1.5 pb-1.5 md:pb-2 relative z-10">
         <div className="flex items-center justify-between mb-3 md:mb-4">
-          <h3 className="text-[13px] md:text-[14px] text-foreground">
-            Transactions
-          </h3>
+          <h3 className="text-[13px] md:text-[14px] text-foreground">Transactions</h3>
         </div>
       </div>
 
@@ -358,10 +350,7 @@ export function BulkReconciliationAnimation({
           className="flex-1 min-h-0 overflow-visible border border-b border-border bg-background relative z-0 mt-2 md:mt-3 flex flex-col"
         >
           <div className="overflow-visible pb-12">
-            <table
-              className="w-full border-collapse"
-              style={{ borderSpacing: 0 }}
-            >
+            <table className="w-full border-collapse" style={{ borderSpacing: 0 }}>
               <thead className="sticky top-0 z-10 bg-secondary border-b border-border">
                 <tr className="h-[28px] md:h-[32px]">
                   <th className="w-[32px] px-1.5 md:px-2 text-left text-[10px] md:text-[11px] font-medium text-muted-foreground border-r border-border">
@@ -399,10 +388,7 @@ export function BulkReconciliationAnimation({
                               transition={{ duration: 0.2 }}
                               className="w-3 h-3 bg-primary flex items-center justify-center"
                             >
-                              <MdCheck
-                                className="text-primary-foreground"
-                                size={10}
-                              />
+                              <MdCheck className="text-primary-foreground" size={10} />
                             </motion.div>
                           ) : (
                             <motion.div
@@ -460,9 +446,7 @@ export function BulkReconciliationAnimation({
                 type="button"
                 className="flex items-center gap-1 px-2 md:px-3 py-1 md:py-1.5 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
               >
-                <span className="font-sans text-[10px] md:text-[11px]">
-                  Export
-                </span>
+                <span className="font-sans text-[10px] md:text-[11px]">Export</span>
                 <img
                   src="/images/xero.svg"
                   alt="Xero"

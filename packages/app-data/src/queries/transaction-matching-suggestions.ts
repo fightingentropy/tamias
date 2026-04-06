@@ -16,10 +16,7 @@ export async function createMatchSuggestion(
     })
   ).find((suggestion) => suggestion.transactionId === params.transactionId);
 
-  if (
-    existing &&
-    (existing.status === "confirmed" || existing.status === "declined")
-  ) {
+  if (existing && (existing.status === "confirmed" || existing.status === "declined")) {
     return null;
   }
 

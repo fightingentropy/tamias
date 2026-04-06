@@ -67,9 +67,7 @@ export const columns: ColumnDef<TeamInvite>[] = [
       return (
         <div className="flex justify-end">
           <div className="flex space-x-2 items-center">
-            <span className="text-[#606060]">
-              {t(`roles.${row.original.role || "member"}`)}
-            </span>
+            <span className="text-[#606060]">{t(`roles.${row.original.role || "member"}`)}</span>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

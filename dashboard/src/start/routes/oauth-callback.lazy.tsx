@@ -14,9 +14,7 @@ export const Route = createLazyFileRoute("/oauth-callback")({
 });
 
 function OAuthCallbackPage() {
-  const loaderData = Route.useLoaderData() as Awaited<
-    ReturnType<typeof loadOAuthCallbackData>
-  >;
+  const loaderData = Route.useLoaderData() as Awaited<ReturnType<typeof loadOAuthCallbackData>>;
   if (loaderData.status === "not-found") {
     return <NotFoundPage />;
   }
@@ -32,12 +30,8 @@ function OAuthCallbackPage() {
       <div className="h-screen flex flex-col items-center justify-center text-center px-8">
         {isError ? (
           <>
-            <h1 className="text-lg font-medium mb-2">
-              {getErrorTitle(errorCode)}
-            </h1>
-            <p className="text-sm text-[#606060] max-w-[280px]">
-              {getErrorDescription(errorCode)}
-            </p>
+            <h1 className="text-lg font-medium mb-2">{getErrorTitle(errorCode)}</h1>
+            <p className="text-sm text-[#606060] max-w-[280px]">{getErrorDescription(errorCode)}</p>
           </>
         ) : (
           <>

@@ -3,27 +3,13 @@
 import { useArtifact, useArtifacts } from "@ai-sdk-tools/artifacts/client";
 import { metricsBreakdownSummaryArtifact } from "@tamias/ai-artifacts/metrics-breakdown";
 import { cn } from "@tamias/ui/cn";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@tamias/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@tamias/ui/table";
 import { format, parseISO } from "date-fns";
 import Link from "@/framework/link";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
-import {
-  BaseCanvas,
-  CanvasHeader,
-  CanvasSection,
-} from "@/components/canvas/base";
+import { BaseCanvas, CanvasHeader, CanvasSection } from "@/components/canvas/base";
 import { CanvasContent } from "@/components/canvas/base/canvas-content";
-import {
-  formatCurrencyAmount,
-  shouldShowSummarySkeleton,
-} from "@/components/canvas/utils";
+import { formatCurrencyAmount, shouldShowSummarySkeleton } from "@/components/canvas/utils";
 import { useTransactionParams } from "@/hooks/use-transaction-params";
 import { useUserQuery } from "@/hooks/use-user";
 import { isMonthlyBreakdownType } from "@/lib/metrics-breakdown-constants";
@@ -34,8 +20,7 @@ export function MetricsBreakdownSummaryCanvas() {
   const [version] = useQueryState("version", parseAsInteger.withDefault(0));
 
   // Check if this is a monthly breakdown artifact
-  const isMonthlyBreakdown =
-    selectedType && isMonthlyBreakdownType(selectedType);
+  const isMonthlyBreakdown = selectedType && isMonthlyBreakdownType(selectedType);
 
   // Use useArtifacts to get all artifacts including monthly ones
   const [artifactsData] = useArtifacts({
@@ -74,8 +59,7 @@ export function MetricsBreakdownSummaryCanvas() {
     if (selectedArtifact) {
       const payload = selectedArtifact.payload as typeof standardArtifact.data;
       // Derive status from stage - if stage is loading, status should be loading
-      const derivedStatus =
-        payload?.stage === "loading" ? "loading" : standardArtifact.status;
+      const derivedStatus = payload?.stage === "loading" ? "loading" : standardArtifact.status;
       artifactData = {
         data: payload,
         status: derivedStatus,
@@ -121,9 +105,7 @@ export function MetricsBreakdownSummaryCanvas() {
       ? format(parseISO(data.from), "MMM")
       : null;
 
-  const canvasTitle = monthLabel
-    ? `Transactions — ${monthLabel}`
-    : "Breakdown Summary";
+  const canvasTitle = monthLabel ? `Transactions — ${monthLabel}` : "Breakdown Summary";
 
   return (
     <BaseCanvas>
@@ -178,10 +160,7 @@ export function MetricsBreakdownSummaryCanvas() {
                       )}
                     >
                       <TableCell className="text-[12px] text-black dark:text-white py-0 px-3 align-middle">
-                        <div
-                          className="truncate whitespace-nowrap"
-                          title={tx.date}
-                        >
+                        <div className="truncate whitespace-nowrap" title={tx.date}>
                           {tx.date}
                         </div>
                       </TableCell>
@@ -226,9 +205,7 @@ export function MetricsBreakdownSummaryCanvas() {
               {/* Total Spending Card */}
               <div className="border p-3 bg-white dark:bg-[#0c0c0c] border-[#e6e6e6] dark:border-[#1d1d1d]">
                 <div className="text-[12px] text-[#707070] dark:text-[#666666] mb-1">
-                  {monthLabel
-                    ? `Total spending in ${monthLabel}`
-                    : "Total spending"}
+                  {monthLabel ? `Total spending in ${monthLabel}` : "Total spending"}
                 </div>
                 <div className="text-[18px] font-normal font-sans text-black dark:text-white mb-1">
                   {formatCurrencyAmount(summary.expenses, currency, locale)}

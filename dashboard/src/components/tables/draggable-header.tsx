@@ -22,14 +22,7 @@ export function DraggableHeader({
   style,
   disabled = false,
 }: DraggableHeaderProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id,
     disabled,
   });

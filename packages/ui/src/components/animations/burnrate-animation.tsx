@@ -129,8 +129,7 @@ export function BurnrateAnimation({
       ? `${pathData} L ${lastPoint.x} ${paddingTop + chartHeight} L ${firstPoint.x} ${paddingTop + chartHeight} Z`
       : "";
 
-  const averageY =
-    paddingTop + chartHeight - (averageValue / maxValue) * chartHeight;
+  const averageY = paddingTop + chartHeight - (averageValue / maxValue) * chartHeight;
 
   const gridLines = [0, 3, 6, 9, 12, 15].map((value) => {
     const y = paddingTop + chartHeight - (value / maxValue) * chartHeight;
@@ -147,10 +146,7 @@ export function BurnrateAnimation({
           </h3>
           <div className="flex items-center gap-3 md:gap-4">
             <div className="flex items-center gap-1.5 md:gap-2">
-              <div
-                className="w-2 h-2 bg-foreground"
-                style={{ borderRadius: "0" }}
-              />
+              <div className="w-2 h-2 bg-foreground" style={{ borderRadius: "0" }} />
               <span className="text-[8px] md:text-[9px] font-sans text-muted-foreground">
                 Current
               </span>
@@ -341,10 +337,9 @@ export function BurnrateAnimation({
                 Summary
               </h3>
               <p className="text-[9px] md:text-[10px] leading-[13px] md:leading-[14px] font-sans text-foreground">
-                Burn rate increased 67% over 6 months ($4,500 to $7,500), driven
-                by personnel costs (65% of expenses). Current runway of 10.7
-                months is below the recommended 12+ months, requiring cost
-                optimization or additional funding.
+                Burn rate increased 67% over 6 months ($4,500 to $7,500), driven by personnel costs
+                (65% of expenses). Current runway of 10.7 months is below the recommended 12+
+                months, requiring cost optimization or additional funding.
               </p>
             </motion.div>
           )}

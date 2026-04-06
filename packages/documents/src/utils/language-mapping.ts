@@ -2,9 +2,7 @@
  * Maps ISO 639-1 language codes to search configuration names.
  * Always returns a valid configuration name and falls back to `simple`.
  */
-export function mapLanguageCodeToSearchConfig(
-  languageCode: string | null | undefined,
-): string {
+export function mapLanguageCodeToSearchConfig(languageCode: string | null | undefined): string {
   if (!languageCode) {
     return "simple";
   }

@@ -1,11 +1,4 @@
-const TARGET_FIELDS = [
-  "date",
-  "description",
-  "counterparty",
-  "amount",
-  "balance",
-  "currency",
-];
+const TARGET_FIELDS = ["date", "description", "counterparty", "amount", "balance", "currency"];
 const MAX_SAMPLE_ROWS = 2;
 const MAX_CELL_LENGTH = 80;
 
@@ -19,9 +12,7 @@ function clampCellValue(value: unknown): string {
     return "";
   }
 
-  return trimmed.length > MAX_CELL_LENGTH
-    ? `${trimmed.slice(0, MAX_CELL_LENGTH)}...`
-    : trimmed;
+  return trimmed.length > MAX_CELL_LENGTH ? `${trimmed.slice(0, MAX_CELL_LENGTH)}...` : trimmed;
 }
 
 export function normalizeColumns(fieldColumns: string[]): string[] {
@@ -45,10 +36,7 @@ export function selectPromptColumns(fieldColumns: string[]): string[] {
   return normalizeColumns(fieldColumns);
 }
 
-export function compactSampleRows(
-  firstRows: Record<string, string>[],
-  allowedColumns?: string[],
-) {
+export function compactSampleRows(firstRows: Record<string, string>[], allowedColumns?: string[]) {
   const allowedSet = allowedColumns ? new Set(allowedColumns) : null;
 
   return firstRows.slice(0, MAX_SAMPLE_ROWS).map((row) => {
@@ -73,11 +61,8 @@ export function buildCsvMappingPrompt(
 ): string {
   const columns = selectPromptColumns(fieldColumns);
   const sampleRows = compactSampleRows(firstRows, columns);
-  const columnList = columns
-    .map((column) => `<column>${column}</column>`)
-    .join("\n");
-  const sampleRowList =
-    sampleRows.map((row) => JSON.stringify(row)).join("\n") || "(none)";
+  const columnList = columns.map((column) => `<column>${column}</column>`).join("\n");
+  const sampleRowList = sampleRows.map((row) => JSON.stringify(row)).join("\n") || "(none)";
 
   return [
     "<role>",

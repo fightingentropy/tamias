@@ -98,9 +98,7 @@ export function FilterList({
 
       case "attachments": {
         const attachmentValue = value as FilterValue["attachments"];
-        return attachmentsFilters?.find(
-          (filter) => filter.id === attachmentValue,
-        )?.name;
+        return attachmentsFilters?.find((filter) => filter.id === attachmentValue)?.name;
       }
 
       case "recurring": {
@@ -111,10 +109,7 @@ export function FilterList({
         }
         // Handle string array for transaction filters
         return recurringValue
-          ?.map(
-            (slug) =>
-              recurringFilters?.find((filter) => filter.id === slug)?.name,
-          )
+          ?.map((slug) => recurringFilters?.find((filter) => filter.id === slug)?.name)
           .join(", ");
       }
 
@@ -122,10 +117,7 @@ export function FilterList({
         const statusesValue = value as FilterValue["statuses"];
         if (!statusesValue) return null;
         return statusesValue
-          .map(
-            (status) =>
-              statusFilters?.find((filter) => filter.id === status)?.name,
-          )
+          .map((status) => statusFilters?.find((filter) => filter.id === status)?.name)
           .join(", ");
       }
 
@@ -139,10 +131,7 @@ export function FilterList({
         const categoriesValue = value as FilterValue["categories"];
         if (!categoriesValue) return null;
         return categoriesValue
-          .map(
-            (slug) =>
-              categories?.find((category) => category.slug === slug)?.name,
-          )
+          .map((slug) => categories?.find((category) => category.slug === slug)?.name)
           .join(", ");
       }
 
@@ -150,10 +139,7 @@ export function FilterList({
         const tagsValue = value as FilterValue["tags"];
         if (!tagsValue) return null;
         return tagsValue
-          .map(
-            (id) =>
-              tags?.find((tag) => tag?.id === id || tag?.slug === id)?.name,
-          )
+          .map((id) => tags?.find((tag) => tag?.id === id || tag?.slug === id)?.name)
           .join(", ");
       }
 

@@ -76,13 +76,9 @@ export function VaultSearchFilter() {
     setFilter({ q: input.length > 0 ? input : null });
   };
 
-  const validFilters = Object.fromEntries(
-    Object.entries(filter).filter(([key]) => key !== "q"),
-  );
+  const validFilters = Object.fromEntries(Object.entries(filter).filter(([key]) => key !== "q"));
 
-  const hasValidFilters = Object.values(validFilters).some(
-    (value) => value !== null,
-  );
+  const hasValidFilters = Object.values(validFilters).some((value) => value !== null);
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -124,11 +120,7 @@ export function VaultSearchFilter() {
           </DropdownMenuTrigger>
         </form>
 
-        <FilterList
-          filters={validFilters}
-          onRemove={setFilter}
-          tags={tagsData}
-        />
+        <FilterList filters={validFilters} onRemove={setFilter} tags={tagsData} />
       </div>
 
       <DropdownMenuContent
@@ -145,11 +137,7 @@ export function VaultSearchFilter() {
               <span>Date</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
-              <DropdownMenuSubContent
-                sideOffset={14}
-                alignOffset={-4}
-                className="p-0"
-              >
+              <DropdownMenuSubContent sideOffset={14} alignOffset={-4} className="p-0">
                 <Calendar
                   mode="range"
                   initialFocus
@@ -158,9 +146,7 @@ export function VaultSearchFilter() {
                   selected={
                     filter.start || filter.end
                       ? {
-                          from: filter.start
-                            ? parseISO(filter.start)
-                            : undefined,
+                          from: filter.start ? parseISO(filter.start) : undefined,
                           to: filter.end ? parseISO(filter.end) : undefined,
                         }
                       : undefined
@@ -172,9 +158,7 @@ export function VaultSearchFilter() {
                       start: range.from
                         ? formatISO(range.from, { representation: "date" })
                         : filter.start,
-                      end: range.to
-                        ? formatISO(range.to, { representation: "date" })
-                        : filter.end,
+                      end: range.to ? formatISO(range.to, { representation: "date" }) : filter.end,
                     };
 
                     setFilter(newRange);
@@ -213,9 +197,7 @@ export function VaultSearchFilter() {
                   </DropdownMenuCheckboxItem>
                 ))}
 
-                {!tagsData?.length && (
-                  <DropdownMenuItem disabled>No tags found</DropdownMenuItem>
-                )}
+                {!tagsData?.length && <DropdownMenuItem disabled>No tags found</DropdownMenuItem>}
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
           </DropdownMenuSub>

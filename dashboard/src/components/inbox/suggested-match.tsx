@@ -125,30 +125,22 @@ export function SuggestedMatch() {
             </span>
             <span className="text-muted-foreground flex-shrink-0">
               {hasSuggestedTransaction(suggestion) &&
-                formatDate(
-                  suggestion.suggestedTransaction.date,
-                  user?.dateFormat,
-                )}
+                formatDate(suggestion.suggestedTransaction.date, user?.dateFormat)}
             </span>
           </div>
 
           <div className="text-xs text-muted-foreground">
-            {suggestion && Math.round(suggestion.confidenceScore * 100)}%
-            confidence
+            {suggestion && Math.round(suggestion.confidenceScore * 100)}% confidence
           </div>
         </div>
 
         <div className="flex-shrink-0">
           <FormatAmount
             amount={
-              hasSuggestedTransaction(suggestion)
-                ? suggestion.suggestedTransaction.amount
-                : 0
+              hasSuggestedTransaction(suggestion) ? suggestion.suggestedTransaction.amount : 0
             }
             currency={
-              hasSuggestedTransaction(suggestion)
-                ? suggestion.suggestedTransaction.currency
-                : "USD"
+              hasSuggestedTransaction(suggestion) ? suggestion.suggestedTransaction.currency : "USD"
             }
           />
         </div>

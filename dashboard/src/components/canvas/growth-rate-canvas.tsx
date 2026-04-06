@@ -42,11 +42,7 @@ export function GrowthRateCanvas() {
   const typeLabel = data?.type === "profit" ? "Profit" : "Revenue";
   const revenueTypeLabel = data?.revenueType === "gross" ? "Gross" : "Net";
   const periodLabel =
-    data?.period === "monthly"
-      ? "Month"
-      : data?.period === "quarterly"
-        ? "Quarter"
-        : "Year";
+    data?.period === "monthly" ? "Month" : data?.period === "quarterly" ? "Quarter" : "Year";
 
   const growthMetrics = data?.metrics
     ? [
@@ -59,31 +55,19 @@ export function GrowthRateCanvas() {
         {
           id: "current-total",
           title: `Current ${periodLabel}`,
-          value: formatCurrencyAmount(
-            data.metrics.currentTotal || 0,
-            currency,
-            locale,
-          ),
+          value: formatCurrencyAmount(data.metrics.currentTotal || 0, currency, locale),
           subtitle: `${revenueTypeLabel} ${typeLabel.toLowerCase()}`,
         },
         {
           id: "previous-total",
           title: `Previous ${periodLabel}`,
-          value: formatCurrencyAmount(
-            data.metrics.previousTotal || 0,
-            currency,
-            locale,
-          ),
+          value: formatCurrencyAmount(data.metrics.previousTotal || 0, currency, locale),
           subtitle: "Comparison period",
         },
         {
           id: "change-amount",
           title: "Change Amount",
-          value: formatCurrencyAmount(
-            Math.abs(data.metrics.changeAmount || 0),
-            currency,
-            locale,
-          ),
+          value: formatCurrencyAmount(Math.abs(data.metrics.changeAmount || 0), currency, locale),
           subtitle:
             data.metrics.trend === "positive"
               ? "Increase"

@@ -82,9 +82,7 @@ export function FaviconStack({ sources }: FaviconStackProps) {
                       const target = e.target as HTMLImageElement;
                       target.style.display = "none";
                       const parent = target.parentElement;
-                      const fallback = parent?.querySelector(
-                        ".fallback-icon",
-                      ) as HTMLElement;
+                      const fallback = parent?.querySelector(".fallback-icon") as HTMLElement;
                       if (fallback) fallback.style.display = "block";
                     }}
                   />

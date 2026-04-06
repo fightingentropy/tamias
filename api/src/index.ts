@@ -1,7 +1,4 @@
-import {
-  configureBankingRuntime,
-  type TellerMtlsFetcher,
-} from "@tamias/banking";
+import { configureBankingRuntime, type TellerMtlsFetcher } from "@tamias/banking";
 import { configureCloudflareAsyncServiceRuntime } from "@tamias/job-client/cloudflare-runtime";
 import { createLoggerWithContext, logger } from "@tamias/logger";
 import { getApiUrl, getAppUrl } from "@tamias/utils/envs";
@@ -73,13 +70,10 @@ function getAllowedApiOrigins() {
   try {
     const dashboardOrigin = new URL(dashboardUrl);
     const isLocalhost =
-      dashboardOrigin.hostname === "localhost" ||
-      dashboardOrigin.hostname === "127.0.0.1";
+      dashboardOrigin.hostname === "localhost" || dashboardOrigin.hostname === "127.0.0.1";
 
     if (!isLocalhost && dashboardOrigin.hostname.startsWith("app.")) {
-      addOrigin(
-        `${dashboardOrigin.protocol}//${dashboardOrigin.host.replace(/^app\./, "")}`,
-      );
+      addOrigin(`${dashboardOrigin.protocol}//${dashboardOrigin.host.replace(/^app\./, "")}`);
     }
 
     if (
@@ -252,10 +246,7 @@ async function createApp() {
     "x-speakeasy-example": "TAMIAS_API_KEY",
   });
 
-  app.get(
-    "/",
-    Scalar({ url: "/openapi", pageTitle: "Tamias API", theme: "saturn" }),
-  );
+  app.get("/", Scalar({ url: "/openapi", pageTitle: "Tamias API", theme: "saturn" }));
 
   app.route("/", routers);
 
@@ -283,9 +274,7 @@ function isUnifiedCloudflareWorkerEnv(
 
 function configureApiRuntime(env?: ApiRuntimeEnv) {
   const asyncWorker =
-    env && isUnifiedCloudflareWorkerEnv(env)
-      ? createInProcessAsyncBridge(env)
-      : null;
+    env && isUnifiedCloudflareWorkerEnv(env) ? createInProcessAsyncBridge(env) : null;
 
   configureCloudflareAsyncServiceRuntime(asyncWorker ? { asyncWorker } : null);
   configureBankingRuntime({

@@ -12,9 +12,7 @@ export function getTrialDaysLeft(createdAt: string): number {
   // Set trial end date 14 days from creation
   const trialEndDate = addDays(createdAtDate, 14);
 
-  return isSameDay(createdAtDate, today)
-    ? 14
-    : Math.max(0, differenceInDays(trialEndDate, today));
+  return isSameDay(createdAtDate, today) ? 14 : Math.max(0, differenceInDays(trialEndDate, today));
 }
 
 export function isTrialExpired(createdAt: string): boolean {

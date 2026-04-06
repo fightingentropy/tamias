@@ -3,16 +3,10 @@ import {
   getTrackerProjectsByCustomerIdsFromConvex,
   type CustomerRecord,
 } from "@tamias/app-data-convex";
-import type {
-  CustomerListMetrics,
-  CustomerListRow,
-  ProjectedCustomerInvoice,
-} from "../types";
+import type { CustomerListMetrics, CustomerListRow, ProjectedCustomerInvoice } from "../types";
 import { attachCustomerTags } from "./tags";
 
-function toProjectedCustomerInvoice(
-  value: unknown,
-): ProjectedCustomerInvoice | null {
+function toProjectedCustomerInvoice(value: unknown): ProjectedCustomerInvoice | null {
   if (!value || typeof value !== "object") {
     return null;
   }
@@ -30,8 +24,7 @@ function toProjectedCustomerInvoice(
   return {
     id: record.id,
     teamId: record.teamId,
-    customerId:
-      typeof record.customerId === "string" ? record.customerId : null,
+    customerId: typeof record.customerId === "string" ? record.customerId : null,
     amount: typeof record.amount === "number" ? record.amount : null,
     currency: typeof record.currency === "string" ? record.currency : null,
     status: typeof record.status === "string" ? record.status : null,
@@ -42,20 +35,14 @@ function toProjectedCustomerInvoice(
   };
 }
 
-export async function getProjectedInvoicesForCustomers(
-  teamId: string,
-  customerIds: string[],
-) {
+export async function getProjectedInvoicesForCustomers(teamId: string, customerIds: string[]) {
   if (customerIds.length === 0) {
     return [];
   }
 
   return (await getPublicInvoicesByCustomerIdsFromConvex({ teamId, customerIds }))
     .map((record) => toProjectedCustomerInvoice(record.payload))
-    .filter(
-      (record): record is ProjectedCustomerInvoice =>
-        !!record && record.teamId === teamId,
-    );
+    .filter((record): record is ProjectedCustomerInvoice => !!record && record.teamId === teamId);
 }
 
 function getDefaultCustomerListMetrics(): CustomerListMetrics {
@@ -76,9 +63,7 @@ function buildInvoiceMetricsByCustomerId(invoices: ProjectedCustomerInvoice[]) {
       continue;
     }
 
-    const current =
-      metricsByCustomerId.get(invoice.customerId) ??
-      getDefaultCustomerListMetrics();
+    const current = metricsByCustomerId.get(invoice.customerId) ?? getDefaultCustomerListMetrics();
 
     current.invoiceCount += 1;
 
@@ -108,9 +93,7 @@ function buildInvoiceMetricsByCustomerId(invoices: ProjectedCustomerInvoice[]) {
 }
 
 function buildProjectCountByCustomerId(
-  trackerProjects: Awaited<
-    ReturnType<typeof getTrackerProjectsByCustomerIdsFromConvex>
-  >,
+  trackerProjects: Awaited<ReturnType<typeof getTrackerProjectsByCustomerIdsFromConvex>>,
 ) {
   const projectCountByCustomerId = new Map<string, number>();
 
@@ -151,8 +134,7 @@ export async function buildCustomerRows(
     teamId,
     customers.map((customer) => ({
       ...customer,
-      ...(metricsByCustomerId.get(customer.id) ??
-        getDefaultCustomerListMetrics()),
+      ...(metricsByCustomerId.get(customer.id) ?? getDefaultCustomerListMetrics()),
       projectCount: projectCountByCustomerId.get(customer.id) ?? 0,
     })),
   );

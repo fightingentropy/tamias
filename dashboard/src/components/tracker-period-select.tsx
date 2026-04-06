@@ -24,9 +24,7 @@ export function TrackerPeriodSelect({ className, dateFormat = "MMM" }: Props) {
   const { data: user } = useUserQuery();
 
   const weekStartsOnMonday = user?.weekStartsOnMonday ?? false;
-  const currentDate = date
-    ? new TZDate(date, "UTC")
-    : new TZDate(new Date(), "UTC");
+  const currentDate = date ? new TZDate(date, "UTC") : new TZDate(new Date(), "UTC");
 
   const selectPrevPeriod = () => {
     if (view === "week") {

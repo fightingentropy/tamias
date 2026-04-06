@@ -1,9 +1,6 @@
 import type { AgentStatus } from "@/types/agents";
 import type { ArtifactStage, ArtifactType } from "./artifact-config";
-import {
-  getArtifactSectionMessage,
-  getArtifactStageMessage,
-} from "./artifact-config";
+import { getArtifactSectionMessage, getArtifactStageMessage } from "./artifact-config";
 
 // Generate user-friendly status messages
 export const getStatusMessage = (status?: AgentStatus | null) => {

@@ -12,11 +12,7 @@ interface ChartSelectionOverlayProps {
   plotArea: PlotArea | null;
 }
 
-export function ChartSelectionOverlay({
-  data,
-  selection,
-  plotArea,
-}: ChartSelectionOverlayProps) {
+export function ChartSelectionOverlay({ data, selection, plotArea }: ChartSelectionOverlayProps) {
   if (
     !plotArea ||
     selection.startIndex === null ||

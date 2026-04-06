@@ -37,9 +37,7 @@ export async function upsertInvoiceRecurringSeriesInConvex(args: {
   ) as Promise<InvoiceRecurringSeriesRecord>;
 }
 
-export async function getInvoiceRecurringSeriesByLegacyIdFromConvex(args: {
-  id: string;
-}) {
+export async function getInvoiceRecurringSeriesByLegacyIdFromConvex(args: { id: string }) {
   return createClient().query(
     convexApi.invoiceRecurringSeries.serviceGetInvoiceRecurringSeriesByLegacyId,
     serviceArgs({
@@ -48,9 +46,7 @@ export async function getInvoiceRecurringSeriesByLegacyIdFromConvex(args: {
   ) as Promise<InvoiceRecurringSeriesRecord | null>;
 }
 
-export async function getInvoiceRecurringSeriesByTeamFromConvex(args: {
-  teamId: string;
-}) {
+export async function getInvoiceRecurringSeriesByTeamFromConvex(args: { teamId: string }) {
   return createClient().query(
     convexApi.invoiceRecurringSeries.serviceGetInvoiceRecurringSeriesByTeam,
     serviceArgs({

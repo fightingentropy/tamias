@@ -51,8 +51,7 @@ export function VaultWidget() {
       const isProcessed = doc?.processingStatus === "completed";
 
       if (hasClassification) {
-        const classification =
-          doc.documentTagAssignments[0]?.documentTag?.name || "document";
+        const classification = doc.documentTagAssignments[0]?.documentTag?.name || "document";
         return `1 file automatically categorized as ${classification.toLowerCase()} ${timeAgo}`;
       }
 

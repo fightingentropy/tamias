@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  useChatActions,
-  useChatId,
-  useChatStatus,
-  useDataPart,
-} from "@ai-sdk-tools/store";
+import { useChatActions, useChatId, useChatStatus, useDataPart } from "@ai-sdk-tools/store";
 import { cn } from "@tamias/ui/cn";
 import {
   PromptInput,
@@ -50,8 +45,7 @@ function ChatInputContent() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFocused, setIsFocused] = useState(false);
-  const [isInteractingWithButtons, setIsInteractingWithButtons] =
-    useState(false);
+  const [isInteractingWithButtons, setIsInteractingWithButtons] = useState(false);
   const isTypingRef = useRef(false);
   const prevInputRef = useRef("");
   const textReveal = useMotionValue(100);
@@ -62,12 +56,9 @@ function ChatInputContent() {
   const { setChatId } = useChatInterface();
   const { isMetricsTab } = useOverviewTab();
   const { scrollY } = useWindowScroll();
-  const { isOpen: isHistoryOpen, setIsOpen: setHistoryOpen } =
-    useChatHistoryContext();
+  const { isOpen: isHistoryOpen, setIsOpen: setHistoryOpen } = useChatHistoryContext();
 
-  const [, clearSuggestions] = useDataPart<{ prompts: string[] }>(
-    "suggestions",
-  );
+  const [, clearSuggestions] = useDataPart<{ prompts: string[] }>("suggestions");
 
   const {
     input,
@@ -106,9 +97,7 @@ function ChatInputContent() {
   // Calculate minimization factor based on scroll position (0-400px range)
   // Factor is 0 (full size) to 1 (minimized)
   const MAX_SCROLL = 400;
-  const baseMinimizationFactor = isMetricsTab
-    ? Math.max(0, Math.min(1, scrollY / MAX_SCROLL))
-    : 0;
+  const baseMinimizationFactor = isMetricsTab ? Math.max(0, Math.min(1, scrollY / MAX_SCROLL)) : 0;
 
   // Override to full size (factor = 0) when:
   // - Input is focused
@@ -117,15 +106,9 @@ function ChatInputContent() {
   // - Buttons are being interacted with
   // - Input has content
   const shouldPreventMinimization =
-    isFocused ||
-    showCommands ||
-    isHistoryOpen ||
-    isInteractingWithButtons ||
-    input.trim();
+    isFocused || showCommands || isHistoryOpen || isInteractingWithButtons || input.trim();
 
-  const targetMinimizationFactor = shouldPreventMinimization
-    ? 0
-    : baseMinimizationFactor;
+  const targetMinimizationFactor = shouldPreventMinimization ? 0 : baseMinimizationFactor;
 
   // Motion value for minimization factor
   const minimizationFactor = useMotionValue(targetMinimizationFactor);
@@ -137,8 +120,7 @@ function ChatInputContent() {
   // - Animate smoothly when focus state changes
   // - Update immediately when scroll changes
   useEffect(() => {
-    const focusStateChanged =
-      prevShouldPreventMinimization.current !== shouldPreventMinimization;
+    const focusStateChanged = prevShouldPreventMinimization.current !== shouldPreventMinimization;
     prevShouldPreventMinimization.current = shouldPreventMinimization;
 
     if (focusStateChanged) {
@@ -155,16 +137,12 @@ function ChatInputContent() {
   }, [targetMinimizationFactor, shouldPreventMinimization, minimizationFactor]);
 
   // Transform reveal value to clipPath
-  const textClipPath = useTransform(
-    textReveal,
-    (value) => `inset(0 ${100 - value}% 0 0)`,
-  );
+  const textClipPath = useTransform(textReveal, (value) => `inset(0 ${100 - value}% 0 0)`);
 
   // Reveal animation when text is added externally (not by typing)
   useEffect(() => {
     // Only animate if input changed and it wasn't from typing
-    const wasExternalChange =
-      input !== prevInputRef.current && !isTypingRef.current && input;
+    const wasExternalChange = input !== prevInputRef.current && !isTypingRef.current && input;
 
     if (wasExternalChange) {
       // Set initial state - start hidden
@@ -339,9 +317,7 @@ function ChatInputContent() {
             }}
           >
             <PromptInputBody
-              className={cn(
-                targetMinimizationFactor > 0.15 && "flex-row flex-1 pr-2",
-              )}
+              className={cn(targetMinimizationFactor > 0.15 && "flex-row flex-1 pr-2")}
             >
               <PromptInputAttachments>
                 {(attachment) => <PromptInputAttachment data={attachment} />}
@@ -369,8 +345,7 @@ function ChatInputContent() {
                     // Handle Enter key for commands
                     if (e.key === "Enter" && showCommands) {
                       e.preventDefault();
-                      const selectedCommand =
-                        filteredCommands[selectedCommandIndex];
+                      const selectedCommand = filteredCommands[selectedCommandIndex];
                       if (selectedCommand) {
                         // Execute command through the store
                         if (!chatId) return;
@@ -380,9 +355,7 @@ function ChatInputContent() {
 
                         sendMessage({
                           role: "user",
-                          parts: [
-                            { type: "text", text: selectedCommand.title },
-                          ],
+                          parts: [{ type: "text", text: selectedCommand.title }],
                           metadata: {
                             toolCall: {
                               toolName: selectedCommand.toolName,
@@ -481,16 +454,11 @@ function ChatInputContent() {
                       // Enable button when streaming so user can stop
                       status === "streaming" || status === "submitted"
                         ? false
-                        : (!input && !status) ||
-                          isUploading ||
-                          isRecording ||
-                          isProcessing
+                        : (!input && !status) || isUploading || isRecording || isProcessing
                     }
                     status={status}
                     onClick={
-                      status === "streaming" || status === "submitted"
-                        ? handleStopClick
-                        : undefined
+                      status === "streaming" || status === "submitted" ? handleStopClick : undefined
                     }
                   />
                 </motion.div>

@@ -47,35 +47,17 @@ export const Logo = ({ id = "copilot" }: { id?: string }) => {
           <stop offset="50%" stopColor="#F2598A" />
           <stop offset="89.6%" stopColor="#FFB152" />
         </radialGradient>
-        <linearGradient
-          id={`${id}-fill-2`}
-          x1="39.465%"
-          x2="46.884%"
-          y1="12.117%"
-          y2="103.774%"
-        >
+        <linearGradient id={`${id}-fill-2`} x1="39.465%" x2="46.884%" y1="12.117%" y2="103.774%">
           <stop offset="15.6%" stopColor="#0D91E1" />
           <stop offset="48.7%" stopColor="#52B471" />
           <stop offset="65.2%" stopColor="#98BD42" />
           <stop offset="93.7%" stopColor="#FFC800" />
         </linearGradient>
-        <linearGradient
-          id={`${id}-fill-3`}
-          x1="45.949%"
-          x2="50%"
-          y1="0%"
-          y2="100%"
-        >
+        <linearGradient id={`${id}-fill-3`} x1="45.949%" x2="50%" y1="0%" y2="100%">
           <stop offset="0%" stopColor="#3DCBFF" />
           <stop offset="24.7%" stopColor="#0588F7" stopOpacity="0" />
         </linearGradient>
-        <linearGradient
-          id={`${id}-fill-5`}
-          x1="83.507%"
-          x2="83.453%"
-          y1="-6.106%"
-          y2="21.131%"
-        >
+        <linearGradient id={`${id}-fill-5`} x1="83.507%" x2="83.453%" y1="-6.106%" y2="21.131%">
           <stop offset="5.8%" stopColor="#F8ADFA" />
           <stop offset="70.8%" stopColor="#A86EDD" stopOpacity="0" />
         </linearGradient>

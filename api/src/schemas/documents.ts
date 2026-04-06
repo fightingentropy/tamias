@@ -14,8 +14,7 @@ export const getDocumentsSchema = z
       .nullable()
       .optional()
       .openapi({
-        description:
-          "Sorting order as a tuple: [field, direction]. Example: ['name', 'asc'].",
+        description: "Sorting order as a tuple: [field, direction]. Example: ['name', 'asc'].",
         param: {
           in: "query",
         },
@@ -120,8 +119,7 @@ export const getDocumentPreSignedUrlSchema = z.object({
     .string()
     .uuid()
     .openapi({
-      description:
-        "Unique identifier of the document to generate a pre-signed URL for",
+      description: "Unique identifier of the document to generate a pre-signed URL for",
       example: "b3b7c1e2-4c2a-4e7a-9c1a-2b7c1e24c2a4",
       param: {
         in: "path",
@@ -144,8 +142,7 @@ export const getDocumentPreSignedUrlSchema = z.object({
 
 export const preSignedUrlResponseSchema = z.object({
   url: z.string().url().openapi({
-    description:
-      "Pre-signed URL for accessing the document, valid for 60 seconds",
+    description: "Pre-signed URL for accessing the document, valid for 60 seconds",
     example:
       "https://service.tamias.xyz/storage/v1/object/sign/vault/documents/2024/invoice.pdf?token=abc123&expires=1640995200",
   }),
@@ -242,8 +239,7 @@ export const documentsResponseSchema = z
     }),
   })
   .openapi({
-    description:
-      "Response containing a list of documents and pagination metadata.",
+    description: "Response containing a list of documents and pagination metadata.",
     example: {
       meta: {
         cursor: "20",

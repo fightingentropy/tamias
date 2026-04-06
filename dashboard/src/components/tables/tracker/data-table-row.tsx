@@ -40,11 +40,7 @@ type DataTableCellProps = {
   onClick?: () => void;
 };
 
-export function DataTableCell({
-  children,
-  className,
-  onClick,
-}: DataTableCellProps) {
+export function DataTableCell({ children, className, onClick }: DataTableCellProps) {
   return (
     <TableCell className={className} onClick={onClick}>
       {children}
@@ -85,11 +81,7 @@ export function DataTableRow({ row, onDelete }: DataTableRowProps) {
       <DropdownMenu>
         <Row>
           <DataTableCell className="w-[420px] min-w-[420px] md:sticky md:left-0 bg-background group-hover:bg-[#F2F1EF] group-hover:dark:bg-[#0f0f0f] z-20 border-r border-border before:absolute before:right-0 before:top-0 before:bottom-0 before:w-px before:bg-border after:absolute after:right-[-24px] after:top-0 after:bottom-0 after:w-6 after:bg-gradient-to-l after:from-transparent after:to-background group-hover:after:opacity-0 after:z-[-1]">
-            <TrackerTimer
-              projectId={row.id}
-              projectName={row.name}
-              onClick={onClick}
-            />
+            <TrackerTimer projectId={row.id} projectName={row.name} onClick={onClick} />
           </DataTableCell>
           <DataTableCell onClick={onClick} className="cursor-pointer">
             {row.customer ? (
@@ -146,10 +138,7 @@ export function DataTableRow({ row, onDelete }: DataTableRowProps) {
                 <div className="flex items-center space-x-2">
                   {row.tags?.map((tag) => (
                     <Link href={`/transactions?tags=${tag.id}`} key={tag.id}>
-                      <Badge
-                        variant="tag-rounded"
-                        className="whitespace-nowrap"
-                      >
+                      <Badge variant="tag-rounded" className="whitespace-nowrap">
                         {tag.name}
                       </Badge>
                     </Link>
@@ -195,22 +184,17 @@ export function DataTableRow({ row, onDelete }: DataTableRowProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete this
-              project.
+              This action cannot be undone. This will permanently delete this project.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => onDelete({ id: row.id })}>
-              Continue
-            </AlertDialogAction>
+            <AlertDialogAction onClick={() => onDelete({ id: row.id })}>Continue</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
 
         <DropdownMenuContent className="w-42" sideOffset={10} align="end">
-          <DropdownMenuItem
-            onClick={() => setParams({ update: true, projectId: row.id })}
-          >
+          <DropdownMenuItem onClick={() => setParams({ update: true, projectId: row.id })}>
             Edit
           </DropdownMenuItem>
 
@@ -221,9 +205,7 @@ export function DataTableRow({ row, onDelete }: DataTableRowProps) {
           <DropdownMenuSeparator />
 
           <AlertDialogTrigger asChild>
-            <DropdownMenuItem className="text-destructive">
-              Delete
-            </DropdownMenuItem>
+            <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
           </AlertDialogTrigger>
         </DropdownMenuContent>
       </DropdownMenu>

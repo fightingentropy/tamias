@@ -27,12 +27,8 @@ export class RateLimitCoordinator extends DurableObject<Env> {
   }
 
   async alarm() {
-    const bucket =
-      await this.ctx.storage.get<StoredRateLimitBucket>(STORAGE_KEY);
-    const { bucket: nextBucket, alarmAt } = pruneStoredRateLimitBucket(
-      bucket,
-      Date.now(),
-    );
+    const bucket = await this.ctx.storage.get<StoredRateLimitBucket>(STORAGE_KEY);
+    const { bucket: nextBucket, alarmAt } = pruneStoredRateLimitBucket(bucket, Date.now());
 
     await this.persistBucket(this.ctx.storage, nextBucket, alarmAt);
   }

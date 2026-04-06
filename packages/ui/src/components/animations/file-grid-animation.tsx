@@ -114,10 +114,7 @@ export function FileGridAnimation({
               type="button"
               className="w-6 h-6 flex items-center justify-center hover:bg-muted transition-colors"
             >
-              <MdOutlineFilterList
-                className="text-sm text-muted-foreground"
-                size={16}
-              />
+              <MdOutlineFilterList className="text-sm text-muted-foreground" size={16} />
             </button>
           </div>
         </div>

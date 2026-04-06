@@ -6,10 +6,7 @@ import {
   getTransactionsFromConvex,
   type TransactionStatus,
 } from "@tamias/app-data-convex";
-import {
-  CONTRA_REVENUE_CATEGORIES,
-  REVENUE_CATEGORIES,
-} from "@tamias/categories";
+import { CONTRA_REVENUE_CATEGORIES, REVENUE_CATEGORIES } from "@tamias/categories";
 import type { Database } from "../../../client";
 import { getTransactionCategoryContext } from "../../transaction-categories";
 import {
@@ -32,47 +29,35 @@ export async function loadFallbackPageContext(args: {
 }) {
   const {
     db,
-    params: {
-      teamId,
-      sort,
-      tags: filterTags,
-      accounts: filterAccounts,
-      start,
-      end,
-    },
+    params: { teamId, sort, tags: filterTags, accounts: filterAccounts, start, end },
     convexStatusesNotIn,
   } = args;
   const convexBankAccountId =
     filterAccounts && filterAccounts.length === 1 ? filterAccounts[0] : undefined;
-  const [
-    teamMembers,
-    categoryContext,
-    bankAccounts,
-    allTransactions,
-    taggedTransactionIdsForSort,
-  ] = await Promise.all([
-    getTeamMembersFromConvexIdentity({ teamId }),
-    getTransactionCategoryContext(db, teamId),
-    getBankAccountsFromConvex({ teamId }),
-    filterTags && filterTags.length > 0
-      ? getTaggedTransactionsFromConvex({
-          teamId,
-          tagIds: filterTags,
-          dateGte: start ?? undefined,
-          dateLte: end ?? undefined,
-          statusesNotIn: convexStatusesNotIn,
-        })
-      : getTransactionsFromConvex({
-          teamId,
-          bankAccountId: convexBankAccountId,
-          dateGte: start ?? undefined,
-          dateLte: end ?? undefined,
-          statusesNotIn: convexStatusesNotIn,
-        }),
-    sort?.[0] === "tags" && (!filterTags || filterTags.length === 0)
-      ? getTaggedTransactionIdsFromConvex({ teamId })
-      : [],
-  ]);
+  const [teamMembers, categoryContext, bankAccounts, allTransactions, taggedTransactionIdsForSort] =
+    await Promise.all([
+      getTeamMembersFromConvexIdentity({ teamId }),
+      getTransactionCategoryContext(db, teamId),
+      getBankAccountsFromConvex({ teamId }),
+      filterTags && filterTags.length > 0
+        ? getTaggedTransactionsFromConvex({
+            teamId,
+            tagIds: filterTags,
+            dateGte: start ?? undefined,
+            dateLte: end ?? undefined,
+            statusesNotIn: convexStatusesNotIn,
+          })
+        : getTransactionsFromConvex({
+            teamId,
+            bankAccountId: convexBankAccountId,
+            dateGte: start ?? undefined,
+            dateLte: end ?? undefined,
+            statusesNotIn: convexStatusesNotIn,
+          }),
+      sort?.[0] === "tags" && (!filterTags || filterTags.length === 0)
+        ? getTaggedTransactionIdsFromConvex({ teamId })
+        : [],
+    ]);
 
   return {
     teamMembers,
@@ -102,15 +87,11 @@ export function buildFallbackFilterState(args: {
 
   const expandedFilterCategories =
     filterCategories && filterCategories.length > 0
-      ? expandTransactionCategories(
-          categoryContext.bySlug,
-          categoryContext.byId,
-          filterCategories,
-        )
+      ? expandTransactionCategories(categoryContext.bySlug, categoryContext.byId, filterCategories)
       : null;
-  const validRecurringFrequencies = filterRecurring?.filter(
-    (frequency) => frequency !== "all",
-  ) as TransactionFrequency[] | undefined;
+  const validRecurringFrequencies = filterRecurring?.filter((frequency) => frequency !== "all") as
+    | TransactionFrequency[]
+    | undefined;
   const teamMemberIds = new Set(teamMembers.map((member) => member.user.id));
   const validAssigneeIds =
     filterAssignees?.filter((assigneeId) => teamMemberIds.has(assigneeId)) ?? [];
@@ -152,18 +133,13 @@ export function applyFallbackPrefilters(args: {
 
   return transactions
     .filter((transaction) => (end ? transaction.date <= end : true))
-    .filter((transaction) =>
-      q ? matchesTransactionSearchQuery(transaction, q) : true,
-    )
+    .filter((transaction) => (q ? matchesTransactionSearchQuery(transaction, q) : true))
     .filter((transaction) => {
       if (!filterCategories || filterCategories.length === 0 || !expandedFilterCategories) {
         return true;
       }
 
-      if (
-        filterCategories.includes("uncategorized") &&
-        transaction.categorySlug === null
-      ) {
+      if (filterCategories.includes("uncategorized") && transaction.categorySlug === null) {
         return true;
       }
 
@@ -181,9 +157,7 @@ export function applyFallbackPrefilters(args: {
       }
 
       return validRecurringFrequencies && validRecurringFrequencies.length > 0
-        ? validRecurringFrequencies.includes(
-            transaction.frequency as TransactionFrequency,
-          )
+        ? validRecurringFrequencies.includes(transaction.frequency as TransactionFrequency)
         : true;
     })
     .filter((transaction) => {

@@ -116,9 +116,7 @@ WHY: Specific dates create urgency and help planning. "1 month" is vague; "until
   - A 1-month runway is an EMERGENCY, not stability — frame it accordingly
 </accuracy>`;
 
-  const examples = isFirstInsight
-    ? buildFirstInsightExamples(slots)
-    : buildExamples(slots);
+  const examples = isFirstInsight ? buildFirstInsightExamples(slots) : buildExamples(slots);
 
   return `${role}
 
@@ -155,18 +153,12 @@ function buildDataSection(slots: InsightSlots): string {
   if (facts.runway.isCritical) {
     lines.push("CRITICAL RUNWAY WARNING");
     lines.push(`${getRunwayDescription(facts)}`);
-    lines.push(
-      `NEVER use words like: ${CRITICAL_RUNWAY_BANNED_WORDS.join(", ")}`,
-    );
-    lines.push(
-      "MUST frame as: urgent, priority, tight, limited time, needs immediate attention",
-    );
+    lines.push(`NEVER use words like: ${CRITICAL_RUNWAY_BANNED_WORDS.join(", ")}`);
+    lines.push("MUST frame as: urgent, priority, tight, limited time, needs immediate attention");
     lines.push("");
   } else if (facts.runway.isLow) {
     lines.push("LOW RUNWAY WARNING");
-    lines.push(
-      `Runway is ${facts.runway.months} months — avoid overly reassuring language.`,
-    );
+    lines.push(`Runway is ${facts.runway.months} months — avoid overly reassuring language.`);
     lines.push("");
   }
 
@@ -223,9 +215,7 @@ function buildDataSection(slots: InsightSlots): string {
     lines.push("invoices sent: no new invoices this week");
   }
   if (slots.runwayExhaustionDate) {
-    lines.push(
-      `runway: ${slots.runway} months (cash lasts until ${slots.runwayExhaustionDate})`,
-    );
+    lines.push(`runway: ${slots.runway} months (cash lasts until ${slots.runwayExhaustionDate})`);
   } else {
     lines.push(`runway: ${slots.runway} months`);
   }
@@ -246,9 +236,7 @@ function buildDataSection(slots: InsightSlots): string {
           `  - ${inv.company}: ${inv.amount} (${inv.daysOverdue} days) ⚠️ UNUSUAL - ${inv.unusualReason}`,
         );
       } else {
-        lines.push(
-          `  - ${inv.company}: ${inv.amount} (${inv.daysOverdue} days)`,
-        );
+        lines.push(`  - ${inv.company}: ${inv.amount} (${inv.daysOverdue} days)`);
       }
     }
   }
@@ -334,8 +322,7 @@ function buildExamples(slots: InsightSlots): string {
 
   // Select appropriate example based on context
   let exampleKey: string;
-  const isZeroActivity =
-    slots.profitRaw === 0 && slots.revenueRaw === 0 && slots.expensesRaw === 0;
+  const isZeroActivity = slots.profitRaw === 0 && slots.revenueRaw === 0 && slots.expensesRaw === 0;
   const isLowRunwayProfitable = slots.runway < 2 && slots.profitRaw > 0;
 
   // LOW RUNWAY takes priority over other classifications when profitable
@@ -414,11 +401,8 @@ function buildFirstInsightExamples(slots: InsightSlots): string {
     },
   };
 
-  const isZeroActivity =
-    slots.profitRaw === 0 && slots.revenueRaw === 0 && slots.expensesRaw === 0;
-  const example = isZeroActivity
-    ? examples.zero_activity
-    : (examples[weekType] ?? examples.good);
+  const isZeroActivity = slots.profitRaw === 0 && slots.revenueRaw === 0 && slots.expensesRaw === 0;
+  const example = isZeroActivity ? examples.zero_activity : (examples[weekType] ?? examples.good);
 
   // Concrete example for first insights
   const concreteExample = {

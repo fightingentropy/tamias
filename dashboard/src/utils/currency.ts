@@ -2,9 +2,7 @@
  * Safely normalizes currency codes to ISO 4217 format
  * Extracts 3-letter ISO codes from strings, falls back to USD if invalid
  */
-export function normalizeCurrencyCode(
-  currency: string | null | undefined,
-): string {
+export function normalizeCurrencyCode(currency: string | null | undefined): string {
   try {
     if (!currency) {
       return "USD";
@@ -39,10 +37,7 @@ export function normalizeCurrencyCode(
     // Default fallback
     return "USD";
   } catch (error) {
-    console.warn(
-      `Error normalizing currency code: ${currency}, falling back to USD`,
-      error,
-    );
+    console.warn(`Error normalizing currency code: ${currency}, falling back to USD`, error);
     return "USD";
   }
 }

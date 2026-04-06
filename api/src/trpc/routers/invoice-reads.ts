@@ -1,8 +1,5 @@
 import { markInvoiceViewed } from "@tamias/app-data/queries";
-import {
-  getInvoiceByToken,
-  getInvoiceIdFromToken,
-} from "@tamias/app-services/invoice-by-token";
+import { getInvoiceByToken, getInvoiceIdFromToken } from "@tamias/app-services/invoice-by-token";
 import {
   getInvoiceByIdForTeam,
   getInvoicePaymentStatusForTeam,
@@ -38,17 +35,15 @@ export const invoiceReadProcedures = {
       });
     }),
 
-  getInvoiceByToken: publicProcedure
-    .input(getInvoiceByTokenSchema)
-    .query(async ({ input }) => {
-      const invoice = await getInvoiceByToken(input.token);
+  getInvoiceByToken: publicProcedure.input(getInvoiceByTokenSchema).query(async ({ input }) => {
+    const invoice = await getInvoiceByToken(input.token);
 
-      if (!invoice) {
-        throw new TRPCError({ code: "NOT_FOUND" });
-      }
+    if (!invoice) {
+      throw new TRPCError({ code: "NOT_FOUND" });
+    }
 
-      return invoice;
-    }),
+    return invoice;
+  }),
 
   markViewedByToken: publicProcedure
     .input(z.object({ token: z.string() }))

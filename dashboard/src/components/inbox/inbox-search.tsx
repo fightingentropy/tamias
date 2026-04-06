@@ -94,11 +94,7 @@ export function InboxSearch() {
               <span>Status</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
-              <DropdownMenuSubContent
-                sideOffset={14}
-                alignOffset={-4}
-                className="p-0"
-              >
+              <DropdownMenuSubContent sideOffset={14} alignOffset={-4} className="p-0">
                 <DropdownMenuRadioGroup
                   value={filterParams.status ?? "all"}
                   onValueChange={(value) =>
@@ -106,11 +102,7 @@ export function InboxSearch() {
                       status:
                         value === "all"
                           ? null
-                          : (value as
-                              | "done"
-                              | "pending"
-                              | "suggested_match"
-                              | "no_match"),
+                          : (value as "done" | "pending" | "suggested_match" | "no_match"),
                     })
                   }
                 >

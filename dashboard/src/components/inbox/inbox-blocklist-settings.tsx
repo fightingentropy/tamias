@@ -1,35 +1,13 @@
 "use client";
 
 import { Button } from "@tamias/ui/button";
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@tamias/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@tamias/ui/form";
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@tamias/ui/card";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@tamias/ui/form";
 import { Icons } from "@tamias/ui/icons";
 import { Input } from "@tamias/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@tamias/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@tamias/ui/select";
 import { SubmitButton } from "@tamias/ui/submit-button";
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useFieldArray } from "react-hook-form";
 import { z } from "zod/v3";
@@ -61,8 +39,7 @@ const formSchema = z.object({
         if (data.type === "domain") {
           // Domain validation regex pattern (RFC 1035 compliant)
           // Validates: alphanumeric, hyphens, dots, with at least one dot and valid TLD
-          const domainPattern =
-            /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
+          const domainPattern = /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
 
           if (!domainPattern.test(trimmed)) {
             ctx.addIssue({
@@ -80,9 +57,7 @@ export function InboxBlocklistSettings() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
-  const { data: blocklistData } = useSuspenseQuery(
-    trpc.inbox.blocklist.get.queryOptions(),
-  );
+  const { data: blocklistData } = useSuspenseQuery(trpc.inbox.blocklist.get.queryOptions());
 
   const existingEntries = blocklistData ?? [];
 
@@ -141,14 +116,10 @@ export function InboxBlocklistSettings() {
   );
 
   const onSubmit = form.handleSubmit(async (data) => {
-    const entriesToCreate = data.entries.filter(
-      (entry) => !entry.id && entry.value.trim() !== "",
-    );
+    const entriesToCreate = data.entries.filter((entry) => !entry.id && entry.value.trim() !== "");
     const entriesToDelete =
       existingEntries
-        ?.filter(
-          (existing) => !data.entries.some((entry) => entry.id === existing.id),
-        )
+        ?.filter((existing) => !data.entries.some((entry) => entry.id === existing.id))
         .map((entry) => entry.id) || [];
 
     // Delete removed entries
@@ -183,9 +154,8 @@ export function InboxBlocklistSettings() {
       <CardHeader>
         <CardTitle>Blocklist</CardTitle>
         <CardDescription>
-          Block specific email addresses or domains from appearing in your
-          inbox. For example, block "netflix.com" to prevent Netflix receipts
-          from showing up.
+          Block specific email addresses or domains from appearing in your inbox. For example, block
+          "netflix.com" to prevent Netflix receipts from showing up.
         </CardDescription>
       </CardHeader>
 
@@ -228,10 +198,7 @@ export function InboxBlocklistSettings() {
                       name="entries.0.type"
                       render={({ field }) => (
                         <FormItem>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger className="min-w-[120px]">
                                 <SelectValue placeholder="Type" />
@@ -278,8 +245,7 @@ export function InboxBlocklistSettings() {
                             <FormControl>
                               <Input
                                 placeholder={
-                                  form.watch(`entries.${index}.type`) ===
-                                  "email"
+                                  form.watch(`entries.${index}.type`) === "email"
                                     ? "user@example.com"
                                     : "example.com"
                                 }
@@ -293,10 +259,7 @@ export function InboxBlocklistSettings() {
                                   // Auto-detect email format and change type
                                   const value = e.target.value;
                                   if (value.includes("@")) {
-                                    form.setValue(
-                                      `entries.${index}.type`,
-                                      "email",
-                                    );
+                                    form.setValue(`entries.${index}.type`, "email");
                                   }
                                 }}
                               />
@@ -310,10 +273,7 @@ export function InboxBlocklistSettings() {
                         name={`entries.${index}.type`}
                         render={({ field }) => (
                           <FormItem>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                            >
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger className="min-w-[120px]">
                                   <SelectValue placeholder="Type" />
@@ -332,14 +292,11 @@ export function InboxBlocklistSettings() {
                         type="button"
                         variant="ghost"
                         size="icon"
-                        onClick={() =>
-                          handleRemove(index, form.watch(`entries.${index}.id`))
-                        }
+                        onClick={() => handleRemove(index, form.watch(`entries.${index}.id`))}
                         disabled={
                           deleteMutation.isPending ||
                           (!!form.watch(`entries.${index}.id`) &&
-                            deleteMutation.variables?.id ===
-                              form.watch(`entries.${index}.id`))
+                            deleteMutation.variables?.id === form.watch(`entries.${index}.id`))
                         }
                         className="opacity-0 group-hover:opacity-100 transition-opacity"
                       >

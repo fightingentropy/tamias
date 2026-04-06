@@ -2,10 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 const repoRoot = process.cwd();
-const ENV_FILE_PATHS = [
-  path.join(repoRoot, ".env"),
-  path.join(repoRoot, ".env.local"),
-];
+const ENV_FILE_PATHS = [path.join(repoRoot, ".env"), path.join(repoRoot, ".env.local")];
 
 function parseEnvFile(filePath: string): Record<string, string> {
   if (!existsSync(filePath)) {

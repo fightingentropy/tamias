@@ -23,7 +23,5 @@ export function getTransactionStatusExclusions(status?: string) {
     return undefined;
   }
 
-  return TRANSACTION_SEARCH_STATUS_VALUES.filter(
-    (candidateStatus) => candidateStatus !== status,
-  );
+  return TRANSACTION_SEARCH_STATUS_VALUES.filter((candidateStatus) => candidateStatus !== status);
 }

@@ -71,17 +71,12 @@ export const serviceIncrementSuggestedActionUsage = mutation({
     const existing = await ctx.db
       .query("suggestedActionUsage")
       .withIndex("by_app_user_team_action", (q) =>
-        q
-          .eq("appUserId", appUser._id)
-          .eq("teamId", team._id)
-          .eq("actionId", args.actionId),
+        q.eq("appUserId", appUser._id).eq("teamId", team._id).eq("actionId", args.actionId),
       )
       .unique();
 
     const nextCount =
-      existing && Date.parse(existing.lastUsedAt) >= cutoff
-        ? existing.count + 1
-        : 1;
+      existing && Date.parse(existing.lastUsedAt) >= cutoff ? existing.count + 1 : 1;
 
     if (existing) {
       await ctx.db.patch(existing._id, {

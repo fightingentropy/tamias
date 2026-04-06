@@ -12,13 +12,7 @@ type AppSettingsItem = {
   value: string | boolean;
 };
 
-function AppSettingsItem({
-  setting,
-  appId,
-}: {
-  setting: AppSettingsItem;
-  appId: string;
-}) {
+function AppSettingsItem({ setting, appId }: { setting: AppSettingsItem; appId: string }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
@@ -60,13 +54,7 @@ function AppSettingsItem({
   }
 }
 
-export function AppSettings({
-  settings,
-  appId,
-}: {
-  settings: AppSettingsItem[];
-  appId: string;
-}) {
+export function AppSettings({ settings, appId }: { settings: AppSettingsItem[]; appId: string }) {
   return (
     <div>
       {settings.map((setting) => (

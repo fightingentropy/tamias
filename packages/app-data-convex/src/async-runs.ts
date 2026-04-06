@@ -1,10 +1,7 @@
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "./api";
 
-export type AsyncRunProvider =
-  | "cloudflare-queue"
-  | "cloudflare-workflow"
-  | "cloudflare-schedule";
+export type AsyncRunProvider = "cloudflare-queue" | "cloudflare-workflow" | "cloudflare-schedule";
 export type AsyncRunKind = "job" | "workflow" | "schedule";
 export type AsyncRunStatus =
   | "waiting"
@@ -83,11 +80,7 @@ const convexApi = api as typeof api & {
 };
 
 function getConvexUrl() {
-  return (
-    process.env.CONVEX_URL ||
-    process.env.TAMIAS_CONVEX_URL ||
-    process.env.CONVEX_SITE_URL
-  );
+  return process.env.CONVEX_URL || process.env.TAMIAS_CONVEX_URL || process.env.CONVEX_SITE_URL;
 }
 
 function getServiceKey() {
@@ -99,10 +92,7 @@ function getServiceKey() {
 
   const convexUrl = getConvexUrl();
 
-  if (
-    convexUrl?.includes("127.0.0.1") ||
-    convexUrl?.includes("localhost")
-  ) {
+  if (convexUrl?.includes("127.0.0.1") || convexUrl?.includes("localhost")) {
     return "local-dev";
   }
 

@@ -8,13 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@tamias/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@tamias/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@tamias/ui/form";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { z } from "zod/v3";
 import { useTeamMutation, useTeamQuery } from "@/hooks/use-team";
@@ -46,8 +40,8 @@ export function CompanyFiscalYear() {
           <CardHeader>
             <CardTitle>Fiscal year</CardTitle>
             <CardDescription>
-              Set when your fiscal year begins. This determines the default date
-              ranges for all reports and widgets throughout the application.
+              Set when your fiscal year begins. This determines the default date ranges for all
+              reports and widgets throughout the application.
             </CardDescription>
           </CardHeader>
 

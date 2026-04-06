@@ -26,8 +26,7 @@ export type DashboardRequestContext = {
 export function getDashboardRequestContext() {
   const startContext = getStartContext({ throwIfNotFound: false });
 
-  return (startContext?.contextAfterGlobalMiddlewares ??
-    null) as DashboardRequestContext | null;
+  return (startContext?.contextAfterGlobalMiddlewares ?? null) as DashboardRequestContext | null;
 }
 
 export function getApiServiceBinding() {

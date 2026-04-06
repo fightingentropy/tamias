@@ -9,17 +9,12 @@ const ExportStatus = dynamic(
 
 const GlobalSheetsProvider = dynamic(
   () =>
-    import("@/components/sheets/global-sheets-provider").then(
-      (mod) => mod.GlobalSheetsProvider,
-    ),
+    import("@/components/sheets/global-sheets-provider").then((mod) => mod.GlobalSheetsProvider),
   { ssr: false },
 );
 
 const GlobalTimerProvider = dynamic(
-  () =>
-    import("@/components/global-timer-provider").then(
-      (mod) => mod.GlobalTimerProvider,
-    ),
+  () => import("@/components/global-timer-provider").then((mod) => mod.GlobalTimerProvider),
   { ssr: false },
 );
 

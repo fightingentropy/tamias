@@ -20,12 +20,8 @@ export function Column({ title, description, footer, imgSrc }: Props) {
       </Section>
       <Section className="inline-block align-top box-border w-full w-[280px] text-left">
         <Section className="text-left p-0 m-0">
-          <Text className={`pt-0 m-0 font-medium mb-2 ${themeClasses.text}`}>
-            {title}
-          </Text>
-          <Text className={`p-0 m-0 ${themeClasses.mutedText}`}>
-            {description}
-          </Text>
+          <Text className={`pt-0 m-0 font-medium mb-2 ${themeClasses.text}`}>{title}</Text>
+          <Text className={`p-0 m-0 ${themeClasses.mutedText}`}>{description}</Text>
           <Text className={`p-0 mt-2 ${themeClasses.mutedText}`}>{footer}</Text>
         </Section>
       </Section>

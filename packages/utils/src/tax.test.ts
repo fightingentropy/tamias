@@ -602,9 +602,7 @@ describe("Tax Utilities", () => {
         currency: "USD",
       });
       expect(result).toBe(45.24);
-      expect(result!.toString().split(".")[1]?.length ?? 0).toBeLessThanOrEqual(
-        2,
-      );
+      expect(result!.toString().split(".")[1]?.length ?? 0).toBeLessThanOrEqual(2);
     });
 
     test("should be consistent with calculateTaxAmountFromGross", () => {
@@ -711,10 +709,7 @@ describe("Tax Utilities", () => {
 
       for (const rate of rates) {
         const taxAmount = calculateTaxAmountFromGross(grossAmount, rate);
-        const calculatedRate = calculateTaxRateFromGross(
-          grossAmount,
-          taxAmount,
-        );
+        const calculatedRate = calculateTaxRateFromGross(grossAmount, taxAmount);
         // Allow small rounding differences (within 0.1%)
         expect(calculatedRate).toBeCloseTo(rate, 1);
       }

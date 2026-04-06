@@ -164,9 +164,7 @@ describe("isDateInFutureUTC", () => {
       const serverCurrentTime = new Date("2025-01-05T02:00:00.000Z");
 
       // Both are on the same UTC day (Jan 5), so NOT in future
-      expect(
-        isDateInFutureUTC(issueDateReceivedByServer, serverCurrentTime),
-      ).toBe(false);
+      expect(isDateInFutureUTC(issueDateReceivedByServer, serverCurrentTime)).toBe(false);
     });
 
     test("different UTC days are correctly identified", () => {
@@ -176,9 +174,7 @@ describe("isDateInFutureUTC", () => {
       const serverCurrentTime = new Date("2025-01-05T23:59:59.999Z");
 
       // Different UTC days, so IS in future
-      expect(
-        isDateInFutureUTC(issueDateReceivedByServer, serverCurrentTime),
-      ).toBe(true);
+      expect(isDateInFutureUTC(issueDateReceivedByServer, serverCurrentTime)).toBe(true);
     });
   });
 });
@@ -1126,63 +1122,37 @@ describe("formatting utilities", () => {
     });
 
     test("returns correct label for biweekly", () => {
-      expect(getFrequencyLabel("biweekly", 5, null)).toBe(
-        "Bi-weekly on Friday",
-      );
-      expect(getFrequencyLabel("biweekly", 1, null)).toBe(
-        "Bi-weekly on Monday",
-      );
+      expect(getFrequencyLabel("biweekly", 5, null)).toBe("Bi-weekly on Friday");
+      expect(getFrequencyLabel("biweekly", 1, null)).toBe("Bi-weekly on Monday");
     });
 
     test("returns correct label for monthly_last_day", () => {
-      expect(getFrequencyLabel("monthly_last_day", null, null)).toBe(
-        "Monthly on the last day",
-      );
+      expect(getFrequencyLabel("monthly_last_day", null, null)).toBe("Monthly on the last day");
     });
 
     test("returns correct label for monthly_date", () => {
-      expect(getFrequencyLabel("monthly_date", 15, null)).toBe(
-        "Monthly on the 15th",
-      );
-      expect(getFrequencyLabel("monthly_date", 1, null)).toBe(
-        "Monthly on the 1st",
-      );
-      expect(getFrequencyLabel("monthly_date", 22, null)).toBe(
-        "Monthly on the 22nd",
-      );
+      expect(getFrequencyLabel("monthly_date", 15, null)).toBe("Monthly on the 15th");
+      expect(getFrequencyLabel("monthly_date", 1, null)).toBe("Monthly on the 1st");
+      expect(getFrequencyLabel("monthly_date", 22, null)).toBe("Monthly on the 22nd");
     });
 
     test("returns correct label for monthly_weekday", () => {
-      expect(getFrequencyLabel("monthly_weekday", 5, 2)).toBe(
-        "Monthly on the 2nd Friday",
-      );
-      expect(getFrequencyLabel("monthly_weekday", 1, 1)).toBe(
-        "Monthly on the 1st Monday",
-      );
-      expect(getFrequencyLabel("monthly_weekday", 4, 4)).toBe(
-        "Monthly on the 4th Thursday",
-      );
+      expect(getFrequencyLabel("monthly_weekday", 5, 2)).toBe("Monthly on the 2nd Friday");
+      expect(getFrequencyLabel("monthly_weekday", 1, 1)).toBe("Monthly on the 1st Monday");
+      expect(getFrequencyLabel("monthly_weekday", 4, 4)).toBe("Monthly on the 4th Thursday");
     });
 
     test("returns correct label for quarterly", () => {
-      expect(getFrequencyLabel("quarterly", 15, null)).toBe(
-        "Quarterly on the 15th",
-      );
-      expect(getFrequencyLabel("quarterly", 1, null)).toBe(
-        "Quarterly on the 1st",
-      );
+      expect(getFrequencyLabel("quarterly", 15, null)).toBe("Quarterly on the 15th");
+      expect(getFrequencyLabel("quarterly", 1, null)).toBe("Quarterly on the 1st");
     });
 
     test("returns correct label for semi_annual", () => {
-      expect(getFrequencyLabel("semi_annual", 15, null)).toBe(
-        "Semi-annually on the 15th",
-      );
+      expect(getFrequencyLabel("semi_annual", 15, null)).toBe("Semi-annually on the 15th");
     });
 
     test("returns correct label for annual", () => {
-      expect(getFrequencyLabel("annual", 15, null)).toBe(
-        "Annually on the 15th",
-      );
+      expect(getFrequencyLabel("annual", 15, null)).toBe("Annually on the 15th");
     });
 
     test("returns Custom for custom frequency", () => {
@@ -1217,9 +1187,7 @@ describe("formatting utilities", () => {
       expect(formatNextScheduled(null, "completed")).toBe("Series complete");
       expect(formatNextScheduled(null, "paused")).toBe("Paused");
       expect(formatNextScheduled(null, "active")).toBe("");
-      expect(formatNextScheduled(new Date("2025-02-01"), "active")).toBe(
-        "Next on Feb 1",
-      );
+      expect(formatNextScheduled(new Date("2025-02-01"), "active")).toBe("Next on Feb 1");
     });
   });
 });

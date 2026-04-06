@@ -6,25 +6,12 @@ import { InvoiceStatus } from "./invoice-status";
 type Props = {
   name: string;
   website?: string | null;
-  status?:
-    | "overdue"
-    | "paid"
-    | "unpaid"
-    | "draft"
-    | "canceled"
-    | "scheduled"
-    | "refunded";
+  status?: "overdue" | "paid" | "unpaid" | "draft" | "canceled" | "scheduled" | "refunded";
   portalEnabled?: boolean;
   portalId?: string | null;
 };
 
-export default function CustomerHeader({
-  name,
-  website,
-  status,
-  portalEnabled,
-  portalId,
-}: Props) {
+export default function CustomerHeader({ name, website, status, portalEnabled, portalId }: Props) {
   const customerInfo = (
     <div className="flex items-center space-x-2">
       {name && (
@@ -38,9 +25,7 @@ export default function CustomerHeader({
               quality={100}
             />
           )}
-          <AvatarFallback className="text-[9px] font-medium">
-            {name?.[0]}
-          </AvatarFallback>
+          <AvatarFallback className="text-[9px] font-medium">{name?.[0]}</AvatarFallback>
         </Avatar>
       )}
       <span className="truncate text-sm">{name}</span>

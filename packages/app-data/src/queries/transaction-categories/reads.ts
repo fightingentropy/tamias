@@ -35,9 +35,7 @@ export async function getTransactionCategoriesByIds(
   const context = await getTransactionCategoryContext(db, params.teamId);
   return params.ids
     .map((id) => context.byId.get(id))
-    .filter(
-      (category): category is TransactionCategoryRecord => Boolean(category),
-    );
+    .filter((category): category is TransactionCategoryRecord => Boolean(category));
 }
 
 export async function getTransactionCategoriesBySlugs(
@@ -54,9 +52,7 @@ export async function getTransactionCategoriesBySlugs(
   const context = await getTransactionCategoryContext(db, params.teamId);
   return params.slugs
     .map((slug) => context.bySlug.get(slug))
-    .filter(
-      (category): category is TransactionCategoryRecord => Boolean(category),
-    );
+    .filter((category): category is TransactionCategoryRecord => Boolean(category));
 }
 
 export async function getExpandedTransactionCategorySlugs(
@@ -95,18 +91,12 @@ export async function getExpandedTransactionCategorySlugs(
   return [...expandedSlugs];
 }
 
-export async function getExcludedTransactionCategorySlugs(
-  db: Database,
-  teamId: string,
-) {
+export async function getExcludedTransactionCategorySlugs(db: Database, teamId: string) {
   const context = await getTransactionCategoryContext(db, teamId);
   return [...context.excludedSlugs];
 }
 
-export const getCategories = async (
-  db: Database,
-  params: GetCategoriesParams,
-) => {
+export const getCategories = async (db: Database, params: GetCategoriesParams) => {
   const { teamId, limit = 1000 } = params;
   const context = await getTransactionCategoryContext(db, teamId);
   const parentCategories = context.categories
@@ -119,10 +109,7 @@ export const getCategories = async (
   }));
 };
 
-export const getCategoryById = async (
-  db: Database,
-  params: GetCategoryByIdParams,
-) => {
+export const getCategoryById = async (db: Database, params: GetCategoryByIdParams) => {
   const result = await getTransactionCategoryByIdFromConvex({
     teamId: params.teamId,
     id: params.id,

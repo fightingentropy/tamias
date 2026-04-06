@@ -1,10 +1,5 @@
 import type { SVGProps } from "react";
-import {
-  MdAutoAwesome,
-  MdCheck,
-  MdErrorOutline,
-  MdInfoOutline,
-} from "react-icons/md";
+import { MdAutoAwesome, MdCheck, MdErrorOutline, MdInfoOutline } from "react-icons/md";
 
 type IconProps = SVGProps<SVGSVGElement> & {
   size?: number;

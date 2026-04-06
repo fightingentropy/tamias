@@ -1,9 +1,5 @@
 import type { InvoiceStatus } from "../../invoice-projections";
-import type {
-  SearchCandidate,
-  SearchCandidateLoadParams,
-  SearchSourceType,
-} from "../types";
+import type { SearchCandidate, SearchCandidateLoadParams, SearchSourceType } from "../types";
 import {
   ALL_SEARCH_SOURCE_TYPES,
   INVOICE_SEARCH_STATUSES,
@@ -20,10 +16,7 @@ function tokenizeSearchTerm(searchTerm: string | null | undefined) {
     .filter(Boolean);
 }
 
-export function calculateRelevance(
-  searchTerm: string | null | undefined,
-  searchText: string,
-) {
+export function calculateRelevance(searchTerm: string | null | undefined, searchText: string) {
   const tokens = tokenizeSearchTerm(searchTerm);
 
   if (tokens.length === 0) {
@@ -46,10 +39,7 @@ export function calculateRelevance(
   return Math.min(1, matches / tokens.length + exactBoost);
 }
 
-export function matchesSearchTerm(
-  candidate: SearchCandidate,
-  searchTerm?: string,
-) {
+export function matchesSearchTerm(candidate: SearchCandidate, searchTerm?: string) {
   const tokens = tokenizeSearchTerm(searchTerm);
 
   if (tokens.length === 0) {
@@ -134,14 +124,8 @@ function matchesType(candidate: SearchCandidate, types?: string[]) {
   return types.includes(candidate.sourceType);
 }
 
-function hasAmountFilters(args: {
-  amount?: number;
-  amountMin?: number;
-  amountMax?: number;
-}) {
-  return (
-    args.amount != null || args.amountMin != null || args.amountMax != null
-  );
+function hasAmountFilters(args: { amount?: number; amountMin?: number; amountMax?: number }) {
+  return args.amount != null || args.amountMin != null || args.amountMax != null;
 }
 
 export function getRequestedSourceTypes(types?: string[]) {
@@ -151,19 +135,14 @@ export function getRequestedSourceTypes(types?: string[]) {
 
   const requested = new Set(types);
 
-  return ALL_SEARCH_SOURCE_TYPES.filter((sourceType) =>
-    requested.has(sourceType),
-  );
+  return ALL_SEARCH_SOURCE_TYPES.filter((sourceType) => requested.has(sourceType));
 }
 
 export function sourceCanMatchFilters(
   sourceType: SearchSourceType,
   params: SearchCandidateLoadParams,
 ) {
-  if (
-    (params.dueDateStart || params.dueDateEnd) &&
-    sourceType !== "invoices"
-  ) {
+  if ((params.dueDateStart || params.dueDateEnd) && sourceType !== "invoices") {
     return false;
   }
 
@@ -178,24 +157,15 @@ export function sourceCanMatchFilters(
   }
 
   if (params.status) {
-    if (
-      sourceType === "invoices" &&
-      !INVOICE_SEARCH_STATUSES.has(params.status as InvoiceStatus)
-    ) {
+    if (sourceType === "invoices" && !INVOICE_SEARCH_STATUSES.has(params.status as InvoiceStatus)) {
       return false;
     }
 
-    if (
-      sourceType === "tracker_projects" &&
-      !TRACKER_PROJECT_SEARCH_STATUSES.has(params.status)
-    ) {
+    if (sourceType === "tracker_projects" && !TRACKER_PROJECT_SEARCH_STATUSES.has(params.status)) {
       return false;
     }
 
-    if (
-      sourceType === "transactions" &&
-      !TRANSACTION_SEARCH_STATUSES.has(params.status)
-    ) {
+    if (sourceType === "transactions" && !TRANSACTION_SEARCH_STATUSES.has(params.status)) {
       return false;
     }
   }
@@ -215,15 +185,11 @@ export function matchesSemanticCandidate(
     return false;
   }
 
-  if (
-    !matchesDateRange(candidate.filterDate, params.startDate, params.endDate)
-  ) {
+  if (!matchesDateRange(candidate.filterDate, params.startDate, params.endDate)) {
     return false;
   }
 
-  if (
-    !matchesDateRange(candidate.dueDate, params.dueDateStart, params.dueDateEnd)
-  ) {
+  if (!matchesDateRange(candidate.dueDate, params.dueDateStart, params.dueDateEnd)) {
     return false;
   }
 

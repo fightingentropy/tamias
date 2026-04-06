@@ -136,9 +136,7 @@ export async function updateTransactionEnrichments(
   }
 
   if (updates.length > 1000) {
-    throw new Error(
-      `Batch size too large: ${updates.length}. Maximum allowed: 1000`,
-    );
+    throw new Error(`Batch size too large: ${updates.length}. Maximum allowed: 1000`);
   }
 
   for (const update of updates) {
@@ -146,14 +144,9 @@ export async function updateTransactionEnrichments(
       throw new Error("Invalid transactionId: cannot be empty");
     }
     if (!update.data.merchantName && !update.data.categorySlug) {
-      throw new Error(
-        "At least one of merchantName or categorySlug must be provided",
-      );
+      throw new Error("At least one of merchantName or categorySlug must be provided");
     }
-    if (
-      update.data.merchantName !== undefined &&
-      !update.data.merchantName?.trim()
-    ) {
+    if (update.data.merchantName !== undefined && !update.data.merchantName?.trim()) {
       throw new Error("Invalid merchantName: cannot be empty when provided");
     }
   }
@@ -183,11 +176,9 @@ export async function updateTransactionEnrichments(
       transactions: transactions.map((transaction) =>
         toUpsertTransaction(transaction, {
           merchantName:
-            updatesByTransactionId.get(transaction.id)?.merchantName ??
-            transaction.merchantName,
+            updatesByTransactionId.get(transaction.id)?.merchantName ?? transaction.merchantName,
           categorySlug:
-            updatesByTransactionId.get(transaction.id)?.categorySlug ??
-            transaction.categorySlug,
+            updatesByTransactionId.get(transaction.id)?.categorySlug ?? transaction.categorySlug,
           enrichmentCompleted: true,
         }),
       ),
@@ -210,9 +201,7 @@ export async function markTransactionsAsEnriched(
   }
 
   if (transactionIds.length > 1000) {
-    throw new Error(
-      `Batch size too large: ${transactionIds.length}. Maximum allowed: 1000`,
-    );
+    throw new Error(`Batch size too large: ${transactionIds.length}. Maximum allowed: 1000`);
   }
 
   for (const id of transactionIds) {

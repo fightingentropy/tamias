@@ -7,23 +7,17 @@ function SectionFallback() {
 }
 
 const ManageSubscription = dynamic(
-  () =>
-    import("@/components/manage-subscription").then(
-      (mod) => mod.ManageSubscription,
-    ),
+  () => import("@/components/manage-subscription").then((mod) => mod.ManageSubscription),
   {
     ssr: false,
     loading: SectionFallback,
   },
 );
 
-const Orders = dynamic(
-  () => import("@/components/orders").then((mod) => mod.Orders),
-  {
-    ssr: false,
-    loading: SectionFallback,
-  },
-);
+const Orders = dynamic(() => import("@/components/orders").then((mod) => mod.Orders), {
+  ssr: false,
+  loading: SectionFallback,
+});
 
 const Plans = dynamic(() => import("@/components/plans").then((mod) => mod.Plans), {
   ssr: false,
@@ -38,15 +32,10 @@ function SettingsBillingPage() {
   const loaderData = Route.useLoaderData();
   const team = loaderData.user.team;
   const shouldShowSubscription = Boolean(team && team.plan !== "trial");
-  const shouldShowOrders = Boolean(
-    team && (team.plan !== "trial" || team.canceledAt !== null),
-  );
+  const shouldShowOrders = Boolean(team && (team.plan !== "trial" || team.canceledAt !== null));
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <div className="space-y-12">
         {shouldShowSubscription && <ManageSubscription />}
 

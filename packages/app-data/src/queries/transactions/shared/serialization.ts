@@ -7,8 +7,13 @@ import {
 import type { AccountingSyncRecord } from "../../accounting-sync";
 import type { TransactionFrequency } from "./types";
 
-export const MATCHING_EXCLUDED_TRANSACTION_STATUSES: ConvexTransactionStatus[] =
-  ["pending", "excluded", "completed", "archived", "exported"];
+export const MATCHING_EXCLUDED_TRANSACTION_STATUSES: ConvexTransactionStatus[] = [
+  "pending",
+  "excluded",
+  "completed",
+  "archived",
+  "exported",
+];
 
 export function toConvexTransactionInput(
   row: TransactionRecord,
@@ -68,10 +73,7 @@ export function buildAccountingSyncLookups(records: AccountingSyncRecord[]) {
     if (record.status === "synced") {
       syncedByTransactionId.set(
         record.transactionId,
-        pickLatestAccountingSyncRecord(
-          syncedByTransactionId.get(record.transactionId),
-          record,
-        ),
+        pickLatestAccountingSyncRecord(syncedByTransactionId.get(record.transactionId), record),
       );
       continue;
     }
@@ -79,10 +81,7 @@ export function buildAccountingSyncLookups(records: AccountingSyncRecord[]) {
     if (record.status === "failed" || record.status === "partial") {
       errorByTransactionId.set(
         record.transactionId,
-        pickLatestAccountingSyncRecord(
-          errorByTransactionId.get(record.transactionId),
-          record,
-        ),
+        pickLatestAccountingSyncRecord(errorByTransactionId.get(record.transactionId), record),
       );
     }
   }

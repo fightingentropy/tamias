@@ -6,10 +6,7 @@ import {
 } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import type { CorporationTaxAdjustmentInput } from "../types";
-import {
-  getYearEndMutationContext,
-  rebuildYearEndMutationPack,
-} from "./common";
+import { getYearEndMutationContext, rebuildYearEndMutationPack } from "./common";
 
 export async function upsertCorporationTaxAdjustment(
   db: Database,
@@ -19,11 +16,7 @@ export async function upsertCorporationTaxAdjustment(
     periodKey?: string;
   } & CorporationTaxAdjustmentInput,
 ) {
-  const context = await getYearEndMutationContext(
-    db,
-    params.teamId,
-    params.periodKey,
-  );
+  const context = await getYearEndMutationContext(db, params.teamId, params.periodKey);
 
   await upsertCorporationTaxAdjustmentInConvex({
     id: params.id,
@@ -52,11 +45,7 @@ export async function deleteCorporationTaxAdjustment(
     periodKey?: string;
   },
 ) {
-  const context = await getYearEndMutationContext(
-    db,
-    params.teamId,
-    params.periodKey,
-  );
+  const context = await getYearEndMutationContext(db, params.teamId, params.periodKey);
 
   await deleteCorporationTaxAdjustmentInConvex({
     teamId: params.teamId,

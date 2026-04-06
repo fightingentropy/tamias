@@ -45,11 +45,5 @@ export function PlainEditor({
 
   if (!editor) return null;
 
-  return (
-    <EditorContent
-      editor={editor}
-      className={className}
-      tabIndex={tabIndex}
-    />
-  );
+  return <EditorContent editor={editor} className={className} tabIndex={tabIndex} />;
 }

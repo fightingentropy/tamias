@@ -1,19 +1,14 @@
 import { getWriter } from "@ai-sdk-tools/artifacts";
 import type { AppContext } from "../agents/config/shared";
 import { generateArtifactDescription } from "./artifact-title";
-import {
-  type ResolveToolParamsOptions,
-  resolveToolParams,
-} from "./period-dates";
+import { type ResolveToolParamsOptions, resolveToolParams } from "./period-dates";
 import { checkBankAccountsRequired } from "./tool-helpers";
 
 export type ToolExecutionOptions = {
   experimental_context?: unknown;
 };
 
-export function getToolAppContext(
-  executionOptions: ToolExecutionOptions,
-): AppContext {
+export function getToolAppContext(executionOptions: ToolExecutionOptions): AppContext {
   return executionOptions.experimental_context as AppContext;
 }
 
@@ -51,10 +46,7 @@ export function startArtifactStream<TArtifactInput, TArtifactStream>(options: {
   enabled: boolean;
   executionOptions: ToolExecutionOptions;
   artifact: {
-    stream: (
-      input: TArtifactInput,
-      writer: ReturnType<typeof getWriter>,
-    ) => TArtifactStream;
+    stream: (input: TArtifactInput, writer: ReturnType<typeof getWriter>) => TArtifactStream;
   };
   input: TArtifactInput;
 }): TArtifactStream | undefined {
@@ -62,8 +54,5 @@ export function startArtifactStream<TArtifactInput, TArtifactStream>(options: {
     return undefined;
   }
 
-  return options.artifact.stream(
-    options.input,
-    getWriter(options.executionOptions),
-  );
+  return options.artifact.stream(options.input, getWriter(options.executionOptions));
 }

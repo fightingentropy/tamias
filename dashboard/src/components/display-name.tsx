@@ -8,13 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@tamias/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@tamias/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@tamias/ui/form";
 import { Input } from "@tamias/ui/input";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { z } from "zod/v3";
@@ -48,8 +42,7 @@ export function DisplayName() {
           <CardHeader>
             <CardTitle>Display Name</CardTitle>
             <CardDescription>
-              Please enter your full name, or a display name you are comfortable
-              with.
+              Please enter your full name, or a display name you are comfortable with.
             </CardDescription>
           </CardHeader>
 

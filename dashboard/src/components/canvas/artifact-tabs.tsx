@@ -108,10 +108,7 @@ function getArtifactLabel(
 }
 
 export function ArtifactTabs() {
-  const [selectedType, setSelectedType] = useQueryState(
-    "artifact-type",
-    parseAsString,
-  );
+  const [selectedType, setSelectedType] = useQueryState("artifact-type", parseAsString);
   const [selectedVersion, setSelectedVersion] = useQueryState(
     "version",
     parseAsInteger.withDefault(0),
@@ -130,11 +127,7 @@ export function ArtifactTabs() {
       const orderB = getArtifactOrder(b);
 
       // If same order, sort monthly breakdowns chronologically
-      if (
-        orderA === orderB &&
-        isMonthlyBreakdownType(a) &&
-        isMonthlyBreakdownType(b)
-      ) {
+      if (orderA === orderB && isMonthlyBreakdownType(a) && isMonthlyBreakdownType(b)) {
         return a.localeCompare(b); // This will sort YYYY-MM chronologically
       }
 
@@ -186,8 +179,7 @@ export function ArtifactTabs() {
     if (sortedAvailable.length <= 1) return;
     const currentIndex = sortedAvailable.indexOf(activeType ?? "");
     if (currentIndex === -1) return;
-    const newIndex =
-      currentIndex > 0 ? currentIndex - 1 : sortedAvailable.length - 1;
+    const newIndex = currentIndex > 0 ? currentIndex - 1 : sortedAvailable.length - 1;
     const newType = sortedAvailable[newIndex];
     if (newType) {
       handleTabClick(newType);
@@ -198,8 +190,7 @@ export function ArtifactTabs() {
     if (sortedAvailable.length <= 1) return;
     const currentIndex = sortedAvailable.indexOf(activeType ?? "");
     if (currentIndex === -1) return;
-    const newIndex =
-      currentIndex < sortedAvailable.length - 1 ? currentIndex + 1 : 0;
+    const newIndex = currentIndex < sortedAvailable.length - 1 ? currentIndex + 1 : 0;
     const newType = sortedAvailable[newIndex];
     if (newType) {
       handleTabClick(newType);
@@ -252,8 +243,7 @@ export function ArtifactTabs() {
         const hasMultipleVersions = versions.length > 1;
         // Get artifact data for label (use first version or current)
         const artifactForLabel =
-          versions[0]?.payload ||
-          (data.current?.type === type ? data.current.payload : undefined);
+          versions[0]?.payload || (data.current?.type === type ? data.current.payload : undefined);
         const artifactData = artifactForLabel as
           | { displayDate?: string; from?: string }
           | undefined;
@@ -292,22 +282,15 @@ export function ArtifactTabs() {
                     aria-label="Select version"
                   >
                     <Icons.ArrowDropDown
-                      className={cn(
-                        "h-3.5 w-3.5",
-                        isActive ? "opacity-50" : "opacity-30",
-                      )}
+                      className={cn("h-3.5 w-3.5", isActive ? "opacity-50" : "opacity-30")}
                     />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" sideOffset={4}>
                   {versions.map((version, index) => {
-                    const payload = version.payload as
-                      | { description?: string }
-                      | undefined;
-                    const description =
-                      payload?.description || `Version ${index + 1}`;
-                    const isSelected =
-                      index === Math.min(selectedVersion, versions.length - 1);
+                    const payload = version.payload as { description?: string } | undefined;
+                    const description = payload?.description || `Version ${index + 1}`;
+                    const isSelected = index === Math.min(selectedVersion, versions.length - 1);
                     return (
                       <DropdownMenuItem
                         key={version.id}
@@ -318,10 +301,7 @@ export function ArtifactTabs() {
                             handleTabClick(type);
                           }
                         }}
-                        className={cn(
-                          "cursor-pointer text-xs",
-                          isSelected && "bg-accent",
-                        )}
+                        className={cn("cursor-pointer text-xs", isSelected && "bg-accent")}
                       >
                         {description}
                       </DropdownMenuItem>

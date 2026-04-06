@@ -2,13 +2,7 @@
 
 import { Badge } from "@tamias/ui/badge";
 import { Button } from "@tamias/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@tamias/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@tamias/ui/card";
 import { Input } from "@tamias/ui/input";
 import { Label } from "@tamias/ui/label";
 import { SubmitButton } from "@tamias/ui/submit-button";
@@ -115,27 +109,17 @@ function PayrollRunCard({
             <div className="text-sm font-medium">
               {run.payPeriodStart} to {run.payPeriodEnd}
             </div>
-            <Badge
-              variant={run.status === "exported" ? "default" : "secondary"}
-            >
+            <Badge variant={run.status === "exported" ? "default" : "secondary"}>
               {run.status}
             </Badge>
           </div>
           <div className="text-xs text-[#606060]">
-            Run date {formatDate(run.runDate)} · {run.source} import ·{" "}
-            {run.lineCount} journal lines
+            Run date {formatDate(run.runDate)} · {run.source} import · {run.lineCount} journal lines
           </div>
           <div className="text-xs text-[#606060]">
-            PAYE{" "}
-            <FormatAmount
-              amount={run.liabilityTotals.payeLiability}
-              currency={run.currency}
-            />{" "}
+            PAYE <FormatAmount amount={run.liabilityTotals.payeLiability} currency={run.currency} />{" "}
             · Gross pay{" "}
-            <FormatAmount
-              amount={run.liabilityTotals.grossPay}
-              currency={run.currency}
-            />
+            <FormatAmount amount={run.liabilityTotals.grossPay} currency={run.currency} />
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -162,20 +146,14 @@ export function PayrollDashboard() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [source, setSource] = useState<"csv" | "manual">("csv");
-  const [payPeriodStart, setPayPeriodStart] = useState(
-    new Date().toISOString().slice(0, 10),
-  );
-  const [payPeriodEnd, setPayPeriodEnd] = useState(
-    new Date().toISOString().slice(0, 10),
-  );
+  const [payPeriodStart, setPayPeriodStart] = useState(new Date().toISOString().slice(0, 10));
+  const [payPeriodEnd, setPayPeriodEnd] = useState(new Date().toISOString().slice(0, 10));
   const [runDate, setRunDate] = useState(new Date().toISOString().slice(0, 10));
   const [currency, setCurrency] = useState("GBP");
   const [csvContent, setCsvContent] = useState(
     "accountCode,debit,credit,description\n6100,2500,0,Gross pay\n2210,0,650,PAYE and NIC liability\n2000,0,1850,Net pay payable",
   );
-  const [manualLines, setManualLines] = useState<EditableJournalLine[]>(
-    defaultLines(),
-  );
+  const [manualLines, setManualLines] = useState<EditableJournalLine[]>(defaultLines());
 
   const dashboardQuery = useQuery(trpc.payroll.getDashboard.queryOptions());
   const runsQuery = useQuery(trpc.payroll.listRuns.queryOptions());
@@ -221,9 +199,7 @@ export function PayrollDashboard() {
   const latestRun = useMemo(() => runs[0] ?? null, [runs]);
 
   if (dashboardQuery.isLoading || runsQuery.isLoading) {
-    return (
-      <div className="text-sm text-[#606060]">Loading payroll workspace...</div>
-    );
+    return <div className="text-sm text-[#606060]">Loading payroll workspace...</div>;
   }
 
   if (!dashboard?.profile) {
@@ -232,8 +208,8 @@ export function PayrollDashboard() {
         <CardHeader>
           <CardTitle>Set up your UK filing profile first</CardTitle>
           <CardDescription>
-            Payroll imports reuse the same UK filing profile and base currency
-            as VAT and year-end compliance.
+            Payroll imports reuse the same UK filing profile and base currency as VAT and year-end
+            compliance.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -254,9 +230,7 @@ export function PayrollDashboard() {
             <CardDescription>Payroll runs on the ledger</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            <div className="text-lg font-medium">
-              {dashboard.summary.importedRunCount}
-            </div>
+            <div className="text-lg font-medium">{dashboard.summary.importedRunCount}</div>
             <div className="text-sm text-[#606060]">
               Latest run {formatDate(dashboard.summary.latestRunAt)}
             </div>
@@ -303,8 +277,8 @@ export function PayrollDashboard() {
         <CardHeader>
           <CardTitle>Import payroll run</CardTitle>
           <CardDescription>
-            Import a payroll journal from CSV or enter the journal lines
-            manually. Each run becomes a first-class ledger input.
+            Import a payroll journal from CSV or enter the journal lines manually. Each run becomes
+            a first-class ledger input.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -354,9 +328,7 @@ export function PayrollDashboard() {
               <Label>Currency</Label>
               <Input
                 value={currency}
-                onChange={(event) =>
-                  setCurrency(event.target.value.toUpperCase())
-                }
+                onChange={(event) => setCurrency(event.target.value.toUpperCase())}
                 placeholder="GBP"
               />
             </div>
@@ -371,8 +343,8 @@ export function PayrollDashboard() {
                 onChange={(event) => setCsvContent(event.target.value)}
               />
               <div className="text-xs text-[#606060]">
-                Required columns: <code>accountCode</code>, <code>debit</code>,{" "}
-                <code>credit</code>. Optional: <code>description</code>.
+                Required columns: <code>accountCode</code>, <code>debit</code>, <code>credit</code>.
+                Optional: <code>description</code>.
               </div>
             </div>
           ) : (
@@ -414,8 +386,7 @@ export function PayrollDashboard() {
         <CardHeader>
           <CardTitle>Payroll runs</CardTitle>
           <CardDescription>
-            Imported runs remain export-first. No RTI or provider submissions
-            are exposed here.
+            Imported runs remain export-first. No RTI or provider submissions are exposed here.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -425,15 +396,11 @@ export function PayrollDashboard() {
                 key={run.id}
                 run={run as PayrollRun}
                 isGenerating={generateExport.isPending}
-                onGenerateExport={(periodKey) =>
-                  generateExport.mutate({ periodKey })
-                }
+                onGenerateExport={(periodKey) => generateExport.mutate({ periodKey })}
               />
             ))
           ) : (
-            <div className="text-sm text-[#606060]">
-              No payroll runs imported yet.
-            </div>
+            <div className="text-sm text-[#606060]">No payroll runs imported yet.</div>
           )}
         </CardContent>
       </Card>

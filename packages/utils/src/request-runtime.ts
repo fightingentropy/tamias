@@ -1,8 +1,4 @@
-import {
-  getCookies,
-  getRequestHeaders,
-  setCookie,
-} from "@tanstack/react-start/server";
+import { getCookies, getRequestHeaders, setCookie } from "@tanstack/react-start/server";
 import { getStartContext } from "@tanstack/start-storage-context";
 
 type CookieValue = {
@@ -23,16 +19,10 @@ type CookieStore = {
   get: (name: string) => CookieValue | undefined;
   getAll: (name?: string) => CookieValue[];
   has: (name: string) => boolean;
-  set: (
-    ...args:
-      | [CookieSetValue]
-      | [string, string, Partial<CookieSetValue>?]
-  ) => void;
+  set: (...args: [CookieSetValue] | [string, string, Partial<CookieSetValue>?]) => void;
 };
 
-function normalizeCookieArgs(
-  args: [CookieSetValue] | [string, string, Partial<CookieSetValue>?],
-) {
+function normalizeCookieArgs(args: [CookieSetValue] | [string, string, Partial<CookieSetValue>?]) {
   if (typeof args[0] === "object") {
     return args[0];
   }
@@ -79,10 +69,7 @@ export async function cookies(): Promise<CookieStore> {
       cookieMap.set(cookie.name, cookie.value);
 
       setCookie(cookie.name, cookie.value, {
-        expires:
-          typeof cookie.expires === "number"
-            ? new Date(cookie.expires)
-            : cookie.expires,
+        expires: typeof cookie.expires === "number" ? new Date(cookie.expires) : cookie.expires,
         httpOnly: cookie.httpOnly,
         maxAge: cookie.maxAge,
         path: cookie.path,
@@ -93,9 +80,6 @@ export async function cookies(): Promise<CookieStore> {
   };
 }
 
-export async function revalidatePath(
-  _path: string,
-  _type?: "layout" | "page",
-) {
+export async function revalidatePath(_path: string, _type?: "layout" | "page") {
   return;
 }

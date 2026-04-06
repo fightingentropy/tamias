@@ -160,9 +160,7 @@ export function classifyError(error: unknown): ClassifiedError {
     if (
       (message.includes("download") || message.includes("downloaderror")) &&
       (message.includes("400") || message.includes("bad request")) &&
-      (message.includes("token") ||
-        message.includes("sign") ||
-        message.includes("signed"))
+      (message.includes("token") || message.includes("sign") || message.includes("signed"))
     ) {
       return {
         category: "network",

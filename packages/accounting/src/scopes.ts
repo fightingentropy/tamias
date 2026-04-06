@@ -9,10 +9,7 @@ export const XERO_SCOPES: string[] = [
   "offline_access",
 ];
 
-export const QUICKBOOKS_SCOPES: string[] = [
-  "com.intuit.quickbooks.accounting",
-  "openid",
-];
+export const QUICKBOOKS_SCOPES: string[] = ["com.intuit.quickbooks.accounting", "openid"];
 
 export const FORTNOX_SCOPES: string[] = [
   "bookkeeping",

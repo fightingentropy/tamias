@@ -19,12 +19,7 @@ interface ShareMetricButtonProps {
   currency?: string;
 }
 
-export function ShareMetricButton({
-  type,
-  from,
-  to,
-  currency,
-}: ShareMetricButtonProps) {
+export function ShareMetricButton({ type, from, to, currency }: ShareMetricButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (

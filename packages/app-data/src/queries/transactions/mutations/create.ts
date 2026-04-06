@@ -45,10 +45,7 @@ function buildManualTransactionInput(args: {
   };
 }
 
-export async function createTransaction(
-  db: Database,
-  params: CreateTransactionParams,
-) {
+export async function createTransaction(db: Database, params: CreateTransactionParams) {
   const id = crypto.randomUUID();
   const createdAt = new Date().toISOString();
 
@@ -76,10 +73,7 @@ export async function createTransaction(
   return getFullTransactionData(db, id, params.teamId);
 }
 
-export async function createTransactions(
-  db: Database,
-  params: CreateTransactionParams[],
-) {
+export async function createTransactions(db: Database, params: CreateTransactionParams[]) {
   if (params.length === 0) {
     return [];
   }
@@ -117,9 +111,7 @@ export async function createTransactions(
   }
 
   const fullTransactions = await Promise.all(
-    results.map((result) =>
-      getFullTransactionData(db, result.id, result.teamId),
-    ),
+    results.map((result) => getFullTransactionData(db, result.id, result.teamId)),
   );
 
   return fullTransactions.filter((transaction) => transaction !== null);

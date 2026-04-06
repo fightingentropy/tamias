@@ -26,17 +26,11 @@ export function compareNullableDates(
   return leftValue.localeCompare(rightValue);
 }
 
-export function includesSearch(
-  value: string | null | undefined,
-  query: string,
-) {
+export function includesSearch(value: string | null | undefined, query: string) {
   return normalizeText(value).includes(normalizeText(query));
 }
 
-export function filePathEquals(
-  left: string[] | null | undefined,
-  right: string[],
-) {
+export function filePathEquals(left: string[] | null | undefined, right: string[]) {
   if (!left || left.length !== right.length) {
     return false;
   }

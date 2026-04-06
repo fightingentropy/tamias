@@ -105,10 +105,7 @@ export type UpsertCustomerInConvexInput = {
   portalId?: string | null;
 };
 
-export async function getCustomerByIdFromConvex(args: {
-  teamId: string;
-  customerId: string;
-}) {
+export async function getCustomerByIdFromConvex(args: { teamId: string; customerId: string }) {
   return createClient().query(
     api.customers.serviceGetCustomerById,
     serviceArgs({
@@ -118,10 +115,7 @@ export async function getCustomerByIdFromConvex(args: {
   ) as Promise<CustomerRecord | null>;
 }
 
-export async function getCustomersByIdsFromConvex(args: {
-  teamId: string;
-  customerIds: string[];
-}) {
+export async function getCustomersByIdsFromConvex(args: { teamId: string; customerIds: string[] }) {
   return createClient().query(
     api.customers.serviceGetCustomersByIds,
     serviceArgs({
@@ -180,9 +174,7 @@ export async function searchCustomersFromConvex(args: {
   ) as Promise<CustomerRecord[]>;
 }
 
-export async function rebuildCustomerSearchTextsInConvex(args: {
-  teamId?: string | null;
-}) {
+export async function rebuildCustomerSearchTextsInConvex(args: { teamId?: string | null }) {
   return createClient().mutation(
     convexApi.customers.serviceRebuildCustomerSearchTexts,
     serviceArgs({
@@ -197,9 +189,7 @@ export async function rebuildCustomerSearchTextsInConvex(args: {
   >;
 }
 
-export async function upsertCustomerInConvex(
-  args: UpsertCustomerInConvexInput,
-) {
+export async function upsertCustomerInConvex(args: UpsertCustomerInConvexInput) {
   return createClient().mutation(
     api.customers.serviceUpsertCustomer,
     serviceArgs({
@@ -256,10 +246,7 @@ export async function upsertCustomerInConvex(
   ) as Promise<CustomerRecord>;
 }
 
-export async function deleteCustomerInConvex(args: {
-  teamId: string;
-  customerId: string;
-}) {
+export async function deleteCustomerInConvex(args: { teamId: string; customerId: string }) {
   return createClient().mutation(
     api.customers.serviceDeleteCustomer,
     serviceArgs({

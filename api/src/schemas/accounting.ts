@@ -3,11 +3,7 @@ import { z } from "zod";
 /**
  * Provider ID enum
  */
-export const accountingProviderIdSchema = z.enum([
-  "xero",
-  "quickbooks",
-  "fortnox",
-]);
+export const accountingProviderIdSchema = z.enum(["xero", "quickbooks", "fortnox"]);
 
 /**
  * Schema for exporting transactions to accounting

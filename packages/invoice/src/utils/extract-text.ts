@@ -49,10 +49,7 @@ function extractTextFromNode(value: unknown): string {
     return "";
   }
 
-  if (
-    typeof node.type === "string" &&
-    BLOCK_NODE_TYPES.has(node.type)
-  ) {
+  if (typeof node.type === "string" && BLOCK_NODE_TYPES.has(node.type)) {
     return `${childText}\n`;
   }
 
@@ -83,9 +80,7 @@ export function extractTextFromValue(value: string): string {
 
       if (typeof parsed === "object" && parsed !== null) {
         try {
-          const textContent = normalizeExtractedText(
-            extractTextFromNode(parsed),
-          );
+          const textContent = normalizeExtractedText(extractTextFromNode(parsed));
 
           if (textContent.trim()) {
             return textContent.trim();

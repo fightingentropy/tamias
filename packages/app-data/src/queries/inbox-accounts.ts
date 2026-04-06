@@ -20,18 +20,14 @@ type GetInboxAccountByIdParams = {
   teamId: string;
 };
 
-async function getInboxAccountByIdImpl(
-  params: GetInboxAccountByIdParams,
-) {
+async function getInboxAccountByIdImpl(params: GetInboxAccountByIdParams) {
   return getInboxAccountByIdFromConvex({
     id: params.id,
     teamId: params.teamId,
   });
 }
 
-export async function getInboxAccountById(
-  params: GetInboxAccountByIdParams,
-) {
+export async function getInboxAccountById(params: GetInboxAccountByIdParams) {
   return getInboxAccountByIdImpl(params);
 }
 
@@ -40,9 +36,7 @@ type DeleteInboxAccountParams = {
   teamId: string;
 };
 
-export async function deleteInboxAccount(
-  params: DeleteInboxAccountParams,
-) {
+export async function deleteInboxAccount(params: DeleteInboxAccountParams) {
   return deleteInboxAccountInConvex({
     id: params.id,
     teamId: params.teamId,
@@ -60,9 +54,7 @@ export type UpdateInboxAccountParams = {
   errorMessage?: string | null;
 };
 
-export async function updateInboxAccount(
-  params: UpdateInboxAccountParams,
-) {
+export async function updateInboxAccount(params: UpdateInboxAccountParams) {
   return updateInboxAccountInConvex(params);
 }
 
@@ -77,9 +69,7 @@ export type UpsertInboxAccountParams = {
   expiryDate: string;
 };
 
-export async function upsertInboxAccount(
-  params: UpsertInboxAccountParams,
-) {
+export async function upsertInboxAccount(params: UpsertInboxAccountParams) {
   return upsertInboxAccountInConvex(params);
 }
 
@@ -87,9 +77,7 @@ type GetInboxAccountInfoParams = {
   id: string;
 };
 
-export async function getInboxAccountInfo(
-  params: GetInboxAccountInfoParams,
-) {
+export async function getInboxAccountInfo(params: GetInboxAccountInfoParams) {
   return getInboxAccountInfoFromConvex({
     id: params.id,
   });

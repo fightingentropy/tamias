@@ -16,24 +16,15 @@ export function categorizeOAuthError(error: unknown): {
   const errorMessage = error.message.toLowerCase();
 
   // Check for specific error patterns
-  if (
-    errorMessage.includes("invalid client_id") ||
-    errorMessage.includes("client_id")
-  ) {
+  if (errorMessage.includes("invalid client_id") || errorMessage.includes("client_id")) {
     return { errorType: "invalid_client_id", details: error.message };
   }
 
-  if (
-    errorMessage.includes("invalid redirect_uri") ||
-    errorMessage.includes("redirect_uri")
-  ) {
+  if (errorMessage.includes("invalid redirect_uri") || errorMessage.includes("redirect_uri")) {
     return { errorType: "invalid_redirect_uri", details: error.message };
   }
 
-  if (
-    errorMessage.includes("invalid scopes") ||
-    errorMessage.includes("scopes")
-  ) {
+  if (errorMessage.includes("invalid scopes") || errorMessage.includes("scopes")) {
     return {
       errorType: "invalid_scopes",
       customMessage: error.message,
@@ -58,24 +49,15 @@ export function categorizeOAuthError(error: unknown): {
     return { errorType: "authorization_code_used", details: error.message };
   }
 
-  if (
-    errorMessage.includes("not authenticated") ||
-    errorMessage.includes("authentication")
-  ) {
+  if (errorMessage.includes("not authenticated") || errorMessage.includes("authentication")) {
     return { errorType: "user_not_authenticated", details: error.message };
   }
 
-  if (
-    errorMessage.includes("inactive") ||
-    errorMessage.includes("not active")
-  ) {
+  if (errorMessage.includes("inactive") || errorMessage.includes("not active")) {
     return { errorType: "application_inactive", details: error.message };
   }
 
-  if (
-    errorMessage.includes("client credentials") ||
-    errorMessage.includes("client_secret")
-  ) {
+  if (errorMessage.includes("client credentials") || errorMessage.includes("client_secret")) {
     return {
       errorType: "invalid_client_credentials",
       details: error.message,
@@ -93,24 +75,15 @@ export function categorizeOAuthError(error: unknown): {
     };
   }
 
-  if (
-    errorMessage.includes("refresh token revoked") ||
-    errorMessage.includes("revoked")
-  ) {
+  if (errorMessage.includes("refresh token revoked") || errorMessage.includes("revoked")) {
     return { errorType: "refresh_token_revoked", details: error.message };
   }
 
-  if (
-    errorMessage.includes("invalid refresh token") ||
-    errorMessage.includes("refresh token")
-  ) {
+  if (errorMessage.includes("invalid refresh token") || errorMessage.includes("refresh token")) {
     return { errorType: "invalid_refresh_token", details: error.message };
   }
 
-  if (
-    errorMessage.includes("grant type") ||
-    errorMessage.includes("unsupported")
-  ) {
+  if (errorMessage.includes("grant type") || errorMessage.includes("unsupported")) {
     return { errorType: "grant_type_not_supported", details: error.message };
   }
 
@@ -134,17 +107,11 @@ export function categorizeOAuthError(error: unknown): {
     };
   }
 
-  if (
-    errorMessage.includes("invalid url") ||
-    errorMessage.includes("malformed url")
-  ) {
+  if (errorMessage.includes("invalid url") || errorMessage.includes("malformed url")) {
     return { errorType: "invalid_url_format", details: error.message };
   }
 
-  if (
-    errorMessage.includes("empty scopes") ||
-    errorMessage.includes("no scopes")
-  ) {
+  if (errorMessage.includes("empty scopes") || errorMessage.includes("no scopes")) {
     return { errorType: "empty_scopes", details: error.message };
   }
 

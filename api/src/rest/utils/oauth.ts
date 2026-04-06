@@ -81,9 +81,7 @@ export function buildSuccessRedirect(
   }
 
   // Use custom redirect path if provided (e.g. from onboarding), sanitized to prevent open redirects
-  const targetPath = redirectPath
-    ? sanitizeRedirectPath(redirectPath, fallbackPath)
-    : fallbackPath;
+  const targetPath = redirectPath ? sanitizeRedirectPath(redirectPath, fallbackPath) : fallbackPath;
 
   // For direct navigation flow, redirect to target path with success params
   const params = new URLSearchParams({ connected: "true", provider });
@@ -112,9 +110,7 @@ export function buildErrorRedirect(
   }
 
   // Use custom redirect path if provided (e.g. from onboarding), sanitized to prevent open redirects
-  const targetPath = redirectPath
-    ? sanitizeRedirectPath(redirectPath, fallbackPath)
-    : fallbackPath;
+  const targetPath = redirectPath ? sanitizeRedirectPath(redirectPath, fallbackPath) : fallbackPath;
 
   // For direct navigation flow, redirect to target path with error params
   const params = new URLSearchParams({

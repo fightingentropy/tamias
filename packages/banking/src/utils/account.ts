@@ -1,9 +1,4 @@
-export type AccountType =
-  | "depository"
-  | "credit"
-  | "other_asset"
-  | "loan"
-  | "other_liability";
+export type AccountType = "depository" | "credit" | "other_asset" | "loan" | "other_liability";
 
 /**
  * Account types that represent liquid cash or cash-equivalents.

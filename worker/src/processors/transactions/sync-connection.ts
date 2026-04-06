@@ -1,7 +1,4 @@
-import {
-  getBankAccounts,
-  getBankConnectionById,
-} from "@tamias/app-data/queries";
+import { getBankAccounts, getBankConnectionById } from "@tamias/app-data/queries";
 import { patchBankConnectionInConvex } from "@tamias/app-data-convex";
 import { enqueue } from "@tamias/job-client";
 import { trpc } from "@tamias/trpc";
@@ -80,9 +77,7 @@ export class SyncConnectionProcessor extends BaseProcessor<SyncConnectionPayload
     }
 
     if (connectionData.status !== "connected") {
-      throw new Error(
-        `Unsupported connection status: ${connectionData.status}`,
-      );
+      throw new Error(`Unsupported connection status: ${connectionData.status}`);
     }
 
     await patchBankConnectionInConvex({
@@ -115,11 +110,7 @@ export class SyncConnectionProcessor extends BaseProcessor<SyncConnectionPayload
       .flatMap((account): SyncBankAccountPayload[] => {
         const provider = account.bankConnection?.provider;
 
-        if (
-          provider !== "gocardless" &&
-          provider !== "plaid" &&
-          provider !== "teller"
-        ) {
+        if (provider !== "gocardless" && provider !== "plaid" && provider !== "teller") {
           return [];
         }
 
@@ -152,9 +143,7 @@ export class SyncConnectionProcessor extends BaseProcessor<SyncConnectionPayload
 
     let syncedAccounts = 0;
     let transactionsUpserted = 0;
-    const delayMs = manualSync
-      ? ACCOUNT_DELAY_MS.manual
-      : ACCOUNT_DELAY_MS.background;
+    const delayMs = manualSync ? ACCOUNT_DELAY_MS.manual : ACCOUNT_DELAY_MS.background;
 
     for (const [index, account] of bankAccounts.entries()) {
       if (index > 0) {
@@ -193,12 +182,7 @@ export class SyncConnectionProcessor extends BaseProcessor<SyncConnectionPayload
       notificationRunId = notificationRun.runId;
     }
 
-    await this.updateProgress(
-      job,
-      92,
-      undefined,
-      "verifying-connection-health",
-    );
+    await this.updateProgress(job, 92, undefined, "verifying-connection-health");
 
     try {
       const enabledAccounts = (

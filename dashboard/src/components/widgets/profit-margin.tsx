@@ -93,9 +93,7 @@ export function ProfitMarginWidget() {
       onClick={handleViewAnalysis}
     >
       <div className="flex flex-col gap-2">
-        <h2 className="text-2xl font-normal">
-          {formatPercentage(data?.result.profitMargin ?? 0)}
-        </h2>
+        <h2 className="text-2xl font-normal">{formatPercentage(data?.result.profitMargin ?? 0)}</h2>
       </div>
     </BaseWidget>
   );

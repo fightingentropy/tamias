@@ -54,8 +54,7 @@ export function ProductForm({ data, defaultCurrency }: Props) {
       description: data?.description || "",
       price: data?.price || undefined,
       unit: data?.unit || "",
-      currency:
-        data?.currency || defaultCurrency || team?.baseCurrency || "USD",
+      currency: data?.currency || defaultCurrency || team?.baseCurrency || "USD",
       isActive: data?.isActive ?? true,
     },
   });
@@ -73,8 +72,7 @@ export function ProductForm({ data, defaultCurrency }: Props) {
         let message = error.message;
 
         if (error.data?.code === "CONFLICT") {
-          message =
-            "A product with this name already exists. Please choose a different name.";
+          message = "A product with this name already exists. Please choose a different name.";
         }
 
         form.setError("name", {
@@ -104,8 +102,7 @@ export function ProductForm({ data, defaultCurrency }: Props) {
         let message = error.message;
 
         if (error.data?.code === "CONFLICT") {
-          message =
-            "A product with this name already exists. Please choose a different name.";
+          message = "A product with this name already exists. Please choose a different name.";
         }
 
         form.setError("name", {
@@ -162,9 +159,7 @@ export function ProductForm({ data, defaultCurrency }: Props) {
                   autoFocus
                 />
               </FormControl>
-              <FormDescription>
-                This is the product display name.
-              </FormDescription>
+              <FormDescription>This is the product display name.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -211,9 +206,7 @@ export function ProductForm({ data, defaultCurrency }: Props) {
                     allowNegative={false}
                   />
                 </FormControl>
-                <FormDescription>
-                  Default price for this product.
-                </FormDescription>
+                <FormDescription>Default price for this product.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -234,9 +227,7 @@ export function ProductForm({ data, defaultCurrency }: Props) {
                     onChange={(e) => field.onChange(e.target.value)}
                   />
                 </FormControl>
-                <FormDescription>
-                  Unit of measurement (optional).
-                </FormDescription>
+                <FormDescription>Unit of measurement (optional).</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -256,9 +247,7 @@ export function ProductForm({ data, defaultCurrency }: Props) {
                   onChange={field.onChange}
                 />
               </FormControl>
-              <FormDescription>
-                Currency for this product's pricing.
-              </FormDescription>
+              <FormDescription>Currency for this product's pricing.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -272,9 +261,7 @@ export function ProductForm({ data, defaultCurrency }: Props) {
               <div className="border border-border p-3">
                 <div className="flex items-center justify-between space-x-2">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-sm font-medium">
-                      Active Status
-                    </FormLabel>
+                    <FormLabel className="text-sm font-medium">Active Status</FormLabel>
                     <FormDescription className="text-xs text-muted-foreground">
                       {field.value
                         ? "Product is active and can be used in invoices"
@@ -282,10 +269,7 @@ export function ProductForm({ data, defaultCurrency }: Props) {
                     </FormDescription>
                   </div>
                   <FormControl>
-                    <Switch
-                      checked={field.value ?? true}
-                      onCheckedChange={field.onChange}
-                    />
+                    <Switch checked={field.value ?? true} onCheckedChange={field.onChange} />
                   </FormControl>
                 </div>
               </div>
@@ -297,9 +281,7 @@ export function ProductForm({ data, defaultCurrency }: Props) {
         <div className="flex-1" />
         <div className="pt-6 border-t mt-auto">
           <SubmitButton
-            isSubmitting={
-              createProductMutation.isPending || updateProductMutation.isPending
-            }
+            isSubmitting={createProductMutation.isPending || updateProductMutation.isPending}
             className="w-full"
           >
             {data ? "Update" : "Create"}

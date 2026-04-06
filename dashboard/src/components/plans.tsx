@@ -7,22 +7,15 @@ import { SubmitButton } from "@tamias/ui/submit-button";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "@/components/theme-provider";
-import {
-  getPolarEmbedCheckout,
-  type PolarCheckout,
-} from "@/lib/polar-checkout";
+import { getPolarEmbedCheckout, type PolarCheckout } from "@/lib/polar-checkout";
 import { useTRPC } from "@/trpc/client";
 
 const POLLING_TIMEOUT_MS = 30_000;
 const BILLING_HIGHLIGHTS = planFeatures.slice(0, 6);
 
 export function Plans() {
-  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">(
-    "yearly",
-  );
-  const [checkoutCurrency, setCheckoutCurrency] = useState<"USD" | "EUR">(
-    "USD",
-  );
+  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("yearly");
+  const [checkoutCurrency, setCheckoutCurrency] = useState<"USD" | "EUR">("USD");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPollingForPlan, setIsPollingForPlan] = useState(false);
   const isPollingRef = useRef(false);
@@ -73,8 +66,7 @@ export function Plans() {
     if (!isPollingForPlan) return;
 
     const isTimedOut =
-      pollingStartedAtRef.current &&
-      Date.now() - pollingStartedAtRef.current > POLLING_TIMEOUT_MS;
+      pollingStartedAtRef.current && Date.now() - pollingStartedAtRef.current > POLLING_TIMEOUT_MS;
     const plan = user?.team?.plan;
     const planUpdated = plan != null && plan !== "trial";
 
@@ -91,9 +83,7 @@ export function Plans() {
     }
   }, [isPollingForPlan, user?.team?.plan]);
 
-  const createCheckoutMutation = useMutation(
-    trpc.billing.createCheckout.mutationOptions(),
-  );
+  const createCheckoutMutation = useMutation(trpc.billing.createCheckout.mutationOptions());
 
   const handleCheckout = async (planType: string) => {
     try {
@@ -150,12 +140,9 @@ export function Plans() {
 
   const pricing = getPlanPricing(checkoutCurrency === "EUR" ? "EU" : undefined);
   const monthlyPrice =
-    billingPeriod === "monthly"
-      ? pricing.starter.monthly
-      : pricing.starter.yearly;
+    billingPeriod === "monthly" ? pricing.starter.monthly : pricing.starter.yearly;
   const annualPrice = pricing.starter.yearly * 12;
-  const annualSavings =
-    (pricing.starter.monthly - pricing.starter.yearly) * 12;
+  const annualSavings = (pricing.starter.monthly - pricing.starter.yearly) * 12;
 
   return (
     <div className="w-full max-w-[560px] mx-auto">
@@ -193,9 +180,7 @@ export function Plans() {
               {pricing.symbol}
               {monthlyPrice}
             </span>
-            <span className="font-sans text-lg text-muted-foreground">
-              /month
-            </span>
+            <span className="font-sans text-lg text-muted-foreground">/month</span>
           </div>
           <p className="font-sans text-sm text-muted-foreground mt-3">
             {billingPeriod === "monthly"
@@ -208,9 +193,7 @@ export function Plans() {
           <SubmitButton
             className="w-full btn-inverse font-sans text-sm py-3 px-4 transition-colors"
             onClick={() =>
-              handleCheckout(
-                billingPeriod === "yearly" ? "starter_yearly" : "starter",
-              )
+              handleCheckout(billingPeriod === "yearly" ? "starter_yearly" : "starter")
             }
             isSubmitting={isSubmitting}
           >
@@ -222,9 +205,7 @@ export function Plans() {
           {BILLING_HIGHLIGHTS.map((feature) => (
             <div key={feature.label} className="flex items-center gap-2 h-7">
               <span className="text-foreground shrink-0 leading-none">•</span>
-              <span className="font-sans text-sm text-foreground font-normal">
-                {feature.label}
-              </span>
+              <span className="font-sans text-sm text-foreground font-normal">{feature.label}</span>
             </div>
           ))}
         </div>

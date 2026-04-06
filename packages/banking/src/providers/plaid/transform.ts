@@ -50,10 +50,7 @@ export const mapTransactionCategory = ({
   }
 
   // Plaid categorizes credit card payments under the detailed category
-  if (
-    transaction.personal_finance_category?.detailed ===
-    "LOAN_PAYMENTS_CREDIT_CARD_PAYMENT"
-  ) {
+  if (transaction.personal_finance_category?.detailed === "LOAN_PAYMENTS_CREDIT_CARD_PAYMENT") {
     return "credit-card-payment";
   }
 
@@ -93,46 +90,35 @@ export const mapTransactionCategory = ({
 
   // Software and technology
   if (
-    transaction.personal_finance_category?.detailed ===
-    "GENERAL_SERVICES_OTHER_GENERAL_SERVICES"
+    transaction.personal_finance_category?.detailed === "GENERAL_SERVICES_OTHER_GENERAL_SERVICES"
   ) {
     return "software";
   }
 
   // Utilities - use new utilities category instead of facilities-expenses
   if (
-    transaction.personal_finance_category?.detailed ===
-      "RENT_AND_UTILITIES_GAS_AND_ELECTRICITY" ||
+    transaction.personal_finance_category?.detailed === "RENT_AND_UTILITIES_GAS_AND_ELECTRICITY" ||
     transaction.personal_finance_category?.detailed ===
       "RENT_AND_UTILITIES_SEWAGE_AND_WASTE_MANAGEMENT" ||
-    transaction.personal_finance_category?.detailed ===
-      "RENT_AND_UTILITIES_WATER" ||
-    transaction.personal_finance_category?.detailed ===
-      "RENT_AND_UTILITIES_OTHER_UTILITIES"
+    transaction.personal_finance_category?.detailed === "RENT_AND_UTILITIES_WATER" ||
+    transaction.personal_finance_category?.detailed === "RENT_AND_UTILITIES_OTHER_UTILITIES"
   ) {
     return "utilities"; // Updated to use new utilities category
   }
 
-  if (
-    transaction.personal_finance_category?.detailed ===
-    "RENT_AND_UTILITIES_RENT"
-  ) {
+  if (transaction.personal_finance_category?.detailed === "RENT_AND_UTILITIES_RENT") {
     return "rent";
   }
 
   if (
-    transaction.personal_finance_category?.detailed ===
-      "RENT_AND_UTILITIES_INTERNET_AND_CABLE" ||
-    transaction.personal_finance_category?.detailed ===
-      "RENT_AND_UTILITIES_TELEPHONE"
+    transaction.personal_finance_category?.detailed === "RENT_AND_UTILITIES_INTERNET_AND_CABLE" ||
+    transaction.personal_finance_category?.detailed === "RENT_AND_UTILITIES_TELEPHONE"
   ) {
     return "internet-and-telephone";
   }
 
   // Professional services
-  if (
-    transaction.personal_finance_category?.primary === "PROFESSIONAL_SERVICES"
-  ) {
+  if (transaction.personal_finance_category?.primary === "PROFESSIONAL_SERVICES") {
     return "professional-services-fees";
   }
 
@@ -193,10 +179,7 @@ const formatAmout = (amount: number) => {
 const transformDescription = (transaction: Transaction) => {
   const name = capitalCase(transaction.name);
 
-  if (
-    transaction?.original_description &&
-    transaction.original_description !== name
-  ) {
+  if (transaction?.original_description && transaction.original_description !== name) {
     return capitalCase(transaction.original_description);
   }
 

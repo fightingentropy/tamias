@@ -49,8 +49,7 @@ export async function getRecurringTransactionProjection(
     const shouldReplace =
       !existing ||
       row.date > existing.lastDate ||
-      (row.date === existing.lastDate &&
-        row.latestTransactionCreatedAt > existing.lastCreatedAt);
+      (row.date === existing.lastDate && row.latestTransactionCreatedAt > existing.lastCreatedAt);
 
     if (!shouldReplace) {
       continue;
@@ -73,10 +72,7 @@ export async function getRecurringTransactionProjection(
     let count = 0;
 
     for (const [, recurring] of recurringByName) {
-      const monthlyAmount = getRecurringMonthlyEquivalent(
-        recurring.amount,
-        recurring.frequency,
-      );
+      const monthlyAmount = getRecurringMonthlyEquivalent(recurring.amount, recurring.frequency);
 
       monthTotal += monthlyAmount;
       count++;
@@ -140,20 +136,14 @@ export async function getHistoricalRecurringInvoiceAverage(
       }
 
       const monthKey = format(parseISO(row.date), "yyyy-MM");
-      monthlyTotals.set(
-        monthKey,
-        (monthlyTotals.get(monthKey) || 0) + row.totalAmount,
-      );
+      monthlyTotals.set(monthKey, (monthlyTotals.get(monthKey) || 0) + row.totalAmount);
     }
 
     if (monthlyTotals.size === 0) {
       return 0;
     }
 
-    const totalRevenue = Array.from(monthlyTotals.values()).reduce(
-      (sum, value) => sum + value,
-      0,
-    );
+    const totalRevenue = Array.from(monthlyTotals.values()).reduce((sum, value) => sum + value, 0);
     return totalRevenue / monthlyTotals.size;
   }
 
@@ -169,12 +159,7 @@ export async function calculateNonRecurringBaseline(
     recurringInvoiceMonthlyAvg: number;
   },
 ): Promise<number> {
-  const {
-    teamId,
-    currency,
-    recurringTxMonthlyAvg,
-    recurringInvoiceMonthlyAvg,
-  } = params;
+  const { teamId, currency, recurringTxMonthlyAvg, recurringInvoiceMonthlyAvg } = params;
 
   const sixMonthsAgo = format(subMonths(new Date(), 6), "yyyy-MM-dd");
   const today = format(new Date(), "yyyy-MM-dd");
@@ -191,8 +176,7 @@ export async function calculateNonRecurringBaseline(
     return 0;
   }
 
-  const totalRecurringMonthlyAvg =
-    recurringTxMonthlyAvg + recurringInvoiceMonthlyAvg;
+  const totalRecurringMonthlyAvg = recurringTxMonthlyAvg + recurringInvoiceMonthlyAvg;
 
   const nonRecurringValues = historicalRevenue.map((month: ReportsResultItem) =>
     Math.max(0, Number.parseFloat(month.value) - totalRecurringMonthlyAvg),
@@ -210,14 +194,7 @@ export async function getForecastRevenueInputs(
     "teamId" | "from" | "to" | "forecastMonths" | "currency" | "revenueType"
   >,
 ) {
-  const {
-    teamId,
-    from,
-    to,
-    forecastMonths,
-    currency: inputCurrency,
-    revenueType = "net",
-  } = params;
+  const { teamId, from, to, forecastMonths, currency: inputCurrency, revenueType = "net" } = params;
 
   const historicalData = await getRevenue(db, {
     teamId,
@@ -244,13 +221,10 @@ export async function getForecastRevenueInputs(
     break;
   }
 
-  const recurringInvoiceMonthlyAvg = await getHistoricalRecurringInvoiceAverage(
-    db,
-    {
-      teamId,
-      currency: inputCurrency,
-    },
-  );
+  const recurringInvoiceMonthlyAvg = await getHistoricalRecurringInvoiceAverage(db, {
+    teamId,
+    currency: inputCurrency,
+  });
 
   const nonRecurringBaseline = await calculateNonRecurringBaseline(db, {
     teamId,

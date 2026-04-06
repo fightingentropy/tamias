@@ -48,12 +48,9 @@ export type UpsertTransactionCategoryEmbeddingInput = {
   model?: string;
 };
 
-export async function getTransactionCategoryEmbeddingsByNamesFromConvex(args: {
-  names: string[];
-}) {
+export async function getTransactionCategoryEmbeddingsByNamesFromConvex(args: { names: string[] }) {
   return createClient().query(
-    api.transactionCategoryEmbeddings
-      .serviceGetTransactionCategoryEmbeddingsByNames,
+    api.transactionCategoryEmbeddings.serviceGetTransactionCategoryEmbeddingsByNames,
     serviceArgs({
       names: args.names,
     }),
@@ -64,17 +61,14 @@ export async function upsertTransactionCategoryEmbeddingsInConvex(args: {
   embeddings: UpsertTransactionCategoryEmbeddingInput[];
 }) {
   return createClient().mutation(
-    api.transactionCategoryEmbeddings
-      .serviceUpsertTransactionCategoryEmbeddings,
+    api.transactionCategoryEmbeddings.serviceUpsertTransactionCategoryEmbeddings,
     serviceArgs({
       embeddings: args.embeddings,
     }),
   ) as Promise<TransactionCategoryEmbeddingRecord[]>;
 }
 
-export async function getTransactionCategoriesFromConvex(args: {
-  teamId: string;
-}) {
+export async function getTransactionCategoriesFromConvex(args: { teamId: string }) {
   return createClient().query(
     convexApi.transactionCategories.serviceListTransactionCategories,
     serviceArgs({
@@ -83,10 +77,7 @@ export async function getTransactionCategoriesFromConvex(args: {
   ) as Promise<TransactionCategoryRecord[]>;
 }
 
-export async function getTransactionCategoryByIdFromConvex(args: {
-  teamId: string;
-  id: string;
-}) {
+export async function getTransactionCategoryByIdFromConvex(args: { teamId: string; id: string }) {
   return createClient().query(
     convexApi.transactionCategories.serviceGetTransactionCategoryById,
     serviceArgs({
@@ -96,9 +87,7 @@ export async function getTransactionCategoryByIdFromConvex(args: {
   ) as Promise<TransactionCategoryRecord | null>;
 }
 
-export async function createTransactionCategoryInConvex(
-  args: UpsertTransactionCategoryInput,
-) {
+export async function createTransactionCategoryInConvex(args: UpsertTransactionCategoryInput) {
   return createClient().mutation(
     convexApi.transactionCategories.serviceCreateTransactionCategory,
     serviceArgs({
@@ -137,10 +126,7 @@ export async function updateTransactionCategoryInConvex(
   ) as Promise<TransactionCategoryRecord>;
 }
 
-export async function deleteTransactionCategoryInConvex(args: {
-  teamId: string;
-  id: string;
-}) {
+export async function deleteTransactionCategoryInConvex(args: { teamId: string; id: string }) {
   return createClient().mutation(
     convexApi.transactionCategories.serviceDeleteTransactionCategory,
     serviceArgs({

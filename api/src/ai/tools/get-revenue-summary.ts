@@ -26,8 +26,7 @@ const getRevenueSummarySchema = z.object({
 });
 
 export const getRevenueSummaryTool = tool({
-  description:
-    "Analyze revenue (income/sales) - totals, trends, and growth rates.",
+  description: "Analyze revenue (income/sales) - totals, trends, and growth rates.",
   inputSchema: getRevenueSummarySchema,
   execute: async function* (
     { period, from, to, currency, revenueType, showCanvas },
@@ -51,18 +50,12 @@ export const getRevenueSummaryTool = tool({
     throwIfBankAccountsRequired(appContext);
 
     try {
-      const {
-        finalFrom,
-        finalTo,
-        finalCurrency,
-        description,
-        locale,
-        resolved,
-      } = resolveReportToolParams({
-        toolName: "getRevenueSummary",
-        appContext,
-        aiParams: { period, from, to, currency, revenueType },
-      });
+      const { finalFrom, finalTo, finalCurrency, description, locale, resolved } =
+        resolveReportToolParams({
+          toolName: "getRevenueSummary",
+          appContext,
+          aiParams: { period, from, to, currency, revenueType },
+        });
       const finalRevenueType = resolved.revenueType ?? "net";
 
       const analysis = startArtifactStream({
@@ -89,8 +82,7 @@ export const getRevenueSummaryTool = tool({
 
       const currentTotal = result.summary.currentTotal;
       const prevTotal = result.summary.prevTotal;
-      const targetCurrency =
-        result.summary.currency || appContext.baseCurrency || "USD";
+      const targetCurrency = result.summary.currency || appContext.baseCurrency || "USD";
       const monthlyData = result.result || [];
 
       // Format totals
@@ -109,33 +101,25 @@ export const getRevenueSummaryTool = tool({
       // Calculate year-over-year change
       const changeAmount = currentTotal - prevTotal;
       const changePercentage =
-        prevTotal !== 0
-          ? Math.round((changeAmount / Math.abs(prevTotal)) * 100)
-          : 0;
+        prevTotal !== 0 ? Math.round((changeAmount / Math.abs(prevTotal)) * 100) : 0;
       const isPositiveChange = changeAmount >= 0;
 
       // Calculate average monthly revenue
       const last12Months = monthlyData.slice(-12);
       const averageMonthlyRevenue =
         last12Months.length > 0
-          ? last12Months.reduce((sum, item) => sum + item.current.value, 0) /
-            last12Months.length
+          ? last12Months.reduce((sum, item) => sum + item.current.value, 0) / last12Months.length
           : 0;
 
       // Calculate current monthly revenue and change vs last month
       const currentMonthlyRevenue =
-        last12Months.length > 0
-          ? last12Months[last12Months.length - 1]?.current.value || 0
-          : 0;
+        last12Months.length > 0 ? last12Months[last12Months.length - 1]?.current.value || 0 : 0;
       const previousMonthRevenue =
-        last12Months.length > 1
-          ? last12Months[last12Months.length - 2]?.current.value || 0
-          : 0;
+        last12Months.length > 1 ? last12Months[last12Months.length - 2]?.current.value || 0 : 0;
       const monthlyRevenueChange =
         previousMonthRevenue !== 0
           ? Math.round(
-              ((currentMonthlyRevenue - previousMonthRevenue) /
-                Math.abs(previousMonthRevenue)) *
+              ((currentMonthlyRevenue - previousMonthRevenue) / Math.abs(previousMonthRevenue)) *
                 100,
             )
           : 0;
@@ -252,8 +236,7 @@ export const getRevenueSummaryTool = tool({
       if (currentTotal > 0) {
         summaryText = `Revenue ${isPositiveChange ? "increased" : "decreased"} ${Math.abs(changePercentage)}% over ${last12Months.length} months (${formattedPrevTotal} to ${formattedCurrentTotal}). `;
         if (isPositiveChange && prevTotal !== 0) {
-          summaryText +=
-            "This indicates positive business growth and strong sales performance.";
+          summaryText += "This indicates positive business growth and strong sales performance.";
         } else if (!isPositiveChange && prevTotal !== 0) {
           summaryText +=
             "Consider reviewing sales strategies, marketing efforts, or pricing models to reverse the trend.";

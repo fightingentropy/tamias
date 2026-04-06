@@ -21,9 +21,7 @@ export async function getTrackerProjectAssignmentsForProjectIdsFromConvex(args: 
   ) as Promise<TrackerProjectTagAssignmentRecord[]>;
 }
 
-export async function rebuildTrackerProjectTagSortFieldsInConvex(args: {
-  teamId?: string | null;
-}) {
+export async function rebuildTrackerProjectTagSortFieldsInConvex(args: { teamId?: string | null }) {
   return createClient().mutation(
     api.trackerProjectTags.serviceRebuildTrackerProjectTagSortFields,
     serviceArgs({

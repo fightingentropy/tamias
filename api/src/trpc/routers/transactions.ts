@@ -223,9 +223,7 @@ export const transactionsRouter = createTRPCRouter({
           : null;
 
         const balance =
-          parsedBalance !== null && Number.isFinite(parsedBalance)
-            ? parsedBalance
-            : null;
+          parsedBalance !== null && Number.isFinite(parsedBalance) ? parsedBalance : null;
 
         await updateBankAccount(db, {
           id: input.bankAccountId,

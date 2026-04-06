@@ -65,9 +65,7 @@ function sanitizeTheme(
 
 function disableTransitionsTemporarily() {
   const style = document.createElement("style");
-  style.appendChild(
-    document.createTextNode("*,*::before,*::after{transition:none!important}"),
-  );
+  style.appendChild(document.createTextNode("*,*::before,*::after{transition:none!important}"));
   document.head.appendChild(style);
 
   return () => {
@@ -93,9 +91,7 @@ function applyTheme({
 }) {
   const root = document.documentElement;
   const attributes = Array.isArray(attribute) ? attribute : [attribute];
-  const cleanup = disableTransitionOnChange
-    ? disableTransitionsTemporarily()
-    : undefined;
+  const cleanup = disableTransitionOnChange ? disableTransitionsTemporarily() : undefined;
   const themedValues = themes.map((theme) => value?.[theme] ?? theme);
   const nextValue = value?.[resolvedTheme] ?? resolvedTheme;
 
@@ -153,9 +149,7 @@ export function ThemeProvider({
         return;
       }
 
-      setThemeState(
-        sanitizeTheme(event.newValue, defaultTheme, enableSystem, themes),
-      );
+      setThemeState(sanitizeTheme(event.newValue, defaultTheme, enableSystem, themes));
     };
 
     window.addEventListener("storage", syncTheme);
@@ -198,20 +192,10 @@ export function ThemeProvider({
       theme,
       themes: enableSystem ? [...themes, "system"] : [...themes],
     }),
-    [
-      enableSystem,
-      forcedTheme,
-      resolvedTheme,
-      setTheme,
-      systemTheme,
-      theme,
-      themes,
-    ],
+    [enableSystem, forcedTheme, resolvedTheme, setTheme, systemTheme, theme, themes],
   );
 
-  return (
-    <ThemeContext.Provider value={context}>{children}</ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={context}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme() {

@@ -1,10 +1,4 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@tamias/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@tamias/ui/select";
 
 const companyTypeOptions = [
   { value: "freelancer", label: "Freelancer / Consultant" },
@@ -26,12 +20,7 @@ type Props = {
   dataTestId?: string;
 };
 
-export function SelectCompanyType({
-  value,
-  onChange,
-  className,
-  dataTestId,
-}: Props) {
+export function SelectCompanyType({ value, onChange, className, dataTestId }: Props) {
   return (
     <Select value={value} onValueChange={onChange}>
       <SelectTrigger className={className} data-testid={dataTestId}>

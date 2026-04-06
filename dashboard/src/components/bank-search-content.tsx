@@ -23,17 +23,11 @@ function SearchSkeleton() {
   return (
     <div className="space-y-0.5">
       {Array.from(new Array(10), (_, index) => (
-        <div
-          className="flex justify-between items-center -mx-2 px-2 py-2"
-          key={index.toString()}
-        >
+        <div className="flex justify-between items-center -mx-2 px-2 py-2" key={index.toString()}>
           <div className="flex items-center">
             <Skeleton className="h-[34px] w-[34px] rounded-full shrink-0" />
             <div className="flex flex-col space-y-1.5 ml-3">
-              <Skeleton
-                className="h-2.5 rounded-none"
-                style={{ width: nameWidths[index] }}
-              />
+              <Skeleton className="h-2.5 rounded-none" style={{ width: nameWidths[index] }} />
               <Skeleton className="h-2 rounded-none w-[60px]" />
             </div>
           </div>
@@ -135,11 +129,7 @@ export function BankSearchContent({
   const [plaidToken, setPlaidToken] = useState<string | undefined>();
   const teamCountryCode = defaultCountryCode || "";
 
-  const {
-    countryCode,
-    search: query,
-    setParams,
-  } = useConnectParams(teamCountryCode);
+  const { countryCode, search: query, setParams } = useConnectParams(teamCountryCode);
 
   const createPlaidLink = useMutation(
     trpc.banking.plaidLink.mutationOptions({
@@ -151,9 +141,7 @@ export function BankSearchContent({
     }),
   );
 
-  const exchangeToken = useMutation(
-    trpc.banking.plaidExchange.mutationOptions(),
-  );
+  const exchangeToken = useMutation(trpc.banking.plaidExchange.mutationOptions());
 
   useScript("https://cdn.teller.io/connect/connect.js", {
     removeOnUnmount: false,
@@ -241,9 +229,7 @@ export function BankSearchContent({
       </div>
 
       <div className="relative">
-        <div
-          className={`${listHeight} space-y-0.5 overflow-auto scrollbar-hide pt-2 mt-2 pb-16`}
-        >
+        <div className={`${listHeight} space-y-0.5 overflow-auto scrollbar-hide pt-2 mt-2 pb-16`}>
           {isLoading && <SearchSkeleton />}
 
           {data?.map((institution) => {
@@ -258,11 +244,7 @@ export function BankSearchContent({
                 name={institution.name}
                 logo={institution.logo}
                 provider={institution.provider}
-                availableHistory={
-                  institution.availableHistory
-                    ? +institution.availableHistory
-                    : 0
-                }
+                availableHistory={institution.availableHistory ? +institution.availableHistory : 0}
                 type={institution?.type ?? undefined}
                 openPlaid={() => {
                   setParams({ step: null });
@@ -289,10 +271,7 @@ export function BankSearchContent({
                 </p>
 
                 <div className="mt-4 flex space-x-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setParams({ step: "import" })}
-                  >
+                  <Button variant="outline" onClick={() => setParams({ step: "import" })}>
                     Import
                   </Button>
 

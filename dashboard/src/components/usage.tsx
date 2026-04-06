@@ -16,13 +16,7 @@ function CircularProgress({ value }: { value: number }) {
     <div className="relative h-6 w-6 flex items-center justify-center">
       <svg className="h-6 w-6" viewBox="0 0 36 36">
         {/* Background circle */}
-        <circle
-          className="stroke-muted fill-none"
-          cx="18"
-          cy="18"
-          r="16"
-          strokeWidth="4"
-        />
+        <circle className="stroke-muted fill-none" cx="18" cy="18" r="16" strokeWidth="4" />
         {/* Progress circle */}
         <circle
           className="stroke-primary fill-none"
@@ -56,19 +50,10 @@ function _formatFileSize(bytes: number): { value: number; unit: string } {
   return { value: Math.max(bytes / KB, 0.1), unit: "KB" };
 }
 
-function UsageItem({
-  label,
-  current,
-  max,
-  unit,
-  period,
-  percentage,
-}: UsageItemProps) {
+function UsageItem({ label, current, max, unit, period, percentage }: UsageItemProps) {
   // Calculate percentage if not explicitly provided
   const calculatedPercentage =
-    percentage !== undefined
-      ? percentage
-      : Math.min((current / max) * 100, 100);
+    percentage !== undefined ? percentage : Math.min((current / max) * 100, 100);
 
   // Format values differently based on whether we have a unit or not
   let formattedCurrent: string;
@@ -80,8 +65,7 @@ function UsageItem({
     formattedMax = max.toFixed(1).replace(/\.0$/, "");
   } else {
     // For counts without units, use k formatting for large numbers
-    formattedCurrent =
-      current >= 1000 ? `${(current / 1000).toFixed(1)}k` : current.toString();
+    formattedCurrent = current >= 1000 ? `${(current / 1000).toFixed(1)}k` : current.toString();
 
     formattedMax = max >= 1000 ? `${(max / 1000).toFixed(1)}k` : max.toString();
   }
@@ -93,8 +77,7 @@ function UsageItem({
         <span className="text-sm font-medium">{label}</span>
       </div>
       <div className="text-sm text-muted-foreground">
-        {formattedCurrent}/{formattedMax} {unit}{" "}
-        {period && <span>per {period}</span>}
+        {formattedCurrent}/{formattedMax} {unit} {period && <span>per {period}</span>}
       </div>
     </div>
   );
@@ -123,16 +106,10 @@ export function Usage({
 
   return (
     <div>
-      <h2 className="text-lg font-medium leading-none tracking-tight mb-4">
-        Usage
-      </h2>
+      <h2 className="text-lg font-medium leading-none tracking-tight mb-4">Usage</h2>
 
       <Card className="divide-y">
-        <UsageItem
-          label="Users"
-          current={data?.number_of_users ?? 0}
-          max={selectedPlan?.users}
-        />
+        <UsageItem label="Users" current={data?.number_of_users ?? 0} max={selectedPlan?.users} />
         <UsageItem
           label="Bank connections"
           current={data?.number_of_bank_connections ?? 0}
@@ -177,16 +154,11 @@ export function UsageSkeleton() {
 
   return (
     <div>
-      <h2 className="text-lg font-medium leading-none tracking-tight mb-4">
-        Usage
-      </h2>
+      <h2 className="text-lg font-medium leading-none tracking-tight mb-4">Usage</h2>
 
       <Card className="divide-y">
         {skeletonItems.map((item) => (
-          <div
-            key={item}
-            className="flex items-center justify-between py-3 px-4"
-          >
+          <div key={item} className="flex items-center justify-between py-3 px-4">
             <div className="flex items-center gap-4">
               <Skeleton className="h-6 w-6 rounded-full" />
               <Skeleton className="h-4 w-24" />

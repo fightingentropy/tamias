@@ -1,11 +1,5 @@
-import {
-  getTransactionByIdForTeam,
-  getTransactionsPage,
-} from "@tamias/app-services/transactions";
-import {
-  getTransactionByIdSchema,
-  getTransactionsSchema,
-} from "../../schemas/transactions";
+import { getTransactionByIdForTeam, getTransactionsPage } from "@tamias/app-services/transactions";
+import { getTransactionByIdSchema, getTransactionsSchema } from "../../schemas/transactions";
 import { hasScope, READ_ONLY_ANNOTATIONS, type RegisterTools } from "../types";
 
 export const registerTransactionTools: RegisterTools = (server, ctx) => {

@@ -14,20 +14,12 @@ import type {
 } from "./types";
 
 export interface Provider {
-  getTransactions: (
-    params: GetTransactionsRequest,
-  ) => Promise<GetTransactionsResponse>;
+  getTransactions: (params: GetTransactionsRequest) => Promise<GetTransactionsResponse>;
   getAccounts: (params: GetAccountsRequest) => Promise<GetAccountsResponse>;
-  getAccountBalance: (
-    params: GetAccountBalanceRequest,
-  ) => Promise<GetAccountBalanceResponse>;
-  getInstitutions: (
-    params: GetInstitutionsRequest,
-  ) => Promise<GetInstitutionsResponse>;
+  getAccountBalance: (params: GetAccountBalanceRequest) => Promise<GetAccountBalanceResponse>;
+  getInstitutions: (params: GetInstitutionsRequest) => Promise<GetInstitutionsResponse>;
   getHealthCheck: () => Promise<boolean>;
   deleteAccounts: (params: DeleteAccountsRequest) => void;
-  getConnectionStatus: (
-    params: GetConnectionStatusRequest,
-  ) => Promise<GetConnectionStatusResponse>;
+  getConnectionStatus: (params: GetConnectionStatusRequest) => Promise<GetConnectionStatusResponse>;
   deleteConnection: (params: DeleteConnectionRequest) => void;
 }

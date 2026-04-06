@@ -16,15 +16,10 @@ export const Route = createLazyFileRoute("/settings/developer")({
 });
 
 function SettingsDeveloperPage() {
-  const loaderData = Route.useLoaderData() as Awaited<
-    ReturnType<typeof loadSettingsDeveloperData>
-  >;
+  const loaderData = Route.useLoaderData() as Awaited<ReturnType<typeof loadSettingsDeveloperData>>;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <>
         <div className="space-y-12">
           <AssistantProviderSettings />

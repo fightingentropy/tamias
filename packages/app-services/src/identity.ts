@@ -1,11 +1,7 @@
 import { api } from "@tamias/app-data-convex/api";
 import type { Id } from "@tamias/app-data-convex/data-model";
 import type { AIProvider } from "@tamias/domain/identity";
-import {
-  createConvexClient,
-  getConvexServiceKey,
-  getSharedConvexClient,
-} from "./convex-client";
+import { createConvexClient, getConvexServiceKey, getSharedConvexClient } from "./convex-client";
 
 type ConvexUserId = Id<"appUsers">;
 type ConvexTeamId = Id<"teams">;
@@ -30,9 +26,7 @@ function serviceArgs<T extends Record<string, unknown>>(args: T) {
   };
 }
 
-export async function getSessionFromConvex(
-  accessToken?: string,
-): Promise<ConvexSession | null> {
+export async function getSessionFromConvex(accessToken?: string): Promise<ConvexSession | null> {
   if (!accessToken) {
     return null;
   }
@@ -94,9 +88,7 @@ export async function getCurrentTeamFromConvexAsAuthUser(accessToken?: string) {
 /**
  * Team memberships for the JWT identity (no deploy key). Matches Convex `teamList`.
  */
-export async function listTeamsForUserFromConvexAsAuthUser(
-  accessToken?: string,
-) {
+export async function listTeamsForUserFromConvexAsAuthUser(accessToken?: string) {
   if (!accessToken) {
     return null;
   }
@@ -122,9 +114,7 @@ export async function ensureCurrentAppUserInConvex(accessToken?: string) {
 
   try {
     client.setAuth(accessToken);
-    return (
-      (await client.mutation(api.identity.ensureCurrentAppUser, {})) ?? null
-    );
+    return (await client.mutation(api.identity.ensureCurrentAppUser, {})) ?? null;
   } catch {
     return null;
   } finally {
@@ -178,9 +168,7 @@ export async function updateCurrentUserInConvex(args: {
   );
 }
 
-export async function getTeamByPublicTeamIdFromConvexIdentity(
-  publicTeamId: string,
-) {
+export async function getTeamByPublicTeamIdFromConvexIdentity(publicTeamId: string) {
   return getSharedConvexClient().query(
     api.identity.serviceGetTeamByPublicTeamId,
     serviceArgs({ publicTeamId }),
@@ -248,20 +236,14 @@ export async function updateTeamMemberInConvex(args: {
   userId: ConvexUserId;
   role: "owner" | "member";
 }) {
-  return getSharedConvexClient().mutation(
-    api.identity.serviceUpdateTeamMember,
-    serviceArgs(args),
-  );
+  return getSharedConvexClient().mutation(api.identity.serviceUpdateTeamMember, serviceArgs(args));
 }
 
 export async function deleteTeamMemberInConvex(args: {
   publicTeamId: string;
   userId: ConvexUserId;
 }) {
-  return getSharedConvexClient().mutation(
-    api.identity.serviceDeleteTeamMember,
-    serviceArgs(args),
-  );
+  return getSharedConvexClient().mutation(api.identity.serviceDeleteTeamMember, serviceArgs(args));
 }
 
 export async function leaveTeamInConvex(args: {
@@ -286,9 +268,7 @@ export async function getInvitesByEmailFromConvex(email: string) {
   );
 }
 
-export async function getTeamInvitesByPublicTeamIdFromConvex(
-  publicTeamId: string,
-) {
+export async function getTeamInvitesByPublicTeamIdFromConvex(publicTeamId: string) {
   return getSharedConvexClient().query(
     api.identity.serviceGetTeamInvitesByPublicTeamId,
     serviceArgs({ publicTeamId }),
@@ -303,10 +283,7 @@ export async function createTeamInvitesInConvex(args: {
     role: "owner" | "member";
   }[];
 }) {
-  return getSharedConvexClient().mutation(
-    api.identity.serviceCreateTeamInvites,
-    serviceArgs(args),
-  );
+  return getSharedConvexClient().mutation(api.identity.serviceCreateTeamInvites, serviceArgs(args));
 }
 
 export async function acceptTeamInviteInConvex(args: {
@@ -314,28 +291,16 @@ export async function acceptTeamInviteInConvex(args: {
   userId?: ConvexUserId;
   email: string;
 }) {
-  return getSharedConvexClient().mutation(
-    api.identity.serviceAcceptTeamInvite,
-    serviceArgs(args),
-  );
+  return getSharedConvexClient().mutation(api.identity.serviceAcceptTeamInvite, serviceArgs(args));
 }
 
-export async function declineTeamInviteInConvex(args: {
-  publicInviteId: string;
-  email: string;
-}) {
-  return getSharedConvexClient().mutation(
-    api.identity.serviceDeclineTeamInvite,
-    serviceArgs(args),
-  );
+export async function declineTeamInviteInConvex(args: { publicInviteId: string; email: string }) {
+  return getSharedConvexClient().mutation(api.identity.serviceDeclineTeamInvite, serviceArgs(args));
 }
 
 export async function deleteTeamInviteInConvex(args: {
   publicInviteId: string;
   publicTeamId: string;
 }) {
-  return getSharedConvexClient().mutation(
-    api.identity.serviceDeleteTeamInvite,
-    serviceArgs(args),
-  );
+  return getSharedConvexClient().mutation(api.identity.serviceDeleteTeamInvite, serviceArgs(args));
 }

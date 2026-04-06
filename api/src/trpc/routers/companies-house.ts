@@ -31,13 +31,11 @@ export const companiesHouseRouter = createTRPCRouter({
     });
   }),
 
-  getAccountsStatus: protectedProcedure.query(
-    async ({ ctx: { db, teamId } }) => {
-      return getCompaniesHouseAccountsStatus(db, {
-        teamId: teamId!,
-      });
-    },
-  ),
+  getAccountsStatus: protectedProcedure.query(async ({ ctx: { db, teamId } }) => {
+    return getCompaniesHouseAccountsStatus(db, {
+      teamId: teamId!,
+    });
+  }),
 
   createRegisteredOfficeAddressDraft: protectedProcedure
     .input(createCompaniesHouseRegisteredOfficeAddressDraftSchema)

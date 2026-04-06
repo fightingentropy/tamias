@@ -61,9 +61,7 @@ export function MetricsFilter() {
     updateDateRange,
   } = useMetricsFilter();
 
-  const { data: currencies } = useQuery(
-    trpc.bankAccounts.currencies.queryOptions(),
-  );
+  const { data: currencies } = useQuery(trpc.bankAccounts.currencies.queryOptions());
 
   const baseCurrency = team?.baseCurrency;
 
@@ -142,9 +140,7 @@ export function MetricsFilter() {
                   >
                     {option.label}
                     <span className="absolute right-2 flex items-center justify-center shrink-0">
-                      {isCustomPeriod && (
-                        <CheckIcon className="h-4 w-4 shrink-0" />
-                      )}
+                      {isCustomPeriod && <CheckIcon className="h-4 w-4 shrink-0" />}
                     </span>
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent className="w-auto p-0" sideOffset={8}>
@@ -163,12 +159,7 @@ export function MetricsFilter() {
                         today: "bg-transparent rounded-none",
                       }}
                       components={{
-                        DayButton: ({
-                          className,
-                          day,
-                          modifiers,
-                          ...props
-                        }) => (
+                        DayButton: ({ className, day, modifiers, ...props }) => (
                           <CalendarDayButton
                             day={day}
                             modifiers={modifiers}
@@ -197,9 +188,7 @@ export function MetricsFilter() {
                 onCheckedChange={() => updatePeriod(option.value)}
                 className={cn(
                   "text-xs",
-                  period === option.value
-                    ? "dark:bg-[#131313] text-primary"
-                    : "text-[#666]",
+                  period === option.value ? "dark:bg-[#131313] text-primary" : "text-[#666]",
                   "hover:dark:bg-[#131313]",
                 )}
               >
@@ -218,9 +207,7 @@ export function MetricsFilter() {
           </DropdownMenuLabel>
           <DropdownMenuRadioGroup
             value={revenueType}
-            onValueChange={(value) =>
-              updateRevenueType(value as "gross" | "net")
-            }
+            onValueChange={(value) => updateRevenueType(value as "gross" | "net")}
           >
             {REVENUE_TYPE_OPTIONS.map((option) => (
               <DropdownMenuRadioItem
@@ -250,9 +237,7 @@ export function MetricsFilter() {
               </DropdownMenuLabel>
               <DropdownMenuRadioGroup
                 value={effectiveCurrency ?? "base"}
-                onValueChange={(value) =>
-                  updateCurrency(value === "base" ? null : value)
-                }
+                onValueChange={(value) => updateCurrency(value === "base" ? null : value)}
               >
                 <DropdownMenuRadioItem
                   value="base"
@@ -289,8 +274,8 @@ export function MetricsFilter() {
         {/* Info Text */}
         <div className="px-2 py-2">
           <p className="text-xs text-muted-foreground leading-relaxed">
-            All amounts are converted to your base currency. Metrics depend on
-            how your transactions are categorized.
+            All amounts are converted to your base currency. Metrics depend on how your transactions
+            are categorized.
           </p>
         </div>
       </DropdownMenuContent>

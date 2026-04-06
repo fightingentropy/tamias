@@ -2,12 +2,14 @@ import { parseISO } from "date-fns";
 import { getInvoiceCustomerDateAggregateRowsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
-import { CUSTOMER_REVENUE_STATUSES, getCustomerNameMap, roundMoney, type GetCustomerLifetimeValueParams } from "./shared";
+import {
+  CUSTOMER_REVENUE_STATUSES,
+  getCustomerNameMap,
+  roundMoney,
+  type GetCustomerLifetimeValueParams,
+} from "./shared";
 
-async function getCustomerLifetimeValueImpl(
-  _db: Database,
-  params: GetCustomerLifetimeValueParams,
-) {
+async function getCustomerLifetimeValueImpl(_db: Database, params: GetCustomerLifetimeValueParams) {
   const { teamId, currency } = params;
   const rows = await getInvoiceCustomerDateAggregateRowsFromConvex({
     teamId,
@@ -86,10 +88,7 @@ async function getCustomerLifetimeValueImpl(
     const lastInvoice = parseISO(customer.lastInvoiceDate);
     const firstInvoice = parseISO(customer.firstInvoiceDate);
     const lifespanMs = lastInvoice.getTime() - firstInvoice.getTime();
-    const lifespanDays = Math.max(
-      1,
-      Math.floor(lifespanMs / (1000 * 60 * 60 * 24)),
-    );
+    const lifespanDays = Math.max(1, Math.floor(lifespanMs / (1000 * 60 * 60 * 24)));
     const isActive = lastInvoice >= thirtyDaysAgo;
 
     return {
@@ -103,17 +102,12 @@ async function getCustomerLifetimeValueImpl(
     };
   });
 
-  const totalRevenue = customersWithMetrics.reduce(
-    (sum, c) => sum + c.totalRevenue,
-    0,
-  );
+  const totalRevenue = customersWithMetrics.reduce((sum, c) => sum + c.totalRevenue, 0);
   const totalCustomers = customersWithMetrics.length;
   const activeCustomers = customersWithMetrics.filter((c) => c.isActive).length;
   const averageCLV = totalRevenue / totalCustomers;
 
-  const sortedValues = customersWithMetrics
-    .map((c) => c.totalRevenue)
-    .sort((a, b) => a - b);
+  const sortedValues = customersWithMetrics.map((c) => c.totalRevenue).sort((a, b) => a - b);
   const medianCLV =
     sortedValues.length % 2 === 0
       ? ((sortedValues[sortedValues.length / 2 - 1] ?? 0) +
@@ -122,8 +116,7 @@ async function getCustomerLifetimeValueImpl(
       : (sortedValues[Math.floor(sortedValues.length / 2)] ?? 0);
 
   const averageLifespanDays =
-    customersWithMetrics.reduce((sum, c) => sum + c.lifespanDays, 0) /
-    totalCustomers;
+    customersWithMetrics.reduce((sum, c) => sum + c.lifespanDays, 0) / totalCustomers;
 
   const topCustomers = customersWithMetrics
     .sort((a, b) => b.totalRevenue - a.totalRevenue)

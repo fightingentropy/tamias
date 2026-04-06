@@ -66,11 +66,7 @@ export function ForecastCanvas() {
         {
           id: "unpaid-invoices",
           title: "Unpaid Invoices",
-          value: formatCurrencyAmount(
-            data.metrics.unpaidInvoices,
-            currency,
-            locale,
-          ),
+          value: formatCurrencyAmount(data.metrics.unpaidInvoices, currency, locale),
           subtitle: "Pending collection",
         },
         {
@@ -141,11 +137,7 @@ export function ForecastCanvas() {
           )}
 
           {/* Always show metrics section */}
-          <CanvasGrid
-            items={metrics}
-            layout="2/2"
-            isLoading={shouldShowMetricsSkeleton(stage)}
-          />
+          <CanvasGrid items={metrics} layout="2/2" isLoading={shouldShowMetricsSkeleton(stage)} />
 
           {/* Always show summary section */}
           <CanvasSection title="Summary" isLoading={showSummarySkeleton}>

@@ -118,12 +118,7 @@ export function TrackerEntriesForm({
       }
 
       // Use the enhanced parseTimeWithMidnightCrossing function
-      const { duration } = parseTimeWithMidnightCrossing(
-        start,
-        stop,
-        baseDate,
-        timezone,
-      );
+      const { duration } = parseTimeWithMidnightCrossing(start, stop, baseDate, timezone);
 
       if (duration) {
         form.setValue("duration", duration, { shouldValidate: true });
@@ -133,10 +128,7 @@ export function TrackerEntriesForm({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onCreate)}
-        className="mb-4 mt-6 space-y-4"
-      >
+      <form onSubmit={form.handleSubmit(onCreate)} className="mb-4 mt-6 space-y-4">
         <TimeRangeInput
           value={{ start: form.watch("start"), stop: form.watch("stop") }}
           onChange={(value) => {

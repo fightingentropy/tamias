@@ -1,46 +1,23 @@
 "use client";
 
 import { cn } from "@tamias/ui/cn";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@tamias/ui/table";
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@tamias/ui/table";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import React from "react";
 import { useCategoryParams } from "@/hooks/use-category-params";
 import { useTRPC } from "@/trpc/client";
-import {
-  type CategoriesTableMeta,
-  columns,
-  flattenCategories,
-} from "./columns";
+import { type CategoriesTableMeta, columns, flattenCategories } from "./columns";
 import { Header } from "./header";
 
 export function DataTable() {
-  const [expandedCategories, setExpandedCategories] = React.useState<
-    Set<string>
-  >(new Set());
+  const [expandedCategories, setExpandedCategories] = React.useState<Set<string>>(new Set());
 
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { setParams } = useCategoryParams();
 
-  const { data } = useSuspenseQuery(
-    trpc.transactionCategories.get.queryOptions(),
-  );
+  const { data } = useSuspenseQuery(trpc.transactionCategories.get.queryOptions());
 
   const deleteCategoryMutation = useMutation(
     trpc.transactionCategories.delete.mutationOptions({
@@ -146,10 +123,7 @@ export function DataTable() {
                   <TableHead key={header.id}>
                     {header.isPlaceholder
                       ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
+                      : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 );
               })}
@@ -165,10 +139,7 @@ export function DataTable() {
               onClick={() => setParams({ categoryId: row.original.id })}
             >
               {row.getVisibleCells().map((cell, index) => (
-                <TableCell
-                  key={cell.id}
-                  className={cn(index === 3 && "w-[50px]")}
-                >
+                <TableCell key={cell.id} className={cn(index === 3 && "w-[50px]")}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}

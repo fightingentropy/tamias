@@ -44,9 +44,7 @@ export const serviceUpsertExchangeRates = mutation({
     for (const rate of args.rates) {
       const existing = await ctx.db
         .query("exchangeRates")
-        .withIndex("by_base_target", (q) =>
-          q.eq("base", rate.base).eq("target", rate.target),
-        )
+        .withIndex("by_base_target", (q) => q.eq("base", rate.base).eq("target", rate.target))
         .unique();
 
       if (existing) {

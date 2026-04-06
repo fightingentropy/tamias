@@ -3,10 +3,7 @@ import { resolveAccountsEntityIdentifier } from "../rendering-ixbrl";
 import { getSummaryAmount } from "../formatting";
 import type { StatutoryAccountsDraft } from "../types";
 import { buildStatementsMarkup } from "./statements";
-import {
-  renderAccountsAttachmentBodySections,
-  renderAccountsAttachmentHeader,
-} from "./sections";
+import { renderAccountsAttachmentBodySections, renderAccountsAttachmentHeader } from "./sections";
 import type { AccountsAttachmentRenderData } from "./types";
 
 function buildSmallCompaniesAttachmentData(
@@ -20,16 +17,11 @@ function buildSmallCompaniesAttachmentData(
   const monetaryUnitId = draft.currency.toUpperCase();
   const pureUnitId = "pure";
   const sharesUnitId = "shares";
-  const currentTaxForPeriod =
-    draft.corporationTax?.estimatedCorporationTaxDue ?? 0;
-  const profitBeforeTax = getSummaryAmount(
-    draft.profitAndLoss,
-    "profit_before_tax",
-  );
+  const currentTaxForPeriod = draft.corporationTax?.estimatedCorporationTaxDue ?? 0;
+  const profitBeforeTax = getSummaryAmount(draft.profitAndLoss, "profit_before_tax");
   const profitAfterTax = roundCurrency(profitBeforeTax - currentTaxForPeriod);
   const totalAssetsLessCurrentLiabilities = roundCurrency(
-    draft.statementOfFinancialPosition.assets -
-      draft.statementOfFinancialPosition.liabilities,
+    draft.statementOfFinancialPosition.assets - draft.statementOfFinancialPosition.liabilities,
   );
   const isDormant = draft.dormant ?? false;
   const directorContexts = draft.directors.map((director, index) => ({
@@ -51,9 +43,7 @@ function buildSmallCompaniesAttachmentData(
   const registeredNumberText = draft.companyNumber
     ? `Registered Number ${draft.companyNumber}`
     : "Registered Number unavailable";
-  const coverTitle = isDormant
-    ? "Dormant accounts"
-    : "Unaudited statutory accounts";
+  const coverTitle = isDormant ? "Dormant accounts" : "Unaudited statutory accounts";
 
   const readyBanner = draft.filingReadiness.isReady
     ? `<div class="banner banner-ready"><strong>Filing-ready accounts attachment.</strong> This document contains the statutory disclosures and taxonomy-backed facts required for the supported small-company filing path.</div>`

@@ -52,8 +52,7 @@ export function useMetricsParams() {
     initialized.current = true;
 
     const stored = getStoredDateRange();
-    const isAtDefaults =
-      params.from === defaults.from && params.to === defaults.to;
+    const isAtDefaults = params.from === defaults.from && params.to === defaults.to;
 
     if (stored && isAtDefaults) {
       setParams({ from: stored.from, to: stored.to });

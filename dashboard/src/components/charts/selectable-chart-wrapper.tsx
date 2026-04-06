@@ -10,10 +10,7 @@ interface SelectableChartWrapperProps {
   data: any[];
   dateKey: string;
   enableSelection?: boolean;
-  onSelectionChange?: (
-    startDate: string | null,
-    endDate: string | null,
-  ) => void;
+  onSelectionChange?: (startDate: string | null, endDate: string | null) => void;
   onSelectionComplete?: (startDate: string, endDate: string) => void;
   onSelectionStateChange?: (isSelecting: boolean) => void;
   chartType?: string;
@@ -81,11 +78,7 @@ export function SelectableChartWrapper({
     >
       <div ref={chartRef}>{children}</div>
       {containerReady && (
-        <ChartSelectionOverlay
-          data={data}
-          selection={selection}
-          plotArea={getPlotArea()}
-        />
+        <ChartSelectionOverlay data={data} selection={selection} plotArea={getPlotArea()} />
       )}
     </div>
   );

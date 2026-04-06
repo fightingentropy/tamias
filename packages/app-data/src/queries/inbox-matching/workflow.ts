@@ -1,14 +1,8 @@
 import { createLoggerWithContext } from "@tamias/logger";
-import {
-  getInboxItemByIdFromConvex,
-} from "@tamias/app-data-convex";
+import { getInboxItemByIdFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { updateInbox } from "../inbox";
-import {
-  createMatchSuggestion,
-  findMatches,
-  type MatchResult,
-} from "../transaction-matching";
+import { createMatchSuggestion, findMatches, type MatchResult } from "../transaction-matching";
 import { matchTransaction } from "../inbox";
 
 const logger = createLoggerWithContext("inbox-matching");
@@ -189,9 +183,7 @@ export async function calculateInboxSuggestions(
         inboxId,
       });
 
-      if (
-        shouldResetInboxToPendingAfterSuggestionFailure(currentInbox ?? null)
-      ) {
+      if (shouldResetInboxToPendingAfterSuggestionFailure(currentInbox ?? null)) {
         await updateInbox(db, {
           id: inboxId,
           teamId,
@@ -199,17 +191,11 @@ export async function calculateInboxSuggestions(
         });
       }
     } catch (rollbackError) {
-      logger.error(
-        "Failed to reset inbox after suggestion calculation failure",
-        {
-          teamId,
-          inboxId,
-          error:
-            rollbackError instanceof Error
-              ? rollbackError.message
-              : "Unknown error",
-        },
-      );
+      logger.error("Failed to reset inbox after suggestion calculation failure", {
+        teamId,
+        inboxId,
+        error: rollbackError instanceof Error ? rollbackError.message : "Unknown error",
+      });
     }
 
     throw error;

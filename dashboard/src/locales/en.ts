@@ -30,8 +30,7 @@ export default {
   timezone: {
     title: "Time Zone",
     searchPlaceholder: "Search timezone",
-    description:
-      "Defines the default time zone used for displaying times in the app.",
+    description: "Defines the default time zone used for displaying times in the app.",
     placeholder: "Select timezone",
   },
   spending_period: {
@@ -109,10 +108,8 @@ export default {
       description: "Get notified when invoices are paid",
       title: "Invoice payment received",
       subtitle: "Your invoice has been paid",
-      manual_with_date:
-        "Invoice {invoiceNumber} from {customerName} marked as paid on {date}",
-      manual_with_date_no_customer:
-        "Invoice {invoiceNumber} marked as paid on {date}",
+      manual_with_date: "Invoice {invoiceNumber} from {customerName} marked as paid on {date}",
+      manual_with_date_no_customer: "Invoice {invoiceNumber} marked as paid on {date}",
       manual: "Invoice {invoiceNumber} from {customerName} marked as paid",
       manual_no_customer: "Invoice {invoiceNumber} marked as paid",
       automatic: "Payment received for invoice {invoiceNumber}",
@@ -131,8 +128,7 @@ export default {
       subtitle: "Invoice has been scheduled for automatic delivery",
       with_customer:
         "Invoice {invoiceNumber} scheduled to be sent to {customerName} on {date} at {time}",
-      without_customer:
-        "Invoice {invoiceNumber} scheduled for {date} at {time}",
+      without_customer: "Invoice {invoiceNumber} scheduled for {date} at {time}",
       simple: "Invoice {invoiceNumber} has been scheduled",
     },
     invoice_sent: {
@@ -148,8 +144,7 @@ export default {
       description: "Get notified when invoice reminders are sent",
       title: "Invoice reminder sent",
       subtitle: "Payment reminder has been sent to customer",
-      with_customer:
-        "Payment reminder sent to {customerName} for invoice {invoiceNumber}",
+      with_customer: "Payment reminder sent to {customerName} for invoice {invoiceNumber}",
       without_customer: "Payment reminder sent for invoice {invoiceNumber}",
     },
 
@@ -158,8 +153,7 @@ export default {
       description: "Get notified when invoices are cancelled",
       title: "Invoice cancelled",
       subtitle: "Invoice has been cancelled",
-      with_customer:
-        "Invoice {invoiceNumber} for {customerName} has been cancelled",
+      with_customer: "Invoice {invoiceNumber} for {customerName} has been cancelled",
       without_customer: "Invoice {invoiceNumber} has been cancelled",
     },
     invoice_created: {
@@ -167,8 +161,7 @@ export default {
       description: "Get notified when new invoices are created",
       title: "Invoice created",
       subtitle: "A new invoice has been created",
-      with_customer_and_amount:
-        "Invoice {invoiceNumber} created for {customerName} - {amount}",
+      with_customer_and_amount: "Invoice {invoiceNumber} created for {customerName} - {amount}",
       with_customer: "Invoice {invoiceNumber} created for {customerName}",
       without_customer: "Invoice {invoiceNumber} has been created",
     },
@@ -177,8 +170,7 @@ export default {
       description: "Get notified when invoice payments are refunded",
       title: "Invoice refunded",
       subtitle: "Invoice payment has been refunded",
-      with_customer:
-        "Invoice {invoiceNumber} for {customerName} has been refunded",
+      with_customer: "Invoice {invoiceNumber} for {customerName} has been refunded",
       without_customer: "Invoice {invoiceNumber} has been refunded",
     },
     recurring_series_started: {
@@ -196,8 +188,7 @@ export default {
       title: "Recurring invoice series completed",
       with_customer_and_count:
         "Recurring series for {customerName} completed ({count} invoices generated)",
-      with_count:
-        "Recurring invoice series completed ({count} invoices generated)",
+      with_count: "Recurring invoice series completed ({count} invoices generated)",
     },
     recurring_series_paused: {
       name: "Recurring Series Paused",
@@ -206,19 +197,15 @@ export default {
       with_customer: "Recurring series for {customerName} has been paused",
       auto_failure_with_customer:
         "Recurring series for {customerName} paused after {failureCount} failed attempts",
-      auto_failure:
-        "Recurring series paused after {failureCount} failed attempts",
+      auto_failure: "Recurring series paused after {failureCount} failed attempts",
     },
     recurring_invoice_upcoming: {
       name: "Upcoming Recurring Invoice",
-      description:
-        "Get notified 24 hours before a recurring invoice is generated",
+      description: "Get notified 24 hours before a recurring invoice is generated",
       title: "Upcoming invoice generation",
       batch: "You have {count} invoice(s) scheduled for tomorrow",
-      single_with_details:
-        "A {amount} invoice for {customerName} is scheduled for tomorrow",
-      single_with_customer:
-        "An invoice for {customerName} is scheduled for tomorrow",
+      single_with_details: "A {amount} invoice for {customerName} is scheduled for tomorrow",
+      single_with_customer: "An invoice for {customerName} is scheduled for tomorrow",
     },
     inbox_new: {
       name: "New Inbox Items",
@@ -226,8 +213,7 @@ export default {
       "type.email#one": "New document received via team inbox email",
       "type.email#other": "{count} new documents received via team inbox email",
       "type.sync#one": "New document synced from your {provider} account",
-      "type.sync#other":
-        "{count} new documents synced from your {provider} account",
+      "type.sync#other": "{count} new documents synced from your {provider} account",
       "type.slack#one": "New document shared via Slack",
       "type.slack#other": "{count} new documents shared via Slack",
       "type.upload#one": "New document uploaded to your inbox",
@@ -240,11 +226,9 @@ export default {
     },
     inbox_auto_matched: {
       name: "Auto-matched",
-      description:
-        "Get notified when documents are automatically matched with transactions",
+      description: "Get notified when documents are automatically matched with transactions",
       title: "Document automatically matched",
-      with_details:
-        '"{documentName}" ({amount}) was matched with "{transactionName}"',
+      with_details: '"{documentName}" ({amount}) was matched with "{transactionName}"',
       with_names: '"{documentName}" was matched with "{transactionName}"',
       cross_currency_details:
         '"{documentName}" ({documentAmount}) was matched with "{transactionName}" ({transactionAmount}) across currencies',
@@ -256,20 +240,16 @@ export default {
       title: "Likely match found",
       with_details:
         '"{documentName}" ({amount}) looks like it matches "{transactionName}" — click to review',
-      with_names:
-        '"{documentName}" looks like it matches "{transactionName}" — click to review',
+      with_names: '"{documentName}" looks like it matches "{transactionName}" — click to review',
       cross_currency_details:
         '"{documentName}" ({documentAmount}) might match "{transactionName}" ({transactionAmount}) across currencies — click to review',
     },
     inbox_needs_review: {
       name: "Needs Review",
-      description:
-        "Get notified when potential matches are found that need your review",
+      description: "Get notified when potential matches are found that need your review",
       title: "Possible match found",
-      with_details:
-        '"{documentName}" ({amount}) might match "{transactionName}" — click to review',
-      with_names:
-        '"{documentName}" might match "{transactionName}" — click to review',
+      with_details: '"{documentName}" ({amount}) might match "{transactionName}" — click to review',
+      with_names: '"{documentName}" might match "{transactionName}" — click to review',
       high_confidence_details:
         '"{documentName}" ({amount}) looks like it matches "{transactionName}" — click to review',
       high_confidence_names:
@@ -424,20 +404,14 @@ export default {
   transaction_categories: {
     // Parent Categories
     revenue: "Income and money received from business activities",
-    "cost-of-goods-sold":
-      "Direct costs associated with producing goods or services",
-    "sales-marketing":
-      "Expenses related to sales activities and marketing efforts",
+    "cost-of-goods-sold": "Direct costs associated with producing goods or services",
+    "sales-marketing": "Expenses related to sales activities and marketing efforts",
     operations: "Day-to-day operational costs of running the business",
-    "professional-services":
-      "Fees paid to external professionals and service providers",
-    "human-resources":
-      "Employee-related costs including salaries, benefits, and training",
-    "travel-entertainment":
-      "Business travel, meals, and entertainment expenses",
+    "professional-services": "Fees paid to external professionals and service providers",
+    "human-resources": "Employee-related costs including salaries, benefits, and training",
+    "travel-entertainment": "Business travel, meals, and entertainment expenses",
     technology: "Software, hardware, and technology-related expenses",
-    "banking-finance":
-      "Banking fees, loan payments, and financial transactions",
+    "banking-finance": "Banking fees, loan payments, and financial transactions",
     "assets-capex": "Capital expenditures and asset acquisitions",
     "liabilities-debt": "Debt obligations and deferred revenue",
     taxes: "Tax payments and government fees",
@@ -466,8 +440,7 @@ export default {
     advertising: "Paid advertising and media placement costs",
     website: "Website development, hosting, and maintenance",
     events: "Trade shows, conferences, and event expenses",
-    "promotional-materials":
-      "Brochures, business cards, and marketing materials",
+    "promotional-materials": "Brochures, business cards, and marketing materials",
 
     // Child Categories - Operations
     "office-supplies": "Office materials and stationery",

@@ -12,11 +12,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-} from "@dnd-kit/sortable";
+import { arrayMove, SortableContext, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { useRef, useState } from "react";
 import type { ChartId } from "../utils/chart-types";
 
@@ -91,10 +87,7 @@ export function MetricsGrid({
                 // Start of a pair (index 1, 3, 5, etc.): create two-column row
                 const nextChartId = orderedCharts[index + 1];
                 return (
-                  <div
-                    key={`row-${chartId}`}
-                    className="grid grid-cols-1 lg:grid-cols-2 gap-6"
-                  >
+                  <div key={`row-${chartId}`} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {renderChart(chartId, index)}
                     {nextChartId ? (
                       renderChart(nextChartId, index + 1)
@@ -122,10 +115,7 @@ export function MetricsGrid({
               // Start of a pair (index 1, 3, 5, etc.): create two-column row
               const nextChartId = orderedCharts[index + 1];
               return (
-                <div
-                  key={`row-${chartId}`}
-                  className="grid grid-cols-1 lg:grid-cols-2 gap-6"
-                >
+                <div key={`row-${chartId}`} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {renderChart(chartId, index)}
                   {nextChartId ? (
                     renderChart(nextChartId, index + 1)

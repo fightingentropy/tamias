@@ -18,12 +18,9 @@ function isRetryableConnectionError(error: unknown): boolean {
     details.code ??
     details.cause?.code ??
     (typeof details.errno === "string" ? details.errno : undefined) ??
-    (typeof details.cause?.errno === "string"
-      ? details.cause.errno
-      : undefined);
+    (typeof details.cause?.errno === "string" ? details.cause.errno : undefined);
 
-  const message =
-    `${details.message ?? ""} ${details.cause?.message ?? ""}`.toUpperCase();
+  const message = `${details.message ?? ""} ${details.cause?.message ?? ""}`.toUpperCase();
 
   if (
     code &&
@@ -78,16 +75,13 @@ export async function withDbConnectionRetry<T>(
       const jitter = Math.floor(Math.random() * 100);
       const delayMs = expoDelay + jitter;
 
-      options.logger.warn(
-        "Transient DB connectivity issue, retrying operation",
-        {
-          operation: options.operationName,
-          attempt,
-          maxAttempts,
-          retryInMs: delayMs,
-          errorDetails: extractErrorDetails(error),
-        },
-      );
+      options.logger.warn("Transient DB connectivity issue, retrying operation", {
+        operation: options.operationName,
+        attempt,
+        maxAttempts,
+        retryInMs: delayMs,
+        errorDetails: extractErrorDetails(error),
+      });
 
       await sleep(delayMs);
     }

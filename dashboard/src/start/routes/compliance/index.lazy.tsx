@@ -8,15 +8,10 @@ export const Route = createLazyFileRoute("/compliance/")({
 });
 
 function CompliancePage() {
-  const loaderData = Route.useLoaderData() as Awaited<
-    ReturnType<typeof loadComplianceData>
-  >;
+  const loaderData = Route.useLoaderData() as Awaited<ReturnType<typeof loadComplianceData>>;
 
   return (
-    <AppLayoutShell
-      dehydratedState={loaderData.dehydratedState}
-      user={loaderData.user}
-    >
+    <AppLayoutShell dehydratedState={loaderData.dehydratedState} user={loaderData.user}>
       <ComplianceOverview />
     </AppLayoutShell>
   );

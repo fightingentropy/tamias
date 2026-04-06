@@ -40,9 +40,7 @@ export function evaluateYearEndFilingReadiness(args: {
   }
 
   if (!args.profile.companyNumber) {
-    blockers.push(
-      "Add the Companies House company number in the filing profile.",
-    );
+    blockers.push("Add the Companies House company number in the filing profile.");
   }
 
   if (!args.profile.utr) {
@@ -70,20 +68,13 @@ export function evaluateYearEndFilingReadiness(args: {
   } else {
     const approvalDate = parseISO(args.profile.approvalDate);
 
-    if (
-      !isValid(approvalDate) ||
-      isAfter(parseISO(args.pack.periodEnd), approvalDate)
-    ) {
-      blockers.push(
-        "The approval date must be a valid date on or after the period end.",
-      );
+    if (!isValid(approvalDate) || isAfter(parseISO(args.pack.periodEnd), approvalDate)) {
+      blockers.push("The approval date must be a valid date on or after the period end.");
     }
   }
 
   if (args.profile.averageEmployeeCount == null) {
-    blockers.push(
-      "Add the average employee count for the statutory employee disclosure.",
-    );
+    blockers.push("Add the average employee count for the statutory employee disclosure.");
   }
 
   if (args.profile.dormant == null) {
@@ -91,33 +82,22 @@ export function evaluateYearEndFilingReadiness(args: {
   }
 
   if (!args.profile.accountsPreparedUnderSmallCompaniesRegime) {
-    blockers.push(
-      "Confirm the accounts were prepared under the small companies regime.",
-    );
+    blockers.push("Confirm the accounts were prepared under the small companies regime.");
   }
 
   if (!args.profile.auditExemptionClaimed) {
-    blockers.push(
-      "Confirm the section 477 small-company audit exemption statement.",
-    );
+    blockers.push("Confirm the section 477 small-company audit exemption statement.");
   }
 
   if (!args.profile.membersDidNotRequireAudit) {
-    blockers.push(
-      "Confirm the members did not require the company to obtain an audit.",
-    );
+    blockers.push("Confirm the members did not require the company to obtain an audit.");
   }
 
   if (!args.profile.directorsAcknowledgeResponsibilities) {
-    blockers.push(
-      "Confirm the directors' Companies Act responsibility statement.",
-    );
+    blockers.push("Confirm the directors' Companies Act responsibility statement.");
   }
 
-  if (
-    args.profile.ordinaryShareCount == null ||
-    args.profile.ordinaryShareCount <= 0
-  ) {
+  if (args.profile.ordinaryShareCount == null || args.profile.ordinaryShareCount <= 0) {
     blockers.push("Add the number of ordinary shares in issue.");
   }
 
@@ -128,10 +108,7 @@ export function evaluateYearEndFilingReadiness(args: {
     blockers.push("Add the nominal value per ordinary share.");
   }
 
-  if (
-    args.profile.ordinaryShareCount != null &&
-    args.profile.ordinaryShareNominalValue != null
-  ) {
+  if (args.profile.ordinaryShareCount != null && args.profile.ordinaryShareNominalValue != null) {
     const expectedShareCapital = roundCurrency(
       args.profile.ordinaryShareCount * args.profile.ordinaryShareNominalValue,
     );
@@ -208,8 +185,7 @@ export function evaluateYearEndFilingReadiness(args: {
     }
   }
 
-  const expectedTaxableProfit =
-    computation.breakdown.totalProfitsChargeableToCorporationTax;
+  const expectedTaxableProfit = computation.breakdown.totalProfitsChargeableToCorporationTax;
   const recordedTaxableProfit = roundCurrency(
     args.corporationTax?.taxableProfit ?? expectedTaxableProfit,
   );
@@ -228,10 +204,7 @@ export function evaluateYearEndFilingReadiness(args: {
 
   if (
     args.corporationTax &&
-    Math.abs(
-      args.corporationTax.accountingProfitBeforeTax -
-        args.accountingProfitBeforeTax,
-    ) > 0.009
+    Math.abs(args.corporationTax.accountingProfitBeforeTax - args.accountingProfitBeforeTax) > 0.009
   ) {
     warnings.push(
       "The CT summary uses an accounting-profit figure that no longer matches the profit and loss schedule. Rebuild the pack before submitting.",

@@ -58,10 +58,7 @@ export function useUserMutation() {
       },
       onError: (_, __, context) => {
         // Rollback on error
-        queryClient.setQueryData(
-          trpc.user.me.queryKey(),
-          context?.previousData,
-        );
+        queryClient.setQueryData(trpc.user.me.queryKey(), context?.previousData);
       },
       onSettled: () => {
         // Refetch after error or success

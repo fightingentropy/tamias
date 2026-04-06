@@ -26,8 +26,7 @@ const getProfitAnalysisSchema = z.object({
 });
 
 export const getProfitAnalysisTool = tool({
-  description:
-    "Analyze profit (revenue minus expenses) - totals, trends, and margins.",
+  description: "Analyze profit (revenue minus expenses) - totals, trends, and margins.",
   inputSchema: getProfitAnalysisSchema,
   execute: async function* (
     { period, from, to, currency, revenueType, showCanvas },
@@ -51,18 +50,12 @@ export const getProfitAnalysisTool = tool({
     throwIfBankAccountsRequired(appContext);
 
     try {
-      const {
-        finalFrom,
-        finalTo,
-        finalCurrency,
-        description,
-        locale,
-        resolved,
-      } = resolveReportToolParams({
-        toolName: "getProfitAnalysis",
-        appContext,
-        aiParams: { period, from, to, currency, revenueType },
-      });
+      const { finalFrom, finalTo, finalCurrency, description, locale, resolved } =
+        resolveReportToolParams({
+          toolName: "getProfitAnalysis",
+          appContext,
+          aiParams: { period, from, to, currency, revenueType },
+        });
       const finalRevenueType = resolved.revenueType ?? "net";
 
       const analysis = startArtifactStream({
@@ -102,8 +95,7 @@ export const getProfitAnalysisTool = tool({
 
       const currentTotal = profitResult.summary.currentTotal;
       const prevTotal = profitResult.summary.prevTotal;
-      const targetCurrency =
-        profitResult.summary.currency || appContext.baseCurrency || "USD";
+      const targetCurrency = profitResult.summary.currency || appContext.baseCurrency || "USD";
       const monthlyData = profitResult.result || [];
 
       // Get revenue totals for metrics
@@ -127,9 +119,7 @@ export const getProfitAnalysisTool = tool({
       // Calculate year-over-year change
       const changeAmount = currentTotal - prevTotal;
       const changePercentage =
-        prevTotal !== 0
-          ? Math.round((changeAmount / Math.abs(prevTotal)) * 100)
-          : 0;
+        prevTotal !== 0 ? Math.round((changeAmount / Math.abs(prevTotal)) * 100) : 0;
       const isPositiveChange = changeAmount >= 0;
 
       // Prepare chart data for artifact
@@ -137,8 +127,7 @@ export const getProfitAnalysisTool = tool({
       const last12MonthsRevenue = revenueMonthlyData.slice(-12);
       const averageProfit =
         last12Months.length > 0
-          ? last12Months.reduce((sum, item) => sum + item.current.value, 0) /
-            last12Months.length
+          ? last12Months.reduce((sum, item) => sum + item.current.value, 0) / last12Months.length
           : 0;
 
       // Create a map of revenue data by date for quick lookup
@@ -189,68 +178,50 @@ export const getProfitAnalysisTool = tool({
 
       // Calculate metrics
       const currentMonthlyProfit =
-        last12Months.length > 0
-          ? last12Months[last12Months.length - 1]?.current.value || 0
-          : 0;
+        last12Months.length > 0 ? last12Months[last12Months.length - 1]?.current.value || 0 : 0;
       const previousMonthlyProfit =
-        last12Months.length > 0
-          ? last12Months[last12Months.length - 1]?.previous.value || 0
-          : 0;
+        last12Months.length > 0 ? last12Months[last12Months.length - 1]?.previous.value || 0 : 0;
       const currentMonthRevenue =
         revenueMonthlyData.length > 0
-          ? revenueMonthlyData[revenueMonthlyData.length - 1]?.current.value ||
-            0
+          ? revenueMonthlyData[revenueMonthlyData.length - 1]?.current.value || 0
           : 0;
 
       // Calculate profit margin using period totals (not monthly data)
       // This matches the "Current Period" metrics displayed in the canvas
-      const profitMargin =
-        currentRevenueTotal > 0
-          ? (currentTotal / currentRevenueTotal) * 100
-          : 0;
+      const profitMargin = currentRevenueTotal > 0 ? (currentTotal / currentRevenueTotal) * 100 : 0;
 
       // Calculate average monthly profit (last 6 months)
       const last6Months = last12Months.slice(-6);
       const averageMonthlyProfit =
         last6Months.length > 0
-          ? last6Months.reduce((sum, item) => sum + item.current.value, 0) /
-            last6Months.length
+          ? last6Months.reduce((sum, item) => sum + item.current.value, 0) / last6Months.length
           : 0;
 
       // Calculate revenue growth (year-over-year)
       const revenueGrowth =
         prevRevenueTotal !== 0
           ? Math.round(
-              ((currentRevenueTotal - prevRevenueTotal) /
-                Math.abs(prevRevenueTotal)) *
-                100,
+              ((currentRevenueTotal - prevRevenueTotal) / Math.abs(prevRevenueTotal)) * 100,
             )
           : 0;
 
       // Calculate current monthly profit change vs last month
       const previousMonthProfit =
-        last12Months.length > 1
-          ? last12Months[last12Months.length - 2]?.current.value || 0
-          : 0;
+        last12Months.length > 1 ? last12Months[last12Months.length - 2]?.current.value || 0 : 0;
       const monthlyProfitChange =
         previousMonthProfit !== 0
           ? Math.round(
-              ((currentMonthlyProfit - previousMonthProfit) /
-                Math.abs(previousMonthProfit)) *
-                100,
+              ((currentMonthlyProfit - previousMonthProfit) / Math.abs(previousMonthProfit)) * 100,
             )
           : 0;
 
       // Calculate expenses for current period
-      const _currentMonthlyExpenses =
-        currentMonthRevenue - currentMonthlyProfit;
+      const _currentMonthlyExpenses = currentMonthRevenue - currentMonthlyProfit;
       const previousMonthRevenue =
         revenueMonthlyData.length > 0
-          ? revenueMonthlyData[revenueMonthlyData.length - 1]?.previous.value ||
-            0
+          ? revenueMonthlyData[revenueMonthlyData.length - 1]?.previous.value || 0
           : 0;
-      const _previousMonthlyExpenses =
-        previousMonthRevenue - previousMonthlyProfit;
+      const _previousMonthlyExpenses = previousMonthRevenue - previousMonthlyProfit;
 
       // Calculate period totals (current vs previous)
       const currentPeriodTotal = {
@@ -331,8 +302,7 @@ export const getProfitAnalysisTool = tool({
 
       // Add interpretation
       if (currentTotal > 0) {
-        responseText +=
-          "Your business is profitable, generating more revenue than expenses. ";
+        responseText += "Your business is profitable, generating more revenue than expenses. ";
         if (isPositiveChange && prevTotal !== 0) {
           responseText +=
             "Profitability has improved compared to the previous period, indicating positive business growth.";

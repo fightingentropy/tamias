@@ -18,11 +18,7 @@ interface BottomBarProps {
  * Generic bottom bar for table multi-select actions
  * Appears at the bottom of the screen when items are selected
  */
-export function BottomBar({
-  selectedCount,
-  onDeselect,
-  children,
-}: BottomBarProps) {
+export function BottomBar({ selectedCount, onDeselect, children }: BottomBarProps) {
   return (
     <Portal>
       <motion.div
@@ -45,11 +41,7 @@ export function BottomBar({
             <span className="text-sm">{selectedCount} selected</span>
 
             <div className="flex items-center space-x-2">
-              <Button
-                variant="ghost"
-                className="text-muted-foreground"
-                onClick={onDeselect}
-              >
+              <Button variant="ghost" className="text-muted-foreground" onClick={onDeselect}>
                 <span>Deselect all</span>
               </Button>
 

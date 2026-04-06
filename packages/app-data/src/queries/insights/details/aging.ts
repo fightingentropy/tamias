@@ -25,16 +25,10 @@ export async function getUpcomingInvoicesForInsight(
       statuses: ["unpaid", "overdue"],
       currency: currency ?? null,
     })
-  ).filter(
-    (row) =>
-      !!row.dueDate && row.dueDate >= dueDateFrom && row.dueDate <= dueDateTo,
-  );
+  ).filter((row) => !!row.dueDate && row.dueDate >= dueDateFrom && row.dueDate <= dueDateTo);
   const row = matchingRows.length
     ? {
-        totalAmount: matchingRows.reduce(
-          (sum, aggregateRow) => sum + aggregateRow.totalAmount,
-          0,
-        ),
+        totalAmount: matchingRows.reduce((sum, aggregateRow) => sum + aggregateRow.totalAmount, 0),
         invoiceCount: matchingRows.reduce(
           (sum, aggregateRow) => sum + aggregateRow.invoiceCount,
           0,
@@ -78,10 +72,7 @@ export async function getOverdueInvoicesSummary(
   const summaryResult =
     overdueRows.length > 0
       ? {
-          totalAmount: overdueRows.reduce(
-            (sum, aggregateRow) => sum + aggregateRow.totalAmount,
-            0,
-          ),
+          totalAmount: overdueRows.reduce((sum, aggregateRow) => sum + aggregateRow.totalAmount, 0),
           invoiceCount: overdueRows.reduce(
             (sum, aggregateRow) => sum + aggregateRow.invoiceCount,
             0,
@@ -89,8 +80,7 @@ export async function getOverdueInvoicesSummary(
           oldestDueDate:
             [...overdueRows]
               .map((aggregateRow) => aggregateRow.dueDate!)
-              .sort((left, right) => left.localeCompare(right))[0] ??
-            asOfDate.toISOString(),
+              .sort((left, right) => left.localeCompare(right))[0] ?? asOfDate.toISOString(),
           currency: overdueRows[0]?.currency ?? null,
         }
       : null;

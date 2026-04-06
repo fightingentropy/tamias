@@ -49,11 +49,7 @@ export function Logo() {
           <Skeleton className="w-full h-full" />
         ) : logoUrl ? (
           <div className="max-w-[300px] h-full">
-            <img
-              src={logoUrl}
-              alt="Invoice logo"
-              className="h-full w-auto object-contain"
-            />
+            <img src={logoUrl} alt="Invoice logo" className="h-full w-auto object-contain" />
             <button
               type="button"
               className="absolute inset-0 bg-black bg-opacity-50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity flex-col gap-1"

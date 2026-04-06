@@ -1,22 +1,13 @@
 import crypto from "node:crypto";
 import { decodeProtectedHeader, importJWK, jwtVerify } from "jose";
-import {
-  Configuration,
-  type JWKPublicKey,
-  PlaidApi,
-  PlaidEnvironments,
-} from "plaid";
+import { Configuration, type JWKPublicKey, PlaidApi, PlaidEnvironments } from "plaid";
 
-const KEY_CACHE = new Map<
-  string,
-  { jwk: JWKPublicKey; expiredAt: number | null }
->();
+const KEY_CACHE = new Map<string, { jwk: JWKPublicKey; expiredAt: number | null }>();
 
 function getPlaidClient() {
   return new PlaidApi(
     new Configuration({
-      basePath:
-        PlaidEnvironments[process.env.PLAID_ENVIRONMENT ?? "production"],
+      basePath: PlaidEnvironments[process.env.PLAID_ENVIRONMENT ?? "production"],
       baseOptions: {
         headers: {
           "PLAID-CLIENT-ID": process.env.PLAID_CLIENT_ID!,
@@ -99,22 +90,15 @@ export async function validatePlaidWebhook(params: {
       maxTokenAge: "5 min",
     });
 
-    const claimedHash = (payload as Record<string, unknown>)
-      .request_body_sha256;
+    const claimedHash = (payload as Record<string, unknown>).request_body_sha256;
 
     if (!claimedHash || typeof claimedHash !== "string") {
       return false;
     }
 
-    const bodyHash = crypto
-      .createHash("sha256")
-      .update(params.body)
-      .digest("hex");
+    const bodyHash = crypto.createHash("sha256").update(params.body).digest("hex");
 
-    return crypto.timingSafeEqual(
-      Buffer.from(bodyHash),
-      Buffer.from(claimedHash),
-    );
+    return crypto.timingSafeEqual(Buffer.from(bodyHash), Buffer.from(claimedHash));
   } catch {
     return false;
   }

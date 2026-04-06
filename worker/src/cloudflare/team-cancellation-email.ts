@@ -1,8 +1,5 @@
 import { hasTeamData, isTeamStillCanceled } from "@tamias/app-data/queries";
-import {
-  getSupportFromDisplay,
-  getSupportReplyToEmail,
-} from "@tamias/utils/envs";
+import { getSupportFromDisplay, getSupportReplyToEmail } from "@tamias/utils/envs";
 import { Resend } from "resend";
 import { getDb } from "../utils/db";
 

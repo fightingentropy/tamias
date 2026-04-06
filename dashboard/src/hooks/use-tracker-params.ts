@@ -22,9 +22,7 @@ export function useTrackerParams({ initialDate }: Props = {}) {
     selectedDate: parseAsString,
     eventId: parseAsString,
     range: parseAsArrayOf(parseAsString),
-    statuses: parseAsArrayOf(
-      parseAsStringLiteral(["completed", "in_progress"]),
-    ),
+    statuses: parseAsArrayOf(parseAsStringLiteral(["completed", "in_progress"])),
     start: parseAsString,
     end: parseAsString,
     view: parseAsStringLiteral(["week", "month"]),

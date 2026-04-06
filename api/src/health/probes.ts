@@ -16,11 +16,9 @@ import type { Dependency } from "./registry";
 // Tier 1 — Core infrastructure (app breaks without these)
 // ---------------------------------------------------------------------------
 
-const convexHealthPingRef = makeFunctionReference<
-  "query",
-  Record<string, never>,
-  boolean
->("health:ping");
+const convexHealthPingRef = makeFunctionReference<"query", Record<string, never>, boolean>(
+  "health:ping",
+);
 
 /** Convex: run a no-op public query against the active deployment */
 export function convexProbe(): Dependency {
@@ -30,9 +28,7 @@ export function convexProbe(): Dependency {
     timeoutMs: 3_000,
     probe: async () => {
       const url =
-        process.env.CONVEX_URL ||
-        process.env.TAMIAS_CONVEX_URL ||
-        process.env.CONVEX_SITE_URL;
+        process.env.CONVEX_URL || process.env.TAMIAS_CONVEX_URL || process.env.CONVEX_SITE_URL;
 
       if (!url) {
         throw new Error("CONVEX_URL not set");
@@ -76,9 +72,7 @@ export function gocardlessProbe(): Dependency {
     probe: async () => {
       try {
         const provider = new Provider({ provider: "gocardless" });
-        return await provider
-          .getHealthCheck()
-          .then((h) => h.gocardless.healthy);
+        return await provider.getHealthCheck().then((h) => h.gocardless.healthy);
       } catch {
         return false;
       }
@@ -210,10 +204,7 @@ export function xeroProbe(): Dependency {
 }
 
 export function quickbooksProbe(): Dependency {
-  return oauthTokenProbe(
-    "quickbooks",
-    "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer",
-  );
+  return oauthTokenProbe("quickbooks", "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer");
 }
 
 export function fortnoxProbe(): Dependency {

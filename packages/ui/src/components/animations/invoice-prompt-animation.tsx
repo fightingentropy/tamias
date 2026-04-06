@@ -16,8 +16,7 @@ export function InvoicePromptAnimation({
   const [showInvoice, setShowInvoice] = useState(false);
   const [visibleSections, setVisibleSections] = useState<number[]>([]);
 
-  const userPrompt =
-    "Create an invoice to Acme for 20 development hours and 10 design hours";
+  const userPrompt = "Create an invoice to Acme for 20 development hours and 10 design hours";
 
   const developmentRate = 100;
   const designRate = 100;
@@ -37,10 +36,7 @@ export function InvoicePromptAnimation({
       setShowInvoice(true);
       const order = [0, 1, 2, 3, 4];
       order.forEach((sec, idx) => {
-        setTimeout(
-          () => setVisibleSections((prev) => [...prev, sec]),
-          200 + idx * 160,
-        );
+        setTimeout(() => setVisibleSections((prev) => [...prev, sec]), 200 + idx * 160);
       });
     }, 1000);
 
@@ -67,9 +63,7 @@ export function InvoicePromptAnimation({
                 showUserMessage ? "opacity-100" : "opacity-0"
               }`}
             >
-              <p className="text-[11px] md:text-[12px] text-right text-foreground">
-                {userPrompt}
-              </p>
+              <p className="text-[11px] md:text-[12px] text-right text-foreground">{userPrompt}</p>
             </div>
           </div>
 
@@ -101,23 +95,15 @@ export function InvoicePromptAnimation({
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex flex-col gap-0.5 md:gap-1">
-                      <div className="text-[11px] md:text-[12px] text-muted-foreground">
-                        From
-                      </div>
-                      <div className="text-[11px] md:text-[12px] text-foreground">
-                        Your Company
-                      </div>
+                      <div className="text-[11px] md:text-[12px] text-muted-foreground">From</div>
+                      <div className="text-[11px] md:text-[12px] text-foreground">Your Company</div>
                       <div className="text-[11px] md:text-[12px] text-muted-foreground break-all">
                         hello@company.com
                       </div>
                     </div>
                     <div className="flex flex-col gap-0.5 md:gap-1 text-right">
-                      <div className="text-[11px] md:text-[12px] text-muted-foreground">
-                        To
-                      </div>
-                      <div className="text-[11px] md:text-[12px] text-foreground">
-                        Acme
-                      </div>
+                      <div className="text-[11px] md:text-[12px] text-muted-foreground">To</div>
+                      <div className="text-[11px] md:text-[12px] text-foreground">Acme</div>
                       <div className="text-[11px] md:text-[12px] text-muted-foreground break-all">
                         billing@acme.com
                       </div>
@@ -133,12 +119,8 @@ export function InvoicePromptAnimation({
                     <div className="text-[11px] md:text-[12px] text-muted-foreground text-right">
                       Due in
                     </div>
-                    <div className="text-[11px] md:text-[12px] text-foreground">
-                      INV-001
-                    </div>
-                    <div className="text-[11px] md:text-[12px] text-foreground">
-                      Sep 29, 2025
-                    </div>
+                    <div className="text-[11px] md:text-[12px] text-foreground">INV-001</div>
+                    <div className="text-[11px] md:text-[12px] text-foreground">Sep 29, 2025</div>
                     <div className="text-[11px] md:text-[12px] text-foreground text-right">
                       14 days
                     </div>
@@ -252,15 +234,11 @@ export function InvoicePromptAnimation({
           className="border-t border-border pt-2 md:pt-3"
         >
           <div className="py-0.5 md:py-1">
-            <div className="text-[11px] md:text-[12px] text-muted-foreground">
-              Payment Details
-            </div>
+            <div className="text-[11px] md:text-[12px] text-muted-foreground">Payment Details</div>
             <div className="text-[11px] md:text-[12px] text-foreground break-words">
               Bank: Example Bank, IBAN: XX00 0000 0000 0000 0000
             </div>
-            <div className="text-[11px] md:text-[12px] text-foreground">
-              Reference: INV-001
-            </div>
+            <div className="text-[11px] md:text-[12px] text-foreground">Reference: INV-001</div>
           </div>
           <div className="mt-1.5 md:mt-2 flex items-end justify-between">
             <button

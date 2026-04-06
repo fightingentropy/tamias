@@ -1,11 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router";
 import { createAppPublicFileRoute } from "@/start/route-hosts";
 import { LogEvents } from "@/lib/telemetry/events";
 import { manualSyncTransactionsActionSchema } from "@/actions/transactions/manual-sync-transactions-action";
-import {
-  requireAuthenticatedActionUser,
-  trackAction,
-} from "@/start/server/action-auth";
+import { requireAuthenticatedActionUser, trackAction } from "@/start/server/action-auth";
 import { isNotFoundQueryError } from "@/start/server/route-data/shared";
 import { getTRPCClient } from "@/trpc/server";
 
@@ -13,9 +10,7 @@ export const Route = createAppPublicFileRoute("/api/actions/transactions/manual-
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const { connectionId } = manualSyncTransactionsActionSchema.parse(
-          await request.json(),
-        );
+        const { connectionId } = manualSyncTransactionsActionSchema.parse(await request.json());
         await requireAuthenticatedActionUser();
 
         await trackAction({

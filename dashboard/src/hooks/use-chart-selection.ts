@@ -19,10 +19,7 @@ export interface UseChartSelectionOptions {
   data: any[];
   dateKey: string;
   enabled?: boolean;
-  onSelectionChange?: (
-    startDate: string | null,
-    endDate: string | null,
-  ) => void;
+  onSelectionChange?: (startDate: string | null, endDate: string | null) => void;
   onSelectionComplete?: (startDate: string, endDate: string) => void;
 }
 
@@ -34,9 +31,7 @@ function readPlotArea(chartEl: HTMLElement | null): PlotArea | null {
     const x = Number.parseFloat(annotatedPlotArea.dataset.plotX || "0");
     const width = Number.parseFloat(annotatedPlotArea.dataset.plotWidth || "0");
     const y = Number.parseFloat(annotatedPlotArea.dataset.plotY || "0");
-    const height = Number.parseFloat(
-      annotatedPlotArea.dataset.plotHeight || "0",
-    );
+    const height = Number.parseFloat(annotatedPlotArea.dataset.plotHeight || "0");
 
     if (width > 0 && height > 0) {
       return { x, width, y, height };
@@ -144,9 +139,7 @@ export function useChartSelection({
       }));
 
       const startDate =
-        selection.startIndex !== null
-          ? getDateFromIndex(selection.startIndex)
-          : null;
+        selection.startIndex !== null ? getDateFromIndex(selection.startIndex) : null;
       const endDate = getDateFromIndex(index);
       onSelectionChange?.(startDate, endDate);
     },
@@ -195,10 +188,7 @@ export function useChartSelection({
     (e: MouseEvent) => {
       if (!enabled) return;
 
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
-      ) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setSelection({
           startIndex: null,
           endIndex: null,

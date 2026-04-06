@@ -95,11 +95,7 @@ export function DocumentActions({ showDelete = false, filePath }: Props) {
           })
         }
       >
-        {isCopied ? (
-          <Icons.Check className="size-4" />
-        ) : (
-          <Icons.Copy className="size-4" />
-        )}
+        {isCopied ? <Icons.Check className="size-4" /> : <Icons.Copy className="size-4" />}
       </Button>
 
       {showDelete && (

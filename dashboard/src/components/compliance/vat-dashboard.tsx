@@ -2,13 +2,7 @@
 
 import { Badge } from "@tamias/ui/badge";
 import { Button } from "@tamias/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@tamias/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@tamias/ui/card";
 import { Input } from "@tamias/ui/input";
 import { Label } from "@tamias/ui/label";
 import { SubmitButton } from "@tamias/ui/submit-button";
@@ -37,18 +31,14 @@ export function VatDashboard() {
   const { toast } = useToast();
   const [adjustmentAmount, setAdjustmentAmount] = useState("");
   const [adjustmentReason, setAdjustmentReason] = useState("");
-  const [adjustmentDate, setAdjustmentDate] = useState(
-    new Date().toISOString().slice(0, 10),
-  );
+  const [adjustmentDate, setAdjustmentDate] = useState(new Date().toISOString().slice(0, 10));
 
   const dashboardQuery = useQuery(trpc.vat.getDashboard.queryOptions());
   const submissionsQuery = useQuery(trpc.vat.listSubmissions.queryOptions());
   const latestDraftId = dashboardQuery.data?.latestDraft?.id;
 
   const draftQuery = useQuery({
-    ...trpc.vat.getDraft.queryOptions(
-      latestDraftId ? { vatReturnId: latestDraftId } : undefined,
-    ),
+    ...trpc.vat.getDraft.queryOptions(latestDraftId ? { vatReturnId: latestDraftId } : undefined),
     enabled: !!latestDraftId,
   });
 
@@ -75,8 +65,7 @@ export function VatDashboard() {
         await invalidateVat();
         toast({
           title: "VAT draft recalculated",
-          description:
-            "The latest VAT draft has been rebuilt from the journal layer.",
+          description: "The latest VAT draft has been rebuilt from the journal layer.",
         });
       },
     }),
@@ -102,8 +91,7 @@ export function VatDashboard() {
         await invalidateVat();
         toast({
           title: "VAT return submitted",
-          description:
-            "The latest VAT return was submitted and an evidence pack was stored.",
+          description: "The latest VAT return was submitted and an evidence pack was stored.",
         });
       },
     }),
@@ -112,17 +100,12 @@ export function VatDashboard() {
   const dashboard = dashboardQuery.data;
   const draft = draftQuery.data ?? dashboard?.latestDraft ?? null;
   const openObligation = useMemo(
-    () =>
-      dashboard?.obligations?.find(
-        (item) => item.status.toLowerCase() === "open",
-      ),
+    () => dashboard?.obligations?.find((item) => item.status.toLowerCase() === "open"),
     [dashboard?.obligations],
   );
 
   if (dashboardQuery.isLoading) {
-    return (
-      <div className="text-sm text-[#606060]">Loading VAT workspace...</div>
-    );
+    return <div className="text-sm text-[#606060]">Loading VAT workspace...</div>;
   }
 
   if (!dashboard?.profile) {
@@ -131,9 +114,8 @@ export function VatDashboard() {
         <CardHeader>
           <CardTitle>Set up your UK filing profile first</CardTitle>
           <CardDescription>
-            VAT filing is gated behind a UK Ltd filing profile so Tamias can
-            store your VRN, accounting basis, and year-end defaults separately
-            from generic team settings.
+            VAT filing is gated behind a UK Ltd filing profile so Tamias can store your VRN,
+            accounting basis, and year-end defaults separately from generic team settings.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -174,9 +156,7 @@ export function VatDashboard() {
             <div className="text-lg font-medium">
               {openObligation?.periodKey ?? "No open obligation"}
             </div>
-            <div className="text-sm text-[#606060]">
-              Due {formatDate(openObligation?.dueDate)}
-            </div>
+            <div className="text-sm text-[#606060]">Due {formatDate(openObligation?.dueDate)}</div>
           </CardContent>
         </Card>
 
@@ -202,21 +182,17 @@ export function VatDashboard() {
         <CardHeader>
           <CardTitle>Draft return</CardTitle>
           <CardDescription>
-            Rebuild the VAT draft from Tamias journals, then add any manual
-            box adjustments before filing.
+            Rebuild the VAT draft from Tamias journals, then add any manual box adjustments before
+            filing.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="secondary">
-              {draft?.periodKey ??
-                openObligation?.periodKey ??
-                "Current quarter"}
+              {draft?.periodKey ?? openObligation?.periodKey ?? "Current quarter"}
             </Badge>
             <Badge variant="outline">
-              {dashboard.profile.accountingBasis === "cash"
-                ? "Cash basis"
-                : "Accrual basis"}
+              {dashboard.profile.accountingBasis === "cash" ? "Cash basis" : "Accrual basis"}
             </Badge>
           </div>
 
@@ -229,23 +205,18 @@ export function VatDashboard() {
                 >
                   <div>
                     <div className="text-sm font-medium">{line.label}</div>
-                    <div className="text-xs text-[#606060] uppercase">
-                      {line.code}
-                    </div>
+                    <div className="text-xs text-[#606060] uppercase">{line.code}</div>
                   </div>
                   <div className="text-sm font-medium">
-                    <FormatAmount
-                      amount={line.amount}
-                      currency={draft.currency}
-                    />
+                    <FormatAmount amount={line.amount} currency={draft.currency} />
                   </div>
                 </div>
               ))}
             </div>
           ) : (
             <div className="text-sm text-[#606060]">
-              No VAT draft exists yet. Recalculate once your filing profile and
-              HMRC connection are ready.
+              No VAT draft exists yet. Recalculate once your filing profile and HMRC connection are
+              ready.
             </div>
           )}
 
@@ -265,9 +236,7 @@ export function VatDashboard() {
 
             <SubmitButton
               isSubmitting={submitReturn.isPending}
-              disabled={
-                submitReturn.isPending || !dashboard.connected || !draft?.id
-              }
+              disabled={submitReturn.isPending || !dashboard.connected || !draft?.id}
               onClick={() => {
                 if (!draft?.id) {
                   return;
@@ -276,10 +245,7 @@ export function VatDashboard() {
                 submitReturn.mutate({
                   vatReturnId: draft.id,
                   declarationAccepted: true,
-                  userAgent:
-                    typeof navigator !== "undefined"
-                      ? navigator.userAgent
-                      : undefined,
+                  userAgent: typeof navigator !== "undefined" ? navigator.userAgent : undefined,
                 });
               }}
             >
@@ -289,42 +255,21 @@ export function VatDashboard() {
 
           <div className="grid gap-4 rounded-lg border p-4 md:grid-cols-4">
             <div>
-              <div className="text-xs uppercase text-[#878787]">
-                Sales items
-              </div>
-              <div className="text-lg font-medium">
-                {draft?.salesCount ?? 0}
-              </div>
+              <div className="text-xs uppercase text-[#878787]">Sales items</div>
+              <div className="text-lg font-medium">{draft?.salesCount ?? 0}</div>
             </div>
             <div>
-              <div className="text-xs uppercase text-[#878787]">
-                Purchase items
-              </div>
-              <div className="text-lg font-medium">
-                {draft?.purchaseCount ?? 0}
-              </div>
+              <div className="text-xs uppercase text-[#878787]">Purchase items</div>
+              <div className="text-lg font-medium">{draft?.purchaseCount ?? 0}</div>
             </div>
             <div>
-              <div className="text-xs uppercase text-[#878787]">
-                Adjustments
-              </div>
-              <div className="text-lg font-medium">
-                {draft?.adjustmentCount ?? 0}
-              </div>
+              <div className="text-xs uppercase text-[#878787]">Adjustments</div>
+              <div className="text-lg font-medium">{draft?.adjustmentCount ?? 0}</div>
             </div>
             <div>
-              <div className="text-xs uppercase text-[#878787]">
-                Net VAT due
-              </div>
+              <div className="text-xs uppercase text-[#878787]">Net VAT due</div>
               <div className="text-lg font-medium">
-                {draft ? (
-                  <FormatAmount
-                    amount={draft.netVatDue}
-                    currency={draft.currency}
-                  />
-                ) : (
-                  "-"
-                )}
+                {draft ? <FormatAmount amount={draft.netVatDue} currency={draft.currency} /> : "-"}
               </div>
             </div>
           </div>
@@ -335,8 +280,8 @@ export function VatDashboard() {
         <CardHeader>
           <CardTitle>Add manual adjustment</CardTitle>
           <CardDescription>
-            This writes a compliance adjustment against the draft period and
-            immediately recalculates the return.
+            This writes a compliance adjustment against the draft period and immediately
+            recalculates the return.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-3">
@@ -398,8 +343,8 @@ export function VatDashboard() {
         <CardHeader>
           <CardTitle>Submission history</CardTitle>
           <CardDescription>
-            Evidence packs are created on submission and can be fetched from the
-            API for audit reproduction.
+            Evidence packs are created on submission and can be fetched from the API for audit
+            reproduction.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -429,9 +374,7 @@ export function VatDashboard() {
               </div>
             ))
           ) : (
-            <div className="text-sm text-[#606060]">
-              No VAT submissions have been recorded yet.
-            </div>
+            <div className="text-sm text-[#606060]">No VAT submissions have been recorded yet.</div>
           )}
         </CardContent>
       </Card>

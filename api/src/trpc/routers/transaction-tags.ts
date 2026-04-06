@@ -1,7 +1,4 @@
-import {
-  createTransactionTag,
-  deleteTransactionTag,
-} from "@tamias/app-data/queries";
+import { createTransactionTag, deleteTransactionTag } from "@tamias/app-data/queries";
 import {
   createTransactionTagSchema,
   deleteTransactionTagSchema,

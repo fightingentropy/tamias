@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  horizontalListSortingStrategy,
-  SortableContext,
-} from "@dnd-kit/sortable";
+import { horizontalListSortingStrategy, SortableContext } from "@dnd-kit/sortable";
 import { Button } from "@tamias/ui/button";
 import { Checkbox } from "@tamias/ui/checkbox";
 import { TableHead, TableHeader, TableRow } from "@tamias/ui/table";
@@ -20,11 +17,7 @@ import { DraggableHeader } from "@/components/tables/draggable-header";
 import { ResizeHandle } from "@/components/tables/resize-handle";
 import { useSortQuery } from "@/hooks/use-sort-query";
 import { useStickyColumns } from "@/hooks/use-sticky-columns";
-import {
-  NON_REORDERABLE_COLUMNS,
-  SORT_FIELD_MAPS,
-  STICKY_COLUMNS,
-} from "@/utils/table-configs";
+import { NON_REORDERABLE_COLUMNS, SORT_FIELD_MAPS, STICKY_COLUMNS } from "@/utils/table-configs";
 
 interface Props<TData> {
   table?: Table<TData>;
@@ -32,11 +25,7 @@ interface Props<TData> {
   tableScroll?: TableScrollState;
 }
 
-export function DataTableHeader<TData>({
-  table,
-  loading,
-  tableScroll,
-}: Props<TData>) {
+export function DataTableHeader<TData>({ table, loading, tableScroll }: Props<TData>) {
   const { sortColumn, sortValue, createSortQuery } = useSortQuery();
 
   // Use the reusable sticky columns hook
@@ -66,18 +55,14 @@ export function DataTableHeader<TData>({
           key={headerGroup.id}
           className="h-[45px] hover:bg-transparent flex items-center !border-b-0 min-w-full"
         >
-          <SortableContext
-            items={sortableColumnIds}
-            strategy={horizontalListSortingStrategy}
-          >
+          <SortableContext items={sortableColumnIds} strategy={horizontalListSortingStrategy}>
             {headerGroup.headers.map((header, headerIndex, headers) => {
               const columnId = header.column.id;
               const meta = header.column.columnDef.meta as
                 | { sticky?: boolean; className?: string }
                 | undefined;
               const isSticky = meta?.sticky;
-              const canReorder =
-                !NON_REORDERABLE_COLUMNS.transactions.has(columnId);
+              const canReorder = !NON_REORDERABLE_COLUMNS.transactions.has(columnId);
               const isActions = columnId === "actions";
 
               if (!isVisible(columnId)) return null;
@@ -86,9 +71,7 @@ export function DataTableHeader<TData>({
               const hasNonStickyVisible = headers.some((h) => {
                 if (h.column.id === "actions") return false;
                 if (!isVisible(h.column.id)) return false;
-                const hMeta = h.column.columnDef.meta as
-                  | { sticky?: boolean }
-                  | undefined;
+                const hMeta = h.column.columnDef.meta as { sticky?: boolean } | undefined;
                 return !hMeta?.sticky;
               });
               const actionsFullWidth = isActions && !hasNonStickyVisible;
@@ -97,8 +80,7 @@ export function DataTableHeader<TData>({
               const isLastBeforeActions =
                 headerIndex === headers.length - 2 &&
                 headers[headers.length - 1]?.column.id === "actions";
-              const shouldFlex =
-                (isLastBeforeActions && !isSticky) || actionsFullWidth;
+              const shouldFlex = (isLastBeforeActions && !isSticky) || actionsFullWidth;
 
               const headerStyle = {
                 width: actionsFullWidth ? undefined : header.getSize(),
@@ -107,11 +89,7 @@ export function DataTableHeader<TData>({
                   : isSticky
                     ? header.getSize()
                     : header.column.columnDef.minSize,
-                maxWidth: actionsFullWidth
-                  ? undefined
-                  : isSticky
-                    ? header.getSize()
-                    : undefined,
+                maxWidth: actionsFullWidth ? undefined : isSticky ? header.getSize() : undefined,
                 ...(!actionsFullWidth && getStickyStyle(columnId)),
                 ...(shouldFlex && { flex: 1 }),
               };
@@ -129,11 +107,7 @@ export function DataTableHeader<TData>({
                   : `${stickyClass} bg-background z-10`;
 
                 return (
-                  <TableHead
-                    key={header.id}
-                    className={finalClassName}
-                    style={headerStyle}
-                  >
+                  <TableHead key={header.id} className={finalClassName} style={headerStyle}>
                     {renderHeaderContent(
                       header,
                       columnId,
@@ -168,9 +142,7 @@ export function DataTableHeader<TData>({
                     table,
                     tableScroll,
                   )}
-                  {header.column.getCanResize() && (
-                    <ResizeHandle header={header} />
-                  )}
+                  {header.column.getCanResize() && <ResizeHandle header={header} />}
                 </DraggableHeader>
               );
             })}
@@ -200,8 +172,7 @@ function renderHeaderContent<TData>(
     return (
       <Checkbox
         checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+          table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
       />
@@ -210,21 +181,14 @@ function renderHeaderContent<TData>(
 
   // Actions column - static text
   if (columnId === "actions") {
-    return (
-      <span className="text-muted-foreground w-full text-center">Actions</span>
-    );
+    return <span className="text-muted-foreground w-full text-center">Actions</span>;
   }
 
   // Non-sortable columns
-  if (
-    columnId === "taxAmount" ||
-    columnId === "baseAmount" ||
-    columnId === "baseTaxAmount"
-  ) {
+  if (columnId === "taxAmount" || columnId === "baseAmount" || columnId === "baseTaxAmount") {
     return (
       <span className="truncate">
-        {header.column.columnDef.meta?.headerLabel ??
-          (header.column.columnDef.header as string)}
+        {header.column.columnDef.meta?.headerLabel ?? (header.column.columnDef.header as string)}
       </span>
     );
   }
@@ -272,9 +236,7 @@ function renderHeaderContent<TData>(
   }
 
   // Fallback - just render the header text
-  return (
-    <span className="truncate">{header.column.columnDef.header as string}</span>
-  );
+  return <span className="truncate">{header.column.columnDef.header as string}</span>;
 }
 
 function SortButton({
@@ -300,12 +262,8 @@ function SortButton({
       }}
     >
       <span className="truncate">{label}</span>
-      {sortField === currentSortColumn && currentSortValue === "asc" && (
-        <ArrowDown size={16} />
-      )}
-      {sortField === currentSortColumn && currentSortValue === "desc" && (
-        <ArrowUp size={16} />
-      )}
+      {sortField === currentSortColumn && currentSortValue === "asc" && <ArrowDown size={16} />}
+      {sortField === currentSortColumn && currentSortValue === "desc" && <ArrowUp size={16} />}
     </Button>
   );
 }

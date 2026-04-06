@@ -1,17 +1,7 @@
-import {
-  createAsyncRunInConvex,
-  updateAsyncRunInConvex,
-} from "@tamias/app-data-convex";
-import {
-  getTeamById,
-  refreshTeamBaseCurrencyData,
-  updateTeamById,
-} from "@tamias/app-data/queries";
+import { createAsyncRunInConvex, updateAsyncRunInConvex } from "@tamias/app-data-convex";
+import { getTeamById, refreshTeamBaseCurrencyData, updateTeamById } from "@tamias/app-data/queries";
 import { enqueue } from "@tamias/job-client";
-import {
-  updateBaseCurrencySchema,
-  updateTeamByIdSchema,
-} from "../../schemas/team";
+import { updateBaseCurrencySchema, updateTeamByIdSchema } from "../../schemas/team";
 import { protectedProcedure } from "../init";
 
 export const teamSettingProcedures = {

@@ -22,9 +22,7 @@ export function TeamIdSection() {
     <Card>
       <CardHeader>
         <CardTitle>Team ID</CardTitle>
-        <CardDescription>
-          This is your team's unique identifier within Tamias.
-        </CardDescription>
+        <CardDescription>This is your team's unique identifier within Tamias.</CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -32,9 +30,7 @@ export function TeamIdSection() {
       </CardContent>
 
       <CardFooter>
-        <p className="text-xs text-muted-foreground">
-          Used when interacting with the Tamias API.
-        </p>
+        <p className="text-xs text-muted-foreground">Used when interacting with the Tamias API.</p>
       </CardFooter>
     </Card>
   );

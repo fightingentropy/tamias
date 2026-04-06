@@ -1,14 +1,6 @@
 import type { AccountingProvider } from "./provider";
-import type {
-  AccountingProviderConfig,
-  AccountingProviderId,
-  ProviderInitConfig,
-} from "./types";
-import {
-  FORTNOX_SCOPES,
-  QUICKBOOKS_SCOPES,
-  XERO_SCOPES,
-} from "./scopes";
+import type { AccountingProviderConfig, AccountingProviderId, ProviderInitConfig } from "./types";
+import { FORTNOX_SCOPES, QUICKBOOKS_SCOPES, XERO_SCOPES } from "./scopes";
 
 export * from "./provider";
 export { FORTNOX_SCOPES, QUICKBOOKS_SCOPES, XERO_SCOPES };
@@ -112,11 +104,7 @@ export async function getAccountingProvider(
  * Check if a provider is currently supported
  */
 export function isProviderSupported(providerId: string): boolean {
-  return (
-    providerId === "xero" ||
-    providerId === "quickbooks" ||
-    providerId === "fortnox"
-  );
+  return providerId === "xero" || providerId === "quickbooks" || providerId === "fortnox";
 }
 
 /**

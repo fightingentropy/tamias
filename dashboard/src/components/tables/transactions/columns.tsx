@@ -55,9 +55,8 @@ const SelectCell = memo(
 
 SelectCell.displayName = "SelectCell";
 
-const DateCell = memo(
-  ({ date, format }: { date: string; format?: string | null }) =>
-    formatDate(date, format),
+const DateCell = memo(({ date, format }: { date: string; format?: string | null }) =>
+  formatDate(date, format),
 );
 
 DateCell.displayName = "DateCell";
@@ -79,9 +78,7 @@ const DescriptionCell = memo(
         <TooltipTrigger asChild>
           <span className={cn(amount > 0 && "text-[#00C969]")}>
             <div className="flex space-x-2 items-center">
-              <span className="line-clamp-1 text-ellipsis max-w-[100px] md:max-w-none">
-                {name}
-              </span>
+              <span className="line-clamp-1 text-ellipsis max-w-[100px] md:max-w-none">{name}</span>
 
               {status === "pending" && (
                 <div className="flex space-x-1 items-center border rounded-md text-[10px] py-1 px-2 h-[22px] text-[#878787]">
@@ -108,34 +105,26 @@ const DescriptionCell = memo(
 
 DescriptionCell.displayName = "DescriptionCell";
 
-const AmountCell = memo(
-  ({ amount, currency }: { amount: number; currency: string }) => (
-    <span className={cn("text-sm", amount > 0 && "text-[#00C969]")}>
-      <FormatAmount amount={amount} currency={currency} />
-    </span>
-  ),
-);
+const AmountCell = memo(({ amount, currency }: { amount: number; currency: string }) => (
+  <span className={cn("text-sm", amount > 0 && "text-[#00C969]")}>
+    <FormatAmount amount={amount} currency={currency} />
+  </span>
+));
 
 AmountCell.displayName = "AmountCell";
 
-const TagsCell = memo(
-  ({ tags }: { tags?: { id: string; name: string | null }[] }) => (
-    <div className="relative w-full">
-      <div className="flex items-center space-x-2 overflow-x-auto scrollbar-hide">
-        {tags?.map(({ id, name }) => (
-          <Badge
-            key={id}
-            variant="tag-rounded"
-            className="whitespace-nowrap flex-shrink-0"
-          >
-            {name}
-          </Badge>
-        ))}
-      </div>
-      <div className="group-hover:hidden right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none z-10" />
+const TagsCell = memo(({ tags }: { tags?: { id: string; name: string | null }[] }) => (
+  <div className="relative w-full">
+    <div className="flex items-center space-x-2 overflow-x-auto scrollbar-hide">
+      {tags?.map(({ id, name }) => (
+        <Badge key={id} variant="tag-rounded" className="whitespace-nowrap flex-shrink-0">
+          {name}
+        </Badge>
+      ))}
     </div>
-  ),
-);
+    <div className="group-hover:hidden right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none z-10" />
+  </div>
+));
 
 TagsCell.displayName = "TagsCell";
 
@@ -208,61 +197,35 @@ const ActionsCell = memo(
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={handleViewDetails}>
-              View details
-            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleViewDetails}>View details</DropdownMenuItem>
             {transaction.manual && (
-              <DropdownMenuItem onClick={handleEditTransaction}>
-                Edit
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleEditTransaction}>Edit</DropdownMenuItem>
             )}
-            <DropdownMenuItem onClick={handleCopyUrl}>
-              Copy link
-            </DropdownMenuItem>
-            {(isWorkflowActive || transaction.status === "excluded") && (
-              <DropdownMenuSeparator />
-            )}
+            <DropdownMenuItem onClick={handleCopyUrl}>Copy link</DropdownMenuItem>
+            {(isWorkflowActive || transaction.status === "excluded") && <DropdownMenuSeparator />}
 
             {isWorkflowActive && !transaction.isFulfilled && (
-              <DropdownMenuItem onClick={handleUpdateToCompleted}>
-                Mark ready
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleUpdateToCompleted}>Mark ready</DropdownMenuItem>
             )}
 
-            {isWorkflowActive &&
-              transaction.isFulfilled &&
-              transaction.status === "completed" && (
-                <DropdownMenuItem onClick={handleUpdateToPosted}>
-                  Unmark ready
-                </DropdownMenuItem>
-              )}
+            {isWorkflowActive && transaction.isFulfilled && transaction.status === "completed" && (
+              <DropdownMenuItem onClick={handleUpdateToPosted}>Unmark ready</DropdownMenuItem>
+            )}
 
-            {isWorkflowActive &&
-              !transaction.isExported &&
-              transaction.status !== "exported" && (
-                <DropdownMenuItem onClick={handleUpdateToExported}>
-                  Mark exported
-                </DropdownMenuItem>
-              )}
+            {isWorkflowActive && !transaction.isExported && transaction.status !== "exported" && (
+              <DropdownMenuItem onClick={handleUpdateToExported}>Mark exported</DropdownMenuItem>
+            )}
 
-            {isWorkflowActive &&
-              (transaction.isExported || transaction.status === "exported") && (
-                <DropdownMenuItem onClick={handleMoveToReview}>
-                  Unmark exported
-                </DropdownMenuItem>
-              )}
+            {isWorkflowActive && (transaction.isExported || transaction.status === "exported") && (
+              <DropdownMenuItem onClick={handleMoveToReview}>Unmark exported</DropdownMenuItem>
+            )}
 
             {!transaction.manual && transaction.status === "excluded" && (
-              <DropdownMenuItem onClick={handleUpdateToPosted}>
-                Include
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleUpdateToPosted}>Include</DropdownMenuItem>
             )}
 
             {transaction.manual && (
-              <DropdownMenuItem
-                className="text-destructive"
-                onClick={handleDeleteTransaction}
-              >
+              <DropdownMenuItem className="text-destructive" onClick={handleDeleteTransaction}>
                 Delete
               </DropdownMenuItem>
             )}
@@ -336,10 +299,7 @@ export const columns: ColumnDef<Transaction>[] = [
         "w-[110px] min-w-[110px] md:sticky md:left-[var(--stick-left)] bg-background group-hover:bg-[#F2F1EF] group-hover:dark:bg-[#0f0f0f] z-10",
     },
     cell: ({ row, table }) => (
-      <DateCell
-        date={row.original.date}
-        format={table.options.meta?.dateFormat}
-      />
+      <DateCell date={row.original.date} format={table.options.meta?.dateFormat} />
     ),
   },
   {
@@ -377,12 +337,7 @@ export const columns: ColumnDef<Transaction>[] = [
       headerLabel: "Amount",
       className: "w-[170px] min-w-[100px]",
     },
-    cell: ({ row }) => (
-      <AmountCell
-        amount={row.original.amount}
-        currency={row.original.currency}
-      />
-    ),
+    cell: ({ row }) => <AmountCell amount={row.original.amount} currency={row.original.currency} />,
   },
   {
     accessorKey: "taxAmount",
@@ -403,13 +358,7 @@ export const columns: ColumnDef<Transaction>[] = [
         return <span className="text-muted-foreground">-</span>;
       }
 
-      return (
-        <FormatAmount
-          amount={taxAmount}
-          currency={currency}
-          maximumFractionDigits={2}
-        />
-      );
+      return <FormatAmount amount={taxAmount} currency={currency} maximumFractionDigits={2} />;
     },
   },
   {
@@ -438,11 +387,7 @@ export const columns: ColumnDef<Transaction>[] = [
               <FormatAmount amount={baseAmount} currency={baseCurrency} />
             </span>
           </TooltipTrigger>
-          <TooltipContent
-            className="px-3 py-1.5 text-xs max-w-[280px]"
-            side="top"
-            sideOffset={5}
-          >
+          <TooltipContent className="px-3 py-1.5 text-xs max-w-[280px]" side="top" sideOffset={5}>
             Approximate amount converted to your base currency.
           </TooltipContent>
         </Tooltip>
@@ -462,15 +407,9 @@ export const columns: ColumnDef<Transaction>[] = [
       className: "w-[170px] min-w-[100px]",
     },
     cell: ({ row }) => {
-      const { taxAmount, taxRate, amount, baseAmount, baseCurrency, currency } =
-        row.original;
+      const { taxAmount, taxRate, amount, baseAmount, baseCurrency, currency } = row.original;
 
-      if (
-        baseAmount == null ||
-        !baseCurrency ||
-        baseCurrency === currency ||
-        taxAmount == null
-      ) {
+      if (baseAmount == null || !baseCurrency || baseCurrency === currency || taxAmount == null) {
         return <span className="text-muted-foreground">-</span>;
       }
 
@@ -491,18 +430,10 @@ export const columns: ColumnDef<Transaction>[] = [
         <Tooltip>
           <TooltipTrigger asChild>
             <span>
-              <FormatAmount
-                amount={baseTax}
-                currency={baseCurrency}
-                maximumFractionDigits={2}
-              />
+              <FormatAmount amount={baseTax} currency={baseCurrency} maximumFractionDigits={2} />
             </span>
           </TooltipTrigger>
-          <TooltipContent
-            className="px-3 py-1.5 text-xs max-w-[280px]"
-            side="top"
-            sideOffset={5}
-          >
+          <TooltipContent className="px-3 py-1.5 text-xs max-w-[280px]" side="top" sideOffset={5}>
             Approximate tax amount converted to your base currency.
           </TooltipContent>
         </Tooltip>
@@ -532,11 +463,7 @@ export const columns: ColumnDef<Transaction>[] = [
                 <span className="text-[#878787] text-sm">Analyzing</span>
               </div>
             </TooltipTrigger>
-            <TooltipContent
-              className="px-3 py-1.5 text-xs max-w-[280px]"
-              side="top"
-              sideOffset={5}
-            >
+            <TooltipContent className="px-3 py-1.5 text-xs max-w-[280px]" side="top" sideOffset={5}>
               Analyzing transaction details to determine the best category.
             </TooltipContent>
           </Tooltip>
@@ -581,9 +508,7 @@ export const columns: ColumnDef<Transaction>[] = [
       className: "w-[200px] min-w-[120px]",
     },
     cell: ({ row }) => (
-      <span className="text-muted-foreground">
-        {row.original.counterpartyName ?? "-"}
-      </span>
+      <span className="text-muted-foreground">{row.original.counterpartyName ?? "-"}</span>
     ),
   },
   {
@@ -599,10 +524,7 @@ export const columns: ColumnDef<Transaction>[] = [
       className: "w-[280px] min-w-[150px]",
     },
     cell: ({ row }) => (
-      <InlineSelectTags
-        transactionId={row.original.id}
-        tags={row.original.tags}
-      />
+      <InlineSelectTags transactionId={row.original.id} tags={row.original.tags} />
     ),
   },
   {
@@ -694,9 +616,7 @@ export const columns: ColumnDef<Transaction>[] = [
       return (
         <TransactionStatus
           rawStatus={row.original.status}
-          isFulfilled={
-            row.original.status === "completed" || row.original.isFulfilled
-          }
+          isFulfilled={row.original.status === "completed" || row.original.isFulfilled}
           isExported={row.original.isExported ?? false}
           hasExportError={row.original.hasExportError}
           exportErrorCode={row.original.exportErrorCode}

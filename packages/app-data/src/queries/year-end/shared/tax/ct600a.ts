@@ -25,9 +25,7 @@ function sumCloseCompanyLoanAmounts(
     amountOfLoan: number;
   }>,
 ) {
-  return roundCurrency(
-    entries.reduce((total, entry) => total + entry.amountOfLoan, 0),
-  );
+  return roundCurrency(entries.reduce((total, entry) => total + entry.amountOfLoan, 0));
 }
 
 function sumCloseCompanyLoanReliefAmounts(
@@ -37,9 +35,7 @@ function sumCloseCompanyLoanReliefAmounts(
   }>,
   key: "amountRepaid" | "amountReleasedOrWrittenOff",
 ) {
-  return roundCurrency(
-    entries.reduce((total, entry) => total + (entry[key] ?? 0), 0),
-  );
+  return roundCurrency(entries.reduce((total, entry) => total + (entry[key] ?? 0), 0));
 }
 
 function buildCt600aReliefSection(args: {
@@ -50,17 +46,12 @@ function buildCt600aReliefSection(args: {
     return null;
   }
 
-  const totalAmountRepaid = sumCloseCompanyLoanReliefAmounts(
-    args.entries,
-    "amountRepaid",
-  );
+  const totalAmountRepaid = sumCloseCompanyLoanReliefAmounts(args.entries, "amountRepaid");
   const totalAmountReleasedOrWritten = sumCloseCompanyLoanReliefAmounts(
     args.entries,
     "amountReleasedOrWrittenOff",
   );
-  const totalLoans = roundCurrency(
-    totalAmountRepaid + totalAmountReleasedOrWritten,
-  );
+  const totalLoans = roundCurrency(totalAmountRepaid + totalAmountReleasedOrWritten);
 
   return {
     loans: args.entries.map((entry) => ({
@@ -85,9 +76,7 @@ export function buildCt600aSupplement(
   }
 
   const loansInformation =
-    schedule.loansMade.length > 0 &&
-    schedule.taxChargeable != null &&
-    schedule.taxChargeable > 0
+    schedule.loansMade.length > 0 && schedule.taxChargeable != null && schedule.taxChargeable > 0
       ? {
           loans: schedule.loansMade.map((entry) => ({
             name: entry.name,
@@ -120,8 +109,7 @@ export function buildCt600aSupplement(
     reliefEarlierThan,
     loanLaterReliefNow,
     totalLoansOutstanding:
-      schedule.totalLoansOutstanding != null &&
-      schedule.totalLoansOutstanding > 0
+      schedule.totalLoansOutstanding != null && schedule.totalLoansOutstanding > 0
         ? schedule.totalLoansOutstanding
         : null,
     taxPayable,

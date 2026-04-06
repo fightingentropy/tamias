@@ -14,10 +14,7 @@ type MiniChartProps = {
   className?: string;
 };
 
-export function MiniLineChart({
-  data,
-  className,
-}: MiniChartProps & { data: MiniLinePoint[] }) {
+export function MiniLineChart({ data, className }: MiniChartProps & { data: MiniLinePoint[] }) {
   const points = useMemo(() => {
     if (data.length === 0) {
       return "";
@@ -31,8 +28,7 @@ export function MiniLineChart({
 
     return data
       .map((item, index) => {
-        const x =
-          data.length === 1 ? width / 2 : (index / (data.length - 1)) * width;
+        const x = data.length === 1 ? width / 2 : (index / (data.length - 1)) * width;
         const y = height - ((item.value - minValue) / range) * (height - 2) - 1;
         return `${x},${y}`;
       })
@@ -44,12 +40,7 @@ export function MiniLineChart({
   }
 
   return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 100 32"
-      preserveAspectRatio="none"
-      className={className}
-    >
+    <svg aria-hidden="true" viewBox="0 0 100 32" preserveAspectRatio="none" className={className}>
       <polyline
         fill="none"
         points={points}
@@ -62,10 +53,7 @@ export function MiniLineChart({
   );
 }
 
-export function MiniBarChart({
-  data,
-  className,
-}: MiniChartProps & { data: MiniBarPoint[] }) {
+export function MiniBarChart({ data, className }: MiniChartProps & { data: MiniBarPoint[] }) {
   const chart = useMemo(() => {
     if (data.length === 0) {
       return null;
@@ -90,7 +78,7 @@ export function MiniBarChart({
       return {
         x,
         y,
-          height: barHeight,
+        height: barHeight,
       };
     });
 
@@ -102,12 +90,7 @@ export function MiniBarChart({
   }
 
   return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 100 40"
-      preserveAspectRatio="none"
-      className={className}
-    >
+    <svg aria-hidden="true" viewBox="0 0 100 40" preserveAspectRatio="none" className={className}>
       <line
         x1="0"
         x2="100"

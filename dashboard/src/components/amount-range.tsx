@@ -4,12 +4,7 @@ import { Button } from "@tamias/ui/button";
 import { CurrencyInput } from "@tamias/ui/currency-input";
 import { Label } from "@tamias/ui/label";
 import { RadioGroup, RadioGroupItem } from "@tamias/ui/radio-group";
-import {
-  parseAsArrayOf,
-  parseAsInteger,
-  parseAsStringLiteral,
-  useQueryState,
-} from "nuqs";
+import { parseAsArrayOf, parseAsInteger, parseAsStringLiteral, useQueryState } from "nuqs";
 import { useState } from "react";
 
 type TypeValue = "income" | "expense" | "any";
@@ -27,15 +22,9 @@ export function AmountRange() {
 
   // Local state for inputs (before applying)
   const [typeValue, setTypeValue] = useState<TypeValue>(
-    typeFilter === "income"
-      ? "income"
-      : typeFilter === "expense"
-        ? "expense"
-        : "any",
+    typeFilter === "income" ? "income" : typeFilter === "expense" ? "expense" : "any",
   );
-  const [minAmount, setMinAmount] = useState<string>(
-    amountRange?.[0]?.toString() ?? "",
-  );
+  const [minAmount, setMinAmount] = useState<string>(amountRange?.[0]?.toString() ?? "");
   const [maxAmount, setMaxAmount] = useState<string>(() => {
     const max = amountRange?.[1];
     // Don't display the sentinel value used for "no max" filtering
@@ -74,30 +63,19 @@ export function AmountRange() {
         >
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="income" id="type-in" />
-            <Label
-              htmlFor="type-in"
-              className="text-sm font-normal cursor-pointer"
-            >
-              In{" "}
-              <span className="text-[#878787]">(e.g. deposits, refunds)</span>
+            <Label htmlFor="type-in" className="text-sm font-normal cursor-pointer">
+              In <span className="text-[#878787]">(e.g. deposits, refunds)</span>
             </Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="expense" id="type-out" />
-            <Label
-              htmlFor="type-out"
-              className="text-sm font-normal cursor-pointer"
-            >
-              Out{" "}
-              <span className="text-[#878787]">(e.g. purchases, charges)</span>
+            <Label htmlFor="type-out" className="text-sm font-normal cursor-pointer">
+              Out <span className="text-[#878787]">(e.g. purchases, charges)</span>
             </Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="any" id="type-any" />
-            <Label
-              htmlFor="type-any"
-              className="text-sm font-normal cursor-pointer"
-            >
+            <Label htmlFor="type-any" className="text-sm font-normal cursor-pointer">
               Not specified <span className="text-[#878787]">(both)</span>
             </Label>
           </div>
@@ -108,9 +86,7 @@ export function AmountRange() {
       <div className="space-y-2">
         <Label className="text-xs text-[#878787]">At least...</Label>
         <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#878787] text-sm">
-            ≥
-          </span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#878787] text-sm">≥</span>
           <CurrencyInput
             className="w-full pl-7 text-sm"
             type="text"
@@ -128,9 +104,7 @@ export function AmountRange() {
       <div className="space-y-2">
         <Label className="text-xs text-[#878787]">No more than...</Label>
         <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#878787] text-sm">
-            ≤
-          </span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#878787] text-sm">≤</span>
           <CurrencyInput
             className="w-full pl-7 text-sm"
             type="text"
@@ -145,11 +119,7 @@ export function AmountRange() {
       </div>
 
       {/* Apply button */}
-      <Button
-        className="w-full text-xs"
-        variant="outline"
-        onClick={handleApplyFilters}
-      >
+      <Button className="w-full text-xs" variant="outline" onClick={handleApplyFilters}>
         Apply
       </Button>
     </div>

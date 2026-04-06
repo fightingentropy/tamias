@@ -1,15 +1,9 @@
 import { getPublicInvoicesPageFromConvex } from "@tamias/app-data-convex";
 import type { InvoiceStatus } from "../../invoice-projections";
-import {
-  type ProjectedInvoiceRecord,
-  getProjectedInvoicePayload,
-} from "../shared";
+import { type ProjectedInvoiceRecord, getProjectedInvoicePayload } from "../shared";
 import type { GetInvoicesParams } from "../types";
 import { getValidInvoiceStatuses } from "./common";
-import {
-  buildInvoicePageResponse,
-  getProjectedInvoicesByIdsInOrder,
-} from "./records";
+import { buildInvoicePageResponse, getProjectedInvoicesByIdsInOrder } from "./records";
 
 const INDEXED_INVOICE_CURSOR_PREFIX = "invoice:";
 
@@ -32,20 +26,15 @@ export function decodeIndexedInvoiceCursor(
 
   try {
     const parsed = JSON.parse(
-      Buffer.from(
-        cursor.slice(INDEXED_INVOICE_CURSOR_PREFIX.length),
-        "base64url",
-      ).toString("utf8"),
+      Buffer.from(cursor.slice(INDEXED_INVOICE_CURSOR_PREFIX.length), "base64url").toString("utf8"),
     ) as Partial<IndexedInvoiceCursorState>;
 
     return {
-      sourceCursor:
-        typeof parsed.sourceCursor === "string" ? parsed.sourceCursor : null,
+      sourceCursor: typeof parsed.sourceCursor === "string" ? parsed.sourceCursor : null,
       sourceExhausted: parsed.sourceExhausted === true,
       bufferedIds: Array.isArray(parsed.bufferedIds)
         ? parsed.bufferedIds.filter(
-            (bufferedId): bufferedId is string =>
-              typeof bufferedId === "string",
+            (bufferedId): bufferedId is string => typeof bufferedId === "string",
           )
         : [],
     };
@@ -59,10 +48,9 @@ export function decodeIndexedInvoiceCursor(
 }
 
 export function encodeIndexedInvoiceCursor(state: IndexedInvoiceCursorState) {
-  return `${INDEXED_INVOICE_CURSOR_PREFIX}${Buffer.from(
-    JSON.stringify(state),
-    "utf8",
-  ).toString("base64url")}`;
+  return `${INDEXED_INVOICE_CURSOR_PREFIX}${Buffer.from(JSON.stringify(state), "utf8").toString(
+    "base64url",
+  )}`;
 }
 
 export function getIndexedInvoiceOrder(sort: GetInvoicesParams["sort"]) {
@@ -76,10 +64,7 @@ export function getIndexedInvoiceOrder(sort: GetInvoicesParams["sort"]) {
 
   const [column, direction] = sort;
 
-  if (
-    column !== "created_at" ||
-    (direction !== "asc" && direction !== "desc")
-  ) {
+  if (column !== "created_at" || (direction !== "asc" && direction !== "desc")) {
     return null;
   }
 
@@ -101,8 +86,7 @@ function requiresIndexedInvoiceCandidateFiltering(args: {
     args.validStatuses.length > 1 ||
     Boolean(args.customers?.length) ||
     Boolean(args.start && args.end) ||
-    args.recurring !== null &&
-      args.recurring !== undefined
+    (args.recurring !== null && args.recurring !== undefined)
   );
 }
 
@@ -130,19 +114,12 @@ export function matchesIndexedInvoiceCandidate(
     recurring: GetInvoicesParams["recurring"];
   },
 ) {
-  if (
-    args.validStatuses.length > 0 &&
-    !args.validStatuses.includes(invoice.status)
-  ) {
+  if (args.validStatuses.length > 0 && !args.validStatuses.includes(invoice.status)) {
     return false;
   }
 
   if (args.start && args.end) {
-    if (
-      !invoice.dueDate ||
-      invoice.dueDate < args.start ||
-      invoice.dueDate > args.end
-    ) {
+    if (!invoice.dueDate || invoice.dueDate < args.start || invoice.dueDate > args.end) {
       return false;
     }
   }
@@ -179,8 +156,7 @@ export async function getIndexedInvoicesPage(params: GetInvoicesParams) {
     recurring,
   } = params;
   const validStatuses = getValidInvoiceStatuses(statuses);
-  const singleStatus =
-    validStatuses.length === 1 ? validStatuses[0] : undefined;
+  const singleStatus = validStatuses.length === 1 ? validStatuses[0] : undefined;
   const requiresCandidateFiltering = requiresIndexedInvoiceCandidateFiltering({
     validStatuses,
     customers,
@@ -221,9 +197,7 @@ export async function getIndexedInvoicesPage(params: GetInvoicesParams) {
     const result = await getPublicInvoicesPageFromConvex({
       teamId,
       cursor: sourceCursor,
-      pageSize: requiresCandidateFiltering
-        ? getIndexedInvoiceBatchSize(pageSize)
-        : remainingCount,
+      pageSize: requiresCandidateFiltering ? getIndexedInvoiceBatchSize(pageSize) : remainingCount,
       status: singleStatus,
       order,
     });

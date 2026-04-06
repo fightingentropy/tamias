@@ -26,35 +26,24 @@ const ERROR_DESCRIPTIONS: Record<AppOAuthErrorCode, string> = {
     "Your account doesn't have the required license for this integration. Please upgrade your plan or contact support.",
   missing_permissions:
     "You need administrator permissions to connect this integration. Please contact your account admin or try with an admin account.",
-  invalid_state:
-    "The connection session expired. Please close this window and try again.",
+  invalid_state: "The connection session expired. Please close this window and try again.",
   token_exchange_failed:
     "We couldn't complete the connection. Please close this window and try again.",
-  unknown_error:
-    "An unexpected error occurred. Please close this window and try again.",
+  unknown_error: "An unexpected error occurred. Please close this window and try again.",
 };
 
 /**
  * Get user-friendly error title
  */
-export function getErrorTitle(
-  errorCode: AppOAuthErrorCode | null | undefined,
-): string {
-  return (
-    ERROR_TITLES[errorCode ?? "unknown_error"] ?? ERROR_TITLES.unknown_error
-  );
+export function getErrorTitle(errorCode: AppOAuthErrorCode | null | undefined): string {
+  return ERROR_TITLES[errorCode ?? "unknown_error"] ?? ERROR_TITLES.unknown_error;
 }
 
 /**
  * Get user-friendly error description
  */
-export function getErrorDescription(
-  errorCode: AppOAuthErrorCode | null | undefined,
-): string {
-  return (
-    ERROR_DESCRIPTIONS[errorCode ?? "unknown_error"] ??
-    ERROR_DESCRIPTIONS.unknown_error
-  );
+export function getErrorDescription(errorCode: AppOAuthErrorCode | null | undefined): string {
+  return ERROR_DESCRIPTIONS[errorCode ?? "unknown_error"] ?? ERROR_DESCRIPTIONS.unknown_error;
 }
 
 /**

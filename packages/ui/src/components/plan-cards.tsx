@@ -5,12 +5,7 @@ import NumberFlow from "@number-flow/react";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { cn } from "../utils/cn";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "./tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip";
 
 function FeatureRow({ label, tooltip }: PlanFeature) {
   const text = (
@@ -62,15 +57,8 @@ type PlanCardsProps = {
   footnote?: string;
 };
 
-export function PlanCards({
-  continent,
-  renderAction,
-  onCurrencyChange,
-  footnote,
-}: PlanCardsProps) {
-  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">(
-    "yearly",
-  );
+export function PlanCards({ continent, renderAction, onCurrencyChange, footnote }: PlanCardsProps) {
+  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("yearly");
   const [currency, setCurrency] = useState<"USD" | "EUR">(() => {
     if (continent) {
       return getPlanPricing(continent).currency as "USD" | "EUR";
@@ -95,10 +83,7 @@ export function PlanCards({
       <div className="w-full max-w-[560px] mx-auto">
         <div className="border border-border p-6 sm:p-8 lg:p-10">
           <div className="flex justify-center mb-10">
-            <div
-              className="relative flex items-stretch bg-muted"
-              style={{ width: "fit-content" }}
-            >
+            <div className="relative flex items-stretch bg-muted" style={{ width: "fit-content" }}>
               <div className="flex items-stretch">
                 <button
                   type="button"
@@ -144,16 +129,12 @@ export function PlanCards({
                 {pricing.symbol}
                 <NumberFlow
                   value={
-                    billingPeriod === "monthly"
-                      ? pricing.starter.monthly
-                      : pricing.starter.yearly
+                    billingPeriod === "monthly" ? pricing.starter.monthly : pricing.starter.yearly
                   }
                   willChange
                 />
               </span>
-              <span className="font-sans text-lg text-muted-foreground">
-                /month
-              </span>
+              <span className="font-sans text-lg text-muted-foreground">/month</span>
             </div>
             <p className="font-sans text-sm text-muted-foreground mt-3">
               {billingPeriod === "monthly"
@@ -162,9 +143,7 @@ export function PlanCards({
             </p>
           </div>
 
-          <div className="max-w-[280px] mx-auto">
-            {renderAction(billingPeriod)}
-          </div>
+          <div className="max-w-[280px] mx-auto">{renderAction(billingPeriod)}</div>
 
           <IncludedSection />
         </div>

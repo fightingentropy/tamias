@@ -13,14 +13,8 @@ type TaggedTrackerProjectCursor = {
   trackerProjectId: string;
 };
 
-const trackerProjectStatus = v.union(
-  v.literal("in_progress"),
-  v.literal("completed"),
-);
-const trackerProjectOrderValidator = v.union(
-  v.literal("asc"),
-  v.literal("desc"),
-);
+const trackerProjectStatus = v.union(v.literal("in_progress"), v.literal("completed"));
+const trackerProjectOrderValidator = v.union(v.literal("asc"), v.literal("desc"));
 
 function publicTrackerProjectId(project: Doc<"trackerProjects">) {
   return project.publicTrackerProjectId ?? project._id;
@@ -73,10 +67,7 @@ async function getTrackerProjectByPublicId(
   return null;
 }
 
-function serializeTrackerProject(
-  teamId: string,
-  project: Doc<"trackerProjects">,
-) {
+function serializeTrackerProject(teamId: string, project: Doc<"trackerProjects">) {
   return {
     id: publicTrackerProjectId(project),
     teamId,
@@ -93,29 +84,20 @@ function serializeTrackerProject(
   };
 }
 
-function getTrackerProjectSearchText(
-  project: {
-    name: string;
-    description?: string | null;
-    status?: "in_progress" | "completed" | null;
-    currency?: string | null;
-  },
-) {
+function getTrackerProjectSearchText(project: {
+  name: string;
+  description?: string | null;
+  status?: "in_progress" | "completed" | null;
+  currency?: string | null;
+}) {
   return (
-    buildSearchIndexText([
-      project.name,
-      project.description,
-      project.status,
-      project.currency,
-    ]) || undefined
+    buildSearchIndexText([project.name, project.description, project.status, project.currency]) ||
+    undefined
   );
 }
 
 function encodeTaggedTrackerProjectCursor(cursor: TaggedTrackerProjectCursor) {
-  return btoa(JSON.stringify(cursor))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
+  return btoa(JSON.stringify(cursor)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
 function decodeTaggedTrackerProjectCursor(
@@ -127,14 +109,10 @@ function decodeTaggedTrackerProjectCursor(
 
   try {
     const normalizedCursor = cursor.replace(/-/g, "+").replace(/_/g, "/");
-    const paddedCursor =
-      normalizedCursor + "=".repeat((4 - (normalizedCursor.length % 4)) % 4);
+    const paddedCursor = normalizedCursor + "=".repeat((4 - (normalizedCursor.length % 4)) % 4);
     const parsed = JSON.parse(atob(paddedCursor)) as Partial<TaggedTrackerProjectCursor>;
 
-    if (
-      typeof parsed.createdAt !== "string" ||
-      typeof parsed.trackerProjectId !== "string"
-    ) {
+    if (typeof parsed.createdAt !== "string" || typeof parsed.trackerProjectId !== "string") {
       throw new ConvexError("Invalid tagged tracker project cursor");
     }
 
@@ -152,20 +130,15 @@ function compareTaggedTrackerProjectRows(
   right: Pick<Doc<"trackerProjectTags">, "projectCreatedAt" | "trackerProjectId">,
   order: "asc" | "desc",
 ) {
-  const createdAtComparison =
-    left.projectCreatedAt!.localeCompare(right.projectCreatedAt!);
+  const createdAtComparison = left.projectCreatedAt!.localeCompare(right.projectCreatedAt!);
 
   if (createdAtComparison !== 0) {
     return order === "asc" ? createdAtComparison : -createdAtComparison;
   }
 
-  const trackerProjectIdComparison = left.trackerProjectId.localeCompare(
-    right.trackerProjectId,
-  );
+  const trackerProjectIdComparison = left.trackerProjectId.localeCompare(right.trackerProjectId);
 
-  return order === "asc"
-    ? trackerProjectIdComparison
-    : -trackerProjectIdComparison;
+  return order === "asc" ? trackerProjectIdComparison : -trackerProjectIdComparison;
 }
 
 function isTaggedTrackerProjectRowPastCursor(
@@ -224,15 +197,11 @@ export const serviceListTrackerProjectsPage = query({
       : ctx.db
           .query("trackerProjects")
           .withIndex("by_team_created_at", (q) => q.eq("teamId", team._id));
-    const result = await baseQuery
-      .order(args.order ?? "desc")
-      .paginate(args.paginationOpts);
+    const result = await baseQuery.order(args.order ?? "desc").paginate(args.paginationOpts);
 
     return {
       ...result,
-      page: result.page.map((project) =>
-        serializeTrackerProject(args.teamId, project),
-      ),
+      page: result.page.map((project) => serializeTrackerProject(args.teamId, project)),
     };
   },
 });
@@ -310,11 +279,7 @@ export const serviceListTaggedTrackerProjectsPage = query({
       ].sort((left, right) => compareTaggedTrackerProjectRows(left, right, order));
       lastScannedRow = taggedRows.at(-1) ?? null;
 
-      if (
-        taggedRows.length >= pageSize ||
-        !mayHaveMoreRows ||
-        takeCount >= 400
-      ) {
+      if (taggedRows.length >= pageSize || !mayHaveMoreRows || takeCount >= 400) {
         break;
       }
 
@@ -397,9 +362,7 @@ export const serviceSearchTrackerProjects = query({
       .take(Math.max(1, Math.min((args.limit ?? 100) * 4, 400)));
 
     return projects
-      .filter((project) =>
-        args.status === undefined ? true : project.status === args.status,
-      )
+      .filter((project) => (args.status === undefined ? true : project.status === args.status))
       .slice(0, args.limit ?? projects.length)
       .map((project) => serializeTrackerProject(args.teamId, project));
   },
@@ -469,9 +432,7 @@ export const serviceGetTrackerProjectsByCustomerIds = query({
       ),
     );
 
-    return projects.flat().map((project) =>
-      serializeTrackerProject(args.teamId, project),
-    );
+    return projects.flat().map((project) => serializeTrackerProject(args.teamId, project));
   },
 });
 
@@ -596,9 +557,7 @@ export const serviceRebuildTrackerProjectSearchTexts = mutation({
 
     const teams = args.teamId
       ? [await getTeamByPublicTeamId(ctx, args.teamId)]
-      : (await ctx.db.query("teams").collect()).filter(
-          (team) => !!team.publicTeamId,
-        );
+      : (await ctx.db.query("teams").collect()).filter((team) => !!team.publicTeamId);
 
     const validTeams = teams.filter(
       (team): team is NonNullable<(typeof teams)[number]> => team !== null,
@@ -669,9 +628,7 @@ export const serviceDeleteTrackerProject = mutation({
     const [entries, tags] = await Promise.all([
       ctx.db
         .query("trackerEntries")
-        .withIndex("by_team_and_project", (q) =>
-          q.eq("teamId", team._id).eq("projectId", publicId),
-        )
+        .withIndex("by_team_and_project", (q) => q.eq("teamId", team._id).eq("projectId", publicId))
         .collect(),
       ctx.db
         .query("trackerProjectTags")

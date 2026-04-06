@@ -91,19 +91,14 @@ function preferDashboardForSharedPath(request: Request, pathname: string) {
   }
 
   const accept = request.headers.get("Accept") ?? "";
-  return (
-    accept.includes("text/html") || accept === "" || accept.includes("*/*")
-  );
+  return accept.includes("text/html") || accept === "" || accept.includes("*/*");
 }
 
 /**
  * Routes requests to the Hono API vs TanStack Start handlers in the unified worker.
  * Production relies on distinct API vs app hostnames; local wrangler uses path + Accept heuristics.
  */
-export function shouldServeApi(
-  request: Request,
-  env: DashboardCloudflareEnv,
-): boolean {
+export function shouldServeApi(request: Request, env: DashboardCloudflareEnv): boolean {
   const url = new URL(request.url);
 
   let apiHost: string;

@@ -6,21 +6,11 @@ import type { Database } from "../../../client";
 import { reuseQueryResult } from "../../../utils/request-cache";
 import { enrichProjects } from "../enrich";
 import type { GetTrackerProjectsParams } from "../types";
-import {
-  canUseIndexedTrackerProjectPage,
-  getIndexedTrackerProjectsPage,
-} from "./indexed-page";
-import {
-  matchesProjectSearch,
-  paginate,
-  serializeTrackerProjectListParams,
-} from "./shared";
+import { canUseIndexedTrackerProjectPage, getIndexedTrackerProjectsPage } from "./indexed-page";
+import { matchesProjectSearch, paginate, serializeTrackerProjectListParams } from "./shared";
 import { sortTrackerProjects } from "./sort";
 
-async function getTrackerProjectsImpl(
-  db: Database,
-  params: GetTrackerProjectsParams,
-) {
+async function getTrackerProjectsImpl(db: Database, params: GetTrackerProjectsParams) {
   const {
     teamId,
     sort,
@@ -54,9 +44,7 @@ async function getTrackerProjectsImpl(
   }
 
   if (start && end) {
-    projects = projects.filter(
-      (project) => project.createdAt >= start && project.createdAt <= end,
-    );
+    projects = projects.filter((project) => project.createdAt >= start && project.createdAt <= end);
   }
 
   if (customerIds?.length) {

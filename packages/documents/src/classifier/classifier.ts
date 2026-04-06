@@ -2,10 +2,7 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateObject } from "ai";
 import { documentClassifierPrompt, imageClassifierPrompt } from "../prompt";
 import { documentClassifierSchema, imageClassifierSchema } from "../schema";
-import type {
-  DocumentClassifierImageRequest,
-  DocumentClassifierRequest,
-} from "../types";
+import type { DocumentClassifierImageRequest, DocumentClassifierRequest } from "../types";
 
 const GOOGLE_API_KEY = process.env.GOOGLE_GENERATIVE_AI_API_KEY!;
 

@@ -66,12 +66,9 @@ export const tiptapContentSchema: z.ZodType<any> = z
   });
 
 // Schema for editor fields that must be TipTap JSONContent
-export const editorFieldSchema = tiptapContentSchema
-  .nullable()
-  .optional()
-  .openapi({
-    description: "Editor field in TipTap JSONContent format",
-  });
+export const editorFieldSchema = tiptapContentSchema.nullable().optional().openapi({
+  description: "Editor field in TipTap JSONContent format",
+});
 
 // Base template schema with common fields
 const baseInvoiceTemplateSchema = z.object({
@@ -93,8 +90,7 @@ const baseInvoiceTemplateSchema = z.object({
   timezone: z
     .string()
     .refine(isValidTimezone, {
-      message:
-        "Invalid timezone. Use IANA timezone format (e.g., 'America/New_York', 'UTC')",
+      message: "Invalid timezone. Use IANA timezone format (e.g., 'America/New_York', 'UTC')",
     })
     .optional(),
   paymentLabel: z.string().optional(),
@@ -133,20 +129,17 @@ export const upsertInvoiceTemplateSchema = baseInvoiceTemplateSchema.extend({
 });
 
 // Template schema with TipTap validation for editor fields
-export const restUpsertInvoiceTemplateSchema = baseInvoiceTemplateSchema.extend(
-  {
-    paymentDetails: editorFieldSchema.openapi({
-      description: "Payment details in TipTap JSONContent format",
-    }),
-    fromDetails: editorFieldSchema.openapi({
-      description: "Sender details in TipTap JSONContent format",
-    }),
-    noteDetails: editorFieldSchema.openapi({
-      description:
-        "Default footer notes in TipTap JSONContent format for new invoices",
-    }),
-  },
-);
+export const restUpsertInvoiceTemplateSchema = baseInvoiceTemplateSchema.extend({
+  paymentDetails: editorFieldSchema.openapi({
+    description: "Payment details in TipTap JSONContent format",
+  }),
+  fromDetails: editorFieldSchema.openapi({
+    description: "Sender details in TipTap JSONContent format",
+  }),
+  noteDetails: editorFieldSchema.openapi({
+    description: "Default footer notes in TipTap JSONContent format for new invoices",
+  }),
+});
 
 // Base line item schema with common fields
 const baseDraftLineItemSchema = z.object({
@@ -225,8 +218,7 @@ const baseDraftInvoiceSchema = z.object({
     example: "2024-06-01T00:00:00.000Z",
   }),
   invoiceNumber: z.string().optional().openapi({
-    description:
-      "Invoice number as shown to the customer (auto-generated if not provided)",
+    description: "Invoice number as shown to the customer (auto-generated if not provided)",
     example: "INV-2024-001",
   }),
   logoUrl: z.string().optional().nullable().openapi({
@@ -250,8 +242,7 @@ const baseDraftInvoiceSchema = z.object({
     example: 1500.75,
   }),
   token: z.string().optional().openapi({
-    description:
-      "Unique token for the draft invoice (for sharing or public access)",
+    description: "Unique token for the draft invoice (for sharing or public access)",
     example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   }),
   scheduledAt: z.string().nullable().optional().openapi({
@@ -523,8 +514,7 @@ export const getInvoicesSchema = z.object({
     .nullable()
     .optional()
     .openapi({
-      description:
-        "A cursor for pagination, representing the last item from the previous page.",
+      description: "A cursor for pagination, representing the last item from the previous page.",
       param: { in: "query" },
       example: "25",
     }),
@@ -535,8 +525,7 @@ export const getInvoicesSchema = z.object({
     .nullable()
     .optional()
     .openapi({
-      description:
-        "Sorting order as a tuple: [field, direction]. Example: ['createdAt', 'desc'].",
+      description: "Sorting order as a tuple: [field, direction]. Example: ['createdAt', 'desc'].",
       param: { in: "query" },
       example: ["createdAt", "desc"],
     }),
@@ -564,8 +553,7 @@ export const getInvoicesSchema = z.object({
     .nullable()
     .optional()
     .openapi({
-      description:
-        "Start date (inclusive) for filtering invoices, in ISO 8601 format.",
+      description: "Start date (inclusive) for filtering invoices, in ISO 8601 format.",
       param: { in: "query" },
       example: "2024-01-01",
     }),
@@ -574,8 +562,7 @@ export const getInvoicesSchema = z.object({
     .nullable()
     .optional()
     .openapi({
-      description:
-        "End date (inclusive) for filtering invoices, in ISO 8601 format.",
+      description: "End date (inclusive) for filtering invoices, in ISO 8601 format.",
       param: { in: "query" },
       example: "2024-01-31",
     }),
@@ -584,8 +571,7 @@ export const getInvoicesSchema = z.object({
     .nullable()
     .optional()
     .openapi({
-      description:
-        "List of invoice statuses to filter by (e.g., 'paid', 'unpaid', 'overdue').",
+      description: "List of invoice statuses to filter by (e.g., 'paid', 'unpaid', 'overdue').",
       param: { in: "query" },
       example: ["paid", "unpaid"],
     }),
@@ -645,9 +631,7 @@ export const searchInvoiceNumberSchema = z.object({
 export const invoiceSummarySchema = z
   .object({
     statuses: z
-      .array(
-        z.enum(["draft", "overdue", "paid", "unpaid", "canceled", "scheduled"]),
-      )
+      .array(z.enum(["draft", "overdue", "paid", "unpaid", "canceled", "scheduled"]))
       .optional()
       .openapi({
         description: "Filter summary by invoice statuses",
@@ -666,9 +650,7 @@ export const updateInvoiceSchema = z.object({
       name: "id",
     },
   }),
-  status: z
-    .enum(["paid", "canceled", "unpaid", "scheduled", "draft"])
-    .optional(),
+  status: z.enum(["paid", "canceled", "unpaid", "scheduled", "draft"]).optional(),
   paidAt: z.string().nullable().optional(),
   internalNote: z.string().nullable().optional(),
   scheduledAt: z.string().nullable().optional(),
@@ -772,8 +754,7 @@ export const createInvoiceRequestSchema = z
       },
     }),
     noteDetails: editorFieldSchema.openapi({
-      description:
-        "Additional notes for the invoice in TipTap JSONContent format",
+      description: "Additional notes for the invoice in TipTap JSONContent format",
       example: {
         type: "doc",
         content: [
@@ -800,8 +781,7 @@ export const createInvoiceRequestSchema = z
       example: "2024-06-01T00:00:00.000Z",
     }),
     invoiceNumber: z.string().optional().openapi({
-      description:
-        "Invoice number as shown to the customer (auto-generated if not provided)",
+      description: "Invoice number as shown to the customer (auto-generated if not provided)",
       example: "INV-2024-001",
     }),
     logoUrl: z.string().optional().nullable().openapi({
@@ -1185,12 +1165,10 @@ export const draftInvoiceResponseSchema = z
       description: "Unique identifier for the draft invoice",
       example: "b3b7e6e2-8c2a-4e2a-9b1a-2e4b5c6d7f8a",
     }),
-    status: z
-      .enum(["draft", "overdue", "paid", "unpaid", "canceled", "scheduled"])
-      .openapi({
-        description: "Current status of the invoice",
-        example: "draft",
-      }),
+    status: z.enum(["draft", "overdue", "paid", "unpaid", "canceled", "scheduled"]).openapi({
+      description: "Current status of the invoice",
+      example: "draft",
+    }),
     createdAt: z.string().openapi({
       description: "Timestamp when the invoice was created (ISO 8601)",
       example: "2024-06-01T07:00:00.000Z",
@@ -1218,12 +1196,10 @@ export const invoiceResponseSchema = z
       description: "Unique identifier for the invoice",
       example: "b3b7e6e2-8c2a-4e2a-9b1a-2e4b5c6d7f8a",
     }),
-    status: z
-      .enum(["draft", "overdue", "paid", "unpaid", "canceled", "scheduled"])
-      .openapi({
-        description: "Current status of the invoice",
-        example: "paid",
-      }),
+    status: z.enum(["draft", "overdue", "paid", "unpaid", "canceled", "scheduled"]).openapi({
+      description: "Current status of the invoice",
+      example: "paid",
+    }),
     dueDate: z.string().openapi({
       description: "Due date of the invoice in ISO 8601 format",
       example: "2024-06-30T23:59:59.000Z",
@@ -1233,8 +1209,7 @@ export const invoiceResponseSchema = z
       example: "2024-06-01T00:00:00.000Z",
     }),
     invoiceNumber: z.string().optional().openapi({
-      description:
-        "Invoice number as shown to the customer (auto-generated if not provided)",
+      description: "Invoice number as shown to the customer (auto-generated if not provided)",
       example: "INV-2024-001",
     }),
     amount: z.number().openapi({
@@ -1269,13 +1244,11 @@ export const invoiceResponseSchema = z
         description: "Customer details",
       }),
     paidAt: z.string().nullable().openapi({
-      description:
-        "Timestamp when the invoice was paid (ISO 8601), or null if unpaid",
+      description: "Timestamp when the invoice was paid (ISO 8601), or null if unpaid",
       example: "2024-06-15T12:00:00.000Z",
     }),
     reminderSentAt: z.string().nullable().openapi({
-      description:
-        "Timestamp when a payment reminder was sent (ISO 8601), or null if never sent",
+      description: "Timestamp when a payment reminder was sent (ISO 8601), or null if never sent",
       example: "2024-06-10T09:00:00.000Z",
     }),
     note: z.string().nullable().openapi({
@@ -1295,8 +1268,7 @@ export const invoiceResponseSchema = z
       example: 50.0,
     }),
     subtotal: z.number().nullable().openapi({
-      description:
-        "Subtotal before taxes and discounts, or null if not calculated",
+      description: "Subtotal before taxes and discounts, or null if not calculated",
       example: 1400.0,
     }),
     viewedAt: z.string().nullable().openapi({
@@ -1305,18 +1277,15 @@ export const invoiceResponseSchema = z
       example: "2024-06-05T14:30:00.000Z",
     }),
     customerName: z.string().nullable().openapi({
-      description:
-        "Name of the customer as shown on the invoice, or null if not set",
+      description: "Name of the customer as shown on the invoice, or null if not set",
       example: "Acme Corporation",
     }),
     sentTo: z.string().email().nullable().openapi({
-      description:
-        "Email address to which the invoice was sent, or null if not sent",
+      description: "Email address to which the invoice was sent, or null if not sent",
       example: "billing@acme.com",
     }),
     sentAt: z.string().nullable().openapi({
-      description:
-        "Timestamp when the invoice was sent (ISO 8601), or null if not sent",
+      description: "Timestamp when the invoice was sent (ISO 8601), or null if not sent",
       example: "2024-06-02T08:00:00.000Z",
     }),
     createdAt: z.string().openapi({
@@ -1329,12 +1298,10 @@ export const invoiceResponseSchema = z
     }),
     pdfUrl: z.string().url().nullable().openapi({
       description: "URL to download the invoice PDF, or null if not generated",
-      example:
-        "https://tamias.xyz/api/download/invoice?token=eef58951-1682-4062-b010-425866032390",
+      example: "https://tamias.xyz/api/download/invoice?token=eef58951-1682-4062-b010-425866032390",
     }),
     previewUrl: z.string().url().nullable().openapi({
-      description:
-        "URL to preview the invoice in the browser, or null if not generated",
+      description: "URL to preview the invoice in the browser, or null if not generated",
       example: "https://tamias.xyz/i/eef58951-1682-4062-b010-425866032390",
     }),
   })
@@ -1348,13 +1315,10 @@ export const createInvoiceResponseSchema = invoiceResponseSchema.openapi({
 
 export const updateInvoiceRequestSchema = z
   .object({
-    status: z
-      .enum(["paid", "canceled", "unpaid", "scheduled", "draft"])
-      .optional()
-      .openapi({
-        description: "New status for the invoice",
-        example: "paid",
-      }),
+    status: z.enum(["paid", "canceled", "unpaid", "scheduled", "draft"]).optional().openapi({
+      description: "New status for the invoice",
+      example: "paid",
+    }),
     paidAt: z.string().datetime().nullable().optional().openapi({
       description: "Timestamp when the invoice was paid (ISO 8601)",
       example: "2024-06-15T12:00:00.000Z",
@@ -1397,8 +1361,7 @@ export const invoicesResponseSchema = z
     }),
   })
   .openapi({
-    description:
-      "Response containing a list of invoices and pagination metadata",
+    description: "Response containing a list of invoices and pagination metadata",
   });
 
 export const deleteInvoiceResponseSchema = z.object({

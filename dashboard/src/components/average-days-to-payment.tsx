@@ -7,9 +7,7 @@ import { useTRPC } from "@/trpc/client";
 
 export function AverageDaysToPayment() {
   const trpc = useTRPC();
-  const { data } = useSuspenseQuery(
-    trpc.invoice.averageDaysToPayment.queryOptions(),
-  );
+  const { data } = useSuspenseQuery(trpc.invoice.averageDaysToPayment.queryOptions());
 
   return (
     <Card>
@@ -22,9 +20,7 @@ export function AverageDaysToPayment() {
       <CardContent className="pb-[34px]">
         <div className="flex flex-col gap-2">
           <div>Average Days to Payment</div>
-          <div className="text-sm text-muted-foreground">
-            Cross all paid invoices this month
-          </div>
+          <div className="text-sm text-muted-foreground">Cross all paid invoices this month</div>
         </div>
       </CardContent>
     </Card>

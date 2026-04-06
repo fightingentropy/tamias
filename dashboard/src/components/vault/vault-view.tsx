@@ -15,11 +15,7 @@ export function VaultView({ initialSettings }: Props) {
 
   return (
     <VaultUploadZone>
-      {params.view === "grid" ? (
-        <VaultGrid />
-      ) : (
-        <DataTable initialSettings={initialSettings} />
-      )}
+      {params.view === "grid" ? <VaultGrid /> : <DataTable initialSettings={initialSettings} />}
     </VaultUploadZone>
   );
 }

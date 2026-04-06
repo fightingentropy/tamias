@@ -46,10 +46,7 @@ export async function checkDocumentAttachments(
   };
 }
 
-export async function deleteDocument(
-  _db: Database,
-  params: DeleteDocumentParams,
-) {
+export async function deleteDocument(_db: Database, params: DeleteDocumentParams) {
   const result = await deleteDocumentInConvex({
     teamId: params.teamId,
     id: params.id,
@@ -71,10 +68,7 @@ export async function deleteDocument(
   return result;
 }
 
-export async function updateDocuments(
-  _db: Database,
-  params: UpdateDocumentsParams,
-) {
+export async function updateDocuments(_db: Database, params: UpdateDocumentsParams) {
   const { ids, teamId, processingStatus } = params;
 
   if (!ids?.length) {
@@ -88,10 +82,7 @@ export async function updateDocuments(
   });
 }
 
-export async function updateDocumentByPath(
-  _db: Database,
-  params: UpdateDocumentByPathParams,
-) {
+export async function updateDocumentByPath(_db: Database, params: UpdateDocumentByPathParams) {
   const { pathTokens, teamId, ...rest } = params;
 
   if (!pathTokens?.length) {

@@ -49,6 +49,4 @@ export function useTransactionFilterParams() {
   };
 }
 
-export const loadTransactionFilterParams = createLoader(
-  transactionFilterParamsSchema,
-);
+export const loadTransactionFilterParams = createLoader(transactionFilterParamsSchema);

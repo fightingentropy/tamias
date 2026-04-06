@@ -18,6 +18,4 @@ export function useCustomerFilterParams() {
   };
 }
 
-export const loadCustomerFilterParams = createLoader(
-  customerFilterParamsSchema,
-);
+export const loadCustomerFilterParams = createLoader(customerFilterParamsSchema);

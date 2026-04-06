@@ -43,23 +43,15 @@ export function createCloudflareScheduleRuntime(env: CloudflareAsyncEnv) {
   }
 
   return {
-    upsertRecurringSchedule: async (
-      request: CloudflareRecurringScheduleRequest,
-    ) => {
-      const response = await upsertRecurringScheduleInRunCoordinator(
-        env,
-        request,
-      );
+    upsertRecurringSchedule: async (request: CloudflareRecurringScheduleRequest) => {
+      const response = await upsertRecurringScheduleInRunCoordinator(env, request);
 
       if (!response.ok) {
         throw new Error("Failed to upsert Cloudflare recurring schedule");
       }
     },
     cancelRecurringSchedule: async (scheduleId: string) => {
-      const response = await cancelRecurringScheduleInRunCoordinator(
-        env,
-        scheduleId,
-      );
+      const response = await cancelRecurringScheduleInRunCoordinator(env, scheduleId);
 
       if (!response.ok) {
         throw new Error("Failed to cancel Cloudflare recurring schedule");

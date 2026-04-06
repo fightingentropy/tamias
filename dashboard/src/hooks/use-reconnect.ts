@@ -35,10 +35,7 @@ type UseReconnectReturn = {
  * - Query invalidation on completion
  * - URL param cleanup after triggering
  */
-export function useReconnect({
-  connectionId,
-  provider,
-}: UseReconnectOptions): UseReconnectReturn {
+export function useReconnect({ connectionId, provider }: UseReconnectOptions): UseReconnectReturn {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { toast, dismiss } = useToast();
@@ -172,11 +169,7 @@ export function useReconnect({
   // Handle reconnect flow from API route redirect (GoCardLess)
   // Only trigger for the specific connection that matches the URL param ID
   useEffect(() => {
-    if (
-      params.step === "reconnect" &&
-      params.id === connectionId &&
-      !hasTriggeredRef.current
-    ) {
+    if (params.step === "reconnect" && params.id === connectionId && !hasTriggeredRef.current) {
       hasTriggeredRef.current = true;
       setSyncing(true);
 

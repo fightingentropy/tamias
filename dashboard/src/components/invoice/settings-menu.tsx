@@ -146,9 +146,7 @@ export function SettingsMenu() {
   const paymentTermsDays = watch("template.paymentTermsDays");
 
   // Stripe Connect status
-  const { data: stripeStatus } = useQuery(
-    trpc.invoicePayments.stripeStatus.queryOptions(),
-  );
+  const { data: stripeStatus } = useQuery(trpc.invoicePayments.stripeStatus.queryOptions());
 
   const stripeOAuth = useAppOAuth({
     installUrlEndpoint: "/invoice-payments/connect-stripe",
@@ -164,8 +162,7 @@ export function SettingsMenu() {
     onError: () => {
       toast({
         title: "Failed to connect Stripe",
-        description:
-          "Please try again or contact support if the issue persists.",
+        description: "Please try again or contact support if the issue persists.",
         variant: "error",
       });
     },
@@ -195,9 +192,7 @@ export function SettingsMenu() {
   );
 
   // Get template count to prevent deleting last template
-  const { data: templateCount } = useQuery(
-    trpc.invoiceTemplate.count.queryOptions(),
-  );
+  const { data: templateCount } = useQuery(trpc.invoiceTemplate.count.queryOptions());
 
   const isLastTemplate = templateCount === 1;
 
@@ -388,11 +383,7 @@ export function SettingsMenu() {
     const noteDetails = watch("noteDetails");
 
     // Exclude id and create with new name
-    const {
-      id: _id,
-      isDefault: _isDefault,
-      ...templateSettings
-    } = currentTemplate;
+    const { id: _id, isDefault: _isDefault, ...templateSettings } = currentTemplate;
 
     duplicateTemplateMutation.mutate({
       ...templateSettings,
@@ -540,9 +531,7 @@ export function SettingsMenu() {
                           onClick={(e) => e.stopPropagation()}
                           className="w-16 h-7 text-xs"
                         />
-                        <span className="text-xs text-muted-foreground">
-                          days
-                        </span>
+                        <span className="text-xs text-muted-foreground">days</span>
                         <Button
                           size="sm"
                           variant="outline"
@@ -629,9 +618,7 @@ export function SettingsMenu() {
                     <span className="whitespace-nowrap">
                       {item.label}
                       {item.hint && (
-                        <span className="text-[10px] text-muted-foreground ml-1">
-                          {item.hint}
-                        </span>
+                        <span className="text-[10px] text-muted-foreground ml-1">{item.hint}</span>
                       )}
                     </span>
                   </DropdownMenuCheckboxItem>
@@ -690,10 +677,7 @@ export function SettingsMenu() {
             <>
               <DropdownMenuSeparator />
 
-              <DropdownMenuItem
-                onClick={openRenameDialog}
-                className="text-xs cursor-pointer"
-              >
+              <DropdownMenuItem onClick={openRenameDialog} className="text-xs cursor-pointer">
                 <Icons.Edit className="mr-2 size-4" />
                 Rename template
               </DropdownMenuItem>
@@ -704,9 +688,7 @@ export function SettingsMenu() {
                 disabled={duplicateTemplateMutation.isPending}
               >
                 <Icons.Copy className="mr-2 size-4" />
-                {duplicateTemplateMutation.isPending
-                  ? "Duplicating..."
-                  : "Duplicate template"}
+                {duplicateTemplateMutation.isPending ? "Duplicating..." : "Duplicate template"}
               </DropdownMenuItem>
 
               {!isDefault && (
@@ -738,9 +720,8 @@ export function SettingsMenu() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Template</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{templateName}"? This action
-              cannot be undone. Existing invoices using this template will not
-              be affected.
+              Are you sure you want to delete "{templateName}"? This action cannot be undone.
+              Existing invoices using this template will not be affected.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -760,9 +741,7 @@ export function SettingsMenu() {
           <div className="p-4">
             <DialogHeader>
               <DialogTitle>Rename Template</DialogTitle>
-              <DialogDescription>
-                Enter a new name for this template.
-              </DialogDescription>
+              <DialogDescription>Enter a new name for this template.</DialogDescription>
             </DialogHeader>
 
             <div className="mt-6 space-y-4">
@@ -779,11 +758,7 @@ export function SettingsMenu() {
               />
 
               <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setRenameDialogOpen(false)}
-                >
+                <Button type="button" variant="outline" onClick={() => setRenameDialogOpen(false)}>
                   Cancel
                 </Button>
                 <SubmitButton
@@ -799,16 +774,13 @@ export function SettingsMenu() {
         </DialogContent>
       </Dialog>
 
-      <AlertDialog
-        open={disconnectDialogOpen}
-        onOpenChange={setDisconnectDialogOpen}
-      >
+      <AlertDialog open={disconnectDialogOpen} onOpenChange={setDisconnectDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Disconnect Stripe</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to disconnect your Stripe account? Online
-              payments will be disabled for all invoices.
+              Are you sure you want to disconnect your Stripe account? Online payments will be
+              disabled for all invoices.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -817,9 +789,7 @@ export function SettingsMenu() {
               onClick={() => disconnectStripeMutation.mutate()}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {disconnectStripeMutation.isPending
-                ? "Disconnecting..."
-                : "Disconnect"}
+              {disconnectStripeMutation.isPending ? "Disconnecting..." : "Disconnect"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

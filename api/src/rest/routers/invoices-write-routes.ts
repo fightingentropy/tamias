@@ -74,8 +74,7 @@ export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
             "application/json": {
               schema: z.object({
                 message: z.string().openapi({
-                  description:
-                    "Error message describing the validation failure",
+                  description: "Error message describing the validation failure",
                   examples: [
                     "scheduledAt is required for scheduled delivery",
                     "scheduledAt must be in the future",
@@ -142,9 +141,7 @@ export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
       const template = await getInvoiceTemplate(teamId);
       const paymentTermsDays = template?.paymentTermsDays ?? 30;
       const issueDate = input.issueDate || new Date().toISOString();
-      const dueDate =
-        input.dueDate ||
-        addDays(new Date(issueDate), paymentTermsDays).toISOString();
+      const dueDate = input.dueDate || addDays(new Date(issueDate), paymentTermsDays).toISOString();
 
       const customer = await getCustomerById(db, {
         id: input.customerId,
@@ -169,9 +166,7 @@ export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
             template: input.template,
             paymentDetails: input.paymentDetails,
             fromDetails: input.fromDetails,
-            customerDetails: customerDetails
-              ? JSON.stringify(customerDetails)
-              : null,
+            customerDetails: customerDetails ? JSON.stringify(customerDetails) : null,
             noteDetails: input.noteDetails,
             customerId: input.customerId,
             customerName: customer.name,
@@ -204,10 +199,7 @@ export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
 
       let finalResult = result;
 
-      if (
-        input.deliveryType === "create" ||
-        input.deliveryType === "create_and_send"
-      ) {
+      if (input.deliveryType === "create" || input.deliveryType === "create_and_send") {
         const updatedInvoice = await updateInvoice(db, {
           id: result.id,
           status: "unpaid",
@@ -276,10 +268,7 @@ export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
       }
 
       return c.json(
-        validateResponse(
-          serializeInvoiceForRest(finalResult),
-          draftInvoiceResponseSchema,
-        ),
+        validateResponse(serializeInvoiceForRest(finalResult), draftInvoiceResponseSchema),
         201,
       );
     },
@@ -292,8 +281,7 @@ export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
       summary: "Update an invoice",
       operationId: "updateInvoice",
       "x-speakeasy-name-override": "update",
-      description:
-        "Update an invoice by its unique identifier for the authenticated team.",
+      description: "Update an invoice by its unique identifier for the authenticated team.",
       tags: ["Invoices"],
       request: {
         params: getInvoiceByIdSchema.pick({ id: true }),
@@ -335,12 +323,7 @@ export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
         throw new HTTPException(404, { message: "Invoice not found" });
       }
 
-      return c.json(
-        validateResponse(
-          serializeInvoiceForRest(result),
-          updateInvoiceResponseSchema,
-        ),
-      );
+      return c.json(validateResponse(serializeInvoiceForRest(result), updateInvoiceResponseSchema));
     },
   );
 
@@ -359,8 +342,7 @@ export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
       },
       responses: {
         200: {
-          description:
-            "Delete a invoice by its unique identifier for the authenticated team.",
+          description: "Delete a invoice by its unique identifier for the authenticated team.",
           content: {
             "application/json": {
               schema: deleteInvoiceResponseSchema,

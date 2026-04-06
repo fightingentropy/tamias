@@ -109,17 +109,7 @@ export const upsertFilingProfileSchema = z.object({
 export const addVatAdjustmentSchema = z.object({
   obligationId: z.string().optional(),
   vatReturnId: z.string().optional(),
-  lineCode: z.enum([
-    "box1",
-    "box2",
-    "box3",
-    "box4",
-    "box5",
-    "box6",
-    "box7",
-    "box8",
-    "box9",
-  ]),
+  lineCode: z.enum(["box1", "box2", "box3", "box4", "box5", "box6", "box7", "box8", "box9"]),
   amount: z.number(),
   reason: z.string().trim().min(1),
   note: nullableString,
@@ -222,10 +212,9 @@ export const deleteCloseCompanyLoansScheduleSchema = z.object({
   periodKey: z.string().date().optional(),
 });
 
-export const upsertCorporationTaxRateScheduleSchema =
-  CorporationTaxRateScheduleSchema.extend({
-    periodKey: z.string().date().optional(),
-  });
+export const upsertCorporationTaxRateScheduleSchema = CorporationTaxRateScheduleSchema.extend({
+  periodKey: z.string().date().optional(),
+});
 
 export const deleteCorporationTaxRateScheduleSchema = z.object({
   periodKey: z.string().date().optional(),

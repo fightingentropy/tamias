@@ -35,15 +35,11 @@ export function tokenizeSearchValue(value: string | null | undefined) {
     .split(" ")
     .map((token) => token.trim())
     .filter(
-      (token) =>
-        token.length >= 2 &&
-        (!/^[a-z]+$/.test(token) || !SEARCH_STOP_WORDS.has(token)),
+      (token) => token.length >= 2 && (!/^[a-z]+$/.test(token) || !SEARCH_STOP_WORDS.has(token)),
     );
 }
 
-export function buildSearchIndexText(
-  values: Array<string | null | undefined>,
-) {
+export function buildSearchIndexText(values: Array<string | null | undefined>) {
   const terms = new Set<string>();
 
   for (const value of values) {
@@ -71,9 +67,7 @@ export function buildSearchQuery(value: string | null | undefined) {
   return buildSearchIndexText([value]);
 }
 
-export function buildAbsoluteAmountSearchValue(
-  amount: number | null | undefined,
-) {
+export function buildAbsoluteAmountSearchValue(amount: number | null | undefined) {
   if (typeof amount !== "number" || !Number.isFinite(amount)) {
     return null;
   }

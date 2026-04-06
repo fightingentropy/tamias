@@ -9,11 +9,7 @@ export function OpenCustomerSheet() {
 
   return (
     <div>
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={() => setParams({ createCustomer: true })}
-      >
+      <Button variant="outline" size="icon" onClick={() => setParams({ createCustomer: true })}>
         <Icons.Add />
       </Button>
     </div>

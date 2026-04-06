@@ -10,10 +10,7 @@ type CreateTransactionTagParams = {
   tagId: string;
 };
 
-export async function createTransactionTag(
-  _db: Database,
-  params: CreateTransactionTagParams,
-) {
+export async function createTransactionTag(_db: Database, params: CreateTransactionTagParams) {
   return createTransactionTagInConvex({
     teamId: params.teamId,
     transactionId: params.transactionId,
@@ -27,10 +24,7 @@ type DeleteTransactionTagParams = {
   teamId: string;
 };
 
-export async function deleteTransactionTag(
-  _db: Database,
-  params: DeleteTransactionTagParams,
-) {
+export async function deleteTransactionTag(_db: Database, params: DeleteTransactionTagParams) {
   return deleteTransactionTagInConvex({
     teamId: params.teamId,
     transactionId: params.transactionId,

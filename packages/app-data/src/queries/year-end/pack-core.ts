@@ -8,10 +8,7 @@ import { coerceDate } from "./formatting";
 import { assertUkComplianceEnabled } from "./runtime";
 import type { AnnualPeriod, TeamContext, YearEndPeriodContext } from "./types";
 
-export async function getTeamContext(
-  db: Database,
-  teamId: string,
-): Promise<TeamContext> {
+export async function getTeamContext(db: Database, teamId: string): Promise<TeamContext> {
   const team = await getTeamById(db, teamId);
 
   if (!team) {
@@ -91,11 +88,7 @@ export function resolveAnnualPeriod(
   } else {
     const referenceDate = resolveReferenceDate(options?.referenceDate);
     const referenceYear = referenceDate.getUTCFullYear();
-    const candidate = resolveYearEndDate(
-      referenceYear,
-      yearEndMonth,
-      yearEndDay,
-    );
+    const candidate = resolveYearEndDate(referenceYear, yearEndMonth, yearEndDay);
     periodEnd = isAfter(referenceDate, candidate)
       ? resolveYearEndDate(referenceYear + 1, yearEndMonth, yearEndDay)
       : candidate;
@@ -170,11 +163,7 @@ async function ensureAnnualObligations(
   };
 }
 
-export async function getYearEndContext(
-  db: Database,
-  teamId: string,
-  periodKey?: string,
-) {
+export async function getYearEndContext(db: Database, teamId: string, periodKey?: string) {
   const team = await getTeamContext(db, teamId);
   const profile = await getFilingProfile(db, teamId);
 

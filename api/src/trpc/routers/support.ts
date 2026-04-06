@@ -1,9 +1,6 @@
 import { ThreadFieldSchemaType } from "@team-plain/typescript-sdk";
 import { TRPCError } from "@trpc/server";
-import {
-  sendFeedbackSchema,
-  sendSupportTicketSchema,
-} from "../../schemas/support";
+import { sendFeedbackSchema, sendSupportTicketSchema } from "../../schemas/support";
 import { plain } from "../../services/plain";
 import { createTRPCRouter, protectedProcedure } from "../init";
 

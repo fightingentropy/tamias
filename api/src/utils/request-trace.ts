@@ -9,8 +9,7 @@ export type RequestTrace = {
 
 export function getRequestTrace(request: RequestHeaderReader): RequestTrace {
   const cfRay = request.header("cf-ray") ?? undefined;
-  const requestId =
-    request.header("x-request-id") ?? cfRay ?? crypto.randomUUID();
+  const requestId = request.header("x-request-id") ?? cfRay ?? crypto.randomUUID();
 
   return { requestId, cfRay };
 }

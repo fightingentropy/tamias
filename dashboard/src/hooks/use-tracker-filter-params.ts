@@ -1,10 +1,5 @@
 import { useQueryStates } from "nuqs";
-import {
-  createLoader,
-  parseAsArrayOf,
-  parseAsString,
-  parseAsStringLiteral,
-} from "nuqs/server";
+import { createLoader, parseAsArrayOf, parseAsString, parseAsStringLiteral } from "nuqs/server";
 
 export const useTrackerFilterParamsSchema = {
   q: parseAsString,
@@ -25,6 +20,4 @@ export function useTrackerFilterParams() {
   };
 }
 
-export const loadTrackerFilterParams = createLoader(
-  useTrackerFilterParamsSchema,
-);
+export const loadTrackerFilterParams = createLoader(useTrackerFilterParamsSchema);

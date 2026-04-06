@@ -2,11 +2,7 @@ import { getCategoryColor } from "@tamias/categories";
 import type { Database } from "../../../client";
 import { reuseQueryResult } from "../../../utils/request-cache";
 import { serializeMetricRangeParams } from "../metrics-common";
-import {
-  getCategoryInfo,
-  humanizeCategorySlug,
-  roundMoney,
-} from "../shared";
+import { getCategoryInfo, humanizeCategorySlug, roundMoney } from "../shared";
 import { getMetricAggregateData } from "./common";
 
 export type GetSpendingParams = {
@@ -52,34 +48,25 @@ async function getSpendingImpl(
       continue;
     }
 
-    categoryTotals.set(
-      slug,
-      roundMoney((categoryTotals.get(slug) ?? 0) + amount),
-    );
+    categoryTotals.set(slug, roundMoney((categoryTotals.get(slug) ?? 0) + amount));
   }
 
-  const categorySpending = [...categoryTotals.entries()].map(
-    ([slug, amount]) => {
-      const categoryInfo = getCategoryInfo(slug, null);
-      const percentage = totalAmount !== 0 ? (amount / totalAmount) * 100 : 0;
+  const categorySpending = [...categoryTotals.entries()].map(([slug, amount]) => {
+    const categoryInfo = getCategoryInfo(slug, null);
+    const percentage = totalAmount !== 0 ? (amount / totalAmount) * 100 : 0;
 
-      return {
-        name: categoryInfo?.name || humanizeCategorySlug(slug),
-        slug,
-        amount,
-        currency: aggregateData.targetCurrency || "USD",
-        color: categoryInfo?.color || getCategoryColor(slug),
-        percentage:
-          percentage > 1
-            ? Math.round(percentage)
-            : Math.round(percentage * 100) / 100,
-      };
-    },
-  );
+    return {
+      name: categoryInfo?.name || humanizeCategorySlug(slug),
+      slug,
+      amount,
+      currency: aggregateData.targetCurrency || "USD",
+      color: categoryInfo?.color || getCategoryColor(slug),
+      percentage: percentage > 1 ? Math.round(percentage) : Math.round(percentage * 100) / 100,
+    };
+  });
 
   if (uncategorizedAmount > 0) {
-    const percentage =
-      totalAmount !== 0 ? (uncategorizedAmount / totalAmount) * 100 : 0;
+    const percentage = totalAmount !== 0 ? (uncategorizedAmount / totalAmount) * 100 : 0;
 
     categorySpending.push({
       name: "Uncategorized",
@@ -87,10 +74,7 @@ async function getSpendingImpl(
       amount: uncategorizedAmount,
       currency: aggregateData.targetCurrency || "USD",
       color: "#606060",
-      percentage:
-        percentage > 1
-          ? Math.round(percentage)
-          : Math.round(percentage * 100) / 100,
+      percentage: percentage > 1 ? Math.round(percentage) : Math.round(percentage * 100) / 100,
     });
   }
 

@@ -1,9 +1,6 @@
 import { createRoute, type OpenAPIHono, z } from "@hono/zod-openapi";
 import { getTransactionAttachment } from "@tamias/app-data/queries";
-import {
-  getTransactionByIdForTeam,
-  getTransactionsPage,
-} from "@tamias/app-services/transactions";
+import { getTransactionByIdForTeam, getTransactionsPage } from "@tamias/app-services/transactions";
 import {
   getTransactionAttachmentPreSignedUrlSchema,
   getTransactionByIdSchema,
@@ -25,16 +22,14 @@ export function registerTransactionReadRoutes(app: OpenAPIHono<Context>) {
       summary: "List all transactions",
       operationId: "listTransactions",
       "x-speakeasy-name-override": "list",
-      description:
-        "Retrieve a list of transactions for the authenticated team.",
+      description: "Retrieve a list of transactions for the authenticated team.",
       tags: ["Transactions"],
       request: {
         query: getTransactionsSchema,
       },
       responses: {
         200: {
-          description:
-            "Retrieve a list of transactions for the authenticated team.",
+          description: "Retrieve a list of transactions for the authenticated team.",
           content: {
             "application/json": {
               schema: transactionsResponseSchema,
@@ -66,8 +61,7 @@ export function registerTransactionReadRoutes(app: OpenAPIHono<Context>) {
       summary: "Retrieve a transaction",
       operationId: "getTransactionById",
       "x-speakeasy-name-override": "get",
-      description:
-        "Retrieve a transaction by its ID for the authenticated team.",
+      description: "Retrieve a transaction by its ID for the authenticated team.",
       tags: ["Transactions"],
       request: {
         params: getTransactionByIdSchema.pick({ id: true }),
@@ -148,8 +142,7 @@ export function registerTransactionReadRoutes(app: OpenAPIHono<Context>) {
           },
         },
         500: {
-          description:
-            "Internal server error - Failed to generate pre-signed URL",
+          description: "Internal server error - Failed to generate pre-signed URL",
           content: {
             "application/json": {
               schema: z.object({
@@ -204,13 +197,7 @@ export function registerTransactionReadRoutes(app: OpenAPIHono<Context>) {
         fileName: attachment.name || attachment.path.at(-1) || null,
       };
 
-      return c.json(
-        validateResponse(
-          result,
-          transactionAttachmentPreSignedUrlResponseSchema,
-        ),
-        200,
-      );
+      return c.json(validateResponse(result, transactionAttachmentPreSignedUrlResponseSchema), 200);
     },
   );
 }

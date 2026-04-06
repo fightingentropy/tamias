@@ -37,9 +37,7 @@ export function BillableHoursWidget() {
     router.push("/tracker");
   };
 
-  const hours = hasBillableHours
-    ? Math.floor((billableData.totalDuration || 0) / 3600)
-    : 0;
+  const hours = hasBillableHours ? Math.floor((billableData.totalDuration || 0) / 3600) : 0;
 
   const minutes = hasBillableHours
     ? Math.floor(((billableData.totalDuration || 0) % 3600) / 60)
@@ -64,9 +62,7 @@ export function BillableHoursWidget() {
             </span>
           ))}
           {currencyEntries.length === 0 && (
-            <span className="text-xs text-[#666]">
-              {t("billable_hours.no_hours")}
-            </span>
+            <span className="text-xs text-[#666]">{t("billable_hours.no_hours")}</span>
           )}
         </div>
       }

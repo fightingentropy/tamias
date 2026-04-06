@@ -8,11 +8,7 @@ import {
 import { getTeamById } from "@tamias/app-data/queries";
 import { DocumentClient } from "@tamias/documents";
 import { enqueue } from "@tamias/job-client";
-import {
-  downloadVaultFile,
-  getVaultSignedUrl,
-  uploadVaultFile,
-} from "@tamias/storage";
+import { downloadVaultFile, getVaultSignedUrl, uploadVaultFile } from "@tamias/storage";
 import type { WorkerJob as Job } from "../../types/job";
 import type { ProcessAttachmentPayload } from "../../schemas/inbox";
 import { getDb } from "../../utils/db";
@@ -24,16 +20,8 @@ import { BaseProcessor } from "../base";
 export class ProcessAttachmentProcessor extends BaseProcessor<ProcessAttachmentPayload> {
   async process(job: Job<ProcessAttachmentPayload>): Promise<void> {
     const processStartTime = Date.now();
-    const {
-      teamId,
-      mimetype,
-      size,
-      filePath,
-      referenceId,
-      website,
-      senderEmail,
-      inboxAccountId,
-    } = job.data;
+    const { teamId, mimetype, size, filePath, referenceId, website, senderEmail, inboxAccountId } =
+      job.data;
     const db = getDb();
 
     const fileName = filePath.join("/");
@@ -189,10 +177,7 @@ export class ProcessAttachmentProcessor extends BaseProcessor<ProcessAttachmentP
         }
 
         // If the item is already processed (not new/processing), skip
-        if (
-          createdData.status !== "processing" &&
-          createdData.status !== "new"
-        ) {
+        if (createdData.status !== "processing" && createdData.status !== "new") {
           this.logger.info(
             "Found existing inbox item via referenceId conflict, skipping duplicate",
             {
@@ -208,13 +193,10 @@ export class ProcessAttachmentProcessor extends BaseProcessor<ProcessAttachmentP
 
       inboxData = createdData;
     } else if (inboxData.status === "processing") {
-      this.logger.info(
-        "Found existing inbox item already in processing status",
-        {
-          inboxId: inboxData.id,
-          filePath: fileName,
-        },
-      );
+      this.logger.info("Found existing inbox item already in processing status", {
+        inboxId: inboxData.id,
+        filePath: fileName,
+      });
     } else {
       this.logger.info("Found existing inbox item with status", {
         inboxId: inboxData.id,
@@ -229,15 +211,12 @@ export class ProcessAttachmentProcessor extends BaseProcessor<ProcessAttachmentP
 
     // Create signed URL and fetch team data in parallel (they don't depend on each other)
     const preProcessingStartTime = Date.now();
-    this.logger.info(
-      "Starting parallel pre-processing (signed URL + team data)",
-      {
-        jobId: job.id,
-        inboxId: inboxData.id,
-        fileName,
-        teamId,
-      },
-    );
+    this.logger.info("Starting parallel pre-processing (signed URL + team data)", {
+      jobId: job.id,
+      inboxId: inboxData.id,
+      fileName,
+      teamId,
+    });
 
     const [signedUrlResult, teamData] = await Promise.all([
       // Create signed URL for document processing
@@ -330,14 +309,11 @@ export class ProcessAttachmentProcessor extends BaseProcessor<ProcessAttachmentP
           status: "other",
         });
 
-        this.logger.info(
-          "Document classified as other (non-financial), skipping matching",
-          {
-            jobId: job.id,
-            inboxId: inboxData.id,
-            fileName,
-          },
-        );
+        this.logger.info("Document classified as other (non-financial), skipping matching", {
+          jobId: job.id,
+          inboxId: inboxData.id,
+          fileName,
+        });
 
         return; // Skip embedding and transaction matching for non-financial documents
       }
@@ -400,14 +376,11 @@ export class ProcessAttachmentProcessor extends BaseProcessor<ProcessAttachmentP
           return result;
         })
         .catch((error) => {
-          this.logger.warn(
-            "Failed to trigger document processing (non-critical)",
-            {
-              jobId: job.id,
-              inboxId: inboxData.id,
-              error: error instanceof Error ? error.message : "Unknown error",
-            },
-          );
+          this.logger.warn("Failed to trigger document processing (non-critical)", {
+            jobId: job.id,
+            inboxId: inboxData.id,
+            error: error instanceof Error ? error.message : "Unknown error",
+          });
           // Don't fail the entire process if document processing fails
           return null;
         });
@@ -439,25 +412,16 @@ export class ProcessAttachmentProcessor extends BaseProcessor<ProcessAttachmentP
             id: inboxData.id,
             status: "pending",
           });
-          this.logger.info(
-            "Updated inbox status to pending after matching job failed",
-            {
-              jobId: job.id,
-              inboxId: inboxData.id,
-            },
-          );
+          this.logger.info("Updated inbox status to pending after matching job failed", {
+            jobId: job.id,
+            inboxId: inboxData.id,
+          });
         } catch (updateError) {
-          this.logger.error(
-            "Failed to update inbox status after matching job failure",
-            {
-              jobId: job.id,
-              inboxId: inboxData.id,
-              error:
-                updateError instanceof Error
-                  ? updateError.message
-                  : "Unknown error",
-            },
-          );
+          this.logger.error("Failed to update inbox status after matching job failure", {
+            jobId: job.id,
+            inboxId: inboxData.id,
+            error: updateError instanceof Error ? updateError.message : "Unknown error",
+          });
         }
         // Don't throw - allow document processing to continue.
       }
@@ -490,28 +454,21 @@ export class ProcessAttachmentProcessor extends BaseProcessor<ProcessAttachmentP
 
       // Re-throw timeout errors to trigger retry
       if (error instanceof Error && error.name === "AbortError") {
-        this.logger.warn(
-          "Document processing failed with retryable error, will retry",
-          {
-            inboxId: inboxData.id,
-            referenceId,
-            errorType: error.name,
-            errorMessage: error.message,
-          },
-        );
+        this.logger.warn("Document processing failed with retryable error, will retry", {
+          inboxId: inboxData.id,
+          referenceId,
+          errorType: error.name,
+          errorMessage: error.message,
+        });
         throw error;
       }
 
       // For non-retryable errors, mark as pending with fallback name
-      this.logger.info(
-        "Document processing failed, marking as pending with fallback name",
-        {
-          inboxId: inboxData.id,
-          referenceId,
-          errorMessage:
-            error instanceof Error ? error.message : "Unknown error",
-        },
-      );
+      this.logger.info("Document processing failed, marking as pending with fallback name", {
+        inboxId: inboxData.id,
+        referenceId,
+        errorMessage: error instanceof Error ? error.message : "Unknown error",
+      });
 
       await updateInbox(db, {
         id: inboxData.id,

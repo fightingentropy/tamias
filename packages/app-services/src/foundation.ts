@@ -31,17 +31,11 @@ export async function getApiKeyByTokenFromConvex(token: string) {
 }
 
 export async function getApiKeysByTeamFromConvex(publicTeamId: string) {
-  return getClient().query(
-    api.foundation.serviceListApiKeysByTeam,
-    serviceArgs({ publicTeamId }),
-  );
+  return getClient().query(api.foundation.serviceListApiKeysByTeam, serviceArgs({ publicTeamId }));
 }
 
 export async function touchApiKeyFromConvex(publicApiKeyId: string) {
-  return getClient().mutation(
-    api.foundation.serviceTouchApiKey,
-    serviceArgs({ publicApiKeyId }),
-  );
+  return getClient().mutation(api.foundation.serviceTouchApiKey, serviceArgs({ publicApiKeyId }));
 }
 
 export async function createApiKeyInConvex(args: {
@@ -50,10 +44,7 @@ export async function createApiKeyInConvex(args: {
   name: string;
   scopes: string[];
 }) {
-  return getClient().action(
-    api.foundationActions.serviceCreateApiKey,
-    serviceArgs(args),
-  );
+  return getClient().action(api.foundationActions.serviceCreateApiKey, serviceArgs(args));
 }
 
 export async function updateApiKeyInConvex(args: {
@@ -62,25 +53,14 @@ export async function updateApiKeyInConvex(args: {
   name: string;
   scopes: string[];
 }) {
-  return getClient().action(
-    api.foundationActions.serviceUpdateApiKey,
-    serviceArgs(args),
-  );
+  return getClient().action(api.foundationActions.serviceUpdateApiKey, serviceArgs(args));
 }
 
-export async function deleteApiKeyInConvex(args: {
-  publicApiKeyId: string;
-  publicTeamId: string;
-}) {
-  return getClient().mutation(
-    api.foundation.serviceDeleteApiKey,
-    serviceArgs(args),
-  );
+export async function deleteApiKeyInConvex(args: { publicApiKeyId: string; publicTeamId: string }) {
+  return getClient().mutation(api.foundation.serviceDeleteApiKey, serviceArgs(args));
 }
 
-export async function getOAuthApplicationByClientIdFromConvex(
-  clientId: string,
-) {
+export async function getOAuthApplicationByClientIdFromConvex(clientId: string) {
   return getClient().query(
     api.foundation.serviceGetOAuthApplicationByClientId,
     serviceArgs({ clientId }),
@@ -91,15 +71,10 @@ export async function getOAuthApplicationByIdFromConvex(args: {
   publicApplicationId: string;
   publicTeamId?: string;
 }) {
-  return getClient().query(
-    api.foundation.serviceGetOAuthApplicationById,
-    serviceArgs(args),
-  );
+  return getClient().query(api.foundation.serviceGetOAuthApplicationById, serviceArgs(args));
 }
 
-export async function getOAuthApplicationsByTeamFromConvex(
-  publicTeamId: string,
-) {
+export async function getOAuthApplicationsByTeamFromConvex(publicTeamId: string) {
   return getClient().query(
     api.foundation.serviceListOAuthApplicationsByTeam,
     serviceArgs({ publicTeamId }),
@@ -121,10 +96,7 @@ export async function createOAuthApplicationInConvex(args: {
   scopes: string[];
   isPublic: boolean;
 }) {
-  return getClient().action(
-    api.foundationActions.serviceCreateOAuthApplication,
-    serviceArgs(args),
-  );
+  return getClient().action(api.foundationActions.serviceCreateOAuthApplication, serviceArgs(args));
 }
 
 export async function updateOAuthApplicationInConvex(args: {
@@ -143,20 +115,14 @@ export async function updateOAuthApplicationInConvex(args: {
   isPublic?: boolean;
   active?: boolean;
 }) {
-  return getClient().mutation(
-    api.foundation.serviceUpdateOAuthApplication,
-    serviceArgs(args),
-  );
+  return getClient().mutation(api.foundation.serviceUpdateOAuthApplication, serviceArgs(args));
 }
 
 export async function deleteOAuthApplicationInConvex(args: {
   publicApplicationId: string;
   publicTeamId: string;
 }) {
-  return getClient().mutation(
-    api.foundation.serviceDeleteOAuthApplication,
-    serviceArgs(args),
-  );
+  return getClient().mutation(api.foundation.serviceDeleteOAuthApplication, serviceArgs(args));
 }
 
 export async function regenerateOAuthClientSecretInConvex(args: {
@@ -213,9 +179,7 @@ export async function getOAuthAccessTokenByTokenFromConvex(token: string) {
   );
 }
 
-export async function touchOAuthAccessTokenFromConvex(
-  publicAccessTokenId: string,
-) {
+export async function touchOAuthAccessTokenFromConvex(publicAccessTokenId: string) {
   return getClient().mutation(
     api.foundation.serviceTouchOAuthAccessToken,
     serviceArgs({ publicAccessTokenId }),
@@ -254,10 +218,7 @@ export async function getUserAuthorizedApplicationsFromConvex(args: {
   userId: ConvexUserId;
   publicTeamId: string;
 }) {
-  return getClient().query(
-    api.foundation.serviceGetUserAuthorizedApplications,
-    serviceArgs(args),
-  );
+  return getClient().query(api.foundation.serviceGetUserAuthorizedApplications, serviceArgs(args));
 }
 
 export async function hasUserEverAuthorizedAppInConvex(args: {
@@ -265,18 +226,12 @@ export async function hasUserEverAuthorizedAppInConvex(args: {
   userId: ConvexUserId;
   publicTeamId: string;
 }) {
-  return getClient().query(
-    api.foundation.serviceHasUserEverAuthorizedApp,
-    serviceArgs(args),
-  );
+  return getClient().query(api.foundation.serviceHasUserEverAuthorizedApp, serviceArgs(args));
 }
 
 export async function revokeUserApplicationTokensInConvex(args: {
   publicApplicationId: string;
   userId: ConvexUserId;
 }) {
-  return getClient().mutation(
-    api.foundation.serviceRevokeUserApplicationTokens,
-    serviceArgs(args),
-  );
+  return getClient().mutation(api.foundation.serviceRevokeUserApplicationTokens, serviceArgs(args));
 }

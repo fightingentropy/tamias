@@ -72,16 +72,11 @@ export class PlaidApi {
 
   async getHealthCheck() {
     try {
-      const response = await fetch(
-        "https://status.plaid.com/api/v2/status.json",
-      );
+      const response = await fetch("https://status.plaid.com/api/v2/status.json");
 
       const data = (await response.json()) as GetStatusResponse;
 
-      return (
-        data.status.indicator === "none" ||
-        data.status.indicator === "maintenance"
-      );
+      return data.status.indicator === "none" || data.status.indicator === "maintenance";
     } catch {
       return false;
     }
@@ -208,9 +203,7 @@ export class PlaidApi {
     language = "en",
     accessToken,
     environment = "production",
-  }: LinkTokenCreateRequest): Promise<
-    import("axios").AxiosResponse<LinkTokenCreateResponse>
-  > {
+  }: LinkTokenCreateRequest): Promise<import("axios").AxiosResponse<LinkTokenCreateResponse>> {
     return this.#client.linkTokenCreate({
       client_id: this.#clientId,
       secret: this.#clientSecret,

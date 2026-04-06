@@ -7,13 +7,7 @@ const dictionaries = {
   en,
 } as const;
 
-type DictionaryValue =
-  | string
-  | number
-  | boolean
-  | null
-  | undefined
-  | Record<string, unknown>;
+type DictionaryValue = string | number | boolean | null | undefined | Record<string, unknown>;
 
 function lookupValue(dictionary: Record<string, unknown>, key: string) {
   return key
@@ -53,12 +47,10 @@ export function createTranslator(locale: string) {
     const pluralKey =
       count == null
         ? null
-        : [...baseSegments, `${lastSegment}#${count === 1 ? "one" : "other"}`]
-            .join(".");
+        : [...baseSegments, `${lastSegment}#${count === 1 ? "one" : "other"}`].join(".");
 
     const translated =
-      (pluralKey ? lookupValue(dictionary, pluralKey) : undefined) ??
-      lookupValue(dictionary, key);
+      (pluralKey ? lookupValue(dictionary, pluralKey) : undefined) ?? lookupValue(dictionary, key);
 
     if (typeof translated !== "string") {
       return key;

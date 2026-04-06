@@ -1,8 +1,5 @@
 import { getStartContext } from "@tanstack/start-storage-context";
-import {
-  DEFAULT_ROOT_BOOTSTRAP,
-  type RootBootstrapData,
-} from "@/start/root-bootstrap";
+import { DEFAULT_ROOT_BOOTSTRAP, type RootBootstrapData } from "@/start/root-bootstrap";
 
 export function resolveRootBootstrapData(): RootBootstrapData {
   const startContext = getStartContext({ throwIfNotFound: false });

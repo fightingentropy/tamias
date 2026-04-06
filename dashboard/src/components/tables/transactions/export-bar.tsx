@@ -15,10 +15,7 @@ import Link from "@/framework/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ExportTransactionsModal } from "@/components/modals/export-transactions-modal";
 import { Portal } from "@/components/portal";
-import {
-  type AccountingJobResult,
-  useAccountingError,
-} from "@/hooks/use-accounting-error";
+import { type AccountingJobResult, useAccountingError } from "@/hooks/use-accounting-error";
 import { useJobStatus } from "@/hooks/use-job-status";
 import { useSuccessSound } from "@/hooks/use-success-sound";
 import { useTransactionTab } from "@/hooks/use-transaction-tab";
@@ -49,24 +46,18 @@ type ExportPreference = "accounting" | "file";
 export function ExportBar() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const { showExportResult, showJobFailure, showMutationError } =
-    useAccountingError();
+  const { showExportResult, showJobFailure, showMutationError } = useAccountingError();
   const { play: playSuccessSound } = useSuccessSound();
   const { tab } = useTransactionTab();
-  const {
-    exportData,
-    setExportData,
-    setIsExporting,
-    setExportingTransactionIds,
-  } = useExportStore();
+  const { exportData, setExportData, setIsExporting, setExportingTransactionIds } =
+    useExportStore();
   const { rowSelectionByTab, setRowSelection } = useTransactionsStore();
   // ExportBar is only shown on review tab, so use review tab selection
   const rowSelection = rowSelectionByTab.review;
   const [isOpen, setOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [exportingCount, setExportingCount] = useState<number | null>(null);
-  const [exportPreference, setExportPreference] =
-    useState<ExportPreference>("file");
+  const [exportPreference, setExportPreference] = useState<ExportPreference>("file");
   const hasShownErrorRef = useRef(false);
 
   const isReviewTab = tab === "review";
@@ -79,17 +70,11 @@ export function ExportBar() {
   // Find all connected accounting providers
   const connectedProviders = useMemo(() => {
     const accountingProviderIds = ["xero", "quickbooks", "fortnox"];
-    return (
-      connectedApps?.filter((app) =>
-        accountingProviderIds.includes(app.app_id),
-      ) ?? []
-    );
+    return connectedApps?.filter((app) => accountingProviderIds.includes(app.app_id)) ?? [];
   }, [connectedApps]);
 
   // Track which provider is selected for the primary export button
-  const [selectedProviderId, setSelectedProviderId] = useState<string | null>(
-    null,
-  );
+  const [selectedProviderId, setSelectedProviderId] = useState<string | null>(null);
 
   // Set default selected provider when connected providers change
   useEffect(() => {
@@ -117,9 +102,7 @@ export function ExportBar() {
           setExportData({
             runId: data.runId,
             exportType: "accounting",
-            providerName:
-              PROVIDER_NAMES[activeProvider?.app_id ?? ""] ??
-              activeProvider?.app_id,
+            providerName: PROVIDER_NAMES[activeProvider?.app_id ?? ""] ?? activeProvider?.app_id,
           });
           setRowSelection("review", {});
         }
@@ -239,9 +222,7 @@ export function ExportBar() {
     }
   }, [shouldShow]);
 
-  const ProviderIcon = activeProvider
-    ? PROVIDER_ICONS[activeProvider.app_id]
-    : null;
+  const ProviderIcon = activeProvider ? PROVIDER_ICONS[activeProvider.app_id] : null;
 
   // Select accounting export for a specific provider
   const selectAccountingExport = (providerId: string) => {
@@ -356,17 +337,14 @@ export function ExportBar() {
                       className="rounded-r-none gap-2"
                     >
                       {/* Show provider icon only for accounting export */}
-                      {activeProvider &&
-                        exportPreference === "accounting" &&
-                        ProviderIcon && <ProviderIcon className="size-4" />}
+                      {activeProvider && exportPreference === "accounting" && ProviderIcon && (
+                        <ProviderIcon className="size-4" />
+                      )}
                       <span>Export</span>
                     </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button
-                          disabled={displayCount === 0}
-                          className="rounded-l-none px-2"
-                        >
+                        <Button disabled={displayCount === 0} className="rounded-l-none px-2">
                           <Icons.ChevronDown className="size-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -377,9 +355,7 @@ export function ExportBar() {
                           return (
                             <DropdownMenuItem
                               key={provider.app_id}
-                              onClick={() =>
-                                selectAccountingExport(provider.app_id)
-                              }
+                              onClick={() => selectAccountingExport(provider.app_id)}
                             >
                               {Icon && <Icon className="size-4 mr-2" />}
                               Export to {PROVIDER_NAMES[provider.app_id]}
@@ -413,10 +389,7 @@ export function ExportBar() {
         </AnimatePresence>
       </Portal>
 
-      <ExportTransactionsModal
-        isOpen={isModalOpen}
-        onOpenChange={setIsModalOpen}
-      />
+      <ExportTransactionsModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} />
     </>
   );
 }

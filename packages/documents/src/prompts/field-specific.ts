@@ -2,10 +2,7 @@
  * Field-specific extraction prompts for targeted re-extraction
  */
 
-export const fieldSpecificInstructions: Record<
-  string,
-  (companyName?: string | null) => string
-> = {
+export const fieldSpecificInstructions: Record<string, (companyName?: string | null) => string> = {
   total_amount: () => `
 Extract ONLY the total amount from this invoice. 
 - Look for the final amount due, usually labeled "Total", "Amount Due", "Balance Due", or "Grand Total"

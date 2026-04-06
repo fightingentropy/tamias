@@ -7,10 +7,7 @@ import {
 } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import { enrichProjects } from "../enrich";
-import type {
-  GetTrackerProjectsParams,
-  TrackerProjectListItem,
-} from "../types";
+import type { GetTrackerProjectsParams, TrackerProjectListItem } from "../types";
 import { matchesProjectSearch } from "./shared";
 
 const TRACKER_PROJECT_PAGE_CURSOR_PREFIX = "tracker-project:";
@@ -34,20 +31,17 @@ function decodeIndexedTrackerProjectCursor(
 
   try {
     const parsed = JSON.parse(
-      Buffer.from(
-        cursor.slice(TRACKER_PROJECT_PAGE_CURSOR_PREFIX.length),
-        "base64url",
-      ).toString("utf8"),
+      Buffer.from(cursor.slice(TRACKER_PROJECT_PAGE_CURSOR_PREFIX.length), "base64url").toString(
+        "utf8",
+      ),
     ) as Partial<IndexedTrackerProjectCursorState>;
 
     return {
-      sourceCursor:
-        typeof parsed.sourceCursor === "string" ? parsed.sourceCursor : null,
+      sourceCursor: typeof parsed.sourceCursor === "string" ? parsed.sourceCursor : null,
       sourceExhausted: parsed.sourceExhausted === true,
       bufferedIds: Array.isArray(parsed.bufferedIds)
         ? parsed.bufferedIds.filter(
-            (bufferedId): bufferedId is string =>
-              typeof bufferedId === "string",
+            (bufferedId): bufferedId is string => typeof bufferedId === "string",
           )
         : [],
     };
@@ -60,9 +54,7 @@ function decodeIndexedTrackerProjectCursor(
   }
 }
 
-function encodeIndexedTrackerProjectCursor(
-  state: IndexedTrackerProjectCursorState,
-) {
+function encodeIndexedTrackerProjectCursor(state: IndexedTrackerProjectCursorState) {
   return `${TRACKER_PROJECT_PAGE_CURSOR_PREFIX}${Buffer.from(
     JSON.stringify(state),
     "utf8",
@@ -80,10 +72,7 @@ function getIndexedTrackerProjectOrder(sort: GetTrackerProjectsParams["sort"]) {
 
   const [column, direction] = sort;
 
-  if (
-    column !== "created_at" ||
-    (direction !== "asc" && direction !== "desc")
-  ) {
+  if (column !== "created_at" || (direction !== "asc" && direction !== "desc")) {
     return null;
   }
 
@@ -137,11 +126,7 @@ function matchesIndexedTrackerProjectCandidate(
     return false;
   }
 
-  if (
-    args.start &&
-    args.end &&
-    (project.createdAt < args.start || project.createdAt > args.end)
-  ) {
+  if (args.start && args.end && (project.createdAt < args.start || project.createdAt > args.end)) {
     return false;
   }
 
@@ -170,10 +155,7 @@ function buildTrackerProjectPageResponse(args: {
   };
 }
 
-async function getTrackerProjectsByIdsInOrder(args: {
-  teamId: string;
-  projectIds: string[];
-}) {
+async function getTrackerProjectsByIdsInOrder(args: { teamId: string; projectIds: string[] }) {
   if (args.projectIds.length === 0) {
     return [];
   }
@@ -182,9 +164,7 @@ async function getTrackerProjectsByIdsInOrder(args: {
     teamId: args.teamId,
     projectIds: args.projectIds,
   });
-  const projectsById = new Map(
-    projects.map((project) => [project.id, project]),
-  );
+  const projectsById = new Map(projects.map((project) => [project.id, project]));
 
   return args.projectIds.flatMap((projectId) => {
     const project = projectsById.get(projectId);
@@ -197,18 +177,7 @@ export async function getIndexedTrackerProjectsPage(
   db: Database,
   params: GetTrackerProjectsParams,
 ) {
-  const {
-    teamId,
-    sort,
-    cursor,
-    pageSize = 25,
-    q,
-    status,
-    start,
-    end,
-    customers,
-    tags,
-  } = params;
+  const { teamId, sort, cursor, pageSize = 25, q, status, start, end, customers, tags } = params;
   const order = getIndexedTrackerProjectOrder(sort) ?? "desc";
   const customerIds = customers?.length ? new Set(customers) : null;
   const hasTagFilter = Boolean(tags?.length);
@@ -304,10 +273,7 @@ export async function getIndexedTrackerProjectsPage(
     sourceCursor = result.isDone ? null : result.continueCursor;
     sourceExhausted = result.isDone;
 
-    if (
-      result.page.length === 0 &&
-      (result.isDone || sourceCursor === previousSourceCursor)
-    ) {
+    if (result.page.length === 0 && (result.isDone || sourceCursor === previousSourceCursor)) {
       break;
     }
   }

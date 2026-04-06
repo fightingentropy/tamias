@@ -86,9 +86,7 @@ export interface AccountingProvider {
    * @param params - Delete parameters
    * @returns Delete result
    */
-  deleteAttachment(
-    params: DeleteAttachmentParams,
-  ): Promise<DeleteAttachmentResult>;
+  deleteAttachment(params: DeleteAttachmentParams): Promise<DeleteAttachmentResult>;
 
   /**
    * Get organization/tenant details
@@ -104,9 +102,7 @@ export interface AccountingProvider {
    * Get tenants (organizations) connected to this provider
    * @returns List of tenants with their IDs and names
    */
-  getTenants(): Promise<
-    Array<{ tenantId: string; tenantName: string; tenantType: string }>
-  >;
+  getTenants(): Promise<Array<{ tenantId: string; tenantName: string; tenantType: string }>>;
 
   /**
    * Check if the connection to the provider is valid
@@ -173,15 +169,9 @@ export abstract class BaseAccountingProvider implements AccountingProvider {
   abstract exchangeCodeForTokens(code: string): Promise<TokenSet>;
   abstract refreshTokens(refreshToken: string): Promise<TokenSet>;
   abstract getAccounts(tenantId: string): Promise<AccountingAccount[]>;
-  abstract syncTransactions(
-    params: SyncTransactionsParams,
-  ): Promise<SyncResult>;
-  abstract uploadAttachment(
-    params: UploadAttachmentParams,
-  ): Promise<AttachmentResult>;
-  abstract deleteAttachment(
-    params: DeleteAttachmentParams,
-  ): Promise<DeleteAttachmentResult>;
+  abstract syncTransactions(params: SyncTransactionsParams): Promise<SyncResult>;
+  abstract uploadAttachment(params: UploadAttachmentParams): Promise<AttachmentResult>;
+  abstract deleteAttachment(params: DeleteAttachmentParams): Promise<DeleteAttachmentResult>;
   abstract getTenantInfo(
     tenantId: string,
   ): Promise<{ id: string; name: string; currency?: string }>;
@@ -287,8 +277,7 @@ export abstract class BaseAccountingProvider implements AccountingProvider {
       }
 
       // Status code fallback
-      const status =
-        (err.response as Record<string, unknown>)?.statusCode ?? err.statusCode;
+      const status = (err.response as Record<string, unknown>)?.statusCode ?? err.statusCode;
       if (status) return `API error (HTTP ${status})`;
 
       // Direct message property
@@ -299,9 +288,7 @@ export abstract class BaseAccountingProvider implements AccountingProvider {
   }
 
   /** Extract body from error object */
-  private extractBody(
-    err: Record<string, unknown>,
-  ): Record<string, unknown> | null {
+  private extractBody(err: Record<string, unknown>): Record<string, unknown> | null {
     const response = err.response as Record<string, unknown> | undefined;
     if (response?.body && typeof response.body === "object") {
       return response.body as Record<string, unknown>;
@@ -317,9 +304,7 @@ export abstract class BaseAccountingProvider implements AccountingProvider {
     // Xero validation errors: Elements[0].ValidationErrors[0].Message
     if (body.Elements && Array.isArray(body.Elements)) {
       const elem = body.Elements[0] as Record<string, unknown> | undefined;
-      const validationErrors = elem?.ValidationErrors as
-        | Array<Record<string, unknown>>
-        | undefined;
+      const validationErrors = elem?.ValidationErrors as Array<Record<string, unknown>> | undefined;
       if (validationErrors?.[0]?.Message) {
         return String(validationErrors[0].Message);
       }
@@ -355,17 +340,10 @@ export abstract class BaseAccountingProvider implements AccountingProvider {
    * Execute an API call with retry logic for rate limits and transient errors
    * Uses the provider's rateLimitConfig for retry behavior
    */
-  protected async withRetry<T>(
-    operation: () => Promise<T>,
-    context: string,
-  ): Promise<T> {
+  protected async withRetry<T>(operation: () => Promise<T>, context: string): Promise<T> {
     let lastError: AccountingError | null = null;
 
-    for (
-      let attempt = 1;
-      attempt <= this.rateLimitConfig.maxRetries;
-      attempt++
-    ) {
+    for (let attempt = 1; attempt <= this.rateLimitConfig.maxRetries; attempt++) {
       try {
         return await operation();
       } catch (error) {
@@ -376,10 +354,7 @@ export abstract class BaseAccountingProvider implements AccountingProvider {
           const delay =
             lastError.type === "rate_limit"
               ? this.rateLimitConfig.retryDelayMs
-              : Math.min(
-                  this.rateLimitConfig.retryDelayMs * 2 ** (attempt - 1),
-                  300_000,
-                );
+              : Math.min(this.rateLimitConfig.retryDelayMs * 2 ** (attempt - 1), 300_000);
 
           await sleep(delay);
           continue;
@@ -421,9 +396,7 @@ export abstract class BaseAccountingProvider implements AccountingProvider {
     const expiresAt = new Date(this.config.config.expiresAt);
 
     if (this.isTokenExpired(expiresAt)) {
-      const newTokens = await this.refreshTokens(
-        this.config.config.refreshToken,
-      );
+      const newTokens = await this.refreshTokens(this.config.config.refreshToken);
       // Update config with new tokens
       this.config.config = {
         ...this.config.config,

@@ -15,9 +15,7 @@ export const Route = createLazyFileRoute("/teams")({
 });
 
 function TeamsPage() {
-  const loaderData = Route.useLoaderData() as Awaited<
-    ReturnType<typeof loadTeamsData>
-  >;
+  const loaderData = Route.useLoaderData() as Awaited<ReturnType<typeof loadTeamsData>>;
   const activeTeamCount =
     loaderData.teams.filter((team: (typeof loaderData.teams)[number]) => {
       if (team.plan === "starter" || team.plan === "pro") {
@@ -30,17 +28,11 @@ function TeamsPage() {
 
       return false;
     }).length ?? 0;
-  const canCreateTeam =
-    !loaderData.teams.length || activeTeamCount >= loaderData.teams.length;
+  const canCreateTeam = !loaderData.teams.length || activeTeamCount >= loaderData.teams.length;
 
   return (
     <HydrationBoundary
-      state={
-        loaderData.dehydratedState as unknown as
-          | DehydratedState
-          | null
-          | undefined
-      }
+      state={loaderData.dehydratedState as unknown as DehydratedState | null | undefined}
     >
       <CurrentUserProvider initialUser={loaderData.user}>
         <header className="w-full absolute left-0 right-0 flex justify-between items-center">
@@ -67,9 +59,7 @@ function TeamsPage() {
                     Join a team you’ve been invited to or create a new one.
                   </p>
                 ) : (
-                  <p className="text-[#878787] text-sm mb-8">
-                    Select a team or create a new one.
-                  </p>
+                  <p className="text-[#878787] text-sm mb-8">Select a team or create a new one.</p>
                 )}
               </div>
             </div>
@@ -97,8 +87,8 @@ function TeamsPage() {
                 </Link>
               ) : (
                 <p className="text-sm text-[#878787] mt-2">
-                  All existing teams must be on a paid plan before creating
-                  another. Switch to the team you'd like to upgrade.
+                  All existing teams must be on a paid plan before creating another. Switch to the
+                  team you'd like to upgrade.
                 </p>
               )}
             </div>

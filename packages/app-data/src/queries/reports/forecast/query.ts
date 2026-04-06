@@ -16,34 +16,16 @@ import type {
   GetRevenueForecastParams,
 } from "./types";
 
-async function getRevenueForecastImpl(
-  db: Database,
-  params: GetRevenueForecastParams,
-) {
-  const {
-    teamId,
-    from,
-    to,
-    forecastMonths,
-    currency: inputCurrency,
-    revenueType = "net",
-  } = params;
+async function getRevenueForecastImpl(db: Database, params: GetRevenueForecastParams) {
+  const { teamId, from, to, forecastMonths, currency: inputCurrency, revenueType = "net" } = params;
 
   const currentDate = new UTCDate(parseISO(to));
   const forecastStartDate = format(
-    endOfMonth(
-      new UTCDate(currentDate.getFullYear(), currentDate.getMonth() + 1, 1),
-    ),
+    endOfMonth(new UTCDate(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)),
     "yyyy-MM-dd",
   );
   const forecastEndDate = format(
-    endOfMonth(
-      new UTCDate(
-        currentDate.getFullYear(),
-        currentDate.getMonth() + forecastMonths,
-        1,
-      ),
-    ),
+    endOfMonth(new UTCDate(currentDate.getFullYear(), currentDate.getMonth() + forecastMonths, 1)),
     "yyyy-MM-dd",
   );
 
@@ -83,12 +65,8 @@ async function getRevenueForecastImpl(
     getTeamCollectionMetrics(db, teamId),
   ]);
 
-  const {
-    historicalData,
-    recurringInvoiceData,
-    recurringTransactionData,
-    nonRecurringBaseline,
-  } = revenueInputs;
+  const { historicalData, recurringInvoiceData, recurringTransactionData, nonRecurringBaseline } =
+    revenueInputs;
 
   const historical = historicalData.map((item: ReportsResultItem) => ({
     date: item.date,
@@ -103,10 +81,7 @@ async function getRevenueForecastImpl(
   if (scheduledInvoiceAggregateRows) {
     for (const row of scheduledInvoiceAggregateRows) {
       const monthKey = format(parseISO(row.date), "yyyy-MM");
-      scheduledByMonth.set(
-        monthKey,
-        (scheduledByMonth.get(monthKey) || 0) + row.totalAmount,
-      );
+      scheduledByMonth.set(monthKey, (scheduledByMonth.get(monthKey) || 0) + row.totalAmount);
     }
   }
 
@@ -133,16 +108,11 @@ async function getRevenueForecastImpl(
     );
 
     const recurringInvoices = recurringInvoiceData.get(monthKey)?.amount ?? 0;
-    const recurringTransactions =
-      recurringTransactionData.get(monthKey)?.amount ?? 0;
+    const recurringTransactions = recurringTransactionData.get(monthKey)?.amount ?? 0;
     const scheduled = scheduledByMonth.get(monthKey) ?? 0;
 
     const collections =
-      index === 1
-        ? expectedCollections.month1
-        : index === 2
-          ? expectedCollections.month2
-          : 0;
+      index === 1 ? expectedCollections.month1 : index === 2 ? expectedCollections.month2 : 0;
 
     const billableHours = index === 1 ? billableHoursValue : 0;
 
@@ -159,8 +129,7 @@ async function getRevenueForecastImpl(
     };
 
     const value = Object.values(breakdown).reduce((sum, amount) => sum + amount, 0);
-    const { optimistic, pessimistic, confidence } =
-      calculateConfidenceBounds(breakdown);
+    const { optimistic, pessimistic, confidence } = calculateConfidenceBounds(breakdown);
 
     forecast.push({
       date: format(forecastDate, "yyyy-MM-dd"),
@@ -186,10 +155,7 @@ async function getRevenueForecastImpl(
   }
 
   const nextMonthProjection = forecast[0]?.value || 0;
-  const totalProjectedRevenue = forecast.reduce(
-    (sum, item) => sum + item.value,
-    0,
-  );
+  const totalProjectedRevenue = forecast.reduce((sum, item) => sum + item.value, 0);
   const peakForecast = forecast.reduce(
     (max, current) => (current.value > max.value ? current : max),
     forecast[0] || { date: "", value: 0 },
@@ -197,10 +163,7 @@ async function getRevenueForecastImpl(
 
   const avgConfidence =
     forecast.length > 0
-      ? Math.round(
-          forecast.reduce((sum, item) => sum + item.confidence, 0) /
-            forecast.length,
-        )
+      ? Math.round(forecast.reduce((sum, item) => sum + item.confidence, 0) / forecast.length)
       : 0;
 
   const combinedData: ForecastDataPoint[] = [
@@ -290,16 +253,11 @@ async function getRevenueForecastImpl(
       warnings,
       recurringRevenueTotal: totalRecurringRevenue,
       recurringInvoicesCount:
-        recurringInvoiceData.get(format(addMonths(currentDate, 1), "yyyy-MM"))
-          ?.count ?? 0,
+        recurringInvoiceData.get(format(addMonths(currentDate, 1), "yyyy-MM"))?.count ?? 0,
       recurringTransactionsCount:
-        recurringTransactionData.get(
-          format(addMonths(currentDate, 1), "yyyy-MM"),
-        )?.count ?? 0,
+        recurringTransactionData.get(format(addMonths(currentDate, 1), "yyyy-MM"))?.count ?? 0,
       expectedCollections: expectedCollections.totalExpected,
-      collectionRate: Number(
-        (teamCollectionMetrics.onTimeRate * 100).toFixed(1),
-      ),
+      collectionRate: Number((teamCollectionMetrics.onTimeRate * 100).toFixed(1)),
       scheduledInvoicesTotal: Number(scheduledInvoicesTotal.toFixed(2)),
       scheduledInvoicesCount: scheduledByMonth.size,
       newBusinessBaseline: Number(nonRecurringBaseline.toFixed(2)),

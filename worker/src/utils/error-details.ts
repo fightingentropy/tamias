@@ -18,18 +18,12 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-function readString(
-  source: Record<string, unknown>,
-  key: string,
-): string | undefined {
+function readString(source: Record<string, unknown>, key: string): string | undefined {
   const value = source[key];
   return typeof value === "string" ? value : undefined;
 }
 
-function readNumber(
-  source: Record<string, unknown>,
-  key: string,
-): number | undefined {
+function readNumber(source: Record<string, unknown>, key: string): number | undefined {
   const value = source[key];
   return typeof value === "number" ? value : undefined;
 }
@@ -39,15 +33,10 @@ function readStringOrNumber(
   key: string,
 ): string | number | undefined {
   const value = source[key];
-  return typeof value === "string" || typeof value === "number"
-    ? value
-    : undefined;
+  return typeof value === "string" || typeof value === "number" ? value : undefined;
 }
 
-function extractErrorDetailsInternal(
-  error: unknown,
-  depth = 0,
-): SerializableErrorDetails {
+function extractErrorDetailsInternal(error: unknown, depth = 0): SerializableErrorDetails {
   if (!isRecord(error)) {
     return {
       message: typeof error === "string" ? error : String(error),

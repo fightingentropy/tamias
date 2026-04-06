@@ -8,8 +8,7 @@ import type {
 } from "@tamias/app-data-convex";
 
 export type ReportTransactionAggregateRow = TransactionMetricAggregateRowRecord;
-export type ReportTransactionRecurringAggregateRow =
-  TransactionRecurringAggregateRowRecord;
+export type ReportTransactionRecurringAggregateRow = TransactionRecurringAggregateRowRecord;
 export type ReportTransactionTaxAggregateRow = TransactionTaxAggregateRowRecord;
 export type ReportInboxLiabilityAggregateRow = InboxLiabilityAggregateRowRecord;
 export type ReportInvoiceDateAggregateRow = InvoiceDateAggregateRowRecord;

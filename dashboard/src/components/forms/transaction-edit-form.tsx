@@ -3,12 +3,7 @@
 import type { RouterOutputs } from "@tamias/trpc";
 import { utc } from "@date-fns/utc";
 import { uniqueCurrencies } from "@tamias/location/currencies";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@tamias/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@tamias/ui/accordion";
 import { Button } from "@tamias/ui/button";
 import { Calendar } from "@tamias/ui/calendar";
 import { cn } from "@tamias/ui/cn";
@@ -50,9 +45,7 @@ export function TransactionEditForm({ transaction }: Props) {
     }),
   );
 
-  const { data: categories } = useQuery(
-    trpc.transactionCategories.get.queryOptions(),
-  );
+  const { data: categories } = useQuery(trpc.transactionCategories.get.queryOptions());
 
   const { updateCategory } = useUpdateTransactionCategory();
 
@@ -98,9 +91,7 @@ export function TransactionEditForm({ transaction }: Props) {
           details: queryClient.getQueryData(
             trpc.transactions.getById.queryKey({ id: transaction.id }),
           ),
-          list: queryClient.getQueryData(
-            trpc.transactions.get.infiniteQueryKey(),
-          ),
+          list: queryClient.getQueryData(trpc.transactions.get.infiniteQueryKey()),
         };
 
         // Optimistically update details view
@@ -108,9 +99,7 @@ export function TransactionEditForm({ transaction }: Props) {
           trpc.transactions.getById.queryKey({ id: transaction.id }),
           (old: any) => {
             if (variables.categorySlug && categories) {
-              const category = categories.find(
-                (c) => c.slug === variables.categorySlug,
-              );
+              const category = categories.find((c) => c.slug === variables.categorySlug);
 
               if (category) {
                 return {
@@ -129,27 +118,24 @@ export function TransactionEditForm({ transaction }: Props) {
         );
 
         // Optimistically update list view
-        queryClient.setQueryData(
-          trpc.transactions.get.infiniteQueryKey(),
-          (old: any) => {
-            if (!old?.pages) return old;
+        queryClient.setQueryData(trpc.transactions.get.infiniteQueryKey(), (old: any) => {
+          if (!old?.pages) return old;
 
-            return {
-              ...old,
-              pages: old.pages.map((page: any) => ({
-                ...page,
-                data: page.data.map((t: any) =>
-                  t.id === transaction.id
-                    ? {
-                        ...t,
-                        ...variables,
-                      }
-                    : t,
-                ),
-              })),
-            };
-          },
-        );
+          return {
+            ...old,
+            pages: old.pages.map((page: any) => ({
+              ...page,
+              data: page.data.map((t: any) =>
+                t.id === transaction.id
+                  ? {
+                      ...t,
+                      ...variables,
+                    }
+                  : t,
+              ),
+            })),
+          };
+        });
 
         return { previousData };
       },
@@ -174,9 +160,7 @@ export function TransactionEditForm({ transaction }: Props) {
   // Default to expense if amount is 0 or undefined
   // Positive amounts = income, negative amounts = expense
   const transactionAmount =
-    typeof transaction.amount === "number"
-      ? transaction.amount
-      : Number(transaction.amount) || 0;
+    typeof transaction.amount === "number" ? transaction.amount : Number(transaction.amount) || 0;
 
   // Determine type: use amount sign as primary indicator
   // Negative amounts = expense, positive amounts = income
@@ -189,8 +173,7 @@ export function TransactionEditForm({ transaction }: Props) {
     transactionType = "expense";
   } else {
     // Amount is 0, check category as fallback
-    transactionType =
-      transaction.category?.slug === "income" ? "income" : "expense";
+    transactionType = transaction.category?.slug === "income" ? "income" : "expense";
   }
 
   // Local state only for debounced inputs
@@ -225,9 +208,7 @@ export function TransactionEditForm({ transaction }: Props) {
   useEffect(() => {
     // Amount is stored with correct sign (negative for expense, positive for income)
     const finalAmount =
-      transactionType === "expense"
-        ? -Math.abs(debouncedAmount)
-        : Math.abs(debouncedAmount);
+      transactionType === "expense" ? -Math.abs(debouncedAmount) : Math.abs(debouncedAmount);
 
     // Ensure we're comparing numbers
     const currentAmount = Number(transaction.amount);
@@ -273,9 +254,7 @@ export function TransactionEditForm({ transaction }: Props) {
             variant="ghost"
             className={cn(
               "h-6 px-2 flex-1 rounded-none text-xs border-r border-border last:border-r-0",
-              transactionType === "expense"
-                ? "bg-transparent"
-                : "bg-background font-medium",
+              transactionType === "expense" ? "bg-transparent" : "bg-background font-medium",
             )}
             onClick={(e) => {
               e.preventDefault();
@@ -302,9 +281,7 @@ export function TransactionEditForm({ transaction }: Props) {
             variant="ghost"
             className={cn(
               "h-6 px-2 flex-1 rounded-none text-xs border-r border-border last:border-r-0",
-              transactionType === "income"
-                ? "bg-transparent"
-                : "bg-background font-medium",
+              transactionType === "income" ? "bg-transparent" : "bg-background font-medium",
             )}
             onClick={(e) => {
               e.preventDefault();
@@ -360,9 +337,7 @@ export function TransactionEditForm({ transaction }: Props) {
               }
             }}
           />
-          <p className="text-[0.8rem] text-muted-foreground mt-2">
-            Enter the transaction amount
-          </p>
+          <p className="text-[0.8rem] text-muted-foreground mt-2">Enter the transaction amount</p>
         </div>
 
         <div className="w-full">
@@ -456,9 +431,7 @@ export function TransactionEditForm({ transaction }: Props) {
               />
             </PopoverContent>
           </Popover>
-          <p className="text-[0.8rem] text-muted-foreground mt-2">
-            When this transaction occurred
-          </p>
+          <p className="text-[0.8rem] text-muted-foreground mt-2">When this transaction occurred</p>
         </div>
       </div>
 
@@ -516,13 +489,9 @@ export function TransactionEditForm({ transaction }: Props) {
           <AccordionContent>
             <div className="space-y-2">
               <p className="text-xs text-muted-foreground">
-                Upload receipts, invoices, or other documents related to this
-                transaction
+                Upload receipts, invoices, or other documents related to this transaction
               </p>
-              <TransactionAttachments
-                id={transaction.id}
-                data={transaction.attachments}
-              />
+              <TransactionAttachments id={transaction.id} data={transaction.attachments} />
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -534,9 +503,8 @@ export function TransactionEditForm({ transaction }: Props) {
           <div className="flex flex-row items-center justify-between">
             <div className="space-y-0.5 pr-4">
               <p className="text-xs text-muted-foreground">
-                Exclude this transaction from reports like profit, expense and
-                revenue. This is useful for internal transfers between accounts
-                to avoid double-counting.
+                Exclude this transaction from reports like profit, expense and revenue. This is
+                useful for internal transfers between accounts to avoid double-counting.
               </p>
             </div>
 

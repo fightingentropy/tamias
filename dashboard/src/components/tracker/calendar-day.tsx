@@ -5,19 +5,13 @@ import { format, formatISO, isToday } from "date-fns";
 import type React from "react";
 import { useCallback } from "react";
 import { TrackerEvents } from "./events";
-import {
-  checkIsFirstSelectedDate,
-  checkIsInRange,
-  checkIsLastSelectedDate,
-} from "./utils";
+import { checkIsFirstSelectedDate, checkIsInRange, checkIsLastSelectedDate } from "./utils";
 
 type CalendarDayProps = {
   date: TZDate;
   currentDate: TZDate;
   selectedDate: string | null;
-  dayData:
-    | RouterOutputs["trackerEntries"]["byRange"]["result"][string]
-    | undefined;
+  dayData: RouterOutputs["trackerEntries"]["byRange"]["result"][string] | undefined;
   allData?: RouterOutputs["trackerEntries"]["byRange"]["result"];
   range: [string, string] | null;
   localRange: [string | null, string | null];
@@ -51,14 +45,12 @@ export function CalendarDay({
   );
 
   const isFirstSelectedDate = useCallback(
-    (date: TZDate) =>
-      checkIsFirstSelectedDate(date, isDragging, localRange, range),
+    (date: TZDate) => checkIsFirstSelectedDate(date, isDragging, localRange, range),
     [isDragging, localRange, range],
   );
 
   const isLastSelectedDate = useCallback(
-    (date: TZDate) =>
-      checkIsLastSelectedDate(date, isDragging, localRange, range),
+    (date: TZDate) => checkIsLastSelectedDate(date, isDragging, localRange, range),
     [isDragging, localRange, range],
   );
 
@@ -98,9 +90,7 @@ export function CalendarDay({
       onMouseUp={handleMouseUp}
       className={cn(
         "aspect-square md:aspect-[4/2] pt-2 pb-10 px-3 text-lg relative transition-all duration-100 text-left flex space-x-2 select-none",
-        isCurrentMonth && isToday(date)
-          ? "bg-[#f0f0f0] dark:bg-[#202020]"
-          : "bg-background",
+        isCurrentMonth && isToday(date) ? "bg-[#f0f0f0] dark:bg-[#202020]" : "bg-background",
         !isCurrentMonth &&
           "bg-[repeating-linear-gradient(-60deg,#DBDBDB,#DBDBDB_1px,transparent_1px,transparent_5px)] dark:bg-[repeating-linear-gradient(-60deg,#2C2C2C,#2C2C2C_1px,transparent_1px,transparent_5px)] text-[#878787]",
         selectedDate === formattedDate && "ring-1 ring-primary",

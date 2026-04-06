@@ -2,14 +2,7 @@
  * Inbox test data factories.
  */
 
-type InboxStatus =
-  | "new"
-  | "archived"
-  | "deleted"
-  | "pending"
-  | "processing"
-  | "done"
-  | "other";
+type InboxStatus = "new" | "archived" | "deleted" | "pending" | "processing" | "done" | "other";
 
 interface InboxResponse {
   id: string;
@@ -34,9 +27,7 @@ interface InboxListMeta {
   hasPreviousPage: boolean;
 }
 
-export function createValidInboxResponse(
-  overrides: Partial<InboxResponse> = {},
-): InboxResponse {
+export function createValidInboxResponse(overrides: Partial<InboxResponse> = {}): InboxResponse {
   return {
     id: "a1b2c3d4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
     fileName: "invoice.pdf",

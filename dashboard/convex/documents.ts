@@ -54,16 +54,11 @@ function getDocumentSearchSnippet(value: string | null | undefined) {
   return value.slice(0, DOCUMENT_SEARCH_SNIPPET_LIMIT);
 }
 
-function publicDocumentId(
-  document: Pick<Doc<"documents">, "_id" | "publicDocumentId">,
-) {
+function publicDocumentId(document: Pick<Doc<"documents">, "_id" | "publicDocumentId">) {
   return document.publicDocumentId ?? document._id;
 }
 
-function serializeDocument(
-  teamId: string,
-  document: Doc<"documents">,
-) {
+function serializeDocument(teamId: string, document: Doc<"documents">) {
   return {
     id: publicDocumentId(document),
     teamId,
@@ -86,18 +81,16 @@ function serializeDocument(
   };
 }
 
-function getDocumentSearchText(
-  document: {
-    name: string;
-    pathTokens?: string[];
-    title?: string | null;
-    summary?: string | null;
-    body?: string | null;
-    content?: string | null;
-    tag?: string | null;
-    language?: string | null;
-  },
-) {
+function getDocumentSearchText(document: {
+  name: string;
+  pathTokens?: string[];
+  title?: string | null;
+  summary?: string | null;
+  body?: string | null;
+  content?: string | null;
+  tag?: string | null;
+  language?: string | null;
+}) {
   return (
     buildSearchIndexText([
       document.name,
@@ -122,10 +115,7 @@ function getDocumentTagAssignmentSortFields(
 }
 
 function encodeTaggedDocumentCursor(cursor: TaggedDocumentCursor) {
-  return btoa(JSON.stringify(cursor))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
+  return btoa(JSON.stringify(cursor)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
 function decodeTaggedDocumentCursor(
@@ -137,14 +127,10 @@ function decodeTaggedDocumentCursor(
 
   try {
     const normalizedCursor = cursor.replace(/-/g, "+").replace(/_/g, "/");
-    const paddedCursor =
-      normalizedCursor + "=".repeat((4 - (normalizedCursor.length % 4)) % 4);
+    const paddedCursor = normalizedCursor + "=".repeat((4 - (normalizedCursor.length % 4)) % 4);
     const parsed = JSON.parse(atob(paddedCursor)) as Partial<TaggedDocumentCursor>;
 
-    if (
-      typeof parsed.createdAt !== "string" ||
-      typeof parsed.documentId !== "string"
-    ) {
+    if (typeof parsed.createdAt !== "string" || typeof parsed.documentId !== "string") {
       throw new ConvexError("Invalid tagged document cursor");
     }
 
@@ -162,8 +148,7 @@ function compareTaggedDocumentRows(
   right: Pick<Doc<"documentTagAssignments">, "documentCreatedAt" | "documentId">,
   order: "asc" | "desc",
 ) {
-  const createdAtComparison =
-    left.documentCreatedAt!.localeCompare(right.documentCreatedAt!);
+  const createdAtComparison = left.documentCreatedAt!.localeCompare(right.documentCreatedAt!);
 
   if (createdAtComparison !== 0) {
     return order === "asc" ? createdAtComparison : -createdAtComparison;
@@ -222,9 +207,7 @@ async function getDocumentByPublicId(
 ) {
   const byLegacyId = await ctx.db
     .query("documents")
-    .withIndex("by_public_document_id", (q) =>
-      q.eq("publicDocumentId", args.documentId),
-    )
+    .withIndex("by_public_document_id", (q) => q.eq("publicDocumentId", args.documentId))
     .unique();
 
   if (byLegacyId && (!args.teamId || byLegacyId.teamId === args.teamId)) {
@@ -259,9 +242,7 @@ async function getDocumentByName(
 ) {
   return ctx.db
     .query("documents")
-    .withIndex("by_team_and_name", (q) =>
-      q.eq("teamId", args.teamId).eq("name", args.name),
-    )
+    .withIndex("by_team_and_name", (q) => q.eq("teamId", args.teamId).eq("name", args.name))
     .unique();
 }
 
@@ -330,9 +311,7 @@ export const serviceListDocumentsPage = query({
 
     return {
       ...result,
-      page: result.page.map((document) =>
-        serializeDocument(args.teamId, document),
-      ),
+      page: result.page.map((document) => serializeDocument(args.teamId, document)),
     };
   },
 });
@@ -441,18 +420,10 @@ export const serviceListTaggedDocumentsPage = query({
       ].sort((left, right) => compareTaggedDocumentRows(left, right, order));
       lastScannedRow = candidateRows.at(-1) ?? null;
       taggedRows = candidateRows.filter((assignment) =>
-        matchesTaggedDocumentDateRange(
-          assignment,
-          args.start ?? null,
-          args.end ?? null,
-        ),
+        matchesTaggedDocumentDateRange(assignment, args.start ?? null, args.end ?? null),
       );
 
-      if (
-        taggedRows.length >= pageSize ||
-        !mayHaveMoreRows ||
-        takeCount >= 400
-      ) {
+      if (taggedRows.length >= pageSize || !mayHaveMoreRows || takeCount >= 400) {
         break;
       }
 
@@ -719,9 +690,7 @@ export const serviceRebuildDocumentSearchTexts = mutation({
 
     const teams = args.teamId
       ? [await getTeamByPublicTeamId(ctx, args.teamId)]
-      : (await ctx.db.query("teams").collect()).filter(
-          (team) => !!team.publicTeamId,
-        );
+      : (await ctx.db.query("teams").collect()).filter((team) => !!team.publicTeamId);
 
     const validTeams = teams.filter(
       (team): team is NonNullable<(typeof teams)[number]> => team !== null,

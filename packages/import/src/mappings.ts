@@ -10,9 +10,7 @@ export const mapTransactions = (
   return data.map((row) => ({
     ...(Object.fromEntries(
       Object.entries(mappings)
-        .filter(
-          ([_, value]) => typeof value === "string" && value.trim().length > 0,
-        )
+        .filter(([_, value]) => typeof value === "string" && value.trim().length > 0)
         .map(([key, value]) => [key, row[value]]),
     ) as Transaction),
     currency,

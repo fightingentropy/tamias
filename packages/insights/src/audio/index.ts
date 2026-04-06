@@ -10,17 +10,9 @@ export {
   type InsightForAudio,
 } from "./generate-for-insight";
 // Generator
-export {
-  generateAudio,
-  generateAudioWithSettings,
-  isAudioEnabled,
-} from "./generator";
+export { generateAudio, generateAudioWithSettings, isAudioEnabled } from "./generator";
 // Script builder
-export {
-  buildAudioScript,
-  buildTeaserScript,
-  estimateScriptCharacters,
-} from "./script";
+export { buildAudioScript, buildTeaserScript, estimateScriptCharacters } from "./script";
 // Storage
 export {
   audioExists,

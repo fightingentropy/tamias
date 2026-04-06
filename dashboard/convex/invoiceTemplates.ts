@@ -10,9 +10,7 @@ type InvoiceTemplateCtx = QueryCtx | MutationCtx;
 
 type InvoiceTemplateData = Record<string, unknown>;
 
-function serializeInvoiceTemplate(
-  record: Doc<"invoiceTemplates">,
-): Record<string, unknown> {
+function serializeInvoiceTemplate(record: Doc<"invoiceTemplates">): Record<string, unknown> {
   return {
     id: record.publicInvoiceTemplateId ?? record._id,
     name: record.name,
@@ -47,25 +45,17 @@ async function getTemplateRecordForTeam(
   return { team, record };
 }
 
-async function listTemplatesForTeam(
-  ctx: InvoiceTemplateCtx,
-  teamId: Id<"teams">,
-) {
+async function listTemplatesForTeam(ctx: InvoiceTemplateCtx, teamId: Id<"teams">) {
   return ctx.db
     .query("invoiceTemplates")
     .withIndex("by_team_id", (q) => q.eq("teamId", teamId))
     .collect();
 }
 
-async function getDefaultTemplateForTeam(
-  ctx: InvoiceTemplateCtx,
-  teamId: Id<"teams">,
-) {
+async function getDefaultTemplateForTeam(ctx: InvoiceTemplateCtx, teamId: Id<"teams">) {
   return ctx.db
     .query("invoiceTemplates")
-    .withIndex("by_team_default", (q) =>
-      q.eq("teamId", teamId).eq("isDefault", true),
-    )
+    .withIndex("by_team_default", (q) => q.eq("teamId", teamId).eq("isDefault", true))
     .unique();
 }
 
@@ -76,9 +66,7 @@ async function unsetDefaultsForTeam(
 ) {
   const existingDefaults = await ctx.db
     .query("invoiceTemplates")
-    .withIndex("by_team_default", (q) =>
-      q.eq("teamId", teamId).eq("isDefault", true),
-    )
+    .withIndex("by_team_default", (q) => q.eq("teamId", teamId).eq("isDefault", true))
     .collect();
 
   for (const record of existingDefaults) {

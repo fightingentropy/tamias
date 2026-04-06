@@ -22,10 +22,7 @@ export function buildMonthlyAggregateSeriesMap(
 
   for (const row of rows) {
     const month = getMonthBucket(row.date);
-    monthlyValues.set(
-      month,
-      roundMoney((monthlyValues.get(month) ?? 0) + getValue(row)),
-    );
+    monthlyValues.set(month, roundMoney((monthlyValues.get(month) ?? 0) + getValue(row)));
   }
 
   return monthlyValues;

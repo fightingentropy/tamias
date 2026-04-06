@@ -44,8 +44,9 @@
     "backfill:tracker-project-tag-sort-fields": "bun --env-file=.env run scripts/backfill-tracker-project-tag-sort-fields.ts",
     "backfill:transaction-report-aggregates": "bun --env-file=.env run scripts/backfill-transaction-report-aggregates.ts",
     "backfill:transaction-tag-sort-fields": "bun --env-file=.env run scripts/backfill-transaction-tag-sort-fields.ts",
-    "format": "biome format --write .",
-    "lint": "bun run --workspaces --parallel --if-present lint",
+    "format": "prettier --write .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "typecheck": "bun run --workspaces --parallel --if-present typecheck"
   },
   "packageManager": "bun@1.3.11",
@@ -79,14 +80,20 @@
     "zod": "^4.3.5"
   },
   "trustedDependencies": [
-    "@biomejs/biome",
     "@depot/cli",
     "core-js",
     "protobufjs"
   ],
   "devDependencies": {
-    "@biomejs/biome": "2.4.10",
+    "@eslint/js": "9",
     "@playwright/test": "^1.55.1",
-    "typescript": "^6.0.2"
+    "eslint": "9",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "globals": "^17.4.0",
+    "prettier": "^3.8.1",
+    "typescript": "^6.0.2",
+    "typescript-eslint": "^8.58.0"
   }
 }

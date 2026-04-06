@@ -15,8 +15,7 @@ export function Meta({ template, invoiceNumber, issueDate, dueDate }: Props) {
     return null;
   }
 
-  const dateFormat =
-    template.dateFormat || DEFAULT_TEMPLATE_SETTINGS.dateFormat;
+  const dateFormat = template.dateFormat || DEFAULT_TEMPLATE_SETTINGS.dateFormat;
 
   return (
     <div className="mb-2">
@@ -53,9 +52,7 @@ export function Meta({ template, invoiceNumber, issueDate, dueDate }: Props) {
                   {template.issueDateLabel ? `${template.issueDateLabel}:` : ""}
                 </span>
                 <span className="text-[11px] flex-shrink-0">
-                  {issueDate
-                    ? format(new TZDate(issueDate, "UTC"), dateFormat)
-                    : ""}
+                  {issueDate ? format(new TZDate(issueDate, "UTC"), dateFormat) : ""}
                 </span>
               </div>
             </div>
@@ -69,9 +66,7 @@ export function Meta({ template, invoiceNumber, issueDate, dueDate }: Props) {
                   {template.dueDateLabel ? `${template.dueDateLabel}:` : ""}
                 </span>
                 <span className="text-[11px] flex-shrink-0">
-                  {dueDate
-                    ? format(new TZDate(dueDate, "UTC"), dateFormat)
-                    : ""}
+                  {dueDate ? format(new TZDate(dueDate, "UTC"), dateFormat) : ""}
                 </span>
               </div>
             </div>

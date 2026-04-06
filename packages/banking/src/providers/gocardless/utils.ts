@@ -10,29 +10,18 @@ const balanceAdapter: BalanceAdapter<AccountBalance> = {
   getCurrency: (b) => b.balanceAmount.currency,
 };
 
-const TIERS = [
-  ["interimBooked"],
-  ["closingBooked"],
-  ["interimAvailable"],
-  ["expected"],
-];
+const TIERS = [["interimBooked"], ["closingBooked"], ["interimAvailable"], ["expected"]];
 
 export function selectPrimaryBalance(
   balances: AccountBalance[] | undefined,
   preferredCurrency?: string,
 ): AccountBalance | undefined {
-  return selectPrimaryBalanceCore(
-    balances,
-    balanceAdapter,
-    TIERS,
-    preferredCurrency,
-  );
+  return selectPrimaryBalanceCore(balances, balanceAdapter, TIERS, preferredCurrency);
 }
 
 export function getErrorStatusCode(error: unknown): number | undefined {
-  const response = (
-    error as { response?: { status?: number; data?: { status_code?: number } } }
-  )?.response;
+  const response = (error as { response?: { status?: number; data?: { status_code?: number } } })
+    ?.response;
   return response?.status ?? response?.data?.status_code;
 }
 
@@ -95,10 +84,7 @@ export function getMaxHistoricalDays({
   institutionId,
   separateContinuousHistoryConsent,
 }: GetMaxHistoricalDays) {
-  if (
-    separateContinuousHistoryConsent ||
-    RESTRICTED_INSTITUTIONS.has(institutionId)
-  ) {
+  if (separateContinuousHistoryConsent || RESTRICTED_INSTITUTIONS.has(institutionId)) {
     return 90;
   }
 

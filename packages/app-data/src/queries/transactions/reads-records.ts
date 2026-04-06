@@ -20,10 +20,7 @@ export type GetTransactionByIdParams = {
   teamId: string;
 };
 
-export async function getTransactionById(
-  db: Database,
-  params: GetTransactionByIdParams,
-) {
+export async function getTransactionById(db: Database, params: GetTransactionByIdParams) {
   return getFullTransactionData(db, params.id, params.teamId);
 }
 
@@ -32,10 +29,7 @@ export type GetTransactionsByIdsParams = {
   teamId: string;
 };
 
-export async function getTransactionsByIds(
-  db: Database,
-  params: GetTransactionsByIdsParams,
-) {
+export async function getTransactionsByIds(db: Database, params: GetTransactionsByIdsParams) {
   const { ids, teamId } = params;
 
   if (ids.length === 0) {
@@ -49,9 +43,7 @@ export async function getTransactionsByIds(
     }),
     getBankAccountsFromConvex({ teamId }),
   ]);
-  const bankAccountsById = new Map(
-    bankAccounts.map((account) => [account.id, account]),
-  );
+  const bankAccountsById = new Map(bankAccounts.map((account) => [account.id, account]));
   const categoryContext = await getTransactionCategoryContext(db, teamId);
   const { assignmentsByTransactionId } = buildTransactionTagLookups(
     await getTransactionTagAssignmentsForTransactionIdsFromConvex({

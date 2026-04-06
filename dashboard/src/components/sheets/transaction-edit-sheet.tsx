@@ -1,12 +1,7 @@
 "use client";
 
 import { ScrollArea } from "@tamias/ui/scroll-area";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@tamias/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@tamias/ui/sheet";
 import { skipToken, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTransactionParams } from "@/hooks/use-transaction-params";
 import { useTRPC } from "@/trpc/client";
@@ -24,8 +19,7 @@ export function TransactionEditSheet() {
     : null;
 
   const { data: transaction } = useQuery({
-    queryKey:
-      transactionEditQuery?.queryKey ?? trpc.transactions.getById.queryKey(),
+    queryKey: transactionEditQuery?.queryKey ?? trpc.transactions.getById.queryKey(),
     queryFn: transactionEditQuery?.queryFn ?? skipToken,
     placeholderData: selectedTransactionId
       ? () => {

@@ -1,16 +1,7 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@tamias/ui/card";
-import {
-  ComboboxDropdown,
-  type ComboboxItem,
-} from "@tamias/ui/combobox-dropdown";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@tamias/ui/card";
+import { ComboboxDropdown, type ComboboxItem } from "@tamias/ui/combobox-dropdown";
 import { useEffect, useState } from "react";
 import { useUserMutation, useUserQuery } from "@/hooks/use-user";
 import { useI18n } from "@/locales/client";
@@ -19,9 +10,7 @@ export function LocaleSettings() {
   const t = useI18n();
   const { data: user } = useUserQuery();
   const updateUserMutation = useUserMutation();
-  const [localeItems, setLocaleItems] = useState<
-    Array<ComboboxItem & { value: string }>
-  >([]);
+  const [localeItems, setLocaleItems] = useState<Array<ComboboxItem & { value: string }>>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -55,12 +44,8 @@ export function LocaleSettings() {
       <CardContent>
         <div className="w-[250px]">
           <ComboboxDropdown
-            placeholder={
-              localeItems.length ? t("locale.placeholder") : "Loading locales..."
-            }
-            selectedItem={localeItems.find(
-              (item) => item.value === user?.locale,
-            )}
+            placeholder={localeItems.length ? t("locale.placeholder") : "Loading locales..."}
+            selectedItem={localeItems.find((item) => item.value === user?.locale)}
             searchPlaceholder={t("locale.searchPlaceholder")}
             items={localeItems}
             className="text-xs py-1"

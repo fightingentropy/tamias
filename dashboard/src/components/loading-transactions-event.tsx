@@ -26,12 +26,7 @@ function LoadingTransactionsIndicator() {
   );
 }
 
-export function LoadingTransactionsEvent({
-  runId,
-  setRunId,
-  onClose,
-  setActiveTab,
-}: Props) {
+export function LoadingTransactionsEvent({ runId, setRunId, onClose, setActiveTab }: Props) {
   const queryClient = useQueryClient();
   const [step, setStep] = useState(1);
   const { setParams } = useConnectParams();
@@ -70,8 +65,8 @@ export function LoadingTransactionsEvent({
         </h2>
 
         <p className="text-sm text-[#878787] mb-8">
-          We couldn't set up your account. This can happen if the bank
-          connection timed out or there was a temporary issue. Please try again.
+          We couldn't set up your account. This can happen if the bank connection timed out or there
+          was a temporary issue. Please try again.
         </p>
 
         <div className="w-full mt-12">
@@ -103,41 +98,23 @@ export function LoadingTransactionsEvent({
   return (
     <div className="w-full">
       <LoadingTransactionsIndicator />
-      <h2 className="text-lg font-semibold leading-none tracking-tight mb-2">
-        Setting up account
-      </h2>
+      <h2 className="text-lg font-semibold leading-none tracking-tight mb-2">Setting up account</h2>
 
       <p className="text-sm text-[#878787] mb-8">
-        Depending on the bank it can take up to 1 hour to fetch all
-        transactions, feel free to close this window and we will notify you when
-        it is done.
+        Depending on the bank it can take up to 1 hour to fetch all transactions, feel free to close
+        this window and we will notify you when it is done.
       </p>
 
       <ul className="text-md text-[#878787] space-y-4 transition-all">
-        <li
-          className={cn(
-            "opacity-50 dark:opacity-20",
-            step > 0 && "!opacity-100",
-          )}
-        >
+        <li className={cn("opacity-50 dark:opacity-20", step > 0 && "!opacity-100")}>
           Connecting bank
           {step === 1 && <span className="loading-ellipsis" />}
         </li>
-        <li
-          className={cn(
-            "opacity-50 dark:opacity-20",
-            step > 1 && "!opacity-100",
-          )}
-        >
+        <li className={cn("opacity-50 dark:opacity-20", step > 1 && "!opacity-100")}>
           Getting transactions
           {step === 2 && <span className="loading-ellipsis" />}
         </li>
-        <li
-          className={cn(
-            "opacity-50 dark:opacity-20",
-            step > 2 && "!opacity-100",
-          )}
-        >
+        <li className={cn("opacity-50 dark:opacity-20", step > 2 && "!opacity-100")}>
           Completed
           {step === 3 && <span className="loading-ellipsis" />}
         </li>

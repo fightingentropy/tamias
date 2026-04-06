@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@tamias/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@tamias/ui/dialog";
 import { ApiKeyForm } from "@/components/forms/api-key-form";
 import { useTokenModalStore } from "@/store/token-modal";
 
@@ -14,10 +9,7 @@ export function EditApiKeyModal() {
 
   return (
     <Dialog open={type === "edit"} onOpenChange={() => setData(undefined)}>
-      <DialogContent
-        className="max-w-[455px]"
-        onOpenAutoFocus={(evt) => evt.preventDefault()}
-      >
+      <DialogContent className="max-w-[455px]" onOpenAutoFocus={(evt) => evt.preventDefault()}>
         <div className="p-4 space-y-4">
           <DialogHeader>
             <DialogTitle>Edit API Key</DialogTitle>

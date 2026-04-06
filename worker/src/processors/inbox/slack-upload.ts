@@ -12,10 +12,7 @@ import {
 } from "@tamias/app-data/queries";
 import { DocumentClient } from "@tamias/documents";
 import { enqueue } from "@tamias/job-client";
-import {
-  getVaultSignedUrl,
-  uploadVaultFile,
-} from "@tamias/storage";
+import { getVaultSignedUrl, uploadVaultFile } from "@tamias/storage";
 import { getExtensionFromMimeType } from "@tamias/utils";
 import { getAppUrl } from "@tamias/utils/envs";
 import { generateText } from "ai";
@@ -207,11 +204,10 @@ export class SlackUploadProcessor extends BaseProcessor<SlackUploadPayload> {
 
       // Get signed URL for document processing (30 minutes expiration)
       const pathForSignedUrl = uploadData.path || filePathStr;
-      const { data: signedUrlData, error: signedUrlError } =
-        await getVaultSignedUrl({
-          path: pathForSignedUrl,
-          expireIn: 1800,
-        });
+      const { data: signedUrlData, error: signedUrlError } = await getVaultSignedUrl({
+        path: pathForSignedUrl,
+        expireIn: 1800,
+      });
 
       if (signedUrlError) {
         this.logger.error("Failed to create signed URL", {
@@ -219,9 +215,7 @@ export class SlackUploadProcessor extends BaseProcessor<SlackUploadPayload> {
           filePath: filePathStr,
           inboxId: inboxData.id,
         });
-        throw new Error(
-          `Failed to create signed URL: ${signedUrlError.message}`,
-        );
+        throw new Error(`Failed to create signed URL: ${signedUrlError.message}`);
       }
 
       if (!signedUrlData?.signedUrl) {
@@ -235,11 +229,7 @@ export class SlackUploadProcessor extends BaseProcessor<SlackUploadPayload> {
       const signedUrl = signedUrlData.signedUrl;
 
       // Validate signed URL is not empty
-      if (
-        !signedUrl ||
-        typeof signedUrl !== "string" ||
-        signedUrl.trim() === ""
-      ) {
+      if (!signedUrl || typeof signedUrl !== "string" || signedUrl.trim() === "") {
         this.logger.error("Signed URL is empty or invalid", {
           filePath: filePathStr,
           inboxId: inboxData.id,
@@ -268,13 +258,10 @@ export class SlackUploadProcessor extends BaseProcessor<SlackUploadPayload> {
           status: "other",
         });
 
-        this.logger.info(
-          "Document classified as other (non-financial), skipping matching",
-          {
-            inboxId: inboxData.id,
-            fileName: file.name,
-          },
-        );
+        this.logger.info("Document classified as other (non-financial), skipping matching", {
+          inboxId: inboxData.id,
+          fileName: file.name,
+        });
 
         // Send message to Slack about non-financial document
         try {
@@ -344,10 +331,8 @@ export class SlackUploadProcessor extends BaseProcessor<SlackUploadPayload> {
           await ensureBotInChannel({ client: slackClient, channelId });
 
           // Determine document type for message
-          const _documentType =
-            updatedInbox.type === "invoice" ? "invoice" : "receipt";
-          const documentTypeLabel =
-            updatedInbox.type === "invoice" ? "invoice" : "receipt";
+          const _documentType = updatedInbox.type === "invoice" ? "invoice" : "receipt";
+          const documentTypeLabel = updatedInbox.type === "invoice" ? "invoice" : "receipt";
 
           // Format currency
           const formatCurrency = (amount: number | null | undefined) => {
@@ -359,8 +344,7 @@ export class SlackUploadProcessor extends BaseProcessor<SlackUploadPayload> {
           };
 
           // Get invoice number if available
-          const invoiceNumber =
-            "invoiceNumber" in updatedInbox ? updatedInbox.invoiceNumber : null;
+          const invoiceNumber = "invoiceNumber" in updatedInbox ? updatedInbox.invoiceNumber : null;
 
           // Generate AI summary of the purchase
           let purchaseSummary: string | null = null;
@@ -434,16 +418,10 @@ Focus on what was purchased (e.g., "office supplies", "software subscription", "
           // Financial details block - use fields for side-by-side layout
           const financialFields: Array<{ type: string; text: string }> = [];
 
-          if (
-            updatedInbox.taxAmount &&
-            updatedInbox.taxAmount > 0 &&
-            updatedInbox.amount
-          ) {
+          if (updatedInbox.taxAmount && updatedInbox.taxAmount > 0 && updatedInbox.amount) {
             const subtotal = updatedInbox.amount - updatedInbox.taxAmount;
             const taxTypeLabel = updatedInbox.taxType?.toUpperCase() || "TAX";
-            const taxRateText = updatedInbox.taxRate
-              ? ` (${updatedInbox.taxRate}%)`
-              : "";
+            const taxRateText = updatedInbox.taxRate ? ` (${updatedInbox.taxRate}%)` : "";
 
             financialFields.push({
               type: "mrkdwn",
@@ -492,10 +470,7 @@ Focus on what was purchased (e.g., "office supplies", "software subscription", "
           });
         } catch (slackError) {
           this.logger.warn("Failed to send Slack message", {
-            error:
-              slackError instanceof Error
-                ? slackError.message
-                : "Unknown error",
+            error: slackError instanceof Error ? slackError.message : "Unknown error",
           });
         }
       }
@@ -546,8 +521,7 @@ Focus on what was purchased (e.g., "office supplies", "software subscription", "
         amount: updatedInbox?.amount,
       });
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       const isGeminiImageError =
         errorMessage.includes("Unable to process input image") ||
         errorMessage.includes("INVALID_ARGUMENT");
@@ -566,15 +540,12 @@ Focus on what was purchased (e.g., "office supplies", "software subscription", "
       // For Gemini image processing errors, mark as pending with fallback name
       // This allows the file to be manually reviewed later
       if (isGeminiImageError && inboxData) {
-        this.logger.info(
-          "Gemini failed to process image, marking as pending for manual review",
-          {
-            inboxId: inboxData.id,
-            fileName: file.name,
-            mimetype: file.mimetype,
-            error: errorMessage,
-          },
-        );
+        this.logger.info("Gemini failed to process image, marking as pending for manual review", {
+          inboxId: inboxData.id,
+          fileName: file.name,
+          mimetype: file.mimetype,
+          error: errorMessage,
+        });
 
         try {
           await updateInbox(db, {
@@ -585,10 +556,7 @@ Focus on what was purchased (e.g., "office supplies", "software subscription", "
         } catch (updateError) {
           this.logger.error("Failed to update inbox status to pending", {
             inboxId: inboxData.id,
-            error:
-              updateError instanceof Error
-                ? updateError.message
-                : "Unknown error",
+            error: updateError instanceof Error ? updateError.message : "Unknown error",
           });
         }
 

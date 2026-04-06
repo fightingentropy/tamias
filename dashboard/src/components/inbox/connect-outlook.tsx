@@ -28,9 +28,7 @@ export function ConnectOutlook({ redirectPath }: Props) {
     <SubmitButton
       className="px-4 font-medium h-[40px]"
       variant="outline"
-      onClick={() =>
-        connectMutation.mutate({ provider: "outlook", redirectPath })
-      }
+      onClick={() => connectMutation.mutate({ provider: "outlook", redirectPath })}
       isSubmitting={connectMutation.isPending}
     >
       <div className="flex items-center space-x-2">

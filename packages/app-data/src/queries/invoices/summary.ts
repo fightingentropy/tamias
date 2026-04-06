@@ -6,10 +6,7 @@ import { getTeamById } from "../teams";
 import { getValidInvoiceStatuses } from "./reads-shared";
 import type { GetInvoiceSummaryParams } from "./types";
 
-async function getInvoiceSummaryImpl(
-  db: Database,
-  params: GetInvoiceSummaryParams,
-) {
+async function getInvoiceSummaryImpl(db: Database, params: GetInvoiceSummaryParams) {
   const { teamId, statuses } = params;
 
   const team = await getTeamById(db, teamId);
@@ -100,9 +97,6 @@ async function getInvoiceSummaryImpl(
   };
 }
 
-export async function getInvoiceSummary(
-  db: Database,
-  params: GetInvoiceSummaryParams,
-) {
+export async function getInvoiceSummary(db: Database, params: GetInvoiceSummaryParams) {
   return getInvoiceSummaryImpl(db, params);
 }

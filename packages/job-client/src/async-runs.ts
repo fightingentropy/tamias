@@ -8,11 +8,7 @@ import {
 } from "@tamias/app-data-convex";
 import type { RunStatus, RunStatusResponse } from "./types";
 
-export {
-  getAsyncRunByProviderRunIdFromConvex,
-  getAsyncRunFromConvex,
-  updateAsyncRunInConvex,
-};
+export { getAsyncRunByProviderRunIdFromConvex, getAsyncRunFromConvex, updateAsyncRunInConvex };
 
 export function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : "Unknown error";

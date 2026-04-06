@@ -1,8 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  buildPayrollLiabilityTotals,
-  parsePayrollCsv,
-} from "./index";
+import { buildPayrollLiabilityTotals, parsePayrollCsv } from "./index";
 
 describe("payroll helpers", () => {
   test("parses payroll CSV rows into balanced journal lines", () => {

@@ -1,8 +1,4 @@
-import {
-  createQueryCacheKey,
-  getOrSetQueryCacheValue,
-  type Database,
-} from "../client";
+import { createQueryCacheKey, getOrSetQueryCacheValue, type Database } from "../client";
 
 /**
  * Reuse identical query results within a single request context.

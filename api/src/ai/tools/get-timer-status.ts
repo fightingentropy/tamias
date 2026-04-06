@@ -15,8 +15,7 @@ const getTimerStatusSchema = z.object({
 });
 
 export const getTimerStatusTool = tool({
-  description:
-    "Get current timer status - shows if timer is running and elapsed time.",
+  description: "Get current timer status - shows if timer is running and elapsed time.",
   inputSchema: getTimerStatusSchema,
   execute: async function* ({ assignedId }, executionOptions) {
     const appContext = getToolAppContext(executionOptions);
