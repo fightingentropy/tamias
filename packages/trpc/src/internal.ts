@@ -12,7 +12,7 @@ export function createInternalClient() {
     process.env.API_INTERNAL_URL ||
     process.env.API_URL ||
     process.env.TAMIAS_API_URL ||
-    "http://localhost:3003";
+    "http://localhost:3001";
 
   const internalApiKey = process.env.INTERNAL_API_KEY;
 

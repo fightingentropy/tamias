@@ -1,8 +1,8 @@
 "use client";
 
 import type { AppRouter } from "@tamias/trpc";
-import { getApiUrl } from "@tamias/utils/envs";
 import type { QueryClient } from "@tanstack/react-query";
+import { getDashboardApiUrl } from "@/env/dashboard-api-url";
 import { isServer, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, loggerLink, TRPCUntypedClient } from "@trpc/client";
 import { createTRPCOptionsProxy, type TRPCOptionsProxy } from "@trpc/tanstack-react-query";
@@ -12,7 +12,7 @@ import { useAuthToken } from "@/framework/auth-client";
 import { makeQueryClient } from "./query-client";
 
 const TRPCContext = createContext<TRPCOptionsProxy<AppRouter> | null>(null);
-const apiUrl = getApiUrl();
+const apiUrl = getDashboardApiUrl();
 const trpcBrowserConsole = {
   log: (...args: unknown[]) => console.log(...args),
   warn: (...args: unknown[]) => console.warn(...args),
@@ -57,7 +57,10 @@ export function TRPCReactProvider(
               log: (...args) => trpcBrowserConsole.log(...args),
               error: (...args) => trpcBrowserConsole.warn(...args),
             },
-            enabled: (opts) => process.env.NODE_ENV === "development" && opts.direction === "up",
+            enabled: (opts) =>
+              process.env.NODE_ENV === "development" &&
+              opts.direction === "up" &&
+              opts.path !== "asyncRuns.currentUserRun",
           }),
           httpBatchLink({
             url: `${apiUrl}/trpc`,

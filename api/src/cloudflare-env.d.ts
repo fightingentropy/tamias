@@ -181,7 +181,7 @@ declare namespace Cloudflare {
       | "https://app.tamias.xyz"
       | "http://localhost:3001";
     WEBSITE_URL: "https://staging.tamias.xyz" | "https://tamias.xyz" | "http://localhost:3000";
-    API_URL: "https://api-staging.tamias.xyz" | "https://api.tamias.xyz" | "http://localhost:3003";
+    API_URL: "https://api-staging.tamias.xyz" | "https://api.tamias.xyz" | "http://localhost:3001" | "http://localhost:3003";
     RESEND_API_KEY: string;
     CONVEX_URL: string;
     CONVEX_SITE_URL: string;

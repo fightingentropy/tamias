@@ -13,25 +13,7 @@ function resolveDashboardPath(...segments: string[]) {
   return path.resolve(__dirname, ...segments);
 }
 
-/** Workerd SSR rejects `{ passive: true }` on `resize`; motion-dom defaults passive true. */
-function motionDomWorkerdResizePassivePlugin(): Plugin {
-  return {
-    name: "motion-dom-workerd-resize-passive",
-    enforce: "pre",
-    transform(code, id) {
-      if (
-        !id.includes(`${path.sep}motion-dom${path.sep}`) ||
-        !id.endsWith(`${path.sep}add-dom-event.mjs`)
-      ) {
-        return null;
-      }
-
-      if (!code.includes("function addDomEvent")) {
-        return null;
-      }
-
-      return {
-        code: `function addDomEvent(target, eventName, handler, options = { passive: true }) {
+const PATCHED_ADD_DOM_EVENT = `function addDomEvent(target, eventName, handler, options = { passive: true }) {
     const merged =
         eventName === "resize" &&
         options &&
@@ -44,8 +26,29 @@ function motionDomWorkerdResizePassivePlugin(): Plugin {
 }
 
 export { addDomEvent };
-`,
-      };
+`;
+
+/**
+ * SSR DOM implementations (e.g. happy-dom) and workerd reject `{ passive: true }` on `window.resize`;
+ * motion-dom defaults passive true for addDomEvent (used by framer-motion layout projection).
+ *
+ * Match by module id suffix and source shape: Vite SSR often rewrites paths (query strings,
+ * different separators) so the old `${path.sep}motion-dom${path.sep}` check missed real loads.
+ */
+function motionDomWorkerdResizePassivePlugin(): Plugin {
+  return {
+    name: "motion-dom-workerd-resize-passive",
+    enforce: "pre",
+    transform(code, id) {
+      const cleanId = id.split("?")[0] ?? id;
+      const isAddDomEventModule =
+        cleanId.includes("motion-dom") && cleanId.endsWith("add-dom-event.mjs");
+
+      if (!isAddDomEventModule || !code.includes("function addDomEvent")) {
+        return null;
+      }
+
+      return { code: PATCHED_ADD_DOM_EVENT, map: null };
     },
   };
 }
@@ -172,6 +175,10 @@ export default defineConfig(({ mode, command }) => {
     resolve: {
       alias: [
         {
+          find: /^(?:.*\/)?motion-dom\/dist\/es\/events\/add-dom-event\.mjs$/,
+          replacement: resolveDashboardPath("./src/shims/motion-dom-add-dom-event.ts"),
+        },
+        {
           find: "@",
           replacement: resolveDashboardPath("./src"),
         },
@@ -197,7 +204,7 @@ export default defineConfig(({ mode, command }) => {
         },
         {
           find: /^process\/?$/,
-          replacement: resolveDashboardPath("../node_modules/process/browser.js"),
+          replacement: resolveDashboardPath("./src/shims/process-browser.ts"),
         },
       ],
       dedupe: ["react", "react-dom"],
@@ -226,6 +233,9 @@ export default defineConfig(({ mode, command }) => {
       cssMinify: mode === "production",
       target: "es2022",
       reportCompressedSize: false,
+    },
+    optimizeDeps: {
+      exclude: ["pino-pretty"],
     },
     ssr: {
       noExternal: [

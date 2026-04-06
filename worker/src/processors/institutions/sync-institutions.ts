@@ -24,8 +24,11 @@ export class SyncInstitutionsProcessor extends BaseProcessor<SyncInstitutionsPay
   async process(
     _job: Job<SyncInstitutionsPayload>,
   ): Promise<{ upserted: number; removed: number }> {
-    if (!isProduction()) {
-      this.logger.info("Skipping institution sync in non-production environment");
+    const forceDevSync = process.env.TAMIAS_SYNC_INSTITUTIONS === "true";
+    if (!isProduction() && !forceDevSync) {
+      this.logger.info(
+        "Skipping institution sync in non-production (set TAMIAS_SYNC_INSTITUTIONS=true to run once)",
+      );
       return { upserted: 0, removed: 0 };
     }
 

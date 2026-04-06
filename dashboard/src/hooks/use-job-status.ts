@@ -31,7 +31,7 @@ export function useJobStatus({ runId, enabled = true }: UseJobStatusProps = {}) 
         return false;
       }
 
-      return 1_500;
+      return 3_000;
     },
     refetchOnWindowFocus: false,
   });

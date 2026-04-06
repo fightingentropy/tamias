@@ -101,7 +101,8 @@ export function getApiUrl() {
     return cloudflarePreviewUrl;
   }
 
-  return "http://localhost:3003";
+  // Unified local dev serves the API on the dashboard port (see README local URLs).
+  return "http://localhost:3001";
 }
 
 export function getConvexUrl() {

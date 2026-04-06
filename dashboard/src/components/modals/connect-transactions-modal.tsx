@@ -32,8 +32,13 @@ export function ConnectTransactionsModal() {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOnClose}>
-      <DialogContent>
+    <Dialog modal={false} open={isOpen} onOpenChange={handleOnClose}>
+      <DialogContent
+        onOpenAutoFocus={(event) => {
+          // Plaid Link mounts outside this dialog; don't trap focus on Radix open.
+          event.preventDefault();
+        }}
+      >
         <div className="p-4">
           <DialogHeader>
             <DialogTitle>Connect bank account</DialogTitle>

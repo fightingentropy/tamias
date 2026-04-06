@@ -15,6 +15,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import dynamic from "@/framework/dynamic";
 import z from "zod/v3";
+import { persistBankInitialSyncRunId } from "@/lib/bank-initial-sync-run";
 import { useConnectParams } from "@/hooks/use-connect-params";
 import { useZodForm } from "@/hooks/use-zod-form";
 import { useI18n } from "@/locales/client";
@@ -163,6 +164,7 @@ export function SelectBankAccountsContent({
       },
       onSuccess: (data) => {
         if (data?.runId) {
+          persistBankInitialSyncRunId(data.runId);
           track({
             event: LogEvents.ConnectBankCompleted.name,
             channel: LogEvents.ConnectBankCompleted.channel,

@@ -6,6 +6,10 @@ import {
 import { createLoggerWithContext } from "@tamias/logger";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import {
+  fetchPlaidInstitutionsForSearch,
+  type InstitutionTrpcRow,
+} from "../lib/plaid-institution-fallback";
 import { createTRPCRouter, protectedProcedure } from "../init";
 
 const logger = createLoggerWithContext("trpc:institutions");
@@ -23,6 +27,20 @@ const getInstitutionByIdSchema = z.object({
 
 const updateUsageSchema = z.object({ id: z.string() });
 
+function mapInstitutionRecords(results: Awaited<ReturnType<typeof getInstitutions>>): InstitutionTrpcRow[] {
+  return results.map((institution) => ({
+    id: institution.id,
+    name: institution.name,
+    logo: institution.logo ?? null,
+    popularity: institution.popularity,
+    availableHistory: institution.availableHistory ?? null,
+    maximumConsentValidity: institution.maximumConsentValidity ?? null,
+    provider: institution.provider,
+    type: (institution.type as "personal" | "business" | null) ?? null,
+    country: institution.countries?.[0] ?? null,
+  }));
+}
+
 export const institutionsRouter = createTRPCRouter({
   get: protectedProcedure.input(getInstitutionsSchema).query(async ({ input }) => {
     try {
@@ -33,17 +51,35 @@ export const institutionsRouter = createTRPCRouter({
         excludeProviders: input.excludeProviders,
       });
 
-      return results.map((institution) => ({
-        id: institution.id,
-        name: institution.name,
-        logo: institution.logo ?? null,
-        popularity: institution.popularity,
-        availableHistory: institution.availableHistory ?? null,
-        maximumConsentValidity: institution.maximumConsentValidity ?? null,
-        provider: institution.provider,
-        type: (institution.type as "personal" | "business" | null) ?? null,
-        country: institution.countries?.[0] ?? null,
-      }));
+      const mapped = mapInstitutionRecords(results);
+
+      if (mapped.length > 0) {
+        return mapped;
+      }
+
+      try {
+        const live = await fetchPlaidInstitutionsForSearch({
+          countryCode: input.countryCode,
+          q: input.q,
+          limit: input.limit,
+          excludeProviders: input.excludeProviders,
+        });
+
+        if (live.length > 0) {
+          logger.info("Institution search used live Plaid fallback", {
+            countryCode: input.countryCode,
+            count: live.length,
+          });
+        }
+
+        return live;
+      } catch (liveError) {
+        logger.warn("Live Plaid institution fallback failed", {
+          countryCode: input.countryCode,
+          error: liveError instanceof Error ? liveError.message : String(liveError),
+        });
+        return mapped;
+      }
     } catch (error) {
       logger.error("Failed to get institutions", {
         error: error instanceof Error ? error.message : String(error),
@@ -85,10 +121,8 @@ export const institutionsRouter = createTRPCRouter({
       });
 
       if (!result) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Institution not found",
-        });
+        // Convex row missing (e.g. user picked an institution from live Plaid fallback).
+        return { data: null };
       }
 
       return {

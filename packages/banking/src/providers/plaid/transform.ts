@@ -6,7 +6,7 @@ import type {
   GetAccountBalanceResponse,
 } from "../../types";
 import { getType } from "../../utils/account";
-import { getLogoURL } from "../../utils/logo";
+import { getLogoURL, plaidEmbeddedInstitutionLogo } from "../../utils/logo";
 import type {
   TransformAccount,
   TransformAccountBalance,
@@ -297,6 +297,8 @@ export const transformAccountBalance = ({
 export const transformInstitution = (institution: TransformInstitution) => ({
   id: institution.institution_id,
   name: institution.name,
-  logo: getLogoURL(institution.institution_id),
+  // Omit CDN URL here: `cdn-engine.tamias.xyz` is not publicly resolvable until the mirror is
+  // live; Convex-backed search still serves CDN URLs where the deployment has DNS + R2.
+  logo: plaidEmbeddedInstitutionLogo(institution.logo) ?? null,
   provider: "plaid" as const,
 });

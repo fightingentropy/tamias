@@ -14,50 +14,72 @@ import { buildTRPCRequestHeaders, getServerRequestContext } from "./request-cont
 //            will return the same client during the same request.
 export const getQueryClient = cache(makeQueryClient);
 
-const DEFAULT_TAMIAS_PROD_API_ORIGIN = "https://api.tamias.xyz";
-
-function resolvedApiMatchesProdDefault(url: string): boolean {
-  try {
-    return new URL(url).origin === new URL(DEFAULT_TAMIAS_PROD_API_ORIGIN).origin;
-  } catch {
-    return false;
-  }
-}
-
 function resolveDashboardSsrTrpcBaseUrl(): string {
   const internal = process.env.API_INTERNAL_URL;
   if (internal) {
     return internal;
   }
 
-  const fromEnv = getApiUrl();
-  // `vite dev` SSR prebundles workspace packages; `process.env.NODE_ENV` there may not match
-  // Vite's define. `import.meta.env.DEV` is authoritative for local development.
-  if (import.meta.env.DEV && resolvedApiMatchesProdDefault(fromEnv)) {
-    return "http://localhost:3003";
+  if (import.meta.env.DEV) {
+    const dash = process.env.DASHBOARD_URL;
+    if (dash) {
+      try {
+        // Unified `vite dev`: tRPC is served on the same origin as the app (path routing).
+        // Outbound worker `fetch(https://api.tamias.xyz/...)` is flaky and often surfaces as
+        // "Network connection lost"; always talk to the running Miniflare listener instead.
+        return new URL(dash).origin;
+      } catch {
+        /* fall through */
+      }
+    }
+
+    return "http://localhost:3001";
   }
 
-  return fromEnv;
+  return getApiUrl();
 }
 
 const API_BASE_URL = resolveDashboardSsrTrpcBaseUrl();
 
 const SSR_FETCH_TIMEOUT_MS = 8_000;
 
-function shouldUseApiServiceBinding(input: RequestInfo | URL) {
-  const apiService = getApiServiceBinding();
+function resolveSsrFetchUrl(input: RequestInfo | URL): string {
+  return new URL(
+    typeof input === "string" ? input : input instanceof Request ? input.url : input.toString(),
+    API_BASE_URL,
+  ).toString();
+}
 
+function mergeRequestHeaders(base: Headers, override: Headers): Headers {
+  const out = new Headers(base);
+  override.forEach((value, key) => {
+    out.set(key, value);
+  });
+  return out;
+}
+
+function shouldUseInProcessApiGateway(resolvedUrl: string): boolean {
+  const apiService = getApiServiceBinding();
   if (!apiService) {
     return false;
   }
 
-  const requestUrl = new URL(
-    typeof input === "string" ? input : input instanceof Request ? input.url : input.toString(),
-    API_BASE_URL,
-  );
-  const apiBaseUrl = new URL(API_BASE_URL);
+  let pathname: string;
+  try {
+    pathname = new URL(resolvedUrl).pathname;
+  } catch {
+    return false;
+  }
 
-  return requestUrl.origin === apiBaseUrl.origin;
+  if (pathname.startsWith("/trpc")) {
+    return true;
+  }
+
+  try {
+    return new URL(resolvedUrl).origin === new URL(API_BASE_URL).origin;
+  } catch {
+    return false;
+  }
 }
 
 function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
@@ -72,19 +94,42 @@ function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit): Promise
     headers.set("Connection", "close");
   }
 
-  noteSsrTrpcCall(typeof input === "string" ? input : input.toString());
+  const resolvedUrl = resolveSsrFetchUrl(input);
+  noteSsrTrpcCall(resolvedUrl);
 
-  if (shouldUseApiServiceBinding(input)) {
+  if (shouldUseInProcessApiGateway(resolvedUrl)) {
     const apiService = getApiServiceBinding();
 
     if (!apiService) {
       throw new Error("Missing API service binding");
     }
 
-    return apiService.fetch(new Request(input, { ...init, signal, headers }));
+    const subrequest =
+      input instanceof Request
+        ? new Request(resolvedUrl, {
+            method: input.method,
+            headers: mergeRequestHeaders(input.headers, headers),
+            body: input.body,
+            signal,
+            duplex: "half",
+          } as RequestInit)
+        : new Request(resolvedUrl, { ...init, signal, headers });
+
+    return apiService.fetch(subrequest);
   }
 
-  return fetch(input, { ...init, signal, headers });
+  const outbound =
+    input instanceof Request
+      ? new Request(resolvedUrl, {
+          method: input.method,
+          headers: mergeRequestHeaders(input.headers, headers),
+          body: input.body,
+          signal,
+          duplex: "half",
+        } as RequestInit)
+      : new Request(resolvedUrl, { ...init, signal, headers });
+
+  return fetch(outbound);
 }
 
 export const trpc = createTRPCOptionsProxy<AppRouter>({

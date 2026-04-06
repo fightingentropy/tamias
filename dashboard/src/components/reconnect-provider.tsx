@@ -1,17 +1,12 @@
 import { Button } from "@tamias/ui/button";
 import { Icons } from "@tamias/ui/icons";
 import { Spinner } from "@tamias/ui/spinner";
-import {
-  getPlaidEnvironment,
-  getTellerApplicationId,
-  getTellerEnvironment,
-} from "@tamias/utils/envs";
+import { getTellerApplicationId, getTellerEnvironment } from "@tamias/utils/envs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
-import { useToast } from "@tamias/ui/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { usePlaidLink } from "react-plaid-link";
 import { useScript } from "usehooks-ts";
+import { usePlaidLinkBridge } from "@/components/plaid-link-bridge";
 import { useTheme } from "@/components/theme-provider";
 import { useTRPC } from "@/trpc/client";
 
@@ -47,43 +42,35 @@ export function ReconnectProvider({
   onComplete,
   variant,
 }: Props) {
-  const { toast } = useToast();
   const { theme } = useTheme();
   const trpc = useTRPC();
-  const plaidEnvironment = getPlaidEnvironment();
   const tellerApplicationId = getTellerApplicationId();
   const tellerEnvironment = getTellerEnvironment();
-  const [plaidToken, setPlaidToken] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(false);
+  const [pendingPlaidOpen, setPendingPlaidOpen] = useState(false);
+  const { setSession, open, ready } = usePlaidLinkBridge();
 
   const createPlaidLink = useMutation(
     trpc.banking.plaidLink.mutationOptions({
       onSuccess: (result) => {
-        if (result.data.link_token) {
-          setPlaidToken(result.data.link_token);
+        const token = result.data.link_token;
+        if (!token) {
+          return;
         }
+
+        setSession({
+          token,
+          onSuccess: () => {
+            onComplete("sync");
+          },
+        });
+        setPendingPlaidOpen(true);
       },
     }),
   );
 
   useScript("https://cdn.teller.io/connect/connect.js", {
     removeOnUnmount: false,
-  });
-
-  const { open: openPlaid } = usePlaidLink({
-    token: plaidToken,
-    publicKey: "",
-    env: plaidEnvironment,
-    clientName: "Tamias",
-    product: ["transactions"],
-    onSuccess: () => {
-      setPlaidToken(undefined);
-      // Plaid uses "update mode" which preserves account IDs - just sync
-      onComplete("sync");
-    },
-    onExit: () => {
-      setPlaidToken(undefined);
-    },
   });
 
   const openTeller = () => {
@@ -106,10 +93,13 @@ export function ReconnectProvider({
   };
 
   useEffect(() => {
-    if (plaidToken) {
-      openPlaid();
+    if (!pendingPlaidOpen || !ready) {
+      return;
     }
-  }, [plaidToken, openPlaid]);
+
+    open();
+    setPendingPlaidOpen(false);
+  }, [pendingPlaidOpen, ready, open]);
 
   const handleOnClick = async () => {
     switch (provider) {

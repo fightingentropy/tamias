@@ -84,6 +84,11 @@ export const mocks = {
     meta: { hasNextPage: false, hasPreviousPage: false },
   })) as MockFn,
 
+  // Institution reference (Convex catalog + Plaid fallback in router)
+  getInstitutions: mock(() => []) as MockFn,
+  getInstitutionById: mock(() => null) as MockFn,
+  updateInstitutionUsage: mock(() => null) as MockFn,
+
   // Bank account queries
   getBankAccounts: mock(() => []) as MockFn,
   getBankConnections: mock(() => []) as MockFn,
@@ -281,6 +286,11 @@ const dbQueriesMock = createModuleMock({
 
   // Document functions
   getDocuments: mocks.getDocuments,
+
+  // Institutions
+  getInstitutions: mocks.getInstitutions,
+  getInstitutionById: mocks.getInstitutionById,
+  updateInstitutionUsage: mocks.updateInstitutionUsage,
 
   // Bank account functions
   getBankAccounts: mocks.getBankAccounts,
