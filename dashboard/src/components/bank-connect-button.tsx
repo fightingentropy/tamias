@@ -1,3 +1,5 @@
+"use client";
+
 import { Spinner } from "@tamias/ui/spinner";
 import type { MutableRefObject } from "react";
 import { useEffect, useState } from "react";
