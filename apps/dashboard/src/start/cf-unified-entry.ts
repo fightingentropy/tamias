@@ -1,5 +1,5 @@
 import "@/start/html-element-shim";
-import { apiEntryFetch, RateLimitCoordinator } from "@tamias/api";
+import { RateLimitCoordinator } from "@tamias/api/rate-limit-coordinator";
 import {
   AsyncWorkflow,
   type CloudflareAsyncMessage,
@@ -16,11 +16,20 @@ import type { DashboardCloudflareEnv } from "@/start/server/cloudflare-context";
 
 export { AsyncWorkflow, RateLimitCoordinator, RunCoordinator };
 
+async function callApiEntryFetch(
+  request: Request,
+  env: DashboardCloudflareEnv,
+  executionCtx: ExecutionContext,
+) {
+  const { apiEntryFetch } = await import("@tamias/api");
+  return apiEntryFetch(request, env as never, executionCtx);
+}
+
 const dashboardWorker = createServerEntry(
   { fetch: startHandler },
   {
     internalApiEntry: (request, env, executionCtx) =>
-      apiEntryFetch(request, env as never, executionCtx),
+      callApiEntryFetch(request, env, executionCtx),
   },
 );
 
@@ -31,7 +40,7 @@ export default {
     executionCtx: ExecutionContext,
   ) {
     if (shouldServeApi(request, env)) {
-      return apiEntryFetch(request, env as never, executionCtx);
+      return callApiEntryFetch(request, env, executionCtx);
     }
 
     return dashboardWorker.fetch(request, env, executionCtx);

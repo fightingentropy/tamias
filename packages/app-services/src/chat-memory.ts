@@ -1,6 +1,29 @@
 import { ConvexChatMemoryProvider } from "@tamias/app-data/convex/chat-memory";
 
-export const chatMemoryProvider = new ConvexChatMemoryProvider();
+let chatMemoryProviderSingleton: ConvexChatMemoryProvider | undefined;
+
+function getChatMemoryProvider(): ConvexChatMemoryProvider {
+  chatMemoryProviderSingleton ??= new ConvexChatMemoryProvider();
+  return chatMemoryProviderSingleton;
+}
+
+/**
+ * Lazily constructs the provider so bundled workers do not instantiate it during
+ * circular ESM evaluation (e.g. convex barrel ↔ Stripe webhook modules).
+ */
+export const chatMemoryProvider = new Proxy({} as ConvexChatMemoryProvider, {
+  get(_target, prop: string | symbol) {
+    if (prop === "then") {
+      return undefined;
+    }
+    const inst = getChatMemoryProvider();
+    const value = inst[prop as keyof ConvexChatMemoryProvider];
+    if (typeof value === "function") {
+      return (value as (...args: never[]) => unknown).bind(inst);
+    }
+    return value;
+  },
+});
 
 function getScopedUserId(userId: string, teamId: string) {
   return `${userId}:${teamId}`;
