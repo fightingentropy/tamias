@@ -81,9 +81,7 @@ export async function generateInsightAudio(
   insight: InsightForAudio,
 ): Promise<AudioGenerationResult> {
   if (!isAudioEnabled()) {
-    throw new Error(
-      "Audio generation is not enabled. Set ELEVENLABS_API_KEY environment variable.",
-    );
+    throw new Error("Audio generation is not available (provider removed).");
   }
 
   if (!insight.content) {

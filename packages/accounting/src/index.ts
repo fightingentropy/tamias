@@ -1,9 +1,9 @@
 import type { AccountingProvider } from "./provider";
 import type { AccountingProviderConfig, AccountingProviderId, ProviderInitConfig } from "./types";
-import { FORTNOX_SCOPES, QUICKBOOKS_SCOPES, XERO_SCOPES } from "./scopes";
+import { FORTNOX_SCOPES, QUICKBOOKS_SCOPES } from "./scopes";
 
 export * from "./provider";
-export { FORTNOX_SCOPES, QUICKBOOKS_SCOPES, XERO_SCOPES };
+export { FORTNOX_SCOPES, QUICKBOOKS_SCOPES };
 // Re-export types
 export * from "./types";
 export * from "./utils";
@@ -12,11 +12,6 @@ export * from "./utils";
  * OAuth environment variable mapping for each provider
  */
 const PROVIDER_ENV_KEYS = {
-  xero: {
-    clientId: "XERO_CLIENT_ID",
-    clientSecret: "XERO_CLIENT_SECRET",
-    redirectUri: "XERO_OAUTH_REDIRECT_URL",
-  },
   quickbooks: {
     clientId: "QUICKBOOKS_CLIENT_ID",
     clientSecret: "QUICKBOOKS_CLIENT_SECRET",
@@ -39,6 +34,10 @@ export function getProviderOAuthCredentials(providerId: AccountingProviderId): {
   clientSecret: string;
   redirectUri: string;
 } {
+  if (providerId === "xero") {
+    throw new Error("Xero integration has been removed. Please use QuickBooks or Fortnox.");
+  }
+
   const envKeys = PROVIDER_ENV_KEYS[providerId];
 
   const clientId = process.env[envKeys.clientId];
@@ -61,7 +60,7 @@ export function getProviderOAuthCredentials(providerId: AccountingProviderId): {
  *
  * @example
  * ```typescript
- * const provider = await getAccountingProvider('xero', storedConfig);
+ * const provider = await getAccountingProvider('quickbooks', storedConfig);
  * const accounts = await provider.getAccounts(orgId);
  * ```
  */
@@ -77,10 +76,8 @@ export async function getAccountingProvider(
   };
 
   switch (providerId) {
-    case "xero": {
-      const { XeroProvider } = await import("./providers/xero");
-      return new XeroProvider(initConfig);
-    }
+    case "xero":
+      throw new Error("Xero integration has been removed. Please use QuickBooks or Fortnox.");
 
     case "quickbooks": {
       const { QuickBooksProvider } = await import("./providers/quickbooks");
@@ -104,12 +101,12 @@ export async function getAccountingProvider(
  * Check if a provider is currently supported
  */
 export function isProviderSupported(providerId: string): boolean {
-  return providerId === "xero" || providerId === "quickbooks" || providerId === "fortnox";
+  return providerId === "quickbooks" || providerId === "fortnox";
 }
 
 /**
  * Get list of all supported provider IDs
  */
 export function getSupportedProviders(): AccountingProviderId[] {
-  return ["xero", "quickbooks", "fortnox"];
+  return ["quickbooks", "fortnox"];
 }
