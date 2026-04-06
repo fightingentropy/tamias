@@ -19,9 +19,6 @@ Deep-dive notes for integrations and shared packages. **Day-to-day setup, env, d
 
 ## Design system
 
-
-## Tamias Design Reference
-
 This document captures the current design language of the app so new pages match what is already shipped. It is based on the implemented UI in `dashboard` and `packages/ui`, not on aspirational design ideas.
 
 Use this as the default reference when building new pages, widgets, forms, tables, or public-facing screens.
@@ -533,9 +530,6 @@ If any answer is no, bring it back toward the existing product shell.
 
 ## Banking providers
 
-
-## Banking Provider Implementation
-
 Technical documentation for Tamias's multi-provider banking integration.
 
 ### Architecture Overview
@@ -1007,9 +1001,6 @@ cache for HTTP clients.
 ---
 
 ## Accounting integrations
-
-
-## Accounting Integration Package
 
 Technical documentation for Tamias's accounting software integrations (Xero, QuickBooks, Fortnox).
 
@@ -1609,9 +1600,6 @@ All providers sort transactions by date before export:
 
 ## Accounting sync architecture (deep dive)
 
-
-## Accounting Integration Architecture
-
 Deep technical documentation of the accounting sync system architecture.
 
 ### System Components
@@ -2104,9 +2092,6 @@ flowchart TD
 
 ## Categories and tax
 
-
-## @tamias/categories
-
 A comprehensive financial category system for SMBs with international tax rate support.
 
 ### Features
@@ -2119,7 +2104,7 @@ A comprehensive financial category system for SMBs with international tax rate s
 ### Installation
 
 ```bash
-npm install @tamias/categories
+bun add @tamias/categories
 ```
 
 ### Usage
@@ -2223,9 +2208,6 @@ See the TypeScript types for complete API documentation.
 ---
 
 ## Inbox connectors
-
-
-## @tamias/inbox
 
 Email inbox integration package for syncing PDF attachments from Gmail and Outlook accounts.
 
@@ -2432,9 +2414,6 @@ import { isAuthenticationError } from "@tamias/inbox/utils";
 ---
 
 ## Data & AI insights
-
-
-## @tamias/insights
 
 AI-powered business insights generation for Tamias. This package provides smart metric selection, anomaly detection, and narrative content generation for periodic business summaries.
 
