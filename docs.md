@@ -543,7 +543,7 @@ tRPC Router (api/src/trpc/routers/banking.ts)
     ▼
 Provider Facade (packages/banking/src/index.ts)
     │
-    ├── PlaidProvider        (US/CA — official Plaid SDK)
+    ├── PlaidProvider        (UK/US/CA — official Plaid SDK)
     ├── TellerProvider       (US — Cloudflare mTLS binding)
     │
     ▼
@@ -575,7 +575,7 @@ Both providers implement a common interface:
 
 GoCardless is no longer bundled: new connections are **Plaid** or **Teller** only. The database may still contain legacy `gocardless` provider values.
 
-#### Plaid (US/CA)
+#### Plaid (UK / US / CA)
 
 - **Auth**: Official Plaid SDK with `PLAID-CLIENT-ID` + `PLAID-SECRET` headers.
   Per-Item access tokens from the Link flow.
@@ -598,7 +598,7 @@ GoCardless is no longer bundled: new connections are **Plaid** or **Teller** onl
 - Institution data is cached for 24 hours (static data)
 - Plaid preserves account IDs across reconnects (update mode)
 
-**Sandbox (Link test logins):** With `PLAID_ENVIRONMENT=sandbox`, Link accepts Plaid’s public test credentials at the username/password step (e.g. **user_good** / **pass_good** from the developer dashboard **Credentials** tab). More fixtures are in [Plaid Sandbox](https://plaid.com/docs/sandbox/). Those logins work only in Sandbox, not Production.
+**Sandbox (Link test logins):** With `PLAID_ENVIRONMENT=sandbox`, Link accepts Plaid’s public test credentials at the username/password step (e.g. **user_good** / **pass_good** from the developer dashboard **Credentials** tab). UK sandbox institutions (e.g. **Flexible Platypus Open Banking**, **Royal Bank of Plaid**) use the same pattern; see [Sandbox institutions](https://plaid.com/docs/sandbox/institutions/). Those logins work only in Sandbox, not Production.
 
 **Plaid Dashboard (redirects):** Under your Plaid app’s **Allowed redirect URIs**, add the origins you use for the dashboard, for example `http://localhost:3001/`, `https://staging.tamias.xyz/`, and `https://app.tamias.xyz/` (trailing slash per Plaid’s examples; match the exact app URL you load Link from).
 

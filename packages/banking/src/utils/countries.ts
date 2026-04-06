@@ -1,4 +1,5 @@
-export const PLAID_COUNTRIES = ["US", "CA"];
+/** Regions Plaid Link requests in `country_codes` (sandbox includes UK test banks). */
+export const PLAID_COUNTRIES = ["GB", "US", "CA"];
 
 export const TELLER_COUNTRIES = ["US"];
 

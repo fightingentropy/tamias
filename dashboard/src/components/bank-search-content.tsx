@@ -129,7 +129,9 @@ export function BankSearchContent({
   const [plaidToken, setPlaidToken] = useState<string | undefined>();
   const teamCountryCode = defaultCountryCode || "";
   const connectDefaultCountry =
-    teamCountryCode === "US" || teamCountryCode === "CA" ? teamCountryCode : "US";
+    teamCountryCode === "US" || teamCountryCode === "CA" || teamCountryCode === "GB"
+      ? teamCountryCode
+      : "GB";
 
   const { countryCode, search: query, setParams } = useConnectParams(connectDefaultCountry);
 
@@ -187,7 +189,7 @@ export function BankSearchContent({
   const [debouncedQuery] = useDebounceValue(query ?? "", 200);
 
   const { data, isLoading } = useQuery({
-    ...    trpc.institutions.get.queryOptions(
+    ...trpc.institutions.get.queryOptions(
       {
         q: debouncedQuery,
         countryCode,
@@ -201,7 +203,7 @@ export function BankSearchContent({
   });
 
   useEffect(() => {
-    if (enabled && (countryCode === "US" || countryCode === "CA")) {
+    if (enabled && (countryCode === "GB" || countryCode === "US" || countryCode === "CA")) {
       createPlaidLink.mutate();
     }
   }, [enabled, countryCode]);
