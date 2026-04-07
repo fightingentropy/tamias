@@ -44,12 +44,12 @@ function WidgetsContent() {
 }
 
 interface WidgetsProps {
-  initialPreferences: WidgetPreferences;
+  initialPreferences: WidgetPreferences | null;
 }
 
 export function Widgets({ initialPreferences }: WidgetsProps) {
   return (
-    <WidgetProvider initialPreferences={initialPreferences}>
+    <WidgetProvider initialPreferences={initialPreferences ?? undefined}>
       <WidgetsContent />
     </WidgetProvider>
   );
