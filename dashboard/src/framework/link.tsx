@@ -9,6 +9,8 @@ type LinkProps = Omit<ComponentPropsWithoutRef<"a">, "href"> & {
   prefetch?: boolean;
   replace?: boolean;
   scroll?: boolean;
+  /** Called alongside route preloading to prefetch data for the target page. */
+  onPrefetch?: () => void;
 };
 
 function isExternalHref(href: string) {
@@ -55,7 +57,7 @@ function shouldHandleClientNavigation(
 }
 
 const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(
-  { href, onClick, onMouseEnter, onFocus, prefetch, replace, ...props },
+  { href, onClick, onMouseEnter, onFocus, prefetch, replace, onPrefetch, ...props },
   ref,
 ) {
   const router = useRouter({ warn: false });
@@ -87,6 +89,7 @@ const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(
     void router.preloadRoute({
       to: hrefString as any,
     });
+    onPrefetch?.();
   };
 
   return (

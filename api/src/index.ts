@@ -97,16 +97,16 @@ let appPromise: Promise<Awaited<ReturnType<typeof createApp>>> | null = null;
 
 async function createApp() {
   const [
-    { trpcServer },
+    { fetchRequestHandler },
     { OpenAPIHono },
     { Scalar },
     { routers },
     { createTRPCContext },
-    { appRouter },
+    { getRouterForProcedures, getFullRouter },
     { httpLogger },
     { getRequestTrace },
   ] = await Promise.all([
-    import("@hono/trpc-server"),
+    import("@trpc/server/adapters/fetch"),
     import("@hono/zod-openapi"),
     import("@scalar/hono-api-reference"),
     import("./rest/routers"),
@@ -179,11 +179,87 @@ async function createApp() {
     });
   }
 
-  app.use(
-    "/trpc/*",
-    trpcServer({
-      router: appRouter,
-      createContext: createTRPCContext,
+  // ── Edge cache for hot tRPC queries ──────────────────────────────────
+  // Cache frequently-read, user-scoped queries at the Cloudflare edge.
+  // Key = URL + hashed auth token. Short TTL with stale-while-revalidate.
+  const CACHEABLE_PROCEDURES = new Map<string, number>([
+    ["user.me", 60],
+    ["team.current", 60],
+    ["widgets.getOverview", 30],
+    ["widgets.getAccountBalances", 30],
+    ["widgets.getOutstandingInvoices", 30],
+    ["widgets.getInboxStats", 30],
+    ["notificationSettings.get", 120],
+  ]);
+
+  app.use("/trpc/*", async (c, next) => {
+    if (c.req.method !== "GET") {
+      await next();
+      return;
+    }
+
+    const procedures = c.req.path.replace("/trpc/", "").split(",");
+    const minTtl = procedures.reduce((min, proc) => {
+      const ttl = CACHEABLE_PROCEDURES.get(proc);
+      return ttl !== undefined ? Math.min(min, ttl) : -1;
+    }, Infinity);
+
+    // Only cache if ALL procedures in the batch are cacheable.
+    if (minTtl < 0 || !Number.isFinite(minTtl)) {
+      await next();
+      return;
+    }
+
+    const authHeader = c.req.header("Authorization") ?? "";
+    const tokenBytes = await crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode(authHeader),
+    );
+    const tokenHash = [...new Uint8Array(tokenBytes)]
+      .slice(0, 8)
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+
+    const cacheUrl = new URL(c.req.url);
+    cacheUrl.searchParams.set("_ck", tokenHash);
+    const cacheKey = new Request(cacheUrl.toString());
+
+    const cache = (caches as unknown as { default: Cache }).default;
+    const cached = await cache.match(cacheKey);
+    if (cached) {
+      return new Response(cached.body, cached);
+    }
+
+    await next();
+
+    if (c.res.ok) {
+      const responseToCache = c.res.clone();
+      const headers = new Headers(responseToCache.headers);
+      headers.set("Cache-Control", `s-maxage=${minTtl}, stale-while-revalidate=${minTtl * 2}`);
+      const cacheable = new Response(responseToCache.body, {
+        status: responseToCache.status,
+        headers,
+      });
+      (c.executionCtx as ExecutionContext).waitUntil(cache.put(cacheKey, cacheable));
+    }
+  });
+
+  // Custom tRPC handler with on-demand cluster loading.
+  // Instead of loading all 47 routers upfront, only the core cluster is
+  // loaded at startup. Other clusters are imported when their procedures
+  // are first called, then cached for subsequent requests.
+  app.use("/trpc/*", async (c) => {
+    const procedures = c.req.path.replace("/trpc/", "").split(",");
+    const router = await getRouterForProcedures(procedures);
+
+    return fetchRequestHandler({
+      endpoint: "/trpc",
+      req: c.req.raw,
+      router,
+      createContext: async (opts) => ({
+        ...(await createTRPCContext(opts, c)),
+        env: c.env,
+      }),
       onError: ({ error, path }) => {
         logger.error(`[tRPC] ${path}`, {
           message: error.message,
@@ -192,8 +268,8 @@ async function createApp() {
           stack: error.stack,
         });
       },
-    }),
-  );
+    });
+  });
 
   app.get("/favicon.ico", (c) => c.body(null, 204));
   app.get("/robots.txt", (c) => c.body(null, 204));

@@ -1,104 +1,163 @@
-import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { createTRPCRouter } from "../init";
-import { accountingRouter } from "./accounting";
-import { apiKeysRouter } from "./api-keys";
-import { appsRouter } from "./apps";
-import { asyncRunsRouter } from "./async-runs";
-import { bankAccountsRouter } from "./bank-accounts";
-import { bankConnectionsRouter } from "./bank-connections";
-import { bankingRouter } from "./banking";
+
+// Re-export types from the static type file (type-only, no runtime cost).
+export type { AppRouter, RouterInputs, RouterOutputs } from "./_app.types";
+
+// ── Core routers (always loaded) ────────────────────────────────────────
+// These are needed for every authenticated page load (SSR fetches user +
+// team, dashboard fetches widgets/notifications). Keep this list minimal.
 import { billingRouter } from "./billing";
-import { chatsRouter } from "./chats";
-import { companiesHouseRouter } from "./companies-house";
-import { complianceRouter } from "./compliance";
-import { customersRouter } from "./customers";
-import { documentTagAssignmentsRouter } from "./document-tag-assignments";
-import { documentTagsRouter } from "./document-tags";
-import { documentsRouter } from "./documents";
-import { chatFeedbackRouter } from "./feedback";
-import { inboxRouter } from "./inbox";
-import { inboxAccountsRouter } from "./inbox-accounts";
-import { insightsRouter } from "./insights";
-import { institutionsRouter } from "./institutions";
-import { invoiceRouter } from "./invoice";
-import { invoicePaymentsRouter } from "./invoice-payments";
-import { invoiceProductsRouter } from "./invoice-products";
-import { invoiceRecurringRouter } from "./invoice-recurring";
-import { invoiceTemplateRouter } from "./invoice-template";
 import { notificationSettingsRouter } from "./notification-settings";
 import { notificationsRouter } from "./notifications";
-import { oauthApplicationsRouter } from "./oauth-applications";
-import { payrollRouter } from "./payroll";
-import { reportsRouter } from "./reports";
 import { searchRouter } from "./search";
-import { shortLinksRouter } from "./short-links";
 import { suggestedActionsRouter } from "./suggested-actions";
 import { supportRouter } from "./support";
 import { tagsRouter } from "./tags";
 import { teamRouter } from "./team";
-import { trackerEntriesRouter } from "./tracker-entries";
-import { trackerProjectsRouter } from "./tracker-projects";
-import { transactionAttachmentsRouter } from "./transaction-attachments";
-import { transactionCategoriesRouter } from "./transaction-categories";
-import { transactionTagsRouter } from "./transaction-tags";
-import { transactionsRouter } from "./transactions";
-import { uploadsRouter } from "./uploads";
 import { userRouter } from "./user";
-import { vatRouter } from "./vat";
 import { widgetsRouter } from "./widgets";
-import { yearEndRouter } from "./year-end";
 
-export const appRouter = createTRPCRouter({
-  accounting: accountingRouter,
-  asyncRuns: asyncRunsRouter,
-  banking: bankingRouter,
+const coreRouters = {
+  billing: billingRouter,
   notifications: notificationsRouter,
   notificationSettings: notificationSettingsRouter,
-  apps: appsRouter,
-  bankAccounts: bankAccountsRouter,
-  bankConnections: bankConnectionsRouter,
-  chats: chatsRouter,
-  compliance: complianceRouter,
-  companiesHouse: companiesHouseRouter,
-  customers: customersRouter,
-  documents: documentsRouter,
-  documentTagAssignments: documentTagAssignmentsRouter,
-  documentTags: documentTagsRouter,
-  chatFeedback: chatFeedbackRouter,
-  inbox: inboxRouter,
-  inboxAccounts: inboxAccountsRouter,
-  insights: insightsRouter,
-  institutions: institutionsRouter,
-  invoice: invoiceRouter,
-  invoicePayments: invoicePaymentsRouter,
-  invoiceProducts: invoiceProductsRouter,
-  invoiceRecurring: invoiceRecurringRouter,
-  invoiceTemplate: invoiceTemplateRouter,
-  reports: reportsRouter,
-  oauthApplications: oauthApplicationsRouter,
-  payroll: payrollRouter,
-  billing: billingRouter,
+  search: searchRouter,
   suggestedActions: suggestedActionsRouter,
   support: supportRouter,
   tags: tagsRouter,
   team: teamRouter,
-  trackerEntries: trackerEntriesRouter,
-  trackerProjects: trackerProjectsRouter,
-  transactionAttachments: transactionAttachmentsRouter,
-  transactionCategories: transactionCategoriesRouter,
-  transactions: transactionsRouter,
-  transactionTags: transactionTagsRouter,
-  uploads: uploadsRouter,
   user: userRouter,
-  vat: vatRouter,
-  search: searchRouter,
-  shortLinks: shortLinksRouter,
-  apiKeys: apiKeysRouter,
   widgets: widgetsRouter,
-  yearEnd: yearEndRouter,
-});
+};
 
-// export type definition of API
-export type AppRouter = typeof appRouter;
-export type RouterOutputs = inferRouterOutputs<AppRouter>;
-export type RouterInputs = inferRouterInputs<AppRouter>;
+// ── Lazy-loaded clusters ────────────────────────────────────────────────
+// Each cluster is a dynamic import that defers module evaluation until
+// a procedure in that cluster is actually called. This avoids loading AI
+// SDKs, banking integrations, document processing, etc. on cold starts
+// that only need core data (user, team, widgets).
+
+type ClusterLoader = () => Promise<Record<string, any>>;
+
+const clusterLoaders: Record<string, ClusterLoader> = {
+  finance: () => import("./clusters/finance").then((m) => m.financeRouters),
+  invoice: () => import("./clusters/invoice").then((m) => m.invoiceRouters),
+  content: () => import("./clusters/content").then((m) => m.contentRouters),
+  ai: () => import("./clusters/ai").then((m) => m.aiRouters),
+  misc: () => import("./clusters/misc").then((m) => m.miscRouters),
+};
+
+// Map each procedure prefix to its cluster name.
+const procedureClusterMap: Record<string, string> = {
+  // finance
+  accounting: "finance",
+  bankAccounts: "finance",
+  bankConnections: "finance",
+  banking: "finance",
+  payroll: "finance",
+  reports: "finance",
+  transactionAttachments: "finance",
+  transactionCategories: "finance",
+  transactionTags: "finance",
+  transactions: "finance",
+  vat: "finance",
+  yearEnd: "finance",
+  // invoice
+  invoice: "invoice",
+  invoicePayments: "invoice",
+  invoiceProducts: "invoice",
+  invoiceRecurring: "invoice",
+  invoiceTemplate: "invoice",
+  // content
+  compliance: "content",
+  companiesHouse: "content",
+  customers: "content",
+  documentTagAssignments: "content",
+  documentTags: "content",
+  documents: "content",
+  inbox: "content",
+  inboxAccounts: "content",
+  uploads: "content",
+  // ai
+  chats: "ai",
+  chatFeedback: "ai",
+  insights: "ai",
+  // misc
+  apiKeys: "misc",
+  apps: "misc",
+  asyncRuns: "misc",
+  institutions: "misc",
+  oauthApplications: "misc",
+  shortLinks: "misc",
+  trackerEntries: "misc",
+  trackerProjects: "misc",
+};
+
+// ── Dynamic router assembly ─────────────────────────────────────────────
+
+const loadedRouters: Record<string, any> = { ...coreRouters };
+const loadedClusters = new Set<string>();
+let cachedRouter: ReturnType<typeof createTRPCRouter> = createTRPCRouter(coreRouters);
+
+/**
+ * Ensure clusters required for the given procedure paths are loaded,
+ * then return the (potentially rebuilt) appRouter.
+ */
+export async function getRouterForProcedures(procedurePaths: string[]) {
+  const missing = new Set<string>();
+
+  for (const path of procedurePaths) {
+    const prefix = path.split(".")[0] ?? "";
+    const cluster = procedureClusterMap[prefix];
+    if (cluster && !loadedClusters.has(cluster)) {
+      missing.add(cluster);
+    }
+  }
+
+  if (missing.size === 0) {
+    return cachedRouter;
+  }
+
+  const results = await Promise.all(
+    [...missing].map(async (name) => {
+      const routers = await clusterLoaders[name]!();
+      loadedClusters.add(name);
+      return routers;
+    }),
+  );
+
+  for (const routers of results) {
+    Object.assign(loadedRouters, routers);
+  }
+
+  cachedRouter = createTRPCRouter(loadedRouters);
+  return cachedRouter;
+}
+
+/**
+ * Load ALL clusters and return the complete router.
+ * Used when procedure paths can't be determined upfront (e.g. OpenAPI schema).
+ */
+export async function getFullRouter() {
+  const unloaded = Object.keys(clusterLoaders).filter((k) => !loadedClusters.has(k));
+
+  if (unloaded.length > 0) {
+    const results = await Promise.all(
+      unloaded.map(async (name) => {
+        const routers = await clusterLoaders[name]!();
+        loadedClusters.add(name);
+        return routers;
+      }),
+    );
+
+    for (const routers of results) {
+      Object.assign(loadedRouters, routers);
+    }
+
+    cachedRouter = createTRPCRouter(loadedRouters);
+  }
+
+  return cachedRouter;
+}
+
+// For backwards compat: export appRouter (starts with core, grows at runtime).
+export const appRouter = cachedRouter;

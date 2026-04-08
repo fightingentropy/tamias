@@ -1,4 +1,3 @@
-import { anthropic } from "@ai-sdk/anthropic";
 import {
   createTransaction,
   deleteTransactions,
@@ -23,7 +22,6 @@ import {
 } from "@tamias/import";
 import { enqueue } from "@tamias/job-client";
 import { TRPCError } from "@trpc/server";
-import { generateObject } from "ai";
 import {
   createTransactionSchema,
   deleteTransactionsSchema,
@@ -291,6 +289,10 @@ export const transactionsRouter = createTRPCRouter({
 
       const mappingPromise = (async () => {
         try {
+          const [{ anthropic }, { generateObject }] = await Promise.all([
+            import("@ai-sdk/anthropic"),
+            import("ai"),
+          ]);
           const { object } = await generateObject({
             model: anthropic("claude-3-haiku-20240307"),
             schema: generateCsvMappingResponseSchema,
