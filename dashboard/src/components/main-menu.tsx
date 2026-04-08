@@ -5,6 +5,7 @@ import Link from "@/framework/link";
 import { usePathname } from "@/framework/navigation";
 import { useEffect, useState } from "react";
 import { useChatInterface } from "@/hooks/use-chat-interface";
+import { useNavPrefetch } from "@/hooks/use-nav-prefetch";
 import {
   AppsNavIcon,
   ChevronDownIcon,
@@ -122,6 +123,7 @@ interface ItemProps {
   isItemExpanded: boolean;
   onToggle: (path: string) => void;
   onSelect?: () => void;
+  onPrefetch?: () => void;
 }
 
 const ChildItem = ({
@@ -172,7 +174,7 @@ const ChildItem = ({
   );
 };
 
-const Item = ({ item, isActive, isExpanded, isItemExpanded, onToggle, onSelect }: ItemProps) => {
+const Item = ({ item, isActive, isExpanded, isItemExpanded, onToggle, onSelect, onPrefetch }: ItemProps) => {
   const Icon = icons[item.path as keyof typeof icons];
   const pathname = usePathname();
   const hasChildren = item.children && item.children.length > 0;
@@ -188,7 +190,7 @@ const Item = ({ item, isActive, isExpanded, isItemExpanded, onToggle, onSelect }
 
   return (
     <div className="group">
-      <Link href={item.path} prefetch onClick={() => onSelect?.()} className="group">
+      <Link href={item.path} prefetch onPrefetch={onPrefetch} onClick={() => onSelect?.()} className="group">
         <div className="relative">
           {/* Background that expands */}
           <div
@@ -273,6 +275,7 @@ type Props = {
 export function MainMenu({ onSelect, isExpanded = false }: Props) {
   const pathname = usePathname();
   const { isChatPage } = useChatInterface();
+  const prefetchRoute = useNavPrefetch();
   const part = pathname?.split("/")[1];
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const items = [
@@ -318,6 +321,7 @@ export function MainMenu({ onSelect, isExpanded = false }: Props) {
                   setExpandedItem(expandedItem === path ? null : path);
                 }}
                 onSelect={onSelect}
+                onPrefetch={() => prefetchRoute(item.path)}
               />
             );
           })}

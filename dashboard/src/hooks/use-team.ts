@@ -5,7 +5,10 @@ import { useTRPC } from "@/trpc/client";
 
 export function useTeamQuery() {
   const trpc = useTRPC();
-  return useSuspenseQuery(trpc.team.current.queryOptions());
+  return useSuspenseQuery({
+    ...trpc.team.current.queryOptions(),
+    staleTime: 10 * 60 * 1000,
+  });
 }
 
 export function useTeamMutation() {

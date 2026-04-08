@@ -23,6 +23,7 @@
     "./recurring": "./src/utils/recurring.ts",
     "./server-recurring": "./src/utils/server-recurring.ts"
   },
+  "sideEffects": false,
   "dependencies": {
     "@date-fns/tz": "catalog:",
     "@tamias/ui": "workspace:*",

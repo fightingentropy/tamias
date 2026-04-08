@@ -1,5 +1,5 @@
 import type { Session } from "@tamias/auth-session";
-import { DEFAULT_TEMPLATE } from "@tamias/invoice";
+import { DEFAULT_TEMPLATE } from "@tamias/invoice/defaults";
 import { createLoggerWithContext } from "@tamias/logger";
 import { TRPCError } from "@trpc/server";
 import {
