@@ -36,7 +36,7 @@ export function isUnauthorizedQueryError(error: unknown) {
 }
 
 const QUERY_TRANSPORT_MESSAGE_RE =
-  /fetch failed|Failed to fetch|Network connection lost|ECONNREFUSED|connection refused|Load failed|network error|ENOTFOUND|ETIMEDOUT|timed out|AbortError|aborted|ECONNRESET|socket hang up/i;
+  /fetch failed|Failed to fetch|Network connection lost|ECONNREFUSED|connection refused|Load failed|network error|ENOTFOUND|ETIMEDOUT|timed out|AbortError|aborted|ECONNRESET|socket hang up|not valid JSON|Upstream error: HTTP|error code: 5\d\d/i;
 
 function collectErrorMessages(error: unknown, depth = 0): string {
   if (depth > 6 || error == null) {
