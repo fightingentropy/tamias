@@ -82,6 +82,36 @@ function shouldUseInProcessApiGateway(resolvedUrl: string): boolean {
   }
 }
 
+/**
+ * Wrap a fetch response to ensure it always has a JSON body that tRPC can
+ * parse. Cloudflare edge errors (522, 502, etc.) return HTML error pages
+ * which cause `TRPCClientError: Unexpected token ...` and crash SSR.
+ */
+function ensureJsonResponse(response: Response): Response {
+  const contentType = response.headers.get("content-type") ?? "";
+  if (response.ok || contentType.includes("application/json")) {
+    return response;
+  }
+
+  // Non-JSON error response (e.g. Cloudflare 522 HTML page) — synthesize
+  // a tRPC-compatible JSON error so the client can handle it normally.
+  return new Response(
+    JSON.stringify({
+      error: {
+        json: {
+          message: `Upstream error: HTTP ${response.status}`,
+          code: -32603,
+          data: { code: "INTERNAL_SERVER_ERROR", httpStatus: response.status },
+        },
+      },
+    }),
+    {
+      status: response.status,
+      headers: { "content-type": "application/json" },
+    },
+  );
+}
+
 function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   const timeoutSignal = AbortSignal.timeout(SSR_FETCH_TIMEOUT_MS);
   const signal = init?.signal ? AbortSignal.any([init.signal, timeoutSignal]) : timeoutSignal;
@@ -115,7 +145,7 @@ function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit): Promise
           } as RequestInit)
         : new Request(resolvedUrl, { ...init, signal, headers });
 
-    return apiService.fetch(subrequest);
+    return apiService.fetch(subrequest).then(ensureJsonResponse);
   }
 
   const outbound =
@@ -129,7 +159,7 @@ function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit): Promise
         } as RequestInit)
       : new Request(resolvedUrl, { ...init, signal, headers });
 
-  return fetch(outbound);
+  return fetch(outbound).then(ensureJsonResponse);
 }
 
 export const trpc = createTRPCOptionsProxy<AppRouter>({
