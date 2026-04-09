@@ -1,6 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
+import { endOfDay, startOfDay, subDays } from "date-fns";
 import { useCallback, useRef } from "react";
 import { useTRPC } from "@/trpc/client";
 
@@ -33,7 +34,10 @@ export function useNavPrefetch() {
           break;
         case "/inbox":
           void queryClient.prefetchQuery(
-            trpc.widgets.getInboxStats.queryOptions({}),
+            trpc.widgets.getInboxStats.queryOptions({
+              from: startOfDay(subDays(new Date(), 7)).toISOString(),
+              to: endOfDay(new Date()).toISOString(),
+            }),
           );
           break;
         case "/dashboard":

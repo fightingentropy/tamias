@@ -6,7 +6,7 @@ export async function buildInboxPageData(_href?: string) {
   return {
     ...result,
     // Default to "list" view — client will determine correct view after data loads.
-    view: "list" as const,
+    view: "list" as "list" | "get-started" | "connected-empty",
   };
 }
 
