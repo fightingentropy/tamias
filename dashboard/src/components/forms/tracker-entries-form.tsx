@@ -64,10 +64,31 @@ export function TrackerEntriesForm({
 
   const isUpdate = eventId && eventId !== NEW_EVENT_ID;
 
+  // Helper to compute duration from start/stop times
+  const computeDuration = (startTime: string, stopTime: string) => {
+    const timezone = getUserTimezone();
+    let baseDate: Date;
+    try {
+      const now = new Date();
+      const userTzDate = new TZDate(now, timezone);
+      baseDate = startOfDay(userTzDate);
+    } catch (error) {
+      console.warn("TZDate failed in form, using browser date:", error);
+      baseDate = startOfDay(new Date());
+    }
+    const { duration } = parseTimeWithMidnightCrossing(startTime, stopTime, baseDate, timezone);
+    return duration;
+  };
+
+  const initialDuration =
+    start && stop ? computeDuration(start, stop) : undefined;
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    mode: "onChange",
     defaultValues: {
       id: eventId,
+      duration: initialDuration,
       assignedId: assignedId ?? userId,
       projectId: selectedProjectId || latestProjectId || undefined,
       start,
@@ -132,8 +153,16 @@ export function TrackerEntriesForm({
         <TimeRangeInput
           value={{ start: form.watch("start"), stop: form.watch("stop") }}
           onChange={(value) => {
-            form.setValue("start", value.start);
-            form.setValue("stop", value.stop);
+            form.setValue("start", value.start, { shouldValidate: true });
+            form.setValue("stop", value.stop, { shouldValidate: true });
+
+            // Recalculate duration immediately when time changes
+            if (value.start && value.stop) {
+              const duration = computeDuration(value.start, value.stop);
+              if (duration) {
+                form.setValue("duration", duration, { shouldValidate: true });
+              }
+            }
 
             onTimeChange({
               start: value.start,
