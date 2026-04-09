@@ -400,8 +400,12 @@ async function configureApiRuntime(env?: ApiRuntimeEnv) {
     import("@tamias/worker/cloudflare"),
   ]);
 
-  const asyncWorker =
-    env && isUnifiedCloudflareWorkerEnv(env) ? createInProcessAsyncBridge(env) : null;
+  const hasAsyncBindings = !!(
+    env &&
+    (env as Record<string, unknown>).RATE_LIMIT_COORDINATOR &&
+    (env as Record<string, unknown>).RUN_COORDINATOR
+  );
+  const asyncWorker = hasAsyncBindings ? createInProcessAsyncBridge(env as never) : null;
 
   configureCloudflareAsyncServiceRuntime(asyncWorker ? { asyncWorker } : null);
   configureBankingRuntime({
