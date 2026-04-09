@@ -119,6 +119,13 @@ async function handleTrpcFastPath(
           "Cache-Control",
           `s-maxage=${minTtl}, stale-while-revalidate=${minTtl * 2}`,
         );
+        // Cache Tags enable targeted purge via Cloudflare API
+        const tags = [
+          `user-${tokenHash}`,
+          "trpc",
+          ...new Set(procedures.map((p) => p.split(".")[0]!)),
+        ];
+        cacheHeaders.set("Cache-Tag", tags.join(","));
         const cacheable = new Response(responseToCache.body, {
           status: responseToCache.status,
           headers: cacheHeaders,
@@ -177,11 +184,6 @@ type ApiRuntimeEnv = {
   /** Present in unified dashboard+API+async worker deploys */
   RUN_COORDINATOR?: DurableObjectNamespace;
   TELLER_MTLS_CERTIFICATE?: TellerMtlsFetcher;
-};
-
-type CloudflareAsyncEnv = {
-  RATE_LIMIT_COORDINATOR: DurableObjectNamespace;
-  RUN_COORDINATOR: DurableObjectNamespace;
 };
 
 function getAllowedApiOrigins() {
@@ -381,12 +383,6 @@ async function getApp() {
   return appPromise;
 }
 
-function isUnifiedCloudflareWorkerEnv(
-  env: ApiRuntimeEnv,
-): env is ApiRuntimeEnv & CloudflareAsyncEnv {
-  return !!(env.RATE_LIMIT_COORDINATOR && env.RUN_COORDINATOR);
-}
-
 // Cache runtime configuration — only configure once per isolate.
 let runtimeConfigured = false;
 
@@ -436,14 +432,6 @@ export async function apiEntryFetch(
 
   // Non-tRPC requests need the full runtime (banking, async worker, etc.)
   await configureApiRuntime(env);
-
-  if (isUnifiedCloudflareWorkerEnv(env)) {
-    const { handleAsyncWorkerHttp } = await import("@tamias/worker/cloudflare");
-    const asyncResponse = await handleAsyncWorkerHttp(request, env);
-    if (asyncResponse) {
-      return asyncResponse;
-    }
-  }
 
   const app = await getApp();
   return app.fetch(request, env as unknown as Env, executionCtx);

@@ -32,60 +32,9 @@ const clusterLoaders: Record<string, ClusterLoader> = {
   misc: () => import("./clusters/misc").then((m) => m.miscRouters),
 };
 
-// Map each procedure prefix to its cluster name.
-const procedureClusterMap: Record<string, string> = {
-  // shell (app-shell routers, deferred from core)
-  billing: "shell",
-  notifications: "shell",
-  notificationSettings: "shell",
-  search: "shell",
-  suggestedActions: "shell",
-  support: "shell",
-  tags: "shell",
-  widgets: "shell",
-  // finance
-  accounting: "finance",
-  bankAccounts: "finance",
-  bankConnections: "finance",
-  banking: "finance",
-  payroll: "finance",
-  reports: "finance",
-  transactionAttachments: "finance",
-  transactionCategories: "finance",
-  transactionTags: "finance",
-  transactions: "finance",
-  vat: "finance",
-  yearEnd: "finance",
-  // invoice
-  invoice: "invoice",
-  invoicePayments: "invoice",
-  invoiceProducts: "invoice",
-  invoiceRecurring: "invoice",
-  invoiceTemplate: "invoice",
-  // content
-  compliance: "content",
-  companiesHouse: "content",
-  customers: "content",
-  documentTagAssignments: "content",
-  documentTags: "content",
-  documents: "content",
-  inbox: "content",
-  inboxAccounts: "content",
-  uploads: "content",
-  // ai
-  chats: "ai",
-  chatFeedback: "ai",
-  insights: "ai",
-  // misc
-  apiKeys: "misc",
-  apps: "misc",
-  asyncRuns: "misc",
-  institutions: "misc",
-  oauthApplications: "misc",
-  shortLinks: "misc",
-  trackerEntries: "misc",
-  trackerProjects: "misc",
-};
+// Auto-generated procedure → cluster map.
+// Run `bun run scripts/generate-cluster-map.ts` to regenerate.
+import { procedureClusterMap } from "./_cluster-map.gen";
 
 // ── Dynamic router assembly ─────────────────────────────────────────────
 

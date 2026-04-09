@@ -150,7 +150,8 @@ export default defineConfig(({ mode, command }) => {
                 vars: workerVars,
               }
             : {
-                main: "./dashboard/src/start/cf-unified-entry.ts",
+                // Production: dashboard-only entry, API is a separate Worker
+                main: "./dashboard/src/start/cf-dashboard-entry.ts",
               },
         viteEnvironment: { name: "ssr" },
       }),
@@ -242,8 +243,12 @@ export default defineConfig(({ mode, command }) => {
     },
     ssr: {
       noExternal: [
-        /^@tamias\/api(?:\/.*)?$/,
-        /^@tamias\/worker(?:\/.*)?$/,
+        // Dev (unified): bundle API + worker inline for local wrangler dev.
+        // Production (split): dashboard entry doesn't import these, so they
+        // won't be reached — but keep them for dev mode safety.
+        ...(command === "serve"
+          ? [/^@tamias\/api(?:\/.*)?$/, /^@tamias\/worker(?:\/.*)?$/]
+          : []),
         /^@tanstack\/react-start(?:\/.*)?$/,
         /^@tanstack\/start-storage-context(?:\/.*)?$/,
         // Rebundle from source so `resolve.alias` can replace motion-dom's addDomEvent
