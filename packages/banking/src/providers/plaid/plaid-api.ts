@@ -38,10 +38,10 @@ function resolvePlaidBasePath(): string {
   const tier = env.PLAID_ENVIRONMENT.trim().toLowerCase();
 
   if (tier === "production") {
-    return PlaidEnvironments.production;
+    return PlaidEnvironments.production!;
   }
 
-  return PlaidEnvironments.sandbox;
+  return PlaidEnvironments.sandbox!
 }
 
 export class PlaidApi {
