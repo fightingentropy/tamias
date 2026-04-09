@@ -4,30 +4,15 @@ import { createTRPCRouter } from "../init";
 export type { AppRouter, RouterInputs, RouterOutputs } from "./_app.types";
 
 // ── Core routers (always loaded) ────────────────────────────────────────
-// These are needed for every authenticated page load (SSR fetches user +
-// team, dashboard fetches widgets/notifications). Keep this list minimal.
-import { billingRouter } from "./billing";
-import { notificationSettingsRouter } from "./notification-settings";
-import { notificationsRouter } from "./notifications";
-import { searchRouter } from "./search";
-import { suggestedActionsRouter } from "./suggested-actions";
-import { supportRouter } from "./support";
-import { tagsRouter } from "./tags";
+// Only the two routers needed for the initial auth query (user.me,
+// team.current). Everything else is in lazy clusters — including the
+// "shell" cluster for billing, search, widgets, notifications, etc.
 import { teamRouter } from "./team";
 import { userRouter } from "./user";
-import { widgetsRouter } from "./widgets";
 
 const coreRouters = {
-  billing: billingRouter,
-  notifications: notificationsRouter,
-  notificationSettings: notificationSettingsRouter,
-  search: searchRouter,
-  suggestedActions: suggestedActionsRouter,
-  support: supportRouter,
-  tags: tagsRouter,
   team: teamRouter,
   user: userRouter,
-  widgets: widgetsRouter,
 };
 
 // ── Lazy-loaded clusters ────────────────────────────────────────────────
@@ -39,6 +24,7 @@ const coreRouters = {
 type ClusterLoader = () => Promise<Record<string, any>>;
 
 const clusterLoaders: Record<string, ClusterLoader> = {
+  shell: () => import("./clusters/shell").then((m) => m.shellRouters),
   finance: () => import("./clusters/finance").then((m) => m.financeRouters),
   invoice: () => import("./clusters/invoice").then((m) => m.invoiceRouters),
   content: () => import("./clusters/content").then((m) => m.contentRouters),
@@ -48,6 +34,15 @@ const clusterLoaders: Record<string, ClusterLoader> = {
 
 // Map each procedure prefix to its cluster name.
 const procedureClusterMap: Record<string, string> = {
+  // shell (app-shell routers, deferred from core)
+  billing: "shell",
+  notifications: "shell",
+  notificationSettings: "shell",
+  search: "shell",
+  suggestedActions: "shell",
+  support: "shell",
+  tags: "shell",
+  widgets: "shell",
   // finance
   accounting: "finance",
   bankAccounts: "finance",

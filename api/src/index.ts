@@ -1,20 +1,8 @@
-import { configureBankingRuntime, type TellerMtlsFetcher } from "@tamias/banking";
-import { configureCloudflareAsyncServiceRuntime } from "@tamias/job-client/cloudflare-runtime";
+// ── Lightweight top-level imports only ──────────────────────────────────
+// Heavy modules (banking, job-client, worker infra, health probes) are
+// deferred to dynamic imports so tRPC cold starts don't pay their cost.
 import { logger } from "@tamias/logger";
 import { getApiUrl, getAppUrl } from "@tamias/utils/envs";
-import {
-  type CloudflareAsyncEnv,
-  createInProcessAsyncBridge,
-  handleAsyncWorkerHttp,
-} from "@tamias/worker/cloudflare";
-import { cors } from "hono/cors";
-import { secureHeaders } from "hono/secure-headers";
-import {
-  buildDependenciesResponse,
-  buildReadinessResponse,
-  checkDependencies,
-} from "./health/checker";
-import { apiDependencies } from "./health/probes";
 import type { Context } from "./rest/types";
 
 export { RateLimitCoordinator } from "./rate-limit/coordinator";
@@ -178,11 +166,22 @@ async function callTrpcHandler(
   return new Response(response.body, { status: response.status, headers });
 }
 
+// ── Runtime configuration (lazy, cached) ───────────────────────────────
+
+type TellerMtlsFetcher = {
+  fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response>;
+};
+
 type ApiRuntimeEnv = {
   RATE_LIMIT_COORDINATOR?: DurableObjectNamespace;
   /** Present in unified dashboard+API+async worker deploys */
   RUN_COORDINATOR?: DurableObjectNamespace;
   TELLER_MTLS_CERTIFICATE?: TellerMtlsFetcher;
+};
+
+type CloudflareAsyncEnv = {
+  RATE_LIMIT_COORDINATOR: DurableObjectNamespace;
+  RUN_COORDINATOR: DurableObjectNamespace;
 };
 
 function getAllowedApiOrigins() {
@@ -246,19 +245,26 @@ const allowedApiOrigins = getAllowedApiOrigins();
 let appPromise: Promise<Awaited<ReturnType<typeof createApp>>> | null = null;
 
 async function createApp() {
-  // This app handles REST, OpenAPI, and Scalar only. tRPC requests are
-  // handled by the fast-path above (handleTrpcFastPath) to avoid loading
-  // these heavy dependencies on every tRPC cold start.
+  // This app handles REST, OpenAPI, health, and Scalar only. tRPC requests
+  // are handled by the fast-path above (handleTrpcFastPath).
   const [
     { OpenAPIHono },
     { Scalar },
     { routers },
     { httpLogger },
+    { cors },
+    { secureHeaders },
+    { buildDependenciesResponse, buildReadinessResponse, checkDependencies },
+    { apiDependencies },
   ] = await Promise.all([
     import("@hono/zod-openapi"),
     import("@scalar/hono-api-reference"),
     import("./rest/routers"),
     import("./utils/logger"),
+    import("hono/cors"),
+    import("hono/secure-headers"),
+    import("./health/checker"),
+    import("./health/probes"),
   ]);
 
   const app = new OpenAPIHono<Context>();
@@ -381,7 +387,23 @@ function isUnifiedCloudflareWorkerEnv(
   return !!(env.RATE_LIMIT_COORDINATOR && env.RUN_COORDINATOR);
 }
 
-function configureApiRuntime(env?: ApiRuntimeEnv) {
+// Cache runtime configuration — only configure once per isolate.
+let runtimeConfigured = false;
+
+async function configureApiRuntime(env?: ApiRuntimeEnv) {
+  if (runtimeConfigured) return;
+  runtimeConfigured = true;
+
+  const [
+    { configureBankingRuntime },
+    { configureCloudflareAsyncServiceRuntime },
+    { createInProcessAsyncBridge },
+  ] = await Promise.all([
+    import("@tamias/banking/runtime"),
+    import("@tamias/job-client/cloudflare-runtime"),
+    import("@tamias/worker/cloudflare"),
+  ]);
+
   const asyncWorker =
     env && isUnifiedCloudflareWorkerEnv(env) ? createInProcessAsyncBridge(env) : null;
 
@@ -405,16 +427,18 @@ export async function apiEntryFetch(
     });
   }
 
-  configureApiRuntime(env);
-
   // Fast-path: tRPC requests bypass the full Hono app (Scalar, OpenAPI, REST
-  // routers, etc.) which adds ~2s of CPU on cold start. Only loads the tRPC
-  // router, context, and fetch adapter.
+  // routers, health probes, etc.). Only loads the tRPC router, context, and
+  // fetch adapter — no banking, Plaid, Convex, or worker infra needed.
   if (url.pathname.startsWith("/trpc/")) {
     return handleTrpcFastPath(request, executionCtx);
   }
 
+  // Non-tRPC requests need the full runtime (banking, async worker, etc.)
+  await configureApiRuntime(env);
+
   if (isUnifiedCloudflareWorkerEnv(env)) {
+    const { handleAsyncWorkerHttp } = await import("@tamias/worker/cloudflare");
     const asyncResponse = await handleAsyncWorkerHttp(request, env);
     if (asyncResponse) {
       return asyncResponse;

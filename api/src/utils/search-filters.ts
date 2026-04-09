@@ -1,5 +1,3 @@
-import { openai } from "@ai-sdk/openai";
-import { generateObject } from "ai";
 import { z } from "zod";
 
 const schema = z.object({
@@ -40,6 +38,10 @@ const schema = z.object({
 });
 
 export async function generateLLMFilters(query: string): Promise<z.infer<typeof schema>> {
+  const [{ openai }, { generateObject }] = await Promise.all([
+    import("@ai-sdk/openai"),
+    import("ai"),
+  ]);
   const { object } = await generateObject({
     model: openai("gpt-5-mini"),
     system: `You are an AI assistant that converts natural language search queries into structured search filters.
