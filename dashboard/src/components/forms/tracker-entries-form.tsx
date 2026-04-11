@@ -20,7 +20,7 @@ import { TrackerSelectProject } from "../tracker-select-project";
 const formSchema = z.object({
   id: z.string().optional(),
   duration: z.number().min(1),
-  projectId: z.string().uuid(),
+  projectId: z.string().min(1),
   assignedId: z.string().optional(),
   description: z.string().optional(),
   start: z.string(),
