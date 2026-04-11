@@ -87,7 +87,8 @@ const requestMiddleware = createMiddleware({ type: "request" }).server((async ({
 
   // Landing-only hosts (tamias.xyz, www.tamias.xyz) serve "/" but redirect
   // all other paths to app.tamias.xyz so auth cookies work correctly.
-  if (isLandingOnly && pathname !== "/" && !isStaticAssetPath(pathname) && !isInternalFrameworkPath(pathname)) {
+  // Static assets are allowed through so the landing page can load its CSS/JS.
+  if (isLandingOnly && pathname !== "/" && !isStaticAssetPath(pathname)) {
     return middlewareRedirect(
       request,
       new URL(`${pathname}${requestUrl.search}`, appUrl).toString(),
