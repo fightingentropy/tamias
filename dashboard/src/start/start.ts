@@ -7,8 +7,15 @@ import {
 } from "@/start/auth/server";
 import { getRouteHostPolicy } from "@/start/route-host-policy";
 
-const LOCAL_APP_HOSTNAMES = new Set(["app.tamias.test", "tamias.test"]);
-const PRODUCTION_APP_HOSTNAMES = new Set(["app.tamias.xyz", "tamias.xyz", "www.tamias.xyz"]);
+const LOCAL_APP_HOSTNAME = "app.tamias.test";
+const PRODUCTION_APP_HOSTNAME = "app.tamias.xyz";
+const LOCAL_APP_HOSTNAMES = new Set([LOCAL_APP_HOSTNAME, "tamias.test"]);
+const PRODUCTION_APP_HOSTNAMES = new Set([PRODUCTION_APP_HOSTNAME, "tamias.xyz", "www.tamias.xyz"]);
+
+// These hostnames serve the public landing page at "/" but redirect all other
+// paths to the canonical app hostname so auth cookies work correctly.
+const LOCAL_LANDING_ONLY_HOSTNAMES = new Set(["tamias.test"]);
+const PRODUCTION_LANDING_ONLY_HOSTNAMES = new Set(["tamias.xyz", "www.tamias.xyz"]);
 
 function isStaticAssetPath(pathname: string) {
   return (
@@ -32,24 +39,30 @@ function getHostname(host: string) {
 function getCanonicalAppOrigin(requestUrl: URL, currentHost: string) {
   const currentHostname = getHostname(currentHost);
 
-  if (LOCAL_APP_HOSTNAMES.has(currentHostname)) {
+  // Canonical app hostnames — serve everything
+  if (currentHostname === LOCAL_APP_HOSTNAME || currentHostname === PRODUCTION_APP_HOSTNAME) {
+    return { appUrl: requestUrl.origin, isAppHost: true, isLandingOnly: false };
+  }
+
+  // Landing-only hostnames — serve "/" but redirect everything else to canonical
+  if (LOCAL_LANDING_ONLY_HOSTNAMES.has(currentHostname)) {
+    const port = requestUrl.port ? `:${requestUrl.port}` : "";
     return {
-      appUrl: requestUrl.origin,
+      appUrl: `${requestUrl.protocol}//${LOCAL_APP_HOSTNAME}${port}`,
       isAppHost: true,
+      isLandingOnly: true,
     };
   }
 
-  if (PRODUCTION_APP_HOSTNAMES.has(currentHostname)) {
+  if (PRODUCTION_LANDING_ONLY_HOSTNAMES.has(currentHostname)) {
     return {
-      appUrl: requestUrl.origin,
+      appUrl: `https://${PRODUCTION_APP_HOSTNAME}`,
       isAppHost: true,
+      isLandingOnly: true,
     };
   }
 
-  return {
-    appUrl: requestUrl.origin,
-    isAppHost: true,
-  };
+  return { appUrl: requestUrl.origin, isAppHost: true, isLandingOnly: false };
 }
 
 const requestMiddleware = createMiddleware({ type: "request" }).server((async ({
@@ -61,11 +74,20 @@ const requestMiddleware = createMiddleware({ type: "request" }).server((async ({
 }) => {
   const requestUrl = new URL(request.url);
   const currentHost = request.headers.get("host") ?? requestUrl.host;
-  const { appUrl, isAppHost } = getCanonicalAppOrigin(requestUrl, currentHost);
+  const { appUrl, isAppHost, isLandingOnly } = getCanonicalAppOrigin(requestUrl, currentHost);
   const pathname = requestUrl.pathname || "/";
   let auth = createAnonymousRequestAuthContext();
 
   if (!isAppHost) {
+    return middlewareRedirect(
+      request,
+      new URL(`${pathname}${requestUrl.search}`, appUrl).toString(),
+    );
+  }
+
+  // Landing-only hosts (tamias.xyz, www.tamias.xyz) serve "/" but redirect
+  // all other paths to app.tamias.xyz so auth cookies work correctly.
+  if (isLandingOnly && pathname !== "/" && !isStaticAssetPath(pathname) && !isInternalFrameworkPath(pathname)) {
     return middlewareRedirect(
       request,
       new URL(`${pathname}${requestUrl.search}`, appUrl).toString(),
