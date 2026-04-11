@@ -210,6 +210,7 @@ function HeroSection() {
   const [isPosterLoaded, setIsPosterLoaded] = useState(false);
   const [isDashboardLoaded, setIsDashboardLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const dashboardImgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -222,6 +223,14 @@ function HeroSection() {
       video.removeEventListener("canplay", handleLoad);
       video.removeEventListener("loadeddata", handleLoad);
     };
+  }, []);
+
+  // Check if dashboard image already loaded before React attached onLoad
+  useEffect(() => {
+    const img = dashboardImgRef.current;
+    if (img?.complete && img.naturalWidth > 0) {
+      setIsDashboardLoaded(true);
+    }
   }, []);
 
   return (
@@ -309,23 +318,10 @@ function HeroSection() {
             <div className="absolute inset-0 flex items-center justify-center p-0 lg:p-4 z-[2]">
               <div className="relative lg:static scale-[0.95] md:scale-100 lg:scale-100 lg:h-full lg:flex lg:flex-col lg:items-center lg:justify-center">
                 <img
+                  ref={dashboardImgRef}
                   src="https://midday.ai/images/dashboard-dark.svg"
                   alt="Dashboard illustration"
-                  className="w-full h-auto lg:object-contain lg:max-w-[85%] 2xl:max-w-[75%] hidden dark:block transition-all duration-700 ease-out"
-                  style={{
-                    filter: isDashboardLoaded
-                      ? "blur(0px) drop-shadow(0 30px 60px rgba(0,0,0,0.6))"
-                      : "blur(20px)",
-                    transform: isDashboardLoaded
-                      ? "rotate(-2deg) skewY(1deg) scale(1)"
-                      : "rotate(-2deg) skewY(1deg) scale(1.02)",
-                  }}
-                  onLoad={() => setIsDashboardLoaded(true)}
-                />
-                <img
-                  src="https://midday.ai/images/dashboard-light.svg"
-                  alt="Dashboard illustration"
-                  className="w-full h-auto lg:object-contain lg:max-w-[85%] 2xl:max-w-[75%] dark:hidden transition-all duration-700 ease-out"
+                  className="w-full h-auto lg:object-contain lg:max-w-[85%] 2xl:max-w-[75%] transition-all duration-700 ease-out"
                   style={{
                     filter: isDashboardLoaded
                       ? "blur(0px) drop-shadow(0 30px 60px rgba(0,0,0,0.6))"
