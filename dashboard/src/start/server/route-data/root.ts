@@ -11,10 +11,7 @@ export async function resolveIndexRoute() {
   const auth = startContextAuth();
 
   if (!auth.token) {
-    throw redirect({
-      to: "/login",
-      throw: true,
-    });
+    return { authenticated: false as const };
   }
 
   try {
@@ -31,10 +28,7 @@ export async function resolveIndexRoute() {
     }
 
     if (isUnauthorizedQueryError(error) || isQueryTransportError(error)) {
-      throw redirect({
-        to: "/login",
-        throw: true,
-      });
+      return { authenticated: false as const };
     }
 
     throw error;
