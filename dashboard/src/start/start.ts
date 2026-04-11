@@ -8,8 +8,7 @@ import {
 import { getRouteHostPolicy } from "@/start/route-host-policy";
 
 const LOCAL_APP_HOSTNAMES = new Set(["app.tamias.test", "tamias.test"]);
-const PRODUCTION_APP_HOSTNAMES = new Set(["app.tamias.xyz", "tamias.xyz"]);
-const LEGACY_HOSTNAMES_REDIRECT_TO_APP = new Set(["www.tamias.xyz", "www.tamias.test"]);
+const PRODUCTION_APP_HOSTNAMES = new Set(["app.tamias.xyz", "tamias.xyz", "www.tamias.xyz"]);
 
 function isStaticAssetPath(pathname: string) {
   return (
@@ -44,13 +43,6 @@ function getCanonicalAppOrigin(requestUrl: URL, currentHost: string) {
     return {
       appUrl: requestUrl.origin,
       isAppHost: true,
-    };
-  }
-
-  if (LEGACY_HOSTNAMES_REDIRECT_TO_APP.has(currentHostname)) {
-    return {
-      appUrl: "https://app.tamias.xyz",
-      isAppHost: false,
     };
   }
 
