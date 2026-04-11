@@ -2,6 +2,11 @@
 
 import { createLazyFileRoute } from "@tanstack/react-router";
 import Link from "@/framework/link";
+
+// Use plain <a> tags for /login links so the browser does a full navigation.
+// On landing-only hosts (tamias.xyz), the middleware 307-redirects /login to
+// app.tamias.xyz/login. Router <Link> would try client-side navigation and
+// break because the server function calls get cross-origin redirected.
 import { LogoSmallIcon } from "@/start/components/app-shell-icons";
 import { useEffect, useRef, useState } from "react";
 
@@ -190,12 +195,12 @@ function Header() {
             <LogoSmallIcon className="w-6 h-6 text-foreground" />
           </Link>
           <div className="flex items-center gap-6">
-            <Link
+            <a
               href="/login"
               className="font-sans text-sm text-foreground font-medium hover:opacity-80 transition-opacity"
             >
               Sign in
-            </Link>
+            </a>
           </div>
         </div>
       </div>
@@ -256,12 +261,12 @@ function HeroSection() {
             </div>
 
             <div className="flex flex-col items-center gap-3 pt-2">
-              <Link
+              <a
                 href="/login"
                 className="inline-flex items-center justify-center h-11 px-6 border border-border bg-primary text-primary-foreground text-sm font-sans hover:opacity-90 transition-colors"
               >
                 Start your trial
-              </Link>
+              </a>
 
               <p className="text-muted-foreground text-xs font-sans">
                 14-day free trial &middot; Cancel anytime
@@ -776,7 +781,7 @@ function TimeSavingsSection() {
               </div>
             </article>
 
-            <Link
+            <a
               href="/login"
               className="relative overflow-hidden bg-secondary border border-border p-4 sm:p-5 md:p-5 lg:p-6 transition-all duration-200 group hidden xl:block xl:col-span-7 hover:border-muted-foreground"
             >
@@ -799,11 +804,11 @@ function TimeSavingsSection() {
                   <div className="text-4xl sm:text-5xl text-foreground">4–6 hours</div>
                 </div>
               </div>
-            </Link>
+            </a>
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:gap-4 xl:hidden">
-            <Link
+            <a
               href="/login"
               className="relative overflow-hidden bg-secondary border border-border p-4 sm:p-5 md:p-5 lg:p-6 transition-all duration-200 hover:border-muted-foreground"
             >
@@ -817,7 +822,7 @@ function TimeSavingsSection() {
                   <div className="text-4xl sm:text-5xl text-foreground">4–6 hours</div>
                 </div>
               </div>
-            </Link>
+            </a>
           </div>
         </div>
       </div>
