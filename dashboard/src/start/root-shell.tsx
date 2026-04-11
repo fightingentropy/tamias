@@ -65,6 +65,10 @@ export function StartRootShell(props: { children: ReactNode; bootstrap?: RootBoo
           href="https://fonts.googleapis.com/css2?family=Hedvig+Letters+Sans&family=Hedvig+Letters+Serif&display=swap"
           rel="stylesheet"
         />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0"
+          rel="stylesheet"
+        />
         <meta name="theme-color" content={initialThemeFallback.background} />
         <style
           id="tamias-theme-fallback"
