@@ -47,6 +47,7 @@
     "./label": "./src/components/label.tsx",
     "./popover": "./src/components/popover.tsx",
     "./postcss": "./postcss.config.js",
+    "./progress": "./src/components/progress.tsx",
     "./radio-group": "./src/components/radio-group.tsx",
     "./scroll-area": "./src/components/scroll-area.tsx",
     "./select": "./src/components/select.tsx",
