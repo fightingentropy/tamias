@@ -41,11 +41,25 @@ export const inboxRouter = createTRPCRouter({
   get: protectedProcedure
     .input(getInboxSchema.optional())
     .query(async ({ ctx: { db, teamId }, input }) => {
-      return getInboxPage({
-        db,
-        teamId: teamId!,
-        input,
-      });
+      try {
+        return await getInboxPage({
+          db,
+          teamId: teamId!,
+          input,
+        });
+      } catch (error) {
+        logger.error("[inbox.get] Failed to load inbox", {
+          teamId,
+          error: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined,
+        });
+        // Return empty result instead of crashing — the inbox can load
+        // without Convex data and show the empty state
+        return {
+          meta: { cursor: undefined, hasPreviousPage: false, hasNextPage: false },
+          data: [],
+        };
+      }
     }),
 
   getById: protectedProcedure
