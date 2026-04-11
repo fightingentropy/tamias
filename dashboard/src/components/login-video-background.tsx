@@ -75,7 +75,7 @@ export function LoginVideoBackground() {
   }, [shouldLoadVideo]);
 
   return (
-    <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden m-2">
+    <div className="flex w-full h-full relative overflow-hidden m-2">
       <div
         className={`absolute inset-0 w-full h-full transition-all duration-1000 ease-in-out ${
           isVideoLoaded && !hasVideoError ? "opacity-0 pointer-events-none" : "opacity-100"

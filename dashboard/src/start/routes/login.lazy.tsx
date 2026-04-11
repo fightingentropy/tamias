@@ -31,7 +31,10 @@ function LoginPage() {
         </div>
       </nav>
 
-      <LoginVideoBackground />
+      {/* Reserve left half for video so form doesn't shift on load */}
+      <div className="hidden lg:block lg:w-1/2 relative min-h-screen bg-black">
+        <LoginVideoBackground />
+      </div>
 
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 lg:p-12 pb-2">
         <div className="w-full max-w-md flex flex-col h-full">
