@@ -7,10 +7,9 @@ import {
 } from "@/start/auth/server";
 import { getRouteHostPolicy } from "@/start/route-host-policy";
 
-const LOCAL_APP_HOSTNAME = "app.tamias.test";
-const PRODUCTION_APP_HOSTNAME = "app.tamias.xyz";
-const LOCAL_LEGACY_HOSTNAMES = new Set(["tamias.test"]);
-const PRODUCTION_LEGACY_HOSTNAMES = new Set(["tamias.xyz", "www.tamias.xyz"]);
+const LOCAL_APP_HOSTNAMES = new Set(["app.tamias.test", "tamias.test"]);
+const PRODUCTION_APP_HOSTNAMES = new Set(["app.tamias.xyz", "tamias.xyz"]);
+const LEGACY_HOSTNAMES_REDIRECT_TO_APP = new Set(["www.tamias.xyz", "www.tamias.test"]);
 
 function isStaticAssetPath(pathname: string) {
   return (
@@ -34,22 +33,24 @@ function getHostname(host: string) {
 function getCanonicalAppOrigin(requestUrl: URL, currentHost: string) {
   const currentHostname = getHostname(currentHost);
 
-  if (currentHostname === LOCAL_APP_HOSTNAME || LOCAL_LEGACY_HOSTNAMES.has(currentHostname)) {
-    const port = requestUrl.port ? `:${requestUrl.port}` : "";
-
+  if (LOCAL_APP_HOSTNAMES.has(currentHostname)) {
     return {
-      appUrl: `${requestUrl.protocol}//${LOCAL_APP_HOSTNAME}${port}`,
-      isAppHost: currentHostname === LOCAL_APP_HOSTNAME,
+      appUrl: requestUrl.origin,
+      isAppHost: true,
     };
   }
 
-  if (
-    currentHostname === PRODUCTION_APP_HOSTNAME ||
-    PRODUCTION_LEGACY_HOSTNAMES.has(currentHostname)
-  ) {
+  if (PRODUCTION_APP_HOSTNAMES.has(currentHostname)) {
+    return {
+      appUrl: requestUrl.origin,
+      isAppHost: true,
+    };
+  }
+
+  if (LEGACY_HOSTNAMES_REDIRECT_TO_APP.has(currentHostname)) {
     return {
       appUrl: "https://app.tamias.xyz",
-      isAppHost: currentHostname === PRODUCTION_APP_HOSTNAME,
+      isAppHost: false,
     };
   }
 
