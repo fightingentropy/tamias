@@ -47,6 +47,15 @@ export function normalizeAndValidatePath(
 }
 
 /**
+ * Sanitize a filename for use in Content-Disposition headers.
+ * Strips characters that could allow header injection (newlines, quotes, semicolons)
+ * and replaces non-ASCII characters with underscores.
+ */
+export function sanitizeFilename(filename: string): string {
+  return filename.replace(/[\r\n";\x00-\x1f\x7f]/g, "_");
+}
+
+/**
  * Get content type from filename extension
  */
 export function getContentTypeFromFilename(filename: string): string {

@@ -173,7 +173,7 @@ export const transactionsRouter = createTRPCRouter({
     .input(exportTransactionsSchema)
     .mutation(async ({ input, ctx: { teamId, session } }) => {
       if (!teamId) {
-        throw new Error("Team not found");
+        throw new TRPCError({ code: "NOT_FOUND", message: "Team not found" });
       }
 
       return enqueue(
@@ -199,7 +199,7 @@ export const transactionsRouter = createTRPCRouter({
     .input(importTransactionsSchema)
     .mutation(async ({ input, ctx: { db, teamId, session } }) => {
       if (!teamId) {
-        throw new Error("Team not found");
+        throw new TRPCError({ code: "NOT_FOUND", message: "Team not found" });
       }
 
       // Only update balance/currency for manual accounts (backfill into connected accounts keeps bank-synced balance)
@@ -253,7 +253,7 @@ export const transactionsRouter = createTRPCRouter({
     .input(moveToReviewSchema)
     .mutation(async ({ input, ctx: { db, teamId } }) => {
       if (!teamId) {
-        throw new Error("Team not found");
+        throw new TRPCError({ code: "NOT_FOUND", message: "Team not found" });
       }
 
       await moveTransactionToReview(db, {

@@ -60,7 +60,11 @@ export function parseCookieHeader(header: string | null | undefined) {
       continue;
     }
 
-    values[key] = decodeURIComponent(value);
+    try {
+      values[key] = decodeURIComponent(value);
+    } catch {
+      values[key] = value;
+    }
   }
 
   return values;

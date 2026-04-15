@@ -11,7 +11,7 @@ import { withDatabase } from "../../middleware/db";
 import { withFileAuth } from "../../middleware/file-auth";
 import { withClientIp } from "../../middleware/ip";
 import type { Context } from "../../types";
-import { getContentTypeFromFilename, normalizeAndValidatePath } from "./utils";
+import { getContentTypeFromFilename, normalizeAndValidatePath, sanitizeFilename } from "./utils";
 
 const app = new OpenAPIHono<Context>();
 
@@ -106,7 +106,7 @@ app.openapi(
     };
 
     if (filename) {
-      headers["Content-Disposition"] = `attachment; filename="${filename}"`;
+      headers["Content-Disposition"] = `attachment; filename="${sanitizeFilename(filename)}"`;
     }
 
     return new Response(blob, { headers });
