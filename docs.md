@@ -571,6 +571,37 @@ Both providers implement a common interface:
 
 ### Providers
 
+#### Status for UK bank connections (research, May 2026)
+
+**Active provider for UK: Plaid (Sandbox configured, Production not yet applied for).**
+
+Researched options and current verdicts:
+
+| Provider              | UK coverage              | Free tier for UK production?                                                                                  | Verdict                                                                                                                |
+| --------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Plaid                 | Yes (~12k GB ASPSPs)     | **No.** Sandbox is free (mock data). Development tier was decommissioned 2024-06-20. Trial tier is US/CA only. | **In use (Sandbox).** For real UK banks, click "Request access" on Production secret in Plaid dashboard → custom contract. |
+| Teller                | No (US only)             | Free dev tier (100 live items)                                                                                | Already wired. Not relevant for UK.                                                                                    |
+| Enable Banking        | **No** (EEA only — confirmed via API: `/aspsps?country=GB` returns 0) | Free for personal use only                                                                                    | App registered (sandbox `5f68a1d2-…`, production `df65a274-…`) but no UK ASPSPs exist. Provider code not built.        |
+| GoCardless Bank Account Data | Yes              | Was free up to 50 connections/month                                                                           | **Closed to new sign-ups since July 2025.** Existing accounts only.                                                    |
+| TrueLayer / Yapily / Bud / Salt Edge / Finexer | Yes | Free sandbox; production needs paid contract                                                                  | Not pursued. Reconsider if Plaid Production minimums are too high.                                                     |
+
+**There is no truly free path to connect a real UK bank account in 2026** unless you hold a pre-July-2025 GoCardless BAD account. All viable providers require a paid production contract.
+
+**Current Plaid wiring:**
+
+- `PLAID_CLIENT_ID` (var) and `PLAID_ENVIRONMENT=sandbox` (var) are set on `tamias-api-staging` and `tamias-api` in `api/wrangler.jsonc`.
+- `PLAID_SECRET` (secret) is set on both staging and production workers via Cloudflare API.
+- Local `.env` (gitignored, repo root) has the same three values.
+- Sandbox credentials connect to mock institutions only. Real Lloyds / HSBC / Monzo / Starling / Revolut authentication needs a Production secret obtained via Plaid's "Request access" flow.
+
+**Enable Banking artifacts on disk** (kept in case of future EU expansion, all gitignored under `.secrets/enablebanking/`):
+
+- `private.pem` — RSA-2048 key, would be `ENABLE_BANKING_KEY_CONTENT`
+- `public.crt` — registered cert (SHA-256 fingerprint `62:E8:8F:4E:66:48:6A:24:7F:BE:DF:21:DD:BC:C5:55:26:08:05:9C:95:F3:88:70:A4:68:D8:28:1B:B8:E6:9C`, expires 2028-05-01)
+- `README.md` — app IDs and env-var snippets
+
+The Enable Banking provider in `packages/banking/src/providers/` is **not yet implemented** — only `plaid/` and `teller/` directories exist. Build it only if/when adding EU bank support is in scope.
+
 #### GoCardless (EU/UK) — removed from codebase
 
 GoCardless is no longer bundled: new connections are **Plaid** or **Teller** only. The database may still contain legacy `gocardless` provider values.
@@ -618,11 +649,17 @@ GoCardless is no longer bundled: new connections are **Plaid** or **Teller** onl
 - Institution list cached for 24 hours
 - Teller client certs are uploaded to Cloudflare and bound into the API/async Workers as `TELLER_MTLS_CERTIFICATE`
 
-#### Enable Banking (EU)
+#### Enable Banking (EU) — registered but not implemented
+
+> **UK note:** Enable Banking does **not** cover UK banks (EEA only — UK left EEA post-Brexit). Confirmed via their `/aspsps?country=GB` endpoint returning zero institutions. Don't reach for this provider for UK use cases.
+
+The implementation details below describe the **planned** integration design. No provider code currently exists in `packages/banking/src/providers/`. Apps are registered with Enable Banking and credentials live under `.secrets/enablebanking/` — see "Status for UK bank connections" above.
 
 - **Auth**: RSA-signed JWT (RS256, PKCS8 private key). Max TTL: 24 hours.
+  - JWT header: `{ "typ": "JWT", "alg": "RS256", "kid": "<application_id>" }`
+  - JWT payload: `{ "iss": "enablebanking.com", "aud": "api.enablebanking.com", "iat": <now>, "exp": <now+ttl> }`
 - **HTTP client**: xior (axios-like), instance cached alongside JWT
-- **Coverage**: 4,700+ ASPSPs across EEA
+- **Coverage**: ~844 ASPSPs in sandbox (DE-heavy), 4,700+ in production across EEA. **No UK.**
 - **Rate limits**: HTTP 429 on all endpoints, exact thresholds not documented
 - **Connection identifier**: Session ID
 - **Account identifier**: Enable Banking account UUID
