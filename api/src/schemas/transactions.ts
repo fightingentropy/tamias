@@ -865,6 +865,31 @@ export const generateCsvMappingResponseSchema = z.object({
   currency: z.string().optional(),
 });
 
+export const extractStatementPdfSchema = z.object({
+  filePath: z.array(z.string()).min(1).openapi({
+    description: "Vault path tokens of the uploaded bank statement PDF.",
+  }),
+});
+
+export const extractStatementPdfResponseSchema = z.object({
+  csvFilePath: z.array(z.string()).openapi({
+    description:
+      "Vault path tokens of the CSV generated from the extracted transactions. Pass this to the import endpoint.",
+  }),
+  columns: z.array(z.string()).openapi({
+    description: "Column names of the generated CSV.",
+  }),
+  rows: z.array(z.record(z.string(), z.string())).openapi({
+    description: "All extracted transactions as CSV-shaped rows for client-side preview.",
+  }),
+  detectedCurrency: z.string().nullable().openapi({
+    description: "Three-letter ISO 4217 currency detected on the statement, or null if unknown.",
+  }),
+  transactionCount: z.number().openapi({
+    description: "Total number of transactions extracted from the statement.",
+  }),
+});
+
 export const moveToReviewSchema = z.object({
   transactionId: z.string().openapi({
     description: "Transaction ID to move back to review.",

@@ -56,11 +56,19 @@ export type ImportCsvFormData = {
   table?: Record<string, string>[];
 };
 
+export type ExtractedPdfStatement = {
+  csvFilePath: string[];
+  rowCount: number;
+  detectedCurrency: string | null;
+};
+
 export const ImportCsvContext = createContext<{
   fileColumns: string[] | null;
   setFileColumns: (columns: string[] | null) => void;
   firstRows: Record<string, string>[] | null;
   setFirstRows: (rows: Record<string, string>[] | null) => void;
+  extractedPdf: ExtractedPdfStatement | null;
+  setExtractedPdf: (value: ExtractedPdfStatement | null) => void;
   control: Control<ImportCsvFormData>;
   watch: UseFormWatch<ImportCsvFormData>;
   setValue: UseFormSetValue<ImportCsvFormData>;

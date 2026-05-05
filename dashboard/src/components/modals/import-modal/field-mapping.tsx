@@ -33,7 +33,7 @@ import {
 } from "./field-mapping.utils";
 
 export function FieldMapping({ currencies }: { currencies: string[] }) {
-  const { fileColumns, firstRows, setValue, control, watch } = useCsvContext();
+  const { fileColumns, firstRows, extractedPdf, setValue, control, watch } = useCsvContext();
   const [isStreaming, setIsStreaming] = useState(false);
   const [showCurrency, setShowCurrency] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -58,6 +58,13 @@ export function FieldMapping({ currencies }: { currencies: string[] }) {
     }
 
     if (fileColumns.length === 0 || firstRows.length === 0) {
+      setIsStreaming(false);
+      return;
+    }
+
+    // PDF statements are extracted into a fixed schema, so column mapping is
+    // already done deterministically — skip the AI roundtrip.
+    if (extractedPdf) {
       setIsStreaming(false);
       return;
     }
@@ -159,7 +166,7 @@ export function FieldMapping({ currencies }: { currencies: string[] }) {
     return () => {
       abortController.abort();
     };
-  }, [fileColumns, firstRows]);
+  }, [fileColumns, firstRows, extractedPdf]);
 
   return (
     <div className="mt-6">

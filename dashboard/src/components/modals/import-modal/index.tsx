@@ -24,7 +24,7 @@ import { useUpload } from "@/hooks/use-upload";
 import { useUserQuery } from "@/hooks/use-user";
 import { useZodForm } from "@/hooks/use-zod-form";
 import { useTRPC } from "@/trpc/client";
-import { ImportCsvContext, importSchema } from "./context";
+import { type ExtractedPdfStatement, ImportCsvContext, importSchema } from "./context";
 import { getBalanceFromLatestDate } from "./field-mapping.utils";
 
 function ImportPageFallback() {
@@ -56,6 +56,7 @@ export function ImportModal() {
   const sequenceIndexRef = useRef(0);
   const [fileColumns, setFileColumns] = useState<string[] | null>(null);
   const [firstRows, setFirstRows] = useState<Record<string, string>[] | null>(null);
+  const [extractedPdf, setExtractedPdf] = useState<ExtractedPdfStatement | null>(null);
   const [visibleProgressStep, setVisibleProgressStep] = useState<string | undefined>();
 
   const { data: user } = useUserQuery();
@@ -144,6 +145,7 @@ export function ImportModal() {
     }
     setFileColumns(null);
     setFirstRows(null);
+    setExtractedPdf(null);
     setPageNumber(0);
     setRunId(undefined);
     reset();
@@ -358,9 +360,12 @@ export function ImportModal() {
               </DialogTitle>
             </div>
             <DialogDescription>
-              {page === "select-file" && "Upload a CSV file of your transactions."}
+              {page === "select-file" &&
+                "Upload a CSV file or a PDF bank statement of your transactions."}
               {page === "confirm-import" &&
-                "We've mapped each column to what we believe is correct, but please review the data below to confirm it's accurate."}
+                (extractedPdf
+                  ? `We extracted ${extractedPdf.rowCount} transaction${extractedPdf.rowCount === 1 ? "" : "s"} from your statement. Review and confirm before importing.`
+                  : "We've mapped each column to what we believe is correct, but please review the data below to confirm it's accurate.")}
             </DialogDescription>
           </DialogHeader>
 
@@ -372,6 +377,8 @@ export function ImportModal() {
                   setFileColumns,
                   firstRows,
                   setFirstRows,
+                  extractedPdf,
+                  setExtractedPdf,
                   control,
                   watch,
                   setValue,
@@ -387,12 +394,20 @@ export function ImportModal() {
 
                       setIsImporting(true);
 
-                      const filename = stripSpecialCharacters(data.file.name);
-                      const { path } = await uploadFile({
-                        bucket: "vault",
-                        path: [user?.team?.id ?? "", "imports", filename],
-                        file,
-                      });
+                      // For PDFs we already uploaded the file and produced an
+                      // extracted CSV in vault during the select-file step.
+                      let path: string[];
+                      if (extractedPdf) {
+                        path = extractedPdf.csvFilePath;
+                      } else {
+                        const filename = stripSpecialCharacters(data.file.name);
+                        const uploaded = await uploadFile({
+                          bucket: "vault",
+                          path: [user?.team?.id ?? "", "imports", filename],
+                          file,
+                        });
+                        path = uploaded.path;
+                      }
 
                       const currentBalance =
                         firstRows && data.date && data.balance

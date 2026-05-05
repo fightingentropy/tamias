@@ -459,6 +459,10 @@ mock.module("@tamias/import", () => ({
   compactSampleRows: mock((rows: Record<string, string>[]) => rows.slice(0, 2)),
   formatAmountValue: mocks.formatAmountValue,
   selectPromptColumns: mock((columns: string[]) => columns),
+  PDF_STATEMENT_CSV_COLUMNS: ["date", "description", "counterparty", "amount", "balance"],
+  PDF_STATEMENT_EXTRACTION_PROMPT: "mock pdf extraction prompt",
+  extractedPdfStatementSchema: {} as never,
+  extractedTransactionsToCsvRows: mock(() => [] as Record<string, string>[]),
 }));
 
 // Mock @tamias/invoice

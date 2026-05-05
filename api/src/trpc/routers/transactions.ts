@@ -26,6 +26,7 @@ import {
   createTransactionSchema,
   deleteTransactionsSchema,
   exportTransactionsSchema,
+  extractStatementPdfSchema,
   generateCsvMappingResponseSchema,
   generateCsvMappingSchema,
   getSimilarTransactionsSchema,
@@ -38,6 +39,7 @@ import {
   updateTransactionsSchema,
 } from "../../schemas/transactions";
 import { createTRPCRouter, protectedProcedure } from "../init";
+import { extractStatementPdf } from "../lib/extract-statement-pdf";
 
 const csvMappingInFlight = new Map<
   string,
@@ -315,5 +317,22 @@ export const transactionsRouter = createTRPCRouter({
       csvMappingInFlight.set(requestKey, mappingPromise);
 
       return mappingPromise;
+    }),
+
+  extractStatementPdf: protectedProcedure
+    .input(extractStatementPdfSchema)
+    .mutation(async ({ input, ctx: { teamId } }) => {
+      if (!teamId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Team not found" });
+      }
+
+      if (input.filePath[0] !== teamId) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "File path does not belong to this team.",
+        });
+      }
+
+      return extractStatementPdf({ pdfPath: input.filePath });
     }),
 });
