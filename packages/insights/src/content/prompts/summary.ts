@@ -1,7 +1,7 @@
 /**
  * Summary prompt - narrative financial picture
  *
- * Uses Anthropic best practices:
+ * Uses LLM prompt best practices:
  * - XML tags for structure
  * - Clear role assignment
  * - Few-shot examples with input/output

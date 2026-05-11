@@ -16,6 +16,7 @@
     "@tamias/email": "workspace:*",
     "@tamias/encryption": "workspace:*",
     "@tamias/inbox": "workspace:*",
+    "@tamias/logger": "workspace:*",
     "@tamias/utils": "workspace:*",
     "nanoid": "catalog:",
     "zod": "catalog:"

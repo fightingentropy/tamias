@@ -10071,7 +10071,6 @@ type AiGatewayLog = {
 };
 type AIGatewayProviders =
   | "workers-ai"
-  | "anthropic"
   | "aws-bedrock"
   | "azure-openai"
   | "google-vertex-ai"

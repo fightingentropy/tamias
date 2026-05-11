@@ -291,12 +291,12 @@ export const transactionsRouter = createTRPCRouter({
 
       const mappingPromise = (async () => {
         try {
-          const [{ anthropic }, { generateObject }] = await Promise.all([
-            import("@ai-sdk/anthropic"),
+          const [{ openai }, { generateObject }] = await Promise.all([
+            import("@ai-sdk/openai"),
             import("ai"),
           ]);
           const { object } = await generateObject({
-            model: anthropic("claude-3-haiku-20240307"),
+            model: openai("gpt-5-mini"),
             schema: generateCsvMappingResponseSchema,
             prompt,
           });

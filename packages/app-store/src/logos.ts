@@ -1,7 +1,6 @@
 // Export all logos from a single file
 
 export { Logo as ChatGPTMcpLogo } from "./chatgpt-mcp/assets/logo";
-export { Logo as ClaudeMcpLogo } from "./claude-mcp/assets/logo";
 export { Logo as CompaniesHouseLogo } from "./companies-house/assets/logo";
 export { Logo as CopilotMcpLogo } from "./copilot-mcp/assets/logo";
 export { Logo as CursorMcpLogo } from "./cursor-mcp/assets/logo";

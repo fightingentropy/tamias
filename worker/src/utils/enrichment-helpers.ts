@@ -44,7 +44,7 @@ INPUT HIERARCHY (use in this priority order):
 4. "Description": Additional context → supplement identification
 
 TRANSFORMATION EXAMPLES:
-✓ "Anthropic" → "Anthropic Inc"
+✓ "Stripe" → "Stripe Inc"
 ✓ "Google Pay" → "Google LLC" 
 ✓ "AMZN MKTP" → "Amazon.com Inc"
 ✓ "Starbucks #1234" → "Starbucks Corporation"

@@ -47,7 +47,6 @@ const IMPORT_SPECIFIER_PATTERNS = [
 ];
 const AI_SDK_PACKAGES = [
   "ai",
-  "@ai-sdk/anthropic",
   "@ai-sdk/google",
   "@ai-sdk/mistral",
   "@ai-sdk/openai",

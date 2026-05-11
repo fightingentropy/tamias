@@ -69,7 +69,7 @@ export const TIMEOUTS = {
  * Image size configurations for processing
  * Based on research: 2048px is optimal for vision models + OCR
  * - Preserves text legibility (x-height >= 20px for receipts)
- * - Within all major AI model limits (Gemini, GPT-4V, Claude)
+ * - Within major AI model limits used by the app
  * - Good balance between OCR quality and processing speed
  */
 export const IMAGE_SIZES = {

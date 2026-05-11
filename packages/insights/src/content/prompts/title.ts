@@ -1,7 +1,7 @@
 /**
  * Title prompt - executive summary headline
  *
- * Uses Anthropic best practices:
+ * Uses LLM prompt best practices:
  * - XML tags for structure
  * - Clear role assignment
  * - Few-shot examples

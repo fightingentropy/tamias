@@ -131,7 +131,7 @@ flowchart LR
 
 ### AI and external services
 
-- AI SDK with OpenAI, Google, Anthropic, and Mistral providers in different flows
+- AI SDK with OpenAI, Google, and Mistral providers in different flows
 - ElevenLabs for optional insight audio
 - Exa and Plain in supporting flows
 - TrueLayer for banking

@@ -16,7 +16,6 @@
   "dependencies": {
     "@ai-sdk-tools/agents": "^1.2.0",
     "@ai-sdk-tools/artifacts": "^1.2.0",
-    "@ai-sdk/anthropic": "catalog:",
     "@ai-sdk/openai": "catalog:",
     "@date-fns/tz": "catalog:",
     "@hono/mcp": "^0.2.5",

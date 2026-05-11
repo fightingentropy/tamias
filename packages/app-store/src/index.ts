@@ -1,5 +1,4 @@
 import chatgptMcpApp from "./chatgpt-mcp/config";
-import claudeMcpApp from "./claude-mcp/config";
 import companiesHouseApp from "./companies-house/config-client";
 import copilotMcpApp from "./copilot-mcp/config";
 import cursorMcpApp from "./cursor-mcp/config";
@@ -46,7 +45,6 @@ export const apps = [
   deelApp,
   eInvoiceApp,
   cursorMcpApp,
-  claudeMcpApp,
   perplexityMcpApp,
   raycastMcpApp,
   chatgptMcpApp,
