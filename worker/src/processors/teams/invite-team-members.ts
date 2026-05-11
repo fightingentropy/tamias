@@ -1,14 +1,12 @@
 import { InviteEmail } from "@tamias/email/emails/invite";
 import { getI18n } from "@tamias/email/locales";
 import { render } from "@tamias/email/render";
+import { sendEmail } from "@tamias/email/send";
 import { getSupportFromDisplay } from "@tamias/utils/envs";
 import type { WorkerJob as Job } from "../../types/job";
 import { nanoid } from "nanoid";
-import { Resend } from "resend";
 import { inviteTeamMembersSchema, type InviteTeamMembersPayload } from "../../schemas/teams";
 import { BaseProcessor } from "../base";
-
-const resend = new Resend(process.env.RESEND_API_KEY!);
 
 export class InviteTeamMembersProcessor extends BaseProcessor<InviteTeamMembersPayload> {
   protected override getPayloadSchema() {
@@ -51,7 +49,9 @@ export class InviteTeamMembersProcessor extends BaseProcessor<InviteTeamMembersP
       })),
     );
 
-    await resend.batch.send(emails);
+    for (const email of emails) {
+      await sendEmail(email);
+    }
 
     this.logger.info("Team invite emails sent", {
       jobId: job.id,

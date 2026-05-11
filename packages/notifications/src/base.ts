@@ -1,7 +1,7 @@
 import type { Database } from "@tamias/app-data/client";
 import type { CurrentUserIdentityRecord } from "@tamias/app-data-convex";
 import type { Activity } from "@tamias/app-data/queries";
-import type { CreateEmailOptions } from "resend";
+import type { EmailMessage } from "@tamias/email/send";
 import { z } from "zod";
 import type { CreateActivityInput } from "./schemas";
 
@@ -26,7 +26,10 @@ export interface NotificationHandler<T = any> {
     data: T,
     user: UserData,
     team: TeamContext,
-  ) => Partial<Omit<CreateEmailOptions, "template">> & {
+  ) => Partial<Omit<EmailMessage, "subject" | "from" | "to">> & {
+    from?: EmailMessage["from"];
+    to?: EmailMessage["to"];
+    subject?: string;
     data: Record<string, any>;
     template?: string;
     emailType: "customer" | "team" | "owners"; // Explicit: customer emails go to external recipients, team emails go to all team members, owners emails go to team owners only
@@ -64,18 +67,16 @@ export interface UserData {
   role?: "owner" | "member";
 }
 
-// Combine template data with all Resend options using intersection type
 export type EmailInput = {
   template?: string;
   user: UserData;
   data: Record<string, any>;
-} & Partial<Omit<CreateEmailOptions, "template">>;
+} & Partial<EmailMessage>;
 
-// Use intersection type to combine our options with Resend's CreateEmailOptions
 export type NotificationOptions = {
   priority?: number;
   sendEmail?: boolean;
-} & Partial<CreateEmailOptions>;
+} & Partial<EmailMessage>;
 
 export interface NotificationResult {
   type: string;

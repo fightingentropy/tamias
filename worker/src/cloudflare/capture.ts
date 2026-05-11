@@ -2,6 +2,7 @@ import {
   configureCloudflareQueueRuntime,
   configureCloudflareScheduleRuntime,
 } from "@tamias/job-client/cloudflare-runtime";
+import { configureEmailRuntime } from "@tamias/email/send";
 import "./runtime-shims";
 import type { CloudflareAsyncMessage } from "./bridge-helpers";
 import { isSupportedCloudflareMessage } from "./bridge-helpers";
@@ -16,6 +17,7 @@ function configureCaptureRuntime(env: CloudflareAsyncEnv) {
   });
   configureCloudflareScheduleRuntime(createCloudflareScheduleRuntime(env));
   configureCloudflareImagesBinding(env.IMAGES);
+  configureEmailRuntime(env.EMAIL);
 }
 
 async function processSyncInstitutionsMessage(message: Message<CloudflareAsyncMessage>) {

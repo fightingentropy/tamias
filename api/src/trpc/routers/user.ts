@@ -10,7 +10,6 @@ import { generateOptionalFileKey } from "@tamias/encryption";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { updateUserSchema } from "../../schemas/users";
-import { resend } from "../../services/resend";
 import { createTRPCRouter, protectedProcedure, protectedWithConvexIdProcedure } from "../init";
 
 export const userRouter = createTRPCRouter({
@@ -87,15 +86,7 @@ export const userRouter = createTRPCRouter({
     }),
 
   delete: protectedWithConvexIdProcedure.mutation(async ({ ctx: { db, session } }) => {
-    const [data] = await Promise.all([
-      deleteUserByConvexId(db, session.user.convexId),
-      resend.contacts.remove({
-        email: session.user.email!,
-        audienceId: process.env.RESEND_AUDIENCE_ID!,
-      }),
-    ]);
-
-    return data;
+    return deleteUserByConvexId(db, session.user.convexId);
   }),
 
   invites: protectedProcedure.query(async ({ ctx: { session } }) => {

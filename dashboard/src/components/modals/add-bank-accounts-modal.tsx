@@ -45,11 +45,9 @@ type ExistingAccount = NonNullable<
 
 type Props = {
   connectionId: string;
-  /** Plaid/Teller for new connections; legacy rows may still be `gocardless`. */
   provider: string;
   accessToken: string | null;
   referenceId: string | null;
-  enrollmentId: string | null;
   institutionId: string | null;
   existingAccounts: ExistingAccount[];
   isOpen: boolean;
@@ -66,7 +64,6 @@ export function AddBankAccountsModal({
   provider,
   accessToken,
   referenceId,
-  enrollmentId,
   institutionId,
   existingAccounts,
   isOpen,
@@ -79,9 +76,7 @@ export function AddBankAccountsModal({
   const t = useI18n();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-  const id = provider === "teller" ? enrollmentId : referenceId;
-
-  const providerSupported = provider === "plaid" || provider === "teller";
+  const providerSupported = provider === "truelayer";
 
   const {
     data: providerData,
@@ -89,8 +84,8 @@ export function AddBankAccountsModal({
     isError,
   } = useQuery({
     ...trpc.banking.getProviderAccounts.queryOptions({
-      provider: provider as "plaid" | "teller",
-      id: id ?? undefined,
+      provider: "truelayer",
+      id: referenceId ?? undefined,
       accessToken: accessToken ?? undefined,
       institutionId: institutionId ?? undefined,
     }),
@@ -200,8 +195,7 @@ export function AddBankAccountsModal({
           <div className="mt-6 space-y-6 max-h-[400px] overflow-auto scrollbar-hide">
             {!providerSupported && (
               <p className="text-sm text-[#878787] text-center py-8">
-                This connection uses a retired provider. Add accounts is only available for Plaid
-                or Teller connections.
+                Add accounts is only available for TrueLayer connections.
               </p>
             )}
 

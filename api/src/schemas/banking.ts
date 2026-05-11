@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const providerSchema = z.enum(["teller", "plaid"]);
+export const providerSchema = z.literal("truelayer");
 
 export const accountTypeSchema = z.enum([
   "depository",
@@ -10,15 +10,13 @@ export const accountTypeSchema = z.enum([
   "other_liability",
 ]);
 
-// Auth schemas
-export const plaidLinkSchema = z
-  .object({
-    language: z.string().optional(),
-    accessToken: z.string().optional(),
-  })
-  .optional();
+export const truelayerAuthUrlSchema = z.object({
+  institutionId: z.string(),
+  reconnect: z.boolean().optional(),
+  connectionId: z.string().optional(),
+});
 
-export const plaidExchangeSchema = z.object({
+export const truelayerExchangeSchema = z.object({
   token: z.string(),
 });
 

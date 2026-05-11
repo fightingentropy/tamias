@@ -1,3 +1,4 @@
+import { configureEmailRuntime } from "@tamias/email/send";
 import {
   configureCloudflareQueueRuntime,
   configureCloudflareScheduleRuntime,
@@ -11,4 +12,5 @@ export function configureWorkerRuntime(env: CloudflareAsyncEnv) {
     ledgerQueue: env.LEDGER_QUEUE,
   });
   configureCloudflareScheduleRuntime(createCloudflareScheduleRuntime(env));
+  configureEmailRuntime(env.EMAIL);
 }

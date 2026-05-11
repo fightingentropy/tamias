@@ -1,9 +1,10 @@
 import { z } from "zod";
 
 const schema = {
-  PLAID_CLIENT_ID: z.string().min(1),
-  PLAID_SECRET: z.string().min(1),
-  PLAID_ENVIRONMENT: z.string().default("sandbox"),
+  TRUELAYER_CLIENT_ID: z.string().min(1),
+  TRUELAYER_CLIENT_SECRET: z.string().min(1),
+  TRUELAYER_ENVIRONMENT: z.string().default("sandbox"),
+  TRUELAYER_REDIRECT_URI: z.string().url(),
   R2_ENDPOINT: z.string().url(),
   R2_ACCESS_KEY_ID: z.string().min(1),
   R2_SECRET_ACCESS_KEY: z.string().min(1),
@@ -36,8 +37,8 @@ function getEnvValue<K extends keyof BankingEnv>(key: K): BankingEnv[K] {
   return result.data;
 }
 
-// Validate provider config lazily so local API startup doesn't require every
-// banking integration secret up front.
+// Validate provider config lazily so local API startup doesn't require banking
+// integration secrets up front.
 export const env = new Proxy({} as BankingEnv, {
   get(_target, property) {
     if (typeof property !== "string" || !(property in schema)) {

@@ -1,12 +1,12 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { getTeamByInboxId } from "@tamias/app-data/queries";
 import { getAllowedAttachments } from "@tamias/documents";
+import { sendEmail } from "@tamias/email/send";
 import { getInboxIdFromEmail, inboxWebhookPostSchema } from "@tamias/inbox";
 import { logger } from "@tamias/logger";
 import { basicAuth } from "hono/basic-auth";
 import { HTTPException } from "hono/http-exception";
 import { nanoid } from "nanoid";
-import { resend } from "../../../../services/resend";
 import type { Context } from "../../../types";
 import {
   ALLOWED_FORWARDING_EMAILS,
@@ -208,13 +208,12 @@ app.openapi(
           messageId: MessageID,
         });
 
-        await resend.emails.send({
+        await sendEmail({
           from: `${FromFull?.Name} <${FORWARD_FROM_EMAIL}>`,
           to: teamData.email,
           subject: Subject ?? FromFull?.Name,
           text: TextBody,
           html: HtmlBody,
-          react: null,
           headers: {
             "X-Entity-Ref-ID": nanoid(),
           },

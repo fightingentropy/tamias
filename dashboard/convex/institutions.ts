@@ -5,11 +5,7 @@ import { requireServiceKey } from "./lib/service";
 
 const excludedInstitutions = new Set(["ins_56"]);
 
-const institutionProvider = v.union(
-  v.literal("gocardless"),
-  v.literal("plaid"),
-  v.literal("teller"),
-);
+const institutionProvider = v.literal("truelayer");
 
 const institutionStatus = v.union(v.literal("active"), v.literal("removed"));
 
@@ -21,7 +17,7 @@ function serializeInstitution(record: {
   institutionId: string;
   name: string;
   logo?: string;
-  provider: "gocardless" | "plaid" | "teller";
+  provider: "truelayer";
   countries: string[];
   availableHistory?: number | null;
   maximumConsentValidity?: number | null;

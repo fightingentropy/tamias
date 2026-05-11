@@ -1,50 +1,15 @@
 import { expect, test } from "@playwright/test";
 import {
   openBankConnectModal,
-  switchCountryTo,
   searchBank,
-  connectToBank,
-  waitForPlaidIframe,
 } from "./helpers/bank-connect";
 
 test.describe("bank connect error handling and edge cases", () => {
-  test("closing Plaid Link returns to search modal", async ({ page }) => {
-    test.setTimeout(90_000);
-
-    await openBankConnectModal(page);
-    await switchCountryTo(page, "United States");
-    await searchBank(page, "Platypus");
-    await connectToBank(page, "Platypus");
-
-    // Wait for Plaid iframe to appear
-    const plaidFrame = await waitForPlaidIframe(page);
-
-    // Close Plaid Link by clicking the close/X button in the iframe
-    try {
-      const closeButton = plaidFrame.getByRole("button", { name: /close/i });
-      await closeButton.click({ timeout: 10_000 });
-    } catch {
-      // Alternative: try clicking the X icon or back button
-      try {
-        await plaidFrame.locator('button[aria-label="Close"]').click({ timeout: 5_000 });
-      } catch {
-        // Press Escape as fallback
-        await page.keyboard.press("Escape");
-      }
-    }
-
-    // Should return to connect step (onExit handler resets step to "connect")
-    await expect(page.getByRole("heading", { name: "Connect bank account" })).toBeVisible({
-      timeout: 15_000,
-    });
-    await expect(page.getByPlaceholder("Search bank...")).toBeVisible();
-  });
-
   test("invalid account params show error and close modal", async ({ page }) => {
     // Navigate directly to account step with invalid tokens
     await page.goto("/dashboard", { waitUntil: "networkidle" });
     await page.goto(
-      "/dashboard?step=account&provider=plaid&token=invalid_token&ref=invalid_ref",
+      "/dashboard?step=account&provider=truelayer&token=invalid_token&ref=invalid_ref",
       { waitUntil: "domcontentloaded" },
     );
 
@@ -83,7 +48,6 @@ test.describe("bank connect error handling and edge cases", () => {
 
   test("empty search results show fallback with import option", async ({ page }) => {
     await openBankConnectModal(page);
-    await switchCountryTo(page, "United States");
 
     // Search for a nonexistent bank
     await searchBank(page, "NonexistentBankXYZ12345");
@@ -103,7 +67,6 @@ test.describe("bank connect error handling and edge cases", () => {
 
   test("Import button navigates to import step", async ({ page }) => {
     await openBankConnectModal(page);
-    await switchCountryTo(page, "United States");
     await searchBank(page, "NonexistentBankXYZ12345");
 
     await expect(page.getByText("No banks found")).toBeVisible({ timeout: 10_000 });

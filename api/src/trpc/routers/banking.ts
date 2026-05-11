@@ -1,4 +1,6 @@
-import { getProviderErrorDetails, getRates, PlaidApi, Provider } from "@tamias/banking";
+import { getProviderErrorDetails, getRates, Provider, TrueLayerApi } from "@tamias/banking";
+import type { TrueLayerTokens } from "@tamias/banking";
+import { decryptOAuthState, encryptOAuthState } from "@tamias/encryption";
 import { createLoggerWithContext } from "@tamias/logger";
 import { TRPCError } from "@trpc/server";
 import {
@@ -7,8 +9,8 @@ import {
   getBalanceSchema,
   getProviderAccountsSchema,
   getProviderTransactionsSchema,
-  plaidExchangeSchema,
-  plaidLinkSchema,
+  truelayerAuthUrlSchema,
+  truelayerExchangeSchema,
 } from "../../schemas/banking";
 import {
   createTRPCRouter,
@@ -17,50 +19,71 @@ import {
   protectedProcedure,
 } from "../init";
 
+export type TrueLayerOAuthStatePayload = {
+  teamId: string;
+  userId: string;
+  institutionId: string;
+  reconnect: boolean;
+  connectionId?: string;
+  source: "connect";
+};
+
 const logger = createLoggerWithContext("trpc:banking");
 
 export const bankingRouter = createTRPCRouter({
-  plaidLink: protectedProcedure.input(plaidLinkSchema).mutation(async ({ input, ctx }) => {
-    const api = new PlaidApi();
+  truelayerAuthUrl: protectedProcedure
+    .input(truelayerAuthUrlSchema)
+    .mutation(async ({ input, ctx }) => {
+      const teamId = ctx.teamId;
+      if (!teamId) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Missing team context" });
+      }
 
-    try {
-      const { data } = await api.linkTokenCreate({
-        userId: ctx.session.user.id,
-        language: input?.language,
-        accessToken: input?.accessToken,
+      try {
+        const state = encryptOAuthState<TrueLayerOAuthStatePayload>({
+          teamId,
+          userId: ctx.session.user.id,
+          institutionId: input.institutionId,
+          reconnect: input.reconnect ?? false,
+          connectionId: input.connectionId,
+          source: "connect",
+        });
+
+        const api = new TrueLayerApi();
+        const url = api.buildAuthUrl({ state });
+
+        return { url };
+      } catch (error) {
+        logger.error("Failed to build TrueLayer auth url", getProviderErrorDetails(error));
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to build TrueLayer authorization URL",
+        });
+      }
+    }),
+
+  truelayerExchange: protectedProcedure
+    .input(truelayerExchangeSchema)
+    .mutation(async ({ input }) => {
+      const tokens = decryptOAuthState<TrueLayerTokens>(input.token, (parsed): parsed is TrueLayerTokens => {
+        if (!parsed || typeof parsed !== "object") return false;
+        const record = parsed as Record<string, unknown>;
+        return (
+          typeof record.accessToken === "string" &&
+          typeof record.refreshToken === "string" &&
+          typeof record.expiresAt === "string"
+        );
       });
 
-      return {
-        data,
-      };
-    } catch (error) {
-      logger.error("Failed to create Plaid link token", getProviderErrorDetails(error));
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to create Plaid link token",
-      });
-    }
-  }),
+      if (!tokens) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Invalid or expired TrueLayer token",
+        });
+      }
 
-  plaidExchange: protectedProcedure.input(plaidExchangeSchema).mutation(async ({ input }) => {
-    const api = new PlaidApi();
-
-    try {
-      const { data } = await api.itemPublicTokenExchange({
-        publicToken: input.token,
-      });
-
-      return {
-        data,
-      };
-    } catch (error) {
-      logger.error("Failed to exchange Plaid token", getProviderErrorDetails(error));
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to exchange Plaid token",
-      });
-    }
-  }),
+      return { data: tokens };
+    }),
 
   connectionStatus: internalProcedure.input(connectionStatusSchema).query(async ({ input }) => {
     const api = new Provider({ provider: input.provider });

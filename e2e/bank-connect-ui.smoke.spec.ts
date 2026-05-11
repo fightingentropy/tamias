@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("connect bank modal opens with UK-first search (Plaid sandbox path)", async ({ page }) => {
+test("connect bank modal opens with UK-first search", async ({ page }) => {
   await page.goto("/dashboard", { waitUntil: "networkidle" });
   await page.goto("/dashboard?step=connect", { waitUntil: "domcontentloaded" });
 

@@ -62,9 +62,9 @@
     "jose": "catalog:",
     "nanoid": "catalog:",
     "parse-duration": "^2.1.4",
-    "resend": "catalog:",
     "stripe": "^21.0.1",
     "superjson": "^2.2.6",
+    "unpdf": "^1.6.2",
     "uuid": "catalog:",
     "zod": "catalog:"
   },

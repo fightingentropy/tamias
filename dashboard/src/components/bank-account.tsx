@@ -124,7 +124,6 @@ export function BankAccount({ data, provider }: Props) {
     creditLimit,
   } = data;
 
-  const isUSAccount = provider === "teller" || provider === "plaid";
   const isCreditAccount = type === "credit";
 
   // Fetch decrypted details only when user wants to reveal
@@ -328,8 +327,7 @@ export function BankAccount({ data, provider }: Props) {
       {(hasRoutingInfo || bic || (showSensitive && hasIbanOrAccountNumber)) && (
         <div className="border-t border-border pt-3 mt-1">
           <div className="flex flex-col gap-2 text-sm">
-            {/* US Account Details */}
-            {isUSAccount && (
+            {(routingNumber || wireRoutingNumber || details?.accountNumber) && (
               <>
                 {routingNumber && (
                   <div className="flex items-center justify-between">
@@ -388,7 +386,6 @@ export function BankAccount({ data, provider }: Props) {
               </div>
             )}
 
-            {/* IBAN (e.g. Plaid non-US or legacy connections) */}
             {(bic || details?.iban) && (
               <div className="flex items-center justify-between">
                 <span className="text-[#878787]">IBAN</span>

@@ -7,11 +7,7 @@ import { requireServiceKey } from "./lib/service";
 
 type BankConnectionCtx = QueryCtx | MutationCtx;
 
-const bankConnectionProvider = v.union(
-  v.literal("gocardless"),
-  v.literal("teller"),
-  v.literal("plaid"),
-);
+const bankConnectionProvider = v.literal("truelayer");
 
 const bankConnectionStatus = v.union(
   v.literal("connected"),
@@ -157,7 +153,6 @@ function serializeBankConnectionRecord(
     name: connection.name,
     logoUrl: connection.logoUrl ?? null,
     accessToken: connection.accessToken ?? null,
-    enrollmentId: connection.enrollmentId ?? null,
     provider: connection.provider,
     lastAccessed: connection.lastAccessed ?? null,
     referenceId: connection.referenceId ?? null,
@@ -352,7 +347,6 @@ export const serviceCreateBankConnection = mutation({
     provider: bankConnectionProvider,
     accounts: v.array(providerAccount),
     accessToken: v.optional(v.union(v.string(), v.null())),
-    enrollmentId: v.optional(v.union(v.string(), v.null())),
     referenceId: v.optional(v.union(v.string(), v.null())),
   },
   async handler(ctx, args) {
@@ -381,7 +375,6 @@ export const serviceCreateBankConnection = mutation({
         name: firstAccount.bankName,
         logoUrl: firstAccount.logoUrl ?? undefined,
         accessToken: args.accessToken ?? undefined,
-        enrollmentId: args.enrollmentId ?? undefined,
         referenceId: args.referenceId ?? undefined,
         expiresAt: firstAccount.expiresAt ?? undefined,
         lastAccessed: timestamp,
@@ -397,7 +390,6 @@ export const serviceCreateBankConnection = mutation({
         name: firstAccount.bankName,
         logoUrl: firstAccount.logoUrl ?? undefined,
         accessToken: args.accessToken ?? undefined,
-        enrollmentId: args.enrollmentId ?? undefined,
         provider: args.provider,
         expiresAt: firstAccount.expiresAt ?? undefined,
         lastAccessed: timestamp,
@@ -576,82 +568,6 @@ export const serviceAddProviderAccounts = mutation({
   },
 });
 
-export const serviceReconnectBankConnection = mutation({
-  args: {
-    serviceKey: v.string(),
-    publicTeamId: v.string(),
-    referenceId: v.string(),
-    newReferenceId: v.string(),
-    expiresAt: v.string(),
-  },
-  async handler(ctx, args) {
-    requireServiceKey(args.serviceKey);
-
-    const team = await getTeamByPublicTeamId(ctx, args.publicTeamId);
-
-    if (!team) {
-      return null;
-    }
-
-    const connection = await ctx.db
-      .query("bankConnections")
-      .withIndex("by_team_and_reference_id", (q) =>
-        q.eq("teamId", team._id).eq("referenceId", args.referenceId),
-      )
-      .unique();
-
-    if (!connection) {
-      return null;
-    }
-
-    await ctx.db.patch(connection._id, {
-      referenceId: args.newReferenceId,
-      expiresAt: args.expiresAt,
-      status: "connected",
-      updatedAt: nowIso(),
-    });
-
-    return {
-      id: publicBankConnectionId(connection),
-    };
-  },
-});
-
-export const serviceGetBankConnectionByEnrollmentId = query({
-  args: {
-    serviceKey: v.string(),
-    enrollmentId: v.string(),
-  },
-  async handler(ctx, args) {
-    requireServiceKey(args.serviceKey);
-
-    const connection = await ctx.db
-      .query("bankConnections")
-      .withIndex("by_enrollment_id", (q) => q.eq("enrollmentId", args.enrollmentId))
-      .unique();
-
-    if (!connection) {
-      return null;
-    }
-
-    const team = await ctx.db.get(connection.teamId);
-
-    if (!team) {
-      return null;
-    }
-
-    return {
-      id: publicBankConnectionId(connection),
-      createdAt: connection.createdAt,
-      team: {
-        id: publicTeamId(team)!,
-        plan: team.plan ?? "trial",
-        createdAt: team.createdAt,
-      },
-    };
-  },
-});
-
 export const serviceGetBankConnectionByReferenceId = query({
   args: {
     serviceKey: v.string(),
@@ -713,45 +629,6 @@ export const serviceUpdateBankConnectionStatus = mutation({
   },
 });
 
-export const serviceUpdateBankConnectionReconnectById = mutation({
-  args: {
-    serviceKey: v.string(),
-    publicTeamId: v.string(),
-    bankConnectionId: v.string(),
-    referenceId: v.optional(v.string()),
-    accessValidForDays: v.number(),
-  },
-  async handler(ctx, args) {
-    requireServiceKey(args.serviceKey);
-
-    const team = await getTeamByPublicTeamId(ctx, args.publicTeamId);
-
-    if (!team) {
-      return null;
-    }
-
-    const connection = await getBankConnectionByPublicId(ctx, args.bankConnectionId);
-
-    if (!connection || connection.teamId !== team._id) {
-      return null;
-    }
-
-    const expiresAt = new Date(
-      Date.now() + args.accessValidForDays * 24 * 60 * 60 * 1000,
-    ).toDateString();
-
-    await ctx.db.patch(connection._id, {
-      expiresAt,
-      referenceId: args.referenceId ?? undefined,
-      updatedAt: nowIso(),
-    });
-
-    return {
-      id: publicBankConnectionId(connection),
-    };
-  },
-});
-
 export const servicePatchBankConnection = mutation({
   args: {
     serviceKey: v.string(),
@@ -762,7 +639,6 @@ export const servicePatchBankConnection = mutation({
     name: v.optional(v.string()),
     logoUrl: v.optional(v.union(v.string(), v.null())),
     accessToken: v.optional(v.union(v.string(), v.null())),
-    enrollmentId: v.optional(v.union(v.string(), v.null())),
     provider: v.optional(bankConnectionProvider),
     lastAccessed: v.optional(v.union(v.string(), v.null())),
     referenceId: v.optional(v.union(v.string(), v.null())),
@@ -792,8 +668,7 @@ export const servicePatchBankConnection = mutation({
       name?: string;
       logoUrl?: string;
       accessToken?: string;
-      enrollmentId?: string;
-      provider?: "gocardless" | "teller" | "plaid";
+      provider?: "truelayer";
       lastAccessed?: string;
       referenceId?: string;
       status?: "connected" | "disconnected" | "unknown";
@@ -818,9 +693,6 @@ export const servicePatchBankConnection = mutation({
     }
     if (args.accessToken !== undefined) {
       patch.accessToken = args.accessToken ?? undefined;
-    }
-    if (args.enrollmentId !== undefined) {
-      patch.enrollmentId = args.enrollmentId ?? undefined;
     }
     if (args.provider !== undefined) {
       patch.provider = args.provider;

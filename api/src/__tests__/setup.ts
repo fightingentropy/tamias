@@ -84,7 +84,7 @@ export const mocks = {
     meta: { hasNextPage: false, hasPreviousPage: false },
   })) as MockFn,
 
-  // Institution reference (Convex catalog + Plaid fallback in router)
+  // Institution reference (Convex catalog + live provider fallback in router)
   getInstitutions: mock(() => []) as MockFn,
   getInstitutionById: mock(() => null) as MockFn,
   updateInstitutionUsage: mock(() => null) as MockFn,

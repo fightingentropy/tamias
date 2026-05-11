@@ -71,8 +71,7 @@ const SelectBankAccountsSupportForm = dynamic(
 const formSchema = z.object({
   referenceId: z.string().nullable().optional(),
   accessToken: z.string().nullable().optional(),
-  enrollmentId: z.string().nullable().optional(),
-  provider: z.enum(["plaid", "teller"]),
+  provider: z.literal("truelayer"),
   accounts: z
     .array(
       z.object({
@@ -131,8 +130,32 @@ export function SelectBankAccountsContent({
     "select-accounts",
   );
 
-  const { error, setParams, provider, ref, institution_id, token, enrollment_id } =
-    useConnectParams();
+  const { error, setParams, provider, ref, institution_id, token } = useConnectParams();
+
+  const [truelayerTokenBlob, setTrueLayerTokenBlob] = useState<string | null>(null);
+  const [truelayerExchangeError, setTrueLayerExchangeError] = useState(false);
+
+  const truelayerExchangeMutation = useMutation(
+    trpc.banking.truelayerExchange.mutationOptions({
+      onSuccess: (result) => {
+        setTrueLayerTokenBlob(JSON.stringify(result.data));
+      },
+      onError: () => {
+        setTrueLayerExchangeError(true);
+      },
+    }),
+  );
+
+  useEffect(() => {
+    if (provider !== "truelayer" || !token || truelayerTokenBlob || truelayerExchangeMutation.isPending) {
+      return;
+    }
+    truelayerExchangeMutation.mutate({ token });
+  }, [provider, token, truelayerTokenBlob, truelayerExchangeMutation]);
+
+  const resolvedAccessToken = truelayerTokenBlob ?? undefined;
+
+  const accountsQueryEnabled = enabled && provider === "truelayer" && !!truelayerTokenBlob;
 
   const {
     data: accountsData,
@@ -142,12 +165,12 @@ export function SelectBankAccountsContent({
     trpc.banking.getProviderAccounts.queryOptions(
       {
         id: ref ?? undefined,
-        accessToken: token ?? undefined,
+        accessToken: resolvedAccessToken,
         institutionId: institution_id ?? undefined,
-        provider: provider as "plaid" | "teller",
+        provider: "truelayer",
       },
       {
-        enabled: enabled && !!provider,
+        enabled: accountsQueryEnabled,
         retry: false,
       },
     ),
@@ -187,7 +210,7 @@ export function SelectBankAccountsContent({
   );
 
   useEffect(() => {
-    if (error || isError) {
+    if (error || isError || truelayerExchangeError) {
       toast({
         duration: 5000,
         variant: "error",
@@ -203,23 +226,21 @@ export function SelectBankAccountsContent({
       });
       onClose();
     }
-  }, [error, isError, setParams, onClose]);
+  }, [error, isError, truelayerExchangeError, setParams, onClose]);
 
   const form = useZodForm(formSchema, {
     defaultValues: {
-      accessToken: token ?? undefined,
-      enrollmentId: enrollment_id ?? undefined,
+      accessToken: resolvedAccessToken,
       referenceId: ref ?? undefined,
-      provider: provider as "plaid" | "teller",
+      provider: "truelayer",
       accounts: [],
     },
   });
 
   useEffect(() => {
     form.reset({
-      provider: provider as "plaid" | "teller",
-      accessToken: token ?? undefined,
-      enrollmentId: enrollment_id ?? undefined,
+      provider: "truelayer",
+      accessToken: resolvedAccessToken,
       referenceId: ref ?? undefined,
       accounts: accountsData?.data?.map((account) => ({
         name: account.name,

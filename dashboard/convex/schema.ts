@@ -543,7 +543,7 @@ export default defineSchema({
     name: v.string(),
     normalizedName: v.string(),
     logo: v.optional(v.string()),
-    provider: v.union(v.literal("gocardless"), v.literal("plaid"), v.literal("teller")),
+    provider: v.literal("truelayer"),
     countries: v.array(v.string()),
     availableHistory: v.optional(v.union(v.number(), v.null())),
     maximumConsentValidity: v.optional(v.union(v.number(), v.null())),
@@ -563,8 +563,7 @@ export default defineSchema({
     name: v.string(),
     logoUrl: v.optional(v.string()),
     accessToken: v.optional(v.string()),
-    enrollmentId: v.optional(v.string()),
-    provider: v.union(v.literal("gocardless"), v.literal("plaid"), v.literal("teller")),
+    provider: v.literal("truelayer"),
     expiresAt: v.optional(v.string()),
     lastAccessed: v.optional(v.string()),
     referenceId: v.optional(v.string()),
@@ -578,7 +577,6 @@ export default defineSchema({
     .index("by_team_id", ["teamId"])
     .index("by_team_and_status", ["teamId", "status"])
     .index("by_team_and_institution_id", ["teamId", "institutionId"])
-    .index("by_enrollment_id", ["enrollmentId"])
     .index("by_reference_id", ["referenceId"])
     .index("by_team_and_reference_id", ["teamId", "referenceId"]),
   bankAccounts: defineTable({

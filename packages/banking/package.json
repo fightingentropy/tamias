@@ -23,7 +23,6 @@
     "change-case": "catalog:",
     "date-fns": "catalog:",
     "jose": "catalog:",
-    "plaid": "^41.1.0",
     "xior": "^0.8.3",
     "zod": "catalog:"
   },

@@ -1,16 +1,13 @@
 "use client";
 
-import { track } from "@/lib/telemetry/client";
-import { LogEvents } from "@/lib/telemetry/events";
 import { Button } from "@tamias/ui/button";
 import { Input } from "@tamias/ui/input";
 import { Skeleton } from "@tamias/ui/skeleton";
-import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useRouter } from "@/framework/navigation";
 import { useEffect, useRef } from "react";
-import { useDebounceValue, useScript } from "usehooks-ts";
+import { useDebounceValue } from "usehooks-ts";
 import { useConnectParams } from "@/hooks/use-connect-params";
-import { usePlaidLinkBridge } from "@/components/plaid-link-bridge";
 import { useTRPC } from "@/trpc/client";
 import { BankLogo } from "./bank-logo";
 import { ConnectBankProvider } from "./connect-bank-provider";
@@ -39,10 +36,8 @@ function SearchSkeleton() {
 
 function formatProvider(provider: string) {
   switch (provider) {
-    case "plaid":
-      return "Plaid";
-    case "teller":
-      return "Teller";
+    case "truelayer":
+      return "TrueLayer";
     default:
       return provider;
   }
@@ -54,7 +49,6 @@ type SearchResultProps = {
   logo: string | null;
   provider: string;
   availableHistory: number;
-  openPlaid: () => void;
   type?: "personal" | "business";
   redirectPath?: string;
   countryCode?: string;
@@ -66,7 +60,6 @@ function SearchResult({
   logo,
   provider,
   availableHistory,
-  openPlaid,
   type,
   redirectPath,
   countryCode,
@@ -93,7 +86,6 @@ function SearchResult({
       <ConnectBankProvider
         id={id}
         provider={provider}
-        openPlaid={openPlaid}
         availableHistory={availableHistory}
         redirectPath={redirectPath}
         countryCode={countryCode}
@@ -124,48 +116,24 @@ export function BankSearchContent({
 }: BankSearchContentProps) {
   const trpc = useTRPC();
   const router = useRouter();
-  const { setSession, open, ready } = usePlaidLinkBridge();
-  const setSessionRef = useRef(setSession);
-  setSessionRef.current = setSession;
   const teamCountryCode = defaultCountryCode || "";
-  const connectDefaultCountry =
-    teamCountryCode === "US" || teamCountryCode === "CA" || teamCountryCode === "GB"
-      ? teamCountryCode
-      : "GB";
+  const connectDefaultCountry = teamCountryCode || "GB";
 
   const { countryCode, search: query, setParams } = useConnectParams(connectDefaultCountry);
-  const setParamsRef = useRef(setParams);
-  setParamsRef.current = setParams;
 
-  const effectiveCountryCode =
-    countryCode === "GB" || countryCode === "US" || countryCode === "CA"
-      ? countryCode
-      : connectDefaultCountry;
+  const effectiveCountryCode = countryCode || connectDefaultCountry;
 
   useEffect(() => {
     if (!enabled) {
       return;
     }
 
-    if (countryCode === "GB" || countryCode === "US" || countryCode === "CA") {
+    if (countryCode) {
       return;
     }
 
     setParams({ countryCode: connectDefaultCountry });
   }, [connectDefaultCountry, countryCode, enabled, setParams]);
-
-  const { mutateAsync: fetchPlaidLinkToken } = useMutation(trpc.banking.plaidLink.mutationOptions());
-
-  const { mutateAsync: exchangePublicToken } = useMutation(trpc.banking.plaidExchange.mutationOptions());
-
-  const fetchPlaidLinkTokenRef = useRef(fetchPlaidLinkToken);
-  fetchPlaidLinkTokenRef.current = fetchPlaidLinkToken;
-  const exchangePublicTokenRef = useRef(exchangePublicToken);
-  exchangePublicTokenRef.current = exchangePublicToken;
-
-  useScript("https://cdn.teller.io/connect/connect.js", {
-    removeOnUnmount: false,
-  });
 
   const [debouncedQuery] = useDebounceValue(query ?? "", 200);
 
@@ -174,8 +142,6 @@ export function BankSearchContent({
       {
         q: debouncedQuery,
         countryCode: effectiveCountryCode,
-        // Do not exclude Teller: the Convex catalog may only have Teller US rows if Plaid
-        // institution sync failed, which otherwise yields an empty list for US/CA.
       },
       {
         enabled,
@@ -183,76 +149,6 @@ export function BankSearchContent({
     ),
     placeholderData: keepPreviousData,
   });
-
-  useEffect(() => {
-    if (!enabled) {
-      setSessionRef.current(null);
-      return;
-    }
-
-    if (
-      effectiveCountryCode !== "GB" &&
-      effectiveCountryCode !== "US" &&
-      effectiveCountryCode !== "CA"
-    ) {
-      setSessionRef.current(null);
-      return;
-    }
-
-    let cancelled = false;
-
-    void (async () => {
-      try {
-        const result = await fetchPlaidLinkTokenRef.current();
-        if (cancelled) {
-          return;
-        }
-
-        const token = result.data.link_token;
-        if (!token) {
-          return;
-        }
-
-        setSessionRef.current({
-          token,
-          onSuccess: async (public_token, metadata) => {
-            const exchangeResult = await exchangePublicTokenRef.current({
-              token: public_token,
-            });
-
-            setParamsRef.current({
-              step: "account",
-              provider: "plaid",
-              token: exchangeResult.data.access_token,
-              ref: exchangeResult.data.item_id,
-              institution_id: metadata.institution?.institution_id,
-            });
-            track({
-              event: LogEvents.ConnectBankAuthorized.name,
-              channel: LogEvents.ConnectBankAuthorized.channel,
-              provider: "plaid",
-            });
-          },
-          onExit: () => {
-            setParamsRef.current({ step: "connect" });
-
-            track({
-              event: LogEvents.ConnectBankCanceled.name,
-              channel: LogEvents.ConnectBankCanceled.channel,
-              provider: "plaid",
-            });
-          },
-        });
-      } catch {
-        // Prefetch is best-effort; user can retry via Connect.
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-      setSessionRef.current(null);
-    };
-  }, [enabled, effectiveCountryCode]);
 
   return (
     <div>
@@ -297,11 +193,6 @@ export function BankSearchContent({
                 provider={institution.provider}
                 availableHistory={institution.availableHistory ? +institution.availableHistory : 0}
                 type={institution?.type ?? undefined}
-                openPlaid={() => {
-                  if (ready) {
-                    open();
-                  }
-                }}
                 redirectPath={redirectPath}
                 countryCode={effectiveCountryCode}
               />
@@ -321,15 +212,6 @@ export function BankSearchContent({
                   We couldn't find a bank matching your criteria.
                   <br /> Let us know, or start with manual import.
                 </p>
-                {effectiveCountryCode === "GB" &&
-                  debouncedQuery &&
-                  /\b(platypus|tartan|gingham|houndstooth)\b/i.test(debouncedQuery) && (
-                    <p className="text-sm text-center text-muted-foreground mt-3 max-w-[320px]">
-                      Those names are US Plaid sandbox institutions. Switch the country to{" "}
-                      <strong>United States</strong>, then search again.
-                    </p>
-                  )}
-
                 <div className="mt-4 flex space-x-2">
                   <Button variant="outline" onClick={() => setParams({ step: "import" })}>
                     Import

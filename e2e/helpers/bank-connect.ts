@@ -1,11 +1,11 @@
-import { expect, type FrameLocator, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 
 /**
  * Switch the country selector in the bank connect modal.
  */
 export async function switchCountryTo(page: Page, countryName: string) {
   // Click the country selector button (shows current country name)
-  const countryButton = page.getByRole("button", { name: /United Kingdom|United States|Canada/ });
+  const countryButton = page.getByRole("button", { name: /United Kingdom/ });
   await countryButton.click();
 
   // Type in the country search within the popover
@@ -42,74 +42,7 @@ export async function connectToBank(page: Page, bankName: string) {
 }
 
 /**
- * Wait for the Plaid Link iframe to appear and return a FrameLocator.
- */
-export async function waitForPlaidIframe(page: Page): Promise<FrameLocator> {
-  // Plaid Link uses an iframe with an id starting with "plaid-link-iframe"
-  const iframeSelector = 'iframe[id^="plaid-link-iframe"]';
-  await page.waitForSelector(iframeSelector, { state: "visible", timeout: 30_000 });
-  return page.frameLocator(iframeSelector);
-}
-
-/**
- * Navigate through the Plaid sandbox flow inside the iframe.
- *
- * Plaid sandbox auto-fills credentials (user_good/pass_good).
- * The flow has multiple screens: consent, credentials, account selection, success.
- * We click through each "Continue"/"Submit" button.
- */
-export async function completePlaidSandboxFlow(page: Page) {
-  const plaidFrame = await waitForPlaidIframe(page);
-
-  // Helper to click a button in the Plaid iframe by text
-  async function clickPlaidButton(text: string | RegExp, timeout = 15_000) {
-    const button = plaidFrame.getByRole("button", { name: text });
-    await button.waitFor({ state: "visible", timeout });
-    await button.click();
-  }
-
-  // Screen 1: Consent / "Continue" or "Agree and continue"
-  try {
-    await clickPlaidButton(/continue/i, 20_000);
-  } catch {
-    // Some Plaid flows skip the consent screen
-  }
-
-  // Screen 2: Credentials — sandbox auto-fills user_good/pass_good
-  // Just need to click "Submit" or "Continue"
-  try {
-    await clickPlaidButton(/submit|continue/i, 15_000);
-  } catch {
-    // May auto-advance in sandbox
-  }
-
-  // Screen 3: Account selection — select accounts and continue
-  try {
-    await clickPlaidButton(/continue/i, 15_000);
-  } catch {
-    // May auto-advance
-  }
-
-  // Screen 4: Success — final "Continue" that fires onSuccess
-  try {
-    await clickPlaidButton(/continue/i, 15_000);
-  } catch {
-    // The iframe may close automatically
-  }
-
-  // Wait for Plaid iframe to disappear (onSuccess callback fired)
-  await page
-    .waitForSelector('iframe[id^="plaid-link-iframe"]', {
-      state: "detached",
-      timeout: 30_000,
-    })
-    .catch(() => {
-      // Iframe may already be gone
-    });
-}
-
-/**
- * Wait for the account selection modal to appear after Plaid Link completes.
+ * Wait for the account selection modal to appear after provider OAuth completes.
  */
 export async function waitForAccountSelectionModal(page: Page) {
   // URL should contain step=account
@@ -143,17 +76,4 @@ export async function openBankConnectModal(page: Page) {
   await expect(page.getByRole("heading", { name: "Connect bank account" })).toBeVisible({
     timeout: 30_000,
   });
-}
-
-/**
- * Full flow: open modal → switch to US → search → connect → complete Plaid → select accounts.
- * Returns when the account selection modal is showing.
- */
-export async function connectPlaidSandboxBank(page: Page, bankName = "Platypus") {
-  await openBankConnectModal(page);
-  await switchCountryTo(page, "United States");
-  await searchBank(page, bankName);
-  await connectToBank(page, bankName);
-  await completePlaidSandboxFlow(page);
-  await waitForAccountSelectionModal(page);
 }

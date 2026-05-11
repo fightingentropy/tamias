@@ -907,9 +907,8 @@ async function seedBanking(context: SeedContext) {
     id: seedId(context, "bank-connection:main"),
     teamId: context.teamId,
     userId: context.userId,
-    provider: "plaid",
+    provider: "truelayer",
     accessToken: "seed-token-main",
-    enrollmentId: null,
     referenceId: "seed-reference-main",
     accounts: [
       {

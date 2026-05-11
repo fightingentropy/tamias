@@ -2,6 +2,7 @@
 // Heavy modules (banking, job-client, worker infra, health probes) are
 // deferred to dynamic imports so tRPC cold starts don't pay their cost.
 import { logger } from "@tamias/logger";
+import { configureEmailRuntime, type CloudflareEmailBinding } from "@tamias/email/send";
 import { getApiUrl, getAppUrl } from "@tamias/utils/envs";
 import type { Context } from "./rest/types";
 
@@ -60,7 +61,8 @@ function getCorsHeaders(request: Request): Record<string, string> {
     "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS,PATCH",
     "Access-Control-Allow-Headers":
       "Authorization,Content-Type,User-Agent,accept-language,cf-ray,trpc-accept,x-request-id,x-trpc-source,x-user-locale,x-user-timezone,x-user-country,x-slack-signature,x-slack-request-timestamp",
-    "Access-Control-Expose-Headers": "Content-Length,Content-Type,Cache-Control,Cross-Origin-Resource-Policy",
+    "Access-Control-Expose-Headers":
+      "Content-Length,Content-Type,Cache-Control,Cross-Origin-Resource-Policy",
     "Access-Control-Max-Age": "86400",
   };
 }
@@ -146,8 +148,7 @@ async function callTrpcHandler(
   procedures: string[],
   corsHeaders: Record<string, string>,
 ): Promise<Response> {
-  const { fetchRequestHandler, createTRPCContext, getRouterForProcedures } =
-    await getTrpcDeps();
+  const { fetchRequestHandler, createTRPCContext, getRouterForProcedures } = await getTrpcDeps();
   const router = await getRouterForProcedures(procedures);
 
   const response = await fetchRequestHandler({
@@ -164,6 +165,8 @@ async function callTrpcHandler(
         message: error.message,
         code: error.code,
         cause: error.cause instanceof Error ? error.cause.message : undefined,
+        causeStack: error.cause instanceof Error ? error.cause.stack : undefined,
+        stack: error.stack,
       });
     },
   });
@@ -175,15 +178,11 @@ async function callTrpcHandler(
 
 // ── Runtime configuration (lazy, cached) ───────────────────────────────
 
-type TellerMtlsFetcher = {
-  fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response>;
-};
-
 type ApiRuntimeEnv = {
+  EMAIL?: CloudflareEmailBinding;
   RATE_LIMIT_COORDINATOR?: DurableObjectNamespace;
   /** Present in unified dashboard+API+async worker deploys */
   RUN_COORDINATOR?: DurableObjectNamespace;
-  TELLER_MTLS_CERTIFICATE?: TellerMtlsFetcher;
 };
 
 function getAllowedApiOrigins() {
@@ -318,13 +317,13 @@ async function createApp() {
   app.get("/health", (c) => c.json({ status: "ok" }, 200));
 
   app.get("/health/ready", async (c) => {
-    const results = await checkDependencies(apiDependencies(), 1);
+    const results = await checkDependencies(apiDependencies({ email: c.env.EMAIL }), 1);
     const response = buildReadinessResponse(results);
     return c.json(response, response.status === "ok" ? 200 : 503);
   });
 
   app.get("/health/dependencies", async (c) => {
-    const results = await checkDependencies(apiDependencies());
+    const results = await checkDependencies(apiDependencies({ email: c.env.EMAIL }));
     const response = buildDependenciesResponse(results);
     return c.json(response, response.status === "ok" ? 200 : 503);
   });
@@ -387,15 +386,15 @@ async function getApp() {
 let runtimeConfigured = false;
 
 async function configureApiRuntime(env?: ApiRuntimeEnv) {
+  configureEmailRuntime(env?.EMAIL);
+
   if (runtimeConfigured) return;
   runtimeConfigured = true;
 
   const [
-    { configureBankingRuntime },
     { configureCloudflareAsyncServiceRuntime },
     { createInProcessAsyncBridge },
   ] = await Promise.all([
-    import("@tamias/banking/runtime"),
     import("@tamias/job-client/cloudflare-runtime"),
     import("@tamias/worker/cloudflare"),
   ]);
@@ -408,9 +407,6 @@ async function configureApiRuntime(env?: ApiRuntimeEnv) {
   const asyncWorker = hasAsyncBindings ? createInProcessAsyncBridge(env as never) : null;
 
   configureCloudflareAsyncServiceRuntime(asyncWorker ? { asyncWorker } : null);
-  configureBankingRuntime({
-    tellerMtlsFetcher: env?.TELLER_MTLS_CERTIFICATE,
-  });
 }
 
 export async function apiEntryFetch(
@@ -418,18 +414,23 @@ export async function apiEntryFetch(
   env: ApiRuntimeEnv,
   executionCtx: ExecutionContext,
 ) {
+  configureEmailRuntime(env?.EMAIL);
+
   const url = new URL(request.url);
 
   // Fast-path: respond to /health immediately without loading the full app.
   if (url.pathname === "/health") {
-    return Response.json({ status: "ok" }, {
-      headers: { "Content-Type": "application/json" },
-    });
+    return Response.json(
+      { status: "ok" },
+      {
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   }
 
   // Fast-path: tRPC requests bypass the full Hono app (Scalar, OpenAPI, REST
   // routers, health probes, etc.). Only loads the tRPC router, context, and
-  // fetch adapter — no banking, Plaid, Convex, or worker infra needed.
+  // fetch adapter — no banking, Convex, or worker infra needed.
   if (url.pathname.startsWith("/trpc/")) {
     return handleTrpcFastPath(request, executionCtx);
   }

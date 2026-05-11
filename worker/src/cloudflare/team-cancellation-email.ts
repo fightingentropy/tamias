@@ -1,11 +1,7 @@
 import { hasTeamData, isTeamStillCanceled } from "@tamias/app-data/queries";
+import { sendEmail } from "@tamias/email/send";
 import { getSupportFromDisplay, getSupportReplyToEmail } from "@tamias/utils/envs";
-import { Resend } from "resend";
 import { getDb } from "../utils/db";
-
-type TeamCancellationEmailEnv = {
-  RESEND_API_KEY?: string;
-};
 
 type TeamCancellationEmailPayload = {
   teamId: string;
@@ -13,32 +9,14 @@ type TeamCancellationEmailPayload = {
   fullName: string;
 };
 
-function getResendApiKey(env?: TeamCancellationEmailEnv) {
-  return env?.RESEND_API_KEY || process.env.RESEND_API_KEY;
-}
-
-function getResendClient(env?: TeamCancellationEmailEnv) {
-  const apiKey = getResendApiKey(env);
-
-  if (!apiKey) {
-    throw new Error("Missing RESEND_API_KEY");
-  }
-
-  return new Resend(apiKey);
-}
-
 function getFirstName(fullName: string) {
   return fullName.split(" ").at(0) || "there";
 }
 
-export async function sendCancellationImmediateEmail(
-  payload: TeamCancellationEmailPayload,
-  env?: TeamCancellationEmailEnv,
-) {
-  const resend = getResendClient(env);
+export async function sendCancellationImmediateEmail(payload: TeamCancellationEmailPayload) {
   const firstName = getFirstName(payload.fullName);
 
-  await resend.emails.send({
+  await sendEmail({
     from: getSupportFromDisplay(),
     replyTo: getSupportReplyToEmail(),
     to: payload.email,
@@ -55,14 +33,10 @@ Pontus`,
   });
 }
 
-export async function sendCancellationFollowupEmail(
-  payload: TeamCancellationEmailPayload,
-  env?: TeamCancellationEmailEnv,
-) {
-  const resend = getResendClient(env);
+export async function sendCancellationFollowupEmail(payload: TeamCancellationEmailPayload) {
   const firstName = getFirstName(payload.fullName);
 
-  await resend.emails.send({
+  await sendEmail({
     from: getSupportFromDisplay(),
     replyTo: getSupportReplyToEmail(),
     to: payload.email,

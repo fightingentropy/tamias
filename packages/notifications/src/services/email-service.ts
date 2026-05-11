@@ -9,17 +9,13 @@ import TransactionsEmail from "@tamias/email/emails/transactions";
 import TransactionsExportedEmail from "@tamias/email/emails/transactions-exported";
 import UpcomingInvoicesEmail from "@tamias/email/emails/upcoming-invoices";
 import { render } from "@tamias/email/render";
+import { sendEmail, type EmailMessage } from "@tamias/email/send";
 import { getSupportFromDisplay } from "@tamias/utils/envs";
 import { nanoid } from "nanoid";
-import { type CreateEmailOptions, Resend } from "resend";
 import type { EmailInput } from "../base";
 
 export class EmailService {
-  private client: Resend;
-
-  constructor(private db: Database) {
-    this.client = new Resend(process.env.RESEND_API_KEY!);
-  }
+  constructor(private db: Database) {}
 
   async sendBulk(emails: EmailInput[], notificationType: string) {
     if (emails.length === 0) {
@@ -45,38 +41,16 @@ export class EmailService {
         eligibleEmails.map((email) => this.#buildEmailPayload(email)),
       );
 
-      // Check if any emails have attachments - batch send doesn't support attachments
-      const hasAttachments = emailPayloads.some(
-        (payload) => payload.attachments && payload.attachments.length > 0,
-      );
       let sent = 0;
       let failed = 0;
 
-      if (hasAttachments) {
-        // Send emails individually when attachments are present
-        for (const payload of emailPayloads) {
-          try {
-            const response = await this.client.emails.send(payload);
-            if (response.error) {
-              console.error("Failed to send email:", response.error);
-              failed++;
-            } else {
-              sent++;
-            }
-          } catch (error) {
-            console.error("Failed to send email:", error);
-            failed++;
-          }
-        }
-      } else {
-        // Use batch send when no attachments
-        const response = await this.client.batch.send(emailPayloads);
-
-        if (response.error) {
-          console.error("Failed to send emails:", response.error);
-          failed = eligibleEmails.length;
-        } else {
-          sent = eligibleEmails.length;
+      for (const payload of emailPayloads) {
+        try {
+          await sendEmail(payload);
+          sent++;
+        } catch (error) {
+          console.error("Failed to send email:", error);
+          failed++;
         }
       }
 
@@ -119,7 +93,7 @@ export class EmailService {
     return eligibleEmails.filter(Boolean) as EmailInput[];
   }
 
-  async #buildEmailPayload(email: EmailInput): Promise<CreateEmailOptions> {
+  async #buildEmailPayload(email: EmailInput): Promise<EmailMessage> {
     let html: string;
     if (email.template) {
       const template = this.#getTemplate(email.template as string);
@@ -135,7 +109,7 @@ export class EmailService {
     // Use explicit 'to' field if provided, otherwise default to user email
     const recipients = email.to || [email.user.email];
 
-    const payload: CreateEmailOptions = {
+    const payload: EmailMessage = {
       from: email.from ?? getSupportFromDisplay(),
       to: recipients,
       subject: email.subject,
@@ -151,7 +125,6 @@ export class EmailService {
     if (email.cc) payload.cc = email.cc;
     if (email.bcc) payload.bcc = email.bcc;
     if (email.attachments) payload.attachments = email.attachments;
-    if (email.tags) payload.tags = email.tags;
     if (email.text) payload.text = email.text;
 
     return payload;

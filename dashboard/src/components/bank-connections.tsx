@@ -20,12 +20,8 @@ import { SyncTransactions } from "./sync-transactions";
 
 function getProviderName(provider: string | null) {
   switch (provider) {
-    case "teller":
-      return "Teller";
-    case "plaid":
-      return "Plaid";
-    case "gocardless":
-      return "Legacy (GoCardLess)";
+    case "truelayer":
+      return "TrueLayer";
     default:
       return null;
   }
@@ -115,19 +111,10 @@ export function BankConnection({ connection }: { connection: BankConnection }) {
   const [isAddAccountsOpen, setAddAccountsOpen] = useState(false);
 
   // All reconnect/sync logic is encapsulated in the useReconnect hook
-  const { isSyncing, triggerReconnect, triggerManualSync } = useReconnect({
+  const { isSyncing, triggerManualSync } = useReconnect({
     connectionId: connection.id,
     provider: connection.provider,
   });
-
-  // Handle completion from ReconnectProvider - route to appropriate action
-  const handleComplete = (type: "reconnect" | "sync") => {
-    if (type === "reconnect") {
-      triggerReconnect();
-    } else {
-      triggerManualSync();
-    }
-  };
 
   const isConnected = connection.status === "connected" && !show;
 
@@ -159,11 +146,7 @@ export function BankConnection({ connection }: { connection: BankConnection }) {
                 variant="button"
                 id={connection.id}
                 provider={connection.provider}
-                enrollmentId={connection.enrollmentId}
                 institutionId={connection.institutionId}
-                accessToken={connection.accessToken}
-                onComplete={handleComplete}
-                referenceId={connection.referenceId}
               />
               <DeleteConnection connection={connection} />
             </>
@@ -172,11 +155,7 @@ export function BankConnection({ connection }: { connection: BankConnection }) {
               <ReconnectProvider
                 id={connection.id}
                 provider={connection.provider}
-                enrollmentId={connection.enrollmentId}
                 institutionId={connection.institutionId}
-                accessToken={connection.accessToken}
-                onComplete={handleComplete}
-                referenceId={connection.referenceId}
               />
 
               {isConnected && (
@@ -217,7 +196,6 @@ export function BankConnection({ connection }: { connection: BankConnection }) {
         provider={connection.provider}
         accessToken={connection.accessToken}
         referenceId={connection.referenceId}
-        enrollmentId={connection.enrollmentId}
         institutionId={connection.institutionId}
         existingAccounts={connection.bankAccounts}
         isOpen={isAddAccountsOpen}

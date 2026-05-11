@@ -1,6 +1,6 @@
 import type { AccountType } from "./utils/account";
 
-export type Providers = "teller" | "plaid";
+export type Providers = "truelayer";
 
 export type ProviderParams = {
   provider: Providers;
@@ -37,7 +37,6 @@ export type Account = {
   type: AccountType;
   institution: Institution;
   balance: Balance;
-  enrollment_id: string | null;
   resource_id: string | null;
   expires_at: string | null;
   iban: string | null;
@@ -116,8 +115,7 @@ export type HealthCheckResponse = {
 };
 
 export type GetHealthCheckResponse = {
-  teller: HealthCheckResponse;
-  plaid: HealthCheckResponse;
+  truelayer: HealthCheckResponse;
 };
 
 export type GetConnectionStatusResponse = ConnectionStatus;

@@ -5,10 +5,11 @@ import {
   updateApiKeyInConvex,
 } from "@tamias/app-services/foundation";
 import { ApiKeyCreatedEmail } from "@tamias/email/emails/api-key-created";
+import { render } from "@tamias/email/render";
+import { sendEmail } from "@tamias/email/send";
 import { logger } from "@tamias/logger";
 import { getSupportFromDisplay } from "@tamias/utils/envs";
 import { deleteApiKeySchema, upsertApiKeySchema } from "../../schemas/api-keys";
-import { resend } from "../../services/resend";
 import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const apiKeysRouter = createTRPCRouter({
@@ -39,18 +40,19 @@ export const apiKeysRouter = createTRPCRouter({
 
       if (data) {
         try {
-          // We don't need to await this, it will be sent in the background
-          resend.emails.send({
+          await sendEmail({
             from: getSupportFromDisplay(),
             to: session.user.email!,
             subject: "New API Key Created",
-            react: ApiKeyCreatedEmail({
-              fullName: session.user.full_name!,
-              keyName: input.name,
-              createdAt: data.createdAt,
-              email: session.user.email!,
-              ip: geo.ip!,
-            }),
+            html: await render(
+              ApiKeyCreatedEmail({
+                fullName: session.user.full_name!,
+                keyName: input.name,
+                createdAt: data.createdAt,
+                email: session.user.email!,
+                ip: geo.ip!,
+              }),
+            ),
           });
         } catch (error) {
           logger.error("Failed to send API key created email", {

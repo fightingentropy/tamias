@@ -1,4 +1,5 @@
 import { WorkflowEntrypoint, type WorkflowEvent, type WorkflowStep } from "cloudflare:workers";
+import { configureEmailRuntime } from "@tamias/email/send";
 import {
   configureCloudflareQueueRuntime,
   configureCloudflareScheduleRuntime,
@@ -17,6 +18,7 @@ export class AsyncWorkflow extends WorkflowEntrypoint<
       ledgerQueue: this.env.LEDGER_QUEUE,
     });
     configureCloudflareScheduleRuntime(createCloudflareScheduleRuntime(this.env));
+    configureEmailRuntime(this.env.EMAIL);
 
     try {
       const { runBankInitialSetupWorkflow, runOnboardTeamWorkflow, runTeamCancellationWorkflow } =
@@ -24,11 +26,11 @@ export class AsyncWorkflow extends WorkflowEntrypoint<
 
       switch (event.payload.workflow) {
         case "team-cancellation-email":
-          return runTeamCancellationWorkflow(this.env, event.payload, step);
+          return runTeamCancellationWorkflow(event.payload, step);
         case "bank-initial-setup":
           return runBankInitialSetupWorkflow(event.payload, step);
         case "onboard-team":
-          return runOnboardTeamWorkflow(this.env, event.payload, step);
+          return runOnboardTeamWorkflow(event.payload, step);
         default: {
           const _never: never = event.payload;
           throw new Error(`Unhandled workflow: ${JSON.stringify(_never)}`);

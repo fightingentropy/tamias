@@ -49,7 +49,7 @@ function DashboardImageAnimation() {
       style={{ width: "100%", height: "100%", transformOrigin: "center" }}
     >
       <Image
-        src="https://cdn.tamias.xyz/web/dashboard-light.svg"
+        src="/images/dashboard-light.svg"
         alt="Dashboard illustration"
         width={2400}
         height={1800}
@@ -58,7 +58,7 @@ function DashboardImageAnimation() {
         priority
       />
       <Image
-        src="https://cdn.tamias.xyz/web/dashboard-dark.svg"
+        src="/images/dashboard-dark.svg"
         alt="Dashboard illustration"
         width={2400}
         height={1800}

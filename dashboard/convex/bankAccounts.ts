@@ -110,7 +110,6 @@ async function serializeBankAccount(
           name: connection.name,
           logoUrl: connection.logoUrl ?? null,
           accessToken: connection.accessToken ?? null,
-          enrollmentId: connection.enrollmentId ?? null,
           provider: connection.provider,
           lastAccessed: connection.lastAccessed ?? null,
           referenceId: connection.referenceId ?? null,

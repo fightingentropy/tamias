@@ -7,7 +7,7 @@ export type ExchangeRateRecord = {
   updatedAt: string;
 };
 
-export type InstitutionProvider = "gocardless" | "plaid" | "teller";
+export type InstitutionProvider = "truelayer";
 
 export type InstitutionRecord = {
   id: string;

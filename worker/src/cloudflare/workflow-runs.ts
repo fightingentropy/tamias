@@ -2,11 +2,9 @@ import type { WorkflowStep } from "cloudflare:workers";
 import { enqueue, getRunStatus, scheduleRecurring } from "@tamias/job-client";
 import { generateCronTag } from "../utils/generate-cron-tag";
 import type { CloudflareWorkflowPayload } from "./bridge-helpers";
-import type { CloudflareAsyncEnv } from "./shared";
 import { updateRunStatus } from "./shared";
 
 export async function runTeamCancellationWorkflow(
-  env: CloudflareAsyncEnv,
   payload: Extract<CloudflareWorkflowPayload, { workflow: "team-cancellation-email" }>,
   step: WorkflowStep,
 ) {
@@ -32,7 +30,7 @@ export async function runTeamCancellationWorkflow(
       },
     },
     async () => {
-      await sendCancellationImmediateEmail(payload, env);
+      await sendCancellationImmediateEmail(payload);
       return { sent: true };
     },
   );
@@ -106,7 +104,7 @@ export async function runTeamCancellationWorkflow(
       },
     },
     async () => {
-      await sendCancellationFollowupEmail(payload, env);
+      await sendCancellationFollowupEmail(payload);
       return { sent: true };
     },
   );
@@ -284,12 +282,10 @@ export async function runBankInitialSetupWorkflow(
 }
 
 export async function runOnboardTeamWorkflow(
-  env: CloudflareAsyncEnv,
   payload: Extract<CloudflareWorkflowPayload, { workflow: "onboard-team" }>,
   step: WorkflowStep,
 ) {
   const {
-    createTeamOnboardingContact,
     hasBankConnectionsForOnboarding,
     loadTeamOnboardingUser,
     sendTrialActivationEmailForOnboarding,
@@ -321,26 +317,6 @@ export async function runOnboardTeamWorkflow(
 
   await updateRunStatus(payload.runId, {
     status: "active",
-    progress: 20,
-    progressStep: "creating-contact",
-  });
-
-  await step.do(
-    "create-contact",
-    {
-      retries: {
-        limit: 3,
-        delay: "1 minute",
-      },
-    },
-    async () => {
-      await createTeamOnboardingContact(user, env);
-      return { created: true };
-    },
-  );
-
-  await updateRunStatus(payload.runId, {
-    status: "active",
     progress: 30,
     progressStep: "sending-welcome-email",
   });
@@ -354,14 +330,13 @@ export async function runOnboardTeamWorkflow(
       },
     },
     async () => {
-      await sendWelcomeEmailForOnboarding(user, env);
+      await sendWelcomeEmailForOnboarding(user);
       return { sent: true };
     },
   );
 
   if (!user.teamId) {
     const result = {
-      createdContact: true,
       sentWelcomeEmail: true,
       sentTrialActivationEmail: false,
       sentTrialExpiringEmail: false,
@@ -414,7 +389,7 @@ export async function runOnboardTeamWorkflow(
         },
       },
       async () => {
-        await sendTrialActivationEmailForOnboarding(user, env);
+        await sendTrialActivationEmailForOnboarding(user);
         return { sent: true };
       },
     );
@@ -448,7 +423,7 @@ export async function runOnboardTeamWorkflow(
         },
       },
       async () => {
-        await sendTrialExpiringEmailForOnboarding(user, env);
+        await sendTrialExpiringEmailForOnboarding(user);
         return { sent: true };
       },
     );
@@ -482,7 +457,7 @@ export async function runOnboardTeamWorkflow(
         },
       },
       async () => {
-        await sendTrialEndedEmailForOnboarding(user, env);
+        await sendTrialEndedEmailForOnboarding(user);
         return { sent: true };
       },
     );
@@ -521,14 +496,13 @@ export async function runOnboardTeamWorkflow(
         },
       },
       async () => {
-        await sendTrialDeactivatedEmailForOnboarding(user, env);
+        await sendTrialDeactivatedEmailForOnboarding(user);
         return { sent: true };
       },
     );
   }
 
   const result = {
-    createdContact: true,
     sentWelcomeEmail: true,
     sentTrialActivationEmail: shouldSendActivationEmail,
     sentTrialExpiringEmail: shouldSendTrialExpiringEmail,

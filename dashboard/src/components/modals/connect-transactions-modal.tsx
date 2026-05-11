@@ -35,7 +35,6 @@ export function ConnectTransactionsModal() {
     <Dialog modal={false} open={isOpen} onOpenChange={handleOnClose}>
       <DialogContent
         onOpenAutoFocus={(event) => {
-          // Plaid Link mounts outside this dialog; don't trap focus on Radix open.
           event.preventDefault();
         }}
       >
@@ -44,8 +43,7 @@ export function ConnectTransactionsModal() {
             <DialogTitle>Connect bank account</DialogTitle>
 
             <DialogDescription>
-              We work with a variety of banking providers to support as many banks as possible. If
-              you can't find yours,{" "}
+              Connect with TrueLayer to import bank transactions. If you can't find your bank,{" "}
               <button
                 type="button"
                 className="underline"

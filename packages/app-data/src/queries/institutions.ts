@@ -8,7 +8,7 @@ import {
 } from "@tamias/app-data-convex";
 import type { Database, DatabaseOrTransaction } from "../client";
 
-type BankProvider = "gocardless" | "plaid" | "teller";
+type BankProvider = "truelayer";
 
 export type GetInstitutionsParams = {
   countryCode: string;
@@ -49,7 +49,7 @@ export type UpsertInstitutionData = {
   id: string;
   name: string;
   logo: string | null;
-  provider: "gocardless" | "plaid" | "teller";
+  provider: "truelayer";
   countries: string[];
   availableHistory: number | null;
   maximumConsentValidity: number | null;

@@ -1,4 +1,4 @@
-import { configureBankingRuntime } from "@tamias/banking";
+import { configureEmailRuntime } from "@tamias/email/send";
 import {
   configureCloudflareQueueRuntime,
   configureCloudflareScheduleRuntime,
@@ -15,9 +15,7 @@ function configureLedgerRuntime(env: CloudflareAsyncEnv) {
     ledgerQueue: env.LEDGER_QUEUE,
   });
   configureCloudflareScheduleRuntime(createCloudflareScheduleRuntime(env));
-  configureBankingRuntime({
-    tellerMtlsFetcher: env.TELLER_MTLS_CERTIFICATE,
-  });
+  configureEmailRuntime(env.EMAIL);
 }
 
 async function processNotificationMessage(message: Message<CloudflareAsyncMessage>) {

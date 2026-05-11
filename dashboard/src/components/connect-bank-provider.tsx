@@ -2,16 +2,13 @@
 
 import { useMutation } from "@tanstack/react-query";
 import type { MutableRefObject } from "react";
-import { useConnectParams } from "@/hooks/use-connect-params";
 import { useTRPC } from "@/trpc/client";
 import { BankConnectButton } from "./bank-connect-button";
-import { TellerConnect } from "./teller-connect";
 
 type Props = {
   id: string;
   provider: string;
   availableHistory: number;
-  openPlaid: () => void;
   redirectPath?: string;
   countryCode?: string;
   connectRef?: MutableRefObject<(() => void) | null>;
@@ -20,40 +17,33 @@ type Props = {
 export function ConnectBankProvider({
   id,
   provider,
-  openPlaid,
   connectRef,
 }: Props) {
-  const { setParams } = useConnectParams();
   const trpc = useTRPC();
   const updateUsageMutation = useMutation(trpc.institutions.updateUsage.mutationOptions());
+
+  const truelayerAuthMutation = useMutation(
+    trpc.banking.truelayerAuthUrl.mutationOptions({
+      onSuccess: (result) => {
+        if (result?.url) {
+          window.location.assign(result.url);
+        }
+      },
+    }),
+  );
 
   const updateUsage = () => {
     updateUsageMutation.mutate({ id });
   };
 
   switch (provider) {
-    case "teller":
-      return (
-        <TellerConnect
-          id={id}
-          connectRef={connectRef}
-          onSelect={() => {
-            // NOTE: Wait for Teller sdk to be configured
-            setTimeout(() => {
-              setParams({ step: null });
-            }, 950);
-
-            updateUsage();
-          }}
-        />
-      );
-    case "plaid":
+    case "truelayer":
       return (
         <BankConnectButton
           connectRef={connectRef}
           onClick={() => {
             updateUsage();
-            openPlaid();
+            truelayerAuthMutation.mutate({ institutionId: id });
           }}
         />
       );

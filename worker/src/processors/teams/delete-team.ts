@@ -57,15 +57,15 @@ export class DeleteTeamProcessor extends BaseProcessor<DeleteTeamPayload> {
     });
 
     const deletePromises = connections.map(async (connection) => {
-      if (!connection.referenceId) {
+      if (connection.provider !== "truelayer" || !connection.accessToken) {
         return false;
       }
 
       try {
         await trpc.banking.deleteConnection.mutate({
-          id: connection.referenceId,
-          provider: connection.provider as "teller" | "plaid",
-          accessToken: connection.accessToken ?? undefined,
+          id: connection.referenceId ?? "truelayer",
+          provider: "truelayer",
+          accessToken: connection.accessToken,
         });
         return true;
       } catch (error) {

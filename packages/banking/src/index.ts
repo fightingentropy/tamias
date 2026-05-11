@@ -1,5 +1,4 @@
-import { PlaidProvider } from "./providers/plaid/plaid-provider";
-import { TellerProvider } from "./providers/teller/teller-provider";
+import { TrueLayerProvider } from "./providers/truelayer/truelayer-provider";
 import type {
   DeleteAccountsRequest,
   DeleteConnectionRequest,
@@ -16,17 +15,14 @@ import { logger } from "./utils/logger";
 export class Provider {
   #name: string;
 
-  #provider: PlaidProvider | TellerProvider;
+  #provider: TrueLayerProvider;
 
   constructor(params: ProviderParams) {
     this.#name = params.provider;
 
     switch (params.provider) {
-      case "teller":
-        this.#provider = new TellerProvider();
-        break;
-      case "plaid":
-        this.#provider = new PlaidProvider();
+      case "truelayer":
+        this.#provider = new TrueLayerProvider();
         break;
       default: {
         const exhaustiveCheck: never = params.provider;
@@ -36,21 +32,14 @@ export class Provider {
   }
 
   async getHealthCheck(): Promise<GetHealthCheckResponse> {
-    const teller = new TellerProvider();
-    const plaid = new PlaidProvider();
+    const truelayer = new TrueLayerProvider();
 
     try {
-      const [isPlaidHealthy, isTellerHealthy] = await Promise.all([
-        plaid.getHealthCheck(),
-        teller.getHealthCheck(),
-      ]);
+      const isTrueLayerHealthy = await truelayer.getHealthCheck();
 
       return {
-        plaid: {
-          healthy: isPlaidHealthy,
-        },
-        teller: {
-          healthy: isTellerHealthy,
+        truelayer: {
+          healthy: isTrueLayerHealthy,
         },
       };
     } catch (error) {
@@ -110,13 +99,11 @@ export class Provider {
 
 export type { FetchInstitutionsResult, InstitutionRecord } from "./institutions";
 export { fetchAllInstitutions } from "./institutions";
-export { PlaidApi } from "./providers/plaid/plaid-api";
-export { TellerApi } from "./providers/teller/teller-api";
-export { configureBankingRuntime } from "./runtime";
+export { encodeTokenBlob as encodeTrueLayerTokens, TrueLayerApi } from "./providers/truelayer/truelayer-api";
+export type { TrueLayerTokens } from "./providers/truelayer/types";
 export { syncInstitutionLogos } from "./sync-logos";
 // Re-export types, provider APIs, and institution sync
 export type * from "./types";
-export type { TellerMtlsFetcher } from "./runtime";
 export { createErrorResponse, getProviderErrorDetails, ProviderError } from "./utils/error";
 export { getFileExtension, getLogoURL } from "./utils/logo";
 export { getRates } from "./utils/rates";

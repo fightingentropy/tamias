@@ -203,9 +203,9 @@ export class Notifications {
 
     // Apply runtime options (highest priority)
     // Extract non-email options first
-    const { priority, sendEmail, ...resendOptions } = options || {};
-    if (Object.keys(resendOptions).length > 0) {
-      Object.assign(baseEmailInput, resendOptions);
+    const { priority: _priority, sendEmail: _sendEmail, ...emailOptions } = options || {};
+    if (Object.keys(emailOptions).length > 0) {
+      Object.assign(baseEmailInput, emailOptions);
     }
 
     return baseEmailInput;

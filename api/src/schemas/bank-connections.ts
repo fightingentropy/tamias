@@ -3,10 +3,9 @@ import { z } from "@hono/zod-openapi";
 export const getBankConnectionsSchema = z.object({ enabled: z.boolean().optional() }).optional();
 
 export const createBankConnectionSchema = z.object({
-  accessToken: z.string().nullable().optional(), // Teller
-  enrollmentId: z.string().nullable().optional(), // Teller
-  referenceId: z.string().nullable().optional(), // GoCardLess
-  provider: z.enum(["teller", "plaid"]),
+  accessToken: z.string().nullable().optional(),
+  referenceId: z.string().nullable().optional(),
+  provider: z.literal("truelayer"),
   accounts: z.array(
     z.object({
       accountId: z.string(),
@@ -18,13 +17,12 @@ export const createBankConnectionSchema = z.object({
       enabled: z.boolean(),
       balance: z.number().optional(),
       type: z.enum(["credit", "depository", "other_asset", "loan", "other_liability"]),
-      accountReference: z.string().nullable().optional(), // GoCardLess
-      expiresAt: z.string().nullable().optional(), // GoCardLess
+      accountReference: z.string().nullable().optional(),
+      expiresAt: z.string().nullable().optional(),
       // Additional account data for reconnect matching and user display
       iban: z.string().nullable().optional(),
       subtype: z.string().nullable().optional(),
       bic: z.string().nullable().optional(),
-      // US bank account details (Teller, Plaid)
       routingNumber: z.string().nullable().optional(),
       wireRoutingNumber: z.string().nullable().optional(),
       accountNumber: z.string().nullable().optional(),
@@ -61,23 +59,11 @@ export const addProviderAccountsSchema = z.object({
   ),
 });
 
-export const reconnectBankConnectionSchema = z.object({
-  referenceId: z.string(),
-  newReferenceId: z.string(),
-  expiresAt: z.string(),
-});
-
-export const updateBankConnectionReconnectByIdSchema = z.object({
-  id: z.string().uuid(),
-  referenceId: z.string().optional(),
-  accessValidForDays: z.number().int().positive(),
-});
-
 export const manualSyncBankConnectionSchema = z.object({
   connectionId: z.string(),
 });
 
 export const queueReconnectBankConnectionSchema = z.object({
   connectionId: z.string(),
-  provider: z.enum(["teller", "plaid"]),
+  provider: z.literal("truelayer"),
 });

@@ -2,13 +2,14 @@ import {
   addProviderAccounts,
   createBankConnection,
   deleteBankConnection,
-  reconnectBankConnection,
-  updateBankConnectionReconnectById,
 } from "@tamias/app-data/queries";
 import { getBankConnections } from "@tamias/app-data/queries/bank-connections";
 import { chatCache } from "@tamias/cache/chat-cache";
 import { enqueue, startCloudflareWorkflow } from "@tamias/job-client";
+import { createLoggerWithContext } from "@tamias/logger";
 import { TRPCError } from "@trpc/server";
+
+const logger = createLoggerWithContext("bank-connections-router");
 import {
   addProviderAccountsSchema,
   createBankConnectionSchema,
@@ -16,8 +17,6 @@ import {
   getBankConnectionsSchema,
   manualSyncBankConnectionSchema,
   queueReconnectBankConnectionSchema,
-  reconnectBankConnectionSchema,
-  updateBankConnectionReconnectByIdSchema,
 } from "../../schemas/bank-connections";
 import { createTRPCRouter, protectedProcedure, protectedWithConvexIdProcedure } from "../init";
 
@@ -34,13 +33,36 @@ export const bankConnectionsRouter = createTRPCRouter({
   create: protectedWithConvexIdProcedure
     .input(createBankConnectionSchema)
     .mutation(async ({ input, ctx: { db, teamId, session } }) => {
-      const data = await createBankConnection(db, {
-        ...input,
-        teamId: teamId!,
-        userId: session.user.convexId,
+      logger.info("bankConnections.create input", {
+        provider: input.provider,
+        accountCount: input.accounts.length,
+        accountInstitutionIds: input.accounts.map((a) => a.institutionId),
+        accountBankNames: input.accounts.map((a) => a.bankName),
+        hasAccessToken: !!input.accessToken,
+        accessTokenLength: input.accessToken?.length ?? 0,
       });
 
+      let data: Awaited<ReturnType<typeof createBankConnection>>;
+      try {
+        data = await createBankConnection(db, {
+          ...input,
+          teamId: teamId!,
+          userId: session.user.convexId,
+        });
+      } catch (error) {
+        logger.error("bankConnections.create Convex call threw", {
+          errorName: error instanceof Error ? error.name : typeof error,
+          errorMessage: error instanceof Error ? error.message : String(error),
+          errorStack: error instanceof Error ? error.stack : undefined,
+        });
+        throw error;
+      }
+
       if (!data) {
+        logger.error("bankConnections.create received null from Convex", {
+          provider: input.provider,
+          firstAccount: input.accounts[0],
+        });
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Bank connection not found",
@@ -119,26 +141,6 @@ export const bankConnectionsRouter = createTRPCRouter({
       return result;
     }),
 
-  reconnect: protectedProcedure
-    .input(reconnectBankConnectionSchema)
-    .mutation(async ({ input, ctx: { db, teamId } }) => {
-      const result = await reconnectBankConnection(db, {
-        referenceId: input.referenceId,
-        newReferenceId: input.newReferenceId,
-        expiresAt: input.expiresAt,
-        teamId: teamId!,
-      });
-
-      if (!result) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Bank connection not found",
-        });
-      }
-
-      return result;
-    }),
-
   manualSync: protectedProcedure
     .input(manualSyncBankConnectionSchema)
     .mutation(async ({ input, ctx: { db, teamId } }) => {
@@ -190,23 +192,6 @@ export const bankConnectionsRouter = createTRPCRouter({
       );
     }),
 
-  updateReconnectById: protectedProcedure
-    .input(updateBankConnectionReconnectByIdSchema)
-    .mutation(async ({ input, ctx: { db, teamId } }) => {
-      const result = await updateBankConnectionReconnectById(db, {
-        ...input,
-        teamId: teamId!,
-      });
-
-      if (!result) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Bank connection not found",
-        });
-      }
-
-      return result;
-    }),
 });
 
 async function getTeamBankConnectionById(

@@ -17,6 +17,7 @@ import { getOAuthApplicationInfo } from "@tamias/app-services/oauth-application-
 import { AppInstalledEmail } from "@tamias/email/emails/app-installed";
 import { AppReviewRequestEmail } from "@tamias/email/emails/app-review-request";
 import { render } from "@tamias/email/render";
+import { sendEmail } from "@tamias/email/send";
 import { createLoggerWithContext } from "@tamias/logger";
 import { TRPCError } from "@trpc/server";
 import { getSupportFromDisplay } from "@tamias/utils/envs";
@@ -31,7 +32,6 @@ import {
   updateOAuthApplicationSchema,
 } from "../../schemas/oauth-applications";
 import { revokeUserApplicationAccessSchema } from "../../schemas/oauth-flow";
-import { resend } from "../../services/resend";
 import { createTRPCRouter, protectedProcedure, protectedWithConvexIdProcedure } from "../init";
 
 const logger = createLoggerWithContext("trpc:oauth-applications");
@@ -151,7 +151,7 @@ export const oauthApplicationsRouter = createTRPCRouter({
               }),
             );
 
-            await resend.emails.send({
+            await sendEmail({
               from: getSupportFromDisplay(),
               to: session.user.email,
               subject: "An app has been added to your team",
@@ -328,7 +328,7 @@ export const oauthApplicationsRouter = createTRPCRouter({
               }),
             );
 
-            await resend.emails.send({
+            await sendEmail({
               from: getSupportFromDisplay(),
               to: "pontus@tamias.xyz",
               subject: `Application Review Request - ${application.name}`,

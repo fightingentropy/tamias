@@ -4,9 +4,8 @@ export function useConnectParams(initialCountryCode?: string) {
   const [params, setParams] = useQueryStates({
     step: parseAsStringLiteral(["connect", "account", "import"]),
     countryCode: parseAsString.withDefault(initialCountryCode ?? ""),
-    provider: parseAsStringLiteral(["teller", "plaid"]),
+    provider: parseAsStringLiteral(["truelayer"]),
     token: parseAsString,
-    enrollment_id: parseAsString,
     institution_id: parseAsString,
     search: parseAsString.withDefault("").withOptions({ clearOnDefault: true }),
     error: parseAsString,

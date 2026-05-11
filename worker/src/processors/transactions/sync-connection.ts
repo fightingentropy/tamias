@@ -44,11 +44,15 @@ export class SyncConnectionProcessor extends BaseProcessor<SyncConnectionPayload
       throw new Error("Connection not found");
     }
 
+    if (connection.provider !== "truelayer") {
+      throw new Error(`Unsupported banking provider: ${connection.provider}`);
+    }
+
     await this.updateProgress(job, 20, undefined, "checking-provider-state");
 
     const connectionResult = await trpc.banking.connectionStatus.query({
       id: connection.referenceId ?? undefined,
-      provider: connection.provider as "plaid" | "teller",
+      provider: "truelayer",
       accessToken: connection.accessToken ?? undefined,
     });
 
@@ -110,7 +114,7 @@ export class SyncConnectionProcessor extends BaseProcessor<SyncConnectionPayload
       .flatMap((account): SyncBankAccountPayload[] => {
         const provider = account.bankConnection?.provider;
 
-        if (provider !== "plaid" && provider !== "teller") {
+        if (provider !== "truelayer") {
           return [];
         }
 
@@ -120,7 +124,7 @@ export class SyncConnectionProcessor extends BaseProcessor<SyncConnectionPayload
             accountId: account.accountId,
             accessToken: account.bankConnection?.accessToken ?? undefined,
             errorRetries: account.errorRetries ?? undefined,
-            provider,
+            provider: "truelayer",
             teamId: account.teamId,
             accountType: account.type ?? "depository",
             currency: account.currency ?? undefined,

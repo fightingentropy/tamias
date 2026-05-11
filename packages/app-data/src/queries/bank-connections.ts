@@ -6,11 +6,8 @@ import {
   type CurrentUserIdentityRecord,
   getBankConnectionByIdFromConvex,
   getBankAccountsWithPaymentInfoFromConvex,
-  getBankConnectionByEnrollmentIdFromConvex,
   getBankConnectionByReferenceIdFromConvex,
   getBankConnectionsFromConvex,
-  reconnectBankConnectionInConvex,
-  updateBankConnectionReconnectByIdInConvex,
   updateBankConnectionStatusInConvex,
 } from "@tamias/app-data-convex";
 import type { Database } from "../client";
@@ -64,25 +61,23 @@ export type CreateBankConnectionPayload = {
     iban?: string | null;
     subtype?: string | null;
     bic?: string | null;
-    // US bank account details (Teller, Plaid)
     routingNumber?: string | null;
     wireRoutingNumber?: string | null;
-    accountNumber?: string | null; // Will be encrypted before storage
+    accountNumber?: string | null;
     sortCode?: string | null;
     // Credit account balances
     availableBalance?: number | null;
     creditLimit?: number | null;
   }[];
   accessToken?: string | null;
-  enrollmentId?: string | null;
   referenceId?: string | null;
   teamId: string;
   userId: ConvexUserId;
-  provider: "teller" | "plaid";
+  provider: "truelayer";
 };
 
 export const createBankConnection = async (_db: Database, payload: CreateBankConnectionPayload) => {
-  const { accounts, accessToken, enrollmentId, referenceId, teamId, userId, provider } = payload;
+  const { accounts, accessToken, referenceId, teamId, userId, provider } = payload;
 
   if (accounts.length === 0) {
     return;
@@ -93,7 +88,6 @@ export const createBankConnection = async (_db: Database, payload: CreateBankCon
     userId,
     provider,
     accessToken,
-    enrollmentId,
     referenceId,
     accounts,
   });
@@ -135,25 +129,6 @@ export const addProviderAccounts = async (_db: Database, params: AddProviderAcco
   });
 };
 
-export type ReconnectBankConnectionParams = {
-  referenceId: string;
-  newReferenceId: string;
-  expiresAt: string;
-  teamId: string;
-};
-
-export const reconnectBankConnection = async (
-  _db: Database,
-  params: ReconnectBankConnectionParams,
-) => {
-  return reconnectBankConnectionInConvex({
-    teamId: params.teamId,
-    referenceId: params.referenceId,
-    newReferenceId: params.newReferenceId,
-    expiresAt: params.expiresAt,
-  });
-};
-
 export type GetBankAccountDetailsParams = {
   accountId: string;
   teamId: string;
@@ -167,15 +142,6 @@ export const getBankAccountDetails = async (_db: Database, params: GetBankAccoun
   return getBankAccountDetailsFromConvex({
     accountId: params.accountId,
     teamId: params.teamId,
-  });
-};
-
-export const getBankConnectionByEnrollmentId = async (
-  _db: Database,
-  params: { enrollmentId: string },
-) => {
-  return getBankConnectionByEnrollmentIdFromConvex({
-    enrollmentId: params.enrollmentId,
   });
 };
 
@@ -193,20 +159,6 @@ export const updateBankConnectionStatus = async (
   params: { id: string; status: "connected" | "disconnected" | "unknown" },
 ) => {
   return updateBankConnectionStatusInConvex(params);
-};
-
-export type UpdateBankConnectionReconnectByIdParams = {
-  id: string;
-  teamId: string;
-  referenceId?: string;
-  accessValidForDays: number;
-};
-
-export const updateBankConnectionReconnectById = async (
-  _db: Database,
-  params: UpdateBankConnectionReconnectByIdParams,
-) => {
-  return updateBankConnectionReconnectByIdInConvex(params);
 };
 
 export type GetBankAccountsWithPaymentInfoParams = {

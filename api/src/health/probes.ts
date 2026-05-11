@@ -8,24 +8,23 @@
  */
 
 import { Provider } from "@tamias/banking";
-import { ConvexHttpClient } from "convex/browser";
-import { makeFunctionReference } from "convex/server";
+import type { CloudflareEmailBinding } from "@tamias/email/send";
 import type { Dependency } from "./registry";
 
 // ---------------------------------------------------------------------------
 // Tier 1 — Core infrastructure (app breaks without these)
 // ---------------------------------------------------------------------------
 
-const convexHealthPingRef = makeFunctionReference<"query", Record<string, never>, boolean>(
-  "health:ping",
-);
+type ConvexQueryResponse =
+  | { status: "success"; value: unknown }
+  | { status: "error"; errorMessage?: string };
 
 /** Convex: run a no-op public query against the active deployment */
 export function convexProbe(): Dependency {
   return {
     name: "convex",
     tier: 1,
-    timeoutMs: 3_000,
+    timeoutMs: 6_000,
     probe: async () => {
       const url =
         process.env.CONVEX_URL || process.env.TAMIAS_CONVEX_URL || process.env.CONVEX_SITE_URL;
@@ -34,10 +33,30 @@ export function convexProbe(): Dependency {
         throw new Error("CONVEX_URL not set");
       }
 
-      const client = new ConvexHttpClient(url, { logger: false });
-      const response = await client.query(convexHealthPingRef, {});
+      const response = await fetch(`${url}/api/query`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Convex-Client": "tamias-health",
+        },
+        body: JSON.stringify({
+          path: "health:ping",
+          format: "convex_encoded_json",
+          args: [{}],
+        }),
+        signal: AbortSignal.timeout(5_000),
+      });
 
-      return response === true;
+      if (!response.ok) {
+        throw new Error(`Convex query returned HTTP ${response.status}`);
+      }
+
+      const result = (await response.json()) as ConvexQueryResponse;
+      if (result.status === "error") {
+        throw new Error(result.errorMessage ?? "Convex health query failed");
+      }
+
+      return result.value === true;
     },
   };
 }
@@ -46,33 +65,16 @@ export function convexProbe(): Dependency {
 // Tier 2 — Important services
 // ---------------------------------------------------------------------------
 
-/** Plaid health check via @tamias/banking */
-export function plaidProbe(): Dependency {
+/** TrueLayer health check via @tamias/banking */
+export function truelayerProbe(): Dependency {
   return {
-    name: "plaid",
+    name: "truelayer",
     tier: 2,
     timeoutMs: 5_000,
     probe: async () => {
       try {
-        const provider = new Provider({ provider: "plaid" });
-        return await provider.getHealthCheck().then((h) => h.plaid.healthy);
-      } catch {
-        return false;
-      }
-    },
-  };
-}
-
-/** Teller health check via @tamias/banking */
-export function tellerProbe(): Dependency {
-  return {
-    name: "teller",
-    tier: 2,
-    timeoutMs: 5_000,
-    probe: async () => {
-      try {
-        const provider = new Provider({ provider: "teller" });
-        return await provider.getHealthCheck().then((h) => h.teller.healthy);
+        const provider = new Provider({ provider: "truelayer" });
+        return await provider.getHealthCheck().then((h) => h.truelayer.healthy);
       } catch {
         return false;
       }
@@ -98,21 +100,13 @@ export function stripeProbe(): Dependency {
   };
 }
 
-/** Resend: GET /emails (lightweight API check) */
-export function resendProbe(): Dependency {
+/** Cloudflare Email Service: binding availability check */
+export function cloudflareEmailProbe(email?: CloudflareEmailBinding): Dependency {
   return {
-    name: "resend",
+    name: "cloudflare_email",
     tier: 2,
-    timeoutMs: 5_000,
-    probe: async () => {
-      const key = process.env.RESEND_API_KEY;
-      if (!key) return false;
-      const res = await fetch("https://api.resend.com/domains", {
-        headers: { Authorization: `Bearer ${key}` },
-        signal: AbortSignal.timeout(5_000),
-      });
-      return res.ok;
-    },
+    timeoutMs: 1_000,
+    probe: async () => Boolean(email),
   };
 }
 
@@ -282,16 +276,15 @@ export function mistralProbe(): Dependency {
 // ---------------------------------------------------------------------------
 
 /** Dependencies used by the API service */
-export function apiDependencies(): Dependency[] {
+export function apiDependencies(options: { email?: CloudflareEmailBinding } = {}): Dependency[] {
   const dependencies: Dependency[] = [
     // Tier 1 — Core
     convexProbe(),
     // Tier 2 — Important
-    plaidProbe(),
-    tellerProbe(),
+    truelayerProbe(),
     stripeProbe(),
     polarProbe(),
-    resendProbe(),
+    cloudflareEmailProbe(options.email),
     openaiProbe(),
     // Tier 3 — Integrations
     slackProbe(),

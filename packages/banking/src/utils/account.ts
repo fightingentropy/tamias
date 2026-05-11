@@ -14,7 +14,7 @@ export const DEBT_ACCOUNT_TYPES = ["credit", "loan"] as const;
 
 /**
  * Credit card account type.
- * Balances may be positive (Plaid, Teller) or negative (GoCardless).
+ * Provider balance signs can vary by account and transaction type.
  * Always use Math.abs() when calculating debt totals.
  */
 export const CREDIT_ACCOUNT_TYPE = "credit" as const;

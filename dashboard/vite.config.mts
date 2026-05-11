@@ -89,8 +89,6 @@ function getPublicEnv(mode: string) {
     "https://fleet-chameleon-251.eu-west-1.convex.site",
   );
   const stripePublishableKey = env.STRIPE_PUBLISHABLE_KEY ?? "";
-  const tellerApplicationId = env.TELLER_APPLICATION_ID ?? "";
-  const tellerEnvironment = env.TELLER_ENVIRONMENT ?? "";
   const googleApiKey = env.GOOGLE_API_KEY ?? "";
   const whatsappNumber = env.WHATSAPP_NUMBER ?? "";
   const openPanelClientId = env.OPENPANEL_CLIENT_ID ?? "";
@@ -104,9 +102,6 @@ function getPublicEnv(mode: string) {
     CONVEX_URL: convexUrl,
     CONVEX_SITE_URL: convexSiteUrl,
     STRIPE_PUBLISHABLE_KEY: stripePublishableKey,
-    TELLER_APPLICATION_ID: tellerApplicationId,
-    TELLER_ENVIRONMENT: tellerEnvironment,
-    PLAID_ENVIRONMENT: "sandbox",
     GOOGLE_API_KEY: googleApiKey,
     WHATSAPP_NUMBER: whatsappNumber,
     OPENPANEL_CLIENT_ID: openPanelClientId,
@@ -128,9 +123,6 @@ export default defineConfig(({ mode, command }) => {
     CONVEX_URL: publicEnv.CONVEX_URL,
     CONVEX_SITE_URL: publicEnv.CONVEX_SITE_URL,
     STRIPE_PUBLISHABLE_KEY: publicEnv.STRIPE_PUBLISHABLE_KEY,
-    TELLER_APPLICATION_ID: publicEnv.TELLER_APPLICATION_ID,
-    TELLER_ENVIRONMENT: publicEnv.TELLER_ENVIRONMENT,
-    PLAID_ENVIRONMENT: publicEnv.PLAID_ENVIRONMENT,
     GOOGLE_API_KEY: publicEnv.GOOGLE_API_KEY,
     WHATSAPP_NUMBER: publicEnv.WHATSAPP_NUMBER,
     OPENPANEL_CLIENT_ID: publicEnv.OPENPANEL_CLIENT_ID,

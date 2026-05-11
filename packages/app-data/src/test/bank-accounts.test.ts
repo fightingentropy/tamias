@@ -37,17 +37,17 @@ const mockAccounts = {
   },
   creditCardPositive: {
     id: "acc-4",
-    name: "Business Credit Card (Plaid)",
+    name: "Business Credit Card (positive balance)",
     type: "credit",
-    balance: 25000, // Plaid stores as positive (amount owed)
+    balance: 25000, // Provider stores amount owed as positive
     currency: "USD",
     enabled: true,
   },
   creditCardNegative: {
     id: "acc-5",
-    name: "Business Credit Card (GoCardless)",
+    name: "Business Credit Card (negative balance)",
     type: "credit",
-    balance: -15000, // GoCardless stores as negative (debt)
+    balance: -15000, // Provider stores debt as negative
     currency: "USD",
     enabled: true,
   },
@@ -113,7 +113,7 @@ describe("Cash Balance Calculation Logic", () => {
 });
 
 describe("Credit Balance Normalization", () => {
-  test("positive credit balance (Plaid convention) should be treated as debt", () => {
+  test("positive credit balance should be treated as debt", () => {
     const balance = mockAccounts.creditCardPositive.balance;
     const normalizedDebt = Math.abs(balance);
 
@@ -121,7 +121,7 @@ describe("Credit Balance Normalization", () => {
     expect(normalizedDebt).toBeGreaterThan(0);
   });
 
-  test("negative credit balance (GoCardless convention) should be treated as debt", () => {
+  test("negative credit balance should be treated as debt", () => {
     const balance = mockAccounts.creditCardNegative.balance;
     const normalizedDebt = Math.abs(balance);
 
@@ -130,12 +130,12 @@ describe("Credit Balance Normalization", () => {
   });
 
   test("Math.abs() should normalize both conventions to positive debt", () => {
-    const plaidDebt = Math.abs(mockAccounts.creditCardPositive.balance);
-    const gocardlessDebt = Math.abs(mockAccounts.creditCardNegative.balance);
+    const positiveDebt = Math.abs(mockAccounts.creditCardPositive.balance);
+    const negativeDebt = Math.abs(mockAccounts.creditCardNegative.balance);
 
     // Both should be positive values representing debt
-    expect(plaidDebt).toBeGreaterThan(0);
-    expect(gocardlessDebt).toBeGreaterThan(0);
+    expect(positiveDebt).toBeGreaterThan(0);
+    expect(negativeDebt).toBeGreaterThan(0);
   });
 
   test("total credit debt should sum absolute values", () => {
@@ -235,7 +235,7 @@ describe("Account Type Edge Cases", () => {
     expect(totalCash).toBe(100000);
   });
 
-  test("overpaid credit card (negative balance on Plaid) should reduce debt", () => {
+  test("overpaid credit card (negative credit balance) should reduce debt", () => {
     // Edge case: customer overpaid credit card
     const overpaidCard = {
       ...mockAccounts.creditCardPositive,

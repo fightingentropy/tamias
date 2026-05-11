@@ -3,7 +3,7 @@
  *
  * Tiers:
  *   1 = Core      — app breaks without it (Convex, auth, core data services)
- *   2 = Important  — feature degrades (Stripe, Resend, OpenAI)
+ *   2 = Important  — feature degrades (Stripe, Cloudflare Email Service, OpenAI)
  *   3 = Integration — individual feature affected (Slack, Xero, etc.)
  *   4 = Optional   — silently degrades (ElevenLabs, analytics, etc.)
  */

@@ -7,9 +7,9 @@ import { createLoggerWithContext } from "@tamias/logger";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import {
-  fetchPlaidInstitutionsForSearch,
+  fetchLiveInstitutionsForSearch,
   type InstitutionTrpcRow,
-} from "../lib/plaid-institution-fallback";
+} from "../lib/institution-fallback";
 import { createTRPCRouter, protectedProcedure } from "../init";
 
 const logger = createLoggerWithContext("trpc:institutions");
@@ -18,7 +18,7 @@ const getInstitutionsSchema = z.object({
   q: z.string().optional(),
   countryCode: z.string(),
   limit: z.number().optional().default(50),
-  excludeProviders: z.array(z.enum(["plaid", "teller"])).optional(),
+  excludeProviders: z.array(z.literal("truelayer")).optional(),
 });
 
 const getInstitutionByIdSchema = z.object({
@@ -41,14 +41,27 @@ function mapInstitutionRecords(results: Awaited<ReturnType<typeof getInstitution
   }));
 }
 
+function resolveExcludeProviders(
+  countryCode: string,
+  excludeProviders?: "truelayer"[],
+) {
+  void countryCode;
+  return excludeProviders ?? [];
+}
+
 export const institutionsRouter = createTRPCRouter({
   get: protectedProcedure.input(getInstitutionsSchema).query(async ({ input }) => {
     try {
+      const effectiveExcludeProviders = resolveExcludeProviders(
+        input.countryCode,
+        input.excludeProviders,
+      );
+
       const results = await getInstitutions(undefined, {
         countryCode: input.countryCode,
         q: input.q,
         limit: input.limit,
-        excludeProviders: input.excludeProviders,
+        excludeProviders: effectiveExcludeProviders,
       });
 
       const mapped = mapInstitutionRecords(results);
@@ -58,23 +71,24 @@ export const institutionsRouter = createTRPCRouter({
       }
 
       try {
-        const live = await fetchPlaidInstitutionsForSearch({
+        const live = await fetchLiveInstitutionsForSearch({
           countryCode: input.countryCode,
           q: input.q,
           limit: input.limit,
-          excludeProviders: input.excludeProviders,
+          excludeProviders: effectiveExcludeProviders,
         });
 
         if (live.length > 0) {
-          logger.info("Institution search used live Plaid fallback", {
+          logger.info("Institution search used live provider fallback", {
             countryCode: input.countryCode,
             count: live.length,
+            provider: live[0]?.provider,
           });
         }
 
         return live;
       } catch (liveError) {
-        logger.warn("Live Plaid institution fallback failed", {
+        logger.warn("Live institution fallback failed", {
           countryCode: input.countryCode,
           error: liveError instanceof Error ? liveError.message : String(liveError),
         });
@@ -121,7 +135,6 @@ export const institutionsRouter = createTRPCRouter({
       });
 
       if (!result) {
-        // Convex row missing (e.g. user picked an institution from live Plaid fallback).
         return { data: null };
       }
 

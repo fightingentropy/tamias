@@ -1,12 +1,10 @@
 import { PaymentIssueEmail } from "@tamias/email/emails/payment-issue";
 import { render } from "@tamias/email/render";
+import { sendEmail } from "@tamias/email/send";
 import { getSupportFromDisplay, getSupportReplyToEmail } from "@tamias/utils/envs";
 import type { WorkerJob as Job } from "../../types/job";
-import { Resend } from "resend";
 import type { PaymentIssuePayload } from "../../schemas/teams";
 import { BaseProcessor } from "../base";
-
-const resend = new Resend(process.env.RESEND_API_KEY!);
 
 export class PaymentIssueProcessor extends BaseProcessor<PaymentIssuePayload> {
   async process(job: Job<PaymentIssuePayload>): Promise<void> {
@@ -20,7 +18,7 @@ export class PaymentIssueProcessor extends BaseProcessor<PaymentIssuePayload> {
 
     const html = await render(PaymentIssueEmail({ fullName, teamName }));
 
-    await resend.emails.send({
+    await sendEmail({
       from: getSupportFromDisplay(),
       replyTo: getSupportReplyToEmail(),
       to: email,

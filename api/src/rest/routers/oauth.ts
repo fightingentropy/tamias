@@ -11,6 +11,7 @@ import {
 } from "@tamias/app-services/foundation";
 import { AppInstalledEmail } from "@tamias/email/emails/app-installed";
 import { render } from "@tamias/email/render";
+import { sendEmail } from "@tamias/email/send";
 import { createLoggerWithContext } from "@tamias/logger";
 import { getSupportFromDisplay } from "@tamias/utils/envs";
 import { HTTPException } from "hono/http-exception";
@@ -25,7 +26,6 @@ import {
   oauthTokenRequestSchema,
   oauthTokenResponseSchema,
 } from "../../schemas/oauth-flow";
-import { resend } from "../../services/resend";
 import { validateClientCredentials } from "../../utils/oauth";
 import { validateResponse } from "../../utils/validate-response";
 import { publicMiddleware } from "../middleware";
@@ -280,7 +280,7 @@ app.openapi(
             }),
           );
 
-          await resend.emails.send({
+          await sendEmail({
             from: getSupportFromDisplay(),
             to: session.user.email,
             subject: "An app has been added to your team",

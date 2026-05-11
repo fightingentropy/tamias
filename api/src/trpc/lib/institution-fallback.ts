@@ -1,12 +1,12 @@
 import { Provider } from "@tamias/banking";
 
-const PLAID_LINK_COUNTRIES = new Set(["GB", "US", "CA"]);
+const TRUELAYER_FALLBACK_COUNTRIES = new Set(["GB"]);
 
 export type InstitutionsGetInput = {
   countryCode: string;
   q?: string;
   limit: number;
-  excludeProviders?: ("plaid" | "teller")[];
+  excludeProviders?: "truelayer"[];
 };
 
 function normalizeSearchValue(value: string) {
@@ -50,30 +50,26 @@ export type InstitutionTrpcRow = {
   popularity: number;
   availableHistory: number | null;
   maximumConsentValidity: number | null;
-  provider: "gocardless" | "plaid" | "teller";
+  provider: "truelayer";
   type: "personal" | "business" | null;
   country: string | null;
 };
 
 /**
- * When the Convex institution index is empty or stale, load institutions directly from Plaid
- * (same source as the nightly sync) so bank search works in dev and after sync gaps.
+ * When the Convex institution index is empty or stale, load institutions live from the
+ * TrueLayer catalog so bank search works in dev and after sync gaps.
  */
-export async function fetchPlaidInstitutionsForSearch(
+export async function fetchLiveInstitutionsForSearch(
   input: InstitutionsGetInput,
 ): Promise<InstitutionTrpcRow[]> {
   const excluded = new Set(input.excludeProviders ?? []);
 
-  if (excluded.has("plaid")) {
+  if (!TRUELAYER_FALLBACK_COUNTRIES.has(input.countryCode) || excluded.has("truelayer")) {
     return [];
   }
 
-  if (!PLAID_LINK_COUNTRIES.has(input.countryCode)) {
-    return [];
-  }
-
-  const plaid = new Provider({ provider: "plaid" });
-  const rows = await plaid.getInstitutions({ countryCode: input.countryCode });
+  const api = new Provider({ provider: "truelayer" });
+  const rows = await api.getInstitutions({ countryCode: input.countryCode });
 
   const hasSearch = !!input.q && input.q !== "*" && input.q.trim() !== "";
 
@@ -98,7 +94,7 @@ export async function fetchPlaidInstitutionsForSearch(
       popularity: 0,
       availableHistory: null,
       maximumConsentValidity: null,
-      provider: "plaid" as const,
+      provider: "truelayer",
       type: null,
       country: input.countryCode,
     }));

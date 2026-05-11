@@ -15,7 +15,6 @@ export type BankConnectionRecord = {
   name: string;
   logoUrl: string | null;
   accessToken: string | null;
-  enrollmentId: string | null;
   provider: BankConnectionProvider;
   lastAccessed: string | null;
   referenceId: string | null;
@@ -66,7 +65,6 @@ export type CreateBankConnectionInConvexInput = {
   provider: BankConnectionProvider;
   accounts: BankProviderAccountInput[];
   accessToken?: string | null;
-  enrollmentId?: string | null;
   referenceId?: string | null;
 };
 
@@ -85,7 +83,6 @@ export type PatchBankConnectionInConvexInput = {
   name?: string;
   logoUrl?: string | null;
   accessToken?: string | null;
-  enrollmentId?: string | null;
   provider?: BankConnectionProvider;
   lastAccessed?: string | null;
   referenceId?: string | null;
@@ -123,7 +120,6 @@ export async function createBankConnectionInConvex(args: CreateBankConnectionInC
       provider: args.provider,
       accounts: args.accounts,
       accessToken: args.accessToken,
-      enrollmentId: args.enrollmentId,
       referenceId: args.referenceId,
     }),
   ) as Promise<BankConnectionRecord | null>;
@@ -155,32 +151,6 @@ export async function deleteBankConnectionInConvex(args: { id: string; teamId: s
   } | null>;
 }
 
-export async function reconnectBankConnectionInConvex(args: {
-  teamId: string;
-  referenceId: string;
-  newReferenceId: string;
-  expiresAt: string;
-}) {
-  return createClient().mutation(
-    api.bankConnections.serviceReconnectBankConnection,
-    serviceArgs({
-      publicTeamId: args.teamId,
-      referenceId: args.referenceId,
-      newReferenceId: args.newReferenceId,
-      expiresAt: args.expiresAt,
-    }),
-  ) as Promise<{ id: string } | null>;
-}
-
-export async function getBankConnectionByEnrollmentIdFromConvex(args: { enrollmentId: string }) {
-  return createClient().query(
-    api.bankConnections.serviceGetBankConnectionByEnrollmentId,
-    serviceArgs({
-      enrollmentId: args.enrollmentId,
-    }),
-  ) as Promise<BankConnectionLookupRecord | null>;
-}
-
 export async function getBankConnectionByReferenceIdFromConvex(args: { referenceId: string }) {
   return createClient().query(
     api.bankConnections.serviceGetBankConnectionByReferenceId,
@@ -199,23 +169,6 @@ export async function updateBankConnectionStatusInConvex(args: {
     serviceArgs({
       bankConnectionId: args.id,
       status: args.status,
-    }),
-  ) as Promise<{ id: string } | null>;
-}
-
-export async function updateBankConnectionReconnectByIdInConvex(args: {
-  id: string;
-  teamId: string;
-  referenceId?: string;
-  accessValidForDays: number;
-}) {
-  return createClient().mutation(
-    api.bankConnections.serviceUpdateBankConnectionReconnectById,
-    serviceArgs({
-      bankConnectionId: args.id,
-      publicTeamId: args.teamId,
-      referenceId: args.referenceId,
-      accessValidForDays: args.accessValidForDays,
     }),
   ) as Promise<{ id: string } | null>;
 }

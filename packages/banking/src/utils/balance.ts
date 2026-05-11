@@ -7,8 +7,6 @@ export interface BalanceAdapter<T> {
 }
 
 /**
- * Generic primary-balance selection used by GoCardless.
- *
  * Walks `tiers` (each tier is a list of matching balance-type names) in order,
  * preferring balances whose currency matches `preferredCurrency` when provided.
  * Within a tier, picks the entry with the highest absolute amount. Falls back to

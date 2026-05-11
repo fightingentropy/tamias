@@ -1,9 +1,6 @@
-import { env } from "./env";
-import { PlaidApi } from "./providers/plaid/plaid-api";
+import { TrueLayerApi } from "./providers/truelayer/truelayer-api";
 import type { Providers } from "./types";
 import { getLogoURL } from "./utils/logo";
-
-const TELLER_CDN = "https://teller.io/images/banks";
 
 export type InstitutionRecord = {
   id: string;
@@ -24,79 +21,27 @@ export type FetchInstitutionsResult = {
   succeededProviders: Providers[];
 };
 
-/**
- * Extract domain from a URL for logo.dev fallback.
- * e.g. "https://www.wellsfargo.com/" -> "wellsfargo.com"
- */
-function extractDomain(url: string): string | null {
-  try {
-    const hostname = new URL(url).hostname;
-    return hostname.replace(/^www\./, "");
-  } catch {
-    return null;
-  }
+// TrueLayer reports country as ISO-3166-1 alpha-2 lowercase, plus legacy "uk" for GB.
+function normalizeTrueLayerCountry(country: string | null | undefined): string {
+  if (!country) return "GB";
+  const upper = country.toUpperCase();
+  return upper === "UK" ? "GB" : upper;
 }
 
-/**
- * Build a logo.dev URL for a given domain.
- * Used as fallback when Plaid doesn't return a logo.
- */
-function getLogoDevURL(domain: string): string {
-  return `https://img.logo.dev/${domain}?token=${env.LOGO_DEV_TOKEN}&format=png&size=256&retina=true`;
-}
+async function fetchTrueLayerInstitutions(): Promise<InstitutionRecord[]> {
+  const api = new TrueLayerApi();
+  const providers = await api.getProviders();
 
-async function fetchPlaidInstitutions(): Promise<InstitutionRecord[]> {
-  const api = new PlaidApi();
-  const data = await api.getInstitutions();
-
-  return data.map((institution) => {
-    const hasLogo = !!institution.logo;
-    const domain = institution.url ? extractDomain(institution.url) : null;
-
-    let logo: string | null;
-    let sourceLogo: string | null;
-
-    if (hasLogo) {
-      logo = getLogoURL(institution.institution_id);
-      sourceLogo = institution.logo!;
-    } else if (domain) {
-      logo = getLogoURL(institution.institution_id);
-      sourceLogo = getLogoDevURL(domain);
-    } else {
-      logo = null;
-      sourceLogo = null;
-    }
-
-    return {
-      id: institution.institution_id,
-      name: institution.name,
-      logo,
-      sourceLogo,
-      provider: "plaid" as const,
-      countries: institution.country_codes as string[],
-      availableHistory: null,
-      maximumConsentValidity: null,
-      popularity: 0,
-      type: null,
-    };
-  });
-}
-
-async function fetchTellerInstitutions(): Promise<InstitutionRecord[]> {
-  // Teller's /institutions endpoint is public and doesn't require mTLS
-  const response = await fetch("https://api.teller.io/institutions");
-  const data = (await response.json()) as { id: string; name: string }[];
-
-  return data.map((institution) => ({
-    id: institution.id,
-    name: institution.name,
-    logo: getLogoURL(institution.id),
-    sourceLogo: `${TELLER_CDN}/${institution.id}.jpg`,
-    provider: "teller" as const,
-    countries: ["US"],
+  return providers.map((provider) => ({
+    id: provider.provider_id,
+    name: provider.display_name,
+    logo: provider.logo_url ? getLogoURL(provider.provider_id, "png") : null,
+    sourceLogo: provider.logo_url ?? null,
+    provider: "truelayer" as const,
+    countries: [normalizeTrueLayerCountry(provider.country)],
     availableHistory: null,
-    maximumConsentValidity: null,
-    popularity: 10,
+    maximumConsentValidity: 90,
+    popularity: 5,
     type: null,
   }));
 }
@@ -107,12 +52,12 @@ async function fetchTellerInstitutions(): Promise<InstitutionRecord[]> {
  * Returns both the fetched institutions and any errors that occurred.
  */
 export async function fetchAllInstitutions(): Promise<FetchInstitutionsResult> {
-  const results = await Promise.allSettled([fetchPlaidInstitutions(), fetchTellerInstitutions()]);
+  const results = await Promise.allSettled([fetchTrueLayerInstitutions()]);
 
   const institutions: InstitutionRecord[] = [];
   const errors: { provider: string; error: string }[] = [];
   const succeededProviders: Providers[] = [];
-  const providers: Providers[] = ["plaid", "teller"];
+  const providers: Providers[] = ["truelayer"];
 
   for (let i = 0; i < results.length; i++) {
     const result = results[i]!;

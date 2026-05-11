@@ -18,7 +18,6 @@
     "@tamias/inbox": "workspace:*",
     "@tamias/utils": "workspace:*",
     "nanoid": "catalog:",
-    "resend": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {

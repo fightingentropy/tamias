@@ -140,18 +140,6 @@ export function getStripePublishableKey() {
   return getFirstDefined(process.env.STRIPE_PUBLISHABLE_KEY) || "";
 }
 
-export function getTellerApplicationId() {
-  return getFirstDefined(process.env.TELLER_APPLICATION_ID) || "";
-}
-
-export function getTellerEnvironment() {
-  return getFirstDefined(process.env.TELLER_ENVIRONMENT) || "";
-}
-
-export function getPlaidEnvironment() {
-  return "sandbox";
-}
-
 export function getGoogleApiKey() {
   return getFirstDefined(process.env.GOOGLE_API_KEY) || "";
 }
@@ -165,9 +153,9 @@ export function getSupportEmail() {
 }
 
 export function getSupportFromDisplay() {
-  return process.env.RESEND_FROM_EMAIL || `Tamias <${getSupportEmail()}>`;
+  return process.env.EMAIL_FROM || `Tamias <${getSupportEmail()}>`;
 }
 
 export function getSupportReplyToEmail() {
-  return process.env.RESEND_REPLY_TO_EMAIL || getSupportEmail();
+  return process.env.EMAIL_REPLY_TO || getSupportEmail();
 }

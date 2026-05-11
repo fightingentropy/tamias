@@ -80,9 +80,21 @@ function isLocalLoopbackHost(hostname: string) {
   return hostname === "localhost" || hostname === "127.0.0.1";
 }
 
+// Backend-only paths nested under frontend-like prefixes (e.g. /apps/xero/oauth-callback
+// lives under /apps but must reach the Hono API, not the TanStack Router 404).
+const API_ONLY_SUFFIXES = [/^\/apps\/[^/]+\/oauth-callback(?:\/|$)/];
+
+function isApiOnlyPath(pathname: string) {
+  return API_ONLY_SUFFIXES.some((pattern) => pattern.test(pathname));
+}
+
 function preferDashboardForSharedPath(request: Request, pathname: string) {
   const seg = firstPathSegment(pathname);
   if (!seg || !LIKELY_DOCUMENT_NAVIGATION_SEGMENTS.has(seg)) {
+    return false;
+  }
+
+  if (isApiOnlyPath(pathname)) {
     return false;
   }
 

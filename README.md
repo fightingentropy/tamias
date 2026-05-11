@@ -134,11 +134,11 @@ flowchart LR
 - AI SDK with OpenAI, Google, Anthropic, and Mistral providers in different flows
 - ElevenLabs for optional insight audio
 - Exa and Plain in supporting flows
-- Plaid and Teller for banking
+- TrueLayer for banking
 - Xero, QuickBooks, and Fortnox for accounting exports/sync
 - Companies House OAuth, filing transaction, and public-register readiness integration groundwork
 - Stripe and Polar for payments/billing
-- Resend, Slack, Gmail, Outlook, and WhatsApp integrations
+- Cloudflare Email Service, Slack, Gmail, Outlook, and WhatsApp integrations
 
 ## Shared package map
 
@@ -284,14 +284,6 @@ Users can pick a provider in the dashboard. The API returns HTTP **503** if the 
 - **OpenAI** (default): `OPENAI_API_KEY`, optional `OPENAI_ASSISTANT_MODEL_*` overrides where the code reads them.
 - **Kimi**: `KIMI_API_KEY`, optional `KIMI_BASE_URL`, `KIMI_MODEL_*`.
 - **OpenRouter**: `OPENROUTER_API_KEY`, optional `OPENROUTER_BASE_URL` (defaults to `https://openrouter.ai/api/v1`), optional `OPENROUTER_ASSISTANT_MODEL_*` (defaults include `qwen/qwen3.6-plus:free`), optional `OPENROUTER_HTTP_REFERER` and `OPENROUTER_APP_NAME`.
-
-#### Teller mTLS on Cloudflare
-
-```bash
-bunx wrangler mtls-certificate upload --cert teller-cert.pem --key teller-key.pem --name teller
-```
-
-Set `TELLER_MTLS_CERTIFICATE` in the deployed Worker environment to the returned certificate id.
 
 Convex functions for this app live under `dashboard/convex`. For Convex’s CLI and patterns, see [Convex docs](https://docs.convex.dev).
 

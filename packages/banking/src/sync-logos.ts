@@ -44,7 +44,7 @@ function inferContentType(key: string): string {
 
 /**
  * Download logo data from source.
- * Handles URLs, data URIs, and raw base64 strings (Plaid returns raw base64).
+ * Handles URLs, data URIs, and raw base64 strings.
  */
 async function downloadLogo(
   sourceUrl: string,
@@ -59,7 +59,7 @@ async function downloadLogo(
     return { buffer, contentType };
   }
 
-  // Handle raw base64 (Plaid returns base64-encoded PNGs without prefix)
+  // Handle raw base64 without a data URI prefix.
   if (sourceUrl.startsWith("iVBOR")) {
     // PNG base64 header
     const buffer = Buffer.from(sourceUrl, "base64");

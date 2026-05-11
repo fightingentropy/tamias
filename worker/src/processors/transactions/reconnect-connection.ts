@@ -61,6 +61,10 @@ export class ReconnectConnectionProcessor extends BaseProcessor<ReconnectConnect
       throw new Error("Connection not found");
     }
 
+    if (provider !== "truelayer" || connection.provider !== "truelayer") {
+      throw new Error(`Unsupported banking provider: ${provider}`);
+    }
+
     const existingAccounts = (await getBankAccounts(db, { teamId }))
       .filter((account) => account.bankConnectionId === connectionId)
       .map((account) => ({
@@ -74,44 +78,27 @@ export class ReconnectConnectionProcessor extends BaseProcessor<ReconnectConnect
 
     await this.updateProgress(job, 30, undefined, "verifying-provider-state");
 
-    if (provider === "teller") {
-      if (!connection.accessToken || !connection.enrollmentId) {
-        throw new Error("Teller connection not found");
-      }
-
-      const accountsResponse = await trpc.banking.getProviderAccounts.query({
-        id: connection.enrollmentId,
-        provider: "teller",
-        accessToken: connection.accessToken,
-      });
-
-      if (!accountsResponse.data) {
-        throw new Error("Teller accounts not found");
-      }
-
-      if (existingAccounts.length > 0) {
-        await matchAndUpdateAccountIds({
-          existingAccounts,
-          apiAccounts: accountsResponse.data,
-          teamId,
-        });
-      }
+    if (!connection.accessToken) {
+      throw new Error("TrueLayer connection not found");
     }
 
-    if (provider === "plaid") {
-      if (!connection.accessToken) {
-        throw new Error("Plaid connection not found");
-      }
+    const accountsResponse = await trpc.banking.getProviderAccounts.query({
+      id: connection.referenceId ?? undefined,
+      provider: "truelayer",
+      accessToken: connection.accessToken,
+      institutionId: connection.institutionId ?? undefined,
+    });
 
-      const accountsResponse = await trpc.banking.getProviderAccounts.query({
-        provider: "plaid",
-        accessToken: connection.accessToken,
-        institutionId: connection.institutionId ?? undefined,
+    if (!accountsResponse.data) {
+      throw new Error("TrueLayer accounts verification failed");
+    }
+
+    if (existingAccounts.length > 0) {
+      await matchAndUpdateAccountIds({
+        existingAccounts,
+        apiAccounts: accountsResponse.data,
+        teamId,
       });
-
-      if (!accountsResponse.data) {
-        throw new Error("Plaid accounts verification failed");
-      }
     }
 
     await this.updateProgress(job, 80, undefined, "starting-sync");

@@ -1,5 +1,5 @@
 import { updateAsyncRunInConvex } from "@tamias/app-data-convex";
-import type { TellerMtlsFetcher } from "@tamias/banking";
+import type { CloudflareEmailBinding } from "@tamias/email/send";
 import { createLoggerWithContext } from "@tamias/logger";
 import type { WorkerJob, WorkerJobProgress } from "../types/job";
 import type { CloudflareAsyncMessage, CloudflareWorkflowPayload } from "./bridge-helpers";
@@ -10,9 +10,7 @@ export { getQueueBinding } from "./queue-bindings";
 export type CloudflareAsyncEnv = {
   TAMIAS_ENVIRONMENT?: string;
   CLOUDFLARE_ASYNC_BRIDGE_TOKEN?: string;
-  RESEND_API_KEY?: string;
-  RESEND_AUDIENCE_ID?: string;
-  TELLER_MTLS_CERTIFICATE?: TellerMtlsFetcher;
+  EMAIL?: CloudflareEmailBinding;
   IMAGES?: ImagesBinding;
   CAPTURE_QUEUE?: Queue<CloudflareAsyncMessage>;
   LEDGER_QUEUE?: Queue<CloudflareAsyncMessage>;

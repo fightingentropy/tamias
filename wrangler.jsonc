@@ -18,6 +18,11 @@
     "binding": "IMAGES",
     "remote": true,
   },
+  "send_email": [
+    {
+      "name": "EMAIL",
+    },
+  ],
   // Local dev keeps all infra bindings for unified mode
   "triggers": {
     "crons": ["0 2 * * *", "0 3 * * *", "*/30 * * * *", "0 0,12 * * *", "*/30 * * * 1"],
@@ -71,8 +76,6 @@
         "API_URL": "https://api-staging.tamias.xyz",
         "CONVEX_URL": "https://fleet-chameleon-251.eu-west-1.convex.cloud",
         "CONVEX_SITE_URL": "https://fleet-chameleon-251.eu-west-1.convex.site",
-        "PLAID_CLIENT_ID": "66d50ed760b266001abae367",
-        "PLAID_ENVIRONMENT": "sandbox",
       },
     },
     // ── Production: dashboard-only Worker ───────────────────────────────
@@ -100,8 +103,6 @@
         "API_URL": "https://api.tamias.xyz",
         "CONVEX_URL": "https://fleet-chameleon-251.eu-west-1.convex.cloud",
         "CONVEX_SITE_URL": "https://fleet-chameleon-251.eu-west-1.convex.site",
-        "PLAID_CLIENT_ID": "66d50ed760b266001abae367",
-        "PLAID_ENVIRONMENT": "sandbox",
       },
     },
   },

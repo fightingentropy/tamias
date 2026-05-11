@@ -351,7 +351,7 @@ describe("Cloudflare async bridge helpers", () => {
         jobName: "delete-connection",
         payload: {
           referenceId: "req_123",
-          provider: "plaid",
+          provider: "truelayer",
         },
       }),
     ).toBe(true);
@@ -452,7 +452,7 @@ describe("Cloudflare async bridge helpers", () => {
         payload: {
           teamId: "11111111-1111-1111-1111-111111111111",
           connectionId: "22222222-2222-2222-2222-222222222222",
-          provider: "plaid",
+          provider: "truelayer",
         },
       }),
     ).toBe(true);
