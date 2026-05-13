@@ -463,6 +463,7 @@ mock.module("@tamias/import", () => ({
   PDF_STATEMENT_EXTRACTION_PROMPT: "mock pdf extraction prompt",
   extractedPdfStatementSchema: {} as never,
   extractedTransactionsToCsvRows: mock(() => [] as Record<string, string>[]),
+  extractRevolutStatementFromText: mock(() => null),
 }));
 
 // Mock @tamias/invoice

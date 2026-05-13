@@ -410,9 +410,10 @@ export function ImportModal() {
                       }
 
                       const currentBalance =
-                        firstRows && data.date && data.balance
+                        extractedPdf?.currentBalance ??
+                        (firstRows && data.date && data.balance
                           ? getBalanceFromLatestDate(firstRows, data.date, data.balance)
-                          : undefined;
+                          : undefined);
 
                       importTransactions.mutate({
                         filePath: path,

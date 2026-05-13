@@ -1,6 +1,6 @@
 import { upsertTransactions } from "@tamias/app-data/queries";
 import { mapTransactions } from "@tamias/import/mappings";
-import { transform } from "@tamias/import/transform";
+import { addDuplicateDisambiguators, transform } from "@tamias/import/transform";
 import { validateTransactions } from "@tamias/import/validate";
 import { enqueue } from "@tamias/job-client";
 import { downloadVaultFile } from "@tamias/storage";
@@ -97,7 +97,12 @@ export class ImportTransactionsProcessor extends BaseProcessor<ImportTransaction
             bankAccountId,
           );
 
-          const transformedTransactions = mappedTransactions.map((transaction) =>
+          const disambiguatedTransactions = addDuplicateDisambiguators({
+            transactions: mappedTransactions,
+            inverted,
+          });
+
+          const transformedTransactions = disambiguatedTransactions.map((transaction) =>
             transform({ transaction, inverted }),
           );
 

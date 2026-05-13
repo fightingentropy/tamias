@@ -4,6 +4,7 @@ import {
   type ExtractedPdfStatement,
   extractedPdfStatementSchema,
   extractedTransactionsToCsvRows,
+  extractRevolutStatementFromText,
 } from "@tamias/import";
 import { downloadVaultFile, uploadVaultFile } from "@tamias/storage";
 import { TRPCError } from "@trpc/server";
@@ -86,21 +87,40 @@ async function extractWithOpenAi({
   return result.object;
 }
 
+async function extractTextFromPdfBytes(pdfBytes: Uint8Array): Promise<string | null> {
+  try {
+    const { extractText, getDocumentProxy } = await import("unpdf");
+    const doc = await getDocumentProxy(pdfBytes);
+    const { text } = await extractText(doc, { mergePages: true });
+    return Array.isArray(text) ? text.join("\n") : text;
+  } catch (error) {
+    console.warn("Could not extract text from PDF statement", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return null;
+  }
+}
+
+async function extractKnownStatementFormat(
+  pdfBytes: Uint8Array,
+): Promise<ExtractedPdfStatement | null> {
+  const text = await extractTextFromPdfBytes(pdfBytes);
+  if (!text?.trim()) {
+    return null;
+  }
+
+  return extractRevolutStatementFromText(text);
+}
+
+function hasExtractedTransactions(extracted: ExtractedPdfStatement | null | undefined): boolean {
+  return (extracted?.transactions?.length ?? 0) > 0;
+}
+
 export async function extractStatementPdf({
   pdfPath,
 }: {
   pdfPath: string[];
 }): Promise<ExtractStatementPdfResult> {
-  const codexAvailable = await isCodexBridgeAvailable();
-
-  if (!codexAvailable && !process.env.OPENAI_API_KEY) {
-    throw new TRPCError({
-      code: "PRECONDITION_FAILED",
-      message:
-        "PDF statement extraction is not configured. Sign in with `codex login` for local dev, or set OPENAI_API_KEY.",
-    });
-  }
-
   const { data: blob, error: downloadError } = await downloadVaultFile(pdfPath);
 
   if (downloadError || !blob) {
@@ -121,25 +141,63 @@ export async function extractStatementPdf({
   const pdfBytes = new Uint8Array(arrayBuffer);
   const filename = pdfPath[pdfPath.length - 1] ?? "statement.pdf";
 
-  let extracted: ExtractedPdfStatement;
-  try {
-    if (codexAvailable) {
-      extracted = await extractStatementWithCodex({ pdfBytes });
-    } else {
-      extracted = await extractWithOpenAi({ pdfBytes, filename });
+  let extracted = await extractKnownStatementFormat(pdfBytes);
+
+  if (!hasExtractedTransactions(extracted)) {
+    const codexAvailable = await isCodexBridgeAvailable();
+
+    if (!codexAvailable && !process.env.OPENAI_API_KEY) {
+      throw new TRPCError({
+        code: "PRECONDITION_FAILED",
+        message:
+          "PDF statement extraction is not configured. Sign in with `codex login` for local dev, or set OPENAI_API_KEY.",
+      });
     }
-  } catch (error) {
-    console.error("PDF statement extraction failed", {
-      via: codexAvailable ? "codex" : "openai",
-      error: error instanceof Error ? error.message : String(error),
-    });
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Could not extract transactions from this statement. Try a clearer PDF or CSV.",
-    });
+
+    const failures: Array<{ via: string; error: string }> = [];
+
+    if (codexAvailable) {
+      try {
+        const codexExtracted = await extractStatementWithCodex({ pdfBytes });
+        if (hasExtractedTransactions(codexExtracted)) {
+          extracted = codexExtracted;
+        } else {
+          failures.push({ via: "codex", error: "No transactions detected" });
+        }
+      } catch (error) {
+        failures.push({
+          via: "codex",
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+
+    if (!hasExtractedTransactions(extracted) && process.env.OPENAI_API_KEY) {
+      try {
+        const openAiExtracted = await extractWithOpenAi({ pdfBytes, filename });
+        if (hasExtractedTransactions(openAiExtracted)) {
+          extracted = openAiExtracted;
+        } else {
+          failures.push({ via: "openai", error: "No transactions detected" });
+        }
+      } catch (error) {
+        failures.push({
+          via: "openai",
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+
+    if (!hasExtractedTransactions(extracted)) {
+      console.error("PDF statement extraction failed", { failures });
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Could not extract transactions from this statement. Try a clearer PDF or CSV.",
+      });
+    }
   }
 
-  if (!extracted.transactions || extracted.transactions.length === 0) {
+  if (!extracted?.transactions || extracted.transactions.length === 0) {
     throw new TRPCError({
       code: "UNPROCESSABLE_CONTENT",
       message:

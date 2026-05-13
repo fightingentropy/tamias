@@ -60,6 +60,7 @@ export type ExtractedPdfStatement = {
   csvFilePath: string[];
   rowCount: number;
   detectedCurrency: string | null;
+  currentBalance?: string;
 };
 
 export const ImportCsvContext = createContext<{

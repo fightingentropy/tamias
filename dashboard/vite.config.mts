@@ -28,12 +28,20 @@ const PATCHED_ADD_DOM_EVENT = `function addDomEvent(target, eventName, handler, 
 export { addDomEvent };
 `;
 
+const PATCHED_ADD_DOM_EVENT_FUNCTION = PATCHED_ADD_DOM_EVENT.replace(
+  "\n\nexport { addDomEvent };\n",
+  "",
+);
+
+const ADD_DOM_EVENT_FUNCTION_RE =
+  /function addDomEvent\(target, eventName, handler, options = \{ passive: true \}\) \{\n\s*target\.addEventListener\(eventName, handler, options\);\n\s*return \(\) => target\.removeEventListener\(eventName, handler\);\n\}/;
+
 /**
  * SSR DOM implementations (e.g. happy-dom) and workerd reject `{ passive: true }` on `window.resize`;
  * motion-dom defaults passive true for addDomEvent (used by framer-motion layout projection).
  *
- * Match by module id suffix and source shape: Vite SSR often rewrites paths (query strings,
- * different separators) so the old `${path.sep}motion-dom${path.sep}` check missed real loads.
+ * Match by module id and source shape: Vite SSR can serve either the original motion-dom module
+ * or an optimized `deps_ssr/framer-motion.js` bundle, so patch both shapes.
  */
 function motionDomWorkerdResizePassivePlugin(): Plugin {
   return {
@@ -43,12 +51,23 @@ function motionDomWorkerdResizePassivePlugin(): Plugin {
       const cleanId = id.split("?")[0] ?? id;
       const isAddDomEventModule =
         cleanId.includes("motion-dom") && cleanId.endsWith("add-dom-event.mjs");
+      const isOptimizedMotionBundle =
+        cleanId.includes(`${path.sep}.vite${path.sep}deps_ssr${path.sep}`) &&
+        cleanId.endsWith("framer-motion.js");
+      const hasAddDomEvent = ADD_DOM_EVENT_FUNCTION_RE.test(code);
 
-      if (!isAddDomEventModule || !code.includes("function addDomEvent")) {
+      if (!hasAddDomEvent || (!isAddDomEventModule && !isOptimizedMotionBundle)) {
         return null;
       }
 
-      return { code: PATCHED_ADD_DOM_EVENT, map: null };
+      if (isAddDomEventModule) {
+        return { code: PATCHED_ADD_DOM_EVENT, map: null };
+      }
+
+      return {
+        code: code.replace(ADD_DOM_EVENT_FUNCTION_RE, PATCHED_ADD_DOM_EVENT_FUNCTION),
+        map: null,
+      };
     },
   };
 }

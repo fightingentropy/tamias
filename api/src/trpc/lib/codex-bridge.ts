@@ -94,8 +94,6 @@ export async function extractStatementWithCodex({
         "read-only",
         "--output-last-message",
         outputPath,
-        "-c",
-        'model="gpt-5-mini"',
         "-",
       ],
       {
@@ -133,9 +131,7 @@ export async function extractStatementWithCodex({
     try {
       parsed = JSON.parse(cleaned);
     } catch {
-      throw new Error(
-        `codex exec returned non-JSON output: ${cleaned.slice(0, 200)}`,
-      );
+      throw new Error(`codex exec returned non-JSON output: ${cleaned.slice(0, 200)}`);
     }
 
     return extractedPdfStatementSchema.parse(parsed);

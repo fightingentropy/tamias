@@ -10,6 +10,7 @@ import { useUpload } from "@/hooks/use-upload";
 import { useUserQuery } from "@/hooks/use-user";
 import { useTRPC } from "@/trpc/client";
 import { useCsvContext } from "./context";
+import { getBalanceFromLatestDate } from "./field-mapping.utils";
 import { readLines } from "./utils";
 
 const PDF_PREVIEW_ROWS = 4;
@@ -103,6 +104,7 @@ export function SelectFile() {
         csvFilePath: result.csvFilePath,
         rowCount: result.transactionCount,
         detectedCurrency: result.detectedCurrency,
+        currentBalance: getBalanceFromLatestDate(result.rows, "date", "balance"),
       });
 
       // Pre-fill mappings since the extracted CSV uses fixed column names.

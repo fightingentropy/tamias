@@ -428,15 +428,16 @@ export async function apiEntryFetch(
     );
   }
 
+  // tRPC includes mutations that enqueue async jobs, so configure the
+  // Cloudflare async runtime before dispatching through the lightweight path.
+  await configureApiRuntime(env);
+
   // Fast-path: tRPC requests bypass the full Hono app (Scalar, OpenAPI, REST
   // routers, health probes, etc.). Only loads the tRPC router, context, and
-  // fetch adapter — no banking, Convex, or worker infra needed.
+  // fetch adapter.
   if (url.pathname.startsWith("/trpc/")) {
     return handleTrpcFastPath(request, executionCtx);
   }
-
-  // Non-tRPC requests need the full runtime (banking, async worker, etc.)
-  await configureApiRuntime(env);
 
   const app = await getApp();
   return app.fetch(request, env as unknown as Env, executionCtx);

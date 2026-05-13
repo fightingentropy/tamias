@@ -16,15 +16,24 @@ export function getBalanceFromLatestDate(
   }
 
   const rowsWithDates = rows
-    .map((row) => ({
+    .map((row, index) => ({
       row,
+      index,
       parsed: formatDate(row[dateColumn] ?? ""),
     }))
-    .filter((r): r is { row: Record<string, string>; parsed: string } => Boolean(r.parsed));
+    .filter((r): r is { row: Record<string, string>; index: number; parsed: string } =>
+      Boolean(r.parsed),
+    );
 
   if (rowsWithDates.length === 0) return undefined;
 
-  const latest = rowsWithDates.sort((a, b) => b.parsed.localeCompare(a.parsed))[0];
+  const latest = rowsWithDates.sort((a, b) => {
+    const dateComparison = b.parsed.localeCompare(a.parsed);
+    if (dateComparison !== 0) {
+      return dateComparison;
+    }
+    return b.index - a.index;
+  })[0];
 
   return latest?.row[balanceColumn]?.trim() || undefined;
 }

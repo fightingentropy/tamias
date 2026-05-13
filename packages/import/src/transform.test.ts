@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { transform } from "./transform";
+import { addDuplicateDisambiguators, transform } from "./transform";
 
 const baseTransaction = {
   teamId: "team-1",
@@ -39,5 +39,38 @@ describe("transform internal_id", () => {
     });
 
     expect(first.internal_id).not.toBe(second.internal_id);
+  });
+
+  it("adds stable disambiguators only after the first duplicate fingerprint", () => {
+    const duplicateRows = addDuplicateDisambiguators({
+      transactions: [
+        baseTransaction,
+        {
+          ...baseTransaction,
+          balance: "95.50",
+        },
+        {
+          ...baseTransaction,
+          amount: "101.50",
+        },
+      ],
+      inverted: false,
+    });
+
+    expect(duplicateRows[0]?.duplicateIndex).toBeUndefined();
+    expect(duplicateRows[1]?.duplicateIndex).toBe(2);
+    expect(duplicateRows[2]?.duplicateIndex).toBeUndefined();
+
+    const unsalted = transform({
+      transaction: baseTransaction,
+      inverted: false,
+    });
+    const transformed = duplicateRows.map((transaction) =>
+      transform({ transaction, inverted: false }),
+    );
+
+    expect(transformed[0]?.internal_id).toBe(unsalted.internal_id);
+    expect(transformed[1]?.internal_id).not.toBe(transformed[0]?.internal_id);
+    expect(transformed[2]?.internal_id).not.toBe(transformed[0]?.internal_id);
   });
 });

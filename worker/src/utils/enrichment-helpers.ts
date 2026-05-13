@@ -120,7 +120,7 @@ ${returnInstructions}
 Transactions to process:
 ${transactionList}
 
-Return exactly ${batch.length} results in order. Apply the transformation rules consistently.
+Return valid JSON only. Return exactly ${batch.length} results in order. Apply the transformation rules consistently.
 `;
 }
 
