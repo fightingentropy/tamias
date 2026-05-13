@@ -47,7 +47,7 @@ export async function withRetry<TResult>(
  * Falls back to exponential backoff with jitter if no header is found.
  */
 function getRateLimitDelay(error: unknown, attempt: number): number {
-  // Try to extract headers from common HTTP error shapes (xior, axios, fetch)
+  // Try to extract headers from common HTTP error shapes.
   const headers = (error as any)?.response?.headers ?? (error as any)?.headers ?? null;
 
   if (headers) {

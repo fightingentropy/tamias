@@ -46,9 +46,10 @@
     "@tamias/logger": "workspace:*",
     "@tamias/storage": "workspace:*",
     "@tamias/utils": "workspace:*",
-    "archiver": "^7.0.1",
+    "archiver": "^8.0.0",
     "convex": "^1.34.1",
-    "date-fns": "catalog:"
+    "date-fns": "catalog:",
+    "uuid": "catalog:"
   },
   "devDependencies": {
     "typescript": "catalog:"

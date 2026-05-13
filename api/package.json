@@ -68,6 +68,6 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "wrangler": "^4.43.0"
+    "wrangler": "^4.90.1"
   }
 }

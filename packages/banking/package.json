@@ -13,16 +13,14 @@
     "./account": "./src/utils/account.ts"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.984.0",
+    "@aws-sdk/client-s3": "^3.1045.0",
     "@tamias/cache": "workspace:*",
     "@tamias/location": "workspace:*",
     "@tamias/logger": "workspace:*",
     "@t3-oss/env-core": "^0.13.10",
-    "axios": "^1.9.0",
     "change-case": "catalog:",
     "date-fns": "catalog:",
     "jose": "catalog:",
-    "xior": "^0.8.3",
     "zod": "catalog:"
   },
   "devDependencies": {

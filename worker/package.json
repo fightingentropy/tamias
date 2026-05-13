@@ -36,19 +36,20 @@
     "@tamias/utils": "workspace:*",
     "@types/archiver": "^7.0.0",
     "ai": "catalog:",
-    "archiver": "^7.0.1",
+    "archiver": "^8.0.0",
     "camelcase-keys": "^10.0.2",
     "date-fns": "catalog:",
     "exa-js": "^2.0.12",
     "hono": "catalog:",
     "node-xlsx": "catalog:",
     "papaparse": "catalog:",
+    "uuid": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/papaparse": "^5.5.2",
     "@types/react": "^19.2.13",
-    "wrangler": "^4.43.0"
+    "wrangler": "^4.90.1"
   }
 }

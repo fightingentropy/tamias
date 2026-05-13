@@ -24,7 +24,7 @@
     "@ai-sdk-tools/artifacts": "^1.2.0",
     "@ai-sdk-tools/store": "^1.2.0",
     "@ai-sdk/openai": "catalog:",
-    "@convex-dev/auth": "^0.0.91",
+    "@convex-dev/auth": "^0.0.92",
     "@date-fns/tz": "catalog:",
     "@date-fns/utc": "^2.1.1",
     "@dnd-kit/core": "^6.3.1",
@@ -57,8 +57,8 @@
     "@tamias/ui": "workspace:*",
     "@tamias/utils": "workspace:*",
     "@tanstack/react-query": "^5.95.2",
-    "@tanstack/react-router": "^1.168.10",
-    "@tanstack/react-start": "^1.167.16",
+    "@tanstack/react-router": "1.169.2",
+    "@tanstack/react-start": "1.167.65",
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/react-virtual": "^3.13.18",
     "@trpc/client": "^11.16.0",
@@ -97,8 +97,8 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20251117.0",
     "@cloudflare/vite-plugin": "^1.30.3",
-    "@rolldown/plugin-babel": "^0.2.2",
-    "@tanstack/router-plugin": "^1.167.12",
+    "@rolldown/plugin-babel": "^0.2.3",
+    "@tanstack/router-plugin": "1.167.35",
     "@types/file-saver": "^2.0.7",
     "@types/node": "^25.5.0",
     "@types/papaparse": "^5.5.2",
@@ -107,8 +107,8 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
     "babel-plugin-react-compiler": "^1.0.0",
-    "vite": "^8.0.3",
-    "wrangler": "^4.43.0",
+    "vite": "8.0.12",
+    "wrangler": "^4.90.1",
     "typescript": "catalog:"
   }
 }

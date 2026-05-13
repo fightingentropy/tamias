@@ -1,6 +1,6 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateText } from "ai";
-import { parseOfficeAsync } from "officeparser";
+import { parseOffice } from "officeparser";
 import { cleanText, extractTextFromRtf } from "../utils";
 import { retryCall } from "../utils/retry";
 
@@ -91,9 +91,9 @@ export async function loadDocument({
     case "application/vnd.oasis.opendocument.presentation":
     case "application/docx": {
       const arrayBuffer = await content.arrayBuffer();
-      const result = await parseOfficeAsync(Buffer.from(arrayBuffer));
+      const result = await parseOffice(Buffer.from(arrayBuffer));
 
-      document = result;
+      document = result.toText();
       break;
     }
 
@@ -114,7 +114,8 @@ export async function loadDocument({
     case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
     case "application/pptx": {
       const arrayBuffer = await content.arrayBuffer();
-      document = await parseOfficeAsync(Buffer.from(arrayBuffer));
+      const result = await parseOffice(Buffer.from(arrayBuffer));
+      document = result.toText();
       break;
     }
 

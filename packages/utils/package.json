@@ -5,8 +5,8 @@
   "private": true,
   "sideEffects": false,
   "dependencies": {
-    "@tanstack/react-start": "^1.167.16",
-    "@tanstack/start-storage-context": "1.166.23"
+    "@tanstack/react-start": "1.167.65",
+    "@tanstack/start-storage-context": "1.166.35"
   },
   "scripts": {
     "clean": "rm -rf node_modules",

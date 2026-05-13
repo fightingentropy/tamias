@@ -17,7 +17,7 @@
     "@tamias/encryption": "workspace:*",
     "@tamias/logger": "workspace:*",
     "convex": "^1.34.1",
-    "intuit-oauth": "^4.2.2",
+    "intuit-oauth": "^4.2.3",
     "zod": "catalog:"
   },
   "devDependencies": {

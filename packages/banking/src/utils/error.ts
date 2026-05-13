@@ -1,7 +1,7 @@
 import { logger } from "./logger";
 
 /**
- * Extract useful error details from provider HTTP errors (xior/axios).
+ * Extract useful error details from provider HTTP errors.
  * Includes status code and response body when available.
  */
 export function getProviderErrorDetails(error: unknown): Record<string, unknown> {
