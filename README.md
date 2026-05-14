@@ -135,7 +135,7 @@ flowchart LR
 - ElevenLabs for optional insight audio
 - Exa and Plain in supporting flows
 - TrueLayer for banking
-- Xero, QuickBooks, and Fortnox for accounting exports/sync
+- QuickBooks and Fortnox for accounting exports/sync
 - Companies House OAuth, filing transaction, and public-register readiness integration groundwork
 - Stripe and Polar for payments/billing
 - Cloudflare Email Service, Slack, Gmail, Outlook, and WhatsApp integrations

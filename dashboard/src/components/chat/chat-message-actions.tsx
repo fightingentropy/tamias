@@ -4,23 +4,18 @@ import { useChatActions, useChatId } from "@ai-sdk-tools/store";
 import { cn } from "@tamias/ui/cn";
 import { Icons } from "@tamias/ui/icons";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@tamias/ui/tooltip";
-import { useToast } from "@tamias/ui/use-toast";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useRef, useState } from "react";
-import { useAudioPlayerStore } from "@/store/audio-player";
+import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
 import { useTRPC } from "@/trpc/client";
 
 interface ChatMessageActionsProps {
   messageId: string;
   messageContent: string;
-  /** Optional insight ID to enable audio playback */
-  insightId?: string;
 }
 
 export function ChatMessageActions({
   messageId,
   messageContent,
-  insightId,
 }: ChatMessageActionsProps) {
   const chatId = useChatId();
   const { regenerate } = useChatActions();
@@ -28,10 +23,6 @@ export function ChatMessageActions({
   const [copied, setCopied] = useState(false);
 
   const trpc = useTRPC();
-  const queryClient = useQueryClient();
-  const playAudio = useAudioPlayerStore((state) => state.play);
-  const { toast } = useToast();
-  const audioFetchingRef = useRef(false);
 
   const createFeedbackMutation = useMutation(trpc.chatFeedback.create.mutationOptions());
 
@@ -102,60 +93,8 @@ export function ChatMessageActions({
     }
   };
 
-  const handlePlayAudio = useCallback(async () => {
-    if (!insightId || audioFetchingRef.current) return;
-
-    audioFetchingRef.current = true;
-    try {
-      const result = await queryClient.fetchQuery({
-        ...trpc.insights.audioUrl.queryOptions({ id: insightId }),
-        retry: false,
-      });
-
-      if (result.audioUrl) {
-        playAudio(result.audioUrl);
-        return;
-      }
-
-      toast({
-        title: "Audio unavailable",
-        description: "This insight does not have an audio summary yet.",
-      });
-    } catch (error) {
-      console.warn("Failed to fetch audio URL:", error);
-      toast({
-        title: "Couldn't load audio",
-        description: "Try again in a moment.",
-      });
-    } finally {
-      audioFetchingRef.current = false;
-    }
-  }, [insightId, playAudio, queryClient, toast, trpc]);
-
   return (
     <div className="flex items-center gap-1">
-      {/* Listen Button - only show if there's an insight with potential audio */}
-      {insightId && (
-        <div>
-          <TooltipProvider delayDuration={200}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  onClick={handlePlayAudio}
-                  className="flex items-center justify-center w-6 h-6 transition-colors duration-200 hover:bg-muted"
-                >
-                  <Icons.UnMute className="size-3.5 text-muted-foreground hover:text-foreground" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent className="px-2 py-1 text-xs">
-                <p>Listen to breakdown</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-      )}
-
       {/* Copy Button */}
       <div>
         <TooltipProvider delayDuration={200}>

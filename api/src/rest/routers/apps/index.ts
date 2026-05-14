@@ -8,7 +8,6 @@ import { outlookRouter } from "./outlook";
 import { quickbooksRouter } from "./quickbooks";
 import { slackRouter } from "./slack";
 import { truelayerRouter } from "./truelayer";
-import { xeroRouter } from "./xero";
 
 const app = new OpenAPIHono<Context>();
 
@@ -18,7 +17,6 @@ app.route("/gmail", gmailRouter);
 app.route("/outlook", outlookRouter);
 app.route("/hmrc-vat", hmrcVatRouter);
 app.route("/companies-house", companiesHouseRouter);
-app.route("/xero", xeroRouter);
 app.route("/quickbooks", quickbooksRouter);
 app.route("/fortnox", fortnoxRouter);
 app.route("/truelayer", truelayerRouter);

@@ -384,7 +384,7 @@ function StepTwo({
             Which tool are you switching to? This helps us understand where we can improve.
           </p>
           <Textarea
-            placeholder="e.g. QuickBooks, Xero, Wave..."
+            placeholder="e.g. QuickBooks, Fortnox, Wave..."
             className="resize-none h-[60px]"
             value={comment}
             onChange={(e) => onCommentChange(e.target.value)}

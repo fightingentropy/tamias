@@ -2,14 +2,11 @@
 
 import { useChatActions, useChatId } from "@ai-sdk-tools/store";
 import { cn } from "@tamias/ui/cn";
-import { Icons } from "@tamias/ui/icons";
-import { useToast } from "@tamias/ui/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { AnimatePresence, motion, useMotionValue, useTransform } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useChatInterface } from "@/hooks/use-chat-interface";
-import { useAudioPlayerStore } from "@/store/audio-player";
 import { useTRPC } from "@/trpc/client";
 import { WidgetSkeleton } from "./widget-skeleton";
 
@@ -41,7 +38,6 @@ type InsightCard = {
   periodYear: number;
   title?: string;
   story?: string;
-  hasAudio?: boolean;
 };
 
 // Drag threshold to trigger card cycle
@@ -52,7 +48,6 @@ interface InsightCardComponentProps {
   index: number;
   totalCards: number;
   isNew?: boolean;
-  onListenClick: (insight: InsightCard) => void;
   onCardClick: (insight: InsightCard) => void;
   onDismissClick: (insight: InsightCard) => void;
   onDragStart?: () => void;
@@ -64,7 +59,6 @@ function InsightCardComponent({
   index,
   totalCards,
   isNew,
-  onListenClick,
   onCardClick,
   onDismissClick,
   onDragStart,
@@ -208,26 +202,7 @@ function InsightCardComponent({
               </p>
             </div>
             <div className="flex items-end justify-between text-[12px] text-nowrap">
-              {insight.hasAudio ? (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onListenClick(insight);
-                  }}
-                  className={cn(
-                    "flex items-center gap-1",
-                    "dark:text-[rgba(102,102,102,0.5)] text-[rgba(112,112,112,0.5)]",
-                    "transition-colors",
-                    "dark:hover:text-white hover:text-black cursor-pointer",
-                  )}
-                >
-                  <Icons.UnMute className="size-3" />
-                  Listen to breakdown
-                </button>
-              ) : (
-                <div />
-              )}
+              <div />
               <button
                 type="button"
                 onClick={(e) => {
@@ -254,15 +229,11 @@ function InsightCardComponent({
 export function InsightsWidget() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const { toast } = useToast();
   const { sendMessage } = useChatActions();
   const chatId = useChatId();
   const { setChatId } = useChatInterface();
-  const showLoading = useAudioPlayerStore((state) => state.showLoading);
-  const setAudioUrl = useAudioPlayerStore((state) => state.setUrl);
 
   // Refs for managing state without re-renders
-  const audioFetchingRef = useRef(false);
   const markedAsReadRef = useRef<Set<string>>(new Set());
   const knownInsightIdsRef = useRef<Set<string>>(new Set());
   const [newInsightIds, setNewInsightIds] = useState<Set<string>>(new Set());
@@ -300,8 +271,6 @@ export function InsightsWidget() {
       periodYear: insight.periodYear,
       title: insight.title ?? undefined,
       story: insight.content?.story,
-      // Audio is generated lazily when supported, so content is enough to offer playback.
-      hasAudio: !!insight.content,
     })) ?? [];
 
   // Track card order for drag cycling
@@ -360,50 +329,6 @@ export function InsightsWidget() {
       });
     }
   }, []);
-
-  const handleListenClick = useCallback(
-    async (insight: InsightCard) => {
-      if (!insight.hasAudio) return;
-
-      // Prevent concurrent fetches - if already fetching, ignore this click
-      if (audioFetchingRef.current) return;
-
-      audioFetchingRef.current = true;
-
-      // Show the audio player immediately with loading state
-      showLoading();
-
-      try {
-        const result = await queryClient.fetchQuery({
-          ...trpc.insights.audioUrl.queryOptions({ id: insight.id }),
-          retry: false,
-        });
-
-        if (result.audioUrl) {
-          // Set the URL and auto-play
-          setAudioUrl(result.audioUrl);
-          return;
-        }
-
-        useAudioPlayerStore.getState().close();
-        toast({
-          title: "Audio unavailable",
-          description: "This insight does not have an audio summary yet.",
-        });
-      } catch (error) {
-        console.warn("Failed to fetch audio URL:", error);
-        // Close the player on error
-        useAudioPlayerStore.getState().close();
-        toast({
-          title: "Couldn't load audio",
-          description: "Try again in a moment.",
-        });
-      } finally {
-        audioFetchingRef.current = false;
-      }
-    },
-    [queryClient, setAudioUrl, showLoading, toast, trpc],
-  );
 
   const handleCardClick = useCallback(
     (insight: InsightCard) => {
@@ -495,7 +420,6 @@ export function InsightsWidget() {
               index={index}
               totalCards={insights.length}
               isNew={newInsightIds.has(insight.id)}
-              onListenClick={handleListenClick}
               onCardClick={handleCardClick}
               onDismissClick={handleDismissClick}
               onDragEnd={handleDragEnd}

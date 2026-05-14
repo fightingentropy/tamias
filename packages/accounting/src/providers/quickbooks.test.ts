@@ -233,13 +233,15 @@ describe("QuickBooksProvider", () => {
     test("returns connected when company info is accessible", async () => {
       const provider = createProvider();
 
-      mockFetchFn.mockImplementation(async () => ({
-        ok: true,
-        json: () => Promise.resolve({ CompanyInfo: { CompanyName: "Test Company" } }),
+      const apiCall = mock(async (_method: "GET", _endpoint: string) => ({
+        CompanyInfo: { CompanyName: "Test Company" },
       }));
+      (provider as unknown as { apiCall: (method: "GET", endpoint: string) => Promise<unknown> })
+        .apiCall = apiCall;
 
       const result = await provider.checkConnection();
       expect(result.connected).toBe(true);
+      expect(apiCall).toHaveBeenCalledWith("GET", "/companyinfo/123456789");
     });
   });
 

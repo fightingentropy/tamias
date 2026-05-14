@@ -9,7 +9,7 @@ const apiWithAccountingSync = api as typeof api & {
   };
 };
 
-export type AccountingSyncProvider = "xero" | "quickbooks" | "fortnox";
+export type AccountingSyncProvider = "quickbooks" | "fortnox";
 export type AccountingSyncStatus = "synced" | "partial" | "failed" | "pending";
 
 export type AccountingSyncRecord = {

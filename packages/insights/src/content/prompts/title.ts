@@ -7,7 +7,7 @@
  * - Few-shot examples
  * - Direct, specific instructions
  *
- * Uses shared data layer for consistency with summary and audio prompts.
+ * Uses shared data layer for consistency with summary and story prompts.
  */
 import {
   BANNED_WORDS,
@@ -97,7 +97,7 @@ Write ONE headline (15-30 words). Begin directly — no preamble.
 function buildDataSection(slots: InsightSlots): string {
   const lines: string[] = [];
 
-  // Extract shared facts for consistency with summary and audio
+  // Extract shared facts for consistency with summary and story.
   const facts = extractFacts(slots);
 
   // CRITICAL: Low runway warning at the top
@@ -122,10 +122,10 @@ function buildDataSection(slots: InsightSlots): string {
   lines.push(`period: ${slots.periodLabel}`);
   lines.push("");
 
-  // Headline fact - same as summary and audio will use
+  // Headline fact - same as summary will use.
   const headline = getHeadlineFact(facts);
   lines.push(`headline: ${headline}`);
-  lines.push("(This is the lead - same as summary and audio will say)");
+  lines.push("(This is the lead - same as summary will use)");
   lines.push("");
 
   // Notable context for leading the title (most important!)

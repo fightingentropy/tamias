@@ -3,7 +3,7 @@ import { z } from "zod";
 /**
  * Supported accounting providers
  */
-export const AccountingProviderIdSchema = z.enum(["xero", "quickbooks", "fortnox"]);
+export const AccountingProviderIdSchema = z.enum(["quickbooks", "fortnox"]);
 
 export type AccountingProviderId = z.infer<typeof AccountingProviderIdSchema>;
 
@@ -182,19 +182,10 @@ export interface RateLimitConfig {
 /**
  * Pre-defined rate limit configurations for providers (verified 2025)
  *
- * Xero: 60/min, 5 concurrent, 5000/day per tenant
  * QuickBooks: 500/min, 10/sec per realm+app
  * Fortnox: ~25/5sec (conservative, no official docs)
  */
 export const RATE_LIMITS = {
-  /** Xero: 60 calls/min, 5 concurrent, 5000/day per tenant */
-  xero: {
-    callsPerMinute: 60,
-    maxConcurrent: 2, // Reduced from 5 to prevent overlap between jobs
-    callDelayMs: 1000,
-    retryDelayMs: 60000,
-    maxRetries: 3,
-  },
   /** QuickBooks: 500 calls/min, 10/sec per realm */
   quickbooks: {
     callsPerMinute: 500,
@@ -226,10 +217,6 @@ export interface TokenSet {
   expiresAt: Date;
   tokenType: string;
   scope?: string[];
-  /** Tenant/organization ID (populated by Xero during initial auth) */
-  tenantId?: string;
-  /** Tenant/organization name (populated by Xero during initial auth) */
-  tenantName?: string;
 }
 
 /**
@@ -251,27 +238,6 @@ interface BaseProviderConfig {
   scope?: string[];
   /** Default bank account ID for syncing transactions (user-selected) */
   defaultBankAccountId?: string;
-}
-
-/**
- * Xero-specific configuration
- */
-export const XeroProviderConfigSchema = BaseProviderConfigSchema.extend({
-  /** Provider discriminator */
-  provider: z.literal("xero"),
-  /** Xero organization/tenant ID */
-  tenantId: z.string(),
-  /** Organization name */
-  tenantName: z.string().optional(),
-});
-
-export interface XeroProviderConfig extends BaseProviderConfig {
-  /** Provider discriminator */
-  provider: "xero";
-  /** Xero organization/tenant ID */
-  tenantId: string;
-  /** Organization name */
-  tenantName?: string;
 }
 
 /**
@@ -297,7 +263,7 @@ export interface QuickBooksProviderConfig extends BaseProviderConfig {
 
 /**
  * Fortnox-specific configuration
- * Note: Fortnox doesn't have multi-tenant like Xero - company context comes from token
+ * Note: Fortnox company context comes from the token.
  */
 export const FortnoxProviderConfigSchema = BaseProviderConfigSchema.extend({
   /** Provider discriminator */
@@ -321,7 +287,6 @@ export interface FortnoxProviderConfig extends BaseProviderConfig {
  * Union schema for all provider configurations (discriminated by 'provider' field)
  */
 export const AccountingProviderConfigSchema = z.discriminatedUnion("provider", [
-  XeroProviderConfigSchema,
   QuickBooksProviderConfigSchema,
   FortnoxProviderConfigSchema,
 ]);
@@ -331,7 +296,6 @@ export const AccountingProviderConfigSchema = z.discriminatedUnion("provider", [
  * Discriminated by 'provider' field for type safety
  */
 export type AccountingProviderConfig =
-  | XeroProviderConfig
   | QuickBooksProviderConfig
   | FortnoxProviderConfig;
 
@@ -349,13 +313,6 @@ export function parseProviderConfig(config: unknown): AccountingProviderConfig {
 export function safeParseProviderConfig(config: unknown): AccountingProviderConfig | null {
   const result = AccountingProviderConfigSchema.safeParse(config);
   return result.success ? result.data : null;
-}
-
-/**
- * Type guard to check if config is Xero
- */
-export function isXeroConfig(config: AccountingProviderConfig): config is XeroProviderConfig {
-  return config.provider === "xero";
 }
 
 /**
@@ -380,8 +337,6 @@ export function isFortnoxConfig(config: AccountingProviderConfig): config is For
  */
 export function getOrgId(config: AccountingProviderConfig): string {
   switch (config.provider) {
-    case "xero":
-      return config.tenantId;
     case "quickbooks":
       return config.realmId;
     case "fortnox":
@@ -399,8 +354,6 @@ export function getOrgId(config: AccountingProviderConfig): string {
  */
 export function getOrgName(config: AccountingProviderConfig): string | undefined {
   switch (config.provider) {
-    case "xero":
-      return config.tenantName;
     case "quickbooks":
       return config.companyName;
     case "fortnox":
@@ -440,7 +393,6 @@ export interface MappedTransaction {
   category?: string;
   /**
    * Category code for expense/income classification
-   * - Xero: Maps to accountCode (e.g., "400")
    * - QuickBooks: Maps to AccountRef.value
    * - Fortnox: Maps to contra-account in voucher row
    * Each provider handles mapping internally
@@ -464,7 +416,6 @@ export interface MappedTransaction {
   /**
    * Tax amount from OCR or manual entry
    * - QuickBooks: Included in PrivateNote
-   * - Xero: Appended to LineItem description
    * - Fortnox: Appended to VoucherRow description
    */
   taxAmount?: number;
@@ -512,7 +463,6 @@ export interface SyncTransactionsParams {
 export type ProviderEntityType =
   | "Purchase" // QuickBooks expense
   | "Deposit" // QuickBooks income
-  | "BankTransaction" // Xero bank transaction
   | "Voucher"; // Fortnox voucher (verifikation)
 
 /**

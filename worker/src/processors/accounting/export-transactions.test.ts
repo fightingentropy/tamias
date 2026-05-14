@@ -31,7 +31,6 @@ function deriveErrorCodeFromMessage(errorMessage: string | undefined): string | 
     return ACCOUNTING_ERROR_CODES.FINANCIAL_YEAR_MISSING;
   }
   // Detect invalid account errors from various providers:
-  // Xero: "Account code <number> is not valid", "Account code not found"
   // Fortnox: "konto" (Swedish for account), error code 2000106
   // QuickBooks: validation errors mentioning account
   // Also detect errors thrown by our validation
@@ -133,13 +132,13 @@ describe("deriveErrorCodeFromMessage", () => {
       ).toBe(ACCOUNTING_ERROR_CODES.INVALID_ACCOUNT);
     });
 
-    test("detects 'account' + 'not valid' (Xero style)", () => {
+    test("detects 'account' + 'not valid'", () => {
       expect(deriveErrorCodeFromMessage("Account code 999 is not valid")).toBe(
         ACCOUNTING_ERROR_CODES.INVALID_ACCOUNT,
       );
     });
 
-    test("detects 'account' + 'not found' (Xero style)", () => {
+    test("detects 'account' + 'not found'", () => {
       expect(deriveErrorCodeFromMessage("Account code not found")).toBe(
         ACCOUNTING_ERROR_CODES.INVALID_ACCOUNT,
       );

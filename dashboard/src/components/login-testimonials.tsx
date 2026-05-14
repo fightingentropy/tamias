@@ -17,11 +17,11 @@ const testimonials = [
     name: "Guy Solan",
     title: "Thetis Medical • United Kingdom",
     content:
-      "Without Tamias I would've sold my company and lost loads of money. I never had the time to learn Quickbooks or Xero so had no idea what the company cash was doing without ringing up my accountant.",
+      "Without Tamias I would've sold my company and lost loads of money. I never had the time to learn accounting software so had no idea what the company cash was doing without ringing up my accountant.",
     highlighted: "Without Tamias I would've sold my company and lost loads of money",
     firstPart: "Without Tamias I would've sold my company and lost loads of money",
     secondPart:
-      ". I never had the time to learn Quickbooks or Xero so had no idea what the company cash was doing without ringing up my accountant.",
+      ". I never had the time to learn accounting software so had no idea what the company cash was doing without ringing up my accountant.",
   },
   {
     name: "Facu Montanaro",

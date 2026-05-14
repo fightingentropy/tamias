@@ -80,7 +80,7 @@ function isLocalLoopbackHost(hostname: string) {
   return hostname === "localhost" || hostname === "127.0.0.1";
 }
 
-// Backend-only paths nested under frontend-like prefixes (e.g. /apps/xero/oauth-callback
+// Backend-only paths nested under frontend-like prefixes (e.g. /apps/quickbooks/oauth-callback
 // lives under /apps but must reach the Hono API, not the TanStack Router 404).
 const API_ONLY_SUFFIXES = [/^\/apps\/[^/]+\/oauth-callback(?:\/|$)/];
 

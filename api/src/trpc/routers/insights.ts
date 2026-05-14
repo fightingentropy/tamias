@@ -5,24 +5,17 @@ import {
   getInsightsForUser,
   getLatestInsight,
   markInsightAsRead,
-  updateInsight,
 } from "@tamias/app-data/queries";
-import { canGenerateAudio, generateInsightAudio } from "@tamias/insights/audio";
-import { createLoggerWithContext } from "@tamias/logger";
 import { TRPCError } from "@trpc/server";
 import {
   dismissInsightSchema,
-  insightAudioUrlSchema,
   insightByIdSchema,
   insightByPeriodSchema,
   latestInsightSchema,
   listInsightsSchema,
   markInsightAsReadSchema,
 } from "../../schemas/insights";
-import { getVaultSignedUrl } from "../../services/storage";
 import { createTRPCRouter, protectedProcedure, protectedWithConvexIdProcedure } from "../init";
-
-const logger = createLoggerWithContext("trpc:insights");
 
 export const insightsRouter = createTRPCRouter({
   /**
@@ -97,77 +90,6 @@ export const insightsRouter = createTRPCRouter({
       }
 
       return insight;
-    }),
-
-  /**
-   * Get presigned URL for insight audio
-   * Audio is generated on-demand if not already cached.
-   * Returns a short-lived URL (1 hour) for dashboard playback.
-   */
-  audioUrl: protectedProcedure
-    .input(insightAudioUrlSchema)
-    .query(async ({ ctx: { db, teamId }, input }) => {
-      const insight = await getInsightById(db, {
-        id: input.id,
-        teamId: teamId!,
-      });
-
-      if (!insight) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Insight not found",
-        });
-      }
-
-      let audioPath = insight.audioPath;
-
-      // Lazy generation: generate audio if not already cached
-      if (!audioPath) {
-        if (!canGenerateAudio(insight)) {
-          return {
-            audioUrl: null,
-            expiresIn: null,
-          };
-        }
-
-        try {
-          const result = await generateInsightAudio(insight);
-          audioPath = result.audioPath;
-
-          // Update the insight with the new audio path for future requests
-          await updateInsight(db, {
-            id: insight.id,
-            teamId: insight.teamId,
-            audioPath,
-          });
-        } catch (error) {
-          logger.error("Failed to generate audio", {
-            error: error instanceof Error ? error.message : String(error),
-          });
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to generate audio",
-          });
-        }
-      }
-
-      // Generate presigned URL (1 hour for dashboard playback)
-      const { data, error } = await getVaultSignedUrl({
-        path: audioPath,
-        expireIn: 60 * 60,
-      });
-
-      if (error || !data?.signedUrl) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to generate audio URL",
-        });
-      }
-
-      return {
-        audioUrl: data.signedUrl,
-        expiresIn: 60 * 60, // seconds
-      };
     }),
 
   /**

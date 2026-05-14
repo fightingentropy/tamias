@@ -76,10 +76,6 @@ export default {
     transactions: "Transactions",
     invoices: "Invoices",
   },
-  mfa_status: {
-    verified: "Verified",
-    unverified: "Unverified",
-  },
   roles: {
     owner: "Owner",
     member: "Member",

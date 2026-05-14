@@ -12,9 +12,7 @@ import {
   getPeriodLabel,
   type PeriodType,
 } from "@tamias/insights";
-import { buildAudioUrl, createAudioToken, isAudioTokenEnabled } from "@tamias/insights/audio";
 import { enqueue } from "@tamias/job-client";
-import { getApiUrl } from "@tamias/utils/envs";
 import type { WorkerJob as Job } from "../../types/job";
 import { getDb } from "../../utils/db";
 import { BaseProcessor } from "../base";
@@ -168,31 +166,7 @@ export class GenerateInsightsProcessor extends BaseProcessor<GenerateTeamInsight
         locale,
       });
 
-      // Generate token-based audio URL for email notifications
-      // Audio is generated lazily when user clicks "Listen" (saves ElevenLabs costs)
-      let audioUrl: string | undefined;
-
-      if (isAudioTokenEnabled()) {
-        try {
-          // Create a 7-day token for email link access
-          const token = await createAudioToken(insightId, teamId);
-          audioUrl = buildAudioUrl(getApiUrl(), insightId, token);
-
-          this.logger.info("Audio token URL generated for email", {
-            teamId,
-            insightId,
-          });
-        } catch (error) {
-          // Don't fail the insight if token generation fails - audio is optional
-          this.logger.warn("Failed to generate audio token URL", {
-            teamId,
-            insightId,
-            error: error instanceof Error ? error.message : "Unknown error",
-          });
-        }
-      }
-
-      // Update insight with all data (audio is generated lazily on first listen)
+      // Update insight with all data.
       await updateInsight(db, {
         id: insightId,
         teamId,
@@ -213,7 +187,6 @@ export class GenerateInsightsProcessor extends BaseProcessor<GenerateTeamInsight
         insightId,
         periodLabel: period.periodLabel,
         metricsCount: result.selectedMetrics.length,
-        hasAudioUrl: !!audioUrl,
       });
 
       // Trigger notification for new insights (not updates)
@@ -233,7 +206,6 @@ export class GenerateInsightsProcessor extends BaseProcessor<GenerateTeamInsight
               periodNumber: period.periodNumber,
               periodYear: period.periodYear,
               title: result.content.title,
-              audioUrl,
             },
             "notifications",
           );

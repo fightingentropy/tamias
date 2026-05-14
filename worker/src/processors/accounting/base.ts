@@ -62,7 +62,7 @@ export interface TransactionForMapping {
 /**
  * Supported accounting provider IDs
  */
-export type AccountingProviderId = "xero" | "quickbooks" | "fortnox";
+export type AccountingProviderId = "quickbooks" | "fortnox";
 
 /**
  * Check if config has required fields for any accounting provider
@@ -74,8 +74,6 @@ function hasRequiredConfigFields(config: AccountingProviderConfig): boolean {
   }
   // Check for organization ID based on provider discriminator
   switch (config.provider) {
-    case "xero":
-      return !!config.tenantId;
     case "quickbooks":
       return !!config.realmId;
     case "fortnox":

@@ -70,7 +70,6 @@ export type InsightRecord = {
   title: string | null;
   content: unknown;
   predictions: unknown;
-  audioPath: string | null;
   generatedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -199,7 +198,6 @@ export async function updateInsightInConvex(args: {
   activity?: unknown;
   content?: unknown;
   predictions?: unknown;
-  audioPath?: string | null;
   generatedAt?: string | null;
 }) {
   return createClient().mutation(
@@ -217,7 +215,6 @@ export async function updateInsightInConvex(args: {
       activity: args.activity,
       content: args.content,
       predictions: args.predictions,
-      audioPath: args.audioPath,
       generatedAt: args.generatedAt,
     }),
   ) as Promise<InsightRecord | null>;

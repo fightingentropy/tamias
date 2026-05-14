@@ -17,7 +17,6 @@ import {
 import { animate, motion, useMotionValue, useTransform } from "framer-motion";
 import { parseAsString, useQueryState } from "nuqs";
 import { useEffect, useRef, useState } from "react";
-import { AudioPlayer } from "@/components/chat/audio-player";
 import {
   ChatHistoryButton,
   ChatHistoryDropdown,
@@ -299,7 +298,6 @@ function ChatInputContent() {
         }}
         className="!bg-[rgba(247,247,247,0.85)] dark:!bg-[rgba(19,19,19,0.7)] backdrop-blur-lg flex relative"
       >
-        <AudioPlayer />
         <PromptInput
           onSubmit={handleSubmit}
           globalDrop

@@ -61,12 +61,6 @@ export class SyncAttachmentsProcessor extends AccountingProcessorBase<Accounting
       existingSyncedAttachmentMapping,
       syncRecordId,
       providerEntityType,
-      // Tax info for history note (Xero only)
-      taxAmount,
-      taxRate,
-      taxType,
-      note,
-      addHistoryNote,
     } = job.data;
 
     this.logger.info("Starting attachment sync", {
@@ -166,7 +160,8 @@ export class SyncAttachmentsProcessor extends AccountingProcessorBase<Accounting
       });
 
       // Get rate limits for this provider
-      const rateLimit = RATE_LIMITS[providerId as keyof typeof RATE_LIMITS] ?? RATE_LIMITS.xero;
+      const rateLimit =
+        RATE_LIMITS[providerId as keyof typeof RATE_LIMITS] ?? RATE_LIMITS.quickbooks;
 
       this.logger.info("Starting concurrent attachment uploads", {
         attachmentCount: attachments.length,
@@ -292,29 +287,6 @@ export class SyncAttachmentsProcessor extends AccountingProcessorBase<Accounting
           providerId,
           status,
           failedCount,
-        });
-      }
-    }
-
-    // Step 4: Add history note after all attachments (Xero only, new exports only)
-    if (addHistoryNote && providerId === "xero") {
-      try {
-        await provider.addTransactionHistoryNote?.({
-          tenantId: orgId,
-          transactionId: providerTransactionId,
-          taxAmount,
-          taxRate,
-          taxType,
-          note,
-        });
-        this.logger.debug("Added history note to Xero transaction", {
-          transactionId: providerTransactionId,
-        });
-      } catch (error) {
-        // Non-fatal - just log warning
-        this.logger.warn("Failed to add history note to Xero transaction", {
-          transactionId: providerTransactionId,
-          error: error instanceof Error ? error.message : "Unknown error",
         });
       }
     }

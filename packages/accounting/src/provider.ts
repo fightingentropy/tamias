@@ -16,7 +16,7 @@ import {
 } from "./types";
 
 /**
- * Abstract interface for accounting providers (Xero, QuickBooks, etc.)
+ * Abstract interface for accounting providers.
  *
  * Each provider implements this interface to provide a consistent API
  * for OAuth authentication, transaction syncing, and attachment uploads.
@@ -118,19 +118,6 @@ export interface AccountingProvider {
    */
   disconnect?(): Promise<void>;
 
-  /**
-   * Add a history/notes entry to a transaction (Xero only)
-   * Optional - only implemented by Xero provider
-   * @param params - Transaction ID, tax info, and note
-   */
-  addTransactionHistoryNote?(params: {
-    tenantId: string;
-    transactionId: string;
-    taxAmount?: number;
-    taxRate?: number;
-    taxType?: string;
-    note?: string;
-  }): Promise<void>;
 }
 
 /**
@@ -301,7 +288,6 @@ export abstract class BaseAccountingProvider implements AccountingProvider {
 
   /** Extract message from body object */
   private extractFromBody(body: Record<string, unknown>): string | null {
-    // Xero validation errors: Elements[0].ValidationErrors[0].Message
     if (body.Elements && Array.isArray(body.Elements)) {
       const elem = body.Elements[0] as Record<string, unknown> | undefined;
       const validationErrors = elem?.ValidationErrors as Array<Record<string, unknown>> | undefined;

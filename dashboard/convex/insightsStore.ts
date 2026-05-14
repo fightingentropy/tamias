@@ -39,7 +39,6 @@ function serializeInsight(
     title?: string;
     content?: unknown;
     predictions?: unknown;
-    audioPath?: string;
     generatedAt?: string;
     createdAt: string;
     updatedAt: string;
@@ -64,7 +63,6 @@ function serializeInsight(
     title: record.title ?? null,
     content: record.content ?? null,
     predictions: record.predictions ?? null,
-    audioPath: record.audioPath ?? null,
     generatedAt: record.generatedAt ?? null,
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
@@ -146,7 +144,6 @@ export const serviceUpdateInsight = mutation({
     activity: v.optional(v.any()),
     content: v.optional(v.any()),
     predictions: v.optional(v.any()),
-    audioPath: v.optional(v.union(v.string(), v.null())),
     generatedAt: v.optional(v.union(v.string(), v.null())),
   },
   async handler(ctx, args) {
@@ -182,7 +179,6 @@ export const serviceUpdateInsight = mutation({
       ...(args.activity !== undefined ? { activity: args.activity ?? undefined } : {}),
       ...(args.content !== undefined ? { content: args.content ?? undefined } : {}),
       ...(args.predictions !== undefined ? { predictions: args.predictions ?? undefined } : {}),
-      ...(args.audioPath !== undefined ? { audioPath: args.audioPath ?? undefined } : {}),
       ...(args.generatedAt !== undefined ? { generatedAt: args.generatedAt ?? undefined } : {}),
       updatedAt: nowIso(),
     });

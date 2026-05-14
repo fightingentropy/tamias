@@ -42,7 +42,6 @@ export type Insight = {
   title: string | null;
   content: InsightContent | null;
   predictions: InsightPredictions | null;
-  audioPath: string | null;
   generatedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
@@ -68,7 +67,6 @@ export function hydrateInsight(record: StoredInsightRecord): Insight {
     title: record.title,
     content: (record.content as InsightContent | null) ?? null,
     predictions: (record.predictions as InsightPredictions | null) ?? null,
-    audioPath: record.audioPath,
     generatedAt: record.generatedAt ? new Date(record.generatedAt) : null,
     createdAt: new Date(record.createdAt),
     updatedAt: new Date(record.updatedAt),

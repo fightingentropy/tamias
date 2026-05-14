@@ -419,10 +419,8 @@
         "@ai-sdk/openai": "catalog:",
         "@tamias/app-data": "workspace:*",
         "@tamias/logger": "workspace:*",
-        "@tamias/storage": "workspace:*",
         "ai": "catalog:",
         "date-fns": "catalog:",
-        "jose": "catalog:",
         "zod": "catalog:",
       },
       "devDependencies": {

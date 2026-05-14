@@ -57,7 +57,7 @@ export class QuickBooksProvider extends BaseAccountingProvider {
     maxConcurrent: 10,
     callDelayMs: 1000,
     callsPerMinute: 500,
-    retryDelayMs: 5_000, // Wait 5 seconds on rate limit (shorter than Xero)
+    retryDelayMs: 5_000,
     maxRetries: 3,
   };
 

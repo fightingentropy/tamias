@@ -54,12 +54,6 @@ export const getProviderCredentials = (
   redirectUri: string | undefined;
 } => {
   switch (providerId) {
-    case "xero":
-      return {
-        clientId: process.env.XERO_CLIENT_ID,
-        clientSecret: process.env.XERO_CLIENT_SECRET,
-        redirectUri: process.env.XERO_OAUTH_REDIRECT_URL,
-      };
     case "quickbooks":
       return {
         clientId: process.env.QUICKBOOKS_CLIENT_ID,

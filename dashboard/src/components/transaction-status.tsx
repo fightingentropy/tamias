@@ -19,13 +19,11 @@ const ERROR_MESSAGES: Record<string, string> = {
 };
 
 const PROVIDER_NAMES: Record<string, string> = {
-  xero: "Xero",
   quickbooks: "QuickBooks",
   fortnox: "Fortnox",
 };
 
 const PROVIDER_ICONS: Record<string, React.FC<{ className?: string }>> = {
-  xero: Icons.Xero,
   quickbooks: Icons.QuickBooks,
   fortnox: Icons.Fortnox,
 };

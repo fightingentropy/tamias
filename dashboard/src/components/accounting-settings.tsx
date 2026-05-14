@@ -10,11 +10,6 @@ import { useTRPC } from "@/trpc/client";
 
 // Provider display information
 const PROVIDER_INFO = {
-  xero: {
-    name: "Xero",
-    icon: "🟢",
-    description: "Accounting software for small businesses",
-  },
   quickbooks: {
     name: "QuickBooks",
     icon: "🟢",
@@ -124,7 +119,7 @@ export function AccountingSettings() {
                   size="sm"
                   onClick={() =>
                     disconnectMutation.mutate({
-                      providerId: connection.providerId as "xero" | "quickbooks" | "fortnox",
+                      providerId: connection.providerId as "quickbooks" | "fortnox",
                     })
                   }
                   disabled={disconnectMutation.isPending}

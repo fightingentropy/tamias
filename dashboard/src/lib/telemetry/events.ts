@@ -71,10 +71,6 @@ export const LogEvents = {
     name: "Share File",
     channel: "vault",
   },
-  MfaVerify: {
-    name: "MFA Verify",
-    channel: "security",
-  },
   InboxInbound: {
     name: "Inbox Inbound",
     channel: "inbox",

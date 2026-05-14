@@ -104,24 +104,6 @@ export const insightByPeriodSchema = z
     description: "Parameters for getting an insight by specific period",
   });
 
-export const insightAudioUrlSchema = z
-  .object({
-    id: z
-      .string()
-      .uuid()
-      .openapi({
-        description: "Unique identifier of the insight",
-        example: "b3b7c1e2-4c2a-4e7a-9c1a-2b7c1e24c2a4",
-        param: {
-          in: "path",
-          name: "id",
-        },
-      }),
-  })
-  .openapi({
-    description: "Parameters for getting an insight audio URL",
-  });
-
 export const markInsightAsReadSchema = z
   .object({
     id: z.string().uuid().openapi({
@@ -199,7 +181,6 @@ export const insightResponseSchema = z
       .nullable()
       .openapi({ description: "Key metrics for this period" }),
     content: insightContentSchema.nullable().openapi({ description: "AI-generated content" }),
-    audioPath: z.string().nullable().openapi({ description: "Path to audio file" }),
     generatedAt: z.string().nullable().openapi({ description: "When insight was generated" }),
     createdAt: z.string().openapi({ description: "Creation timestamp" }),
     updatedAt: z.string().openapi({ description: "Last update timestamp" }),
@@ -224,21 +205,6 @@ export const insightsListResponseSchema = z
     }),
   })
   .openapi({ description: "Paginated list of insights" });
-
-export const audioUrlResponseSchema = z
-  .object({
-    audioUrl: z.string().url().nullable().openapi({
-      description: "Pre-signed URL for the audio file, or null when audio is unavailable",
-      example: "https://storage.example.com/audio/insight-123.mp3?token=abc",
-    }),
-    expiresIn: z.number().nullable().openapi({
-      description: "Time in seconds until the URL expires, or null when audio is unavailable",
-      example: 3600,
-    }),
-  })
-  .openapi({
-    description: "Response containing a pre-signed audio URL when available",
-  });
 
 export const markAsReadResponseSchema = z
   .object({

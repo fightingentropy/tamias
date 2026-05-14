@@ -1002,7 +1002,7 @@ function TestimonialsSection() {
 // ─── Integrations Marquee ────────────────────────────────────────────────────
 
 const integrationRow1 = [
-  "Gmail", "Outlook", "Slack", "Telegram", "QuickBooks", "Xero",
+  "Gmail", "Outlook", "Slack", "Telegram", "QuickBooks",
   "Fortnox", "Stripe", "Linear", "Jira", "Asana", "HubSpot",
   "Notion", "GitHub", "Google Drive", "Figma", "Shopify",
 ];

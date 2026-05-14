@@ -34,10 +34,6 @@ export function getProviderOAuthCredentials(providerId: AccountingProviderId): {
   clientSecret: string;
   redirectUri: string;
 } {
-  if (providerId === "xero") {
-    throw new Error("Xero integration has been removed. Please use QuickBooks or Fortnox.");
-  }
-
   const envKeys = PROVIDER_ENV_KEYS[providerId];
 
   const clientId = process.env[envKeys.clientId];
@@ -76,9 +72,6 @@ export async function getAccountingProvider(
   };
 
   switch (providerId) {
-    case "xero":
-      throw new Error("Xero integration has been removed. Please use QuickBooks or Fortnox.");
-
     case "quickbooks": {
       const { QuickBooksProvider } = await import("./providers/quickbooks");
       return new QuickBooksProvider(initConfig);

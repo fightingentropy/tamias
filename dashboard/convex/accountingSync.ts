@@ -8,7 +8,7 @@ import { nowIso } from "../../packages/domain/src/identity";
 
 type AccountingSyncCtx = QueryCtx | MutationCtx;
 
-const providerValidator = v.union(v.literal("xero"), v.literal("quickbooks"), v.literal("fortnox"));
+const providerValidator = v.union(v.literal("quickbooks"), v.literal("fortnox"));
 
 const statusValidator = v.union(
   v.literal("synced"),
@@ -17,7 +17,7 @@ const statusValidator = v.union(
   v.literal("pending"),
 );
 
-type AccountingSyncProvider = "xero" | "quickbooks" | "fortnox";
+type AccountingSyncProvider = "quickbooks" | "fortnox";
 type AccountingSyncStatus = "synced" | "partial" | "failed" | "pending";
 
 type AccountingSyncDocument = Doc<"accountingSyncRecords">;

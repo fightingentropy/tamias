@@ -54,7 +54,6 @@ export function formatProviderName(provider: string): string {
     fortnox: "Fortnox",
     "hmrc-vat": "HMRC VAT",
     "companies-house": "Companies House",
-    xero: "Xero",
     quickbooks: "QuickBooks",
     gmail: "Gmail",
     outlook: "Outlook",

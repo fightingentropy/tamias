@@ -2,7 +2,6 @@
  * Focused prompts for split insight generation
  */
 
-export { buildAudioPrompt } from "./audio";
 export { extractFacts, getHeadlineFact, getPrimaryAction, type InsightFacts } from "./shared-data";
 export {
   type AnomalySlot,

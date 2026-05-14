@@ -1,6 +1,6 @@
 /**
  * Standardized OAuth error codes for app integrations
- * Used across all OAuth providers (Fortnox, Xero, QuickBooks, Gmail, Outlook, etc.)
+ * Used across all OAuth providers (Fortnox, QuickBooks, Gmail, Outlook, etc.)
  */
 export const OAUTH_ERROR_CODES = [
   "access_denied",

@@ -101,7 +101,7 @@ export const accountingRouter = createTRPCRouter({
 
     const apps = await getApps(db, teamId);
 
-    const accountingProviderIds = ["xero", "quickbooks", "fortnox"];
+    const accountingProviderIds = ["quickbooks", "fortnox"];
     const connectedProviders = apps
       .filter((app) => accountingProviderIds.includes(app.app_id))
       .map((app) => {

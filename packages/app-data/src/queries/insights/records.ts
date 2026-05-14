@@ -56,7 +56,6 @@ export type UpdateInsightParams = {
   activity?: InsightActivity;
   content?: InsightContent;
   predictions?: InsightPredictions;
-  audioPath?: string;
   generatedAt?: Date;
 };
 
@@ -74,7 +73,6 @@ export async function updateInsight(_db: DatabaseOrTransaction, params: UpdateIn
     activity: params.activity,
     content: params.content,
     predictions: params.predictions,
-    audioPath: params.audioPath,
     generatedAt: params.generatedAt?.toISOString() ?? undefined,
   });
 

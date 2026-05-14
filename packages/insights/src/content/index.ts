@@ -14,7 +14,6 @@ export { getFallbackContent } from "./prompts";
 
 export {
   type AnomalySlot,
-  buildAudioPrompt,
   buildStoryPrompt,
   buildSummaryPrompt,
   buildTitlePrompt,

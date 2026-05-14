@@ -6,7 +6,7 @@ interface ExportData {
   runId?: string;
   /** Type of export: "file" for vault storage, "accounting" for provider sync */
   exportType?: ExportType;
-  /** Provider name for accounting exports (e.g., "Xero", "QuickBooks") */
+  /** Provider name for accounting exports (e.g., "QuickBooks", "Fortnox") */
   providerName?: string;
 }
 

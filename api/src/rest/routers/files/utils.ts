@@ -1,6 +1,10 @@
 import { HTTPException } from "hono/http-exception";
 
 const TEAM_ID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const HEADER_UNSAFE_FILENAME_CHARS = new RegExp(
+  ["[", "\\u0000-\\u001F", "\\u007F", '";', "]"].join(""),
+  "g",
+);
 
 /**
  * Normalize and validate file path
@@ -52,7 +56,7 @@ export function normalizeAndValidatePath(
  * and replaces non-ASCII characters with underscores.
  */
 export function sanitizeFilename(filename: string): string {
-  return filename.replace(/[\r\n";\x00-\x1f\x7f]/g, "_");
+  return filename.replace(HEADER_UNSAFE_FILENAME_CHARS, "_");
 }
 
 /**

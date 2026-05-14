@@ -37,8 +37,6 @@ import { Route as SShortIdRouteImport } from './routes/s/$shortId'
 import { Route as RLinkIdRouteImport } from './routes/r/$linkId'
 import { Route as PPortalIdRouteImport } from './routes/p/$portalId'
 import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
-import { Route as MfaVerifyRouteImport } from './routes/mfa/verify'
-import { Route as MfaSetupRouteImport } from './routes/mfa/setup'
 import { Route as InvoicesProductsRouteImport } from './routes/invoices/products'
 import { Route as InboxSettingsRouteImport } from './routes/inbox/settings'
 import { Route as ITokenRouteImport } from './routes/i/$token'
@@ -222,16 +220,6 @@ const OauthAuthorizeRoute = OauthAuthorizeRouteImport.update({
 } as any).lazy(() =>
   import('./routes/oauth/authorize.lazy').then((d) => d.Route),
 )
-const MfaVerifyRoute = MfaVerifyRouteImport.update({
-  id: '/mfa/verify',
-  path: '/mfa/verify',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MfaSetupRoute = MfaSetupRouteImport.update({
-  id: '/mfa/setup',
-  path: '/mfa/setup',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const InvoicesProductsRoute = InvoicesProductsRouteImport.update({
   id: '/products',
   path: '/products',
@@ -393,8 +381,6 @@ export interface FileRoutesByFullPath {
   '/i/$token': typeof ITokenRouteWithChildren
   '/inbox/settings': typeof InboxSettingsRoute
   '/invoices/products': typeof InvoicesProductsRoute
-  '/mfa/setup': typeof MfaSetupRoute
-  '/mfa/verify': typeof MfaVerifyRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/p/$portalId': typeof PPortalIdRouteWithChildren
   '/r/$linkId': typeof RLinkIdRouteWithChildren
@@ -447,8 +433,6 @@ export interface FileRoutesByTo {
   '/i/$token': typeof ITokenRouteWithChildren
   '/inbox/settings': typeof InboxSettingsRoute
   '/invoices/products': typeof InvoicesProductsRoute
-  '/mfa/setup': typeof MfaSetupRoute
-  '/mfa/verify': typeof MfaVerifyRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/p/$portalId': typeof PPortalIdRouteWithChildren
   '/r/$linkId': typeof RLinkIdRouteWithChildren
@@ -502,8 +486,6 @@ export interface FileRoutesById {
   '/i/$token': typeof ITokenRouteWithChildren
   '/inbox/settings': typeof InboxSettingsRoute
   '/invoices/products': typeof InvoicesProductsRoute
-  '/mfa/setup': typeof MfaSetupRoute
-  '/mfa/verify': typeof MfaVerifyRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/p/$portalId': typeof PPortalIdRouteWithChildren
   '/r/$linkId': typeof RLinkIdRouteWithChildren
@@ -558,8 +540,6 @@ export interface FileRouteTypes {
     | '/i/$token'
     | '/inbox/settings'
     | '/invoices/products'
-    | '/mfa/setup'
-    | '/mfa/verify'
     | '/oauth/authorize'
     | '/p/$portalId'
     | '/r/$linkId'
@@ -612,8 +592,6 @@ export interface FileRouteTypes {
     | '/i/$token'
     | '/inbox/settings'
     | '/invoices/products'
-    | '/mfa/setup'
-    | '/mfa/verify'
     | '/oauth/authorize'
     | '/p/$portalId'
     | '/r/$linkId'
@@ -666,8 +644,6 @@ export interface FileRouteTypes {
     | '/i/$token'
     | '/inbox/settings'
     | '/invoices/products'
-    | '/mfa/setup'
-    | '/mfa/verify'
     | '/oauth/authorize'
     | '/p/$portalId'
     | '/r/$linkId'
@@ -719,8 +695,6 @@ export interface RootRouteChildren {
   ComplianceVatRoute: typeof ComplianceVatRoute
   ComplianceYearEndRoute: typeof ComplianceYearEndRoute
   ITokenRoute: typeof ITokenRouteWithChildren
-  MfaSetupRoute: typeof MfaSetupRoute
-  MfaVerifyRoute: typeof MfaVerifyRoute
   OauthAuthorizeRoute: typeof OauthAuthorizeRoute
   PPortalIdRoute: typeof PPortalIdRouteWithChildren
   RLinkIdRoute: typeof RLinkIdRouteWithChildren
@@ -935,20 +909,6 @@ declare module '@tanstack/react-router' {
       path: '/oauth/authorize'
       fullPath: '/oauth/authorize'
       preLoaderRoute: typeof OauthAuthorizeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mfa/verify': {
-      id: '/mfa/verify'
-      path: '/mfa/verify'
-      fullPath: '/mfa/verify'
-      preLoaderRoute: typeof MfaVerifyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mfa/setup': {
-      id: '/mfa/setup'
-      path: '/mfa/setup'
-      fullPath: '/mfa/setup'
-      preLoaderRoute: typeof MfaSetupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/invoices/products': {
@@ -1215,8 +1175,6 @@ const rootRouteChildren: RootRouteChildren = {
   ComplianceVatRoute: ComplianceVatRoute,
   ComplianceYearEndRoute: ComplianceYearEndRoute,
   ITokenRoute: ITokenRouteWithChildren,
-  MfaSetupRoute: MfaSetupRoute,
-  MfaVerifyRoute: MfaVerifyRoute,
   OauthAuthorizeRoute: OauthAuthorizeRoute,
   PPortalIdRoute: PPortalIdRouteWithChildren,
   RLinkIdRoute: RLinkIdRouteWithChildren,

@@ -235,7 +235,6 @@ export function ChatMessages({ messages, isStreaming = false }: ChatMessagesProp
                     <ChatMessageActions
                       messageContent={textContent}
                       messageId={message.id}
-                      insightId={insightData?.id}
                     />
                     {/* Artifact toggle icon */}
                     {artifactType && <ArtifactToggleIcon artifactType={artifactType} />}

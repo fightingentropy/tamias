@@ -37,7 +37,7 @@ describe("resolveMimeType", () => {
     });
 
     test("returns stored image/png if supported", () => {
-      const result = resolveMimeType("image/png", "image.png", createPngBuffer(), "xero");
+      const result = resolveMimeType("image/png", "image.png", createPngBuffer(), "quickbooks");
       expect(result.mimeType).toBe("image/png");
       expect(result.source).toBe("stored");
     });
@@ -62,13 +62,13 @@ describe("resolveMimeType", () => {
     });
 
     test("infers jpeg from .jpeg extension", () => {
-      const result = resolveMimeType(null, "photo.JPEG", createJpegBuffer(), "xero");
+      const result = resolveMimeType(null, "photo.JPEG", createJpegBuffer(), "quickbooks");
       expect(result.mimeType).toBe("image/jpeg");
       expect(result.source).toBe("extension");
     });
 
-    test("infers gif from .gif extension (xero)", () => {
-      const result = resolveMimeType(null, "animation.gif", createGifBuffer(), "xero");
+    test("infers gif from .gif extension", () => {
+      const result = resolveMimeType(null, "animation.gif", createGifBuffer(), "quickbooks");
       expect(result.mimeType).toBe("image/gif");
       expect(result.source).toBe("extension");
     });
@@ -88,7 +88,7 @@ describe("resolveMimeType", () => {
     });
 
     test("detects PNG from magic bytes", () => {
-      const result = resolveMimeType(null, null, createPngBuffer(), "xero");
+      const result = resolveMimeType(null, null, createPngBuffer(), "fortnox");
       expect(result.mimeType).toBe("image/png");
       expect(result.source).toBe("buffer");
     });
@@ -145,13 +145,6 @@ describe("resolveMimeType", () => {
       expect(result.error).toContain("not supported by fortnox");
     });
 
-    test("returns error for TIFF on Xero", () => {
-      const result = resolveMimeType("image/tiff", "scan.tiff", createTiffLeBuffer(), "xero");
-      expect(result.mimeType).toBe(null);
-      expect(result.source).toBe("failed");
-      expect(result.error).toContain("not supported by xero");
-    });
-
     test("returns error for BMP on Fortnox", () => {
       const result = resolveMimeType("image/bmp", "image.bmp", createBmpBuffer(), "fortnox");
       expect(result.mimeType).toBe(null);
@@ -182,25 +175,6 @@ describe("resolveMimeType", () => {
 
       // Not supported
       expect(resolveMimeType("image/gif", null, createGifBuffer(), "fortnox").mimeType).toBe(null);
-    });
-
-    test("xero supports PDF, JPEG, PNG, GIF", () => {
-      // Supported
-      expect(resolveMimeType("application/pdf", null, createPdfBuffer(), "xero").mimeType).toBe(
-        "application/pdf",
-      );
-      expect(resolveMimeType("image/jpeg", null, createJpegBuffer(), "xero").mimeType).toBe(
-        "image/jpeg",
-      );
-      expect(resolveMimeType("image/png", null, createPngBuffer(), "xero").mimeType).toBe(
-        "image/png",
-      );
-      expect(resolveMimeType("image/gif", null, createGifBuffer(), "xero").mimeType).toBe(
-        "image/gif",
-      );
-
-      // Not supported
-      expect(resolveMimeType("image/tiff", null, createTiffLeBuffer(), "xero").mimeType).toBe(null);
     });
 
     test("quickbooks supports PDF, JPEG, PNG, GIF, TIFF, BMP", () => {
@@ -234,7 +208,7 @@ describe("resolveMimeType", () => {
     });
 
     test("handles very small buffer", () => {
-      const result = resolveMimeType(null, null, Buffer.from([0x00]), "xero");
+      const result = resolveMimeType(null, null, Buffer.from([0x00]), "quickbooks");
       expect(result.mimeType).toBe(null);
       expect(result.source).toBe("failed");
     });
@@ -275,16 +249,6 @@ describe("PROVIDER_ATTACHMENT_CONFIG", () => {
     expect(config.supportedTypes.has("image/bmp")).toBe(false);
   });
 
-  test("xero supports PDF, JPEG, PNG, GIF", () => {
-    const config = PROVIDER_ATTACHMENT_CONFIG.xero;
-    expect(config.supportedTypes.has("application/pdf")).toBe(true);
-    expect(config.supportedTypes.has("image/jpeg")).toBe(true);
-    expect(config.supportedTypes.has("image/png")).toBe(true);
-    expect(config.supportedTypes.has("image/gif")).toBe(true);
-    expect(config.supportedTypes.has("image/tiff")).toBe(false);
-    expect(config.supportedTypes.has("image/bmp")).toBe(false);
-  });
-
   test("quickbooks supports PDF, JPEG, PNG, GIF, TIFF, BMP", () => {
     const config = PROVIDER_ATTACHMENT_CONFIG.quickbooks;
     expect(config.supportedTypes.has("application/pdf")).toBe(true);
@@ -297,10 +261,6 @@ describe("PROVIDER_ATTACHMENT_CONFIG", () => {
 
   test("fortnox max size is 10 MB", () => {
     expect(PROVIDER_ATTACHMENT_CONFIG.fortnox.maxSizeBytes).toBe(10 * 1024 * 1024);
-  });
-
-  test("xero max size is 3 MB", () => {
-    expect(PROVIDER_ATTACHMENT_CONFIG.xero.maxSizeBytes).toBe(3 * 1024 * 1024);
   });
 
   test("quickbooks max size is 20 MB", () => {

@@ -62,7 +62,6 @@ export class NotificationProcessor extends BaseProcessor<NotificationPayload> {
             periodNumber: payload.periodNumber,
             periodYear: payload.periodYear,
             title: payload.title,
-            audioUrl: payload.audioUrl,
           },
           { sendEmail: true },
         );

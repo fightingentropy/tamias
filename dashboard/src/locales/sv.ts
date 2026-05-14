@@ -55,10 +55,6 @@ export default {
     transactions: "Transaktioner",
     invoices: "Fakturor",
   },
-  mfa_status: {
-    verified: "Verifierad",
-    unverified: "Overifierad",
-  },
   roles: {
     owner: "Ägare",
     member: "Medlem",

@@ -13,7 +13,7 @@ export type { OAuthErrorCode };
  * - Standard OAuth (access_denied, consent_required, etc.)
  * - Fortnox (error_missing_license, error_missing_system_admin_right, etc.)
  * - Google/Microsoft (scope errors)
- * - Xero/QuickBooks (various provider errors)
+ * - Accounting provider errors
  */
 export function mapOAuthError(error: string | undefined): OAuthErrorCode {
   if (!error) return "unknown_error";

@@ -24,19 +24,16 @@ import { useTransactionsStore } from "@/store/transactions";
 import { useTRPC } from "@/trpc/client";
 
 const PROVIDER_NAMES: Record<string, string> = {
-  xero: "Xero",
   quickbooks: "QuickBooks",
   fortnox: "Fortnox",
 };
 
 const ACCOUNTING_PROVIDERS = [
-  { id: "xero", name: "Xero" },
   { id: "quickbooks", name: "QuickBooks" },
   { id: "fortnox", name: "Fortnox" },
 ] as const;
 
 const PROVIDER_ICONS: Record<string, React.FC<{ className?: string }>> = {
-  xero: Icons.Xero,
   quickbooks: Icons.QuickBooks,
   fortnox: Icons.Fortnox,
 };
@@ -69,7 +66,7 @@ export function ExportBar() {
 
   // Find all connected accounting providers
   const connectedProviders = useMemo(() => {
-    const accountingProviderIds = ["xero", "quickbooks", "fortnox"];
+    const accountingProviderIds = ["quickbooks", "fortnox"];
     return connectedApps?.filter((app) => accountingProviderIds.includes(app.app_id)) ?? [];
   }, [connectedApps]);
 
@@ -246,7 +243,7 @@ export function ExportBar() {
     setIsExporting(true);
     accountingExportMutation.mutate({
       transactionIds: transactionIdsForExport,
-      providerId: activeProvider.app_id as "xero" | "quickbooks" | "fortnox",
+      providerId: activeProvider.app_id as "quickbooks" | "fortnox",
     });
   };
 

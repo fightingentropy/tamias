@@ -448,8 +448,8 @@ export function BulkReconciliationAnimation({
               >
                 <span className="font-sans text-[10px] md:text-[11px]">Export</span>
                 <img
-                  src="/images/xero.svg"
-                  alt="Xero"
+                  src="/images/quickbooks.svg"
+                  alt="QuickBooks"
                   width={12}
                   height={12}
                   className="w-[10px] h-[10px] md:w-[12px] md:h-[12px] object-contain"

@@ -161,7 +161,7 @@ export const planFeatures: PlanFeature[] = [
   },
   {
     label: "Accounting exports",
-    tooltip: "Export to Xero, QuickBooks, Fortnox, or CSV with one click.",
+    tooltip: "Export to QuickBooks, Fortnox, or CSV with one click.",
   },
   {
     label: "Time tracking",

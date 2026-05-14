@@ -12,7 +12,10 @@ import { Portal } from "@/components/portal";
 import { useChatInterface } from "@/hooks/use-chat-interface";
 import { useChatStatus } from "@/hooks/use-chat-status";
 import { useOverviewTab } from "@/hooks/use-overview-tab";
-import { ChatHeader, ChatInput, ChatMessages, ChatStatusIndicators } from "./";
+import { ChatHeader } from "./chat-header";
+import { ChatInput } from "./chat-input";
+import { ChatMessages } from "./chat-messages";
+import { ChatStatusIndicators } from "./chat-status-indicators";
 import { SuggestedPrompts } from "./suggested-prompts";
 
 // Dynamically load Canvas (15 chart components) - only loads when user opens an artifact

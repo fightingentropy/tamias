@@ -543,7 +543,6 @@ The provider facade in `packages/banking/src/index.ts` accepts only `truelayer`.
 
 ## Accounting integrations
 
-Technical documentation for Tamias's accounting software integrations (Xero, QuickBooks, Fortnox).
 
 ### Table of Contents
 
@@ -568,7 +567,6 @@ The accounting integration enables Tamias users to export their enriched financi
 
 | Provider   | Status | OAuth     | Export         | Attachments |
 | ---------- | ------ | --------- | -------------- | ----------- |
-| Xero       | Active | OAuth 2.0 | Yes            | Yes         |
 | QuickBooks | Active | OAuth 2.0 | Yes            | Yes         |
 | Fortnox    | Active | OAuth 2.0 | Yes (Vouchers) | Yes         |
 
@@ -582,7 +580,6 @@ The accounting integration enables Tamias users to export their enriched financi
 - Retry handling with exponential backoff
 - Re-export support (creates new entries in accounting provider)
 - **Concurrent uploads** with provider-specific rate limiting
-- **Adaptive rate limiting** (Xero) based on API quota tracking
 - **Date-sorted exports** for chronological ordering in accounting software
 
 ---
@@ -617,13 +614,11 @@ flowchart TB
 
     subgraph Accounting["@tamias/accounting"]
         IFACE[AccountingProvider Interface]
-        XERO[XeroProvider]
         QB[QuickBooksProvider]
         FNX[FortnoxProvider]
     end
 
     subgraph External["External APIs"]
-        XERO_API[Xero API]
         QB_API[QuickBooks API]
         FNX_API[Fortnox API]
     end
@@ -638,11 +633,9 @@ flowchart TB
     PROC2 --> IFACE
     PROC3 --> IFACE
 
-    IFACE --> XERO
     IFACE --> QB
     IFACE --> FNX
 
-    XERO --> XERO_API
     QB --> QB_API
     FNX --> FNX_API
 
@@ -660,7 +653,6 @@ packages/accounting/
 │   ├── types.ts              # Shared types
 │   ├── utils.ts              # OAuth state encryption, utilities
 │   └── providers/
-│       ├── xero.ts           # Xero implementation
 │       ├── quickbooks.ts     # QuickBooks implementation
 │       └── fortnox.ts        # Fortnox implementation
 ├── package.json
@@ -838,13 +830,11 @@ Users manually select which transactions to export. The system validates that tr
 
 | Provider   | Entity Type      | Idempotency         | Notes                             |
 | ---------- | ---------------- | ------------------- | --------------------------------- |
-| Xero       | BankTransaction  | `updateOrCreate`    | SPEND/RECEIVE, deterministic keys |
 | QuickBooks | Purchase/Deposit | `Request-Id` header | Based on amount sign              |
 | Fortnox    | Voucher          | None (immutable)    | Posted vouchers, double-entry     |
 
 #### Important: Re-Export Behavior
 
-- **Xero**: Uses `updateOrCreateBankTransactions` - re-exporting the same transaction **updates** it rather than creating duplicates
 - **QuickBooks**: Uses idempotency headers but creates new entities on re-export
 - **Fortnox**: Vouchers are **immutable** via API - re-exporting always creates a new voucher. Users must manually delete old vouchers in Fortnox if needed
 
@@ -1008,10 +998,6 @@ updateSyncedAttachmentMapping(db, {
 #### Environment Variables
 
 ```bash
-# Xero
-XERO_CLIENT_ID=your_client_id
-XERO_CLIENT_SECRET=your_client_secret
-XERO_OAUTH_REDIRECT_URL=https://api.tamias.xyz/v1/apps/xero/oauth-callback
 
 # QuickBooks
 QUICKBOOKS_CLIENT_ID=your_client_id
@@ -1073,7 +1059,6 @@ await upsertAccountingSyncRecord(db, {
 
 | Provider   | Calls/Min | Concurrent | Daily | Notes         |
 | ---------- | --------- | ---------- | ----- | ------------- |
-| Xero       | 60        | 5          | 5,000 | Per tenant    |
 | QuickBooks | 500       | 10         | None  | Per realm     |
 | Fortnox    | ~300      | 3          | None  | ~25/5 seconds |
 
@@ -1088,7 +1073,6 @@ function calculateAttachmentJobDelay(providerId: string, jobIndex: number): numb
   const msPerJob = Math.ceil((60000 / rateLimit) * 1.1); // 1.1x buffer
   return jobIndex * msPerJob;
 }
-// Xero: Job 0 = 0ms, Job 1 = 1100ms, Job 2 = 2200ms, ...
 ```
 
 **Benefits:**
@@ -1104,7 +1088,6 @@ For transactions with multiple attachments, uploads are batched:
 
 ```typescript
 const RATE_LIMITS = {
-  xero: { maxConcurrent: 3, callDelayMs: 1500 },
   quickbooks: { maxConcurrent: 10, callDelayMs: 200 },
   fortnox: { maxConcurrent: 3, callDelayMs: 600 },
 };
@@ -1116,24 +1099,20 @@ All providers sort transactions by date before export:
 
 - Ensures chronological order in accounting software
 - Fortnox: Voucher numbers assigned in creation order
-- Xero/QuickBooks: Cleaner transaction lists
 
 #### Estimated Export Times
 
-| Transactions + Attachments | Xero    | QuickBooks | Fortnox |
 | -------------------------- | ------- | ---------- | ------- |
 | 200                        | ~4 min  | ~30 sec    | ~1 min  |
 | 1000                       | ~18 min | ~2 min     | ~4 min  |
 | 2000                       | ~37 min | ~4 min     | ~8 min  |
 
-**Note:** Xero has a daily limit of 5,000 calls. Exports larger than ~4,500 attachments may span multiple days.
 
 ---
 
 ### Limitations
 
 1. **No Updates**: Re-exporting creates new entries; existing entries cannot be updated
-2. **Attachment Deletion**: Partial support - QuickBooks and Fortnox support deletion, Xero does not (attachments remain in Xero)
 3. **Bank Account Mapping**: Currently uses first active account; multi-account mapping planned
 4. **Rate Limits**: Subject to provider API rate limits (handled automatically with throttling)
 5. **Fortnox Vouchers**: Created as posted entries (Fortnox API doesn't support draft vouchers via API)
@@ -1161,8 +1140,6 @@ classDiagram
         +uploadAttachment(params) AttachmentResult
     }
 
-    class XeroProvider {
-        -client: XeroClient
         +getConsentUrl(state) string
         +exchangeCodeForTokens(code) TokenResponse
         +refreshTokens(refreshToken) TokenResponse
@@ -1180,7 +1157,6 @@ classDiagram
         <<planned>>
     }
 
-    AccountingProvider <|.. XeroProvider
     AccountingProvider <|.. QuickBooksProvider
     AccountingProvider <|.. FortnoxProvider
 ```
@@ -1499,7 +1475,6 @@ flowchart TB
 
 ### Data Mapping
 
-#### Tamias to Xero Transaction Mapping
 
 ```mermaid
 flowchart LR
@@ -1513,7 +1488,6 @@ flowchart LR
         M7[categorySlug]
     end
 
-    subgraph Xero["Xero BankTransaction"]
         X1[Reference]
         X2[Date]
         X3[LineItems.UnitAmount]
@@ -1554,7 +1528,6 @@ sequenceDiagram
     Processor->>Processor: Convert to Buffer
 
     Processor->>Provider: Upload attachment
-    Note over Provider: POST /BankTransactions/{id}/Attachments
     Provider-->>Processor: Attachment ID
 
     Processor->>Database: Update synced_attachment_ids
@@ -1585,8 +1558,6 @@ sequenceDiagram
 
 | Provider | Limit           | Tamias Handling                             |
 | -------- | --------------- | ------------------------------------------- |
-| Xero     | 60 calls/minute | Async worker concurrency + provider backoff |
-| Xero     | 5000 calls/day  | Batch processing reduces calls              |
 
 ---
 

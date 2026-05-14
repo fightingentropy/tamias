@@ -36,8 +36,7 @@ function deriveErrorCodeFromMessage(errorMessage: string | undefined): string | 
   ) {
     return ACCOUNTING_ERROR_CODES.FINANCIAL_YEAR_MISSING;
   }
-  // Detect invalid account errors from various providers:
-  // Xero: "Account code <number> is not valid", "Account code not found"
+  // Detect invalid account errors from providers:
   // Fortnox: "konto" (Swedish for account), error code 2000106
   // QuickBooks: validation errors mentioning account
   // Also detect errors thrown by our validation
@@ -74,8 +73,7 @@ const BATCH_SIZE = 50;
  * Each job may upload multiple attachments, and uploads can take time.
  * We add buffer to ensure previous job's uploads complete before next starts.
  *
- * Example for Xero (60 calls/min, 2x buffer):
- * - Job 0 at 0ms, Job 1 at 2000ms, Job 2 at 4000ms, etc.
+ * Example: Job 0 at 0ms, Job 1 after the provider-specific delay, etc.
  */
 function calculateAttachmentJobDelay(providerId: string, jobIndex: number): number {
   const config = RATE_LIMITS[providerId as keyof typeof RATE_LIMITS];
@@ -297,7 +295,6 @@ export class ExportTransactionsProcessor extends AccountingProcessorBase<Account
             // Trigger attachment sync for successful transactions
             if (txResult.success && txResult.providerTransactionId) {
               const originalTx = toExportTransactions.find((t) => t.id === txResult.transactionId);
-              const mappedTx = batch.find((t) => t.id === txResult.transactionId);
               const attachments = originalTx?.attachments?.filter((a) => a.name !== null) ?? [];
 
               if (attachments.length > 0) {
@@ -311,38 +308,11 @@ export class ExportTransactionsProcessor extends AccountingProcessorBase<Account
                     providerTransactionId: txResult.providerTransactionId,
                     attachmentIds: attachments.map((a) => a.id),
                     providerEntityType: txResult.providerEntityType,
-                    // Tax info for history note (Xero) - only for new exports
-                    taxAmount: mappedTx?.taxAmount,
-                    taxRate: mappedTx?.taxRate,
-                    taxType: mappedTx?.taxType,
-                    note: mappedTx?.note,
-                    addHistoryNote: true, // New export - add summary note after attachments
                   },
                   "accounting",
                   { delay },
                 );
                 attachmentJobIndex++;
-              } else if (providerId === "xero" && mappedTx) {
-                // For Xero transactions without attachments, still add history note directly
-                try {
-                  await provider.addTransactionHistoryNote?.({
-                    tenantId: orgId,
-                    transactionId: txResult.providerTransactionId,
-                    taxAmount: mappedTx.taxAmount,
-                    taxRate: mappedTx.taxRate,
-                    taxType: mappedTx.taxType,
-                    note: mappedTx.note,
-                  });
-                } catch (error) {
-                  // Non-fatal - just log
-                  this.logger.warn(
-                    "Failed to add history note for transaction without attachments",
-                    {
-                      transactionId: txResult.transactionId,
-                      error: error instanceof Error ? error.message : "Unknown error",
-                    },
-                  );
-                }
               }
             }
           }

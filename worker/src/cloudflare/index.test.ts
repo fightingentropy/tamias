@@ -423,7 +423,7 @@ describe("Cloudflare async bridge helpers", () => {
         payload: {
           teamId: "11111111-1111-1111-1111-111111111111",
           userId: "user_123",
-          providerId: "xero",
+          providerId: "quickbooks",
           transactionIds: ["22222222-2222-2222-2222-222222222222"],
         },
       }),
@@ -436,7 +436,7 @@ describe("Cloudflare async bridge helpers", () => {
         jobName: "sync-accounting-attachments",
         payload: {
           teamId: "11111111-1111-1111-1111-111111111111",
-          providerId: "xero",
+          providerId: "quickbooks",
           transactionId: "22222222-2222-2222-2222-222222222222",
           providerTransactionId: "provider_tx_123",
           attachmentIds: ["33333333-3333-3333-3333-333333333333"],

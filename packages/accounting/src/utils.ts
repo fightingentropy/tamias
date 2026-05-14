@@ -26,7 +26,7 @@ function isValidAccountingOAuthState(parsed: unknown): parsed is AccountingOAuth
     parsed !== null &&
     typeof (parsed as Record<string, unknown>).teamId === "string" &&
     typeof (parsed as Record<string, unknown>).convexUserId === "string" &&
-    ["xero", "quickbooks", "fortnox"].includes(
+    ["quickbooks", "fortnox"].includes(
       (parsed as Record<string, unknown>).provider as string,
     ) &&
     ["apps", "settings"].includes((parsed as Record<string, unknown>).source as string)
@@ -153,10 +153,6 @@ export const PROVIDER_ATTACHMENT_CONFIG = {
     ]),
     maxSizeBytes: 20 * 1024 * 1024, // 20 MB
   },
-  xero: {
-    supportedTypes: new Set(["application/pdf", "image/jpeg", "image/png", "image/gif"]),
-    maxSizeBytes: 3 * 1024 * 1024, // 3 MB
-  },
   fortnox: {
     supportedTypes: new Set(["application/pdf", "image/jpeg", "image/png"]),
     maxSizeBytes: 10 * 1024 * 1024, // 10 MB
@@ -200,7 +196,7 @@ const MIME_TO_EXTENSION: Record<string, string> = {
 
 /**
  * Ensures a filename has a proper extension based on its MIME type.
- * Accounting providers (Xero, QuickBooks, Fortnox) require files to have valid extensions.
+ * Accounting providers require files to have valid extensions.
  *
  * @param fileName - The original filename
  * @param mimeType - The MIME type of the file
@@ -610,7 +606,7 @@ export function buildPrivateNote(
 
 /**
  * Appends tax info to a description string with a separator.
- * Used for Xero LineItem description and Fortnox VoucherRow description.
+ * Used for provider transaction descriptions.
  *
  * @param description - Base description
  * @param tx - Transaction with tax fields
