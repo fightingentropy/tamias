@@ -1,9 +1,5 @@
 import { isRedirect, redirect } from "@tanstack/react-router";
-import {
-  isQueryTransportError,
-  isUnauthorizedQueryError,
-  startContextAuth,
-} from "@/start/server/route-data/shared";
+import { startContextAuth } from "@/start/server/route-data/shared";
 import { getQueryClient, trpc } from "@/trpc/server";
 import { getPostAuthRedirectPath } from "@/utils/auth-routing";
 
@@ -31,10 +27,8 @@ export async function resolveLoginRoute() {
       throw error;
     }
 
-    if (isUnauthorizedQueryError(error) || isQueryTransportError(error)) {
-      return;
-    }
-
-    throw error;
+    // The redirect check is best-effort. A login page must stay renderable even
+    // when an existing session points at a broken or unavailable user record.
+    return;
   }
 }

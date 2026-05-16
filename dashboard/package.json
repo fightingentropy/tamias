@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build:start": "bun run routes:generate:start && vite build",
+    "build:start": "NODE_ENV=production bun run routes:generate:start && NODE_ENV=production vite build --mode production",
     "build": "bun run build:start",
     "clean": "git clean -xdf .tanstack dist node_modules",
     "dev": "bun run dev:start",

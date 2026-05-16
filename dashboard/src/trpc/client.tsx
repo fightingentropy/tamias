@@ -17,6 +17,22 @@ const trpcBrowserConsole = {
   warn: (...args: unknown[]) => console.warn(...args),
 };
 
+function isLocalDashboardRuntime() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const hostname = window.location.hostname.toLowerCase();
+
+  return (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname.endsWith(".localhost") ||
+    hostname === "tamias.test" ||
+    hostname.endsWith(".tamias.test")
+  );
+}
+
 async function trpcFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   const response = await fetch(input, init);
   const contentType = response.headers.get("content-type") ?? "";
@@ -72,7 +88,7 @@ export function TRPCReactProvider(
               error: (...args) => trpcBrowserConsole.warn(...args),
             },
             enabled: (opts) =>
-              process.env.NODE_ENV === "development" &&
+              isLocalDashboardRuntime() &&
               opts.direction === "up" &&
               opts.path !== "asyncRuns.currentUserRun",
           }),
