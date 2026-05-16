@@ -133,10 +133,53 @@ export function ensureDateString(value: string, label: string) {
   }
 }
 
-export function validateBalancedLines(lines: PayrollImportLine[]) {
+export function ensureDateRange(startDate: string, endDate: string) {
+  const start = parseISO(startDate);
+  const end = parseISO(endDate);
+
+  if (start.getTime() > end.getTime()) {
+    throw new Error("Pay period start must be on or before pay period end");
+  }
+}
+
+export function normalizePayrollCurrency(value: string | null | undefined, fallback = "GBP") {
+  const currency = (value ?? fallback).trim().toUpperCase();
+
+  if (!/^[A-Z]{3}$/.test(currency)) {
+    throw new Error("Payroll currency must be a 3-letter ISO code");
+  }
+
+  return currency;
+}
+
+export function validatePayrollJournalLines(lines: PayrollImportLine[]) {
   if (lines.length < 2) {
     throw new Error("At least two payroll journal lines are required");
   }
+
+  lines.forEach((line, index) => {
+    const rowLabel = `Payroll line ${index + 1}`;
+
+    if (!line.accountCode.trim()) {
+      throw new Error(`${rowLabel} is missing an account code`);
+    }
+
+    if (!Number.isFinite(line.debit) || !Number.isFinite(line.credit)) {
+      throw new Error(`${rowLabel} has an invalid amount`);
+    }
+
+    if (line.debit < 0 || line.credit < 0) {
+      throw new Error(`${rowLabel} cannot contain negative amounts`);
+    }
+
+    if (line.debit > 0 && line.credit > 0) {
+      throw new Error(`${rowLabel} cannot contain both a debit and a credit`);
+    }
+
+    if (line.debit === 0 && line.credit === 0) {
+      throw new Error(`${rowLabel} must contain either a debit or a credit`);
+    }
+  });
 
   const debitTotal = roundCurrency(lines.reduce((total, line) => total + line.debit, 0));
   const creditTotal = roundCurrency(lines.reduce((total, line) => total + line.credit, 0));

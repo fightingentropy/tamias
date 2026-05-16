@@ -6,11 +6,13 @@ import {
   buildPayrollLiabilityTotals,
   buildPayrollPeriodKey,
   buildPayrollRunChecksum,
+  ensureDateRange,
   ensureDateString,
   getPayrollContext,
+  normalizePayrollCurrency,
   parsePayrollCsv,
   type PayrollImportParams,
-  validateBalancedLines,
+  validatePayrollJournalLines,
 } from "./payroll-shared";
 import {
   getPayrollRunByPeriodFromD1,
@@ -23,6 +25,7 @@ export async function importPayrollRun(db: Database, params: PayrollImportParams
   ensureDateString(params.payPeriodStart, "Pay period start");
   ensureDateString(params.payPeriodEnd, "Pay period end");
   ensureDateString(params.runDate, "Run date");
+  ensureDateRange(params.payPeriodStart, params.payPeriodEnd);
 
   const context = await getPayrollContext(db, params.teamId);
   const normalizedLines =
@@ -35,7 +38,7 @@ export async function importPayrollRun(db: Database, params: PayrollImportParams
           credit: roundCurrency(line.credit),
         }));
 
-  validateBalancedLines(normalizedLines);
+  validatePayrollJournalLines(normalizedLines);
 
   const d1 = requirePayrollRunsD1(db);
   const periodKey = buildPayrollPeriodKey(params.payPeriodStart, params.payPeriodEnd);
@@ -52,8 +55,10 @@ export async function importPayrollRun(db: Database, params: PayrollImportParams
     runDate: params.runDate,
     lines: normalizedLines,
   });
-  const currency =
-    params.currency ?? context.profile.baseCurrency ?? context.team.baseCurrency ?? "GBP";
+  const currency = normalizePayrollCurrency(
+    params.currency,
+    context.profile.baseCurrency ?? context.team.baseCurrency ?? "GBP",
+  );
 
   await upsertComplianceJournalEntry(db, {
     teamId: params.teamId,

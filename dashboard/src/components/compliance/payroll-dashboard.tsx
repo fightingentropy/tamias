@@ -8,14 +8,7 @@ import { Input } from "@tamias/ui/input";
 import { Label } from "@tamias/ui/label";
 import { Skeleton } from "@tamias/ui/skeleton";
 import { SubmitButton } from "@tamias/ui/submit-button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@tamias/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@tamias/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@tamias/ui/tabs";
 import { Textarea } from "@tamias/ui/textarea";
 import { useToast } from "@tamias/ui/use-toast";
@@ -157,22 +150,18 @@ function PayrollRunActions({
         disabled={isGenerating}
         onClick={() => onGenerateExport(run.periodKey)}
       >
-        Export
+        Generate pack
       </Button>
       {download.url ? (
         <Button asChild size="sm" variant="ghost">
-          <a href={download.url}>Download</a>
+          <a href={download.url}>Download pack</a>
         </Button>
       ) : null}
     </div>
   );
 }
 
-function CostBreakdown({
-  run,
-}: {
-  run: PayrollRun | null;
-}) {
+function CostBreakdown({ run }: { run: PayrollRun | null }) {
   if (!run) {
     return (
       <Card>
@@ -199,7 +188,7 @@ function CostBreakdown({
   const items = [
     { label: "Gross pay", amount: run.liabilityTotals.grossPay },
     { label: "Employer taxes (NIC)", amount: run.liabilityTotals.employerTaxes },
-    { label: "PAYE liability", amount: run.liabilityTotals.payeLiability },
+    { label: "PAYE/NIC liability", amount: run.liabilityTotals.payeLiability },
     { label: "Net pay", amount: netPay },
   ];
 
@@ -322,7 +311,8 @@ export function PayrollDashboard() {
       <div className="space-y-1">
         <h1 className="text-2xl font-medium">Payroll</h1>
         <p className="text-sm text-muted-foreground">
-          Import payroll journals, track PAYE liability totals, and export payroll packs for year-end.
+          Record payroll journals, track PAYE/NIC liabilities, and keep payroll packs ready for
+          accounts and year-end.
         </p>
       </div>
 
@@ -335,7 +325,7 @@ export function PayrollDashboard() {
               </div>
               <div>
                 <CardTitle className="text-base">Imported runs</CardTitle>
-                <CardDescription>Payroll runs on the ledger</CardDescription>
+                <CardDescription>Journaled payroll periods</CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -356,8 +346,8 @@ export function PayrollDashboard() {
                 <Icons.Currency size={18} className="text-muted-foreground" />
               </div>
               <div>
-                <CardTitle className="text-base">PAYE liability</CardTitle>
-                <CardDescription>Total PAYE and NIC due</CardDescription>
+                <CardTitle className="text-base">PAYE/NIC liability</CardTitle>
+                <CardDescription>Total payroll liability recorded</CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -368,9 +358,7 @@ export function PayrollDashboard() {
                 currency={dashboard.summary.currency}
               />
             </div>
-            <div className="text-sm text-muted-foreground">
-              Import-first only. RTI stays out of scope.
-            </div>
+            <div className="text-sm text-muted-foreground">Based on imported ledger lines.</div>
           </CardContent>
         </Card>
 
@@ -381,20 +369,14 @@ export function PayrollDashboard() {
                 <Icons.CalendarMonth size={18} className="text-muted-foreground" />
               </div>
               <div>
-                <CardTitle className="text-base">Latest run</CardTitle>
-                <CardDescription>Most recent payroll import</CardDescription>
+                <CardTitle className="text-base">HMRC scope</CardTitle>
+                <CardDescription>Payroll filing status</CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-1">
-            <div className="text-2xl font-semibold">
-              {latestRun ? formatDate(latestRun.payPeriodEnd) : "No run yet"}
-            </div>
-            <div className="text-sm text-muted-foreground">
-              {latestRun
-                ? `${latestRun.source} import with ${latestRun.lineCount} lines`
-                : "Import CSV or manual journals to begin"}
-            </div>
+            <Badge variant="outline">Ledger only</Badge>
+            <div className="text-sm text-muted-foreground">No RTI/FPS/EPS submissions</div>
           </CardContent>
         </Card>
       </div>
@@ -402,9 +384,9 @@ export function PayrollDashboard() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="import">Import</TabsTrigger>
+          <TabsTrigger value="import">Add run</TabsTrigger>
           <TabsTrigger value="runs">
-            Runs
+            History
             {runs.length > 0 ? (
               <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-xs">
                 {runs.length}
@@ -432,6 +414,11 @@ export function PayrollDashboard() {
                     </Badge>
                     <Badge variant="outline">{latestRun.source}</Badge>
                   </div>
+                  <PayrollRunActions
+                    run={latestRun as PayrollRun}
+                    isGenerating={generateExport.isPending}
+                    onGenerateExport={(periodKey) => generateExport.mutate({ periodKey })}
+                  />
                 </div>
               </CardHeader>
               <CardContent>
@@ -461,7 +448,7 @@ export function PayrollDashboard() {
                   </div>
                   <div>
                     <div className="text-xs uppercase tracking-wide text-muted-foreground">
-                      PAYE due
+                      PAYE/NIC liability
                     </div>
                     <div className="text-sm font-medium mt-1">
                       <FormatAmount
@@ -479,10 +466,10 @@ export function PayrollDashboard() {
         <TabsContent value="import" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Import payroll run</CardTitle>
+              <CardTitle>Add payroll run</CardTitle>
               <CardDescription>
                 Import a payroll journal from CSV or enter the journal lines manually. Each run
-                becomes a first-class ledger input.
+                becomes a dated ledger entry for payroll reporting.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">
@@ -590,7 +577,7 @@ export function PayrollDashboard() {
                   })
                 }
               >
-                Import payroll run
+                Add payroll run
               </SubmitButton>
             </CardContent>
           </Card>
@@ -603,13 +590,11 @@ export function PayrollDashboard() {
                 <div>
                   <CardTitle>Payroll runs</CardTitle>
                   <CardDescription>
-                    Imported runs remain export-first. No RTI or provider submissions are exposed
-                    here.
+                    Ledgered payroll periods and audit packs. HMRC RTI/FPS/EPS submissions are not
+                    sent from this screen.
                   </CardDescription>
                 </div>
-                {runs.length > 0 ? (
-                  <Badge variant="secondary">{runs.length} runs</Badge>
-                ) : null}
+                {runs.length > 0 ? <Badge variant="secondary">{runs.length} runs</Badge> : null}
               </div>
             </CardHeader>
             <CardContent>
@@ -622,7 +607,7 @@ export function PayrollDashboard() {
                         <TableHead>Run date</TableHead>
                         <TableHead>Source</TableHead>
                         <TableHead className="text-right">Lines</TableHead>
-                        <TableHead className="text-right">PAYE liability</TableHead>
+                        <TableHead className="text-right">PAYE/NIC liability</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
@@ -680,14 +665,11 @@ export function PayrollDashboard() {
                   </div>
                   <p className="text-sm font-medium mb-1">No payroll runs imported yet</p>
                   <p className="text-sm text-muted-foreground mb-4 max-w-sm">
-                    Import a payroll journal from CSV or enter journal lines manually to get started.
+                    Import a payroll journal from CSV or enter journal lines manually to get
+                    started.
                   </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setActiveTab("import")}
-                  >
-                    Import payroll run
+                  <Button variant="outline" size="sm" onClick={() => setActiveTab("import")}>
+                    Add payroll run
                   </Button>
                 </div>
               )}
