@@ -560,7 +560,7 @@ export function TaxReturnReviewSheet() {
     });
   };
 
-  const title = taxReturn === "vat" ? "VAT return" : "Corporation tax return";
+  const title = taxReturn === "vat" ? "VAT draft" : "CT600 draft";
   const subtitle =
     taxReturn === "vat"
       ? `${draft?.periodKey ?? "Current period"} · ${formatDate(draft?.periodStart)} to ${formatDate(
@@ -595,17 +595,17 @@ export function TaxReturnReviewSheet() {
 
           <Tabs
             key={taxReturn ?? "ct600"}
-            defaultValue="summary"
+            defaultValue="edit"
             className="flex min-h-0 flex-1 flex-col"
           >
             <div className="border-b px-5 py-3">
               <TabsList className="h-9">
-                <TabsTrigger value="summary">Summary</TabsTrigger>
+                <TabsTrigger value="summary">Draft</TabsTrigger>
                 <TabsTrigger value="edit">
                   <Pencil className="mr-2 size-3" />
                   Edit
                 </TabsTrigger>
-                <TabsTrigger value="payload">Payload</TabsTrigger>
+                <TabsTrigger value="payload">Submit body</TabsTrigger>
               </TabsList>
             </div>
 

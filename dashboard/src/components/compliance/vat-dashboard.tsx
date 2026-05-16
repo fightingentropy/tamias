@@ -3,16 +3,14 @@
 import { Badge } from "@tamias/ui/badge";
 import { Button } from "@tamias/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@tamias/ui/card";
-import { Input } from "@tamias/ui/input";
-import { Label } from "@tamias/ui/label";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { useToast } from "@tamias/ui/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ExternalLink, FileText } from "lucide-react";
+import { Pencil } from "lucide-react";
 import Link from "@/framework/link";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { FormatAmount } from "@/components/format-amount";
-import { openTaxReturnReviewWindow, useTaxReturnParams } from "@/hooks/use-tax-return-params";
+import { useTaxReturnParams } from "@/hooks/use-tax-return-params";
 import { useTRPC } from "@/trpc/client";
 
 function formatDate(value?: string | null) {
@@ -32,9 +30,6 @@ export function VatDashboard() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { setParams: setTaxReturnParams } = useTaxReturnParams();
-  const [adjustmentAmount, setAdjustmentAmount] = useState("");
-  const [adjustmentReason, setAdjustmentReason] = useState("");
-  const [adjustmentDate, setAdjustmentDate] = useState(new Date().toISOString().slice(0, 10));
 
   const dashboardQuery = useQuery(trpc.vat.getDashboard.queryOptions());
   const submissionsQuery = useQuery(trpc.vat.listSubmissions.queryOptions());
@@ -69,20 +64,6 @@ export function VatDashboard() {
         toast({
           title: "VAT draft recalculated",
           description: "The latest VAT draft has been rebuilt from the journal layer.",
-        });
-      },
-    }),
-  );
-
-  const addAdjustment = useMutation(
-    trpc.vat.addAdjustment.mutationOptions({
-      onSuccess: async () => {
-        await invalidateVat();
-        setAdjustmentAmount("");
-        setAdjustmentReason("");
-        toast({
-          title: "Adjustment added",
-          description: "The VAT draft now includes the manual adjustment.",
         });
       },
     }),
@@ -185,8 +166,8 @@ export function VatDashboard() {
         <CardHeader>
           <CardTitle>Draft return</CardTitle>
           <CardDescription>
-            Rebuild the VAT draft from Tamias journals, then add any manual box adjustments before
-            filing.
+            This is the working VAT return. Use edit draft for return details, box adjustments, and
+            the HMRC submission body.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -256,13 +237,8 @@ export function VatDashboard() {
             </SubmitButton>
 
             <Button variant="outline" onClick={() => setTaxReturnParams({ taxReturn: "vat" })}>
-              <FileText className="mr-2 size-3" />
-              Review return
-            </Button>
-
-            <Button variant="ghost" onClick={() => openTaxReturnReviewWindow("vat")}>
-              <ExternalLink className="mr-2 size-3" />
-              Open return window
+              <Pencil className="mr-2 size-3" />
+              Edit draft
             </Button>
           </div>
 
@@ -285,69 +261,6 @@ export function VatDashboard() {
                 {draft ? <FormatAmount amount={draft.netVatDue} currency={draft.currency} /> : "-"}
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Add manual adjustment</CardTitle>
-          <CardDescription>
-            This writes a compliance adjustment against the draft period and immediately
-            recalculates the return.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-3">
-          <div className="space-y-2">
-            <Label htmlFor="adjustmentAmount">Amount</Label>
-            <Input
-              id="adjustmentAmount"
-              inputMode="decimal"
-              value={adjustmentAmount}
-              onChange={(event) => setAdjustmentAmount(event.target.value)}
-              placeholder="0.00"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="adjustmentReason">Reason</Label>
-            <Input
-              id="adjustmentReason"
-              value={adjustmentReason}
-              onChange={(event) => setAdjustmentReason(event.target.value)}
-              placeholder="Manual rounding or correction"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="adjustmentDate">Effective date</Label>
-            <Input
-              id="adjustmentDate"
-              type="date"
-              value={adjustmentDate}
-              onChange={(event) => setAdjustmentDate(event.target.value)}
-            />
-          </div>
-          <div className="md:col-span-3">
-            <SubmitButton
-              isSubmitting={addAdjustment.isPending}
-              disabled={
-                addAdjustment.isPending ||
-                !adjustmentAmount ||
-                !adjustmentReason ||
-                !dashboard.profile
-              }
-              onClick={() =>
-                addAdjustment.mutate({
-                  vatReturnId: draft?.id,
-                  obligationId: openObligation?.id,
-                  lineCode: "box1",
-                  amount: Number(adjustmentAmount),
-                  reason: adjustmentReason,
-                  effectiveDate: adjustmentDate,
-                })
-              }
-            >
-              Add adjustment to box 1
-            </SubmitButton>
           </div>
         </CardContent>
       </Card>
