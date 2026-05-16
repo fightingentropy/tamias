@@ -606,7 +606,6 @@
         "@tamias/logger": "workspace:*",
         "@tamias/notifications": "workspace:*",
         "@tamias/storage": "workspace:*",
-        "@tamias/trpc": "workspace:*",
         "@tamias/utils": "workspace:*",
         "@types/archiver": "^7.0.0",
         "ai": "catalog:",

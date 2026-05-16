@@ -1,6 +1,6 @@
 import { getBankAccounts, getBankConnectionById, patchBankAccount } from "@tamias/app-data/queries";
+import { Provider } from "@tamias/banking";
 import { enqueue } from "@tamias/job-client";
-import { trpc } from "@tamias/trpc";
 import {
   findMatchingAccount,
   type ApiAccount,
@@ -82,22 +82,19 @@ export class ReconnectConnectionProcessor extends BaseProcessor<ReconnectConnect
       throw new Error("TrueLayer connection not found");
     }
 
-    const accountsResponse = await trpc.banking.getProviderAccounts.query({
+    const bankingProvider = new Provider({ provider: "truelayer" });
+    const accountsData = await bankingProvider.getAccounts({
       id: connection.referenceId ?? undefined,
-      provider: "truelayer",
       accessToken: connection.accessToken,
       institutionId: connection.institutionId ?? undefined,
     });
-
-    if (!accountsResponse.data) {
-      throw new Error("TrueLayer accounts verification failed");
-    }
+    const sortedAccounts = [...accountsData].sort((a, b) => b.balance.amount - a.balance.amount);
 
     if (existingAccounts.length > 0) {
       await matchAndUpdateAccountIds({
         db,
         existingAccounts,
-        apiAccounts: accountsResponse.data,
+        apiAccounts: sortedAccounts,
         teamId,
       });
     }

@@ -245,7 +245,21 @@ export async function handleCaptureQueueBatch(
 ) {
   configureCaptureRuntime(env);
 
-  for (const message of batch.messages) {
-    await processQueueMessage(message, env);
+  const results = await Promise.allSettled(
+    batch.messages.map((message) => processQueueMessage(message, env)),
+  );
+
+  for (const [index, result] of results.entries()) {
+    if (result.status === "fulfilled") {
+      continue;
+    }
+
+    const body = batch.messages[index]?.body;
+    logger.error("Cloudflare capture batch message failed outside message handler", {
+      queueName: body?.queueName,
+      jobName: body?.jobName,
+      runId: body?.runId,
+      error: result.reason instanceof Error ? result.reason.message : String(result.reason),
+    });
   }
 }

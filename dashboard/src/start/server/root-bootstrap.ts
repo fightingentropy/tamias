@@ -18,7 +18,7 @@ export function resolveRootBootstrapData(): RootBootstrapData {
   return {
     auth: {
       token: auth?.token ?? null,
-      refreshToken: auth?.refreshToken ?? null,
+      hasRefreshToken: Boolean(auth?.refreshToken),
     },
     fetchedAt: Date.now(),
   };

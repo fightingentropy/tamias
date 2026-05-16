@@ -1,5 +1,5 @@
 import { upsertExchangeRates } from "@tamias/app-data/queries";
-import { trpc } from "@tamias/trpc";
+import { getRates } from "@tamias/banking";
 import type { WorkerJob as Job } from "../../types/job";
 import type { RatesSchedulerPayload } from "../../schemas/rates";
 import { getDb } from "../../utils/db";
@@ -26,7 +26,7 @@ export class RatesSchedulerProcessor extends BaseProcessor<RatesSchedulerPayload
     this.logger.info("Starting rates scheduler");
 
     // Fetch rates from banking API
-    const { data: ratesData } = await trpc.banking.rates.query();
+    const ratesData = await getRates();
 
     // Transform rates data to match database schema
     const exchangeRateData = ratesData.flatMap((rate) => {

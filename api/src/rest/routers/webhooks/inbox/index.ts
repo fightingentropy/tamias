@@ -308,7 +308,8 @@ app.openapi(
       });
 
       // Trigger processing jobs
-      await triggerProcessingJobs(teamId, successfulUploads);
+      const executionCtx = (c as typeof c & { executionCtx?: ExecutionContext }).executionCtx;
+      await triggerProcessingJobs(teamId, successfulUploads, executionCtx);
 
       logger.info("Inbox webhook processed successfully", {
         teamId,

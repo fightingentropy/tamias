@@ -1,4 +1,4 @@
-import { trpc } from "@tamias/trpc";
+import { Provider } from "@tamias/banking";
 import type { WorkerJob as Job } from "../../types/job";
 import type { DeleteTeamPayload } from "../../schemas/teams";
 import { BaseProcessor } from "../base";
@@ -62,9 +62,9 @@ export class DeleteTeamProcessor extends BaseProcessor<DeleteTeamPayload> {
       }
 
       try {
-        await trpc.banking.deleteConnection.mutate({
+        const bankingProvider = new Provider({ provider: "truelayer" });
+        await bankingProvider.deleteConnection({
           id: connection.referenceId ?? "truelayer",
-          provider: "truelayer",
           accessToken: connection.accessToken,
         });
         return true;

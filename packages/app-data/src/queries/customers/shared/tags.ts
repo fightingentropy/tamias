@@ -33,32 +33,3 @@ export async function attachCustomerTags<T extends { id: string }>(
     tags: tagsByCustomerId.get(row.id) ?? [],
   }));
 }
-
-export function compareCustomersByTags(
-  left: { tags: CustomerTag[]; createdAt: string },
-  right: { tags: CustomerTag[]; createdAt: string },
-  isAscending: boolean,
-) {
-  const leftTag = left.tags[0]?.name;
-  const rightTag = right.tags[0]?.name;
-
-  if (!leftTag && !rightTag) {
-    return right.createdAt.localeCompare(left.createdAt);
-  }
-
-  if (!leftTag) {
-    return isAscending ? 1 : -1;
-  }
-
-  if (!rightTag) {
-    return isAscending ? -1 : 1;
-  }
-
-  const delta = leftTag.localeCompare(rightTag);
-
-  if (delta !== 0) {
-    return isAscending ? delta : -delta;
-  }
-
-  return right.createdAt.localeCompare(left.createdAt);
-}

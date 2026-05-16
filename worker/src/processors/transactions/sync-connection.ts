@@ -3,8 +3,8 @@ import {
   getBankConnectionById,
   patchBankConnection,
 } from "@tamias/app-data/queries";
+import { Provider } from "@tamias/banking";
 import { enqueue } from "@tamias/job-client";
-import { trpc } from "@tamias/trpc";
 import type { WorkerJob as Job } from "../../types/job";
 import {
   syncConnectionSchema,
@@ -53,13 +53,11 @@ export class SyncConnectionProcessor extends BaseProcessor<SyncConnectionPayload
 
     await this.updateProgress(job, 20, undefined, "checking-provider-state");
 
-    const connectionResult = await trpc.banking.connectionStatus.query({
+    const bankingProvider = new Provider({ provider: "truelayer" });
+    const connectionData = await bankingProvider.getConnectionStatus({
       id: connection.referenceId ?? undefined,
-      provider: "truelayer",
       accessToken: connection.accessToken ?? undefined,
     });
-
-    const connectionData = connectionResult.data;
 
     if (!connectionData) {
       throw new Error("Failed to get connection status");

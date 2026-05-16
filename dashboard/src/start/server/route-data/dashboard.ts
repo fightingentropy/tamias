@@ -1,13 +1,17 @@
 import { getStartContext } from "@tanstack/start-storage-context";
+import { trpc } from "@/trpc/server";
 import { geolocation } from "@/utils/geo";
-import { buildShellOnlyPageData } from "@/start/server/route-data/shared";
+import { buildBaseAppShellState, dehydrateQueryClient } from "@/start/server/route-data/shared";
 
 export async function buildDashboardPageData(_href?: string) {
-  const result = await buildShellOnlyPageData();
+  const { queryClient, user } = await buildBaseAppShellState();
+  const widgetPreferencesQuery = trpc.widgets.getWidgetPreferences.queryOptions();
+  const initialPreferences = await queryClient.fetchQuery(widgetPreferencesQuery);
 
   return {
-    ...result,
-    initialPreferences: null,
+    dehydratedState: dehydrateQueryClient(queryClient),
+    user,
+    initialPreferences,
     geo: geolocation(getStartContext().request.headers as Headers),
   };
 }

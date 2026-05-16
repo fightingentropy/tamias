@@ -12,6 +12,7 @@ import {
   getCustomerByIdFromD1,
   getCustomerByPortalIdFromD1,
   getCustomerForEnrichmentFromD1,
+  getCustomersPageFromD1,
   getCustomerTagsByCustomerIdFromD1,
   getCustomersFromD1,
   getCustomersNeedingEnrichmentFromD1,
@@ -103,9 +104,14 @@ function createD1() {
     resolve(import.meta.dir, "../../../../../api/migrations/d1/0031_customers.sql"),
     "utf8",
   );
+  const customersSearchMigration = readFileSync(
+    resolve(import.meta.dir, "../../../../../api/migrations/d1/0048_customer_search_fts.sql"),
+    "utf8",
+  );
 
   sqlite.exec(tagsMigration);
   sqlite.exec(customersMigration);
+  sqlite.exec(customersSearchMigration);
 
   return {
     d1,
@@ -146,6 +152,15 @@ describe("customers D1", () => {
         portalEnabled: false,
       });
 
+      await upsertCustomerInD1(d1, {
+        id: "customer-2",
+        teamId: "team-1",
+        createdAt: "2026-01-03T00:00:00.000Z",
+        name: "Beta Accounting",
+        email: "hello@beta.example",
+        industry: "Retail",
+      });
+
       await replaceCustomerTagsInD1(d1, {
         teamId: "team-1",
         customerId: "customer-1",
@@ -167,10 +182,16 @@ describe("customers D1", () => {
 
       await expect(
         searchCustomersFromD1(d1, { teamId: "team-1", query: "manufacturing" }),
-      ).resolves.toHaveLength(1);
+      ).resolves.toMatchObject([{ id: "customer-1" }]);
       await expect(getCustomersFromD1(d1, { teamId: "team-1", q: "acme" })).resolves.toHaveLength(
         1,
       );
+      await expect(
+        getCustomersPageFromD1(d1, { teamId: "team-1", q: "acme", pageSize: 1 }),
+      ).resolves.toMatchObject({
+        page: [{ id: "customer-1" }],
+        isDone: true,
+      });
 
       const portal = await toggleCustomerPortalInD1(d1, {
         teamId: "team-1",
@@ -230,7 +251,7 @@ describe("customers D1", () => {
           from: "2026-01-01T00:00:00.000Z",
           to: "2026-01-31T23:59:59.999Z",
         }),
-      ).resolves.toBe(1);
+      ).resolves.toBe(2);
       await expect(
         getRecentCustomerCountsFromD1(d1, {
           teamId: "team-1",
@@ -238,7 +259,7 @@ describe("customers D1", () => {
           activeCustomerIds: new Set(),
         }),
       ).resolves.toEqual({
-        newCustomersCount: 0,
+        newCustomersCount: 1,
         inactiveClientsCount: 1,
       });
     } finally {

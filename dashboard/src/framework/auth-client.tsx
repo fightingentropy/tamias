@@ -11,6 +11,7 @@ import {
   useState,
 } from "react";
 import type { RootBootstrapData } from "@/start/root-bootstrap";
+import { clearBrowserQueryCache } from "@/trpc/browser-query-client";
 
 type AuthState = {
   token: string | null;
@@ -60,7 +61,7 @@ const TOKEN_REFRESH_BUFFER_MS = 60_000;
 function getInitialAuthState(bootstrap: RootBootstrapData): AuthState {
   return {
     token: bootstrap.auth.token,
-    hasRefreshToken: Boolean(bootstrap.auth.refreshToken),
+    hasRefreshToken: bootstrap.auth.hasRefreshToken,
   };
 }
 
@@ -129,9 +130,10 @@ export function AuthProvider(props: { children: ReactNode; bootstrap: RootBootst
 
   useEffect(() => {
     setAuthState(getInitialAuthState(props.bootstrap));
-  }, [props.bootstrap.auth.refreshToken, props.bootstrap.auth.token, props.bootstrap.fetchedAt]);
+  }, [props.bootstrap.auth.hasRefreshToken, props.bootstrap.auth.token, props.bootstrap.fetchedAt]);
 
   const clearAuthState = useCallback(() => {
+    clearBrowserQueryCache();
     setAuthState({
       token: null,
       hasRefreshToken: false,
@@ -269,6 +271,7 @@ export function AuthProvider(props: { children: ReactNode; bootstrap: RootBootst
           return { signingIn: false };
         }
 
+        clearBrowserQueryCache();
         setAuthState({
           token: result.tokens.token,
           hasRefreshToken: true,

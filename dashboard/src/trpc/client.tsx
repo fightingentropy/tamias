@@ -1,15 +1,14 @@
 "use client";
 
 import type { AppRouter } from "@tamias/trpc";
-import type { QueryClient } from "@tanstack/react-query";
 import { getDashboardApiUrl } from "@/env/dashboard-api-url";
-import { isServer, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, loggerLink, TRPCUntypedClient } from "@trpc/client";
 import { createTRPCOptionsProxy, type TRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import { createContext, useContext, useMemo } from "react";
 import superjson from "superjson";
 import { useAuthToken } from "@/framework/auth-client";
-import { makeQueryClient } from "./query-client";
+import { getBrowserAwareQueryClient } from "./browser-query-client";
 
 const TRPCContext = createContext<TRPCOptionsProxy<AppRouter> | null>(null);
 const apiUrl = getDashboardApiUrl();
@@ -55,24 +54,12 @@ export function useTRPC() {
   return trpc;
 }
 
-let browserQueryClient: QueryClient;
-
-function getQueryClient() {
-  if (isServer) {
-    return makeQueryClient();
-  }
-
-  if (!browserQueryClient) browserQueryClient = makeQueryClient();
-
-  return browserQueryClient;
-}
-
 export function TRPCReactProvider(
   props: Readonly<{
     children: React.ReactNode;
   }>,
 ) {
-  const queryClient = getQueryClient();
+  const queryClient = getBrowserAwareQueryClient();
   const token = useAuthToken();
 
   const trpcClient = useMemo(

@@ -1,4 +1,4 @@
-import { trpc } from "@tamias/trpc";
+import { Provider } from "@tamias/banking";
 import type { WorkerJob as Job } from "../../types/job";
 import { deleteConnectionSchema, type DeleteConnectionPayload } from "../../schemas/transactions";
 import { BaseProcessor } from "../base";
@@ -16,9 +16,9 @@ export class DeleteConnectionProcessor extends BaseProcessor<DeleteConnectionPay
 
     await this.updateProgress(job, 20, undefined, "deleting-connection");
 
-    await trpc.banking.deleteConnection.mutate({
+    const bankingProvider = new Provider({ provider });
+    await bankingProvider.deleteConnection({
       id: referenceId ?? "",
-      provider,
       accessToken: accessToken ?? undefined,
     });
 

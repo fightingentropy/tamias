@@ -4,8 +4,8 @@ import {
   upsertTransactions as upsertTransactionsQuery,
   type UpsertTransactionData,
 } from "@tamias/app-data/queries";
+import { Provider } from "@tamias/banking";
 import { enqueue } from "@tamias/job-client";
-import { trpc } from "@tamias/trpc";
 import type { SyncBankAccountPayload } from "../../schemas/transactions";
 import { getDb } from "../../utils/db";
 import { processBatch } from "../../utils/process-batch";
@@ -108,6 +108,7 @@ export async function syncBankAccount(payload: SyncBankAccountPayload, logger: L
   } = payload;
   const db = getDb();
   const classification = getClassification(accountType);
+  const bankingProvider = new Provider({ provider });
   const updateAccount = async (data: {
     balance?: number | null;
     availableBalance?: number | null;
@@ -138,14 +139,11 @@ export async function syncBankAccount(payload: SyncBankAccountPayload, logger: L
   let currencyHealed = false;
 
   try {
-    const balanceResult = await trpc.banking.getBalance.query({
-      provider,
-      id: accountId,
+    const balanceData = (await bankingProvider.getAccountBalance({
+      accountId,
       accessToken,
       accountType,
-    });
-
-    const balanceData = balanceResult.data as {
+    })) as {
       amount: number;
       currency: string;
       available_balance?: number | null;
@@ -202,8 +200,7 @@ export async function syncBankAccount(payload: SyncBankAccountPayload, logger: L
   const upsertedTransactionIds: string[] = [];
 
   try {
-    const transactionsResult = await trpc.banking.getProviderTransactions.query({
-      provider,
+    const transactionsData = await bankingProvider.getTransactions({
       accountId,
       accountType: classification,
       accessToken,
@@ -214,8 +211,6 @@ export async function syncBankAccount(payload: SyncBankAccountPayload, logger: L
       errorDetails: null,
       errorRetries: null,
     });
-
-    const transactionsData = transactionsResult.data;
 
     if (!transactionsData) {
       logger.info("No transactions to upsert for bank account", {

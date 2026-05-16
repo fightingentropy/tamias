@@ -120,7 +120,15 @@ export async function uploadAttachment(
  * Trigger processing jobs for uploaded attachments
  * Triggers process-attachment jobs in parallel and sends notification
  */
-export async function triggerProcessingJobs(teamId: string, uploadResults: UploadResult[]) {
+type WaitUntilContext = {
+  waitUntil(promise: Promise<unknown>): void;
+};
+
+export async function triggerProcessingJobs(
+  teamId: string,
+  uploadResults: UploadResult[],
+  waitUntilContext?: WaitUntilContext,
+) {
   // Trigger process-attachment jobs in parallel
   const jobPromises = uploadResults.map((item) =>
     enqueue(
@@ -148,7 +156,7 @@ export async function triggerProcessingJobs(teamId: string, uploadResults: Uploa
   // Send notification for email attachments
   // This is a non-critical side effect - fire-and-forget to prevent webhook failures
   // if notification job fails to enqueue
-  enqueue(
+  const notificationPromise = enqueue(
     "notification",
     {
       type: "inbox_new",
@@ -164,4 +172,8 @@ export async function triggerProcessingJobs(teamId: string, uploadResults: Uploa
       error: error instanceof Error ? error.message : "Unknown error",
     });
   });
+
+  if (waitUntilContext) {
+    waitUntilContext.waitUntil(notificationPromise);
+  }
 }

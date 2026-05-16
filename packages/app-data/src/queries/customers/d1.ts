@@ -405,44 +405,65 @@ function buildCustomerSearchWhere(
   };
 }
 
-function matchesCustomerSearch(row: CustomerRow, query?: string | null) {
+function buildCustomerSearchFtsQuery(query?: string | null) {
   const tokens = tokenizeSearchValue(query);
   if (tokens.length === 0) {
-    return true;
+    return null;
   }
 
-  const searchText = row.search_text ?? buildCustomerSearchText(toCustomerRecord(row));
-  if (!searchText) {
-    return false;
-  }
-
-  return tokens.every((token) => searchText.includes(token));
+  return tokens.map((token) => `${token}*`).join(" ");
 }
 
-function getCustomerOrder(sort?: string[] | null) {
+function getCustomerOrder(sort?: string[] | null, tableAlias = "") {
+  const column = (name: string) => `${tableAlias}${name}`;
+
   if (!sort || sort.length === 0) {
-    return "created_at desc, name asc";
+    return `${column("created_at")} desc, ${column("name")} asc`;
   }
 
-  const [column, direction = "desc"] = sort;
+  const [sortColumn, direction = "desc"] = sort;
   const sqlDirection = direction === "asc" ? "asc" : "desc";
 
-  switch (column) {
+  switch (sortColumn) {
     case "name":
-      return `name ${sqlDirection}, created_at desc`;
+      return `${column("name")} ${sqlDirection}, ${column("created_at")} desc`;
     case "created_at":
-      return `created_at ${sqlDirection}, name asc`;
+      return `${column("created_at")} ${sqlDirection}, ${column("name")} asc`;
     case "contact":
-      return `contact ${sqlDirection}, created_at desc`;
+      return `${column("contact")} ${sqlDirection}, ${column("created_at")} desc`;
     case "email":
-      return `email ${sqlDirection}, created_at desc`;
+      return `${column("email")} ${sqlDirection}, ${column("created_at")} desc`;
     case "industry":
-      return `industry ${sqlDirection}, created_at desc`;
+      return `${column("industry")} ${sqlDirection}, ${column("created_at")} desc`;
     case "country":
-      return `country ${sqlDirection}, created_at desc`;
+      return `${column("country")} ${sqlDirection}, ${column("created_at")} desc`;
     default:
-      return "created_at desc, name asc";
+      return `${column("created_at")} desc, ${column("name")} asc`;
   }
+}
+
+async function replaceCustomerSearchFtsEntry(
+  d1: CloudflareD1DatabaseBinding,
+  params: { customerId: string; teamId: string; searchText: string | null },
+) {
+  await d1
+    .prepare("delete from customer_search_fts where customer_id = ? and team_id = ?")
+    .bind(params.customerId, params.teamId)
+    .run();
+  await d1
+    .prepare("insert into customer_search_fts (customer_id, team_id, search_text) values (?, ?, ?)")
+    .bind(params.customerId, params.teamId, params.searchText ?? "")
+    .run();
+}
+
+async function deleteCustomerSearchFtsEntry(
+  d1: CloudflareD1DatabaseBinding,
+  params: { customerId: string; teamId: string },
+) {
+  await d1
+    .prepare("delete from customer_search_fts where customer_id = ? and team_id = ?")
+    .bind(params.customerId, params.teamId)
+    .run();
 }
 
 export function getCustomersD1(db: Database) {
@@ -503,6 +524,23 @@ export async function getCustomersFromD1(
   d1: CloudflareD1DatabaseBinding,
   params: Pick<GetCustomersParams, "teamId" | "q" | "sort">,
 ) {
+  const ftsQuery = buildCustomerSearchFtsQuery(params.q);
+  if (ftsQuery) {
+    const { results = [] } = await d1
+      .prepare(
+        `select c.*
+         from customer_search_fts f
+         join customers c on c.id = f.customer_id and c.team_id = f.team_id
+         where f.search_text match ?
+           and c.team_id = ?
+         order by ${getCustomerOrder(params.sort, "c.")}`,
+      )
+      .bind(ftsQuery, params.teamId)
+      .all<CustomerRow>();
+
+    return results.map(toCustomerRecord);
+  }
+
   const { clause, values } = buildCustomerSearchWhere(params);
   const { results = [] } = await d1
     .prepare(
@@ -514,7 +552,7 @@ export async function getCustomersFromD1(
     .bind(...values)
     .all<CustomerRow>();
 
-  return results.filter((row) => matchesCustomerSearch(row, params.q)).map(toCustomerRecord);
+  return results.map(toCustomerRecord);
 }
 
 export async function getCustomersPageFromD1(
@@ -526,23 +564,48 @@ export async function getCustomersPageFromD1(
   const pageSize = params.pageSize ?? 25;
   const offset = params.cursor ? Number.parseInt(params.cursor, 10) : 0;
   const sort = params.sort ?? ["created_at", params.order ?? "desc"];
+  const ftsQuery = buildCustomerSearchFtsQuery(params.q);
+  const limit = pageSize + 1;
+
+  if (ftsQuery) {
+    const { results = [] } = await d1
+      .prepare(
+        `select c.*
+         from customer_search_fts f
+         join customers c on c.id = f.customer_id and c.team_id = f.team_id
+         where f.search_text match ?
+           and c.team_id = ?
+         order by ${getCustomerOrder(sort, "c.")}
+         limit ? offset ?`,
+      )
+      .bind(ftsQuery, params.teamId, limit, offset)
+      .all<CustomerRow>();
+    const page = results.slice(0, pageSize);
+
+    return {
+      page: page.map(toCustomerRecord),
+      isDone: results.length <= pageSize,
+      continueCursor: String(offset + page.length),
+    };
+  }
+
   const { clause, values } = buildCustomerSearchWhere(params);
   const { results = [] } = await d1
     .prepare(
       `select *
        from customers
        where ${clause}
-       order by ${getCustomerOrder(sort)}`,
+       order by ${getCustomerOrder(sort)}
+       limit ? offset ?`,
     )
-    .bind(...values)
+    .bind(...values, limit, offset)
     .all<CustomerRow>();
 
-  const matchingResults = results.filter((row) => matchesCustomerSearch(row, params.q));
-  const page = matchingResults.slice(offset, offset + pageSize);
+  const page = results.slice(0, pageSize);
 
   return {
     page: page.map(toCustomerRecord),
-    isDone: matchingResults.length <= offset + pageSize,
+    isDone: results.length <= pageSize,
     continueCursor: String(offset + page.length),
   };
 }
@@ -556,9 +619,33 @@ export async function searchCustomersFromD1(
     limit?: number;
   },
 ) {
+  const ftsQuery = buildCustomerSearchFtsQuery(params.query);
+  if (ftsQuery) {
+    const values: unknown[] = [ftsQuery, params.teamId];
+    const filters = ["f.search_text match ?", "c.team_id = ?"];
+
+    if (params.status) {
+      filters.push("c.status = ?");
+      values.push(params.status);
+    }
+
+    const { results = [] } = await d1
+      .prepare(
+        `select c.*
+         from customer_search_fts f
+         join customers c on c.id = f.customer_id and c.team_id = f.team_id
+         where ${filters.join(" and ")}
+         order by c.created_at desc, c.name asc
+         limit ?`,
+      )
+      .bind(...values, params.limit ?? 100)
+      .all<CustomerRow>();
+
+    return results.map(toCustomerRecord);
+  }
+
   const { clause, values } = buildCustomerSearchWhere({
     teamId: params.teamId,
-    q: params.query,
     status: params.status,
   });
   const { results = [] } = await d1
@@ -759,6 +846,11 @@ export async function upsertCustomerInD1(
       timestamp,
     )
     .run();
+  await replaceCustomerSearchFtsEntry(d1, {
+    customerId: values.id,
+    teamId: params.teamId,
+    searchText,
+  });
 
   const customer = await getCustomerByIdFromD1(d1, {
     id: values.id,
@@ -790,6 +882,10 @@ export async function deleteCustomerFromD1(
     .prepare("delete from customers where id = ? and team_id = ?")
     .bind(params.id, params.teamId)
     .run();
+  await deleteCustomerSearchFtsEntry(d1, {
+    customerId: params.id,
+    teamId: params.teamId,
+  });
 
   return existing;
 }
@@ -1098,6 +1194,7 @@ export async function updateCustomerEnrichmentInD1(
     enrichmentStatus: "completed",
     enrichedAt: nowIso(),
   };
+  const searchText = buildCustomerSearchText(nextCustomer);
 
   await d1
     .prepare(
@@ -1149,13 +1246,18 @@ export async function updateCustomerEnrichmentInD1(
       nextCustomer.primaryLanguage,
       nextCustomer.fiscalYearEnd,
       nextCustomer.vatNumber,
-      buildCustomerSearchText(nextCustomer),
+      searchText,
       nextCustomer.enrichedAt,
       nowIso(),
       params.customerId,
       params.teamId,
     )
     .run();
+  await replaceCustomerSearchFtsEntry(d1, {
+    customerId: params.customerId,
+    teamId: params.teamId,
+    searchText,
+  });
 
   return { id: params.customerId };
 }
@@ -1228,6 +1330,7 @@ export async function clearCustomerEnrichmentFromD1(
     enrichmentStatus: null,
     enrichedAt: null,
   };
+  const searchText = buildCustomerSearchText(nextCustomer);
 
   await d1
     .prepare(
@@ -1257,8 +1360,13 @@ export async function clearCustomerEnrichmentFromD1(
            updated_at = ?
        where id = ? and team_id = ?`,
     )
-    .bind(buildCustomerSearchText(nextCustomer), nowIso(), params.customerId, params.teamId)
+    .bind(searchText, nowIso(), params.customerId, params.teamId)
     .run();
+  await replaceCustomerSearchFtsEntry(d1, {
+    customerId: params.customerId,
+    teamId: params.teamId,
+    searchText,
+  });
 
   return { id: params.customerId };
 }
@@ -1289,26 +1397,45 @@ export async function getRecentCustomerCountsFromD1(
     activeCustomerIds: ReadonlySet<string>;
   },
 ) {
-  const { results = [] } = await d1
-    .prepare("select id, created_at from customers where team_id = ?")
-    .bind(params.teamId)
-    .all<{ id: string; created_at: string }>();
-  let newCustomersCount = 0;
-  let inactiveClientsCount = 0;
+  const newCustomersRow = await d1
+    .prepare(
+      `select count(*) as count
+      from customers
+      where team_id = ?
+        and created_at >= ?`,
+    )
+    .bind(params.teamId, params.sinceIso)
+    .first<{ count: number }>();
+  const activeCustomerIds = [...params.activeCustomerIds];
+  const olderCustomersRow = await d1
+    .prepare(
+      `select count(*) as count
+       from customers
+       where team_id = ?
+         and created_at < ?`,
+    )
+    .bind(params.teamId, params.sinceIso)
+    .first<{ count: number }>();
+  let activeOlderCustomerCount = 0;
 
-  for (const customer of results) {
-    if (customer.created_at >= params.sinceIso) {
-      newCustomersCount += 1;
-      continue;
-    }
+  for (let index = 0; index < activeCustomerIds.length; index += 90) {
+    const chunk = activeCustomerIds.slice(index, index + 90);
+    const activeOlderRow = await d1
+      .prepare(
+        `select count(*) as count
+         from customers
+         where team_id = ?
+           and created_at < ?
+           and id in (${chunk.map(() => "?").join(", ")})`,
+      )
+      .bind(params.teamId, params.sinceIso, ...chunk)
+      .first<{ count: number }>();
 
-    if (!params.activeCustomerIds.has(customer.id)) {
-      inactiveClientsCount += 1;
-    }
+    activeOlderCustomerCount += activeOlderRow?.count ?? 0;
   }
 
   return {
-    newCustomersCount,
-    inactiveClientsCount,
+    newCustomersCount: newCustomersRow?.count ?? 0,
+    inactiveClientsCount: Math.max((olderCustomersRow?.count ?? 0) - activeOlderCustomerCount, 0),
   };
 }
