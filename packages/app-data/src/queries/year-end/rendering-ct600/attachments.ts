@@ -22,14 +22,15 @@ export function renderCt600AttachedFilesXml(args: {
   encodedAccountsAttachment?: string;
   encodedComputationsAttachment?: string;
 }) {
-  return [
-    args.encodedAccountsAttachment
-      ? `<Accounts><Instance><EncodedInlineXBRLDocument>${args.encodedAccountsAttachment}</EncodedInlineXBRLDocument></Instance></Accounts>`
-      : null,
-    args.encodedComputationsAttachment
-      ? `<Computation><Instance><EncodedInlineXBRLDocument>${args.encodedComputationsAttachment}</EncodedInlineXBRLDocument></Instance></Computation>`
-      : null,
-  ]
-    .filter(Boolean)
-    .join("");
+  if (args.encodedComputationsAttachment) {
+    return `<XBRLsubmission><Computation><Instance><EncodedInlineXBRLDocument>${args.encodedComputationsAttachment}</EncodedInlineXBRLDocument></Instance></Computation>${
+      args.encodedAccountsAttachment
+        ? `<Accounts><Instance><EncodedInlineXBRLDocument>${args.encodedAccountsAttachment}</EncodedInlineXBRLDocument></Instance></Accounts>`
+        : ""
+    }</XBRLsubmission>`;
+  }
+
+  return args.encodedAccountsAttachment
+    ? `<XBRLsubmission><Accounts><Instance><EncodedInlineXBRLDocument>${args.encodedAccountsAttachment}</EncodedInlineXBRLDocument></Instance></Accounts></XBRLsubmission>`
+    : "";
 }

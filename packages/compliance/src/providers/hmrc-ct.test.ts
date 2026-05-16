@@ -149,4 +149,31 @@ describe("HmrcCtProvider", () => {
       raisedBy: "HMRC",
     });
   });
+
+  test("treats HMRC response receipts without a body status as accepted", () => {
+    const message = parseHmrcCtTransactionEngineMessage(`<?xml version="1.0" encoding="UTF-8"?>
+<GovTalkMessage xmlns="http://www.govtalk.gov.uk/CM/envelope">
+  <Header>
+    <MessageDetails>
+      <Qualifier>response</Qualifier>
+      <Function>submit</Function>
+      <CorrelationID>ABC123</CorrelationID>
+    </MessageDetails>
+  </Header>
+  <GovTalkDetails>
+    <Keys/>
+  </GovTalkDetails>
+  <Body>
+    <SuccessResponse xmlns="http://www.inlandrevenue.gov.uk/SuccessResponse">
+      <IRmarkReceipt>
+        <Message code="1">HMRC has received the HMRC-CT-CT600 document ref: 8596148860.</Message>
+      </IRmarkReceipt>
+    </SuccessResponse>
+  </Body>
+</GovTalkMessage>`);
+
+    expect(message.status).toBe("accepted");
+    expect(message.summary).toContain("HMRC has received");
+    expect(message.errors).toHaveLength(0);
+  });
 });

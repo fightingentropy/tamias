@@ -7,6 +7,7 @@ import { getHmrcProvider } from "../shared";
 import { getRequiredVatContext } from "./context";
 import {
   getEvidencePackByIdFromD1,
+  getVatObligationByIdFromD1,
   listVatSubmissionsFromD1,
   markVatReturnAcceptedInD1,
   upsertEvidencePackInD1,
@@ -66,13 +67,24 @@ export async function submitVatReturn(db: Database, params: SubmitVatReturnParam
     acc[line.code] = line.amount;
     return acc;
   }, {});
+  const obligation = draft.obligationId
+    ? await getVatObligationByIdFromD1(db, { id: draft.obligationId })
+    : null;
+  const hmrcPeriodKey = (obligation?.externalId ?? draft.periodKey).trim();
+
+  if (hmrcPeriodKey.length !== 4) {
+    throw new Error(
+      "HMRC VAT submission requires the four-character HMRC obligation period key",
+    );
+  }
+
   const requestPayload = {
-    periodKey: draft.periodKey,
+    periodKey: hmrcPeriodKey,
     vatDueSales: roundCurrency(boxMap.box1 ?? 0),
     vatDueAcquisitions: roundCurrency(boxMap.box2 ?? 0),
     totalVatDue: roundCurrency(boxMap.box3 ?? 0),
     vatReclaimedCurrPeriod: roundCurrency(boxMap.box4 ?? 0),
-    netVatDue: roundCurrency(boxMap.box5 ?? 0),
+    netVatDue: Math.abs(roundCurrency(boxMap.box5 ?? 0)),
     totalValueSalesExVAT: Math.round(boxMap.box6 ?? 0),
     totalValuePurchasesExVAT: Math.round(boxMap.box7 ?? 0),
     totalValueGoodsSuppliedExVAT: Math.round(boxMap.box8 ?? 0),

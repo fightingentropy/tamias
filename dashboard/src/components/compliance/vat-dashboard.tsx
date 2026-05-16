@@ -8,9 +8,11 @@ import { Label } from "@tamias/ui/label";
 import { SubmitButton } from "@tamias/ui/submit-button";
 import { useToast } from "@tamias/ui/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ExternalLink, FileText } from "lucide-react";
 import Link from "@/framework/link";
 import { useMemo, useState } from "react";
 import { FormatAmount } from "@/components/format-amount";
+import { openTaxReturnReviewWindow, useTaxReturnParams } from "@/hooks/use-tax-return-params";
 import { useTRPC } from "@/trpc/client";
 
 function formatDate(value?: string | null) {
@@ -29,6 +31,7 @@ export function VatDashboard() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { setParams: setTaxReturnParams } = useTaxReturnParams();
   const [adjustmentAmount, setAdjustmentAmount] = useState("");
   const [adjustmentReason, setAdjustmentReason] = useState("");
   const [adjustmentDate, setAdjustmentDate] = useState(new Date().toISOString().slice(0, 10));
@@ -251,6 +254,16 @@ export function VatDashboard() {
             >
               Submit return
             </SubmitButton>
+
+            <Button variant="outline" onClick={() => setTaxReturnParams({ taxReturn: "vat" })}>
+              <FileText className="mr-2 size-3" />
+              Review return
+            </Button>
+
+            <Button variant="ghost" onClick={() => openTaxReturnReviewWindow("vat")}>
+              <ExternalLink className="mr-2 size-3" />
+              Open return window
+            </Button>
           </div>
 
           <div className="grid gap-4 rounded-lg border p-4 md:grid-cols-4">

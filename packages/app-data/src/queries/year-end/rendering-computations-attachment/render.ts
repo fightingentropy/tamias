@@ -1,4 +1,5 @@
 import { escapeXml } from "../formatting";
+import { getHmrcCtRuntimeStatus } from "../runtime";
 import { buildComputationsAttachmentRenderData } from "./data";
 import {
   renderAdjustmentMappingSection,
@@ -11,6 +12,8 @@ import type { Ct600Draft } from "../types";
 
 export function renderComputationsAttachmentIxbrl(draft: Ct600Draft) {
   const data = buildComputationsAttachmentRenderData(draft);
+  const taxReference =
+    getHmrcCtRuntimeStatus({ utr: draft.utr ?? null }).submissionReference ?? draft.utr ?? "";
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
@@ -47,6 +50,12 @@ export function renderComputationsAttachmentIxbrl(draft: Ct600Draft) {
   </head>
   <body xml:lang="en-GB">
     ${renderComputationsAttachmentHeader(data)}
+    <div style="display:none">
+      <ix:nonNumeric name="ct-comp:TaxReference" contextRef="${data.instantContextId}">${escapeXml(
+        taxReference,
+      )}</ix:nonNumeric>
+      <ix:nonNumeric name="ct-comp:CompanyIsAPartnerInAFirm" contextRef="${data.durationCompanyInfoContextId}">false</ix:nonNumeric>
+    </div>
     <h1><ix:nonNumeric name="ct-comp:CompanyName" contextRef="${data.instantContextId}">${escapeXml(
       draft.companyName,
     )}</ix:nonNumeric></h1>

@@ -12,6 +12,7 @@ export function buildComputationsAttachmentRenderData(
     draft,
     entity: resolveCtEntityIdentifier(draft),
     instantContextId: "ct-context",
+    durationCompanyInfoContextId: "ct-context-company-info",
     durationSummaryContextId: "ct-context-summary",
     durationTradeDetailContextId: "ct-context-trade-detail",
     unitId: "unit",

@@ -126,12 +126,11 @@ export function parseHmrcCtTransactionEngineMessage(xml: string): HmrcCtTransact
     normalizedBodyStatus === "rejected" ||
     normalizedBodyStatus === "failed"
       ? "rejected"
-      : qualifier === "response" &&
-          (normalizedBodyStatus === "accepted" || normalizedResponseType === "success")
+      : qualifier === "response" ||
+          normalizedBodyStatus === "accepted" ||
+          normalizedResponseType === "success"
         ? "accepted"
-        : qualifier === "response"
-          ? "submitted"
-          : "submitted";
+        : "submitted";
 
   return {
     qualifier,

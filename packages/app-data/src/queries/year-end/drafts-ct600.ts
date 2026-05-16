@@ -29,7 +29,9 @@ export function buildCt600Draft(args: {
     0,
   );
   const chargeableProfits = roundCurrency(
-    Math.max(derived.evaluation.computationBreakdown.totalProfitsChargeableToCorporationTax, 0),
+    Math.round(
+      Math.max(derived.evaluation.computationBreakdown.totalProfitsChargeableToCorporationTax, 0),
+    ),
   );
   const rateSummary = buildCorporationTaxRateSummary({
     periodStart: args.pack.periodStart,
@@ -45,7 +47,7 @@ export function buildCt600Draft(args: {
   const loansToParticipatorsTax = ct600aSupplement?.taxPayable ?? 0;
   const totalTaxPayable = roundCurrency(netCorporationTaxChargeable + loansToParticipatorsTax);
   const reviewItems = [
-    "The draft XML includes an HMRC-style GovTalk envelope, a computed IRmark, and structured iXBRL attachments for the supported small-company path.",
+    "The draft XML includes an HMRC-style GovTalk envelope and structured iXBRL attachments for the supported small-company path.",
     ct600aSupplement
       ? "CT600A is included from the close-company loans schedule saved against this year-end period."
       : "No CT600 supplementary page is included for this period unless a close-company loans schedule is saved.",

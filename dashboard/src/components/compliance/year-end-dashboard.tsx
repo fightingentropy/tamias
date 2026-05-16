@@ -22,6 +22,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@tamias/ui/table";
 import { useToast } from "@tamias/ui/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ExternalLink, FileText } from "lucide-react";
 import Link from "@/framework/link";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -71,12 +72,14 @@ import {
 } from "@/components/compliance/year-end-dashboard.lib";
 import { FormatAmount } from "@/components/format-amount";
 import { useFileUrl } from "@/hooks/use-file-url";
+import { openTaxReturnReviewWindow, useTaxReturnParams } from "@/hooks/use-tax-return-params";
 import { useTRPC } from "@/trpc/client";
 
 export function YearEndDashboard() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { setParams: setTaxReturnParams } = useTaxReturnParams();
   const [journalDate, setJournalDate] = useState(new Date().toISOString().slice(0, 10));
   const [journalDescription, setJournalDescription] = useState("");
   const [journalReference, setJournalReference] = useState("");
@@ -832,6 +835,14 @@ export function YearEndDashboard() {
               <a href={download.url}>Download latest bundle</a>
             </Button>
           ) : null}
+          <Button variant="outline" onClick={() => setTaxReturnParams({ taxReturn: "ct600" })}>
+            <FileText className="mr-2 size-3" />
+            Review CT600
+          </Button>
+          <Button variant="ghost" onClick={() => openTaxReturnReviewWindow("ct600")}>
+            <ExternalLink className="mr-2 size-3" />
+            Open CT600 window
+          </Button>
         </CardContent>
       </Card>
 

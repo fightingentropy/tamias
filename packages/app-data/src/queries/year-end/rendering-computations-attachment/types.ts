@@ -12,6 +12,7 @@ export type ComputationsAttachmentRenderData = {
     identifier: string;
   };
   instantContextId: string;
+  durationCompanyInfoContextId: string;
   durationSummaryContextId: string;
   durationTradeDetailContextId: string;
   unitId: string;

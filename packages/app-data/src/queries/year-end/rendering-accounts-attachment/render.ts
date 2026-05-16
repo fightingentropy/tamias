@@ -1,6 +1,6 @@
 import { roundCurrency } from "@tamias/compliance";
+import { formatDraftDate, getSummaryAmount } from "../formatting";
 import { resolveAccountsEntityIdentifier } from "../rendering-ixbrl";
-import { getSummaryAmount } from "../formatting";
 import type { StatutoryAccountsDraft } from "../types";
 import { buildStatementsMarkup } from "./statements";
 import { renderAccountsAttachmentBodySections, renderAccountsAttachmentHeader } from "./sections";
@@ -11,6 +11,7 @@ function buildSmallCompaniesAttachmentData(
 ): AccountsAttachmentRenderData {
   const durationContextId = "acct-duration";
   const instantContextId = "acct-instant";
+  const legalFormContextId = "acct-duration-legal-form";
   const accountsStatusContextId = "acct-duration-accounts-status";
   const accountsTypeContextId = "acct-duration-accounts-type";
   const accountingStandardsContextId = "acct-duration-accounting-standards";
@@ -37,9 +38,9 @@ function buildSmallCompaniesAttachmentData(
   const signingDirector = directorContexts.find(
     (context) => context.name === draft.signingDirectorName,
   );
-  const formattedPeriodStart = draft.periodStart;
-  const formattedPeriodEnd = draft.periodEnd;
-  const formattedApprovalDate = draft.approvalDate;
+  const formattedPeriodStart = formatDraftDate(draft.periodStart);
+  const formattedPeriodEnd = formatDraftDate(draft.periodEnd);
+  const formattedApprovalDate = draft.approvalDate ? formatDraftDate(draft.approvalDate) : null;
   const registeredNumberText = draft.companyNumber
     ? `Registered Number ${draft.companyNumber}`
     : "Registered Number unavailable";
@@ -54,6 +55,7 @@ function buildSmallCompaniesAttachmentData(
     entity: resolveAccountsEntityIdentifier(draft),
     durationContextId,
     instantContextId,
+    legalFormContextId,
     accountsStatusContextId,
     accountsTypeContextId,
     accountingStandardsContextId,
@@ -161,6 +163,7 @@ export function renderAccountsAttachmentIxbrl(draft: StatutoryAccountsDraft) {
       <ix:nonNumeric name="bus:AccountsStatusAuditedOrUnaudited" contextRef="${data.accountsStatusContextId}"></ix:nonNumeric>
       <ix:nonNumeric name="bus:AccountsType" contextRef="${data.accountsTypeContextId}"></ix:nonNumeric>
       <ix:nonNumeric name="bus:EntityTradingStatus" contextRef="${data.durationContextId}"></ix:nonNumeric>
+      <ix:nonNumeric name="bus:LegalFormEntity" contextRef="${data.legalFormContextId}"></ix:nonNumeric>
       <ix:nonNumeric name="bus:StartDateForPeriodCoveredByReport" contextRef="${data.instantContextId}">${data.draft.periodStart}</ix:nonNumeric>
       <ix:nonNumeric name="bus:EndDateForPeriodCoveredByReport" contextRef="${data.instantContextId}">${data.draft.periodEnd}</ix:nonNumeric>
       <ix:nonNumeric name="bus:BalanceSheetDate" contextRef="${data.instantContextId}">${data.draft.periodEnd}</ix:nonNumeric>

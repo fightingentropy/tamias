@@ -3,7 +3,7 @@ import type { Ct600Draft } from "../types";
 import { renderCt600AttachedFilesXml, renderCt600ReturnInfoSummaryXml } from "./attachments";
 import { renderCorporationTaxChargeableXml } from "./corporation-tax";
 import { renderCt600aXml } from "./ct600a";
-import { formatMoney } from "./shared";
+import { formatMoney, formatPoundsPence } from "./shared";
 
 export function renderCt600DraftBodyXml(args: {
   draft: Ct600Draft;
@@ -54,35 +54,35 @@ export function renderCt600DraftBodyXml(args: {
     args.draft.profitsBeforeDonationsAndGroupRelief,
   )}</ProfitsBeforeDonationsAndGroupRelief></ChargesAndReliefs><ChargeableProfits>${formatMoney(
     args.draft.chargeableProfits,
-  )}</ChargeableProfits><CorporationTaxChargeable>${corporationTaxChargeableXml}</CorporationTaxChargeable><CorporationTax>${formatMoney(
+  )}</ChargeableProfits><CorporationTaxChargeable>${corporationTaxChargeableXml}</CorporationTaxChargeable><CorporationTax>${formatPoundsPence(
     args.draft.corporationTax,
   )}</CorporationTax>${
     args.draft.marginalRelief > 0
-      ? `<MarginalReliefForRingFenceTrades>${formatMoney(
+      ? `<MarginalReliefForRingFenceTrades>${formatPoundsPence(
           args.draft.marginalRelief,
         )}</MarginalReliefForRingFenceTrades>`
       : ""
-  }<NetCorporationTaxChargeable>${formatMoney(
+  }<NetCorporationTaxChargeable>${formatPoundsPence(
     args.draft.netCorporationTaxChargeable,
-  )}</NetCorporationTaxChargeable><TaxReliefsAndDeductions><TotalReliefsAndDeductions>0.00</TotalReliefsAndDeductions></TaxReliefsAndDeductions></CompanyTaxCalculation><CalculationOfTaxOutstandingOrOverpaid><NetCorporationTaxLiability>${formatMoney(
+  )}</NetCorporationTaxChargeable><TaxReliefsAndDeductions><TotalReliefsAndDeductions>0.00</TotalReliefsAndDeductions></TaxReliefsAndDeductions></CompanyTaxCalculation><CalculationOfTaxOutstandingOrOverpaid><NetCorporationTaxLiability>${formatPoundsPence(
     args.draft.netCorporationTaxLiability,
-  )}</NetCorporationTaxLiability><TaxChargeable>${formatMoney(
+  )}</NetCorporationTaxLiability><TaxChargeable>${formatPoundsPence(
     args.draft.taxChargeable,
   )}</TaxChargeable>${
     ct600aSupplement
-      ? `<LoansToParticipators>${formatMoney(
+      ? `<LoansToParticipators>${formatPoundsPence(
           args.draft.loansToParticipatorsTax,
         )}</LoansToParticipators>`
       : ""
   }${
     args.draft.ct600AReliefDue ? "<CT600AreliefDue>yes</CT600AreliefDue>" : ""
-  }<TaxPayable>${formatMoney(
+  }<TaxPayable>${formatPoundsPence(
     args.draft.taxPayable,
   )}</TaxPayable></CalculationOfTaxOutstandingOrOverpaid><Declaration><AcceptDeclaration>yes</AcceptDeclaration><Name>${escapeXml(
     args.draft.declarationName,
   )}</Name><Status>${escapeXml(args.draft.declarationStatus)}</Status></Declaration>${ct600aXml}${
     attachedFiles
-      ? `<AttachedFiles><XBRLsubmission>${attachedFiles}</XBRLsubmission></AttachedFiles>`
+      ? `<AttachedFiles>${attachedFiles}</AttachedFiles>`
       : ""
   }</CompanyTaxReturn></IRenvelope></Body>`;
 }

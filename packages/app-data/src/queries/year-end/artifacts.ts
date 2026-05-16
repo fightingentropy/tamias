@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
-import { PassThrough } from "node:stream";
 import { uploadVaultFile } from "@tamias/storage";
+import { zipSync } from "fflate";
 import { type SubmissionArtifactBundleRecord } from "./types";
 
 export function buildCsvChecksum(value: string) {
@@ -8,26 +8,12 @@ export function buildCsvChecksum(value: string) {
 }
 
 export async function buildZipBundle(files: Array<{ name: string; data: Buffer }>) {
-  const { default: archiver } = await import("archiver");
-
-  return new Promise<Buffer>((resolve, reject) => {
-    const chunks: Buffer[] = [];
-    const stream = new PassThrough();
-
-    stream.on("data", (chunk: Buffer) => chunks.push(chunk));
-    stream.on("end", () => resolve(Buffer.concat(chunks)));
-    stream.on("error", reject);
-
-    const archive = archiver("zip", { zlib: { level: 9 } });
-    archive.on("error", reject);
-    archive.pipe(stream);
-
-    for (const file of files) {
-      archive.append(file.data, { name: file.name });
-    }
-
-    archive.finalize();
-  });
+  return Buffer.from(
+    zipSync(
+      Object.fromEntries(files.map((file) => [file.name, new Uint8Array(file.data)])),
+      { level: 9 },
+    ),
+  );
 }
 
 export async function createSubmissionArtifactBundle(args: {

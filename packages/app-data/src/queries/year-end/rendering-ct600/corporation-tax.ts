@@ -1,7 +1,7 @@
 import { parseISO } from "date-fns";
 import { SMALL_PROFITS_RATE_START } from "../constants";
 import type { Ct600Draft } from "../types";
-import { formatMoney, inclusiveDayCount } from "./shared";
+import { formatMoney, formatPoundsPence, formatRate, inclusiveDayCount } from "./shared";
 
 function getCorporationTaxFinancialYears(draft: Ct600Draft) {
   if (draft.financialYearBreakdown.length > 0) {
@@ -60,7 +60,7 @@ function renderFinancialYearChargeXml(draft: Ct600Draft) {
         financialYear.financialYear
       }</Year><Details><Profit>${formatMoney(
         financialYear.chargeableProfits,
-      )}</Profit><TaxRate>${formatMoney(financialYear.taxRate)}</TaxRate><Tax>${formatMoney(
+      )}</Profit><TaxRate>${formatRate(financialYear.taxRate)}</TaxRate><Tax>${formatPoundsPence(
         financialYear.grossCorporationTax,
       )}</Tax></Details></${elementName}>`;
     })

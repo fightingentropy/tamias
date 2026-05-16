@@ -6,5 +6,13 @@ export function inclusiveDayCount(start: Date, end: Date) {
 }
 
 export function formatMoney(value: number) {
+  return Math.round(roundCurrency(value)).toFixed(2);
+}
+
+export function formatPoundsPence(value: number) {
+  return roundCurrency(value).toFixed(2);
+}
+
+export function formatRate(value: number) {
   return roundCurrency(value).toFixed(2);
 }

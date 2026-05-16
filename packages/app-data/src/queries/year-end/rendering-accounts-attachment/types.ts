@@ -17,6 +17,7 @@ export type AccountsAttachmentRenderData = {
   };
   durationContextId: string;
   instantContextId: string;
+  legalFormContextId: string;
   accountsStatusContextId: string;
   accountsTypeContextId: string;
   accountingStandardsContextId: string;

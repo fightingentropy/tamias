@@ -51,8 +51,8 @@
     "@tamias/logger": "workspace:*",
     "@tamias/storage": "workspace:*",
     "@tamias/utils": "workspace:*",
-    "archiver": "^8.0.0",
     "date-fns": "catalog:",
+    "fflate": "^0.8.2",
     "nanoid": "catalog:",
     "uuid": "catalog:"
   },

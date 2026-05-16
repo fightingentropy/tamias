@@ -28,6 +28,19 @@ export function renderAccountsAttachmentHeader(data: AccountsAttachmentRenderDat
             instant: draft.periodEnd,
           })}
           ${renderInlineXbrlContext({
+            id: data.legalFormContextId,
+            scheme: entity.scheme,
+            identifier: entity.identifier,
+            startDate: draft.periodStart,
+            endDate: draft.periodEnd,
+            explicitMembers: [
+              {
+                dimension: "bus:LegalFormEntityDimension",
+                value: "bus:PrivateLimitedCompanyLtd",
+              },
+            ],
+          })}
+          ${renderInlineXbrlContext({
             id: data.accountsStatusContextId,
             scheme: entity.scheme,
             identifier: entity.identifier,

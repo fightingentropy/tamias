@@ -33,7 +33,7 @@ export function buildVatBoxValues(input: {
   const box2 = roundCurrency(acquisitionVat + (adjustments.box2 ?? 0));
   const box3 = roundCurrency(box1 + box2 + (adjustments.box3 ?? 0));
   const box4 = roundCurrency(reclaimedVat + (adjustments.box4 ?? 0));
-  const box5 = roundCurrency(box3 - box4 + (adjustments.box5 ?? 0));
+  const box5 = Math.abs(roundCurrency(box3 - box4 + (adjustments.box5 ?? 0)));
   const box6 = roundHmrcInteger(input.salesExVat + (adjustments.box6 ?? 0));
   const box7 = roundHmrcInteger(input.purchasesExVat + (adjustments.box7 ?? 0));
   const box8 = roundHmrcInteger((input.goodsSuppliedExVat ?? 0) + (adjustments.box8 ?? 0));

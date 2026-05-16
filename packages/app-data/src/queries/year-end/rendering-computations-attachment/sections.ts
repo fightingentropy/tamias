@@ -59,6 +59,23 @@ export function renderComputationsAttachmentHeader(data: ComputationsAttachmentR
             ],
           })}
           ${renderInlineXbrlContext({
+            id: data.durationCompanyInfoContextId,
+            scheme: data.entity.scheme,
+            identifier: data.entity.identifier,
+            startDate: data.draft.periodStart,
+            endDate: data.draft.periodEnd,
+            explicitMembers: [
+              {
+                dimension: "ct-comp:BusinessTypeDimension",
+                value: "ct-comp:Company",
+              },
+              {
+                dimension: "ct-comp:DetailedAnalysisDimension",
+                value: "ct-comp:Item1",
+              },
+            ],
+          })}
+          ${renderInlineXbrlContext({
             id: data.durationSummaryContextId,
             scheme: data.entity.scheme,
             identifier: data.entity.identifier,

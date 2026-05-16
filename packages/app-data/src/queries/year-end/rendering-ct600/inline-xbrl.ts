@@ -10,7 +10,7 @@ function stripInlineDoctype(value: string) {
   return value.replace(/^\s*<!DOCTYPE[\s\S]*?>\s*/i, "");
 }
 
-function normalizeInlineXbrlDocumentForCtSubmission(value: string) {
+export function normalizeInlineXbrlDocumentForCtSubmission(value: string) {
   return stripInlineDoctype(stripLeadingXmlDeclaration(stripUtf8ByteOrderMark(value))).trim();
 }
 

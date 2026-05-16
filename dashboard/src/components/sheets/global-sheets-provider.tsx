@@ -10,10 +10,16 @@ import { useDocumentParams } from "@/hooks/use-document-params";
 import { useInboxParams } from "@/hooks/use-inbox-params";
 import { useInvoiceParams } from "@/hooks/use-invoice-params";
 import { useProductParams } from "@/hooks/use-product-params";
+import { useTaxReturnParams } from "@/hooks/use-tax-return-params";
 import { useTrackerParams } from "@/hooks/use-tracker-params";
 import { useTransactionParams } from "@/hooks/use-transaction-params";
 import { prefetchSearchModule } from "@/lib/search-module";
 import { useSearchStore } from "@/store/search";
+
+const GlobalComplianceSheets = dynamic(
+  () => import("./global-sheets-compliance").then((mod) => mod.GlobalComplianceSheets),
+  { ssr: false },
+);
 
 const GlobalConnectSheets = dynamic(
   () => import("./global-sheets-connect").then((mod) => mod.GlobalConnectSheets),
@@ -68,8 +74,10 @@ export function GlobalSheetsProvider() {
   const { params: documentParams, setParams: setDocumentParams } = useDocumentParams();
   const { params: inboxParams, setParams: setInboxParams } = useInboxParams();
   const connectParams = useConnectParams();
+  const taxReturnParams = useTaxReturnParams();
 
   const hasOpenSearchSheets = isSearchOpen;
+  const hasOpenComplianceSheets = Boolean(taxReturnParams.taxReturn);
 
   const hasOpenEntitySheets =
     Boolean(customerParams.createCustomer) ||
@@ -111,6 +119,7 @@ export function GlobalSheetsProvider() {
     );
 
   const shouldLoadSearchSheets = useStickyOverlayMount(hasOpenSearchSheets);
+  const shouldLoadComplianceSheets = useStickyOverlayMount(hasOpenComplianceSheets);
   const shouldLoadEntitySheets = useStickyOverlayMount(hasOpenEntitySheets);
   const shouldLoadTransactionSheets = useStickyOverlayMount(hasOpenTransactionSheets);
   const shouldLoadInvoiceSheets = useStickyOverlayMount(hasOpenInvoiceSheets);
@@ -159,6 +168,7 @@ export function GlobalSheetsProvider() {
   return (
     <>
       {shouldLoadSearchSheets ? <GlobalSearchSheets /> : null}
+      {shouldLoadComplianceSheets ? <GlobalComplianceSheets /> : null}
       {shouldLoadEntitySheets ? <GlobalEntitySheets /> : null}
       {shouldLoadTransactionSheets ? <GlobalTransactionSheets /> : null}
       {shouldLoadInvoiceSheets ? <GlobalInvoiceSheets /> : null}
