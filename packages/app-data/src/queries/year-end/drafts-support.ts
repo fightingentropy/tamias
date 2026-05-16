@@ -1,12 +1,12 @@
 import { roundCurrency } from "@tamias/compliance";
+import type { FilingProfileRecord } from "../compliance/filings";
+import { getSummaryAmount, parsePackArray } from "./formatting";
+import type { YearEndPackRecord } from "./pack-store";
+import { evaluateYearEndFilingReadiness } from "./readiness";
 import type {
   CloseCompanyLoansScheduleRecord,
   CorporationTaxRateScheduleRecord,
-  FilingProfileRecord,
-  YearEndPackRecord,
-} from "@tamias/app-data-convex";
-import { getSummaryAmount, parsePackArray } from "./formatting";
-import { evaluateYearEndFilingReadiness } from "./readiness";
+} from "./tax-schedules";
 import type {
   CorporationTaxSummary,
   RetainedEarningsRollforward,

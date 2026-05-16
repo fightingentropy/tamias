@@ -1,29 +1,16 @@
-import {
-  DASHBOARD_AUTH_HEADER,
-  serializeTrustedSessionHeaderValue,
-  TRUSTED_SESSION_HEADER,
-} from "@tamias/auth-session";
-import { resolveConvexUserSession } from "@tamias/auth-session/convex";
 import { getLocationHeaders } from "@tamias/location";
 import { headers } from "@tamias/utils/request-runtime";
 import { cache } from "react";
-import { measureAuthResolution } from "@/server/perf";
-import { canResolveConvexSessionLocally } from "@/start/auth/runtime";
-import { getConvexAuthToken } from "@/start/auth/server";
+import { getAuthToken } from "@/start/auth/server";
 import { getRequestTraceHeaders } from "@/utils/request-trace";
 
 export const getServerRequestContext = cache(async () => {
-  const [token, headersList] = await Promise.all([getConvexAuthToken(), headers()]);
-  const session =
-    token && canResolveConvexSessionLocally()
-      ? await measureAuthResolution("resolve-session", () => resolveConvexUserSession(token))
-      : null;
+  const [token, headersList] = await Promise.all([getAuthToken(), headers()]);
 
   return {
     token,
-    session,
     getTrustedSessionHeaderValue() {
-      return serializeTrustedSessionHeaderValue(session);
+      return null;
     },
     location: getLocationHeaders(headersList),
     traceHeaders: getRequestTraceHeaders(headersList),
@@ -45,11 +32,6 @@ export function buildTRPCRequestHeaders(opts: {
 
   if (opts.token) {
     requestHeaders.Authorization = `Bearer ${opts.token}`;
-  }
-
-  if (opts.trustedSession && process.env.INTERNAL_API_KEY) {
-    requestHeaders[DASHBOARD_AUTH_HEADER] = process.env.INTERNAL_API_KEY;
-    requestHeaders[TRUSTED_SESSION_HEADER] = opts.trustedSession;
   }
 
   if (opts.traceHeaders.cfRay) {

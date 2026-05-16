@@ -1,11 +1,7 @@
-import type {
-  CurrentUserIdentityRecord,
-  TransactionAttachmentRecord,
-} from "@tamias/app-data-convex";
-
-export type ConvexUserId = CurrentUserIdentityRecord["convexId"];
+export type AttachmentUserId = string;
 
 export type Attachment = {
+  publicTransactionAttachmentId?: string;
   type: string;
   name: string;
   size: number;
@@ -13,10 +9,19 @@ export type Attachment = {
   transactionId?: string;
 };
 
-export type StoredTransactionAttachment = TransactionAttachmentRecord;
+export type StoredTransactionAttachment = {
+  id: string;
+  teamId: string;
+  transactionId: string | null;
+  type: string;
+  name: string;
+  size: number;
+  path: string[];
+  createdAt: string;
+};
 
 export type CreateAttachmentsParams = {
   attachments: Attachment[];
   teamId: string;
-  userId?: ConvexUserId;
+  userId?: AttachmentUserId;
 };

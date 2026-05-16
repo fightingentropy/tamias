@@ -1,40 +1,25 @@
-import { getCustomerByIdFromConvex, getCustomersFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
-import {
-  buildCustomerRows,
-  canUseIndexedCustomerPage,
-  getIndexedCustomersPage,
-  matchesCustomerSearch,
-  sortCustomers,
-} from "./shared";
+import { buildCustomerRows, sortCustomers } from "./shared";
+import { getCustomerByIdFromD1, getCustomersFromD1, requireCustomersD1 } from "./d1";
 import type { GetCustomerByIdParams, GetCustomersParams } from "./types";
 
-export const getCustomerById = async (_db: Database, params: GetCustomerByIdParams) => {
-  const customer = await getCustomerByIdFromConvex({
-    teamId: params.teamId,
-    customerId: params.id,
-  });
+export const getCustomerById = async (db: Database, params: GetCustomerByIdParams) => {
+  const customer = await getCustomerByIdFromD1(requireCustomersD1(db), params);
 
   if (!customer) {
     return null;
   }
 
-  const [customerWithTags] = await buildCustomerRows(params.teamId, [customer]);
+  const [customerWithTags] = await buildCustomerRows(db, params.teamId, [customer]);
 
   return customerWithTags ?? null;
 };
 
-export const getCustomers = async (_db: Database, params: GetCustomersParams) => {
+export const getCustomers = async (db: Database, params: GetCustomersParams) => {
   const { teamId, sort, cursor, pageSize = 25, q } = params;
-
-  if (canUseIndexedCustomerPage(sort)) {
-    return getIndexedCustomersPage(params);
-  }
-
   const offset = cursor ? Number.parseInt(cursor, 10) : 0;
-  const customers = await getCustomersFromConvex({ teamId });
-  const matchedCustomers = customers.filter((customer) => matchesCustomerSearch(customer, q));
-  const dataWithTags = await buildCustomerRows(teamId, matchedCustomers);
+  const customers = await getCustomersFromD1(requireCustomersD1(db), { teamId, q, sort });
+  const dataWithTags = await buildCustomerRows(db, teamId, customers);
   const sortedData = sortCustomers(dataWithTags, sort);
   const paginatedData = sortedData.slice(offset, offset + pageSize);
   const nextCursor =

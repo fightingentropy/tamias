@@ -1,10 +1,11 @@
-import {
-  getInboxItemByIdFromConvex,
-  getInboxItemInfoFromConvex,
-  getPendingInboxItemsToNoMatchFromConvex,
-  type InboxItemRecord,
-} from "@tamias/app-data-convex";
 import type { Database, DatabaseOrTransaction } from "../../../client";
+import {
+  getInboxItemByIdFromD1,
+  getInboxItemInfoFromD1,
+  getPendingInboxItemsToNoMatchFromD1,
+  requireInboxItemsD1,
+  type InboxItemRecord,
+} from "../d1";
 import { markInboxItems } from "../shared";
 import { cleanupDeletedInboxArtifacts, getInboxItemWithTransaction } from "./shared";
 
@@ -24,9 +25,9 @@ export type UpdateInboxParams = {
   contentType?: string;
 };
 
-export async function updateInbox(_db: DatabaseOrTransaction, params: UpdateInboxParams) {
+export async function updateInbox(db: DatabaseOrTransaction, params: UpdateInboxParams) {
   const { id, teamId, ...data } = params;
-  const current = await getInboxItemByIdFromConvex({
+  const current = await getInboxItemByIdFromD1(requireInboxItemsD1(db), {
     teamId,
     inboxId: id,
   });
@@ -36,16 +37,16 @@ export async function updateInbox(_db: DatabaseOrTransaction, params: UpdateInbo
   }
 
   if (data.status === "deleted") {
-    await cleanupDeletedInboxArtifacts(teamId, current);
+    await cleanupDeletedInboxArtifacts(db, teamId, current);
   }
 
-  const [result] = await markInboxItems([current], data);
+  const [result] = await markInboxItems(db, [current], data);
 
   if (!result) {
     return null;
   }
 
-  return getInboxItemWithTransaction(teamId, result.id);
+  return getInboxItemWithTransaction(db, teamId, result.id);
 }
 
 export type UpdateInboxStatusParams = {
@@ -61,8 +62,8 @@ export type UpdateInboxStatusParams = {
     | "suggested_match";
 };
 
-export async function updateInboxStatus(_db: Database, params: UpdateInboxStatusParams) {
-  const current = await getInboxItemInfoFromConvex({
+export async function updateInboxStatus(db: Database, params: UpdateInboxStatusParams) {
+  const current = await getInboxItemInfoFromD1(requireInboxItemsD1(db), {
     inboxId: params.id,
   });
 
@@ -70,7 +71,7 @@ export async function updateInboxStatus(_db: Database, params: UpdateInboxStatus
     return;
   }
 
-  await markInboxItems([current], {
+  await markInboxItems(db, [current], {
     status: params.status,
   });
 }
@@ -90,14 +91,14 @@ export type UpdateInboxStatusToNoMatchResult = {
 };
 
 export async function updateInboxStatusToNoMatch(
-  _db: Database,
+  db: Database,
   params: UpdateInboxStatusToNoMatchParams,
 ): Promise<UpdateInboxStatusToNoMatchResult> {
   const toUpdate: InboxItemRecord[] = [];
   let cursor: string | null = null;
 
   while (true) {
-    const result = await getPendingInboxItemsToNoMatchFromConvex({
+    const result = await getPendingInboxItemsToNoMatchFromD1(requireInboxItemsD1(db), {
       createdAtTo: params.cutoffDate,
       cursor,
       pageSize: 200,
@@ -113,7 +114,7 @@ export async function updateInboxStatusToNoMatch(
   }
 
   if (toUpdate.length > 0) {
-    await markInboxItems(toUpdate, {
+    await markInboxItems(db, toUpdate, {
       status: "no_match",
     });
   }

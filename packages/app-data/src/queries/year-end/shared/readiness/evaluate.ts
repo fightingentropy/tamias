@@ -1,10 +1,10 @@
 import { roundCurrency } from "@tamias/compliance";
+import type { FilingProfileRecord } from "../../../compliance/filings";
+import type { YearEndPackRecord } from "../../pack-store";
 import type {
   CloseCompanyLoansScheduleRecord,
   CorporationTaxRateScheduleRecord,
-  FilingProfileRecord,
-  YearEndPackRecord,
-} from "@tamias/app-data-convex";
+} from "../../tax-schedules";
 import { isAfter, isValid, parseISO } from "date-fns";
 import type { CorporationTaxSummary } from "../types";
 import { validateCloseCompanyLoansSchedule } from "./close-company-loans";

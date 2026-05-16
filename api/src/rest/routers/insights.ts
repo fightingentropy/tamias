@@ -53,15 +53,15 @@ app.openapi(
     const session = c.get("session");
     const { limit, cursor, periodType, includeDismissed } = c.req.valid("query");
 
-    if (!session.user.convexId) {
+    if (!session.user.id) {
       throw new HTTPException(500, {
-        message: "Missing Convex user id",
+        message: "Missing user id",
       });
     }
 
     const result = await getInsightsForUser(db, {
       teamId,
-      userId: session.user.convexId,
+      userId: session.user.id,
       periodType: periodType ?? undefined,
       pageSize: limit ?? 10,
       cursor: cursor ?? null,

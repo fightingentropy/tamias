@@ -66,9 +66,11 @@ function getCanonicalAppOrigin(requestUrl: URL, currentHost: string) {
 }
 
 const requestMiddleware = createMiddleware({ type: "request" }).server((async ({
+  context,
   next,
   request,
 }: {
+  context?: Record<string, unknown>;
   next: any;
   request: Request;
 }) => {
@@ -112,6 +114,7 @@ const requestMiddleware = createMiddleware({ type: "request" }).server((async ({
 
   const result = (await next({
     context: {
+      ...(context ?? {}),
       auth,
     },
   })) as Exclude<Awaited<ReturnType<typeof next>>, void>;

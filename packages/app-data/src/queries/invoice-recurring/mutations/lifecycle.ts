@@ -39,7 +39,7 @@ export async function markInvoiceGenerated(
     nextScheduledAt,
   );
 
-  return upsertProjectedInvoiceRecurringRecord({
+  return upsertProjectedInvoiceRecurringRecord(db as Database, {
     ...current,
     invoicesGenerated: newInvoicesGenerated,
     consecutiveFailures: 0,
@@ -65,7 +65,7 @@ export async function recordInvoiceGenerationFailure(
 
   const newFailureCount = current.consecutiveFailures + 1;
   const shouldAutoPause = newFailureCount >= MAX_CONSECUTIVE_FAILURES;
-  const result = await upsertProjectedInvoiceRecurringRecord({
+  const result = await upsertProjectedInvoiceRecurringRecord(db, {
     ...current,
     consecutiveFailures: newFailureCount,
     status: shouldAutoPause ? "paused" : current.status,
@@ -85,7 +85,7 @@ export async function pauseInvoiceRecurring(
     return null;
   }
 
-  return upsertProjectedInvoiceRecurringRecord({
+  return upsertProjectedInvoiceRecurringRecord(db as Database, {
     ...existing,
     status: "paused",
     updatedAt: new Date().toISOString(),
@@ -110,7 +110,7 @@ export async function resumeInvoiceRecurring(db: Database, params: { id: string;
   );
 
   if (isCompleted) {
-    return upsertProjectedInvoiceRecurringRecord({
+    return upsertProjectedInvoiceRecurringRecord(db, {
       ...current,
       status: "completed",
       nextScheduledAt: null,
@@ -118,7 +118,7 @@ export async function resumeInvoiceRecurring(db: Database, params: { id: string;
     });
   }
 
-  return upsertProjectedInvoiceRecurringRecord({
+  return upsertProjectedInvoiceRecurringRecord(db, {
     ...current,
     status: "active",
     consecutiveFailures: 0,
@@ -137,7 +137,7 @@ export async function deleteInvoiceRecurring(
     return null;
   }
 
-  return upsertProjectedInvoiceRecurringRecord({
+  return upsertProjectedInvoiceRecurringRecord(db as Database, {
     ...existing,
     status: "canceled",
     nextScheduledAt: null,

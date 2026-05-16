@@ -14,7 +14,7 @@ export async function markUpcomingNotificationSent(
 
   const timestamp = new Date().toISOString();
 
-  return upsertProjectedInvoiceRecurringRecord({
+  return upsertProjectedInvoiceRecurringRecord(db, {
     ...existing,
     upcomingNotificationSentAt: timestamp,
     updatedAt: timestamp,

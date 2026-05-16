@@ -1,4 +1,5 @@
-import { getInboxItemsFromConvex, type InboxItemRecord } from "@tamias/app-data-convex";
+import type { Database } from "../../../client";
+import { getInboxItemsFromD1, requireInboxItemsD1, type InboxItemRecord } from "../d1";
 import {
   compareNullableDates,
   compareNullableStrings,
@@ -229,6 +230,7 @@ export function compareInboxListItems(
 }
 
 export async function buildHydratedInboxPage(args: {
+  db: Database;
   teamId: string;
   items: InboxItemRecord[];
   cursor: string | null | undefined;
@@ -246,7 +248,7 @@ export async function buildHydratedInboxPage(args: {
     };
   }
 
-  const relatedItems = await getInboxItemsFromConvex({
+  const relatedItems = await getInboxItemsFromD1(requireInboxItemsD1(args.db), {
     teamId: args.teamId,
     groupedInboxIds: args.items.map((item) => item.id),
   });
@@ -263,7 +265,7 @@ export async function buildHydratedInboxPage(args: {
     );
   }
 
-  const hydrated = await hydrateInboxItems(args.teamId, args.items);
+  const hydrated = await hydrateInboxItems(args.db, args.teamId, args.items);
 
   return {
     meta: {

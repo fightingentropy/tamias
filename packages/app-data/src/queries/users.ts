@@ -1,43 +1,43 @@
-import {
-  deleteUserInConvexIdentity,
-  getUserByEmailFromConvexIdentity,
-  getUserByIdFromConvexIdentity,
-  type CurrentUserIdentityRecord,
-  type UpdateUserInConvexIdentityInput,
-  updateUserInConvexIdentity,
-} from "@tamias/app-data-convex";
 import type { QueryClient } from "../client";
+import {
+  deleteUserFromD1,
+  getUserByEmailFromD1,
+  getUserByIdFromD1,
+  requireIdentityD1,
+  updateUserInD1,
+  type UpdateUserD1Input,
+} from "./identity/d1";
+import type { CurrentUserIdentityRecord } from "./teams/shared";
 
-type ConvexUserId = CurrentUserIdentityRecord["convexId"];
+type UserId = CurrentUserIdentityRecord["id"];
 
-export const getUserByConvexId = async (_db: QueryClient, id: ConvexUserId) => {
-  return getUserByIdFromConvexIdentity({ userId: id });
+export const getUserById = async (db: QueryClient, id: UserId) => {
+  return getUserByIdFromD1(requireIdentityD1(db), id);
 };
 
-export const getUserByEmail = async (_db: QueryClient, email: string) => {
-  return getUserByEmailFromConvexIdentity({ email });
+export const getUserByEmail = async (db: QueryClient, email: string) => {
+  return getUserByEmailFromD1(requireIdentityD1(db), email);
 };
 
-export type UpdateUserParams = Omit<UpdateUserInConvexIdentityInput, "userId" | "currentEmail"> & {
-  id: ConvexUserId;
+export type UpdateUserParams = Omit<UpdateUserD1Input, "userId" | "currentEmail"> & {
+  id: UserId;
 };
 
-export const updateUser = async (_db: QueryClient, data: UpdateUserParams) => {
+export const updateUser = async (db: QueryClient, data: UpdateUserParams) => {
   const { id, ...updateData } = data;
 
-  return updateUserInConvexIdentity({
+  return updateUserInD1(requireIdentityD1(db), {
     userId: id,
     ...updateData,
   });
 };
 
-export const getUserTeamId = async (_db: QueryClient, userId: ConvexUserId) => {
-  const user = await getUserByIdFromConvexIdentity({ userId });
+export const getUserTeamId = async (db: QueryClient, userId: UserId) => {
+  const user = await getUserByIdFromD1(requireIdentityD1(db), userId);
 
   return user?.teamId ?? null;
 };
 
-export const deleteUserByConvexId = async (_db: QueryClient, id: ConvexUserId) => {
-  await deleteUserInConvexIdentity({ userId: id });
-  return { id };
+export const deleteUser = async (db: QueryClient, id: UserId) => {
+  return deleteUserFromD1(requireIdentityD1(db), id);
 };

@@ -1,6 +1,6 @@
-import { type TransactionStatus } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import { getAccountingSyncStatus } from "../../accounting-sync";
+import type { TransactionStatus } from "../shared";
 import { getPendingSuggestionTransactionIdsForTransactions } from "../shared";
 import {
   buildProcessedTransactionLookups,
@@ -24,14 +24,14 @@ export async function getFallbackTransactionsPage(
   params: GetTransactionsParams & {
     pageSize: number;
   },
-  convexStatusesNotIn: TransactionStatus[],
+  statusesNotIn: TransactionStatus[],
 ) {
   const { teamId, cursor, pageSize } = params;
   const { teamMembers, categoryContext, bankAccounts, allTransactions, taggedTransactionIdSet } =
     await loadFallbackPageContext({
       db,
       params,
-      convexStatusesNotIn,
+      statusesNotIn,
     });
   const filterState = buildFallbackFilterState({
     params,
@@ -84,6 +84,7 @@ export async function getFallbackTransactionsPage(
   const offset = cursor ? Number.parseInt(cursor, 10) : 0;
   const fetchedData = filteredTransactions.slice(offset, offset + pageSize);
   const pageDecorations = await loadTransactionPageDecorations({
+    db,
     teamId,
     transactionIds: fetchedData.map((row) => row.id),
   });

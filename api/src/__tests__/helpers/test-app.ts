@@ -1,5 +1,4 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
-import type { Id } from "@tamias/app-data-convex/data-model";
 import { createMiddleware } from "hono/factory";
 import type { Context } from "../../rest/types";
 
@@ -14,7 +13,6 @@ export interface TestAppOptions {
  */
 export function createTestApp(options: TestAppOptions = {}) {
   const { teamId = "test-team-id", userId = "test-user-id" } = options;
-  const convexUserId = userId as Id<"appUsers">;
 
   const app = new OpenAPIHono<Context>();
   const testEnv = {
@@ -40,8 +38,7 @@ export function createTestApp(options: TestAppOptions = {}) {
       c.set("teamId", teamId);
       c.set("session", {
         user: {
-          id: convexUserId,
-          convexId: convexUserId,
+          id: userId,
           email: "test@example.com",
         },
       });

@@ -237,7 +237,7 @@ downloadInvoiceApp.openapi(
         teamId,
       });
     } else if (token) {
-      invoiceData = await getInvoiceByToken(token);
+      invoiceData = await getInvoiceByToken(token, db);
     }
 
     if (!invoiceData) {

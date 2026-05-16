@@ -1,14 +1,14 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import { resolveTamiasUserSession } from "@tamias/app-services/auth";
 import {
-  createAuthorizationCodeInConvex,
-  exchangeAuthorizationCodeInConvex,
-  getOAuthApplicationByClientIdFromConvex,
-  getTeamByPublicTeamIdFromConvex,
-  hasUserEverAuthorizedAppInConvex,
-  refreshAccessTokenInConvex,
-  revokeAccessTokenInConvex,
-} from "@tamias/app-services/foundation";
+  createAuthorizationCodeInD1,
+  exchangeAuthorizationCodeInD1,
+  getOAuthApplicationByClientIdFromD1,
+  getOAuthTeamNameFromD1,
+  hasUserEverAuthorizedAppInD1,
+  refreshAccessTokenInD1,
+  revokeAccessTokenInD1,
+} from "@tamias/app-services/oauth";
 import { AppInstalledEmail } from "@tamias/email/emails/app-installed";
 import { render } from "@tamias/email/render";
 import { sendEmail } from "@tamias/email/send";
@@ -82,10 +82,11 @@ app.openapi(
   }),
   async (c) => {
     const query = c.req.valid("query");
+    const db = c.get("db");
     const { client_id, redirect_uri, scope, state, code_challenge } = query;
 
     // Validate client_id
-    const application = await getOAuthApplicationByClientIdFromConvex(client_id);
+    const application = await getOAuthApplicationByClientIdFromD1(client_id, db);
     if (!application || !application.active) {
       throw new HTTPException(400, {
         message: "Invalid client_id",
@@ -187,6 +188,7 @@ app.openapi(
   async (c) => {
     const authHeader = c.req.header("Authorization");
     const body = c.req.valid("json");
+    const db = c.get("db");
 
     const { client_id, decision, scopes, redirect_uri, state, code_challenge, teamId } = body;
 
@@ -201,7 +203,7 @@ app.openapi(
     }
 
     // Validate client_id
-    const application = await getOAuthApplicationByClientIdFromConvex(client_id);
+    const application = await getOAuthApplicationByClientIdFromD1(client_id, db);
     if (!application || !application.active) {
       throw new HTTPException(400, {
         message: "Invalid client_id",
@@ -236,16 +238,11 @@ app.openapi(
       return c.json({ redirect_url: redirectUrl.toString() });
     }
 
-    if (!session.user.convexId) {
-      throw new HTTPException(500, {
-        message: "Missing Convex user id",
-      });
-    }
-
     // Create authorization code
-    const authCode = await createAuthorizationCodeInConvex({
+    const authCode = await createAuthorizationCodeInD1({
+      db,
       publicApplicationId: application.id,
-      userId: session.user.convexId,
+      userId: session.user.id,
       publicTeamId: teamId,
       scopes,
       redirectUri: redirect_uri,
@@ -261,21 +258,22 @@ app.openapi(
     // Send app installation email only if this is the first time authorizing this app
     try {
       // Check if user has ever authorized this application for this team (including expired tokens)
-      const hasAuthorizedBefore = await hasUserEverAuthorizedAppInConvex({
-        userId: session.user.convexId,
+      const hasAuthorizedBefore = await hasUserEverAuthorizedAppInD1({
+        db,
+        userId: session.user.id,
         publicTeamId: teamId,
         publicApplicationId: application.id,
       });
 
       if (!hasAuthorizedBefore) {
         // Get team information
-        const userTeam = await getTeamByPublicTeamIdFromConvex(teamId);
+        const teamName = await getOAuthTeamNameFromD1(teamId, db);
 
-        if (userTeam && session.user.email) {
+        if (teamName && session.user.email) {
           const html = await render(
             AppInstalledEmail({
               email: session.user.email,
-              teamName: userTeam.name!,
+              teamName,
               appName: application.name,
             }),
           );
@@ -365,9 +363,10 @@ app.openapi(
       refresh_token,
       scope,
     } = body;
+    const db = c.get("db");
 
     // Validate client credentials
-    const application = await getOAuthApplicationByClientIdFromConvex(client_id);
+    const application = await getOAuthApplicationByClientIdFromD1(client_id, db);
     if (!application || !application.active) {
       throw new HTTPException(400, {
         message: "Invalid client credentials",
@@ -399,7 +398,8 @@ app.openapi(
 
       try {
         // Exchange authorization code for access token
-        const tokenResponse = await exchangeAuthorizationCodeInConvex({
+        const tokenResponse = await exchangeAuthorizationCodeInD1({
+          db,
           code,
           redirectUri: redirect_uri,
           publicApplicationId: application.id,
@@ -463,7 +463,8 @@ app.openapi(
         const requestedScopes = scope ? scope.split(" ").filter(Boolean) : undefined;
 
         // Refresh access token
-        const tokenResponse = await refreshAccessTokenInConvex({
+        const tokenResponse = await refreshAccessTokenInD1({
+          db,
           refreshToken: refresh_token,
           publicApplicationId: application.id,
           scopes: requestedScopes,
@@ -556,9 +557,10 @@ app.openapi(
     }
 
     const { token, client_id, client_secret } = body;
+    const db = c.get("db");
 
     // Validate client credentials
-    const application = await getOAuthApplicationByClientIdFromConvex(client_id);
+    const application = await getOAuthApplicationByClientIdFromD1(client_id, db);
     if (!application || !application.active) {
       throw new HTTPException(400, {
         message: "Invalid client credentials",
@@ -582,7 +584,8 @@ app.openapi(
     }
 
     // Revoke token
-    await revokeAccessTokenInConvex({
+    await revokeAccessTokenInD1({
+      db,
       token,
       publicApplicationId: application.id,
     });

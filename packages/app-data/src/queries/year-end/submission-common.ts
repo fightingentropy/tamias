@@ -1,4 +1,6 @@
-import { listSubmissionEventsFromConvex, type YearEndPackRecord } from "@tamias/app-data-convex";
+import type { Database } from "../../client";
+import { listSubmissionEvents } from "../filing-events";
+import type { YearEndPackRecord } from "./pack-store";
 
 export function getSubmissionEventRequestPeriodKey(
   event: {
@@ -27,13 +29,13 @@ export function getSubmissionEventRequestSubmissionNumber(
   return typeof submissionNumber === "string" ? submissionNumber : null;
 }
 
-export async function listYearEndSubmissionEvents(args: {
+export async function listYearEndSubmissionEvents(db: Database, args: {
   teamId: string;
   provider: "hmrc-ct" | "companies-house";
   obligationType: "corporation_tax" | "accounts";
   periodKey?: string;
 }) {
-  const events = await listSubmissionEventsFromConvex({
+  const events = await listSubmissionEvents(db, {
     teamId: args.teamId,
     provider: args.provider,
     obligationType: args.obligationType,

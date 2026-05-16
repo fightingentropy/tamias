@@ -1,6 +1,6 @@
-import type { CurrentUserIdentityRecord, TransactionCategoryRecord } from "@tamias/app-data-convex";
+import type { TransactionCategoryRecord } from "./d1";
 
-export type ConvexUserId = CurrentUserIdentityRecord["convexId"];
+export type UserId = string;
 
 export type TransactionCategoryContext = {
   categories: TransactionCategoryRecord[];
@@ -23,7 +23,7 @@ export type GetCategoryByIdParams = {
 
 export type CreateTransactionCategoryParams = {
   teamId: string;
-  userId?: ConvexUserId;
+  userId?: UserId;
   name: string;
   color?: string | null;
   description?: string | null;

@@ -4,16 +4,11 @@ import {
   findAiSdkNonCatalogReferences,
   findForbiddenAppDataSelfImports,
   findForbiddenApiAliasReferences,
-  findForbiddenConvexGeneratedImports,
 } from "./check-architecture";
 
 describe("architecture boundaries", () => {
   test("does not reference @api/* outside api", () => {
     expect(findForbiddenApiAliasReferences(process.cwd())).toEqual([]);
-  });
-
-  test("does not import convex generated modules outside convex-model", () => {
-    expect(findForbiddenConvexGeneratedImports(process.cwd())).toEqual([]);
   });
 
   test("does not self-import app-data package aliases inside app-data", () => {

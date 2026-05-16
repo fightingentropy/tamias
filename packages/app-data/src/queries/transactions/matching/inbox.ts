@@ -1,8 +1,5 @@
-import {
-  getInboxItemByIdFromConvex,
-  getTransactionAttachmentsForTransactionIdsFromConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
+import { getInboxItemByIdFromD1, requireInboxItemsD1 } from "../../inbox/d1";
 import {
   calculateAmountScore,
   calculateCurrencyScore,
@@ -10,6 +7,7 @@ import {
   calculateNameScore,
   scoreMatch,
 } from "../../../utils/transaction-matching";
+import { getTransactionAttachmentsForTransactionIds } from "../../transaction-attachments";
 import {
   buildTransactionAttachmentLookups,
   getIndexedTransactionMatchCandidates,
@@ -30,7 +28,7 @@ export async function searchTransactionMatchByInbox(
   },
 ): Promise<SearchTransactionMatchResult[]> {
   try {
-    const item = await getInboxItemByIdFromConvex({
+    const item = await getInboxItemByIdFromD1(requireInboxItemsD1(db), {
       teamId: params.teamId,
       inboxId: params.inboxId,
     });
@@ -44,6 +42,7 @@ export async function searchTransactionMatchByInbox(
     const inboxDate = item.date;
     const candidateTransactions = (
       await getIndexedTransactionMatchCandidates({
+        db,
         teamId: params.teamId,
         searchTerms: [
           item.displayName,
@@ -115,7 +114,7 @@ export async function searchTransactionMatchByInbox(
       }));
 
     const { attachmentsByTransactionId } = buildTransactionAttachmentLookups(
-      await getTransactionAttachmentsForTransactionIdsFromConvex({
+      await getTransactionAttachmentsForTransactionIds(db, {
         teamId: params.teamId,
         transactionIds: candidateTransactions.map((transaction) => transaction.transactionId),
       }),

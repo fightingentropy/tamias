@@ -1,5 +1,8 @@
-import { getBankAccounts, getBankConnectionById } from "@tamias/app-data/queries";
-import { patchBankConnectionInConvex } from "@tamias/app-data-convex";
+import {
+  getBankAccounts,
+  getBankConnectionById,
+  patchBankConnection,
+} from "@tamias/app-data/queries";
 import { enqueue } from "@tamias/job-client";
 import { trpc } from "@tamias/trpc";
 import type { WorkerJob as Job } from "../../types/job";
@@ -63,7 +66,7 @@ export class SyncConnectionProcessor extends BaseProcessor<SyncConnectionPayload
     }
 
     if (connectionData.status === "disconnected") {
-      await patchBankConnectionInConvex({
+      await patchBankConnection(db, {
         id: connectionId,
         teamId: connection.teamId,
         status: "disconnected",
@@ -84,7 +87,7 @@ export class SyncConnectionProcessor extends BaseProcessor<SyncConnectionPayload
       throw new Error(`Unsupported connection status: ${connectionData.status}`);
     }
 
-    await patchBankConnectionInConvex({
+    await patchBankConnection(db, {
       id: connectionId,
       teamId: connection.teamId,
       status: "connected",
@@ -201,7 +204,7 @@ export class SyncConnectionProcessor extends BaseProcessor<SyncConnectionPayload
         enabledAccounts.length > 0 &&
         enabledAccounts.every((account) => (account.errorRetries ?? 0) >= 3)
       ) {
-        await patchBankConnectionInConvex({
+        await patchBankConnection(db, {
           id: connectionId,
           teamId: connection.teamId,
           status: "disconnected",

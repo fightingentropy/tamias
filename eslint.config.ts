@@ -16,7 +16,6 @@ export default tseslint.config(
       "**/playwright-report/**",
       "**/test-results/**",
       "**/.tanstack/**",
-      "**/convex/_generated/**",
       "**/.react-email/**",
       "bun.lock",
       "github.png",

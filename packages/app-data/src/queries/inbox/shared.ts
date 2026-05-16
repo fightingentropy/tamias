@@ -21,5 +21,5 @@ export {
   loadSuggestionMaps,
   clearInboxSuggestions,
 } from "./shared/suggestions";
-export type { InboxConvexUserId } from "./shared/suggestions";
+export type { InboxUserId } from "./shared/suggestions";
 export { getRelatedInboxItems, hydrateInboxItems, markInboxItems } from "./shared/items";

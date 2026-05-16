@@ -35,8 +35,8 @@ export const invoiceReadProcedures = {
       });
     }),
 
-  getInvoiceByToken: publicProcedure.input(getInvoiceByTokenSchema).query(async ({ input }) => {
-    const invoice = await getInvoiceByToken(input.token);
+  getInvoiceByToken: publicProcedure.input(getInvoiceByTokenSchema).query(async ({ input, ctx: { db } }) => {
+    const invoice = await getInvoiceByToken(input.token, db);
 
     if (!invoice) {
       throw new TRPCError({ code: "NOT_FOUND" });
@@ -48,7 +48,7 @@ export const invoiceReadProcedures = {
   markViewedByToken: publicProcedure
     .input(z.object({ token: z.string() }))
     .mutation(async ({ input, ctx: { db } }) => {
-      const id = await getInvoiceIdFromToken(input.token);
+      const id = await getInvoiceIdFromToken(input.token, db);
 
       if (!id) {
         throw new TRPCError({ code: "NOT_FOUND" });

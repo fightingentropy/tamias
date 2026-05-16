@@ -4,7 +4,7 @@ import {
   getNextRecurringScheduleAlarmAt,
   isCloudflareRecurringScheduleCancelRequest,
   isCloudflareRecurringScheduleRequest,
-} from "./bridge-helpers";
+} from "./async-helpers";
 import { getQueueBinding } from "./queue-bindings";
 import type { CloudflareAsyncEnv } from "./shared";
 

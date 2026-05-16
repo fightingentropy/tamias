@@ -1,8 +1,8 @@
-import { getInboxItemByIdFromConvex, getInboxItemsFromConvex } from "@tamias/app-data-convex";
 import { createLoggerWithContext } from "@tamias/logger";
 import type { Database } from "../../client";
 import { getInboxItemsPaged } from "../paged-records";
 import { getTransactionAttachmentsByIds } from "../transaction-attachments";
+import { getInboxItemByIdFromD1, getInboxItemsFromD1, requireInboxItemsD1 } from "./d1";
 import {
   filePathEquals,
   getPendingSuggestionForInbox,
@@ -20,10 +20,11 @@ import type {
 const logger = createLoggerWithContext("inbox");
 
 export async function getInboxById(_db: Database, params: GetInboxByIdParams) {
+  const d1 = requireInboxItemsD1(_db);
   const { id, teamId } = params;
   const [item, suggestion] = await Promise.all([
-    getInboxItemByIdFromConvex({ teamId, inboxId: id }),
-    getPendingSuggestionForInbox(teamId, id),
+    getInboxItemByIdFromD1(d1, { teamId, inboxId: id }),
+    getPendingSuggestionForInbox(_db, teamId, id),
   ]);
 
   if (!item) {
@@ -34,23 +35,23 @@ export async function getInboxById(_db: Database, params: GetInboxByIdParams) {
   const [primaryItem, relatedItems] = await Promise.all([
     primaryItemId === item.id
       ? Promise.resolve(item)
-      : getInboxItemByIdFromConvex({
+      : getInboxItemByIdFromD1(d1, {
           teamId,
           inboxId: primaryItemId,
         }).then((candidate) => candidate ?? item),
-    getInboxItemsFromConvex({
+    getInboxItemsFromD1(d1, {
       teamId,
       groupedInboxIds: [primaryItemId],
     }).then((items) => items.filter((candidate) => candidate.status !== "deleted")),
   ]);
-  const [hydratedPrimary] = await hydrateInboxItems(teamId, [primaryItem]);
+  const [hydratedPrimary] = await hydrateInboxItems(_db, teamId, [primaryItem]);
 
   if (!hydratedPrimary) {
     return null;
   }
 
   if (suggestion?.transactionId) {
-    const suggestionTransactionMap = await loadSuggestionMaps(teamId, [suggestion]);
+    const suggestionTransactionMap = await loadSuggestionMaps(_db, teamId, [suggestion]);
 
     return {
       ...hydratedPrimary,
@@ -74,8 +75,8 @@ export async function getInboxById(_db: Database, params: GetInboxByIdParams) {
   };
 }
 
-export async function checkInboxAttachments(_db: Database, params: CheckInboxAttachmentsParams) {
-  const inboxItem = await getInboxItemByIdFromConvex({
+export async function checkInboxAttachments(db: Database, params: CheckInboxAttachmentsParams) {
+  const inboxItem = await getInboxItemByIdFromD1(requireInboxItemsD1(db), {
     teamId: params.teamId,
     inboxId: params.id,
   });
@@ -85,7 +86,7 @@ export async function checkInboxAttachments(_db: Database, params: CheckInboxAtt
   }
 
   if (inboxItem.attachmentId && inboxItem.transactionId) {
-    const attachments = await getTransactionAttachmentsByIds({
+    const attachments = await getTransactionAttachmentsByIds(db, {
       teamId: params.teamId,
       attachmentIds: [inboxItem.attachmentId],
     });
@@ -106,7 +107,7 @@ export async function checkInboxAttachments(_db: Database, params: CheckInboxAtt
 
 export async function getInboxByFilePath(_db: Database, params: GetInboxByFilePathParams) {
   const { filePath, teamId } = params;
-  const items = await getInboxItemsFromConvex({
+  const items = await getInboxItemsFromD1(requireInboxItemsD1(_db), {
     teamId,
     filePath,
   });
@@ -141,12 +142,12 @@ export async function getStuckInboxItems(_db: Database, params: GetStuckInboxIte
 
   return (
     await Promise.all([
-      getInboxItemsPaged({
+      getInboxItemsPaged(_db, {
         teamId,
         status: "processing",
         createdAtTo: thresholdDate,
       }),
-      getInboxItemsPaged({
+      getInboxItemsPaged(_db, {
         teamId,
         status: "new",
         createdAtTo: thresholdDate,
@@ -183,7 +184,7 @@ export async function getExistingInboxAttachmentsByReferenceIds(
   });
 
   const results = (
-    await getInboxItemsFromConvex({
+    await getInboxItemsFromD1(requireInboxItemsD1(_db), {
       teamId: params.teamId,
       referenceIds: validReferenceIds,
     })

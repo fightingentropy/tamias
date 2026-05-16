@@ -11,10 +11,10 @@ app.all("/", async (c) => {
   const db = c.get("db");
   const teamId = c.get("teamId");
   const session = c.get("session");
-  const convexUserId = session.user.convexId;
+  const userId = session.user.id;
   const scopes = (c.get("scopes") as Scope[] | undefined) ?? [];
 
-  const server = createMcpServer({ db, teamId, convexUserId, scopes });
+  const server = createMcpServer({ db, teamId, userId, scopes });
 
   await server.connect(transport);
 

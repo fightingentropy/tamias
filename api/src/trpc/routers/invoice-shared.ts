@@ -4,17 +4,17 @@ import { createLoggerWithContext } from "@tamias/logger";
 import { TRPCError } from "@trpc/server";
 import {
   assertScheduledAtInFuture as assertInvoiceScheduledAtInFuture,
-  requireSessionConvexUserId,
+  requireSessionUserId,
 } from "../../invoice/transport";
 
 export const invoiceLogger = createLoggerWithContext("trpc:invoice");
 export const defaultTemplate = DEFAULT_TEMPLATE;
 
-export function requireConvexUserId(session: Session) {
-  return requireSessionConvexUserId(session, () => {
+export function requireUserId(session: Session) {
+  return requireSessionUserId(session, () => {
     throw new TRPCError({
       code: "UNAUTHORIZED",
-      message: "Missing Convex user id",
+      message: "Missing user id",
     });
   });
 }

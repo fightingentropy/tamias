@@ -1,12 +1,12 @@
 import { CASH_ACCOUNT_TYPES, CREDIT_ACCOUNT_TYPE } from "@tamias/banking/account";
-import { getBankAccountsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { createQueryCacheKey, getOrSetQueryCacheValue } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
 import { getTeamById } from "../teams";
-import type { GetCashBalanceParams, GetNetPositionParams } from "./types";
+import { getBankAccounts } from "./reads";
+import type { BankAccountRecord, GetCashBalanceParams, GetNetPositionParams } from "./types";
 
-type EnabledBankAccount = Awaited<ReturnType<typeof getBankAccountsFromConvex>>[number];
+type EnabledBankAccount = BankAccountRecord;
 
 type CashBalanceAccountBreakdownItem = {
   id: string;
@@ -66,8 +66,8 @@ function getConvertedAccountBalance(
   };
 }
 
-async function getEnabledBankAccounts(teamId: string) {
-  return getBankAccountsFromConvex({
+async function getEnabledBankAccounts(db: Database, teamId: string) {
+  return getBankAccounts(db, {
     teamId,
     enabled: true,
   });
@@ -143,7 +143,7 @@ export async function getCashBalance(db: Database, params: GetCashBalanceParams)
     }),
     async () => {
       const baseCurrency = await getResolvedBaseCurrency(db, params.teamId, params.currency);
-      const cashAccounts = getCashAccounts(await getEnabledBankAccounts(params.teamId));
+      const cashAccounts = getCashAccounts(await getEnabledBankAccounts(db, params.teamId));
       const { totalBalance, accountBreakdown } = buildCashBalanceBreakdown({
         accounts: cashAccounts,
         baseCurrency,
@@ -183,7 +183,7 @@ export async function getCashBalance(db: Database, params: GetCashBalanceParams)
  */
 async function getNetPositionImpl(db: Database, params: GetNetPositionParams) {
   const baseCurrency = await getResolvedBaseCurrency(db, params.teamId, params.currency);
-  const accounts = await getEnabledBankAccounts(params.teamId);
+  const accounts = await getEnabledBankAccounts(db, params.teamId);
   const cashAccounts = getCashAccounts(accounts);
   const creditAccounts = getCreditAccounts(accounts);
   const cash = sumConvertedBalances(cashAccounts, baseCurrency);

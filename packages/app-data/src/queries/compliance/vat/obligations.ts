@@ -1,12 +1,9 @@
 import { addYears, format, subYears } from "date-fns";
-import {
-  listVatObligationsFromConvex,
-  type FilingProfileRecord,
-  upsertVatObligationInConvex,
-} from "@tamias/app-data-convex";
+import type { FilingProfileRecord } from "../filings";
 import type { Database } from "../../../client";
 import { assertUkComplianceEnabled, getHmrcProvider } from "../shared";
 import { getVatTeamAndProfile, type VatTeamContext } from "./context";
+import { listVatObligationsFromD1, upsertVatObligationInD1 } from "./d1";
 import type { ListVatObligationsParams } from "./types";
 
 async function syncVatObligations(
@@ -48,7 +45,7 @@ async function syncVatObligations(
   }
 
   for (const obligation of obligations) {
-    await upsertVatObligationInConvex({
+    await upsertVatObligationInD1(db, {
       teamId: params.teamId,
       filingProfileId: params.profile.id,
       provider: "hmrc-vat",
@@ -77,7 +74,7 @@ export async function listVatObligations(db: Database, params: ListVatObligation
 
   await syncVatObligations(db, { ...params, team, profile });
 
-  const obligations = await listVatObligationsFromConvex({
+  const obligations = await listVatObligationsFromD1(db, {
     teamId: params.teamId,
   });
 

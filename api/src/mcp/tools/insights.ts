@@ -13,10 +13,10 @@ import {
 import { hasScope, READ_ONLY_ANNOTATIONS, type RegisterTools } from "../types";
 
 export const registerInsightTools: RegisterTools = (server, ctx) => {
-  const { db, teamId, convexUserId } = ctx;
+  const { db, teamId, userId } = ctx;
 
   // Require insights.read scope
-  if (!hasScope(ctx, "insights.read") || !convexUserId) {
+  if (!hasScope(ctx, "insights.read") || !userId) {
     return;
   }
 
@@ -32,7 +32,7 @@ export const registerInsightTools: RegisterTools = (server, ctx) => {
     async (params) => {
       const result = await getInsightsForUser(db, {
         teamId,
-        userId: convexUserId,
+        userId: userId,
         periodType: params.periodType ?? undefined,
         pageSize: params.limit ?? 10,
         cursor: params.cursor ?? undefined,

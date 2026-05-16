@@ -21,14 +21,6 @@ export function isProduction(): boolean {
 }
 
 /**
- * Check if the worker is running in staging environment
- * Checks the normalized worker environment across local and Cloudflare
- */
-export function isStaging(): boolean {
-  return getWorkerEnvironment() === "staging";
-}
-
-/**
  * Check if the worker is running in a non-production environment
  * Useful for skipping scheduled tasks or enabling debug features
  */

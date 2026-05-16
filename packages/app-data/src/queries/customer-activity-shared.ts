@@ -1,11 +1,14 @@
+import type { Database } from "../client";
 import {
-  getCustomersByIdsFromConvex,
-  getCustomersPageFromConvex,
-  getInvoiceCustomerDateAggregateRowsFromConvex,
-  getTrackerEntriesByRangeFromConvex,
-  getTrackerProjectsByIdsFromConvex,
-} from "@tamias/app-data-convex";
+  countCustomersCreatedBetweenFromD1,
+  getCustomersByIdsFromD1,
+  getRecentCustomerCountsFromD1,
+  requireCustomersD1,
+} from "./customers/d1";
 import { normalizeTimestampBoundary } from "./date-boundaries";
+import { getInvoiceCustomerDateAggregateRowsFromD1 } from "./reports/shared/aggregates";
+import { getTrackerEntriesByRangeFromD1, requireTrackerEntriesD1 } from "./tracker-entries/d1";
+import { getTrackerProjectsByIdsFromD1, requireTrackerProjectsD1 } from "./tracker-projects/d1";
 
 const ALL_INVOICE_STATUSES = [
   "draft",
@@ -17,7 +20,6 @@ const ALL_INVOICE_STATUSES = [
   "refunded",
 ] as const;
 const RECENT_REVENUE_INVOICE_STATUSES = new Set<string>(["paid", "unpaid", "overdue"]);
-const CUSTOMER_COUNT_PAGE_SIZE = 200;
 const MAX_TRACKER_ENTRY_DATE = "9999-12-31";
 
 export type CustomerRevenueSummary = {
@@ -40,18 +42,19 @@ function hasStringValue(value: string | null | undefined): value is string {
 }
 
 export async function getRecentCustomerActivity(args: {
+  db: Database;
   teamId: string;
   sinceIso: string;
   sinceDate: string;
 }): Promise<RecentCustomerActivity> {
   const [recentInvoiceRows, trackerEntries] = await Promise.all([
-    getInvoiceCustomerDateAggregateRowsFromConvex({
+    getInvoiceCustomerDateAggregateRowsFromD1(args.db, {
       teamId: args.teamId,
       statuses: [...ALL_INVOICE_STATUSES],
       dateField: "createdAt",
       dateFrom: args.sinceIso,
     }),
-    getTrackerEntriesByRangeFromConvex({
+    getTrackerEntriesByRangeFromD1(requireTrackerEntriesD1(args.db), {
       teamId: args.teamId,
       from: args.sinceDate,
       to: MAX_TRACKER_ENTRY_DATE,
@@ -94,7 +97,7 @@ export async function getRecentCustomerActivity(args: {
   ];
   const trackerProjects =
     projectIds.length > 0
-      ? await getTrackerProjectsByIdsFromConvex({
+      ? await getTrackerProjectsByIdsFromD1(requireTrackerProjectsD1(args.db), {
           teamId: args.teamId,
           projectIds,
         })
@@ -133,7 +136,7 @@ export async function getRecentCustomerActivity(args: {
   ];
 
   if (customerIds.length > 0) {
-    const customers = await getCustomersByIdsFromConvex({
+    const customers = await getCustomersByIdsFromD1(requireCustomersD1(args.db), {
       teamId: args.teamId,
       customerIds,
     });
@@ -160,80 +163,26 @@ export async function getRecentCustomerActivity(args: {
 }
 
 export async function getRecentCustomerCounts(args: {
+  db: Database;
   teamId: string;
   sinceIso: string;
   activeCustomerIds: ReadonlySet<string>;
 }) {
-  let cursor: string | null = null;
-  let newCustomersCount = 0;
-  let inactiveClientsCount = 0;
-
-  while (true) {
-    const page = await getCustomersPageFromConvex({
-      teamId: args.teamId,
-      cursor,
-      pageSize: CUSTOMER_COUNT_PAGE_SIZE,
-      order: "desc",
-    });
-
-    for (const customer of page.page) {
-      if (customer.createdAt >= args.sinceIso) {
-        newCustomersCount += 1;
-        continue;
-      }
-
-      if (!args.activeCustomerIds.has(customer.id)) {
-        inactiveClientsCount += 1;
-      }
-    }
-
-    if (page.isDone) {
-      break;
-    }
-
-    cursor = page.continueCursor;
-  }
-
-  return {
-    newCustomersCount,
-    inactiveClientsCount,
-  };
+  return getRecentCustomerCountsFromD1(requireCustomersD1(args.db), args);
 }
 
 export async function countCustomersCreatedBetween(args: {
+  db: Database;
   teamId: string;
   from: string;
   to: string;
 }) {
   const fromBoundary = normalizeTimestampBoundary(args.from, "start");
   const toBoundary = normalizeTimestampBoundary(args.to, "end");
-  let cursor: string | null = null;
-  let count = 0;
 
-  while (true) {
-    const page = await getCustomersPageFromConvex({
-      teamId: args.teamId,
-      cursor,
-      pageSize: CUSTOMER_COUNT_PAGE_SIZE,
-      order: "desc",
-    });
-
-    for (const customer of page.page) {
-      if (customer.createdAt > toBoundary) {
-        continue;
-      }
-
-      if (customer.createdAt < fromBoundary) {
-        return count;
-      }
-
-      count += 1;
-    }
-
-    if (page.isDone) {
-      return count;
-    }
-
-    cursor = page.continueCursor;
-  }
+  return countCustomersCreatedBetweenFromD1(requireCustomersD1(args.db), {
+    teamId: args.teamId,
+    from: fromBoundary,
+    to: toBoundary,
+  });
 }

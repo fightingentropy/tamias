@@ -80,7 +80,7 @@ export class EmailService {
         // For team emails (no 'to' field), check user's notification settings
         const shouldSend = await shouldSendNotification(
           this.db,
-          email.user.convex_id,
+          email.user.id,
           email.user.team_id,
           notificationType,
           "email",

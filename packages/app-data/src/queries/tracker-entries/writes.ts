@@ -1,16 +1,16 @@
-import {
-  type CurrentUserIdentityRecord,
-  deleteTrackerEntryInConvex,
-  getTrackerProjectsByIdsFromConvex,
-  startTrackerTimerInConvex,
-  stopTrackerTimerInConvex,
-  upsertTrackerEntriesInConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { createActivity } from "../activities";
+import { getTrackerProjectsByIdsFromD1, requireTrackerProjectsD1 } from "../tracker-projects/d1";
+import {
+  deleteTrackerEntryFromD1,
+  requireTrackerEntriesD1,
+  startTrackerTimerInD1,
+  stopTrackerTimerInD1,
+  upsertTrackerEntriesInD1,
+} from "./d1";
 import { enrichTrackerEntries } from "./shared";
 
-type ConvexUserId = CurrentUserIdentityRecord["convexId"];
+type AppUserId = string;
 
 export type UpsertTrackerEntriesParams = {
   id?: string;
@@ -18,8 +18,8 @@ export type UpsertTrackerEntriesParams = {
   start: string;
   stop: string;
   dates: string[];
-  assignedId?: ConvexUserId | null;
-  activityUserId?: ConvexUserId;
+  assignedId?: AppUserId | null;
+  activityUserId?: AppUserId;
   projectId: string;
   description?: string | null;
   duration: number;
@@ -38,7 +38,7 @@ export async function upsertTrackerEntries(db: Database, params: UpsertTrackerEn
     description: rest.description,
     duration: rest.duration,
   }));
-  const result = await upsertTrackerEntriesInConvex({
+  const result = await upsertTrackerEntriesInD1(requireTrackerEntriesD1(db), {
     teamId,
     entries,
   });
@@ -71,7 +71,7 @@ export type BulkCreateTrackerEntriesParams = {
     start: string;
     stop: string;
     dates: string[];
-    assignedId?: ConvexUserId | null;
+    assignedId?: AppUserId | null;
     projectId: string;
     description?: string | null;
     duration: number;
@@ -101,7 +101,7 @@ export async function bulkCreateTrackerEntries(
     return [];
   }
 
-  const result = await upsertTrackerEntriesInConvex({
+  const result = await upsertTrackerEntriesInD1(requireTrackerEntriesD1(db), {
     teamId,
     entries: flatEntries,
   });
@@ -114,8 +114,8 @@ export type DeleteTrackerEntryParams = {
   id: string;
 };
 
-export async function deleteTrackerEntry(_db: Database, params: DeleteTrackerEntryParams) {
-  return deleteTrackerEntryInConvex({
+export async function deleteTrackerEntry(db: Database, params: DeleteTrackerEntryParams) {
+  return deleteTrackerEntryFromD1(requireTrackerEntriesD1(db), {
     teamId: params.teamId,
     id: params.id,
   });
@@ -126,12 +126,12 @@ export async function startTimer(
   params: {
     teamId: string;
     projectId: string;
-    assignedId?: ConvexUserId | null;
+    assignedId?: AppUserId | null;
     description?: string | null;
     start?: string;
   },
 ) {
-  const result = await startTrackerTimerInConvex({
+  const result = await startTrackerTimerInD1(requireTrackerEntriesD1(db), {
     teamId: params.teamId,
     id: crypto.randomUUID(),
     projectId: params.projectId,
@@ -156,11 +156,11 @@ export async function stopTimer(
   params: {
     teamId: string;
     entryId?: string;
-    assignedId?: ConvexUserId | null;
+    assignedId?: AppUserId | null;
     stop?: string;
   },
 ) {
-  const result = await stopTrackerTimerInConvex({
+  const result = await stopTrackerTimerInD1(requireTrackerEntriesD1(db), {
     teamId: params.teamId,
     id: params.entryId,
     assignedId: params.assignedId,
@@ -169,7 +169,7 @@ export async function stopTimer(
 
   if ("discarded" in result && result.discarded) {
     const [project] = result.projectId
-      ? await getTrackerProjectsByIdsFromConvex({
+      ? await getTrackerProjectsByIdsFromD1(requireTrackerProjectsD1(db), {
           teamId: params.teamId,
           projectIds: [result.projectId],
         })

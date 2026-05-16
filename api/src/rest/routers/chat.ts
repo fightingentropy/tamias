@@ -33,11 +33,11 @@ app.post("/", withRequiredScope("chat.write"), async (c) => {
 
   const teamId = c.get("teamId");
   const session = c.get("session");
-  const userId = session.user.convexId;
+  const userId = session.user.id;
   const db = c.get("db");
 
   if (!userId) {
-    return c.json({ success: false, error: "Missing Convex user id" }, 500);
+    return c.json({ success: false, error: "Missing user id" }, 500);
   }
 
   const userContext = await getUserContext({

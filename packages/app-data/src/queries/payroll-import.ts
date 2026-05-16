@@ -1,11 +1,6 @@
-import {
-  getPayrollRunByPeriodFromConvex,
-  listPayrollRunsFromConvex,
-  upsertComplianceJournalEntryInConvex,
-  upsertPayrollRunInConvex,
-} from "@tamias/app-data-convex";
 import { roundCurrency } from "@tamias/compliance";
 import type { Database } from "../client";
+import { upsertComplianceJournalEntry } from "./compliance/ledger";
 import {
   buildLiabilitySummary,
   buildPayrollLiabilityTotals,
@@ -17,6 +12,12 @@ import {
   type PayrollImportParams,
   validateBalancedLines,
 } from "./payroll-shared";
+import {
+  getPayrollRunByPeriodFromD1,
+  listPayrollRunsFromD1,
+  requirePayrollRunsD1,
+  upsertPayrollRunInD1,
+} from "./payroll-runs-d1";
 
 export async function importPayrollRun(db: Database, params: PayrollImportParams) {
   ensureDateString(params.payPeriodStart, "Pay period start");
@@ -36,8 +37,9 @@ export async function importPayrollRun(db: Database, params: PayrollImportParams
 
   validateBalancedLines(normalizedLines);
 
+  const d1 = requirePayrollRunsD1(db);
   const periodKey = buildPayrollPeriodKey(params.payPeriodStart, params.payPeriodEnd);
-  const existingRun = await getPayrollRunByPeriodFromConvex({
+  const existingRun = await getPayrollRunByPeriodFromD1(d1, {
     teamId: params.teamId,
     periodKey,
   });
@@ -53,7 +55,7 @@ export async function importPayrollRun(db: Database, params: PayrollImportParams
   const currency =
     params.currency ?? context.profile.baseCurrency ?? context.team.baseCurrency ?? "GBP";
 
-  await upsertComplianceJournalEntryInConvex({
+  await upsertComplianceJournalEntry(db, {
     teamId: params.teamId,
     entry: {
       journalEntryId: payrollRunId,
@@ -74,7 +76,7 @@ export async function importPayrollRun(db: Database, params: PayrollImportParams
     },
   });
 
-  const run = await upsertPayrollRunInConvex({
+  const run = await upsertPayrollRunInD1(d1, {
     id: existingRun?.id,
     teamId: params.teamId,
     filingProfileId: context.profile.id,
@@ -101,7 +103,7 @@ export async function importPayrollRun(db: Database, params: PayrollImportParams
   return {
     run,
     summary: buildLiabilitySummary(
-      await listPayrollRunsFromConvex({
+      await listPayrollRunsFromD1(d1, {
         teamId: params.teamId,
       }),
       currency,

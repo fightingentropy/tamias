@@ -3,13 +3,14 @@ import { format, endOfMonth, startOfMonth, subMonths } from "date-fns";
 import type { Database } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
 import { InvalidReportTypeError, ReportExpiredError, ReportNotFoundError } from "../../errors";
-import {
-  createReportLinkInConvex,
-  getReportLinkByLinkIdFromConvex,
-  type CurrentUserIdentityRecord,
-} from "@tamias/app-data-convex";
 import { getReports } from "./core";
 import { getRevenueForecast } from "./forecast";
+import {
+  generateReportLinkIdInD1,
+  getReportLinkByLinkIdFromD1,
+  getReportLinksD1,
+  insertReportLinkInD1,
+} from "./links-d1";
 import { getBurnRate, getExpenses, getRunway, getSpending } from "./metrics";
 
 export type ReportType =
@@ -22,31 +23,59 @@ export type ReportType =
   | "runway"
   | "category_expenses";
 
+export type ReportLinkRecord = {
+  id: string;
+  linkId: string;
+  type: ReportType;
+  from: string;
+  to: string;
+  currency: string | null;
+  teamId: string | null;
+  createdAt: string;
+  expireAt: string | null;
+  teamName: string | null;
+  teamLogoUrl: string | null;
+};
+
 export type CreateReportParams = {
   type: ReportType;
   from: string;
   to: string;
   currency?: string;
   teamId: string;
-  createdByUserId: CurrentUserIdentityRecord["convexId"];
+  createdByUserId: string;
   expireAt?: string;
 };
 
-export async function createReport(_db: Database, params: CreateReportParams) {
-  const { type, from, to, currency, teamId, createdByUserId, expireAt } = params;
-  return createReportLinkInConvex({
-    teamId,
-    userId: createdByUserId,
-    type,
-    from,
-    to,
-    currency: currency ?? undefined,
-    expireAt,
-  });
+function requireReportLinksD1(db: Database) {
+  const d1 = getReportLinksD1(db);
+
+  if (!d1) {
+    throw new Error("Report links require Cloudflare D1");
+  }
+
+  return d1;
 }
 
-async function getReportByLinkIdImpl(_db: Database, linkId: string) {
-  return getReportLinkByLinkIdFromConvex({ linkId });
+export async function createReport(db: Database, params: CreateReportParams) {
+  const d1 = requireReportLinksD1(db);
+  const id = crypto.randomUUID();
+  const linkId = await generateReportLinkIdInD1(d1);
+  const report = await insertReportLinkInD1(d1, {
+    ...params,
+    id,
+    linkId,
+  });
+
+  if (!report) {
+    throw new Error("Failed to create report link");
+  }
+
+  return report;
+}
+
+async function getReportByLinkIdImpl(db: Database, linkId: string) {
+  return getReportLinkByLinkIdFromD1(requireReportLinksD1(db), linkId);
 }
 
 export const getReportByLinkId = reuseQueryResult({

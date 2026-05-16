@@ -18,6 +18,7 @@ export async function searchTransactionMatch(
 
   if (query) {
     return searchTransactionMatchByQuery({
+      db,
       teamId,
       query,
       maxResults,

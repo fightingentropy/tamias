@@ -1,29 +1,27 @@
-import type {
-  CloseCompanyLoansScheduleRecord,
-  ComplianceJournalEntryRecord,
-  CorporationTaxAdjustmentRecord,
-  CorporationTaxRateScheduleRecord,
-  FilingProfileRecord,
-  PayrollRunRecord,
-  YearEndPackRecord,
-} from "@tamias/app-data-convex";
-import {
-  getCloseCompanyLoansScheduleByPeriodFromConvex,
-  getCorporationTaxRateScheduleByPeriodFromConvex,
-  getYearEndPackByPeriodFromConvex,
-  listComplianceJournalEntriesFromConvex,
-  listCorporationTaxAdjustmentsForPeriodFromConvex,
-  listPayrollRunsFromConvex,
-  upsertYearEndPackInConvex,
-} from "@tamias/app-data-convex";
+import type { FilingProfileRecord } from "../compliance/filings";
 import type { Database } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
 import { getFilingProfile } from "../compliance";
-import { listDerivedLedgerEntries } from "../compliance/ledger";
+import {
+  listComplianceJournalEntries,
+  listDerivedLedgerEntries,
+  type ComplianceJournalEntryRecord,
+} from "../compliance/ledger";
+import type { PayrollRunRecord } from "../payroll-shared";
+import { listPayrollRunsFromD1, requirePayrollRunsD1 } from "../payroll-runs-d1";
 import { buildCt600Draft, buildStatutoryAccountsDraft } from "./drafts";
 import { getTeamContext, getYearEndContext } from "./pack-core";
+import { getYearEndPackByPeriod, upsertYearEndPack, type YearEndPackRecord } from "./pack-store";
 import { buildYearEndPackSnapshot } from "./pack-snapshot";
 import { buildEmptyYearEndDashboard, getHmrcCtRuntimeStatus } from "./runtime";
+import {
+  getCloseCompanyLoansScheduleByPeriod,
+  getCorporationTaxRateScheduleByPeriod,
+  listCorporationTaxAdjustmentsForPeriod,
+  type CloseCompanyLoansScheduleRecord,
+  type CorporationTaxAdjustmentRecord,
+  type CorporationTaxRateScheduleRecord,
+} from "./tax-schedules";
 import type { AnnualPeriod, TeamContext, YearEndPeriodContext } from "./types";
 
 async function loadLedgerEntries(db: Database, teamId: string) {
@@ -31,7 +29,7 @@ async function loadLedgerEntries(db: Database, teamId: string) {
     listDerivedLedgerEntries(db, {
       teamId,
     }),
-    listComplianceJournalEntriesFromConvex({
+    listComplianceJournalEntries(db, {
       teamId,
       sourceTypes: ["manual_adjustment", "payroll_import"],
     }),
@@ -117,16 +115,16 @@ async function getYearEndDashboardImpl(
 
   const context = await getYearEndContext(db, params.teamId, params.periodKey);
   const [existingPack, manualEntries, corporationTaxAdjustments] = await Promise.all([
-    getYearEndPackByPeriodFromConvex({
+    getYearEndPackByPeriod(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       periodKey: context.period.periodKey,
     }),
-    listComplianceJournalEntriesFromConvex({
+    listComplianceJournalEntries(db, {
       teamId: params.teamId,
       sourceTypes: ["manual_adjustment"],
     }),
-    listCorporationTaxAdjustmentsForPeriodFromConvex({
+    listCorporationTaxAdjustmentsForPeriod(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       periodKey: context.period.periodKey,
@@ -171,26 +169,26 @@ export async function getYearEndPack(db: Database, params: { teamId: string; per
     closeCompanyLoansSchedule,
     corporationTaxRateSchedule,
   ] = await Promise.all([
-    getYearEndPackByPeriodFromConvex({
+    getYearEndPackByPeriod(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       periodKey: context.period.periodKey,
     }),
-    listComplianceJournalEntriesFromConvex({
+    listComplianceJournalEntries(db, {
       teamId: params.teamId,
       sourceTypes: ["manual_adjustment"],
     }),
-    listCorporationTaxAdjustmentsForPeriodFromConvex({
+    listCorporationTaxAdjustmentsForPeriod(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       periodKey: context.period.periodKey,
     }),
-    getCloseCompanyLoansScheduleByPeriodFromConvex({
+    getCloseCompanyLoansScheduleByPeriod(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       periodKey: context.period.periodKey,
     }),
-    getCorporationTaxRateScheduleByPeriodFromConvex({
+    getCorporationTaxRateScheduleByPeriod(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       periodKey: context.period.periodKey,
@@ -214,6 +212,7 @@ export async function rebuildYearEndPack(
   params: { teamId: string; periodKey?: string },
 ) {
   const context = await getYearEndContext(db, params.teamId, params.periodKey);
+  const d1 = requirePayrollRunsD1(db);
   const [
     corporationTaxAdjustments,
     existingPack,
@@ -221,25 +220,25 @@ export async function rebuildYearEndPack(
     closeCompanyLoansSchedule,
     corporationTaxRateSchedule,
   ] = await Promise.all([
-    listCorporationTaxAdjustmentsForPeriodFromConvex({
+    listCorporationTaxAdjustmentsForPeriod(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       periodKey: context.period.periodKey,
     }),
-    getYearEndPackByPeriodFromConvex({
+    getYearEndPackByPeriod(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       periodKey: context.period.periodKey,
     }),
-    listPayrollRunsFromConvex({
+    listPayrollRunsFromD1(d1, {
       teamId: params.teamId,
     }),
-    getCloseCompanyLoansScheduleByPeriodFromConvex({
+    getCloseCompanyLoansScheduleByPeriod(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       periodKey: context.period.periodKey,
     }),
-    getCorporationTaxRateScheduleByPeriodFromConvex({
+    getCorporationTaxRateScheduleByPeriod(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       periodKey: context.period.periodKey,
@@ -259,7 +258,7 @@ export async function rebuildYearEndPack(
     currency: context.profile.baseCurrency ?? context.team.baseCurrency ?? "GBP",
   });
 
-  const pack = await upsertYearEndPackInConvex({
+  const pack = await upsertYearEndPack(db, {
     id: existingPack?.id,
     teamId: params.teamId,
     filingProfileId: context.profile.id,

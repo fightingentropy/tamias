@@ -1,5 +1,5 @@
 import { roundCurrency } from "@tamias/compliance";
-import type { ComplianceJournalLineRecord } from "@tamias/app-data-convex";
+import type { ComplianceJournalLineRecord } from "../../compliance/ledger";
 
 export function validateBalancedLines(
   lines: Array<Pick<ComplianceJournalLineRecord, "accountCode" | "debit" | "credit">>,

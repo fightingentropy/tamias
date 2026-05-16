@@ -1,4 +1,3 @@
-import { createInsightInConvex, updateInsightInConvex } from "@tamias/app-data-convex";
 import type { Database, DatabaseOrTransaction } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
 import type {
@@ -18,6 +17,7 @@ import {
   type InsightPeriodType,
   type InsightStatus,
 } from "./shared";
+import { createInsightRecord, updateInsightRecord } from "./store";
 
 export type CreateInsightParams = {
   teamId: string;
@@ -29,8 +29,8 @@ export type CreateInsightParams = {
   currency: string;
 };
 
-export async function createInsight(_db: DatabaseOrTransaction, params: CreateInsightParams) {
-  const result = await createInsightInConvex({
+export async function createInsight(db: DatabaseOrTransaction, params: CreateInsightParams) {
+  const result = await createInsightRecord(db, {
     teamId: params.teamId,
     periodType: params.periodType,
     periodStart: params.periodStart.toISOString(),
@@ -59,8 +59,8 @@ export type UpdateInsightParams = {
   generatedAt?: Date;
 };
 
-export async function updateInsight(_db: DatabaseOrTransaction, params: UpdateInsightParams) {
-  const result = await updateInsightInConvex({
+export async function updateInsight(db: DatabaseOrTransaction, params: UpdateInsightParams) {
+  const result = await updateInsightRecord(db, {
     teamId: params.teamId,
     id: params.id,
     status: params.status,

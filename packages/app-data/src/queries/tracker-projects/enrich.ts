@@ -1,15 +1,20 @@
-import {
-  getCustomersByIdsFromConvex,
-  getTagsByIdsFromConvex,
-  getTeamMembersFromConvexIdentity,
-  getTrackerEntriesByProjectIdsFromConvex,
-  getTrackerProjectAssignmentsForProjectIdsFromConvex,
-  type TrackerEntryRecord,
-  type TrackerProjectRecord,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { getTeamById } from "../index";
-import type { AssignedUser, TrackerProjectListItem, TrackerProjectTag } from "./types";
+import { getCustomersByIdsFromD1, requireCustomersD1 } from "../customers/d1";
+import { getTags } from "../tags";
+import { getTeamMembers } from "../teams";
+import {
+  getTrackerEntriesByProjectIdsFromD1,
+  requireTrackerEntriesD1,
+} from "../tracker-entries/d1";
+import type { TrackerEntryRecord } from "../tracker-entries/shared";
+import { getTrackerProjectAssignmentsForProjectIdsFromD1, requireTrackerProjectsD1 } from "./d1";
+import type {
+  AssignedUser,
+  TrackerProjectListItem,
+  TrackerProjectRecord,
+  TrackerProjectTag,
+} from "./types";
 
 function isDefined<T>(value: T | null | undefined): value is T {
   return value !== null && value !== undefined;
@@ -21,7 +26,7 @@ async function getTeamName(db: Database, teamId: string) {
   return team?.name ?? null;
 }
 
-async function getCustomersByIds(teamId: string, customerIds: string[]) {
+async function getCustomersByIds(db: Database, teamId: string, customerIds: string[]) {
   if (customerIds.length === 0) {
     return new Map<
       string,
@@ -33,7 +38,7 @@ async function getCustomersByIds(teamId: string, customerIds: string[]) {
     >();
   }
 
-  const rows = await getCustomersByIdsFromConvex({
+  const rows = await getCustomersByIdsFromD1(requireCustomersD1(db), {
     teamId,
     customerIds: [...new Set(customerIds)],
   });
@@ -41,7 +46,11 @@ async function getCustomersByIds(teamId: string, customerIds: string[]) {
   return new Map(rows.map((row) => [row.id, row]));
 }
 
-async function getAssignedUsersByProject(teamId: string, entries: TrackerEntryRecord[]) {
+async function getAssignedUsersByProject(
+  db: Database,
+  teamId: string,
+  entries: TrackerEntryRecord[],
+) {
   const assignedIds = new Set(entries.map((entry) => entry.assignedId).filter(isDefined));
 
   if (assignedIds.size === 0) {
@@ -49,14 +58,14 @@ async function getAssignedUsersByProject(teamId: string, entries: TrackerEntryRe
   }
 
   const userById = new Map(
-    (await getTeamMembersFromConvexIdentity({ teamId }))
-      .filter((member) => assignedIds.has(member.user.convexId))
+    (await getTeamMembers(db, teamId))
+      .filter((member) => assignedIds.has(member.id))
       .map((member) => [
-        member.user.convexId,
+        member.id,
         {
-          id: member.user.convexId,
-          fullName: member.user.fullName ?? "",
-          avatarUrl: member.user.avatarUrl ?? "",
+          id: member.id,
+          fullName: member.fullName ?? "",
+          avatarUrl: member.avatarUrl ?? "",
         },
       ]),
   );
@@ -87,25 +96,26 @@ async function getAssignedUsersByProject(teamId: string, entries: TrackerEntryRe
   return assignments;
 }
 
-async function getTrackerProjectTagsByProject(teamId: string, projectIds: string[]) {
+async function getTrackerProjectTagsByProject(db: Database, teamId: string, projectIds: string[]) {
   if (projectIds.length === 0) {
     return new Map<string, TrackerProjectTag[]>();
   }
 
-  const assignments = await getTrackerProjectAssignmentsForProjectIdsFromConvex({
-    teamId,
-    trackerProjectIds: projectIds,
-  });
+  const assignments = await getTrackerProjectAssignmentsForProjectIdsFromD1(
+    requireTrackerProjectsD1(db),
+    {
+      teamId,
+      trackerProjectIds: projectIds,
+    },
+  );
   const tagIds = [...new Set(assignments.map((assignment) => assignment.tagId))];
 
   if (tagIds.length === 0) {
     return new Map<string, TrackerProjectTag[]>();
   }
 
-  const tags = await getTagsByIdsFromConvex({
-    teamId,
-    tagIds,
-  });
+  const tagSet = new Set(tagIds);
+  const tags = (await getTags(db, { teamId })).filter((tag) => tagSet.has(tag.id));
   const tagNameById = new Map(tags.map((tag) => [tag.id, tag.name]));
   const tagsByProject = new Map<string, TrackerProjectTag[]>();
 
@@ -171,18 +181,19 @@ export async function enrichProjects(
   const [teamName, tagsByProject, projectEntries, customersById] = await Promise.all([
     getTeamName(db, teamId),
     getTrackerProjectTagsByProject(
+      db,
       teamId,
       projects.map((project) => project.id),
     ),
-    getTrackerEntriesByProjectIdsFromConvex({
+    getTrackerEntriesByProjectIdsFromD1(requireTrackerEntriesD1(db), {
       teamId,
       projectIds: projects.map((project) => project.id),
     }),
-    getCustomersByIds(teamId, projects.map((project) => project.customerId).filter(isDefined)),
+    getCustomersByIds(db, teamId, projects.map((project) => project.customerId).filter(isDefined)),
   ]);
 
   const [assignedUsersByProject, totalsByProject] = await Promise.all([
-    getAssignedUsersByProject(teamId, projectEntries),
+    getAssignedUsersByProject(db, teamId, projectEntries),
     Promise.resolve(buildTotalsByProject(projects, projectEntries)),
   ]);
 

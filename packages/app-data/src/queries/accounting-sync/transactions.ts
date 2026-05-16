@@ -1,11 +1,8 @@
-import {
-  getTransactionAttachmentsByIdsFromConvex,
-  getTransactionsByIdsFromConvex,
-  type AccountingSyncProvider,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
+import { getTransactionAttachmentsByIds } from "../transaction-attachments";
 import { getTransactionCategoryContext } from "../transaction-categories";
-import { getSyncedTransactionIds } from "./records";
+import { getTransactionsByIdsFromD1, requireTransactionsD1 } from "../transactions/d1";
+import { getSyncedTransactionIds, type AccountingSyncProvider } from "./records";
 import {
   ACCOUNTING_SYNC_EXCLUDED_STATUS_SET,
   getAttachmentsByTransactionId,
@@ -83,7 +80,7 @@ export const getTransactionsForAccountingSync = async (
   const results =
     transactionIds && transactionIds.length > 0
       ? (
-          await getTransactionsByIdsFromConvex({
+          await getTransactionsByIdsFromD1(requireTransactionsD1(db), {
             teamId,
             transactionIds,
           })
@@ -92,6 +89,7 @@ export const getTransactionsForAccountingSync = async (
           .sort(compareTransactionsByDateDesc)
           .slice(0, limit)
       : await getRecentUnsyncedTransactions({
+          db,
           teamId,
           dateGte: sinceDateStr,
           limit,
@@ -100,6 +98,7 @@ export const getTransactionsForAccountingSync = async (
 
   const categoryContext = await getTransactionCategoryContext(db, teamId);
   const attachmentsByTransactionId = await getAttachmentsByTransactionId({
+    db,
     teamId,
     transactionIds: results.map((result) => result.id),
   });
@@ -127,7 +126,7 @@ export type GetTransactionAttachmentsParams = {
 };
 
 export const getTransactionAttachmentsForSync = async (
-  _db: Database,
+  db: Database,
   params: GetTransactionAttachmentsParams,
 ) => {
   const { teamId, attachmentIds } = params;
@@ -136,7 +135,7 @@ export const getTransactionAttachmentsForSync = async (
     return [];
   }
 
-  return getTransactionAttachmentsByIdsFromConvex({
+  return getTransactionAttachmentsByIds(db, {
     teamId,
     attachmentIds,
   });

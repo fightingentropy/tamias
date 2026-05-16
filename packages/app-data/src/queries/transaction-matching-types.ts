@@ -1,7 +1,7 @@
-import type { CurrentUserIdentityRecord, InboxItemRecord } from "@tamias/app-data-convex";
+import type { InboxItemRecord } from "./inbox/d1";
 import type { MatchType } from "../utils/transaction-matching";
 
-type ConvexUserId = CurrentUserIdentityRecord["convexId"];
+type TransactionMatchingUserId = string;
 
 export type FindMatchesParams = {
   teamId: string;
@@ -56,7 +56,7 @@ export type CreateMatchSuggestionParams = {
   matchType: MatchType;
   matchDetails: Record<string, any>;
   status?: "pending" | "confirmed" | "declined";
-  userId?: ConvexUserId;
+  userId?: TransactionMatchingUserId;
 };
 
 export type InboxSuggestion = {

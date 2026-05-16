@@ -169,7 +169,7 @@ describe("REST: GET /transactions", () => {
 
 describe("REST: GET /transactions/:id", () => {
   const app = createApp();
-  const convexStyleTransactionId = "4awvtgnpr2ymczbdc7n6vzeviizjutwn";
+  const transactionId = "4awvtgnpr2ymczbdc7n6vzeviizjutwn";
 
   beforeEach(() => {
     mocks.getTransactionById.mockReset();
@@ -188,15 +188,15 @@ describe("REST: GET /transactions/:id", () => {
   test("accepts non-UUID transaction ids", async () => {
     mocks.getTransactionById.mockImplementation(() =>
       createValidTransactionResponse({
-        id: convexStyleTransactionId,
+        id: transactionId,
       }),
     );
 
-    const res = await app.request(`/transactions/${convexStyleTransactionId}`);
+    const res = await app.request(`/transactions/${transactionId}`);
 
     expect(res.status).toBe(200);
     const json = (await res.json()) as TransactionResponse;
-    expect(json.id).toBe(convexStyleTransactionId);
+    expect(json.id).toBe(transactionId);
   });
 
   test("handles transaction with nested category", async () => {

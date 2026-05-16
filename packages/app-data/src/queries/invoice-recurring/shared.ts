@@ -1,22 +1,24 @@
-import {
-  type CurrentUserIdentityRecord,
-  getCustomerByIdFromConvex,
-  getInvoiceRecurringSeriesByLegacyIdFromConvex,
-  getInvoiceRecurringSeriesByTeamFromConvex,
-  upsertInvoiceRecurringSeriesInConvex,
-} from "@tamias/app-data-convex";
+import type { Database } from "../../client";
+import { getCustomerByIdFromD1, requireCustomersD1 } from "../customers/d1";
 import type {
   InvoiceRecurringEndType,
   InvoiceRecurringFrequency,
   InvoiceRecurringStatus,
   RecurringInvoiceParams,
 } from "@tamias/invoice/server-recurring";
+import {
+  getInvoiceRecurringSeriesByIdFromD1,
+  getInvoiceRecurringSeriesByTeamFromD1,
+  requireInvoiceRecurringD1,
+  upsertInvoiceRecurringSeriesInD1,
+  type StoredInvoiceRecurringRecord,
+} from "./d1";
 
-type ConvexUserId = CurrentUserIdentityRecord["convexId"];
+type UserId = string;
 
 export type CreateInvoiceRecurringParams = {
   teamId: string;
-  userId: ConvexUserId;
+  userId: UserId;
   customerId?: string | null;
   customerName?: string | null;
   frequency: InvoiceRecurringFrequency;
@@ -116,7 +118,7 @@ export type InvoiceRecurringByIdResult = {
   createdAt: string;
   updatedAt: string | null;
   teamId: string;
-  userId: ConvexUserId;
+  userId: UserId;
   customerId: string | null;
   frequency: InvoiceRecurringFrequency;
   frequencyDay: number | null;
@@ -200,25 +202,14 @@ export function sortRecurringByNextScheduledAtAsc(
   return (left.nextScheduledAt ?? "").localeCompare(right.nextScheduledAt ?? "");
 }
 
-export function getProjectedInvoiceRecurringPayload(
-  record: { payload: unknown } | null | undefined,
-): ProjectedInvoiceRecurringRecord | null {
-  const payload = record?.payload as ProjectedInvoiceRecurringRecord | null;
-
-  if (!payload || typeof payload !== "object") {
-    return null;
-  }
-
-  return payload;
-}
-
 async function hydrateInvoiceRecurringRecord(
+  db: Database,
   record: Omit<ProjectedInvoiceRecurringRecord, "customer">,
 ): Promise<ProjectedInvoiceRecurringRecord> {
   const customer = record.customerId
-    ? await getCustomerByIdFromConvex({
+    ? await getCustomerByIdFromD1(requireCustomersD1(db), {
         teamId: record.teamId,
-        customerId: record.customerId,
+        id: record.customerId,
       })
     : null;
 
@@ -235,44 +226,45 @@ async function hydrateInvoiceRecurringRecord(
 }
 
 export async function upsertProjectedInvoiceRecurringRecord(
+  db: Database,
   record: Omit<ProjectedInvoiceRecurringRecord, "customer">,
 ) {
-  const recurring = await hydrateInvoiceRecurringRecord(record);
-  await upsertInvoiceRecurringSeriesInConvex({
-    teamId: recurring.teamId,
-    id: recurring.id,
-    customerId: recurring.customerId,
-    customerName: recurring.customerName,
-    status: recurring.status,
-    nextScheduledAt: recurring.nextScheduledAt,
-    upcomingNotificationSentAt: recurring.upcomingNotificationSentAt,
-    payload: JSON.parse(JSON.stringify(recurring)) as Record<string, unknown>,
-  });
+  const recurring = await hydrateInvoiceRecurringRecord(db, record);
+  await upsertInvoiceRecurringSeriesInD1(requireInvoiceRecurringD1(db), recurring);
 
   return recurring;
 }
 
-export async function getProjectedInvoiceRecurringForTeam(teamId: string) {
-  const records = await getInvoiceRecurringSeriesByTeamFromConvex({ teamId });
-
-  return records
-    .map(getProjectedInvoiceRecurringPayload)
-    .filter(
-      (record): record is ProjectedInvoiceRecurringRecord =>
-        !!record && typeof record === "object" && record.teamId === teamId,
-    );
+export async function hydrateProjectedInvoiceRecurringRecords(
+  db: Database,
+  records: StoredInvoiceRecurringRecord[],
+) {
+  return Promise.all(records.map((record) => hydrateInvoiceRecurringRecord(db, record)));
 }
 
-export async function getProjectedInvoiceRecurringByLegacyId(id: string) {
-  const projected = await getInvoiceRecurringSeriesByLegacyIdFromConvex({
-    id,
-  });
+export async function getProjectedInvoiceRecurringForTeam(db: Database, teamId: string) {
+  const records = await getInvoiceRecurringSeriesByTeamFromD1(
+    requireInvoiceRecurringD1(db),
+    teamId,
+  );
 
-  return getProjectedInvoiceRecurringPayload(projected);
+  return hydrateProjectedInvoiceRecurringRecords(
+    db,
+    records.filter((record) => record.teamId === teamId),
+  );
 }
 
-export async function getProjectedInvoiceRecurringById(params: GetInvoiceRecurringByIdParams) {
-  const payload = await getProjectedInvoiceRecurringByLegacyId(params.id);
+export async function getProjectedInvoiceRecurringByLegacyId(db: Database, id: string) {
+  const projected = await getInvoiceRecurringSeriesByIdFromD1(requireInvoiceRecurringD1(db), id);
+
+  return projected ? hydrateInvoiceRecurringRecord(db, projected) : null;
+}
+
+export async function getProjectedInvoiceRecurringById(
+  db: Database,
+  params: GetInvoiceRecurringByIdParams,
+) {
+  const payload = await getProjectedInvoiceRecurringByLegacyId(db, params.id);
 
   return payload?.teamId === params.teamId ? payload : null;
 }

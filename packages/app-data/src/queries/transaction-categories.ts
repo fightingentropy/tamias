@@ -19,5 +19,6 @@ export {
 export {
   createTransactionCategory,
   deleteTransactionCategory,
+  upsertTransactionCategories,
   updateTransactionCategory,
 } from "./transaction-categories/mutations";

@@ -6,7 +6,7 @@ export const insightReady: NotificationHandler = {
 
   createActivity: (data, user) => ({
     teamId: user.team_id,
-    userId: user.convex_id,
+    userId: user.id,
     type: "insight_ready",
     source: "system",
     priority: 3,

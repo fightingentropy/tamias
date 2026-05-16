@@ -1,9 +1,3 @@
-import {
-  getInsightByIdFromConvex,
-  listInsightsFromConvex,
-  type CurrentUserIdentityRecord,
-  type InsightRecord as StoredInsightRecord,
-} from "@tamias/app-data-convex";
 import type { Database, DatabaseOrTransaction } from "../../client";
 import type {
   ExpenseAnomaly,
@@ -14,10 +8,16 @@ import type {
   InsightMilestone,
   InsightPredictions,
 } from "../../types/insights";
+import {
+  getInsightRecordById,
+  listInsightRecords,
+  type InsightPeriodType,
+  type InsightRecord as StoredInsightRecord,
+  type InsightStatus,
+} from "./store";
 
-export type InsightPeriodType = "weekly" | "monthly" | "quarterly" | "yearly";
-export type ConvexUserId = CurrentUserIdentityRecord["convexId"];
-export type InsightStatus = "pending" | "generating" | "completed" | "failed";
+export type { InsightPeriodType, InsightStatus } from "./store";
+export type UserId = string;
 
 export function isDefined<T>(value: T | null | undefined): value is T {
   return value !== null && value !== undefined;
@@ -74,7 +74,7 @@ export function hydrateInsight(record: StoredInsightRecord): Insight {
 }
 
 export async function listTeamInsights(_db: Database | DatabaseOrTransaction, teamId: string) {
-  const records = await listInsightsFromConvex({ teamId });
+  const records = await listInsightRecords(_db, { teamId });
   return records.map(hydrateInsight);
 }
 
@@ -126,7 +126,7 @@ export async function listCompletedWeeklyInsights(
 }
 
 export async function getInsightById(_db: Database, params: { id: string; teamId: string }) {
-  const result = await getInsightByIdFromConvex({
+  const result = await getInsightRecordById(_db, {
     teamId: params.teamId,
     id: params.id,
   });

@@ -4,10 +4,10 @@ const SLACK_OAUTH_REDIRECT_URL = process.env.SLACK_OAUTH_REDIRECT_URL;
 
 export const getInstallUrl = ({
   teamId,
-  convexUserId,
+  userId,
 }: {
   teamId: string;
-  convexUserId: string;
+  userId: string;
 }) => {
   if (!SLACK_OAUTH_REDIRECT_URL) {
     throw new Error("SLACK_OAUTH_REDIRECT_URL is required");
@@ -26,6 +26,6 @@ export const getInstallUrl = ({
       "users:read", // Required for views.publish to publish App Home views
     ],
     redirectUri: SLACK_OAUTH_REDIRECT_URL,
-    metadata: JSON.stringify({ teamId, convexUserId }),
+    metadata: JSON.stringify({ teamId, userId }),
   });
 };

@@ -8,7 +8,7 @@ import { updateDocumentWithRetry } from "../utils/document-update";
 import { NonRetryableError } from "../utils/error-classification";
 import { resizeImage } from "../utils/image-processing";
 import { TIMEOUTS, withTimeout } from "../utils/timeout";
-import type { CloudflareAsyncMessage } from "./bridge-helpers";
+import type { CloudflareAsyncMessage } from "./async-helpers";
 
 type CloudflareClassifyImageEnv = {
   CAPTURE_QUEUE?: Queue<CloudflareAsyncMessage>;

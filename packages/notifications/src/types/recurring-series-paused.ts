@@ -6,7 +6,7 @@ export const recurringSeriesPaused: NotificationHandler = {
 
   createActivity: (data, user) => ({
     teamId: user.team_id,
-    userId: user.convex_id,
+    userId: user.id,
     type: "recurring_series_paused",
     source: "system",
     priority: 4, // Slightly higher priority since it might need attention

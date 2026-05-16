@@ -9,7 +9,7 @@ export const invoiceReminderSent: NotificationHandler = {
 
   createActivity: (data, user) => ({
     teamId: user.team_id,
-    userId: user.convex_id,
+    userId: user.id,
     type: "invoice_reminder_sent",
     source: "user",
     priority: 3,

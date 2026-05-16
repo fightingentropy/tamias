@@ -1,35 +1,31 @@
-import {
-  addProviderAccountsInConvex,
-  createBankConnectionInConvex,
-  deleteBankConnectionInConvex,
-  getBankAccountDetailsFromConvex,
-  type CurrentUserIdentityRecord,
-  getBankConnectionByIdFromConvex,
-  getBankAccountsWithPaymentInfoFromConvex,
-  getBankConnectionByReferenceIdFromConvex,
-  getBankConnectionsFromConvex,
-  updateBankConnectionStatusInConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../client";
+import {
+  addProviderAccountsInD1,
+  createBankConnectionInD1,
+  deleteBankConnectionFromD1,
+  getBankAccountDetailsFromD1,
+  getBankAccountsWithPaymentInfoFromD1,
+  getBankConnectionByIdFromD1,
+  getBankConnectionByReferenceIdFromD1,
+  getBankConnectionsFromD1,
+  patchBankConnectionInD1,
+  requireBankConnectionsD1,
+  type PatchBankConnectionInD1Params,
+} from "./bank-connections/d1";
 
-type ConvexUserId = CurrentUserIdentityRecord["convexId"];
+type AppUserId = string;
 
 export type GetBankConnectionsParams = {
   teamId: string;
   enabled?: boolean;
 };
 
-export const getBankConnections = async (_db: Database, params: GetBankConnectionsParams) => {
-  return getBankConnectionsFromConvex({
-    teamId: params.teamId,
-    enabled: params.enabled,
-  });
+export const getBankConnections = async (db: Database, params: GetBankConnectionsParams) => {
+  return getBankConnectionsFromD1(requireBankConnectionsD1(db), params);
 };
 
-export const getBankConnectionById = async (_db: Database, params: { id: string }) => {
-  return getBankConnectionByIdFromConvex({
-    id: params.id,
-  });
+export const getBankConnectionById = async (db: Database, params: { id: string }) => {
+  return getBankConnectionByIdFromD1(requireBankConnectionsD1(db), params);
 };
 
 type DeleteBankConnectionParams = {
@@ -37,14 +33,19 @@ type DeleteBankConnectionParams = {
   teamId: string;
 };
 
-export const deleteBankConnection = async (_db: Database, params: DeleteBankConnectionParams) => {
-  return deleteBankConnectionInConvex({
-    id: params.id,
-    teamId: params.teamId,
-  });
+export const deleteBankConnection = async (db: Database, params: DeleteBankConnectionParams) => {
+  const result = await getBankConnectionById(db, { id: params.id });
+
+  if (result?.teamId === params.teamId) {
+    await deleteBankConnectionFromD1(db, params);
+    return result;
+  }
+
+  return null;
 };
 
 export type CreateBankConnectionPayload = {
+  id?: string;
   accounts: {
     accountId: string;
     institutionId: string;
@@ -72,18 +73,19 @@ export type CreateBankConnectionPayload = {
   accessToken?: string | null;
   referenceId?: string | null;
   teamId: string;
-  userId: ConvexUserId;
+  userId: AppUserId;
   provider: "truelayer";
 };
 
-export const createBankConnection = async (_db: Database, payload: CreateBankConnectionPayload) => {
-  const { accounts, accessToken, referenceId, teamId, userId, provider } = payload;
+export const createBankConnection = async (db: Database, payload: CreateBankConnectionPayload) => {
+  const { accounts, accessToken, id, referenceId, teamId, userId, provider } = payload;
 
   if (accounts.length === 0) {
     return;
   }
 
-  return createBankConnectionInConvex({
+  return createBankConnectionInD1(requireBankConnectionsD1(db), {
+    id,
     teamId,
     userId,
     provider,
@@ -96,7 +98,7 @@ export const createBankConnection = async (_db: Database, payload: CreateBankCon
 export type AddProviderAccountsParams = {
   connectionId: string;
   teamId: string;
-  userId: ConvexUserId;
+  userId: AppUserId;
   accounts: {
     accountId: string;
     name: string;
@@ -116,12 +118,12 @@ export type AddProviderAccountsParams = {
   }[];
 };
 
-export const addProviderAccounts = async (_db: Database, params: AddProviderAccountsParams) => {
+export const addProviderAccounts = async (db: Database, params: AddProviderAccountsParams) => {
   if (params.accounts.length === 0) {
     return [];
   }
 
-  return addProviderAccountsInConvex({
+  return addProviderAccountsInD1(requireBankConnectionsD1(db), {
     connectionId: params.connectionId,
     teamId: params.teamId,
     userId: params.userId,
@@ -138,27 +140,28 @@ export type GetBankAccountDetailsParams = {
  * Get bank account details including decrypted sensitive fields.
  * Only call this when user explicitly requests to reveal account details.
  */
-export const getBankAccountDetails = async (_db: Database, params: GetBankAccountDetailsParams) => {
-  return getBankAccountDetailsFromConvex({
-    accountId: params.accountId,
-    teamId: params.teamId,
-  });
+export const getBankAccountDetails = async (db: Database, params: GetBankAccountDetailsParams) => {
+  return getBankAccountDetailsFromD1(requireBankConnectionsD1(db), params);
 };
 
 export const getBankConnectionByReferenceId = async (
-  _db: Database,
+  db: Database,
   params: { referenceId: string },
 ) => {
-  return getBankConnectionByReferenceIdFromConvex({
-    referenceId: params.referenceId,
-  });
+  return getBankConnectionByReferenceIdFromD1(requireBankConnectionsD1(db), params);
 };
 
 export const updateBankConnectionStatus = async (
-  _db: Database,
+  db: Database,
   params: { id: string; status: "connected" | "disconnected" | "unknown" },
 ) => {
-  return updateBankConnectionStatusInConvex(params);
+  return patchBankConnectionInD1(requireBankConnectionsD1(db), params);
+};
+
+export type PatchBankConnectionParams = PatchBankConnectionInD1Params;
+
+export const patchBankConnection = async (db: Database, params: PatchBankConnectionParams) => {
+  return patchBankConnectionInD1(requireBankConnectionsD1(db), params);
 };
 
 export type GetBankAccountsWithPaymentInfoParams = {
@@ -186,10 +189,8 @@ export type BankAccountWithPaymentInfo = {
  * Only returns accounts that have at least one payment field populated.
  */
 export const getBankAccountsWithPaymentInfo = async (
-  _db: Database,
+  db: Database,
   params: GetBankAccountsWithPaymentInfoParams,
 ): Promise<BankAccountWithPaymentInfo[]> => {
-  return getBankAccountsWithPaymentInfoFromConvex({
-    teamId: params.teamId,
-  });
+  return getBankAccountsWithPaymentInfoFromD1(requireBankConnectionsD1(db), params);
 };

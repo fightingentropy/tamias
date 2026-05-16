@@ -1,9 +1,6 @@
-import {
-  getTransactionCategoryByIdFromConvex,
-  type TransactionCategoryRecord,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { getTransactionCategoryContext } from "./context";
+import type { TransactionCategoryRecord } from "./d1";
 import type { GetCategoriesParams, GetCategoryByIdParams } from "./types";
 
 export async function getTransactionCategoryBySlug(
@@ -110,16 +107,12 @@ export const getCategories = async (db: Database, params: GetCategoriesParams) =
 };
 
 export const getCategoryById = async (db: Database, params: GetCategoryByIdParams) => {
-  const result = await getTransactionCategoryByIdFromConvex({
-    teamId: params.teamId,
-    id: params.id,
-  });
+  const context = await getTransactionCategoryContext(db, params.teamId);
+  const result = context.byId.get(params.id) ?? null;
 
   if (!result) {
     return null;
   }
-
-  const context = await getTransactionCategoryContext(db, params.teamId);
 
   return {
     ...result,

@@ -32,7 +32,7 @@ function ShortLinkPage() {
             <h1 className="text-lg mb-2 font-serif">Download File</h1>
 
             <p className="text-[#878787] text-sm mb-8">
-              {shortLink.teamName} has shared a file with you
+              {shortLink.teamName ?? "A Tamias workspace"} has shared a file with you
             </p>
           </div>
 

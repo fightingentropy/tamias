@@ -6,5 +6,5 @@ test("Get inbox id from email", () => {
 });
 
 test("Get inbox email by id", () => {
-  expect(getInboxEmail("egr34f")).toMatch("egr34f@inbox.staging.tamias.xyz");
+  expect(getInboxEmail("egr34f")).toMatch("egr34f@inbox.tamias.xyz");
 });

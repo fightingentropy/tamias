@@ -1,13 +1,11 @@
-import {
-  type TransactionCategoryRecord,
-  type TransactionRecord,
-  type TransactionTagAssignmentRecord,
-  getTeamMembersFromConvexIdentity,
-} from "@tamias/app-data-convex";
+import type { getTeamMembers } from "../../teams/reads";
+import type { TransactionCategoryRecord } from "../../transaction-categories/d1";
 import type {
   AssignedTransactionUser,
   TransactionAttachmentSummary,
+  TransactionRecord,
   TransactionTag,
+  TransactionTagAssignmentRecord,
 } from "./types";
 
 export function buildAssignedTransactionUser(member: AssignedTransactionUser | undefined) {
@@ -19,15 +17,15 @@ export function buildAssignedTransactionUser(member: AssignedTransactionUser | u
 }
 
 export function buildAssignedUserLookup(
-  teamMembers: Awaited<ReturnType<typeof getTeamMembersFromConvexIdentity>>,
+  teamMembers: Awaited<ReturnType<typeof getTeamMembers>>,
 ) {
   return new Map<string, AssignedTransactionUser>(
     teamMembers.map((member) => [
-      member.user.id,
+      member.id,
       {
-        id: member.user.id,
-        fullName: member.user.fullName,
-        avatarUrl: member.user.avatarUrl,
+        id: member.id,
+        fullName: member.fullName,
+        avatarUrl: member.avatarUrl,
       },
     ]),
   );

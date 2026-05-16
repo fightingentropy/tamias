@@ -70,7 +70,7 @@ export const customersRouter = createTRPCRouter({
       const customer = await upsertCustomer(db, {
         ...input,
         teamId: teamId!,
-        userId: session.user.convexId ?? undefined,
+        userId: session.user.id ?? undefined,
       });
 
       // Auto-trigger enrichment for new customers with a website
@@ -91,7 +91,7 @@ export const customersRouter = createTRPCRouter({
             "customers",
             {
               publicTeamId: teamId!,
-              appUserId: session.user.convexId ?? undefined,
+              appUserId: session.user.id ?? undefined,
             },
           );
         } catch (error) {

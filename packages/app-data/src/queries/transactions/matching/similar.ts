@@ -1,9 +1,6 @@
-import {
-  getTransactionByIdFromConvex,
-  searchTransactionsFromConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import { calculateNameScore } from "../../../utils/transaction-matching";
+import { getTransactionByIdFromD1, requireTransactionsD1, searchTransactionsFromD1 } from "../d1";
 import {
   EXACT_MERCHANT_SCORE,
   logger,
@@ -21,7 +18,7 @@ type GetSimilarTransactionsParams = {
   transactionId?: string;
 };
 
-export async function getSimilarTransactions(_db: Database, params: GetSimilarTransactionsParams) {
+export async function getSimilarTransactions(db: Database, params: GetSimilarTransactionsParams) {
   const { name, teamId, categorySlug, transactionId } = params;
 
   let sourceMerchantName: string | null = null;
@@ -29,7 +26,7 @@ export async function getSimilarTransactions(_db: Database, params: GetSimilarTr
   if (transactionId) {
     sourceMerchantName =
       (
-        await getTransactionByIdFromConvex({
+        await getTransactionByIdFromD1(requireTransactionsD1(db), {
           teamId,
           transactionId,
         })
@@ -41,7 +38,7 @@ export async function getSimilarTransactions(_db: Database, params: GetSimilarTr
     (
       await Promise.all(
         searchTerms.map((searchTerm) =>
-          searchTransactionsFromConvex({
+          searchTransactionsFromD1(requireTransactionsD1(db), {
             teamId,
             query: searchTerm!,
             limit: MAX_CANDIDATES * 4,

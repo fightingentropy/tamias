@@ -1,9 +1,11 @@
+import type { Database } from "../../../client";
 import {
-  getInboxItemsByAmountRangeFromConvex,
-  getInboxItemsPageFromConvex,
-  searchInboxItemsFromConvex,
+  getInboxItemsByAmountRangeFromD1,
+  getInboxItemsPageFromD1,
+  requireInboxItemsD1,
+  searchInboxItemsFromD1,
   type InboxItemRecord,
-} from "@tamias/app-data-convex";
+} from "../d1";
 
 const INBOX_SEARCH_PAGE_SIZE = 100;
 
@@ -27,11 +29,13 @@ export function getInboxAmountSearchWindow(amount: number) {
 }
 
 export async function getIndexedInboxSearchCandidates(args: {
+  db: Database;
   teamId: string;
   searchTerms: Array<string | null | undefined>;
   amount?: number | null;
   limit: number;
 }) {
+  const d1 = requireInboxItemsD1(args.db);
   const searchTerms = [
     ...new Set(
       args.searchTerms
@@ -46,7 +50,7 @@ export async function getIndexedInboxSearchCandidates(args: {
   const [textCandidateGroups, amountCandidates] = await Promise.all([
     Promise.all(
       searchTerms.map((searchTerm) =>
-        searchInboxItemsFromConvex({
+        searchInboxItemsFromD1(d1, {
           teamId: args.teamId,
           query: searchTerm,
           limit: args.limit,
@@ -54,7 +58,7 @@ export async function getIndexedInboxSearchCandidates(args: {
       ),
     ),
     amountWindow
-      ? getInboxItemsByAmountRangeFromConvex({
+      ? getInboxItemsByAmountRangeFromD1(d1, {
           teamId: args.teamId,
           minAmount: amountWindow.minAmount,
           maxAmount: amountWindow.maxAmount,
@@ -72,12 +76,13 @@ export async function getIndexedInboxSearchCandidates(args: {
   ];
 }
 
-export async function getRecentInboxSearchItems(teamId: string, limit: number) {
+export async function getRecentInboxSearchItems(db: Database, teamId: string, limit: number) {
+  const d1 = requireInboxItemsD1(db);
   const results: InboxItemRecord[] = [];
   let cursor: string | null = null;
 
   while (results.length < limit) {
-    const page = await getInboxItemsPageFromConvex({
+    const page = await getInboxItemsPageFromD1(d1, {
       teamId,
       cursor,
       pageSize: Math.max(limit, INBOX_SEARCH_PAGE_SIZE),

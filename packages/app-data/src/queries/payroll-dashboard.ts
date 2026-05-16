@@ -1,4 +1,3 @@
-import { listPayrollRunsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../client";
 import { reuseQueryResult } from "../utils/request-cache";
 import { getFilingProfile } from "./compliance";
@@ -8,6 +7,7 @@ import {
   getPayrollContext,
   getTeamContext,
 } from "./payroll-shared";
+import { listPayrollRunsFromD1, requirePayrollRunsD1 } from "./payroll-runs-d1";
 
 async function getPayrollDashboardImpl(db: Database, params: { teamId: string }) {
   const team = await getTeamContext(db, params.teamId);
@@ -21,7 +21,7 @@ async function getPayrollDashboardImpl(db: Database, params: { teamId: string })
   }
 
   const context = await getPayrollContext(db, params.teamId);
-  const runs = await listPayrollRunsFromConvex({
+  const runs = await listPayrollRunsFromD1(requirePayrollRunsD1(db), {
     teamId: params.teamId,
   });
 
@@ -44,9 +44,7 @@ export const getPayrollDashboard = reuseQueryResult({
 });
 
 export async function listPayrollRuns(db: Database, params: { teamId: string }) {
-  void db;
-
-  return listPayrollRunsFromConvex({
+  return listPayrollRunsFromD1(requirePayrollRunsD1(db), {
     teamId: params.teamId,
   });
 }

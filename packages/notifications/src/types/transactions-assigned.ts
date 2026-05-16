@@ -6,7 +6,7 @@ export const transactionsAssigned: NotificationHandler = {
 
   createActivity: (data, user) => ({
     teamId: user.team_id,
-    userId: user.convex_id,
+    userId: user.id,
     type: "transactions_assigned",
     source: "user",
     priority: 7,

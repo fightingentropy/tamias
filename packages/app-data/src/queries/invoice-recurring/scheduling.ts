@@ -1,25 +1,28 @@
-import {
-  getDueInvoiceRecurringSeriesFromConvex,
-  getUpcomingInvoiceRecurringSeriesFromConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
+import {
+  getDueInvoiceRecurringSeriesFromD1,
+  getUpcomingInvoiceRecurringSeriesFromD1,
+  requireInvoiceRecurringD1,
+} from "./d1";
 import {
   DEFAULT_BATCH_SIZE,
   getProjectedInvoiceRecurringForTeam,
-  getProjectedInvoiceRecurringPayload,
+  hydrateProjectedInvoiceRecurringRecords,
   sortRecurringByNextScheduledAtAsc,
 } from "./shared";
 
-export async function getDueInvoiceRecurring(_db: Database, options?: { limit?: number }) {
+export async function getDueInvoiceRecurring(db: Database, options?: { limit?: number }) {
   const now = new Date().toISOString();
   const limit = options?.limit ?? DEFAULT_BATCH_SIZE;
   const data = (
-    await getDueInvoiceRecurringSeriesFromConvex({
-      before: now,
-      limit: limit + 1,
-    })
+    await hydrateProjectedInvoiceRecurringRecords(
+      db,
+      await getDueInvoiceRecurringSeriesFromD1(requireInvoiceRecurringD1(db), {
+        before: now,
+        limit: limit + 1,
+      }),
+    )
   )
-    .map(getProjectedInvoiceRecurringPayload)
     .filter(
       (record): record is NonNullable<typeof record> =>
         !!record &&
@@ -38,7 +41,7 @@ export async function getDueInvoiceRecurring(_db: Database, options?: { limit?: 
 }
 
 export async function getUpcomingDueRecurring(
-  _db: Database,
+  db: Database,
   hoursAhead = 24,
   options?: { limit?: number },
 ) {
@@ -48,13 +51,15 @@ export async function getUpcomingDueRecurring(
   const nowIso = now.toISOString();
   const futureDateIso = futureDate.toISOString();
   const data = (
-    await getUpcomingInvoiceRecurringSeriesFromConvex({
-      after: nowIso,
-      before: futureDateIso,
-      limit: limit + 1,
-    })
+    await hydrateProjectedInvoiceRecurringRecords(
+      db,
+      await getUpcomingInvoiceRecurringSeriesFromD1(requireInvoiceRecurringD1(db), {
+        after: nowIso,
+        before: futureDateIso,
+        limit: limit + 1,
+      }),
+    )
   )
-    .map(getProjectedInvoiceRecurringPayload)
     .filter(
       (record): record is NonNullable<typeof record> =>
         !!record &&
@@ -85,7 +90,7 @@ export async function getUpcomingDueRecurring(
 }
 
 export async function getUpcomingDueRecurringByTeam(
-  _db: Database,
+  db: Database,
   params: {
     teamId: string;
     before: Date;
@@ -94,7 +99,7 @@ export async function getUpcomingDueRecurringByTeam(
 ) {
   const now = new Date().toISOString();
 
-  return (await getProjectedInvoiceRecurringForTeam(params.teamId))
+  return (await getProjectedInvoiceRecurringForTeam(db, params.teamId))
     .filter(
       (record) =>
         record.status === "active" &&

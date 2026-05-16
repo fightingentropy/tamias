@@ -1,4 +1,5 @@
-import { getPublicInvoiceByTokenFromConvex } from "@tamias/app-data-convex";
+import { createDatabase, type Database } from "@tamias/app-data/client";
+import { getPublicInvoiceByToken } from "@tamias/app-data/queries";
 
 type InvoiceByTokenRecord = Awaited<
   ReturnType<typeof import("@tamias/app-data/queries").getInvoiceById>
@@ -12,16 +13,19 @@ function normalizeInvoiceToken(token: string) {
   }
 }
 
-export async function getInvoiceIdFromToken(token: string): Promise<string | null> {
-  const record = await getPublicInvoiceByTokenFromConvex({
+export async function getInvoiceIdFromToken(token: string, db: Database = createDatabase()): Promise<string | null> {
+  const record = await getPublicInvoiceByToken(db, {
     token: normalizeInvoiceToken(token),
   });
 
   return record?.id ?? null;
 }
 
-export async function getInvoiceByToken(token: string): Promise<InvoiceByTokenRecord | null> {
-  const record = await getPublicInvoiceByTokenFromConvex({
+export async function getInvoiceByToken(
+  token: string,
+  db: Database = createDatabase(),
+): Promise<InvoiceByTokenRecord | null> {
+  const record = await getPublicInvoiceByToken(db, {
     token: normalizeInvoiceToken(token),
   });
 

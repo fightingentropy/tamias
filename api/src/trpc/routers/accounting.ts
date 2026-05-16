@@ -57,7 +57,7 @@ export const accountingRouter = createTRPCRouter({
         "accounting",
         {
           publicTeamId: teamId,
-          appUserId: session.user.convexId ?? undefined,
+          appUserId: session.user.id ?? undefined,
         },
       );
 

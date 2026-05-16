@@ -142,16 +142,16 @@ app.openapi(
     const session = c.get("session");
     const body = c.req.valid("json");
 
-    if (!session.user.convexId) {
+    if (!session.user.id) {
       throw new HTTPException(500, {
-        message: "Missing Convex user id",
+        message: "Missing user id",
       });
     }
 
     const result = await createBankAccount(db, {
       ...body,
       teamId,
-      userId: session.user.convexId,
+      userId: session.user.id,
     });
 
     try {

@@ -24,6 +24,9 @@ mock.module("@tamias/app-services/auth", () => ({
 mock.module("@tamias/app-data/client", () => ({
   createDatabase: () => ({ mocked: true }),
   db: { mocked: true },
+  requireCloudflareD1Database: () => {
+    throw new Error("Cloudflare D1 database binding is not configured");
+  },
 }));
 
 const { createTRPCContextFromHeaders } = await import("./context");

@@ -1,7 +1,7 @@
 import { parseISO } from "date-fns";
-import { getInvoiceCustomerDateAggregateRowsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
+import { getInvoiceCustomerDateAggregateRowsFromD1 } from "../reports/shared/aggregates";
 import {
   CUSTOMER_REVENUE_STATUSES,
   getCustomerNameMap,
@@ -9,9 +9,9 @@ import {
   type GetCustomerLifetimeValueParams,
 } from "./shared";
 
-async function getCustomerLifetimeValueImpl(_db: Database, params: GetCustomerLifetimeValueParams) {
+async function getCustomerLifetimeValueImpl(db: Database, params: GetCustomerLifetimeValueParams) {
   const { teamId, currency } = params;
-  const rows = await getInvoiceCustomerDateAggregateRowsFromConvex({
+  const rows = await getInvoiceCustomerDateAggregateRowsFromD1(db, {
     teamId,
     statuses: [...CUSTOMER_REVENUE_STATUSES],
     dateField: "createdAt",
@@ -37,6 +37,7 @@ async function getCustomerLifetimeValueImpl(_db: Database, params: GetCustomerLi
   }
 
   const customerNames = await getCustomerNameMap(
+    db,
     teamId,
     rows.map((row) => row.customerId),
   );

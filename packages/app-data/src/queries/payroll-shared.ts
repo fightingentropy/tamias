@@ -1,13 +1,11 @@
 import { createHash } from "node:crypto";
-import { isUkComplianceVisible, roundCurrency } from "@tamias/compliance";
-import type {
-  ComplianceJournalEntryRecord,
-  CurrentUserIdentityRecord,
-  PayrollRunRecord,
-} from "@tamias/app-data-convex";
-import { listComplianceJournalEntriesFromConvex } from "@tamias/app-data-convex";
+import { isUkComplianceVisible, roundCurrency, type ExportBundle } from "@tamias/compliance";
 import { parseISO } from "date-fns";
 import type { Database } from "../client";
+import {
+  listComplianceJournalEntries,
+  type ComplianceJournalEntryRecord,
+} from "./compliance/ledger";
 import { getFilingProfile } from "./compliance";
 import { getTeamById } from "./teams";
 
@@ -16,6 +14,33 @@ export type TeamContext = {
   name: string | null;
   countryCode: string | null;
   baseCurrency: string | null;
+};
+
+export type PayrollRunRecord = {
+  id: string;
+  teamId: string;
+  filingProfileId: string;
+  periodKey: string;
+  payPeriodStart: string;
+  payPeriodEnd: string;
+  runDate: string;
+  source: "csv" | "manual";
+  status: "imported" | "exported";
+  checksum: string;
+  currency: string;
+  journalEntryId: string;
+  lineCount: number;
+  liabilityTotals: {
+    grossPay: number;
+    employerTaxes: number;
+    payeLiability: number;
+  };
+  exportBundles: ExportBundle[];
+  latestExportedAt: string | null;
+  meta: Record<string, unknown> | null;
+  createdBy: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type PayrollImportLine = {
@@ -27,7 +52,7 @@ export type PayrollImportLine = {
 
 export type PayrollImportParams = {
   teamId: string;
-  createdBy: CurrentUserIdentityRecord["convexId"];
+  createdBy: string;
   source: "csv" | "manual";
   payPeriodStart: string;
   payPeriodEnd: string;
@@ -258,8 +283,8 @@ export function buildLiabilitySummary(runs: PayrollRunRecord[], currency: string
   };
 }
 
-export async function listPayrollJournalEntries(teamId: string) {
-  return listComplianceJournalEntriesFromConvex({
+export async function listPayrollJournalEntries(db: Database, teamId: string) {
+  return listComplianceJournalEntries(db, {
     teamId,
     sourceTypes: ["payroll_import"],
   });

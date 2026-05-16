@@ -1,10 +1,10 @@
 import { describe, expect, mock, test } from "bun:test";
 import { TRPCError } from "@trpc/server";
 
-const getTeamMembershipIdsFromConvex = mock(async () => [] as string[]);
+const getTeamMembershipIds = mock(async () => [] as string[]);
 
 mock.module("@tamias/app-services/identity", () => ({
-  getTeamMembershipIdsFromConvex,
+  getTeamMembershipIds,
 }));
 
 const { withTeamPermission } = await import("./team-permission");
@@ -19,7 +19,6 @@ describe("withTeamPermission", () => {
           teamMembershipIds: ["team_123"],
           user: {
             id: "user_123" as never,
-            convexId: "user_123" as never,
             email: "user@example.com",
           },
         },
@@ -41,7 +40,6 @@ describe("withTeamPermission", () => {
             teamMembershipIds: ["team_123"],
             user: {
               id: "user_123" as never,
-              convexId: "user_123" as never,
               email: "user@example.com",
             },
           },
@@ -56,8 +54,8 @@ describe("withTeamPermission", () => {
     }
   });
 
-  test("rejects users without convex-confirmed access", async () => {
-    getTeamMembershipIdsFromConvex.mockResolvedValueOnce([]);
+  test("rejects users without D1-confirmed access", async () => {
+    getTeamMembershipIds.mockResolvedValueOnce([]);
 
     try {
       await withTeamPermission({
@@ -67,7 +65,6 @@ describe("withTeamPermission", () => {
             teamId: "team_123",
             user: {
               id: "user_123" as never,
-              convexId: "user_123" as never,
               email: "user@example.com",
             },
           },
@@ -79,7 +76,7 @@ describe("withTeamPermission", () => {
     } catch (error) {
       expect(error).toBeInstanceOf(TRPCError);
       expect((error as TRPCError).code).toBe("FORBIDDEN");
-      expect(getTeamMembershipIdsFromConvex).toHaveBeenCalled();
+      expect(getTeamMembershipIds).toHaveBeenCalled();
     }
   });
 });

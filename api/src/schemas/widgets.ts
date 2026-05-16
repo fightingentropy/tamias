@@ -125,10 +125,10 @@ export const getOverviewWidgetsSchema = z.object({
 });
 
 export const widgetPreferencesSchema = z.object({
-  primaryWidgets: z.array(widgetTypeSchema).max(8),
+  primaryWidgets: z.array(widgetTypeSchema).max(7),
   availableWidgets: z.array(widgetTypeSchema),
 });
 
 export const updateWidgetPreferencesSchema = z.object({
-  primaryWidgets: z.array(widgetTypeSchema).max(8),
+  primaryWidgets: z.array(widgetTypeSchema).max(7),
 });

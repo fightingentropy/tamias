@@ -1,12 +1,12 @@
-import {
-  getInvoiceAgingAggregateRowsFromConvex,
-  getInvoiceDateAggregateRowsFromConvex,
-  type InvoiceAggregateDateField,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../../../client";
 import { createQueryCacheKey, getOrSetQueryCacheValue } from "../../../../client";
 import type { ProjectedInvoiceRecord } from "../../../invoice-projections";
 import { normalizeTimestampBoundary } from "../../../date-boundaries";
+import type { InvoiceAggregateDateField } from "./types";
+import {
+  getInvoiceAgingAggregateRowsFromD1,
+  getInvoiceDateAggregateRowsFromD1,
+} from "./invoice-d1";
 import { normalizeReportInvoiceStatuses } from "./shared";
 
 export async function getReportInvoiceDateAggregateRows(
@@ -39,7 +39,7 @@ export async function getReportInvoiceDateAggregateRows(
       recurring: params.recurring ?? null,
     }),
     async () => {
-      const rows = await getInvoiceDateAggregateRowsFromConvex({
+      const rows = await getInvoiceDateAggregateRowsFromD1(db, {
         teamId: params.teamId,
         statuses: normalizedStatuses,
         dateField: params.dateField,
@@ -76,7 +76,7 @@ export async function getReportInvoiceAgingAggregateRows(
       inputCurrency: params.inputCurrency ?? null,
     }),
     async () => {
-      const rows = await getInvoiceAgingAggregateRowsFromConvex({
+      const rows = await getInvoiceAgingAggregateRowsFromD1(db, {
         teamId: params.teamId,
         statuses: normalizedStatuses,
         currency: params.inputCurrency ?? null,

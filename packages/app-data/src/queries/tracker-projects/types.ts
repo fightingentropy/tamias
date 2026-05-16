@@ -1,6 +1,27 @@
-import type { CurrentUserIdentityRecord, TrackerProjectRecord } from "@tamias/app-data-convex";
+export type AppUserId = string;
 
-export type ConvexUserId = CurrentUserIdentityRecord["convexId"];
+export type TrackerProjectRecord = {
+  id: string;
+  teamId: string;
+  name: string;
+  description: string | null;
+  status: "in_progress" | "completed";
+  customerId: string | null;
+  estimate: number | null;
+  currency: string | null;
+  billable: boolean;
+  rate: number | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type TrackerProjectTagAssignmentRecord = {
+  trackerProjectId: string;
+  tagId: string;
+  teamId: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
 export type GetTrackerProjectsParams = {
   teamId: string;
@@ -56,7 +77,7 @@ export type UpsertTrackerProjectParams = {
   currency?: string | null;
   customerId?: string | null;
   teamId: string;
-  userId?: ConvexUserId;
+  userId?: AppUserId;
   tags?: { id: string; value: string }[] | null;
 };
 

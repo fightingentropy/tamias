@@ -18,7 +18,7 @@ import {
 } from "../../schemas/invoice";
 import { parseInputValue } from "../../utils/parse";
 import { protectedProcedure } from "../init";
-import { requireConvexUserId } from "./invoice-shared";
+import { requireUserId } from "./invoice-shared";
 
 export const invoiceMutationProcedures = {
   update: protectedProcedure
@@ -27,7 +27,7 @@ export const invoiceMutationProcedures = {
       return updateInvoice(db, {
         ...input,
         teamId: teamId!,
-        userId: session.user.convexId ?? undefined,
+        userId: session.user.id ?? undefined,
       });
     }),
 
@@ -43,7 +43,7 @@ export const invoiceMutationProcedures = {
   draft: protectedProcedure
     .input(draftInvoiceSchema)
     .mutation(async ({ input, ctx: { db, teamId, session } }) => {
-      const convexUserId = requireConvexUserId(session);
+      const userId = requireUserId(session);
       const invoiceNumber = input.invoiceNumber || (await allocateNextInvoiceNumber(db, teamId!));
 
       try {
@@ -51,7 +51,7 @@ export const invoiceMutationProcedures = {
           ...input,
           invoiceNumber,
           teamId: teamId!,
-          userId: convexUserId,
+          userId: userId,
           paymentDetails: parseInputValue(input.paymentDetails),
           fromDetails: parseInputValue(input.fromDetails),
           customerDetails: parseInputValue(input.customerDetails),
@@ -94,12 +94,12 @@ export const invoiceMutationProcedures = {
   duplicate: protectedProcedure
     .input(duplicateInvoiceSchema)
     .mutation(async ({ input, ctx: { db, session, teamId } }) => {
-      const convexUserId = requireConvexUserId(session);
+      const userId = requireUserId(session);
       const nextInvoiceNumber = await allocateNextInvoiceNumber(db, teamId!);
 
       return duplicateInvoice(db, {
         id: input.id,
-        userId: convexUserId,
+        userId: userId,
         invoiceNumber: nextInvoiceNumber!,
         teamId: teamId!,
       });

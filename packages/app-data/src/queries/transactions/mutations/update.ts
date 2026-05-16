@@ -1,15 +1,16 @@
-import {
-  addTransactionTagToTransactionsInConvex,
-  getTransactionsByIdsFromConvex,
-  type TransactionRecord,
-  upsertTransactionsInConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import {
   getFullTransactionData,
-  toConvexTransactionInput,
-  type TransactionConvexUserId,
+  toTransactionUpsertInput,
+  type TransactionRecord,
+  type TransactionUserId,
 } from "../shared";
+import {
+  addTransactionTagToTransactionsInD1,
+  getTransactionsByIdsFromD1,
+  requireTransactionsD1,
+  upsertTransactionsInD1,
+} from "../d1";
 import {
   clearAccountingSyncForStatusChange,
   normalizeTransactionMutationInput,
@@ -20,7 +21,7 @@ import {
 type UpdateTransactionData = {
   id: string;
   teamId: string;
-  userId?: TransactionConvexUserId;
+  userId?: TransactionUserId;
   name?: string;
   amount?: number;
   currency?: string;
@@ -41,7 +42,7 @@ type UpdateTransactionData = {
 export type UpdateTransactionsData = {
   ids: string[];
   teamId: string;
-  userId?: TransactionConvexUserId;
+  userId?: TransactionUserId;
   categorySlug?: string | null;
   status?: TransactionMutationStatus;
   internal?: boolean;
@@ -56,6 +57,7 @@ export type UpdateTransactionsData = {
 };
 
 async function upsertUpdatedTransactions(args: {
+  db: Database;
   teamId: string;
   currentTransactions: TransactionRecord[];
   updates: Partial<TransactionRecord>;
@@ -64,10 +66,10 @@ async function upsertUpdatedTransactions(args: {
     return;
   }
 
-  await upsertTransactionsInConvex({
+  await upsertTransactionsInD1(requireTransactionsD1(args.db), {
     teamId: args.teamId,
     transactions: args.currentTransactions.map((transaction) =>
-      toConvexTransactionInput(transaction, args.updates),
+      toTransactionUpsertInput(transaction, args.updates),
     ),
   });
 }
@@ -75,7 +77,7 @@ async function upsertUpdatedTransactions(args: {
 export async function updateTransaction(db: Database, params: UpdateTransactionData) {
   const { id, teamId, userId, ...dataToUpdate } = params;
   const normalizedDataToUpdate = normalizeTransactionMutationInput(dataToUpdate);
-  const current = await getTransactionsByIdsFromConvex({
+  const current = await getTransactionsByIdsFromD1(requireTransactionsD1(db), {
     teamId,
     transactionIds: [id],
   }).then((rows) => rows[0] ?? null);
@@ -85,6 +87,7 @@ export async function updateTransaction(db: Database, params: UpdateTransactionD
   }
 
   await upsertUpdatedTransactions({
+    db,
     teamId,
     currentTransactions: [current],
     updates: normalizedDataToUpdate,
@@ -114,7 +117,7 @@ export async function updateTransactions(db: Database, data: UpdateTransactionsD
   const normalizedInput = normalizeTransactionMutationInput(input);
 
   if (tagId) {
-    await addTransactionTagToTransactionsInConvex({
+    await addTransactionTagToTransactionsInD1(requireTransactionsD1(db), {
       teamId,
       transactionIds: ids,
       tagId,
@@ -124,12 +127,13 @@ export async function updateTransactions(db: Database, data: UpdateTransactionsD
   let results: { id: string }[] = [];
 
   if (Object.keys(input).length > 0) {
-    const currentTransactions = await getTransactionsByIdsFromConvex({
+    const currentTransactions = await getTransactionsByIdsFromD1(requireTransactionsD1(db), {
       teamId,
       transactionIds: ids,
     });
 
     await upsertUpdatedTransactions({
+      db,
       teamId,
       currentTransactions,
       updates: normalizedInput,

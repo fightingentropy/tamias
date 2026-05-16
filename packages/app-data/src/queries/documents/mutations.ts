@@ -1,11 +1,11 @@
 import {
+  deleteDocumentRecord,
+  getDocumentById,
+  updateDocumentByName,
+  updateDocumentProcessingStatus as updateDocumentRecordProcessingStatus,
+  updateDocumentsStatusByNames,
   type DocumentProcessingStatus,
-  deleteDocumentInConvex,
-  getDocumentByIdFromConvex,
-  updateDocumentByNameInConvex,
-  updateDocumentProcessingStatusInConvex,
-  updateDocumentsStatusByNamesInConvex,
-} from "@tamias/app-data-convex";
+} from "./records";
 import type { Database } from "../../client";
 import {
   deleteTransactionAttachmentsByPathKeys,
@@ -22,10 +22,10 @@ import type {
 } from "./types";
 
 export async function checkDocumentAttachments(
-  _db: Database,
+  db: Database,
   params: CheckDocumentAttachmentsParams,
 ) {
-  const document = await getDocumentByIdFromConvex({
+  const document = await getDocumentById(db, {
     teamId: params.teamId,
     documentId: params.id,
   });
@@ -34,7 +34,7 @@ export async function checkDocumentAttachments(
     return { hasAttachments: false, attachments: [] };
   }
 
-  const attachments = await getTransactionAttachmentsByPathKeys({
+  const attachments = await getTransactionAttachmentsByPathKeys(db, {
     teamId: params.teamId,
     pathKeys: [document.pathTokens],
   });
@@ -46,8 +46,8 @@ export async function checkDocumentAttachments(
   };
 }
 
-export async function deleteDocument(_db: Database, params: DeleteDocumentParams) {
-  const result = await deleteDocumentInConvex({
+export async function deleteDocument(db: Database, params: DeleteDocumentParams) {
+  const result = await deleteDocumentRecord(db, {
     teamId: params.teamId,
     id: params.id,
   });
@@ -56,10 +56,10 @@ export async function deleteDocument(_db: Database, params: DeleteDocumentParams
     return null;
   }
 
-  await deleteDocumentTagAssignments(params.teamId, result.id);
+  await deleteDocumentTagAssignments(db, params.teamId, result.id);
 
   if (result.pathTokens?.length) {
-    await deleteTransactionAttachmentsByPathKeys({
+    await deleteTransactionAttachmentsByPathKeys(db, {
       teamId: params.teamId,
       pathKeys: [result.pathTokens],
     });
@@ -68,28 +68,28 @@ export async function deleteDocument(_db: Database, params: DeleteDocumentParams
   return result;
 }
 
-export async function updateDocuments(_db: Database, params: UpdateDocumentsParams) {
+export async function updateDocuments(db: Database, params: UpdateDocumentsParams) {
   const { ids, teamId, processingStatus } = params;
 
   if (!ids?.length) {
     return [];
   }
 
-  return updateDocumentsStatusByNamesInConvex({
+  return updateDocumentsStatusByNames(db, {
     teamId,
     names: ids,
     processingStatus,
   });
 }
 
-export async function updateDocumentByPath(_db: Database, params: UpdateDocumentByPathParams) {
+export async function updateDocumentByPath(db: Database, params: UpdateDocumentByPathParams) {
   const { pathTokens, teamId, ...rest } = params;
 
   if (!pathTokens?.length) {
     return [];
   }
 
-  return updateDocumentByNameInConvex({
+  return updateDocumentByName(db, {
     teamId,
     name: pathTokens.join("/"),
     ...rest,
@@ -97,10 +97,10 @@ export async function updateDocumentByPath(_db: Database, params: UpdateDocument
 }
 
 export async function updateDocumentByFileName(
-  _db: Database,
+  db: Database,
   params: UpdateDocumentByFileNameParams,
 ) {
-  const [result] = await updateDocumentByNameInConvex({
+  const [result] = await updateDocumentByName(db, {
     teamId: params.teamId,
     name: params.fileName,
     title: params.title,
@@ -118,12 +118,12 @@ export async function updateDocumentByFileName(
 }
 
 export async function updateDocumentProcessingStatus(
-  _db: Database,
+  db: Database,
   params: UpdateDocumentProcessingStatusParams,
 ) {
   const { id, processingStatus } = params;
 
-  return updateDocumentProcessingStatusInConvex({
+  return updateDocumentRecordProcessingStatus(db, {
     id,
     processingStatus,
   });

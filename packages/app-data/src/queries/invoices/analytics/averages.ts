@@ -1,18 +1,18 @@
-import { getInvoiceAnalyticsAggregateRowsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import { reuseQueryResult } from "../../../utils/request-cache";
+import { getInvoiceAnalyticsAggregateRowsFromD1 } from "../../reports/shared/aggregates";
 
 export type GetAverageDaysToPaymentParams = {
   teamId: string;
 };
 
-async function getAverageDaysToPaymentImpl(_db: Database, params: GetAverageDaysToPaymentParams) {
+async function getAverageDaysToPaymentImpl(db: Database, params: GetAverageDaysToPaymentParams) {
   const { teamId } = params;
   const thirtyDaysAgo = new Date();
 
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-  const rows = await getInvoiceAnalyticsAggregateRowsFromConvex({
+  const rows = await getInvoiceAnalyticsAggregateRowsFromD1(db, {
     teamId,
     dateField: "paidAt",
     statuses: ["paid"],
@@ -38,7 +38,7 @@ export type GetAverageInvoiceSizeParams = {
   teamId: string;
 };
 
-async function getAverageInvoiceSizeImpl(_db: Database, params: GetAverageInvoiceSizeParams) {
+async function getAverageInvoiceSizeImpl(db: Database, params: GetAverageInvoiceSizeParams) {
   const { teamId } = params;
   const thirtyDaysAgo = new Date();
 
@@ -53,7 +53,7 @@ async function getAverageInvoiceSizeImpl(_db: Database, params: GetAverageInvoic
     }
   >();
 
-  for (const row of await getInvoiceAnalyticsAggregateRowsFromConvex({
+  for (const row of await getInvoiceAnalyticsAggregateRowsFromD1(db, {
     teamId,
     dateField: "sentAt",
     dateFrom: thirtyDaysAgo.toISOString(),

@@ -1,6 +1,5 @@
 import type { Database } from "@tamias/app-data/client";
-import type { Id } from "@tamias/app-data-convex/data-model";
-import { getTeamById, getUserByConvexId } from "@tamias/app-data/queries";
+import { getTeamById, getUserById } from "@tamias/app-data/queries";
 import { getBankAccounts } from "@tamias/app-data/queries/bank-accounts";
 import { type ChatUserContext, chatCache } from "@tamias/cache/chat-cache";
 import { logger } from "@tamias/logger";
@@ -8,7 +7,7 @@ import { HTTPException } from "hono/http-exception";
 
 interface GetUserContextParams {
   db: Database;
-  userId: Id<"appUsers">;
+  userId: string;
   teamId: string;
   country?: string;
   city?: string;
@@ -64,7 +63,7 @@ export async function getUserContext({
   }
 
   // If not cached, fetch team and user data in parallel
-  const [team, user] = await Promise.all([getTeamById(db, teamId), getUserByConvexId(db, userId)]);
+  const [team, user] = await Promise.all([getTeamById(db, teamId), getUserById(db, userId)]);
 
   if (!team || !user) {
     throw new HTTPException(404, {

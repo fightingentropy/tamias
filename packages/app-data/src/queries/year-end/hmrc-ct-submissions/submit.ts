@@ -1,16 +1,16 @@
 import { HmrcCtProvider } from "@tamias/compliance";
-import {
-  createSubmissionEventInConvex,
-  getCloseCompanyLoansScheduleByPeriodFromConvex,
-  getCorporationTaxRateScheduleByPeriodFromConvex,
-  getYearEndPackByPeriodFromConvex,
-  type FilingProfileRecord,
-} from "@tamias/app-data-convex";
+import type { FilingProfileRecord } from "../../compliance/filings";
 import type { Database } from "../../../client";
+import { createSubmissionEvent } from "../../filing-events";
 import { buildCtSubmissionArtifacts } from "../drafts";
 import { getYearEndContext } from "../pack";
+import { getYearEndPackByPeriod } from "../pack-store";
 import { getHmrcCtRuntimeStatus } from "../runtime";
 import { getSubmissionEventResponseEndpoint, requireReadyYearEndPack } from "../submission-common";
+import {
+  getCloseCompanyLoansScheduleByPeriod,
+  getCorporationTaxRateScheduleByPeriod,
+} from "../tax-schedules";
 import { createCtSubmissionArtifactBundle, buildCtSubmissionRequestSummary } from "./artifacts";
 import type { SubmissionArtifactBundleRecord } from "../types";
 
@@ -64,17 +64,17 @@ export async function submitCt600ToHmrc(
 ) {
   const context = await getYearEndContext(db, params.teamId, params.periodKey);
   const [packRecord, closeCompanyLoansSchedule, corporationTaxRateSchedule] = await Promise.all([
-    getYearEndPackByPeriodFromConvex({
+    getYearEndPackByPeriod(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       periodKey: context.period.periodKey,
     }),
-    getCloseCompanyLoansScheduleByPeriodFromConvex({
+    getCloseCompanyLoansScheduleByPeriod(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       periodKey: context.period.periodKey,
     }),
-    getCorporationTaxRateScheduleByPeriodFromConvex({
+    getCorporationTaxRateScheduleByPeriod(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       periodKey: context.period.periodKey,
@@ -107,7 +107,7 @@ export async function submitCt600ToHmrc(
   try {
     provider = HmrcCtProvider.fromEnvironment();
   } catch (error) {
-    await createSubmissionEventInConvex({
+    await createSubmissionEvent(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       provider: "hmrc-ct",
@@ -144,7 +144,7 @@ export async function submitCt600ToHmrc(
       computationsAttachmentIxbrl: artifacts.computationsAttachmentIxbrl,
     });
   } catch (error) {
-    await createSubmissionEventInConvex({
+    await createSubmissionEvent(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       provider: "hmrc-ct",
@@ -168,7 +168,7 @@ export async function submitCt600ToHmrc(
   try {
     const receipt = await provider.submitSubmissionXml(artifacts.ct600DraftXml);
 
-    await createSubmissionEventInConvex({
+    await createSubmissionEvent(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       provider: "hmrc-ct",
@@ -185,7 +185,7 @@ export async function submitCt600ToHmrc(
       request: requestSummary,
     };
   } catch (error) {
-    await createSubmissionEventInConvex({
+    await createSubmissionEvent(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       provider: "hmrc-ct",

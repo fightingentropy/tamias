@@ -168,7 +168,7 @@ app.openapi(
           }
 
           // Find the invoice by payment intent ID
-          const invoice = await getInvoiceByPaymentIntentId(paymentIntentId);
+          const invoice = await getInvoiceByPaymentIntentId(db, paymentIntentId);
 
           if (!invoice) {
             logger.warn("No invoice found for refunded payment intent", {

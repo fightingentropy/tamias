@@ -98,7 +98,7 @@ app.openapi(
   async (c) => {
     const db = c.get("db");
     const teamId = c.get("teamId");
-    const userId = c.get("session").user.convexId ?? undefined;
+    const userId = c.get("session").user.id ?? undefined;
 
     const result = await upsertTrackerProject(db, {
       teamId,
@@ -144,7 +144,7 @@ app.openapi(
   async (c) => {
     const db = c.get("db");
     const teamId = c.get("teamId");
-    const userId = c.get("session").user.convexId ?? undefined;
+    const userId = c.get("session").user.id ?? undefined;
     const { id } = c.req.valid("param");
 
     const result = await upsertTrackerProject(db, {

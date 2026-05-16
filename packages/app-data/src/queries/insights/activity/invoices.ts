@@ -1,7 +1,7 @@
-import { getInvoiceAnalyticsAggregateRowsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import { normalizeTimestampBoundary } from "../../date-boundaries";
 import { getProjectedInvoicesByFilters } from "../../invoice-projections";
+import { getInvoiceAnalyticsAggregateRowsFromD1 } from "../../reports/shared/aggregates";
 import type { GetInsightActivityDataParams } from "./types";
 
 type InvoiceActivityStats = {
@@ -11,27 +11,27 @@ type InvoiceActivityStats = {
 };
 
 export async function getInvoiceActivityStats(
-  _db: Database,
+  db: Database,
   params: GetInsightActivityDataParams,
 ): Promise<InvoiceActivityStats> {
   const { teamId, from, to } = params;
   const fromBoundary = normalizeTimestampBoundary(from, "start");
   const toBoundary = normalizeTimestampBoundary(to, "end");
   const [sentRows, paidRows, paidInvoices] = await Promise.all([
-    getInvoiceAnalyticsAggregateRowsFromConvex({
+    getInvoiceAnalyticsAggregateRowsFromD1(db, {
       teamId,
       dateField: "sentAt",
       dateFrom: fromBoundary,
       dateTo: toBoundary,
     }),
-    getInvoiceAnalyticsAggregateRowsFromConvex({
+    getInvoiceAnalyticsAggregateRowsFromD1(db, {
       teamId,
       statuses: ["paid"],
       dateField: "paidAt",
       dateFrom: fromBoundary,
       dateTo: toBoundary,
     }),
-    getProjectedInvoicesByFilters({
+    getProjectedInvoicesByFilters(db, {
       teamId,
       statuses: ["paid"],
       dateField: "paidAt",

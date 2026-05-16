@@ -8,6 +8,7 @@ export function makeQueryClient() {
         staleTime: 5 * 60 * 1000,
         gcTime: 15 * 60 * 1000,
         retry: isServer ? 0 : 2,
+        enabled: !isServer,
       },
       dehydrate: {
         serializeData: superjson.serialize,

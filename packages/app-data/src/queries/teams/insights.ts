@@ -1,5 +1,5 @@
-import { listInsightEligibleTeamsFromConvexIdentity } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
+import { listInsightEligibleTeamsFromD1, requireIdentityD1 } from "../identity/d1";
 import type { GetTeamsForInsightsParams, InsightEligibleTeam } from "./shared";
 
 /**
@@ -18,7 +18,7 @@ import type { GetTeamsForInsightsParams, InsightEligibleTeam } from "./shared";
  * @returns Array of eligible teams with their base currency
  */
 export async function getTeamsForInsights(
-  _db: Database,
+  db: Database,
   params: GetTeamsForInsightsParams = {},
 ): Promise<InsightEligibleTeam[]> {
   const {
@@ -29,7 +29,7 @@ export async function getTeamsForInsights(
     targetLocalHour,
   } = params;
 
-  const result = await listInsightEligibleTeamsFromConvexIdentity({
+  const result = await listInsightEligibleTeamsFromD1(requireIdentityD1(db), {
     enabledTeamIds,
     cursor,
     limit,
@@ -51,6 +51,7 @@ export async function getTeamsForInsights(
       id: team.id,
       baseCurrency: team.baseCurrency,
       ownerLocale: team.ownerLocale,
+      ownerTimezone: team.ownerTimezone,
     });
   }
 

@@ -1,18 +1,18 @@
-import {
-  type CurrentUserIdentityRecord,
-  getTrackerEntriesByDateFromConvex,
-  getTrackerEntriesByRangeFromConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
+import {
+  getTrackerEntriesByDateFromD1,
+  getTrackerEntriesByRangeFromD1,
+  requireTrackerEntriesD1,
+} from "./d1";
 import { enrichTrackerEntries } from "./shared";
 
-type ConvexUserId = CurrentUserIdentityRecord["convexId"];
+type AppUserId = string;
 
 export type GetTrackerRecordsByDateParams = {
   teamId: string;
   date: string;
   projectId?: string;
-  userId?: ConvexUserId;
+  userId?: AppUserId;
 };
 
 export async function getTrackerRecordsByDate(db: Database, params: GetTrackerRecordsByDateParams) {
@@ -20,7 +20,7 @@ export async function getTrackerRecordsByDate(db: Database, params: GetTrackerRe
   const data = await enrichTrackerEntries(
     db,
     teamId,
-    await getTrackerEntriesByDateFromConvex({
+    await getTrackerEntriesByDateFromD1(requireTrackerEntriesD1(db), {
       teamId,
       date,
       projectId,
@@ -43,7 +43,7 @@ export type GetTrackerRecordsByRangeParams = {
   from: string;
   to: string;
   projectId?: string;
-  userId?: ConvexUserId;
+  userId?: AppUserId;
 };
 
 export async function getTrackerRecordsByRange(
@@ -54,7 +54,7 @@ export async function getTrackerRecordsByRange(
   const data = await enrichTrackerEntries(
     db,
     teamId,
-    await getTrackerEntriesByRangeFromConvex({
+    await getTrackerEntriesByRangeFromD1(requireTrackerEntriesD1(db), {
       teamId,
       from,
       to,

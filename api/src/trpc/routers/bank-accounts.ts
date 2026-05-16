@@ -18,7 +18,7 @@ import {
   getTransactionCountSchema,
   updateBankAccountSchema,
 } from "../../schemas/bank-accounts";
-import { createTRPCRouter, protectedProcedure, protectedWithConvexIdProcedure } from "../init";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const bankAccountsRouter = createTRPCRouter({
   get: protectedProcedure
@@ -100,13 +100,13 @@ export const bankAccountsRouter = createTRPCRouter({
       });
     }),
 
-  create: protectedWithConvexIdProcedure
+  create: protectedProcedure
     .input(createBankAccountSchema)
     .mutation(async ({ input, ctx: { db, teamId, session } }) => {
       const result = await createBankAccount(db, {
         ...input,
         teamId: teamId!,
-        userId: session.user.convexId,
+        userId: session.user.id,
         manual: input.manual,
       });
 

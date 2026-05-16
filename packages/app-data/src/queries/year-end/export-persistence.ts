@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
-import type { ExportBundleRecord } from "@tamias/app-data-convex";
 import { uploadVaultFile } from "@tamias/storage";
 import type { YearEndExportArchive } from "./export-archive";
+import type { ExportBundleRecord } from "./pack-store";
 
 export async function persistYearEndExportBundle(args: {
   teamId: string;

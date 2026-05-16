@@ -1,12 +1,13 @@
-import {
-  getPublicInvoiceByPaymentIntentIdFromConvex,
-  getPublicInvoiceByRecurringSequenceFromConvex,
-  getPublicInvoicesByFiltersFromConvex,
-  getPublicInvoicesByRecurringIdFromConvex,
-  getPublicInvoicesByTeamFromConvex,
-  type PublicInvoiceFilterDateField,
-} from "@tamias/app-data-convex";
 import type { EditorDoc, LineItem } from "@tamias/invoice/types";
+import type { Database, DatabaseOrTransaction } from "../client";
+import {
+  getPublicInvoiceByPaymentIntentId,
+  getPublicInvoiceByRecurringSequence,
+  getPublicInvoicesByFilters,
+  getPublicInvoicesByRecurringId,
+  getPublicInvoicesByTeam,
+  type PublicInvoiceFilterDateField,
+} from "./public-invoices";
 
 export type InvoiceStatus =
   | "draft"
@@ -156,8 +157,8 @@ function getProjectedInvoicePayload(
   return payload;
 }
 
-export async function getProjectedInvoicesForTeam(teamId: string) {
-  const records = await getPublicInvoicesByTeamFromConvex({ teamId });
+export async function getProjectedInvoicesForTeam(db: DatabaseOrTransaction, teamId: string) {
+  const records = await getPublicInvoicesByTeam(db, { teamId });
 
   return records
     .map(getProjectedInvoicePayload)
@@ -176,8 +177,11 @@ export type GetProjectedInvoicesByFiltersParams = {
   to?: string;
 };
 
-export async function getProjectedInvoicesByFilters(params: GetProjectedInvoicesByFiltersParams) {
-  const records = await getPublicInvoicesByFiltersFromConvex({
+export async function getProjectedInvoicesByFilters(
+  db: DatabaseOrTransaction,
+  params: GetProjectedInvoicesByFiltersParams,
+) {
+  const records = await getPublicInvoicesByFilters(db, {
     teamId: params.teamId,
     statuses: params.statuses,
     currency: params.currency,
@@ -199,11 +203,12 @@ export async function getProjectedInvoicesByFilters(params: GetProjectedInvoices
 }
 
 export async function getProjectedInvoiceByRecurringSequence(
+  db: DatabaseOrTransaction,
   teamId: string,
   invoiceRecurringId: string,
   recurringSequence: number,
 ) {
-  const record = await getPublicInvoiceByRecurringSequenceFromConvex({
+  const record = await getPublicInvoiceByRecurringSequence(db, {
     teamId,
     invoiceRecurringId,
     recurringSequence,
@@ -217,12 +222,14 @@ export async function getProjectedInvoiceByRecurringSequence(
   return payload;
 }
 
-export async function getProjectedInvoicesByRecurringId(params: {
+export async function getProjectedInvoicesByRecurringId(
+  db: DatabaseOrTransaction,
+  params: {
   teamId: string;
   invoiceRecurringId: string;
   statuses?: string[];
 }) {
-  const records = await getPublicInvoicesByRecurringIdFromConvex({
+  const records = await getPublicInvoicesByRecurringId(db, {
     teamId: params.teamId,
     invoiceRecurringId: params.invoiceRecurringId,
     statuses: params.statuses,
@@ -238,8 +245,8 @@ export async function getProjectedInvoicesByRecurringId(params: {
     );
 }
 
-export async function getInvoiceByPaymentIntentId(paymentIntentId: string) {
-  const projected = await getPublicInvoiceByPaymentIntentIdFromConvex({
+export async function getInvoiceByPaymentIntentId(db: Database, paymentIntentId: string) {
+  const projected = await getPublicInvoiceByPaymentIntentId(db, {
     paymentIntentId,
   });
 

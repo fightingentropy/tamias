@@ -18,7 +18,7 @@ import {
   manualSyncBankConnectionSchema,
   queueReconnectBankConnectionSchema,
 } from "../../schemas/bank-connections";
-import { createTRPCRouter, protectedProcedure, protectedWithConvexIdProcedure } from "../init";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const bankConnectionsRouter = createTRPCRouter({
   get: protectedProcedure
@@ -30,7 +30,7 @@ export const bankConnectionsRouter = createTRPCRouter({
       });
     }),
 
-  create: protectedWithConvexIdProcedure
+  create: protectedProcedure
     .input(createBankConnectionSchema)
     .mutation(async ({ input, ctx: { db, teamId, session } }) => {
       logger.info("bankConnections.create input", {
@@ -47,10 +47,10 @@ export const bankConnectionsRouter = createTRPCRouter({
         data = await createBankConnection(db, {
           ...input,
           teamId: teamId!,
-          userId: session.user.convexId,
+          userId: session.user.id,
         });
       } catch (error) {
-        logger.error("bankConnections.create Convex call threw", {
+        logger.error("bankConnections.create failed", {
           errorName: error instanceof Error ? error.name : typeof error,
           errorMessage: error instanceof Error ? error.message : String(error),
           errorStack: error instanceof Error ? error.stack : undefined,
@@ -59,7 +59,7 @@ export const bankConnectionsRouter = createTRPCRouter({
       }
 
       if (!data) {
-        logger.error("bankConnections.create received null from Convex", {
+        logger.error("bankConnections.create returned no record", {
           provider: input.provider,
           firstAccount: input.accounts[0],
         });
@@ -83,7 +83,7 @@ export const bankConnectionsRouter = createTRPCRouter({
         },
         {
           publicTeamId: teamId!,
-          appUserId: session.user.convexId,
+          appUserId: session.user.id,
           instanceId: `bank-initial-setup-${data.id}`,
         },
       );
@@ -122,13 +122,13 @@ export const bankConnectionsRouter = createTRPCRouter({
       return data;
     }),
 
-  addAccounts: protectedWithConvexIdProcedure
+  addAccounts: protectedProcedure
     .input(addProviderAccountsSchema)
     .mutation(async ({ input, ctx: { db, teamId, session } }) => {
       const result = await addProviderAccounts(db, {
         connectionId: input.connectionId,
         teamId: teamId!,
-        userId: session.user.convexId,
+        userId: session.user.id,
         accounts: input.accounts,
       });
 

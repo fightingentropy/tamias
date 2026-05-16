@@ -1,7 +1,7 @@
-import { getTransactionMatchSuggestionsFromConvex } from "@tamias/app-data-convex";
 import { createLoggerWithContext } from "@tamias/logger";
 import type { Database } from "../../client";
 import type { MatchType } from "../../utils/transaction-matching";
+import { getTransactionMatchSuggestionsFromD1, requireInboxItemsD1 } from "../inbox/d1";
 import { getTeamCalibration } from "../transaction-matching-calibration";
 
 export const logger = createLoggerWithContext("matching");
@@ -38,7 +38,7 @@ export function resolveMatchType(
   return "suggested";
 }
 
-export async function getDismissedTransactionIds(args: {
+export async function getDismissedTransactionIds(db: Database, args: {
   teamId: string;
   inboxId: string;
   transactionIds: string[];
@@ -48,7 +48,7 @@ export async function getDismissedTransactionIds(args: {
   }
 
   const dismissed = (
-    await getTransactionMatchSuggestionsFromConvex({
+    await getTransactionMatchSuggestionsFromD1(requireInboxItemsD1(db), {
       teamId: args.teamId,
       inboxId: args.inboxId,
       statuses: ["declined", "unmatched"],
@@ -58,7 +58,7 @@ export async function getDismissedTransactionIds(args: {
   return new Set(dismissed.map((suggestion) => suggestion.transactionId));
 }
 
-export async function getDismissedInboxIds(args: {
+export async function getDismissedInboxIds(db: Database, args: {
   teamId: string;
   transactionId: string;
   inboxIds: string[];
@@ -68,7 +68,7 @@ export async function getDismissedInboxIds(args: {
   }
 
   const dismissed = (
-    await getTransactionMatchSuggestionsFromConvex({
+    await getTransactionMatchSuggestionsFromD1(requireInboxItemsD1(db), {
       teamId: args.teamId,
       transactionId: args.transactionId,
       statuses: ["declined", "unmatched"],

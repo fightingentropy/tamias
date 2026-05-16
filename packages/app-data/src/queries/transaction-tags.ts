@@ -1,8 +1,9 @@
-import {
-  createTransactionTagInConvex,
-  deleteTransactionTagInConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../client";
+import {
+  createTransactionTagInD1,
+  deleteTransactionTagInD1,
+  requireTransactionsD1,
+} from "./transactions/d1";
 
 type CreateTransactionTagParams = {
   teamId: string;
@@ -10,8 +11,8 @@ type CreateTransactionTagParams = {
   tagId: string;
 };
 
-export async function createTransactionTag(_db: Database, params: CreateTransactionTagParams) {
-  return createTransactionTagInConvex({
+export async function createTransactionTag(db: Database, params: CreateTransactionTagParams) {
+  return createTransactionTagInD1(requireTransactionsD1(db), {
     teamId: params.teamId,
     transactionId: params.transactionId,
     tagId: params.tagId,
@@ -24,8 +25,8 @@ type DeleteTransactionTagParams = {
   teamId: string;
 };
 
-export async function deleteTransactionTag(_db: Database, params: DeleteTransactionTagParams) {
-  return deleteTransactionTagInConvex({
+export async function deleteTransactionTag(db: Database, params: DeleteTransactionTagParams) {
+  return deleteTransactionTagInD1(requireTransactionsD1(db), {
     teamId: params.teamId,
     transactionId: params.transactionId,
     tagId: params.tagId,

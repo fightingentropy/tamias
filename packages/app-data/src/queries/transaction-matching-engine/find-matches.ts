@@ -1,8 +1,10 @@
-import {
-  getInboxItemByIdFromConvex,
-  getTransactionMatchSuggestionsFromConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
+import {
+  getInboxItemByIdFromD1,
+  getTransactionMatchSuggestionsFromD1,
+  requireInboxItemsD1,
+  type InboxItemRecord,
+} from "../inbox/d1";
 import {
   calculateAmountScore,
   calculateCurrencyScore,
@@ -33,7 +35,7 @@ import {
   roundMatchMetric,
 } from "./shared";
 
-type InboxItem = NonNullable<Awaited<ReturnType<typeof getInboxItemByIdFromConvex>>>;
+type InboxItem = InboxItemRecord;
 
 type IndexedTransactionCandidate = Awaited<
   ReturnType<typeof getIndexedTransactionMatchCandidates>
@@ -147,7 +149,7 @@ export async function findMatches(
 ): Promise<MatchResult | null> {
   const { teamId, inboxId, excludeTransactionIds } = params;
   const { suggestedThreshold, autoThreshold } = await getMatchThresholds(db, teamId);
-  const inboxItem = await getInboxItemByIdFromConvex({
+  const inboxItem = await getInboxItemByIdFromD1(requireInboxItemsD1(db), {
     teamId,
     inboxId,
   });
@@ -164,6 +166,7 @@ export async function findMatches(
   );
   const candidateTransactionRows = (
     await getIndexedTransactionMatchCandidates({
+      db,
       teamId,
       searchTerms: [
         inboxItem.displayName,
@@ -185,7 +188,7 @@ export async function findMatches(
     .filter((transaction) => isRelevantTransactionCandidate(inboxItem, transaction))
     .sort((left, right) => compareTransactionCandidates(inboxItem, left, right))
     .slice(0, 90);
-  const pendingSuggestionRows = await getTransactionMatchSuggestionsFromConvex({
+  const pendingSuggestionRows = await getTransactionMatchSuggestionsFromD1(requireInboxItemsD1(db), {
     teamId,
     transactionIds: candidateTransactionRows.map((transaction) => transaction.id),
     statuses: ["pending"],
@@ -273,7 +276,7 @@ export async function findMatches(
 
   scoredCandidates.sort((left, right) => right.confidenceScore - left.confidenceScore);
 
-  const dismissedTransactionIds = await getDismissedTransactionIds({
+  const dismissedTransactionIds = await getDismissedTransactionIds(db, {
     teamId,
     inboxId,
     transactionIds: scoredCandidates.map((candidate) => candidate.transactionId),

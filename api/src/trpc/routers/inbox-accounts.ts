@@ -16,8 +16,8 @@ import { createTRPCRouter, protectedProcedure } from "../init";
 const logger = createLoggerWithContext("trpc:inbox-accounts");
 
 export const inboxAccountsRouter = createTRPCRouter({
-  get: protectedProcedure.query(async ({ ctx: { teamId } }) => {
-    return getInboxAccountsForTeam(teamId!);
+  get: protectedProcedure.query(async ({ ctx: { db, teamId } }) => {
+    return getInboxAccountsForTeam(teamId!, db);
   }),
 
   connect: protectedProcedure
@@ -77,11 +77,14 @@ export const inboxAccountsRouter = createTRPCRouter({
 
   delete: protectedProcedure
     .input(deleteInboxAccountSchema)
-    .mutation(async ({ ctx: { teamId }, input }) => {
-      const data = await deleteInboxAccount({
-        id: input.id,
-        teamId: teamId!,
-      });
+    .mutation(async ({ ctx: { db, teamId }, input }) => {
+      const data = await deleteInboxAccount(
+        {
+          id: input.id,
+          teamId: teamId!,
+        },
+        db,
+      );
 
       if (data?.scheduleId) {
         await cancelSchedule(data.scheduleId);
@@ -92,12 +95,15 @@ export const inboxAccountsRouter = createTRPCRouter({
 
   sync: protectedProcedure
     .input(syncInboxAccountSchema)
-    .mutation(async ({ input, ctx: { teamId } }) => {
+    .mutation(async ({ input, ctx: { db, teamId } }) => {
       // Verify the inbox account belongs to the caller's team
-      const account = await getInboxAccountById({
-        id: input.id,
-        teamId: teamId!,
-      });
+      const account = await getInboxAccountById(
+        {
+          id: input.id,
+          teamId: teamId!,
+        },
+        db,
+      );
 
       if (!account) {
         throw new TRPCError({

@@ -1,23 +1,20 @@
-import type { ComplianceObligationRecord } from "@tamias/app-data-convex";
 import type { Database } from "../../../../client";
 import { getRequiredVatContext } from "../context";
+import { getVatObligationByIdFromD1, getVatReturnByIdFromD1 } from "../d1";
 import { listVatObligations } from "../obligations";
+import type { ComplianceObligationRecord, RecalculateVatDraftParams } from "../types";
 import { buildManualObligation } from "./manual-obligation";
-import type { RecalculateVatDraftParams } from "../types";
 
 export async function getDraftContext(db: Database, params: RecalculateVatDraftParams) {
   const { team, profile } = await getRequiredVatContext(db, params.teamId);
   let obligation: ComplianceObligationRecord | null = null;
 
   if (params.obligationId) {
-    const { getVatObligationByIdFromConvex } = await import("@tamias/app-data-convex");
-    obligation = await getVatObligationByIdFromConvex({
+    obligation = await getVatObligationByIdFromD1(db, {
       id: params.obligationId,
     });
   } else if (params.vatReturnId) {
-    const { getVatReturnByIdFromConvex, getVatObligationByIdFromConvex } =
-      await import("@tamias/app-data-convex");
-    const existingReturn = await getVatReturnByIdFromConvex({
+    const existingReturn = await getVatReturnByIdFromD1(db, {
       id: params.vatReturnId,
     });
 
@@ -26,7 +23,7 @@ export async function getDraftContext(db: Database, params: RecalculateVatDraftP
     }
 
     if (existingReturn.obligationId) {
-      obligation = await getVatObligationByIdFromConvex({
+      obligation = await getVatObligationByIdFromD1(db, {
         id: existingReturn.obligationId,
       });
     }

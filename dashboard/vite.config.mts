@@ -89,24 +89,10 @@ function getPublicEnv(mode: string) {
 
   const dashboardUrl = getBuildEnvValue(
     mode,
-    env.DASHBOARD_URL ?? env.TAMIAS_DASHBOARD_URL,
+    env.DASHBOARD_URL,
     mode === "production" ? "https://app.tamias.xyz" : "http://localhost:3001",
   );
-  const apiUrl = getBuildEnvValue(
-    mode,
-    env.API_URL ?? env.TAMIAS_API_URL,
-    "https://api.tamias.xyz",
-  );
-  const convexUrl = getBuildEnvValue(
-    mode,
-    env.CONVEX_URL ?? env.TAMIAS_CONVEX_URL,
-    "https://fleet-chameleon-251.eu-west-1.convex.cloud",
-  );
-  const convexSiteUrl = getBuildEnvValue(
-    mode,
-    env.CONVEX_SITE_URL ?? env.TAMIAS_CONVEX_SITE_URL,
-    "https://fleet-chameleon-251.eu-west-1.convex.site",
-  );
+  const apiUrl = getBuildEnvValue(mode, env.API_URL, "https://api.tamias.xyz");
   const stripePublishableKey = env.STRIPE_PUBLISHABLE_KEY ?? "";
   const googleApiKey = env.GOOGLE_API_KEY ?? "";
   const whatsappNumber = env.WHATSAPP_NUMBER ?? "";
@@ -118,8 +104,6 @@ function getPublicEnv(mode: string) {
     NODE_ENV: mode === "production" ? "production" : "development",
     DASHBOARD_URL: dashboardUrl,
     API_URL: apiUrl,
-    CONVEX_URL: convexUrl,
-    CONVEX_SITE_URL: convexSiteUrl,
     STRIPE_PUBLISHABLE_KEY: stripePublishableKey,
     GOOGLE_API_KEY: googleApiKey,
     WHATSAPP_NUMBER: whatsappNumber,
@@ -139,8 +123,6 @@ export default defineConfig(({ mode, command }) => {
       process.env.TAMIAS_ENVIRONMENT ?? (mode === "production" ? "production" : "development"),
     API_URL: publicEnv.API_URL,
     DASHBOARD_URL: publicEnv.DASHBOARD_URL,
-    CONVEX_URL: publicEnv.CONVEX_URL,
-    CONVEX_SITE_URL: publicEnv.CONVEX_SITE_URL,
     STRIPE_PUBLISHABLE_KEY: publicEnv.STRIPE_PUBLISHABLE_KEY,
     GOOGLE_API_KEY: publicEnv.GOOGLE_API_KEY,
     WHATSAPP_NUMBER: publicEnv.WHATSAPP_NUMBER,
@@ -154,16 +136,10 @@ export default defineConfig(({ mode, command }) => {
       motionDomWorkerdResizePassivePlugin(),
       cloudflare({
         configPath: path.join(workspaceRoot, "wrangler.jsonc"),
-        config:
-          command === "serve"
-            ? {
-                main: "./dashboard/src/start/cf-unified-entry.ts",
-                vars: workerVars,
-              }
-            : {
-                // Production: dashboard-only entry, API is a separate Worker
-                main: "./dashboard/src/start/cf-dashboard-entry.ts",
-              },
+        config: {
+          main: "./dashboard/src/start/cf-unified-entry.ts",
+          ...(command === "serve" ? { vars: workerVars } : {}),
+        },
         viteEnvironment: { name: "ssr" },
       }),
       ...tanstackStart({
@@ -193,10 +169,6 @@ export default defineConfig(({ mode, command }) => {
         {
           find: "@",
           replacement: resolveDashboardPath("./src"),
-        },
-        {
-          find: "@convex",
-          replacement: resolveDashboardPath("./convex"),
         },
         {
           find: "@app-data",
@@ -254,9 +226,7 @@ export default defineConfig(({ mode, command }) => {
     },
     ssr: {
       noExternal: [
-        // Dev (unified): bundle API + worker inline for local wrangler dev.
-        // Production (split): dashboard entry doesn't import these, so they
-        // won't be reached — but keep them for dev mode safety.
+        // Bundle API + worker inline for local unified wrangler dev.
         ...(command === "serve"
           ? [/^@tamias\/api(?:\/.*)?$/, /^@tamias\/worker(?:\/.*)?$/]
           : []),

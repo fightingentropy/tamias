@@ -1,6 +1,5 @@
 import { tz } from "@date-fns/tz";
 import { db } from "@tamias/app-data/client";
-import type { CurrentUserIdentityRecord } from "@tamias/app-data-convex";
 import { getTrackerProjects, upsertTrackerEntries } from "@tamias/app-data/queries";
 import { getAppUrl } from "@tamias/utils/envs";
 import { formatDate } from "@tamias/utils/format";
@@ -10,7 +9,7 @@ import parseDuration from "parse-duration";
 import { z } from "zod";
 import { getToolAppContext, getToolTeamId } from "../utils/tool-runtime";
 
-type ConvexUserId = CurrentUserIdentityRecord["convexId"];
+type AppUserId = string;
 
 const createTrackerEntrySchema = z.object({
   projectName: z.string().nullable().optional().describe("Project name"),
@@ -56,7 +55,7 @@ export const createTrackerEntryTool = tool({
   ) {
     const appContext = getToolAppContext(executionOptions);
     const teamId = getToolTeamId(appContext);
-    const userId = (appContext.convexUserId as ConvexUserId | undefined) || null;
+    const userId = (appContext.appUserId as AppUserId | undefined) || null;
     const searchProjectName = projectName;
 
     if (!teamId) {

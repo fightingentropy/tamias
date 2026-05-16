@@ -9,39 +9,39 @@ import {
   getNotificationSettingsSchema,
   updateNotificationSettingSchema,
 } from "../../schemas/notification-settings";
-import { createTRPCRouter, protectedWithConvexIdProcedure } from "../init";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const notificationSettingsRouter = createTRPCRouter({
-  get: protectedWithConvexIdProcedure
+  get: protectedProcedure
     .input(getNotificationSettingsSchema.optional())
     .query(async ({ ctx: { db, session, teamId }, input = {} }) => {
       return getNotificationSettings(db, {
-        userId: session.user.convexId,
+        userId: session.user.id,
         teamId: teamId!,
         ...input,
       });
     }),
 
   // Get all notification types with their current settings for the user
-  getAll: protectedWithConvexIdProcedure.query(async ({ ctx: { db, session, teamId } }) => {
-    return getUserNotificationPreferences(db, session.user.convexId, teamId!);
+  getAll: protectedProcedure.query(async ({ ctx: { db, session, teamId } }) => {
+    return getUserNotificationPreferences(db, session.user.id, teamId!);
   }),
 
   // Update a single notification setting
-  update: protectedWithConvexIdProcedure
+  update: protectedProcedure
     .input(updateNotificationSettingSchema)
     .mutation(async ({ ctx: { db, session, teamId }, input }) => {
       return upsertNotificationSetting(db, {
-        userId: session.user.convexId,
+        userId: session.user.id,
         teamId: teamId!,
         ...input,
       });
     }),
 
   // Bulk update multiple notification settings
-  bulkUpdate: protectedWithConvexIdProcedure
+  bulkUpdate: protectedProcedure
     .input(bulkUpdateNotificationSettingsSchema)
     .mutation(async ({ ctx: { db, session, teamId }, input }) => {
-      return bulkUpdateNotificationSettings(db, session.user.convexId, teamId!, input.updates);
+      return bulkUpdateNotificationSettings(db, session.user.id, teamId!, input.updates);
     }),
 });

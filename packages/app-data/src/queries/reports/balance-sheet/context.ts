@@ -1,8 +1,7 @@
 import { UTCDate } from "@date-fns/utc";
 import { format, parseISO } from "date-fns";
-import { getBankAccountsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
-import { getCashBalance } from "../../bank-accounts";
+import { getBankAccounts, getCashBalance } from "../../bank-accounts";
 import {
   getExcludedCategorySlugs,
   getReportInboxLiabilityAggregateRows,
@@ -69,7 +68,7 @@ export async function loadBalanceSheetContext(
       ...(outstandingInvoices ?? []),
       ...(scheduledInvoices ?? []),
     ]),
-    getBankAccountsFromConvex({
+    getBankAccounts(db, {
       teamId,
       enabled: true,
     }).then((accounts) =>

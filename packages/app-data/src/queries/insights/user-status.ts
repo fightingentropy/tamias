@@ -1,26 +1,26 @@
-import {
-  dismissInsightInConvex,
-  getInsightUserStatusesFromConvex,
-  markInsightAsReadInConvex,
-  undoDismissInsightInConvex,
-  type InsightUserStatusRecord,
-} from "@tamias/app-data-convex";
 import type { Database, DatabaseOrTransaction } from "../../client";
 import {
   compareInsightPeriodDesc,
   listTeamInsights,
-  type ConvexUserId,
+  type UserId,
   type InsightPeriodType,
   type InsightStatus,
 } from "./shared";
+import {
+  dismissInsightStatus,
+  listInsightUserStatuses,
+  markInsightStatusAsRead,
+  undoDismissInsightStatus,
+  type InsightUserStatusRecord,
+} from "./store";
 
 export type InsightUserStatus = InsightUserStatusRecord;
 
 export async function getInsightUserStatus(
-  _db: Database,
-  params: { insightId: string; userId: ConvexUserId },
+  db: Database,
+  params: { insightId: string; userId: UserId },
 ): Promise<InsightUserStatus | null> {
-  const statuses = await getInsightUserStatusesFromConvex({
+  const statuses = await listInsightUserStatuses(db, {
     userId: params.userId,
   });
 
@@ -28,30 +28,30 @@ export async function getInsightUserStatus(
 }
 
 export async function markInsightAsRead(
-  _db: DatabaseOrTransaction,
-  params: { insightId: string; userId: ConvexUserId },
+  db: DatabaseOrTransaction,
+  params: { insightId: string; userId: UserId },
 ): Promise<InsightUserStatus> {
-  return markInsightAsReadInConvex({
+  return markInsightStatusAsRead(db, {
     userId: params.userId,
     insightId: params.insightId,
   });
 }
 
 export async function dismissInsight(
-  _db: DatabaseOrTransaction,
-  params: { insightId: string; userId: ConvexUserId },
+  db: DatabaseOrTransaction,
+  params: { insightId: string; userId: UserId },
 ): Promise<InsightUserStatus> {
-  return dismissInsightInConvex({
+  return dismissInsightStatus(db, {
     userId: params.userId,
     insightId: params.insightId,
   });
 }
 
 export async function undoDismissInsight(
-  _db: DatabaseOrTransaction,
-  params: { insightId: string; userId: ConvexUserId },
+  db: DatabaseOrTransaction,
+  params: { insightId: string; userId: UserId },
 ): Promise<InsightUserStatus | null> {
-  return undoDismissInsightInConvex({
+  return undoDismissInsightStatus(db, {
     userId: params.userId,
     insightId: params.insightId,
   });
@@ -59,7 +59,7 @@ export async function undoDismissInsight(
 
 export type GetInsightsForUserParams = {
   teamId: string;
-  userId: ConvexUserId;
+  userId: UserId;
   periodType?: InsightPeriodType;
   includeDismissed?: boolean;
   cursor?: string | null;
@@ -79,7 +79,7 @@ export async function getInsightsForUser(db: Database, params: GetInsightsForUse
   } = params;
 
   const offset = cursor ? Number.parseInt(cursor, 10) : 0;
-  const userStatuses = await getInsightUserStatusesFromConvex({ userId });
+  const userStatuses = await listInsightUserStatuses(db, { userId });
   const userStatusByInsightId = new Map(
     userStatuses.map((userStatus) => [userStatus.insightId, userStatus]),
   );

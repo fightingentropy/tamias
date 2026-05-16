@@ -1,11 +1,10 @@
 import { roundCurrency } from "@tamias/compliance";
-import {
-  deleteComplianceJournalEntryBySourceInConvex,
-  upsertComplianceJournalEntryInConvex,
-  type CurrentUserIdentityRecord,
-} from "@tamias/app-data-convex";
 import { parseISO } from "date-fns";
 import type { Database } from "../../../client";
+import {
+  deleteComplianceJournalEntryBySource,
+  upsertComplianceJournalEntry,
+} from "../../compliance/ledger";
 import { getFilingProfile } from "../../compliance";
 import { getTeamContext, resolveAnnualPeriod, validateBalancedLines } from "../pack";
 import { assertUkComplianceEnabled } from "../runtime";
@@ -16,7 +15,7 @@ export async function upsertYearEndManualJournal(
   db: Database,
   params: {
     teamId: string;
-    createdBy: CurrentUserIdentityRecord["convexId"];
+    createdBy: string;
   } & ManualJournalInput,
 ) {
   const team = await getTeamContext(db, params.teamId);
@@ -34,7 +33,7 @@ export async function upsertYearEndManualJournal(
   });
   const sourceId = params.id ?? crypto.randomUUID();
 
-  await upsertComplianceJournalEntryInConvex({
+  await upsertComplianceJournalEntry(db, {
     teamId: params.teamId,
     entry: {
       journalEntryId: sourceId,
@@ -73,7 +72,7 @@ export async function deleteYearEndManualJournal(
     periodKey?: string;
   },
 ) {
-  await deleteComplianceJournalEntryBySourceInConvex({
+  await deleteComplianceJournalEntryBySource(db, {
     teamId: params.teamId,
     sourceType: "manual_adjustment",
     sourceId: params.journalId,

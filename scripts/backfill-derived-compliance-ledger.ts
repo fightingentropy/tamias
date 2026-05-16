@@ -1,4 +1,5 @@
-import { rebuildDerivedComplianceJournalEntriesInConvex } from "../packages/app-data-convex/src/index";
+import { createDatabase } from "../packages/app-data/src/client";
+import { rebuildDerivedComplianceJournalEntries } from "../packages/app-data/src/queries/compliance/ledger";
 
 function getArgValue(name: string) {
   const index = process.argv.indexOf(name);
@@ -12,7 +13,7 @@ function getArgValue(name: string) {
 
 async function main() {
   const teamId = getArgValue("--team");
-  const results = await rebuildDerivedComplianceJournalEntriesInConvex({
+  const results = await rebuildDerivedComplianceJournalEntries(createDatabase(), {
     teamId,
   });
 

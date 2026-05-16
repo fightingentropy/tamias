@@ -35,7 +35,10 @@ let dashboardWorkerPromise: Promise<Awaited<ReturnType<typeof createDashboardWor
   null;
 
 function getDashboardWorker() {
-  dashboardWorkerPromise ??= createDashboardWorker();
+  dashboardWorkerPromise ??= createDashboardWorker().catch((error) => {
+    dashboardWorkerPromise = null;
+    throw error;
+  });
   return dashboardWorkerPromise;
 }
 

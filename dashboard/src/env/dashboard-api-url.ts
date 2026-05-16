@@ -14,11 +14,6 @@ export function getDashboardApiUrl(): string {
     return apiUrl;
   }
 
-  const tamiasApiUrl = process.env.TAMIAS_API_URL;
-  if (tamiasApiUrl) {
-    return tamiasApiUrl;
-  }
-
   if (import.meta.env.DEV) {
     const dash = process.env.DASHBOARD_URL;
     if (dash) {

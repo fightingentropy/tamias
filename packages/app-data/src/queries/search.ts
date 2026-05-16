@@ -10,10 +10,10 @@ import type {
 export type { GlobalSearchReturnType, GlobalSemanticSearchParams } from "./search/types";
 
 export async function globalSemanticSearchQuery(
-  _db: Database,
+  db: Database,
   params: GlobalSemanticSearchParams,
 ): Promise<GlobalSearchReturnType[]> {
-  const candidates = await loadSearchCandidates(params);
+  const candidates = await loadSearchCandidates({ ...params, db });
 
   return rankAndLimitCandidates(
     candidates.filter((candidate) => matchesSemanticCandidate(candidate, params)),
@@ -26,9 +26,10 @@ export async function globalSemanticSearchQuery(
   );
 }
 
-export async function globalSearchQuery(_db: Database, params: GlobalSearchParams) {
+export async function globalSearchQuery(db: Database, params: GlobalSearchParams) {
   const itemsPerTableLimit = params.itemsPerTableLimit ?? 5;
   const candidates = await loadRawSearchCandidates({
+    db,
     teamId: params.teamId,
     searchTerm: params.searchTerm,
     itemsPerTableLimit,

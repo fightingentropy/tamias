@@ -1,6 +1,6 @@
-import type { BankAccountRecord, TransactionRecord } from "@tamias/app-data-convex";
+import type { BankAccountRecord } from "../../bank-accounts/types";
 import { getTransactionCategoryContext } from "../../transaction-categories";
-import type { TransactionDerivedState } from "./types";
+import type { TransactionDerivedState, TransactionRecord } from "./types";
 
 export function getTransactionDerivedState(
   transaction: TransactionRecord,

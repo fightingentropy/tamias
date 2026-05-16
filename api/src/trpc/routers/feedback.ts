@@ -1,18 +1,15 @@
-import {
-  deleteChatFeedbackInConvex,
-  upsertChatFeedbackInConvex,
-} from "@tamias/app-services/chat-feedback";
+import { deleteChatFeedback, upsertChatFeedback } from "@tamias/app-data/queries";
 import { createChatFeedbackSchema, deleteChatFeedbackSchema } from "../../schemas/feedback";
-import { createTRPCRouter, protectedWithConvexIdProcedure } from "../init";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const chatFeedbackRouter = createTRPCRouter({
-  create: protectedWithConvexIdProcedure
+  create: protectedProcedure
     .input(createChatFeedbackSchema)
-    .mutation(async ({ input, ctx: { teamId, session } }) => {
-      await upsertChatFeedbackInConvex({
+    .mutation(async ({ input, ctx: { db, teamId, session } }) => {
+      await upsertChatFeedback(db, {
         chatId: input.chatId,
         messageId: input.messageId,
-        userId: session.user.convexId,
+        userId: session.user.id,
         teamId: teamId!,
         type: input.type,
         comment: input.comment,
@@ -21,13 +18,13 @@ export const chatFeedbackRouter = createTRPCRouter({
       return { success: true };
     }),
 
-  delete: protectedWithConvexIdProcedure
+  delete: protectedProcedure
     .input(deleteChatFeedbackSchema)
-    .mutation(async ({ input, ctx: { session } }) => {
-      await deleteChatFeedbackInConvex({
+    .mutation(async ({ input, ctx: { db, session } }) => {
+      await deleteChatFeedback(db, {
         chatId: input.chatId,
         messageId: input.messageId,
-        userId: session.user.convexId,
+        userId: session.user.id,
       });
 
       return { success: true };

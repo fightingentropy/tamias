@@ -56,7 +56,7 @@ export type InstitutionTrpcRow = {
 };
 
 /**
- * When the Convex institution index is empty or stale, load institutions live from the
+ * When the D1 institution index is empty or stale, load institutions live from the
  * TrueLayer catalog so bank search works in dev and after sync gaps.
  */
 export async function fetchLiveInstitutionsForSearch(

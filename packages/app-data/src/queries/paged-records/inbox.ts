@@ -1,11 +1,13 @@
+import type { Database } from "../../client";
 import {
-  getInboxItemsByDatePageFromConvex,
-  getInboxItemsPageFromConvex,
+  getInboxItemsByDatePageFromD1,
+  getInboxItemsPageFromD1,
+  requireInboxItemsD1,
   type InboxItemStatus,
-} from "@tamias/app-data-convex";
+} from "../inbox/d1";
 import { collectCursorPages, DEFAULT_PAGE_SIZE } from "./shared";
 
-export async function getInboxItemsPaged(args: {
+export async function getInboxItemsPaged(db: Database, args: {
   teamId: string;
   status?: InboxItemStatus;
   createdAtFrom?: string;
@@ -13,8 +15,10 @@ export async function getInboxItemsPaged(args: {
   order?: "asc" | "desc";
   pageSize?: number;
 }) {
+  const d1 = requireInboxItemsD1(db);
+
   return collectCursorPages((cursor) =>
-    getInboxItemsPageFromConvex({
+    getInboxItemsPageFromD1(d1, {
       teamId: args.teamId,
       cursor,
       pageSize: args.pageSize ?? DEFAULT_PAGE_SIZE,
@@ -26,15 +30,17 @@ export async function getInboxItemsPaged(args: {
   );
 }
 
-export async function getInboxItemsByDatePaged(args: {
+export async function getInboxItemsByDatePaged(db: Database, args: {
   teamId: string;
   dateGte?: string | null;
   dateLte?: string | null;
   order?: "asc" | "desc";
   pageSize?: number;
 }) {
+  const d1 = requireInboxItemsD1(db);
+
   return collectCursorPages((cursor) =>
-    getInboxItemsByDatePageFromConvex({
+    getInboxItemsByDatePageFromD1(d1, {
       teamId: args.teamId,
       cursor,
       pageSize: args.pageSize ?? DEFAULT_PAGE_SIZE,

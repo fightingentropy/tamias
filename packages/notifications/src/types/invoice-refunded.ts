@@ -6,7 +6,7 @@ export const invoiceRefunded: NotificationHandler = {
 
   createActivity: (data, user) => ({
     teamId: user.team_id,
-    userId: user.convex_id,
+    userId: user.id,
     type: "invoice_refunded",
     source: "system",
     priority: 2, // High priority - refunds are important

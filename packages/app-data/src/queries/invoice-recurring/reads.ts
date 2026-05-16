@@ -19,19 +19,13 @@ function getValidRecurringStatuses(statuses: GetInvoiceRecurringListParams["stat
   return (statuses ?? []).filter((status) => RECURRING_STATUSES.includes(status));
 }
 
-export async function getInvoiceRecurringById(
-  _db: Database,
-  params: GetInvoiceRecurringByIdParams,
-) {
-  return getProjectedInvoiceRecurringById(params);
+export async function getInvoiceRecurringById(db: Database, params: GetInvoiceRecurringByIdParams) {
+  return getProjectedInvoiceRecurringById(db, params);
 }
 
-export async function getInvoiceRecurringList(
-  _db: Database,
-  params: GetInvoiceRecurringListParams,
-) {
+export async function getInvoiceRecurringList(db: Database, params: GetInvoiceRecurringListParams) {
   const { teamId, status, customerId, cursor, pageSize = 25 } = params;
-  let data = await getProjectedInvoiceRecurringForTeam(teamId);
+  let data = await getProjectedInvoiceRecurringForTeam(db, teamId);
 
   if (status && status.length > 0) {
     const validStatuses = getValidRecurringStatuses(status);
@@ -105,16 +99,17 @@ export async function getUpcomingInvoices(db: Database, params: GetUpcomingInvoi
 }
 
 export async function checkInvoiceExists(
-  _db: Database,
+  db: Database,
   params: { invoiceRecurringId: string; recurringSequence: number },
 ) {
-  const recurring = await getProjectedInvoiceRecurringByLegacyId(params.invoiceRecurringId);
+  const recurring = await getProjectedInvoiceRecurringByLegacyId(db, params.invoiceRecurringId);
 
   if (!recurring) {
     return null;
   }
 
   const result = await getProjectedInvoiceByRecurringSequence(
+    db,
     recurring.teamId,
     params.invoiceRecurringId,
     params.recurringSequence,
@@ -132,10 +127,10 @@ export async function checkInvoiceExists(
 }
 
 export async function getScheduledInvoicesForRecurring(
-  _db: Database,
+  db: Database,
   params: { teamId: string; invoiceRecurringId: string },
 ) {
-  return getProjectedInvoicesByRecurringId({
+  return getProjectedInvoicesByRecurringId(db, {
     teamId: params.teamId,
     invoiceRecurringId: params.invoiceRecurringId,
     statuses: ["scheduled"],

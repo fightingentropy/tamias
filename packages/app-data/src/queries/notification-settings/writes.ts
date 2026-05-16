@@ -1,34 +1,33 @@
-import {
-  bulkUpsertNotificationSettingsInConvex,
-  upsertNotificationSettingInConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
+import {
+  bulkUpsertNotificationSettingsInD1,
+  getNotificationSettingsD1,
+  upsertNotificationSettingParamsInD1,
+} from "./d1";
 import { toNotificationSetting } from "./shared";
 import type {
-  ConvexUserId,
   NotificationChannel,
   NotificationSetting,
   UpsertNotificationSettingParams,
+  UserId,
 } from "./types";
 
 export async function upsertNotificationSetting(
-  _db: Database,
+  db: Database,
   params: UpsertNotificationSettingParams,
 ): Promise<NotificationSetting> {
-  const result = await upsertNotificationSettingInConvex({
-    userId: params.userId,
-    teamId: params.teamId,
-    notificationType: params.notificationType,
-    channel: params.channel,
-    enabled: params.enabled,
-  });
+  const d1 = getNotificationSettingsD1(db);
 
-  return toNotificationSetting(result);
+  if (!d1) {
+    throw new Error("Notification settings require Cloudflare D1");
+  }
+
+  return toNotificationSetting(await upsertNotificationSettingParamsInD1(d1, params));
 }
 
 export async function bulkUpdateNotificationSettings(
-  _db: Database,
-  userId: ConvexUserId,
+  db: Database,
+  userId: UserId,
   teamId: string,
   updates: {
     notificationType: string;
@@ -36,11 +35,17 @@ export async function bulkUpdateNotificationSettings(
     enabled: boolean;
   }[],
 ): Promise<NotificationSetting[]> {
-  const results = await bulkUpsertNotificationSettingsInConvex({
-    userId,
-    teamId,
-    updates,
-  });
+  const d1 = getNotificationSettingsD1(db);
 
-  return results.map(toNotificationSetting);
+  if (!d1) {
+    throw new Error("Notification settings require Cloudflare D1");
+  }
+
+  return (
+    await bulkUpsertNotificationSettingsInD1(d1, {
+      userId,
+      teamId,
+      updates,
+    })
+  ).map(toNotificationSetting);
 }

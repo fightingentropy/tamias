@@ -11,6 +11,7 @@ type RegisterUploadResult = {
 };
 
 type UploadMutationArgs = {
+  bucket?: string;
   internalKey?: string;
 };
 
@@ -110,7 +111,7 @@ export async function uploadFileToStorage(
 ): Promise<UploadResult> {
   const filename = stripSpecialCharacters(file.name);
   const storagePath = buildStoragePath(bucket, path);
-  const uploadUrl = await transport.generateUploadUrl({});
+  const uploadUrl = await transport.generateUploadUrl({ bucket });
   const storageId = await uploadFileWithProgress(uploadUrl, file, onProgress);
 
   const result = await transport.registerUpload({

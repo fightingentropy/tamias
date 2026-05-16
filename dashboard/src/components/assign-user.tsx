@@ -12,11 +12,10 @@ type User = {
 
 type Props = {
   selectedId?: string;
-  valueKey?: "id" | "convexId";
   onSelect: (user?: User) => void;
 };
 
-export function AssignUser({ selectedId, valueKey = "id", onSelect }: Props) {
+export function AssignUser({ selectedId, onSelect }: Props) {
   const [value, setValue] = useState<string>();
   const trpc = useTRPC();
 
@@ -33,12 +32,12 @@ export function AssignUser({ selectedId, valueKey = "id", onSelect }: Props) {
         const found = users?.find(({ user }) => {
           if (!user) return false;
 
-          return (valueKey === "convexId" ? user.convexId : user.id) === id;
+          return user.id === id;
         })?.user;
 
         if (found) {
           onSelect({
-            id: valueKey === "convexId" ? found.convexId : found.id,
+            id: found.id,
             full_name: found.fullName ?? null,
             avatar_url: found.avatarUrl ?? null,
           });
@@ -57,7 +56,7 @@ export function AssignUser({ selectedId, valueKey = "id", onSelect }: Props) {
 
       <SelectContent className="overflow-y-auto max-h-[200px]">
         {users?.map(({ user }) => {
-          const optionId = user ? (valueKey === "convexId" ? user.convexId : user.id) : "";
+          const optionId = user ? user.id : "";
 
           return (
             <SelectItem key={optionId} value={optionId}>

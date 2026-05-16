@@ -1,10 +1,6 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import { updateTeamById } from "@tamias/app-data/queries";
-import {
-  getTeamByPublicTeamIdFromConvexIdentity,
-  getTeamMembersFromConvex,
-  listTeamsForUserFromConvex,
-} from "@tamias/app-services/identity";
+import { getTeamById, getTeamMembers, listTeamsForUser } from "@tamias/app-services/identity";
 import {
   getTeamByIdSchema,
   teamMembersResponseSchema,
@@ -50,8 +46,8 @@ app.openapi(
   async (c) => {
     const session = c.get("session");
 
-    const result = await listTeamsForUserFromConvex({
-      userId: session.user.convexId,
+    const result = await listTeamsForUser({
+      userId: session.user.id,
       email: session.user.email ?? null,
     });
 
@@ -91,7 +87,7 @@ app.openapi(
       throw new Error("Team not found or access denied");
     }
 
-    const result = await getTeamByPublicTeamIdFromConvexIdentity(teamId);
+    const result = await getTeamById(teamId);
 
     return c.json(validateResponse(result, teamResponseSchema));
   },
@@ -180,7 +176,7 @@ app.openapi(
       throw new Error("Team not found or access denied");
     }
 
-    const result = await getTeamMembersFromConvex(teamId);
+    const result = await getTeamMembers(teamId);
 
     return c.json(
       validateResponse(

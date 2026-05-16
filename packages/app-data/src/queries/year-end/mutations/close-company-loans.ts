@@ -1,9 +1,8 @@
 import { roundCurrency } from "@tamias/compliance";
 import {
-  deleteCloseCompanyLoansScheduleInConvex,
-  upsertCloseCompanyLoansScheduleInConvex,
-  type CurrentUserIdentityRecord,
-} from "@tamias/app-data-convex";
+  deleteCloseCompanyLoansScheduleRecord,
+  upsertCloseCompanyLoansScheduleRecord,
+} from "../tax-schedules";
 import type { Database } from "../../../client";
 import { getYearEndMutationContext, rebuildYearEndMutationPack } from "./common";
 
@@ -11,7 +10,7 @@ export async function upsertCloseCompanyLoansSchedule(
   db: Database,
   params: {
     teamId: string;
-    createdBy: CurrentUserIdentityRecord["convexId"];
+    createdBy: string;
     periodKey?: string;
     beforeEndPeriod: boolean;
     loansMade: Array<{
@@ -38,7 +37,7 @@ export async function upsertCloseCompanyLoansSchedule(
 ) {
   const context = await getYearEndMutationContext(db, params.teamId, params.periodKey);
 
-  await upsertCloseCompanyLoansScheduleInConvex({
+  await upsertCloseCompanyLoansScheduleRecord(db, {
     teamId: params.teamId,
     filingProfileId: context.profile.id,
     periodKey: context.period.periodKey,
@@ -90,7 +89,7 @@ export async function deleteCloseCompanyLoansSchedule(
 ) {
   const context = await getYearEndMutationContext(db, params.teamId, params.periodKey);
 
-  await deleteCloseCompanyLoansScheduleInConvex({
+  await deleteCloseCompanyLoansScheduleRecord(db, {
     teamId: params.teamId,
     filingProfileId: context.profile.id,
     periodKey: context.period.periodKey,

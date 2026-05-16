@@ -1,9 +1,7 @@
-const workerGlobal = globalThis as typeof globalThis & {
-  window?: unknown;
-};
+const workerGlobal = globalThis as unknown as Record<string, unknown>;
 
-if (!workerGlobal.window) {
-  workerGlobal.window = workerGlobal as unknown as Window & typeof globalThis;
+if (!workerGlobal["window"]) {
+  workerGlobal["window"] = workerGlobal;
 }
 
 export {};

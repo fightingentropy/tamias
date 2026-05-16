@@ -4,15 +4,14 @@ import {
   buildCloudflareRecurringScheduleMessage,
   getNextRecurringScheduleAlarmAt,
   getScheduledCloudflareMessages,
-  isBridgeAuthorized,
   isCloudflareRecurringScheduleRequest,
   isCloudflareWorkflowInstanceRequest,
   isSupportedCloudflareMessage,
   isCloudflareWorkflowStartRequest,
   toDelaySeconds,
-} from "./bridge-helpers";
+} from "./async-helpers";
 
-describe("Cloudflare async bridge helpers", () => {
+describe("Cloudflare async helpers", () => {
   test("converts millisecond delays to queue delay seconds", () => {
     expect(toDelaySeconds()).toBeUndefined();
     expect(toDelaySeconds(1)).toBe(1);
@@ -21,7 +20,7 @@ describe("Cloudflare async bridge helpers", () => {
     expect(toDelaySeconds(1500)).toBe(2);
   });
 
-  test("only accepts supported bridged job domains", () => {
+  test("only accepts supported async job domains", () => {
     expect(
       isSupportedCloudflareMessage({
         queue: "capture",
@@ -651,27 +650,6 @@ describe("Cloudflare async bridge helpers", () => {
     expect(getNextRecurringScheduleAlarmAt("17 20 * * *", now)).toBe(
       Date.UTC(2026, 2, 28, 20, 17, 0, 0),
     );
-  });
-
-  test("authorizes bridge requests with bearer token", () => {
-    const request = new Request("https://example.com/internal/enqueue", {
-      method: "POST",
-      headers: {
-        authorization: "Bearer secret-token",
-      },
-    });
-
-    expect(
-      isBridgeAuthorized(request, {
-        CLOUDFLARE_ASYNC_BRIDGE_TOKEN: "secret-token",
-      }),
-    ).toBe(true);
-
-    expect(
-      isBridgeAuthorized(request, {
-        CLOUDFLARE_ASYNC_BRIDGE_TOKEN: "other-token",
-      }),
-    ).toBe(false);
   });
 
   test("validates supported workflow start payloads", () => {

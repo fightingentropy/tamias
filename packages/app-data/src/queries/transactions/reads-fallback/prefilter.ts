@@ -1,61 +1,64 @@
-import {
-  getBankAccountsFromConvex,
-  getTaggedTransactionIdsFromConvex,
-  getTaggedTransactionsFromConvex,
-  getTeamMembersFromConvexIdentity,
-  getTransactionsFromConvex,
-  type TransactionStatus,
-} from "@tamias/app-data-convex";
 import { CONTRA_REVENUE_CATEGORIES, REVENUE_CATEGORIES } from "@tamias/categories";
 import type { Database } from "../../../client";
+import { getBankAccounts } from "../../bank-accounts";
+import { getTeamMembers } from "../../teams/reads";
 import { getTransactionCategoryContext } from "../../transaction-categories";
 import {
   expandTransactionCategories,
   getComparableTransactionAmount,
   matchesTransactionSearchQuery,
   type TransactionFrequency,
+  type TransactionRecord,
+  type TransactionStatus,
 } from "../shared";
+import {
+  getTaggedTransactionIdsFromD1,
+  getTaggedTransactionsFromD1,
+  getTransactionsFromD1,
+  requireTransactionsD1,
+} from "../d1";
 import type { GetTransactionsParams } from "../reads-shared";
 import { normalizeAmountRange, parseAmountFilter } from "./amount-filters";
 
 type CategoryContext = Awaited<ReturnType<typeof getTransactionCategoryContext>>;
-type TeamMembers = Awaited<ReturnType<typeof getTeamMembersFromConvexIdentity>>;
-type FallbackTransaction = Awaited<ReturnType<typeof getTransactionsFromConvex>>[number];
+type TeamMembers = Awaited<ReturnType<typeof getTeamMembers>>;
+type FallbackTransaction = TransactionRecord;
 
 export async function loadFallbackPageContext(args: {
   db: Database;
   params: GetTransactionsParams & { pageSize: number };
-  convexStatusesNotIn: TransactionStatus[];
+  statusesNotIn: TransactionStatus[];
 }) {
   const {
     db,
     params: { teamId, sort, tags: filterTags, accounts: filterAccounts, start, end },
-    convexStatusesNotIn,
+    statusesNotIn,
   } = args;
-  const convexBankAccountId =
+  const bankAccountId =
     filterAccounts && filterAccounts.length === 1 ? filterAccounts[0] : undefined;
+  const d1 = requireTransactionsD1(db);
   const [teamMembers, categoryContext, bankAccounts, allTransactions, taggedTransactionIdsForSort] =
     await Promise.all([
-      getTeamMembersFromConvexIdentity({ teamId }),
+      getTeamMembers(db, teamId),
       getTransactionCategoryContext(db, teamId),
-      getBankAccountsFromConvex({ teamId }),
+      getBankAccounts(db, { teamId }),
       filterTags && filterTags.length > 0
-        ? getTaggedTransactionsFromConvex({
+        ? getTaggedTransactionsFromD1(d1, {
             teamId,
             tagIds: filterTags,
             dateGte: start ?? undefined,
             dateLte: end ?? undefined,
-            statusesNotIn: convexStatusesNotIn,
+            statusesNotIn: statusesNotIn,
           })
-        : getTransactionsFromConvex({
+        : getTransactionsFromD1(d1, {
             teamId,
-            bankAccountId: convexBankAccountId,
+            bankAccountId: bankAccountId,
             dateGte: start ?? undefined,
             dateLte: end ?? undefined,
-            statusesNotIn: convexStatusesNotIn,
+            statusesNotIn: statusesNotIn,
           }),
       sort?.[0] === "tags" && (!filterTags || filterTags.length === 0)
-        ? getTaggedTransactionIdsFromConvex({ teamId })
+        ? getTaggedTransactionIdsFromD1(d1, { teamId })
         : [],
     ]);
 
@@ -92,7 +95,7 @@ export function buildFallbackFilterState(args: {
   const validRecurringFrequencies = filterRecurring?.filter((frequency) => frequency !== "all") as
     | TransactionFrequency[]
     | undefined;
-  const teamMemberIds = new Set(teamMembers.map((member) => member.user.id));
+  const teamMemberIds = new Set(teamMembers.map((member) => member.id));
   const validAssigneeIds =
     filterAssignees?.filter((assigneeId) => teamMemberIds.has(assigneeId)) ?? [];
 

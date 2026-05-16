@@ -1,9 +1,9 @@
 import type { Session } from "@tamias/auth-session";
 import { calculateTotal } from "@tamias/invoice/calculate";
 import { createLoggerWithContext } from "@tamias/logger";
-import { getAppUrl } from "@tamias/utils/envs";
+import { getApiUrl, getAppUrl } from "@tamias/utils/envs";
 import { HTTPException } from "hono/http-exception";
-import { requireSessionConvexUserId } from "../../invoice/transport";
+import { requireSessionUserId } from "../../invoice/transport";
 
 type RestInvoiceTemplate = {
   taxRate?: number | null;
@@ -64,7 +64,7 @@ function getInvoiceCalculatedAmounts(invoice: RestInvoiceLike) {
 
 function getInvoiceUrls(token: string | null | undefined) {
   return {
-    pdfUrl: token ? `${getAppUrl()}/api/download/invoice?token=${token}` : null,
+    pdfUrl: token ? `${getApiUrl()}/files/download/invoice?token=${token}` : null,
     previewUrl: token ? `${getAppUrl()}/i/${token}` : null,
   };
 }
@@ -97,8 +97,8 @@ export function serializeInvoicePageForRest<
   };
 }
 
-export function requireRestConvexUserId(session: Session) {
-  return requireSessionConvexUserId(session, () => {
-    throw new HTTPException(401, { message: "Missing Convex user id" });
+export function requireRestUserId(session: Session) {
+  return requireSessionUserId(session, () => {
+    throw new HTTPException(401, { message: "Missing user id" });
   });
 }

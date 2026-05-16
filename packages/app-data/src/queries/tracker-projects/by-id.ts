@@ -1,11 +1,11 @@
-import { getTrackerProjectByIdFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
+import { getTrackerProjectByIdFromD1, requireTrackerProjectsD1 } from "./d1";
 import { enrichProjects } from "./enrich";
 import type { GetTrackerProjectByIdParams } from "./types";
 
 async function getTrackerProjectByIdImpl(db: Database, params: GetTrackerProjectByIdParams) {
-  const project = await getTrackerProjectByIdFromConvex({
+  const project = await getTrackerProjectByIdFromD1(requireTrackerProjectsD1(db), {
     teamId: params.teamId,
     id: params.id,
   });

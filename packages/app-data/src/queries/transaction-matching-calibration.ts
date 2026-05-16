@@ -1,8 +1,9 @@
-import {
-  getTransactionMatchSuggestionsPageFromConvex,
-  type MatchSuggestionStatus,
-} from "@tamias/app-data-convex";
 import type { Database } from "../client";
+import {
+  getTransactionMatchSuggestionsPageFromD1,
+  requireInboxItemsD1,
+  type MatchSuggestionStatus,
+} from "./inbox/d1";
 import { reuseQueryResult } from "../utils/request-cache";
 import { CALIBRATION_LIMITS } from "../utils/transaction-matching";
 import type { TeamCalibrationData } from "./transaction-matching-types";
@@ -12,6 +13,7 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 export async function getTeamSuggestions(
+  db: Database,
   teamId: string,
   statuses: MatchSuggestionStatus[],
   params?: {
@@ -26,7 +28,7 @@ export async function getTeamSuggestions(
         let cursor: string | null = null;
 
         while (true) {
-          const page = await getTransactionMatchSuggestionsPageFromConvex({
+          const page = await getTransactionMatchSuggestionsPageFromD1(requireInboxItemsD1(db), {
             teamId,
             status,
             cursor,
@@ -104,12 +106,12 @@ function optimizeThresholdFromFeedback(
   return { threshold: bestThreshold, sampleSize: labeled.length };
 }
 
-async function loadTeamCalibration(_db: Database, teamId: string): Promise<TeamCalibrationData> {
+async function loadTeamCalibration(db: Database, teamId: string): Promise<TeamCalibrationData> {
   const defaultSuggestedThreshold = 0.6;
   const defaultAutoThreshold = 0.9;
   const cutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
   const performanceData = (
-    await getTeamSuggestions(teamId, ["confirmed", "declined", "unmatched"], {
+    await getTeamSuggestions(db, teamId, ["confirmed", "declined", "unmatched"], {
       createdAtFrom: cutoff,
     })
   ).map((suggestion) => ({

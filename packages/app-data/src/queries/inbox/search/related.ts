@@ -1,6 +1,6 @@
-import { getInboxItemByIdFromConvex, getInboxItemsFromConvex } from "@tamias/app-data-convex";
 import { createLoggerWithContext } from "@tamias/logger";
 import type { Database } from "../../../client";
+import { getInboxItemByIdFromD1, getInboxItemsFromD1, requireInboxItemsD1 } from "../d1";
 import { markInboxItems } from "../shared";
 
 const logger = createLoggerWithContext("inbox");
@@ -12,7 +12,8 @@ export type FindRelatedInboxItemsParams = {
 
 export async function findRelatedInboxItems(_db: Database, params: FindRelatedInboxItemsParams) {
   const { inboxId, teamId } = params;
-  const currentItem = await getInboxItemByIdFromConvex({
+  const d1 = requireInboxItemsD1(_db);
+  const currentItem = await getInboxItemByIdFromD1(d1, {
     teamId,
     inboxId,
   });
@@ -23,7 +24,7 @@ export async function findRelatedInboxItems(_db: Database, params: FindRelatedIn
 
   if (currentItem.invoiceNumber) {
     const relatedByInvoiceNumber = (
-      await getInboxItemsFromConvex({
+      await getInboxItemsFromD1(d1, {
         teamId,
         invoiceNumber: currentItem.invoiceNumber,
       })
@@ -43,7 +44,7 @@ export async function findRelatedInboxItems(_db: Database, params: FindRelatedIn
     (currentItem.type === "invoice" || currentItem.type === "expense")
   ) {
     return (
-      await getInboxItemsFromConvex({
+      await getInboxItemsFromD1(d1, {
         teamId,
         date: currentItem.date,
       })
@@ -75,7 +76,7 @@ export async function groupRelatedInboxItems(db: Database, params: GroupRelatedI
     return;
   }
 
-  const currentItem = await getInboxItemByIdFromConvex({
+  const currentItem = await getInboxItemByIdFromD1(requireInboxItemsD1(db), {
     teamId,
     inboxId,
   });
@@ -112,7 +113,7 @@ export async function groupRelatedInboxItems(db: Database, params: GroupRelatedI
   const itemsToUpdate = relatedItems.filter((item) => item.id !== primaryItem.id);
 
   if (itemsToUpdate.length > 0) {
-    await markInboxItems(itemsToUpdate, {
+    await markInboxItems(db, itemsToUpdate, {
       groupedInboxId: primaryItem.id,
     });
 

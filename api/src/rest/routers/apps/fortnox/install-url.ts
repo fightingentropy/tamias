@@ -52,16 +52,16 @@ app.openapi(
       });
     }
 
-    if (!session.user.convexId) {
+    if (!session.user.id) {
       throw new HTTPException(500, {
-        message: "Missing Convex user id",
+        message: "Missing user id",
       });
     }
 
     // Encrypt state to prevent tampering with teamId
     const state = encryptAccountingOAuthState({
       teamId: session.teamId,
-      convexUserId: session.user.convexId,
+      userId: session.user.id,
       provider: "fortnox",
       source: "apps",
     });

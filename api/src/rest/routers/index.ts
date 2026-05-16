@@ -1,6 +1,7 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { protectedMiddleware } from "../middleware";
 import { appsRouter } from "./apps";
+import { authRouter } from "./auth";
 import { bankAccountsRouter } from "./bank-accounts";
 import { chatRouter } from "./chat";
 import { customersRouter } from "./customers";
@@ -27,6 +28,7 @@ import { webhookRouter } from "./webhooks";
 const routers = new OpenAPIHono();
 
 // Mount public routes first
+routers.route("/auth", authRouter);
 routers.route("/oauth", oauthRouter);
 routers.route("/webhook", webhookRouter);
 routers.route("/files", filesRouter);

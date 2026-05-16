@@ -1,31 +1,40 @@
-import {
-  createTeamForUserInConvexIdentity,
-  deleteTeamByIdInConvexIdentity,
-  type UpdateTeamInConvexIdentityInput,
-  updateTeamByIdInConvexIdentity,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
-import type { ConvexUserId } from "./shared";
-import { getTeamMembers } from "./reads";
+import { rebuildDerivedComplianceJournalEntries } from "../compliance/ledger";
+import {
+  createTeamInD1,
+  deleteTeamFromD1,
+  requireIdentityD1,
+  updateTeamInD1,
+  type UpdateTeamD1Input,
+} from "../identity/d1";
+import type { UserId } from "./shared";
 
 type UpdateTeamParams = {
   id: string;
-  data: Omit<UpdateTeamInConvexIdentityInput, "teamId">;
+  data: Omit<UpdateTeamD1Input, "teamId">;
 };
 
-export const updateTeamById = async (_db: Database, params: UpdateTeamParams) => {
+export const updateTeamById = async (db: Database, params: UpdateTeamParams) => {
   const { id, data } = params;
 
-  return updateTeamByIdInConvexIdentity({
+  const team = await updateTeamInD1(requireIdentityD1(db), {
     teamId: id,
     ...data,
   });
+
+  if (data.baseCurrency !== undefined || data.countryCode !== undefined) {
+    await rebuildDerivedComplianceJournalEntries(db, {
+      teamId: id,
+    });
+  }
+
+  return team;
 };
 
 type CreateTeamParams = {
   id?: string;
   name: string;
-  userId: ConvexUserId;
+  userId: UserId;
   email: string;
   baseCurrency?: string;
   countryCode?: string;
@@ -36,8 +45,8 @@ type CreateTeamParams = {
   switchTeam?: boolean;
 };
 
-export const createTeam = async (_db: Database, params: CreateTeamParams) => {
-  const team = await createTeamForUserInConvexIdentity({
+export const createTeam = async (db: Database, params: CreateTeamParams) => {
+  const team = await createTeamInD1(requireIdentityD1(db), {
     userId: params.userId,
     email: params.email,
     teamId: params.id,
@@ -63,18 +72,5 @@ type DeleteTeamParams = {
 };
 
 export async function deleteTeam(_db: Database, params: DeleteTeamParams) {
-  const teamMembers = await getTeamMembers(_db, params.teamId);
-
-  const result = await deleteTeamByIdInConvexIdentity({
-    teamId: params.teamId,
-  });
-
-  if (!result) {
-    return null;
-  }
-
-  return {
-    ...result,
-    memberUserIds: teamMembers.map((member) => member.id),
-  };
+  return deleteTeamFromD1(requireIdentityD1(_db), params.teamId);
 }

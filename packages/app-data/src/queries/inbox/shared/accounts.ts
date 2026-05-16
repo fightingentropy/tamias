@@ -1,7 +1,4 @@
-import {
-  getInboxAccountsByIdsFromConvex,
-  type InboxAccountListRecord,
-} from "@tamias/app-data-convex";
+import { getInboxAccountsByIds, type InboxAccountListRecord } from "../../inbox-accounts";
 
 export function buildInboxAccountMap(accounts: InboxAccountListRecord[]) {
   return new Map(
@@ -23,9 +20,7 @@ export async function getInboxAccountMap(inboxAccountIds: Array<string | null | 
     return new Map<string, { id: string; email: string; provider: "gmail" | "outlook" }>();
   }
 
-  const accounts = await getInboxAccountsByIdsFromConvex({
-    ids: uniqueIds,
-  });
+  const accounts = await getInboxAccountsByIds(uniqueIds);
 
   return buildInboxAccountMap(accounts);
 }

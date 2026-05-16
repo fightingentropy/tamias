@@ -69,9 +69,9 @@ app.openapi(
       });
     }
 
-    if (!session.user.convexId) {
+    if (!session.user.id) {
       throw new HTTPException(500, {
-        message: "Missing Convex user id",
+        message: "Missing user id",
       });
     }
 
@@ -89,7 +89,7 @@ app.openapi(
 
     const state = encryptComplianceOAuthState({
       teamId: session.teamId,
-      convexUserId: session.user.convexId,
+      userId: session.user.id,
       provider: "companies-house",
       source: "apps",
     });

@@ -3,6 +3,8 @@
 // deferred to dynamic imports so tRPC cold starts don't pay their cost.
 import { logger } from "@tamias/logger";
 import { configureEmailRuntime, type CloudflareEmailBinding } from "@tamias/email/send";
+import type { CloudflareD1DatabaseBinding } from "@tamias/app-data/client";
+import type { CloudflareR2BucketBinding } from "@tamias/storage";
 import { getApiUrl, getAppUrl } from "@tamias/utils/envs";
 import type { Context } from "./rest/types";
 
@@ -183,6 +185,10 @@ type ApiRuntimeEnv = {
   RATE_LIMIT_COORDINATOR?: DurableObjectNamespace;
   /** Present in unified dashboard+API+async worker deploys */
   RUN_COORDINATOR?: DurableObjectNamespace;
+  APP_DB?: CloudflareD1DatabaseBinding;
+  VAULT_BUCKET?: CloudflareR2BucketBinding;
+  TAMIAS_R2_PUBLIC_URL?: string;
+  API_URL?: string;
 };
 
 function getAllowedApiOrigins() {
@@ -316,14 +322,24 @@ async function createApp() {
 
   app.get("/health", (c) => c.json({ status: "ok" }, 200));
 
+  app.post("/uploads/r2", async (c) => {
+    const { handleR2UploadRequest } = await import("./services/r2-upload");
+    return handleR2UploadRequest(c.req.raw, c.env as ApiRuntimeEnv);
+  });
+
   app.get("/health/ready", async (c) => {
-    const results = await checkDependencies(apiDependencies({ email: c.env.EMAIL }), 1);
+    const results = await checkDependencies(
+      apiDependencies({ email: c.env.EMAIL, d1: (c.env as ApiRuntimeEnv).APP_DB }),
+      1,
+    );
     const response = buildReadinessResponse(results);
     return c.json(response, response.status === "ok" ? 200 : 503);
   });
 
   app.get("/health/dependencies", async (c) => {
-    const results = await checkDependencies(apiDependencies({ email: c.env.EMAIL }));
+    const results = await checkDependencies(
+      apiDependencies({ email: c.env.EMAIL, d1: (c.env as ApiRuntimeEnv).APP_DB }),
+    );
     const response = buildDependenciesResponse(results);
     return c.json(response, response.status === "ok" ? 200 : 503);
   });
@@ -393,18 +409,35 @@ async function configureApiRuntime(env?: ApiRuntimeEnv) {
 
   const [
     { configureCloudflareAsyncServiceRuntime },
-    { createInProcessAsyncBridge },
+    { createInProcessAsyncRuntime },
+    { configureDatabaseRuntime },
+    { configureStorageRuntime },
   ] = await Promise.all([
     import("@tamias/job-client/cloudflare-runtime"),
     import("@tamias/worker/cloudflare"),
+    import("@tamias/app-data/client"),
+    import("@tamias/storage"),
   ]);
+
+  configureDatabaseRuntime({
+    cloudflare: {
+      d1: env?.APP_DB,
+    },
+  });
+
+  configureStorageRuntime({
+    d1: env?.APP_DB,
+    r2Bucket: env?.VAULT_BUCKET,
+    apiUrl: env?.API_URL ?? apiUrl,
+    publicUrlBase: env?.TAMIAS_R2_PUBLIC_URL,
+  });
 
   const hasAsyncBindings = !!(
     env &&
     (env as Record<string, unknown>).RATE_LIMIT_COORDINATOR &&
     (env as Record<string, unknown>).RUN_COORDINATOR
   );
-  const asyncWorker = hasAsyncBindings ? createInProcessAsyncBridge(env as never) : null;
+  const asyncWorker = hasAsyncBindings ? createInProcessAsyncRuntime(env as never) : null;
 
   configureCloudflareAsyncServiceRuntime(asyncWorker ? { asyncWorker } : null);
 }
@@ -442,7 +475,3 @@ export async function apiEntryFetch(
   const app = await getApp();
   return app.fetch(request, env as unknown as Env, executionCtx);
 }
-
-export default {
-  fetch: apiEntryFetch,
-};

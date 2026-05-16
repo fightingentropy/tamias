@@ -18,15 +18,15 @@ import {
   updateInvoiceProductSchema,
   upsertInvoiceProductSchema,
 } from "../../schemas/invoice";
-import { createTRPCRouter, protectedProcedure, protectedWithConvexIdProcedure } from "../init";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const invoiceProductsRouter = createTRPCRouter({
   get: protectedProcedure
     .input(getInvoiceProductsSchema)
-    .query(async ({ input, ctx: { teamId } }) => {
+    .query(async ({ input, ctx: { db, teamId } }) => {
       const { sortBy = "popular", limit = 50, includeInactive = false, currency } = input || {};
 
-      return getInvoiceProducts(teamId!, {
+      return getInvoiceProducts(db, teamId!, {
         sortBy,
         limit,
         includeInactive,
@@ -36,18 +36,18 @@ export const invoiceProductsRouter = createTRPCRouter({
 
   getById: protectedProcedure
     .input(getInvoiceProductSchema)
-    .query(async ({ input, ctx: { teamId } }) => {
-      return getInvoiceProductById(input.id, teamId!);
+    .query(async ({ input, ctx: { db, teamId } }) => {
+      return getInvoiceProductById(db, input.id, teamId!);
     }),
 
-  create: protectedWithConvexIdProcedure
+  create: protectedProcedure
     .input(createInvoiceProductSchema)
-    .mutation(async ({ input, ctx: { teamId, session } }) => {
+    .mutation(async ({ input, ctx: { db, teamId, session } }) => {
       try {
-        return await createInvoiceProduct({
+        return await createInvoiceProduct(db, {
           ...input,
           teamId: teamId!,
-          createdBy: session.user.convexId,
+          createdBy: session.user.id,
         });
       } catch (_error) {
         throw new TRPCError({
@@ -56,21 +56,21 @@ export const invoiceProductsRouter = createTRPCRouter({
       }
     }),
 
-  upsert: protectedWithConvexIdProcedure
+  upsert: protectedProcedure
     .input(upsertInvoiceProductSchema)
-    .mutation(async ({ input, ctx: { teamId, session } }) => {
-      return upsertInvoiceProduct({
+    .mutation(async ({ input, ctx: { db, teamId, session } }) => {
+      return upsertInvoiceProduct(db, {
         ...input,
         teamId: teamId!,
-        createdBy: session.user.convexId,
+        createdBy: session.user.id,
       });
     }),
 
   updateProduct: protectedProcedure
     .input(updateInvoiceProductSchema)
-    .mutation(async ({ input, ctx: { teamId } }) => {
+    .mutation(async ({ input, ctx: { db, teamId } }) => {
       try {
-        return await updateInvoiceProduct({
+        return await updateInvoiceProduct(db, {
           ...input,
           teamId: teamId!,
         });
@@ -83,20 +83,20 @@ export const invoiceProductsRouter = createTRPCRouter({
 
   delete: protectedProcedure
     .input(deleteInvoiceProductSchema)
-    .mutation(async ({ input, ctx: { teamId } }) => {
-      return deleteInvoiceProduct(input.id, teamId!);
+    .mutation(async ({ input, ctx: { db, teamId } }) => {
+      return deleteInvoiceProduct(db, input.id, teamId!);
     }),
 
   incrementUsage: protectedProcedure
     .input(getInvoiceProductSchema)
-    .mutation(async ({ input, ctx: { teamId } }) => {
-      await incrementProductUsage(input.id, teamId!);
+    .mutation(async ({ input, ctx: { db, teamId } }) => {
+      await incrementProductUsage(db, input.id, teamId!);
       return { success: true };
     }),
 
-  saveLineItemAsProduct: protectedWithConvexIdProcedure
+  saveLineItemAsProduct: protectedProcedure
     .input(saveLineItemAsProductSchema)
-    .mutation(async ({ input, ctx: { teamId, session } }) => {
+    .mutation(async ({ input, ctx: { db, teamId, session } }) => {
       // Convert input to LineItem format
       const lineItem = {
         name: input.name,
@@ -106,8 +106,9 @@ export const invoiceProductsRouter = createTRPCRouter({
       };
 
       const result = await saveLineItemAsProduct(
+        db,
         teamId!,
-        session.user.convexId,
+        session.user.id,
         lineItem,
         input.currency || undefined,
       );

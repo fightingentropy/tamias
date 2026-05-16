@@ -1,5 +1,5 @@
-import { createComplianceAdjustmentInConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../../../client";
+import { createComplianceAdjustmentInD1 } from "../d1";
 import type { AddVatAdjustmentParams } from "../types";
 import { getDraftContext } from "./context";
 import { recalculateVatDraft } from "./recalculate";
@@ -11,7 +11,7 @@ export async function addVatAdjustment(db: Database, params: AddVatAdjustmentPar
     vatReturnId: params.vatReturnId,
   });
 
-  await createComplianceAdjustmentInConvex({
+  await createComplianceAdjustmentInD1(db, {
     teamId: params.teamId,
     filingProfileId: context.profile.id,
     vatReturnId: params.vatReturnId ?? null,

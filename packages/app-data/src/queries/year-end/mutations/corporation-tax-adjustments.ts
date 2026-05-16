@@ -1,9 +1,8 @@
 import { roundCurrency } from "@tamias/compliance";
 import {
-  deleteCorporationTaxAdjustmentInConvex,
-  upsertCorporationTaxAdjustmentInConvex,
-  type CurrentUserIdentityRecord,
-} from "@tamias/app-data-convex";
+  deleteCorporationTaxAdjustmentRecord,
+  upsertCorporationTaxAdjustmentRecord,
+} from "../tax-schedules";
 import type { Database } from "../../../client";
 import type { CorporationTaxAdjustmentInput } from "../types";
 import { getYearEndMutationContext, rebuildYearEndMutationPack } from "./common";
@@ -12,13 +11,13 @@ export async function upsertCorporationTaxAdjustment(
   db: Database,
   params: {
     teamId: string;
-    createdBy: CurrentUserIdentityRecord["convexId"];
+    createdBy: string;
     periodKey?: string;
   } & CorporationTaxAdjustmentInput,
 ) {
   const context = await getYearEndMutationContext(db, params.teamId, params.periodKey);
 
-  await upsertCorporationTaxAdjustmentInConvex({
+  await upsertCorporationTaxAdjustmentRecord(db, {
     id: params.id,
     teamId: params.teamId,
     filingProfileId: context.profile.id,
@@ -47,7 +46,7 @@ export async function deleteCorporationTaxAdjustment(
 ) {
   const context = await getYearEndMutationContext(db, params.teamId, params.periodKey);
 
-  await deleteCorporationTaxAdjustmentInConvex({
+  await deleteCorporationTaxAdjustmentRecord(db, {
     teamId: params.teamId,
     id: params.adjustmentId,
   });

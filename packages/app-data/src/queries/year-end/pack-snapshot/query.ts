@@ -1,10 +1,10 @@
+import { roundCurrency } from "@tamias/compliance";
+import type { ComplianceJournalEntryRecord } from "../../compliance/ledger";
+import type { ExportBundleRecord } from "../pack-store";
 import type {
-  ComplianceJournalEntryRecord,
   CorporationTaxAdjustmentRecord,
   CorporationTaxRateScheduleRecord,
-  ExportBundleRecord,
-} from "@tamias/app-data-convex";
-import { roundCurrency } from "@tamias/compliance";
+} from "../tax-schedules";
 import type {
   AnnualPeriod,
   CorporationTaxSummary,

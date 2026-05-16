@@ -1,8 +1,9 @@
+import type { Database } from "../../../client";
 import {
-  deleteDocumentTagAssignmentInConvex,
-  getDocumentTagAssignmentsForDocumentIdsFromConvex,
+  deleteDocumentTagAssignmentsForDocument,
+  getDocumentTagAssignmentsForDocumentIds,
   type DocumentTagAssignmentRecord,
-} from "@tamias/app-data-convex";
+} from "../../document-tag-assignments";
 
 function groupAssignmentsByDocumentId(assignments: DocumentTagAssignmentRecord[]) {
   const assignmentsByDocumentId = new Map<string, DocumentTagAssignmentRecord[]>();
@@ -16,12 +17,12 @@ function groupAssignmentsByDocumentId(assignments: DocumentTagAssignmentRecord[]
   return assignmentsByDocumentId;
 }
 
-async function getAssignmentsByDocumentId(teamId: string, documentIds: string[]) {
+async function getAssignmentsByDocumentId(db: Database, teamId: string, documentIds: string[]) {
   if (documentIds.length === 0) {
     return new Map<string, DocumentTagAssignmentRecord[]>();
   }
 
-  const assignments = await getDocumentTagAssignmentsForDocumentIdsFromConvex({
+  const assignments = await getDocumentTagAssignmentsForDocumentIds(db, {
     teamId,
     documentIds,
   });
@@ -30,10 +31,12 @@ async function getAssignmentsByDocumentId(teamId: string, documentIds: string[])
 }
 
 export async function attachAssignments<TDocument extends { id: string }>(
+  db: Database,
   teamId: string,
   documents: TDocument[],
 ) {
   const assignmentsByDocumentId = await getAssignmentsByDocumentId(
+    db,
     teamId,
     documents.map((document) => document.id),
   );
@@ -44,17 +47,9 @@ export async function attachAssignments<TDocument extends { id: string }>(
   }));
 }
 
-export async function deleteDocumentTagAssignments(teamId: string, documentId: string) {
-  const assignments = await getDocumentTagAssignmentsForDocumentIdsFromConvex({
+export async function deleteDocumentTagAssignments(db: Database, teamId: string, documentId: string) {
+  await deleteDocumentTagAssignmentsForDocument(db, {
     teamId,
-    documentIds: [documentId],
+    documentId,
   });
-
-  for (const assignment of assignments) {
-    await deleteDocumentTagAssignmentInConvex({
-      teamId,
-      documentId,
-      tagId: assignment.tagId,
-    });
-  }
 }

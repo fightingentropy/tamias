@@ -1,6 +1,6 @@
 import { HmrcCtProvider } from "@tamias/compliance";
-import { createSubmissionEventInConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
+import { createSubmissionEvent } from "../../filing-events";
 import { getYearEndContext } from "../pack";
 import { getSubmissionEventResponseEndpoint } from "../submission-common";
 import { listCtSubmissionEvents } from "./list";
@@ -61,7 +61,7 @@ export async function pollCt600Submission(
         params.responseEndpoint ?? getSubmissionEventResponseEndpoint(targetEvent) ?? undefined,
     });
 
-    await createSubmissionEventInConvex({
+    await createSubmissionEvent(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       provider: "hmrc-ct",
@@ -78,7 +78,7 @@ export async function pollCt600Submission(
       previousSubmission: targetEvent,
     };
   } catch (error) {
-    await createSubmissionEventInConvex({
+    await createSubmissionEvent(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       provider: "hmrc-ct",

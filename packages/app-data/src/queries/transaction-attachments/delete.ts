@@ -1,15 +1,15 @@
-import {
-  deleteTransactionAttachmentInConvex,
-  getInboxItemsFromConvex,
-  getTransactionInfoFromConvex,
-  getTransactionMatchSuggestionsFromConvex,
-  upsertInboxItemsInConvex,
-  upsertTransactionMatchSuggestionsInConvex,
-  upsertTransactionsInConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { deleteAccountingSyncRecordsForTransactions } from "../accounting-sync";
+import {
+  getInboxItemsFromD1,
+  getTransactionMatchSuggestionsFromD1,
+  requireInboxItemsD1,
+  upsertInboxItemsInD1,
+  upsertTransactionMatchSuggestionsInD1,
+} from "../inbox/d1";
+import { deleteTransactionAttachmentsByIdsFromD1, requireTransactionAttachmentsD1 } from "./d1";
 import { getTransactionAttachmentsByIds } from "./reads";
+import { syncTransactionHasAttachmentFlags } from "./sync";
 
 type DeleteAttachmentParams = {
   id: string;
@@ -17,7 +17,7 @@ type DeleteAttachmentParams = {
 };
 
 export async function deleteAttachment(db: Database, params: DeleteAttachmentParams) {
-  const [result] = await getTransactionAttachmentsByIds({
+  const [result] = await getTransactionAttachmentsByIds(db, {
     teamId: params.teamId,
     attachmentIds: [params.id],
   });
@@ -28,7 +28,7 @@ export async function deleteAttachment(db: Database, params: DeleteAttachmentPar
 
   const affectedInboxIds: string[] = [];
   const teamInboxItems = result.transactionId
-    ? await getInboxItemsFromConvex({
+    ? await getInboxItemsFromD1(requireInboxItemsD1(db), {
         teamId: params.teamId,
         transactionIds: [result.transactionId],
       })
@@ -45,13 +45,13 @@ export async function deleteAttachment(db: Database, params: DeleteAttachmentPar
   }
 
   const itemsByAttachment = (
-    await getInboxItemsFromConvex({
+    await getInboxItemsFromD1(requireInboxItemsD1(db), {
       teamId: params.teamId,
     })
   ).filter((item) => item.attachmentId === result.id);
 
   if (itemsByAttachment.length > 0) {
-    await upsertInboxItemsInConvex({
+    await upsertInboxItemsInD1(requireInboxItemsD1(db), {
       items: itemsByAttachment.map((item) => ({
         ...item,
         teamId: item.teamId,
@@ -71,7 +71,7 @@ export async function deleteAttachment(db: Database, params: DeleteAttachmentPar
     );
 
     if (relatedItems.length > 0) {
-      await upsertInboxItemsInConvex({
+      await upsertInboxItemsInD1(requireInboxItemsD1(db), {
         items: relatedItems.map((item) => ({
           ...item,
           teamId: item.teamId,
@@ -84,7 +84,7 @@ export async function deleteAttachment(db: Database, params: DeleteAttachmentPar
   }
 
   if (result.transactionId && affectedInboxIds.length > 0) {
-    const suggestions = await getTransactionMatchSuggestionsFromConvex({
+    const suggestions = await getTransactionMatchSuggestionsFromD1(requireInboxItemsD1(db), {
       teamId: params.teamId,
       transactionId: result.transactionId,
     });
@@ -116,62 +116,30 @@ export async function deleteAttachment(db: Database, params: DeleteAttachmentPar
       .filter((suggestion) => suggestion !== null);
 
     if (unmatchedSuggestions.length > 0) {
-      await upsertTransactionMatchSuggestionsInConvex({
+      await upsertTransactionMatchSuggestionsInD1(requireInboxItemsD1(db), {
         suggestions: unmatchedSuggestions,
       });
     }
   }
 
-  if (result.transactionId) {
-    const transaction = await getTransactionInfoFromConvex({
-      transactionId: result.transactionId,
-    });
+  const d1 = requireTransactionAttachmentsD1(db);
+  const deleteResult = await deleteTransactionAttachmentsByIdsFromD1(d1, {
+    teamId: params.teamId,
+    attachmentIds: [params.id],
+  });
 
-    if (transaction) {
-      await upsertTransactionsInConvex({
-        teamId: transaction.teamId,
-        transactions: [
-          {
-            id: transaction.id,
-            createdAt: transaction.createdAt,
-            date: transaction.date,
-            name: transaction.name,
-            method: transaction.method,
-            amount: transaction.amount,
-            currency: transaction.currency,
-            assignedId: transaction.assignedId,
-            note: transaction.note,
-            bankAccountId: transaction.bankAccountId,
-            internalId: transaction.internalId,
-            status: transaction.status,
-            balance: transaction.balance,
-            manual: transaction.manual,
-            internal: transaction.internal,
-            description: transaction.description,
-            categorySlug: transaction.categorySlug,
-            baseAmount: transaction.baseAmount,
-            counterpartyName: transaction.counterpartyName,
-            baseCurrency: transaction.baseCurrency,
-            taxAmount: transaction.taxAmount,
-            taxRate: null,
-            taxType: null,
-            recurring: transaction.recurring,
-            frequency: transaction.frequency,
-            merchantName: transaction.merchantName,
-            enrichmentCompleted: transaction.enrichmentCompleted,
-          },
-        ],
-      });
-    }
+  if (deleteResult.affectedTransactionIds.length > 0) {
+    await syncTransactionHasAttachmentFlags({
+      d1,
+      teamId: params.teamId,
+      transactionIds: deleteResult.affectedTransactionIds,
+    });
 
     await deleteAccountingSyncRecordsForTransactions(db, {
       teamId: params.teamId,
-      transactionIds: [result.transactionId],
+      transactionIds: deleteResult.affectedTransactionIds,
     });
   }
 
-  return deleteTransactionAttachmentInConvex({
-    teamId: params.teamId,
-    attachmentId: params.id,
-  });
+  return result;
 }

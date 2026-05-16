@@ -1,12 +1,14 @@
-import {
-  createActivityInConvex,
-  createTransactionCategoryInConvex,
-  deleteTransactionCategoryInConvex,
-  getTransactionCategoryByIdFromConvex,
-  updateTransactionCategoryInConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
+import { createActivity } from "../activities";
+import { rebuildDerivedComplianceJournalEntries } from "../compliance/ledger";
 import { invalidateTransactionCategoryContext } from "./context";
+import {
+  deleteTransactionCategoryRecord,
+  getTransactionCategoryRecordById,
+  upsertTransactionCategoryRecord,
+  upsertTransactionCategoryRecords,
+  type UpsertTransactionCategoryInput,
+} from "./d1";
 import { generateCategoryEmbedding } from "./embeddings";
 import type {
   CreateTransactionCategoryParams,
@@ -18,7 +20,7 @@ export const createTransactionCategory = async (
   db: Database,
   params: CreateTransactionCategoryParams,
 ) => {
-  const result = await createTransactionCategoryInConvex({
+  const result = await upsertTransactionCategoryRecord(db, {
     teamId: params.teamId,
     name: params.name,
     color: params.color,
@@ -30,8 +32,11 @@ export const createTransactionCategory = async (
   });
 
   invalidateTransactionCategoryContext(params.teamId);
+  await rebuildDerivedComplianceJournalEntries(db, {
+    teamId: params.teamId,
+  });
 
-  void createActivityInConvex({
+  void createActivity(db, {
     teamId: params.teamId,
     userId: params.userId,
     type: "transaction_category_created",
@@ -63,7 +68,7 @@ export const updateTransactionCategory = async (
   db: Database,
   params: UpdateTransactionCategoryParams,
 ) => {
-  const existing = await getTransactionCategoryByIdFromConvex({
+  const existing = await getTransactionCategoryRecordById(db, {
     teamId: params.teamId,
     id: params.id,
   });
@@ -72,7 +77,7 @@ export const updateTransactionCategory = async (
     return null;
   }
 
-  const result = await updateTransactionCategoryInConvex({
+  const result = await upsertTransactionCategoryRecord(db, {
     teamId: params.teamId,
     id: params.id,
     name: params.name ?? existing.name,
@@ -87,6 +92,9 @@ export const updateTransactionCategory = async (
   });
 
   invalidateTransactionCategoryContext(params.teamId);
+  await rebuildDerivedComplianceJournalEntries(db, {
+    teamId: params.teamId,
+  });
 
   if (params.name && params.name !== existing.name) {
     generateCategoryEmbedding(db, {
@@ -101,15 +109,33 @@ export const updateTransactionCategory = async (
 };
 
 export const deleteTransactionCategory = async (
-  _db: Database,
+  db: Database,
   params: DeleteTransactionCategoryParams,
 ) => {
-  const result = await deleteTransactionCategoryInConvex({
+  const result = await deleteTransactionCategoryRecord(db, {
     teamId: params.teamId,
     id: params.id,
   });
 
   invalidateTransactionCategoryContext(params.teamId);
+  await rebuildDerivedComplianceJournalEntries(db, {
+    teamId: params.teamId,
+  });
 
   return result;
 };
+
+export async function upsertTransactionCategories(
+  db: Database,
+  args: {
+    teamId: string;
+    categories: UpsertTransactionCategoryInput[];
+  },
+) {
+  const result = await upsertTransactionCategoryRecords(db, args);
+  invalidateTransactionCategoryContext(args.teamId);
+  await rebuildDerivedComplianceJournalEntries(db, {
+    teamId: args.teamId,
+  });
+  return result;
+}

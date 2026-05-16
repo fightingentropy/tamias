@@ -1,35 +1,3 @@
-import { api } from "@tamias/app-data-convex/api";
-import type { Id } from "@tamias/app-data-convex/data-model";
-import { getConvexServiceKey, getSharedConvexClient } from "./convex-client";
-
-function serviceArgs<T extends Record<string, unknown>>(args: T) {
-  return {
-    serviceKey: getConvexServiceKey(),
-    ...args,
-  };
-}
-
-export async function getSuggestedActionUsageFromConvex(args: {
-  userId: Id<"appUsers">;
-  teamId: string;
-}) {
-  return getSharedConvexClient().query(
-    api.suggestedActions.serviceGetSuggestedActionUsage,
-    serviceArgs(args),
-  );
-}
-
-export async function incrementSuggestedActionUsageInConvex(args: {
-  userId: Id<"appUsers">;
-  teamId: string;
-  actionId: string;
-}) {
-  return getSharedConvexClient().mutation(
-    api.suggestedActions.serviceIncrementSuggestedActionUsage,
-    serviceArgs(args),
-  );
-}
-
 export const SUGGESTED_ACTIONS_CONFIG = [
   {
     id: "get-burn-rate-analysis",

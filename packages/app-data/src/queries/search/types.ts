@@ -1,4 +1,5 @@
 import type { InvoiceStatus } from "../invoice-projections";
+import type { Database } from "../../client";
 
 export type GlobalSearchReturnType = {
   id: string;
@@ -27,6 +28,7 @@ export type SearchCandidate = GlobalSearchReturnType & {
 };
 
 export type SearchCandidateLoadParams = {
+  db?: Database;
   teamId: string;
   searchTerm?: string;
   itemsPerTableLimit?: number;
@@ -43,6 +45,7 @@ export type SearchCandidateLoadParams = {
 };
 
 export type RawSearchCandidateLoadParams = {
+  db?: Database;
   teamId: string;
   searchTerm?: string;
   itemsPerTableLimit: number;
@@ -51,7 +54,7 @@ export type RawSearchCandidateLoadParams = {
 export type SearchPageResult<TRecord> = {
   page: TRecord[];
   isDone: boolean;
-  continueCursor: string;
+  continueCursor: string | null;
 };
 
 export type GlobalSemanticSearchParams = {

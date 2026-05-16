@@ -1,5 +1,5 @@
-import { getInvoiceAgingAggregateRowsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
+import { getInvoiceAgingAggregateRowsFromD1 } from "../../reports/shared/aggregates";
 
 export type UpcomingInvoicesResult = {
   totalDue: number;
@@ -8,7 +8,7 @@ export type UpcomingInvoicesResult = {
 };
 
 export async function getUpcomingInvoicesForInsight(
-  _db: Database,
+  db: Database,
   params: {
     teamId: string;
     fromDate: Date;
@@ -20,7 +20,7 @@ export async function getUpcomingInvoicesForInsight(
   const dueDateFrom = fromDate.toISOString().slice(0, 10);
   const dueDateTo = toDate.toISOString().slice(0, 10);
   const matchingRows = (
-    await getInvoiceAgingAggregateRowsFromConvex({
+    await getInvoiceAgingAggregateRowsFromD1(db, {
       teamId,
       statuses: ["unpaid", "overdue"],
       currency: currency ?? null,
@@ -52,7 +52,7 @@ export type OverdueInvoicesSummary = {
 };
 
 export async function getOverdueInvoicesSummary(
-  _db: Database,
+  db: Database,
   params: {
     teamId: string;
     asOfDate: Date;
@@ -62,7 +62,7 @@ export async function getOverdueInvoicesSummary(
   const { teamId, asOfDate, currency } = params;
   const asOfBoundary = asOfDate.toISOString().slice(0, 10);
   const overdueRows = (
-    await getInvoiceAgingAggregateRowsFromConvex({
+    await getInvoiceAgingAggregateRowsFromD1(db, {
       teamId,
       statuses: ["overdue"],
       currency: currency ?? null,

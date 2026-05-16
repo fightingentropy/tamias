@@ -1,13 +1,113 @@
-import type { CurrentUserIdentityRecord, TransactionCategoryRecord } from "@tamias/app-data-convex";
 import type { transactionFrequencyEnum } from "../../../schema";
+import type { TransactionCategoryRecord } from "../../transaction-categories/d1";
 
-export type TransactionConvexUserId = CurrentUserIdentityRecord["convexId"];
+export type TransactionUserId = string;
+
+export type TransactionMethod =
+  | "payment"
+  | "card_purchase"
+  | "card_atm"
+  | "transfer"
+  | "other"
+  | "unknown"
+  | "ach"
+  | "interest"
+  | "deposit"
+  | "wire"
+  | "fee";
+
+export type TransactionStatus =
+  | "posted"
+  | "pending"
+  | "excluded"
+  | "completed"
+  | "archived"
+  | "exported";
 
 export type TransactionFrequency = (typeof transactionFrequencyEnum.enumValues)[number];
+
+export type TransactionRecord = {
+  id: string;
+  teamId: string;
+  createdAt: string;
+  updatedAt: string;
+  date: string;
+  name: string;
+  method: TransactionMethod;
+  amount: number;
+  currency: string;
+  assignedId: string | null;
+  note: string | null;
+  bankAccountId: string | null;
+  internalId: string;
+  status: TransactionStatus;
+  balance: number | null;
+  manual: boolean;
+  notified: boolean;
+  internal: boolean;
+  description: string | null;
+  categorySlug: string | null;
+  baseAmount: number | null;
+  counterpartyName: string | null;
+  baseCurrency: string | null;
+  taxAmount: number | null;
+  taxRate: number | null;
+  taxType: string | null;
+  recurring: boolean;
+  frequency: TransactionFrequency | null;
+  merchantName: string | null;
+  enrichmentCompleted: boolean;
+  hasAttachment: boolean;
+};
+
+export type UpsertTransactionInput = {
+  id: string;
+  createdAt: string;
+  date: string;
+  name: string;
+  method: TransactionMethod;
+  amount: number;
+  currency: string;
+  assignedId?: string | null;
+  note?: string | null;
+  bankAccountId?: string | null;
+  internalId: string;
+  status: TransactionStatus;
+  balance?: number | null;
+  manual: boolean;
+  notified?: boolean | null;
+  internal?: boolean | null;
+  description?: string | null;
+  categorySlug?: string | null;
+  baseAmount?: number | null;
+  counterpartyName?: string | null;
+  baseCurrency?: string | null;
+  taxAmount?: number | null;
+  taxRate?: number | null;
+  taxType?: string | null;
+  recurring?: boolean | null;
+  frequency?: TransactionFrequency | null;
+  merchantName?: string | null;
+  enrichmentCompleted?: boolean | null;
+  hasAttachment?: boolean | null;
+};
 
 export type TransactionTag = {
   id: string;
   name: string | null;
+};
+
+export type TransactionTagAssignmentRecord = {
+  id: string;
+  transactionId: string;
+  tagId: string;
+  teamId: string;
+  createdAt: string;
+  updatedAt: string;
+  tag: {
+    id: string;
+    name: string;
+  };
 };
 
 export type AssignedTransactionUser = {

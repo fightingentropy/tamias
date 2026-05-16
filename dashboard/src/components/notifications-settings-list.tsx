@@ -4,7 +4,7 @@ import { ErrorBoundary } from "./error-boundary";
 import { ErrorFallback } from "./error-fallback";
 import { NotificationSettings, NotificationSettingsSkeleton } from "./notification-settings";
 
-export async function NotificationsSettingsList() {
+export function NotificationsSettingsList() {
   return (
     <Card>
       <CardHeader>

@@ -1,7 +1,7 @@
-import { getInvoiceAggregateRowsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
 import { getExchangeRatesBatch } from "../exhange-rates";
+import { getInvoiceAggregateRowsFromD1 } from "../reports/shared/aggregates";
 import { getTeamById } from "../teams";
 import { getValidInvoiceStatuses } from "./reads-shared";
 import type { GetInvoiceSummaryParams } from "./types";
@@ -13,7 +13,7 @@ async function getInvoiceSummaryImpl(db: Database, params: GetInvoiceSummaryPara
   const baseCurrency = team?.baseCurrency || "USD";
   const validStatuses = getValidInvoiceStatuses(statuses);
   const currencyTotals = (
-    await getInvoiceAggregateRowsFromConvex({
+    await getInvoiceAggregateRowsFromD1(db, {
       teamId,
       statuses: validStatuses.length > 0 ? validStatuses : undefined,
     })

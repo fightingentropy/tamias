@@ -1,11 +1,11 @@
-import {
-  createInboxBlocklistInConvex,
-  deleteInboxBlocklistInConvex,
-  getInboxBlocklistFromConvex,
-  type InboxBlocklistRecord,
-} from "@tamias/app-data-convex";
 import type { Database } from "../client";
 import { reuseQueryResult } from "../utils/request-cache";
+import {
+  createInboxBlocklistInD1,
+  getInboxBlocklistD1,
+  getInboxBlocklistFromD1,
+  deleteInboxBlocklistRecordFromD1,
+} from "./inbox-blocklist/d1";
 
 export type GetInboxBlocklistParams = {
   teamId: string;
@@ -19,6 +19,8 @@ export type InboxBlocklistEntry = {
   createdAt: string;
 };
 
+export type InboxBlocklistRecord = InboxBlocklistEntry;
+
 function toInboxBlocklistEntry(record: InboxBlocklistRecord): InboxBlocklistEntry {
   return {
     id: record.id,
@@ -29,12 +31,14 @@ function toInboxBlocklistEntry(record: InboxBlocklistRecord): InboxBlocklistEntr
   };
 }
 
-async function getInboxBlocklistImpl(_db: Database, params: GetInboxBlocklistParams) {
-  const results = await getInboxBlocklistFromConvex({
-    teamId: params.teamId,
-  });
+async function getInboxBlocklistImpl(db: Database, params: GetInboxBlocklistParams) {
+  const d1 = getInboxBlocklistD1(db);
 
-  return results.map(toInboxBlocklistEntry);
+  if (!d1) {
+    throw new Error("Inbox blocklist requires Cloudflare D1");
+  }
+
+  return (await getInboxBlocklistFromD1(d1, params)).map(toInboxBlocklistEntry);
 }
 
 export const getInboxBlocklist = reuseQueryResult({
@@ -49,14 +53,14 @@ export type CreateInboxBlocklistParams = {
   value: string;
 };
 
-export async function createInboxBlocklist(_db: Database, params: CreateInboxBlocklistParams) {
-  const result = await createInboxBlocklistInConvex({
-    teamId: params.teamId,
-    type: params.type,
-    value: params.value,
-  });
+export async function createInboxBlocklist(db: Database, params: CreateInboxBlocklistParams) {
+  const d1 = getInboxBlocklistD1(db);
 
-  return toInboxBlocklistEntry(result);
+  if (!d1) {
+    throw new Error("Inbox blocklist requires Cloudflare D1");
+  }
+
+  return toInboxBlocklistEntry(await createInboxBlocklistInD1(d1, params));
 }
 
 export type DeleteInboxBlocklistParams = {
@@ -64,11 +68,13 @@ export type DeleteInboxBlocklistParams = {
   teamId: string;
 };
 
-export async function deleteInboxBlocklist(_db: Database, params: DeleteInboxBlocklistParams) {
-  const result = await deleteInboxBlocklistInConvex({
-    id: params.id,
-    teamId: params.teamId,
-  });
+export async function deleteInboxBlocklist(db: Database, params: DeleteInboxBlocklistParams) {
+  const d1 = getInboxBlocklistD1(db);
 
+  if (!d1) {
+    throw new Error("Inbox blocklist requires Cloudflare D1");
+  }
+
+  const result = await deleteInboxBlocklistRecordFromD1(d1, params);
   return result ? { id: result.id } : undefined;
 }

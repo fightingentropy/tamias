@@ -1,7 +1,7 @@
-import type { CorporationTaxRateScheduleRecord } from "@tamias/app-data-convex";
 import { parseISO } from "date-fns";
 import { SMALL_PROFITS_RATE_START } from "../constants";
 import { resolveCorporationTaxFinancialYearSegments } from "../tax";
+import type { CorporationTaxRateScheduleRecord } from "../../tax-schedules";
 
 export function validateCorporationTaxRateSchedule(args: {
   schedule: CorporationTaxRateScheduleRecord | null | undefined;

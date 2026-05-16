@@ -1,15 +1,14 @@
-import {
-  getCustomerByIdFromConvex,
-  getInvoiceRecurringSeriesByLegacyIdFromConvex,
-  upsertPublicInvoiceInConvex,
-} from "@tamias/app-data-convex";
 import type { Database, DatabaseOrTransaction } from "../../../client";
+import { syncPublicInvoiceComplianceJournalEntry } from "../../compliance/ledger";
+import { getCustomerByIdFromD1, requireCustomersD1 } from "../../customers/d1";
+import { getProjectedInvoiceRecurringById } from "../../invoice-recurring/shared";
 import { getInvoiceTemplateById } from "../../invoice-templates";
+import { upsertPublicInvoice } from "../../public-invoices";
 import { getTeamById } from "../../teams";
-import { getUserByConvexId } from "../../users";
+import { getUserById } from "../../users";
 import type {
   InvoiceByIdResult,
-  InvoiceConvexUserId,
+  InvoiceUserId,
   InvoiceProjectionInput,
   InvoiceRecurringFrequency,
 } from "./types";
@@ -28,21 +27,20 @@ function getEmptyRecurringSummary(): InvoiceByIdResult["recurring"] {
 }
 
 async function getInvoiceRecurringSummary(
+  db: DatabaseOrTransaction,
+  teamId: string,
   invoiceRecurringId: string | null | undefined,
 ): Promise<InvoiceByIdResult["recurring"]> {
   if (!invoiceRecurringId) {
     return getEmptyRecurringSummary();
   }
 
-  const projectedRecurring = await getInvoiceRecurringSeriesByLegacyIdFromConvex({
+  const recurring = await getProjectedInvoiceRecurringById(db as Database, {
     id: invoiceRecurringId,
+    teamId,
   });
-  const recurring = projectedRecurring?.payload as
-    | Partial<InvoiceByIdResult["recurring"]>
-    | undefined
-    | null;
 
-  if (!recurring || typeof recurring !== "object") {
+  if (!recurring) {
     return {
       ...getEmptyRecurringSummary(),
       id: invoiceRecurringId,
@@ -52,15 +50,12 @@ async function getInvoiceRecurringSummary(
   return {
     id: invoiceRecurringId,
     frequency: (recurring.frequency as InvoiceRecurringFrequency | undefined) ?? "monthly_date",
-    frequencyInterval:
-      typeof recurring.frequencyInterval === "number" ? recurring.frequencyInterval : 1,
-    status: typeof recurring.status === "string" ? recurring.status : null,
-    nextScheduledAt:
-      typeof recurring.nextScheduledAt === "string" ? recurring.nextScheduledAt : null,
-    endType: typeof recurring.endType === "string" ? recurring.endType : null,
-    endCount: typeof recurring.endCount === "number" ? recurring.endCount : 0,
-    invoicesGenerated:
-      typeof recurring.invoicesGenerated === "number" ? recurring.invoicesGenerated : 0,
+    frequencyInterval: recurring.frequencyInterval ?? 1,
+    status: recurring.status,
+    nextScheduledAt: recurring.nextScheduledAt,
+    endType: recurring.endType,
+    endCount: recurring.endCount ?? 0,
+    invoicesGenerated: recurring.invoicesGenerated,
   };
 }
 
@@ -69,22 +64,22 @@ async function hydrateInvoiceRecord(
   record: InvoiceProjectionInput,
   options?: {
     existing?: InvoiceByIdResult | null;
-    userId?: InvoiceConvexUserId | null;
+    userId?: InvoiceUserId | null;
   },
 ): Promise<InvoiceByIdResult> {
   const existing = options?.existing ?? null;
   const [team, user, customer, recurring, invoiceTemplate] = await Promise.all([
     getTeamById(db as Database, record.teamId),
-    options?.userId ? getUserByConvexId(db as Database, options.userId) : null,
+    options?.userId ? getUserById(db as Database, options.userId) : null,
     record.customerId
-      ? getCustomerByIdFromConvex({
+      ? getCustomerByIdFromD1(requireCustomersD1(db as Database), {
           teamId: record.teamId,
-          customerId: record.customerId,
+          id: record.customerId,
         })
       : null,
-    getInvoiceRecurringSummary(record.invoiceRecurringId),
+    getInvoiceRecurringSummary(db, record.teamId, record.invoiceRecurringId),
     record.templateId
-      ? getInvoiceTemplateById({
+      ? getInvoiceTemplateById(db as Database, {
           id: record.templateId,
           teamId: record.teamId,
         })
@@ -139,12 +134,12 @@ export async function upsertProjectedInvoiceRecord(
   record: InvoiceProjectionInput,
   options?: {
     existing?: InvoiceByIdResult | null;
-    userId?: InvoiceConvexUserId | null;
+    userId?: InvoiceUserId | null;
   },
 ) {
   const hydrated = await hydrateInvoiceRecord(db, record, options);
 
-  await upsertPublicInvoiceInConvex({
+  await upsertPublicInvoice(db, {
     teamId: hydrated.teamId,
     id: hydrated.id,
     token: hydrated.token,
@@ -153,6 +148,11 @@ export async function upsertProjectedInvoiceRecord(
     viewedAt: hydrated.viewedAt,
     invoiceNumber: hydrated.invoiceNumber,
     payload: JSON.parse(JSON.stringify(hydrated)) as Record<string, unknown>,
+  });
+  await syncPublicInvoiceComplianceJournalEntry(db as Database, {
+    teamId: hydrated.teamId,
+    previous: options?.existing ?? null,
+    next: hydrated,
   });
 
   return hydrated;

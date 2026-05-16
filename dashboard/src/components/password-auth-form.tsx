@@ -65,7 +65,7 @@ export function PasswordAuthForm({ className }: PasswordAuthFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
+      <form method="post" onSubmit={form.handleSubmit(onSubmit)} className="w-full">
         <div className={cn("flex flex-col space-y-4", className)}>
           <FormField
             control={form.control}

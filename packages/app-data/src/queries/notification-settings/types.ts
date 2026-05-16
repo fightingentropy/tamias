@@ -1,14 +1,9 @@
-import type {
-  CurrentUserIdentityRecord,
-  NotificationChannel as FoundationNotificationChannel,
-} from "@tamias/app-data-convex";
-
-export type NotificationChannel = FoundationNotificationChannel;
-export type ConvexUserId = CurrentUserIdentityRecord["convexId"];
+export type NotificationChannel = "in_app" | "email" | "push";
+export type UserId = string;
 
 export interface NotificationSetting {
   id: string;
-  userId: ConvexUserId | null;
+  userId: UserId | null;
   teamId: string;
   notificationType: string;
   channel: NotificationChannel;
@@ -18,7 +13,7 @@ export interface NotificationSetting {
 }
 
 export interface UpsertNotificationSettingParams {
-  userId: ConvexUserId;
+  userId: UserId;
   teamId: string;
   notificationType: string;
   channel: NotificationChannel;
@@ -26,7 +21,7 @@ export interface UpsertNotificationSettingParams {
 }
 
 export interface GetNotificationSettingsParams {
-  userId: ConvexUserId;
+  userId: UserId;
   teamId: string;
   notificationType?: string;
   channel?: NotificationChannel;

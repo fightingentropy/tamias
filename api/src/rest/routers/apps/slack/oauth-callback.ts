@@ -1,5 +1,4 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import type { Id } from "@tamias/app-data-convex/data-model";
 import { createApp } from "@tamias/app-data/queries";
 import { config } from "@tamias/app-store/slack";
 import {
@@ -14,7 +13,7 @@ import { publicMiddleware } from "../../../middleware";
 import type { Context } from "../../../types";
 import { sendWelcomeMessage } from "./messages";
 
-type ConvexUserId = Id<"appUsers">;
+type SlackInstallUserId = string;
 
 const app = new OpenAPIHono<Context>();
 
@@ -39,7 +38,7 @@ const paramsSchema = z.object({
 
 const metadataSchema = z.object({
   teamId: z.string(),
-  convexUserId: z.custom<ConvexUserId>((value) => typeof value === "string"),
+  userId: z.custom<SlackInstallUserId>((value) => typeof value === "string"),
 });
 
 const slackAuthResponseSchema = z.object({
@@ -171,7 +170,7 @@ app.openapi(
       // Create app integration in database
       const createdSlackIntegration = await createApp(db, {
         teamId: parsedMetadata.data.teamId,
-        createdByUserId: parsedMetadata.data.convexUserId,
+        createdByUserId: parsedMetadata.data.userId,
         appId: config.id,
         settings: config.settings,
         config: {
@@ -227,7 +226,7 @@ app.openapi(
               error: errorMessage,
               stack: error instanceof Error ? error.stack : undefined,
               slackUserId,
-              tamiasUserId: parsedMetadata.data.convexUserId,
+              tamiasUserId: parsedMetadata.data.userId,
               teamId: parsedMetadata.data.teamId,
             });
           }

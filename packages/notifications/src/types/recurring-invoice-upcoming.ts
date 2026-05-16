@@ -8,7 +8,7 @@ export const recurringInvoiceUpcoming: NotificationHandler = {
 
   createActivity: (data, user) => ({
     teamId: user.team_id,
-    userId: user.convex_id,
+    userId: user.id,
     type: "recurring_invoice_upcoming",
     source: "system",
     priority: 4, // Medium-high priority - actionable notification

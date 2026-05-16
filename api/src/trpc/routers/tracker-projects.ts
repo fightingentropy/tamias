@@ -28,7 +28,7 @@ export const trackerProjectsRouter = createTRPCRouter({
       return upsertTrackerProject(db, {
         ...input,
         teamId: teamId!,
-        userId: session.user.convexId ?? undefined,
+        userId: session.user.id ?? undefined,
       });
     }),
 

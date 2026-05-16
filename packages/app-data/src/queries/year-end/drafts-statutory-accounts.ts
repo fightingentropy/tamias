@@ -1,11 +1,11 @@
 import { SUPPORTED_SMALL_COMPANY_FILING_PATH } from "./constants";
 import { buildYearEndDraftEvaluation } from "./drafts-support";
+import type { FilingProfileRecord } from "../compliance/filings";
+import type { YearEndPackRecord } from "./pack-store";
 import type {
   CloseCompanyLoansScheduleRecord,
   CorporationTaxRateScheduleRecord,
-  FilingProfileRecord,
-  YearEndPackRecord,
-} from "@tamias/app-data-convex";
+} from "./tax-schedules";
 import type { StatutoryAccountsDraft, TeamContext } from "./types";
 
 export function buildStatutoryAccountsDraft(args: {

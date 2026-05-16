@@ -1,8 +1,8 @@
-import type { getTeamMembersFromConvex } from "@tamias/app-services/identity";
+import type { getTeamMembers } from "@tamias/app-services/identity";
 import type { Session } from "@tamias/auth-session";
 import { CATEGORIES, getTaxRateForCategory, getTaxTypeForCountry } from "@tamias/categories";
 
-type TeamMembers = Awaited<ReturnType<typeof getTeamMembersFromConvex>>;
+type TeamMembers = Awaited<ReturnType<typeof getTeamMembers>>;
 
 export function getTeamMemberRoleByPublicId(teamMembers: TeamMembers, userId: string) {
   return teamMembers.find((member) => member.user?.id === userId)?.role ?? null;
@@ -12,8 +12,8 @@ export function getTeamMemberByPublicId(teamMembers: TeamMembers, userId: string
   return teamMembers.find((member) => member.user?.id === userId) ?? null;
 }
 
-export function getTeamMemberRoleByConvexId(teamMembers: TeamMembers, userId: string) {
-  return teamMembers.find((member) => member.user?.convexId === userId)?.role ?? null;
+export function getTeamMemberRoleByUserId(teamMembers: TeamMembers, userId: string) {
+  return teamMembers.find((member) => member.user?.id === userId)?.role ?? null;
 }
 
 export function getTeamOwnerCount(teamMembers: TeamMembers) {
@@ -47,10 +47,10 @@ export function buildTeamSystemCategoryInputs(
   return { parentCategories, taxType };
 }
 
-export function requireTeamConvexUserId(session: Session) {
-  if (!session.user.convexId) {
-    throw new Error("Missing Convex user id");
+export function requireTeamUserId(session: Session) {
+  if (!session.user.id) {
+    throw new Error("Missing user id");
   }
 
-  return session.user.convexId;
+  return session.user.id;
 }

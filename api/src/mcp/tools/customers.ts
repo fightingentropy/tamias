@@ -26,7 +26,7 @@ const DESTRUCTIVE_ANNOTATIONS = {
 } as const;
 
 export const registerCustomerTools: RegisterTools = (server, ctx) => {
-  const { db, teamId, convexUserId } = ctx;
+  const { db, teamId, userId } = ctx;
 
   // Check scopes
   const hasReadScope = hasScope(ctx, "customers.read");
@@ -128,7 +128,7 @@ export const registerCustomerTools: RegisterTools = (server, ctx) => {
       async (params) => {
         const result = await upsertCustomer(db, {
           teamId,
-          userId: convexUserId,
+          userId: userId,
           name: params.name,
           email: params.email,
           billingEmail: params.billingEmail,
@@ -197,7 +197,7 @@ export const registerCustomerTools: RegisterTools = (server, ctx) => {
         const result = await upsertCustomer(db, {
           id: params.id,
           teamId,
-          userId: convexUserId,
+          userId: userId,
           name: params.name ?? existing.name,
           email: params.email ?? existing.email,
           billingEmail: params.billingEmail ?? existing.billingEmail,

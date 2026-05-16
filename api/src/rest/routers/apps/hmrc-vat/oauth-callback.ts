@@ -101,7 +101,7 @@ app.openapi(
 
       await createApp(db, {
         teamId: parsedState.teamId,
-        createdByUserId: parsedState.convexUserId,
+        createdByUserId: parsedState.userId,
         appId: config.id,
         settings: config.settings,
         config: tokenSet,

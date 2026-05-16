@@ -22,10 +22,6 @@ const FORBIDDEN_API_PACKAGE_IMPORT_PATTERNS = [
   /import\(\s*["']@tamias\/api(?:\/[^"']*)?["']\s*\)/,
   /require\(\s*["']@tamias\/api(?:\/[^"']*)?["']\s*\)/,
 ];
-const FORBIDDEN_CONVEX_GENERATED_PATTERNS = [
-  /from\s+["'][^"']*convex\/_generated\/[^"']+["']/,
-  /import\(\s*["'][^"']*convex\/_generated\/[^"']+["']\s*\)/,
-];
 const FORBIDDEN_APP_DATA_SELF_IMPORT_PATTERNS = [
   /from\s+["']@tamias\/app-data(?:\/client|\/queries)?["']/,
   /import\(\s*["']@tamias\/app-data(?:\/client|\/queries)?["']\s*\)/,
@@ -34,11 +30,6 @@ const FORBIDDEN_APP_DATA_ROOT_IMPORT_PATTERNS = [
   /from\s+["']@tamias\/app-data["']/,
   /import\(\s*["']@tamias\/app-data["']\s*\)/,
   /require\(\s*["']@tamias\/app-data["']\s*\)/,
-];
-const FORBIDDEN_APP_DATA_CONVEX_COMPAT_IMPORT_PATTERNS = [
-  /from\s+["']@tamias\/app-data\/convex["']/,
-  /import\(\s*["']@tamias\/app-data\/convex["']\s*\)/,
-  /require\(\s*["']@tamias\/app-data\/convex["']\s*\)/,
 ];
 const IMPORT_SPECIFIER_PATTERNS = [
   /from\s+["']([^"']+)["']/g,
@@ -272,24 +263,6 @@ export function findForbiddenApiPackageImports(rootDir: string): string[] {
     .sort();
 }
 
-export function findForbiddenConvexGeneratedImports(rootDir: string): string[] {
-  return walkFiles(rootDir)
-    .map((pathname) => {
-      const relativePath = normalizePath(rootDir, pathname);
-      if (
-        isInside(relativePath, "packages/convex-model") ||
-        isInside(relativePath, "packages/app-data-convex") ||
-        !fileContainsAny(readFileSync(pathname, "utf8"), FORBIDDEN_CONVEX_GENERATED_PATTERNS)
-      ) {
-        return null;
-      }
-
-      return relativePath;
-    })
-    .filter((value): value is string => value !== null)
-    .sort();
-}
-
 export function findForbiddenAppDataSelfImports(rootDir: string): string[] {
   return walkFiles(join(rootDir, "packages/app-data/src"))
     .map((pathname) => {
@@ -314,20 +287,6 @@ export function findForbiddenAppDataRootImports(rootDir: string): string[] {
 
       const content = readFileSync(pathname, "utf8");
       return fileContainsAny(content, FORBIDDEN_APP_DATA_ROOT_IMPORT_PATTERNS)
-        ? relativePath
-        : null;
-    })
-    .filter((value): value is string => value !== null)
-    .sort();
-}
-
-export function findForbiddenAppDataConvexCompatImports(rootDir: string): string[] {
-  return walkSourceFiles(rootDir)
-    .map((pathname) => {
-      const relativePath = normalizePath(rootDir, pathname);
-      const content = readFileSync(pathname, "utf8");
-
-      return fileContainsAny(content, FORBIDDEN_APP_DATA_CONVEX_COMPAT_IMPORT_PATTERNS)
         ? relativePath
         : null;
     })
@@ -497,10 +456,8 @@ function main() {
   const rootDir = process.cwd();
   const apiAliasViolations = findForbiddenApiAliasReferences(rootDir);
   const apiPackageViolations = findForbiddenApiPackageImports(rootDir);
-  const convexGeneratedViolations = findForbiddenConvexGeneratedImports(rootDir);
   const appDataSelfImportViolations = findForbiddenAppDataSelfImports(rootDir);
   const appDataRootImportViolations = findForbiddenAppDataRootImports(rootDir);
-  const appDataConvexCompatImportViolations = findForbiddenAppDataConvexCompatImports(rootDir);
   const missingDependencyViolations = findMissingInternalWorkspaceDependencies(rootDir);
   const brokenExportViolations = findBrokenWorkspaceExports(rootDir);
   const aiSdkMajorViolations = findAiSdkMajorVersionViolations(rootDir);
@@ -512,20 +469,12 @@ function main() {
       apiPackageViolations,
     ),
     formatViolations(
-      "Forbidden convex generated imports found outside packages/convex-model:",
-      convexGeneratedViolations,
-    ),
-    formatViolations(
       "Forbidden @tamias/app-data self-imports found inside packages/app-data/src:",
       appDataSelfImportViolations,
     ),
     formatViolations(
       "Forbidden root @tamias/app-data imports found outside packages/app-data:",
       appDataRootImportViolations,
-    ),
-    formatViolations(
-      "Forbidden legacy @tamias/app-data/convex imports found; use @tamias/app-data-convex instead:",
-      appDataConvexCompatImportViolations,
     ),
     formatViolations(
       "Missing internal workspace dependency declarations found:",

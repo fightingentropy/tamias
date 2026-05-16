@@ -1,6 +1,6 @@
-import { getInvoiceAnalyticsAggregateRowsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
+import { getInvoiceAnalyticsAggregateRowsFromD1 } from "../reports/shared/aggregates";
 
 type PaymentStatusResult = {
   score: number;
@@ -71,15 +71,15 @@ function getMostRecentPaymentStatusSamples(
   return samples;
 }
 
-async function getPaymentStatusImpl(_db: Database, teamId: string): Promise<PaymentStatusResult> {
+async function getPaymentStatusImpl(db: Database, teamId: string): Promise<PaymentStatusResult> {
   const currentDate = new Date();
   const [paidRows, openRows] = await Promise.all([
-    getInvoiceAnalyticsAggregateRowsFromConvex({
+    getInvoiceAnalyticsAggregateRowsFromD1(db, {
       teamId,
       dateField: "paidAt",
       statuses: ["paid"],
     }),
-    getInvoiceAnalyticsAggregateRowsFromConvex({
+    getInvoiceAnalyticsAggregateRowsFromD1(db, {
       teamId,
       dateField: "createdAt",
       statuses: ["unpaid", "overdue"],

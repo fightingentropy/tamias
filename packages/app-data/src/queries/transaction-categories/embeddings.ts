@@ -1,13 +1,10 @@
-import {
-  getTransactionCategoryEmbeddingsByNamesFromConvex,
-  upsertTransactionCategoryEmbeddingsInConvex,
-} from "@tamias/app-data-convex";
 import { CategoryEmbeddings } from "@tamias/categories";
 import type { Database } from "../../client";
 import { logger } from "@tamias/logger";
+import { getCategoryEmbedding, upsertCategoryEmbedding } from "../transaction-category-embeddings";
 
 export async function generateCategoryEmbedding(
-  _db: Database,
+  db: Database,
   params: {
     name: string;
     system?: boolean;
@@ -16,9 +13,7 @@ export async function generateCategoryEmbedding(
   const { name, system = false } = params;
 
   try {
-    const [existingEmbedding] = await getTransactionCategoryEmbeddingsByNamesFromConvex({
-      names: [name],
-    });
+    const existingEmbedding = await getCategoryEmbedding(db, { name });
 
     if (existingEmbedding) {
       logger.info(`Embedding already exists for category: "${name}"`);
@@ -28,15 +23,11 @@ export async function generateCategoryEmbedding(
     const embedService = new CategoryEmbeddings();
     const { embedding, model } = await embedService.embed(name);
 
-    await upsertTransactionCategoryEmbeddingsInConvex({
-      embeddings: [
-        {
-          name,
-          embedding,
-          system,
-          model,
-        },
-      ],
+    await upsertCategoryEmbedding(db, {
+      name,
+      embedding,
+      system,
+      model,
     });
 
     logger.info(`Generated embedding for category: "${name}"`);

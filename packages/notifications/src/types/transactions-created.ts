@@ -12,7 +12,7 @@ export const transactionsCreated: NotificationHandler = {
 
     return {
       teamId: user.team_id,
-      userId: user.convex_id,
+      userId: user.id,
       type: "transactions_created",
       source: "system",
       priority: 3,

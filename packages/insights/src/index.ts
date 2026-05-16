@@ -671,7 +671,7 @@ export function createInsightsService(
 export function getEnabledTeamIds(): string[] | undefined {
   const envValue = process.env.INSIGHTS_ENABLED_TEAM_IDS;
 
-  // Not set = disabled (safe default for staging)
+  // Not set = disabled by default.
   if (!envValue) {
     return [];
   }

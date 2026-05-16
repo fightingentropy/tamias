@@ -1,9 +1,11 @@
+import type { Database } from "../../../client";
 import {
-  getTransactionByIdFromConvex,
-  getTransactionsByIdsFromConvex,
-  upsertTransactionsInConvex,
-  type TransactionRecord,
-} from "@tamias/app-data-convex";
+  getTransactionByIdFromD1,
+  getTransactionsByIdsFromD1,
+  requireTransactionsD1,
+  upsertTransactionsInD1,
+} from "../../transactions/d1";
+import type { TransactionRecord } from "../../transactions/shared";
 import { toUpsertTransaction } from "./serialization";
 
 export type InboxTransactionSummary = Pick<
@@ -28,6 +30,7 @@ export function buildInboxTransactionSummary(
 }
 
 export async function getInboxTransactionMap(
+  db: Database,
   teamId: string,
   transactionIds: Array<string | null | undefined>,
 ) {
@@ -37,7 +40,7 @@ export async function getInboxTransactionMap(
     return new Map<string, InboxTransactionSummary>();
   }
 
-  const transactions = await getTransactionsByIdsFromConvex({
+  const transactions = await getTransactionsByIdsFromD1(requireTransactionsD1(db), {
     teamId,
     transactionIds: uniqueIds,
   });
@@ -48,11 +51,12 @@ export async function getInboxTransactionMap(
 }
 
 export async function patchTransactionFields(
+  db: Database,
   teamId: string,
   transactionId: string,
   overrides: Partial<TransactionRecord>,
 ) {
-  const current = await getTransactionByIdFromConvex({
+  const current = await getTransactionByIdFromD1(requireTransactionsD1(db), {
     teamId,
     transactionId,
   });
@@ -61,7 +65,7 @@ export async function patchTransactionFields(
     throw new Error("Transaction not found or belongs to another team");
   }
 
-  await upsertTransactionsInConvex({
+  await upsertTransactionsInD1(requireTransactionsD1(db), {
     teamId,
     transactions: [toUpsertTransaction(current, overrides)],
   });

@@ -1,9 +1,22 @@
-import { Buffer } from "node:buffer";
-
 const HEDVIG_SANS_FONT_URL =
   "https://cdn.tamias.xyz/fonts/HedvigSans/HedvigLettersSans-Regular.ttf";
 const HEDVIG_SERIF_FONT_URL =
   "https://cdn.tamias.xyz/fonts/HedvigSerif/HedvigLettersSerif-Regular.ttf?c=1";
+
+function bytesToBase64(bytes: Uint8Array) {
+  let binary = "";
+  const chunkSize = 0x8000;
+
+  for (let index = 0; index < bytes.length; index += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(index, index + chunkSize));
+  }
+
+  return btoa(binary);
+}
+
+function arrayBufferToBase64(buffer: ArrayBuffer) {
+  return bytesToBase64(new Uint8Array(buffer));
+}
 
 async function fetchFont(url: string) {
   const response = await fetch(url);
@@ -47,17 +60,15 @@ export async function fetchDataUri(url?: string | null) {
     const contentType = response.headers.get("content-type") ?? "image/png";
     const bytes = new Uint8Array(await response.arrayBuffer());
 
-    return `data:${contentType};base64,${Buffer.from(bytes).toString("base64")}`;
+    return `data:${contentType};base64,${bytesToBase64(bytes)}`;
   } catch {
     return null;
   }
 }
 
 function toFontFaceCss(fontFamily: string, fontData: ArrayBuffer) {
-  return `@font-face { font-family: "${fontFamily}"; src: url(data:font/ttf;base64,${Buffer.from(
+  return `@font-face { font-family: "${fontFamily}"; src: url(data:font/ttf;base64,${arrayBufferToBase64(
     fontData,
-  ).toString(
-    "base64",
   )}) format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }`;
 }
 
@@ -110,7 +121,7 @@ export function editorDocToLines(
 
 export async function renderPngResponse(svg: string, cacheControl?: string) {
   const { default: sharp } = await import("sharp");
-  const png = await sharp(Buffer.from(svg)).png().toBuffer();
+  const png = await sharp(new TextEncoder().encode(svg)).png().toBuffer();
 
   return new Response(new Uint8Array(png), {
     headers: {

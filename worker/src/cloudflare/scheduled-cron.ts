@@ -1,4 +1,4 @@
-import { getScheduledCloudflareMessages } from "./bridge-helpers";
+import { getScheduledCloudflareMessages } from "./async-helpers";
 import { getQueueBinding } from "./queue-bindings";
 import type { CloudflareAsyncEnv } from "./shared";
 import { configureWorkerRuntime } from "./worker-runtime";

@@ -1,32 +1,31 @@
-import { getNotificationSettingsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
+import { getNotificationSettingsD1, getNotificationSettingsFromD1 } from "./d1";
 import { USER_SETTINGS_NOTIFICATION_TYPES } from "./defaults";
 import { toNotificationSetting } from "./shared";
 import type {
-  ConvexUserId,
   GetNotificationSettingsParams,
   NotificationChannel,
   NotificationSetting,
+  UserId,
   UserNotificationPreference,
 } from "./types";
 
 export async function getNotificationSettings(
-  _db: Database,
+  db: Database,
   params: GetNotificationSettingsParams,
 ): Promise<NotificationSetting[]> {
-  const results = await getNotificationSettingsFromConvex({
-    userId: params.userId,
-    teamId: params.teamId,
-    notificationType: params.notificationType,
-    channel: params.channel,
-  });
+  const d1 = getNotificationSettingsD1(db);
 
-  return results.map(toNotificationSetting);
+  if (!d1) {
+    throw new Error("Notification settings require Cloudflare D1");
+  }
+
+  return ((await getNotificationSettingsFromD1(d1, params)) ?? []).map(toNotificationSetting);
 }
 
 export async function shouldSendNotification(
   db: Database,
-  userId: ConvexUserId,
+  userId: UserId,
   teamId: string,
   notificationType: string,
   channel: NotificationChannel,
@@ -47,7 +46,7 @@ export async function shouldSendNotification(
 
 export async function getUserNotificationPreferences(
   db: Database,
-  userId: ConvexUserId,
+  userId: UserId,
   teamId: string,
 ): Promise<UserNotificationPreference[]> {
   const userSettings = await getNotificationSettings(db, { userId, teamId });

@@ -1,6 +1,6 @@
-import { getDocumentByIdFromConvex, type DocumentRecord } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
+import { getDocumentById as getDocumentRecordById, type DocumentRecord } from "./records";
 import {
   attachAssignments,
   getDocumentSimilarity,
@@ -10,15 +10,15 @@ import {
 } from "./shared";
 import type { GetRecentDocumentsParams, GetRelatedDocumentsParams } from "./types";
 
-async function getRecentDocumentsImpl(_db: Database, params: GetRecentDocumentsParams) {
+async function getRecentDocumentsImpl(db: Database, params: GetRecentDocumentsParams) {
   const { teamId, limit = 5 } = params;
-  const data = await getRecentDocumentsPage({
+  const data = await getRecentDocumentsPage(db, {
     teamId,
     limit,
   });
 
   return {
-    data: await attachAssignments(teamId, data),
+    data: await attachAssignments(db, teamId, data),
     total: data.length,
   };
 }
@@ -29,9 +29,9 @@ export const getRecentDocuments = reuseQueryResult({
   load: getRecentDocumentsImpl,
 });
 
-export async function getRelatedDocuments(_db: Database, params: GetRelatedDocumentsParams) {
+export async function getRelatedDocuments(db: Database, params: GetRelatedDocumentsParams) {
   const { id, pageSize, teamId } = params;
-  const source = await getDocumentByIdFromConvex({
+  const source = await getDocumentRecordById(db, {
     teamId,
     documentId: id,
   });
@@ -42,6 +42,7 @@ export async function getRelatedDocuments(_db: Database, params: GetRelatedDocum
 
   const candidates = (
     await getRelatedDocumentCandidates({
+      db,
       teamId,
       source,
       pageSize,
@@ -61,5 +62,5 @@ export async function getRelatedDocuments(_db: Database, params: GetRelatedDocum
     })
     .slice(0, pageSize);
 
-  return attachAssignments(teamId, candidates);
+  return attachAssignments(db, teamId, candidates);
 }

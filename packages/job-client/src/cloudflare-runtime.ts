@@ -2,7 +2,7 @@ type CloudflareRecurringScheduleTask = "inbox-sync-scheduler" | "bank-sync-sched
 
 type CloudflareQueueGroup = "capture" | "ledger";
 
-export type CloudflareBridgeRequest = {
+export type CloudflareQueueRequest = {
   queue: CloudflareQueueGroup;
   queueName: string;
   runId?: string;
@@ -12,7 +12,7 @@ export type CloudflareBridgeRequest = {
   maxAttempts: number;
 };
 
-export type CloudflareWorkflowBridgeRequest = {
+export type CloudflareWorkflowRequest = {
   workflow: string;
   instanceId: string;
   runId?: string;
@@ -54,7 +54,7 @@ type CloudflareQueueSendOptions = {
 };
 
 type CloudflareQueueBinding = {
-  send(message: unknown, options?: CloudflareQueueSendOptions): Promise<void>;
+  send(message: unknown, options?: CloudflareQueueSendOptions): Promise<unknown>;
 };
 
 type CloudflareQueueRuntime = {
@@ -63,8 +63,8 @@ type CloudflareQueueRuntime = {
 };
 
 export interface CloudflareAsyncServiceBinding {
-  enqueue(request: CloudflareBridgeRequest): Promise<unknown>;
-  startWorkflow(request: CloudflareWorkflowBridgeRequest): Promise<unknown>;
+  enqueue(request: CloudflareQueueRequest): Promise<unknown>;
+  startWorkflow(request: CloudflareWorkflowRequest): Promise<unknown>;
   getWorkflowStatus(
     request: CloudflareWorkflowInstanceRequest,
   ): Promise<CloudflareWorkflowStatusResponse>;
@@ -120,32 +120,6 @@ function hasCloudflareQueueRuntime() {
   return !!(cloudflareQueueRuntime?.captureQueue || cloudflareQueueRuntime?.ledgerQueue);
 }
 
-function getCloudflareBridgeEnabledJobs() {
-  return (process.env.CLOUDFLARE_ASYNC_BRIDGE_JOBS ?? "")
-    .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean);
-}
-
-function isEnabledCloudflareQueueJob(queueName: string, jobName: string) {
-  const enabledJobs = getCloudflareBridgeEnabledJobs();
-  if (!enabledJobs.length) {
-    return true;
-  }
-
-  return enabledJobs.some((rule) => {
-    if (rule === jobName) {
-      return true;
-    }
-
-    if (rule === `${queueName}:*`) {
-      return true;
-    }
-
-    return rule === `${queueName}:${jobName}`;
-  });
-}
-
 export function getCloudflareQueueBinding(queue: CloudflareQueueGroup) {
   return queue === "capture"
     ? cloudflareQueueRuntime?.captureQueue
@@ -174,18 +148,6 @@ export function getCloudflareScheduleRuntime() {
   return cloudflareScheduleRuntime;
 }
 
-export function getCloudflareBridgeUrl() {
-  return process.env.CLOUDFLARE_ASYNC_BRIDGE_URL?.trim();
-}
-
-export function getCloudflareBridgeToken() {
-  return process.env.CLOUDFLARE_ASYNC_BRIDGE_TOKEN?.trim();
-}
-
-export function hasCloudflareBridgeCredentials() {
-  return !!(getCloudflareBridgeUrl() && getCloudflareBridgeToken());
-}
-
 export function requireCloudflareQueueTransport(
   queueName: string,
   jobName: string,
@@ -196,15 +158,7 @@ export function requireCloudflareQueueTransport(
     throw new Error(`Unsupported Cloudflare queue group for ${queueName}`);
   }
 
-  if (!isEnabledCloudflareQueueJob(queueName, jobName)) {
-    throw new Error(`Cloudflare async queue job is not enabled: ${queueName}:${jobName}`);
-  }
-
-  if (
-    !hasCloudflareQueueRuntime() &&
-    !getCloudflareAsyncServiceBinding() &&
-    !hasCloudflareBridgeCredentials()
-  ) {
+  if (!hasCloudflareQueueRuntime() && !getCloudflareAsyncServiceBinding()) {
     throw new Error("Cloudflare async queue transport is not configured");
   }
 

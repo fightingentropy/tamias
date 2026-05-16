@@ -4,13 +4,10 @@ import {
   roundCurrency,
   type VatReturnDraft,
 } from "@tamias/compliance";
-import {
-  createSubmissionEventInConvex,
-  getComplianceAdjustmentsForPeriodFromConvex,
-  upsertVatReturnInConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../../../client";
+import { createSubmissionEvent } from "../../../filing-events";
 import { listDerivedLedgerEntries, listJournalRowsForPeriod } from "../../ledger";
+import { listComplianceAdjustmentsForPeriodFromD1, upsertVatReturnInD1 } from "../d1";
 import type { RecalculateVatDraftParams } from "../types";
 import { getDraftContext } from "./context";
 import { getVatDraft } from "./reader";
@@ -61,7 +58,7 @@ export async function recalculateVatDraft(db: Database, params: RecalculateVatDr
     }
   }
 
-  const adjustmentRows = await getComplianceAdjustmentsForPeriodFromConvex({
+  const adjustmentRows = await listComplianceAdjustmentsForPeriodFromD1(db, {
     teamId: params.teamId,
     filingProfileId: context.profile.id,
     periodStart: context.obligation.periodStart,
@@ -74,7 +71,7 @@ export async function recalculateVatDraft(db: Database, params: RecalculateVatDr
     purchasesExVat,
     adjustments: buildAdjustmentMap(adjustmentRows),
   });
-  const draft = await upsertVatReturnInConvex({
+  const draft = await upsertVatReturnInD1(db, {
     id: params.vatReturnId,
     teamId: params.teamId,
     filingProfileId: context.profile.id,
@@ -96,7 +93,7 @@ export async function recalculateVatDraft(db: Database, params: RecalculateVatDr
     throw new Error("Failed to create VAT return draft");
   }
 
-  await createSubmissionEventInConvex({
+  await createSubmissionEvent(db, {
     teamId: params.teamId,
     filingProfileId: context.profile.id,
     provider: "hmrc-vat",

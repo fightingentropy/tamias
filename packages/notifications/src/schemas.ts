@@ -1,11 +1,10 @@
-import type { CurrentUserIdentityRecord } from "@tamias/app-data-convex";
 import { z } from "zod";
 
-type ConvexUserId = CurrentUserIdentityRecord["convexId"];
+type UserId = string;
 
 export const createActivitySchema = z.object({
   teamId: z.string().uuid(),
-  userId: z.custom<ConvexUserId>((value) => typeof value === "string").optional(),
+  userId: z.custom<UserId>((value) => typeof value === "string").optional(),
   type: z.enum([
     "transactions_created",
     "transactions_enriched",
@@ -50,7 +49,6 @@ export type CreateActivityInput = z.infer<typeof createActivitySchema>;
 
 export const userSchema = z.object({
   id: z.string().uuid(),
-  convex_id: z.custom<ConvexUserId>((value) => typeof value === "string"),
   full_name: z.string(),
   email: z.string().email(),
   locale: z.string().optional(),

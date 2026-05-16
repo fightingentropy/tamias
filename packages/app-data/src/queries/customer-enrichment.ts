@@ -1,12 +1,13 @@
-import {
-  clearCustomerEnrichmentInConvex,
-  getCustomerForEnrichmentFromConvex,
-  getCustomersNeedingEnrichmentFromConvex,
-  markCustomerEnrichmentFailedInConvex,
-  updateCustomerEnrichmentInConvex,
-  updateCustomerEnrichmentStatusInConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../client";
+import {
+  clearCustomerEnrichmentFromD1,
+  getCustomerForEnrichmentFromD1,
+  getCustomersNeedingEnrichmentFromD1,
+  markCustomerEnrichmentFailedInD1,
+  requireCustomersD1,
+  updateCustomerEnrichmentInD1,
+  updateCustomerEnrichmentStatusInD1,
+} from "./customers/d1";
 
 export type CustomerForEnrichment = {
   id: string;
@@ -59,23 +60,23 @@ export type UpdateCustomerEnrichmentParams = {
  * Get customer for enrichment with additional context
  */
 export async function getCustomerForEnrichment(
-  _db: Database,
+  db: Database,
   params: { customerId: string; teamId: string },
 ): Promise<CustomerForEnrichment | null> {
-  return getCustomerForEnrichmentFromConvex(params);
+  return getCustomerForEnrichmentFromD1(requireCustomersD1(db), params);
 }
 
 /**
  * Update customer enrichment status
  */
 export async function updateCustomerEnrichmentStatus(
-  _db: Database,
+  db: Database,
   params: {
     customerId: string;
     status: "pending" | "processing" | "completed" | "failed" | null;
   },
 ): Promise<void> {
-  await updateCustomerEnrichmentStatusInConvex(params);
+  await updateCustomerEnrichmentStatusInD1(requireCustomersD1(db), params);
 }
 
 /**
@@ -83,38 +84,38 @@ export async function updateCustomerEnrichmentStatus(
  * Only updates fields that are provided (non-undefined)
  */
 export async function updateCustomerEnrichment(
-  _db: Database,
+  db: Database,
   params: UpdateCustomerEnrichmentParams,
 ): Promise<void> {
-  await updateCustomerEnrichmentInConvex(params);
+  await updateCustomerEnrichmentInD1(requireCustomersD1(db), params);
 }
 
 /**
  * Mark customer enrichment as failed
  */
 export async function markCustomerEnrichmentFailed(
-  _db: Database,
+  db: Database,
   customerId: string,
 ): Promise<void> {
-  await markCustomerEnrichmentFailedInConvex({ customerId });
+  await markCustomerEnrichmentFailedInD1(requireCustomersD1(db), customerId);
 }
 
 /**
  * Get customers that need enrichment (have website but not yet enriched)
  */
 export async function getCustomersNeedingEnrichment(
-  _db: Database,
+  db: Database,
   params: { teamId: string; limit?: number },
 ): Promise<CustomerForEnrichment[]> {
-  return getCustomersNeedingEnrichmentFromConvex(params);
+  return getCustomersNeedingEnrichmentFromD1(requireCustomersD1(db), params);
 }
 
 /**
  * Clear all enrichment data for a customer
  */
 export async function clearCustomerEnrichment(
-  _db: Database,
+  db: Database,
   params: { customerId: string; teamId: string },
 ): Promise<void> {
-  await clearCustomerEnrichmentInConvex(params);
+  await clearCustomerEnrichmentFromD1(requireCustomersD1(db), params);
 }

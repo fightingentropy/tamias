@@ -1,12 +1,15 @@
-import {
-  deleteTransactionAttachmentsByIdsInConvex,
-  deleteTransactionAttachmentsByPathKeysInConvex,
-  getTransactionAttachmentFromConvex,
-  getTransactionAttachmentsByIdsFromConvex,
-  getTransactionAttachmentsByPathKeysFromConvex,
-  getTransactionAttachmentsForTransactionIdsFromConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
+import { deleteAccountingSyncRecordsForTransactions } from "../accounting-sync";
+import {
+  deleteTransactionAttachmentsByIdsFromD1,
+  deleteTransactionAttachmentsByPathKeysFromD1,
+  getTransactionAttachmentFromD1,
+  getTransactionAttachmentsByIdsFromD1,
+  getTransactionAttachmentsByPathKeysFromD1,
+  getTransactionAttachmentsForTransactionIdsFromD1,
+  requireTransactionAttachmentsD1,
+} from "./d1";
+import { syncTransactionHasAttachmentFlags } from "./sync";
 
 type GetTransactionAttachmentsByIdsParams = {
   teamId: string;
@@ -39,41 +42,86 @@ type GetTransactionAttachmentParams = {
   teamId: string;
 };
 
-export async function getTransactionAttachmentsByIds(params: GetTransactionAttachmentsByIdsParams) {
-  return getTransactionAttachmentsByIdsFromConvex(params);
+export async function getTransactionAttachmentsByIds(
+  db: Database,
+  params: GetTransactionAttachmentsByIdsParams,
+) {
+  return getTransactionAttachmentsByIdsFromD1(requireTransactionAttachmentsD1(db), params);
 }
 
-export async function getTransactionAttachmentsForTransactionIds(params: {
-  teamId: string;
-  transactionIds: string[];
-}) {
-  return getTransactionAttachmentsForTransactionIdsFromConvex(params);
+export async function getTransactionAttachmentsForTransactionIds(
+  db: Database,
+  params: GetTransactionAttachmentsForTransactionIdsParams,
+) {
+  return getTransactionAttachmentsForTransactionIdsFromD1(
+    requireTransactionAttachmentsD1(db),
+    params,
+  );
 }
 
 export async function getTransactionAttachmentsByPathKeys(
+  db: Database,
   params: GetTransactionAttachmentsByPathKeysParams,
 ) {
-  return getTransactionAttachmentsByPathKeysFromConvex(params);
+  return getTransactionAttachmentsByPathKeysFromD1(requireTransactionAttachmentsD1(db), params);
 }
 
 export async function deleteTransactionAttachmentsByIds(
+  db: Database,
   params: DeleteTransactionAttachmentsByIdsParams,
 ) {
-  return deleteTransactionAttachmentsByIdsInConvex(params);
+  const d1 = requireTransactionAttachmentsD1(db);
+  const result = await deleteTransactionAttachmentsByIdsFromD1(d1, params);
+
+  if (result.affectedTransactionIds.length > 0) {
+    await syncTransactionHasAttachmentFlags({
+      d1,
+      teamId: params.teamId,
+      transactionIds: result.affectedTransactionIds,
+    });
+    await deleteAccountingSyncRecordsForTransactions(db, {
+      teamId: params.teamId,
+      transactionIds: result.affectedTransactionIds,
+    });
+  }
+
+  return {
+    deletedIds: result.deletedIds,
+    count: result.count,
+  };
 }
 
 export async function deleteTransactionAttachmentsByPathKeys(
+  db: Database,
   params: DeleteTransactionAttachmentsByPathKeysParams,
 ) {
-  return deleteTransactionAttachmentsByPathKeysInConvex(params);
+  const d1 = requireTransactionAttachmentsD1(db);
+  const result = await deleteTransactionAttachmentsByPathKeysFromD1(d1, params);
+
+  if (result.affectedTransactionIds.length > 0) {
+    await syncTransactionHasAttachmentFlags({
+      d1,
+      teamId: params.teamId,
+      transactionIds: result.affectedTransactionIds,
+    });
+    await deleteAccountingSyncRecordsForTransactions(db, {
+      teamId: params.teamId,
+      transactionIds: result.affectedTransactionIds,
+    });
+  }
+
+  return {
+    deletedIds: result.deletedIds,
+    count: result.count,
+  };
 }
 
 export async function getTransactionAttachment(
-  _db: Database,
+  db: Database,
   params: GetTransactionAttachmentParams,
 ) {
   const { transactionId, attachmentId, teamId } = params;
-  return getTransactionAttachmentFromConvex({
+  return getTransactionAttachmentFromD1(requireTransactionAttachmentsD1(db), {
     teamId,
     transactionId,
     attachmentId,

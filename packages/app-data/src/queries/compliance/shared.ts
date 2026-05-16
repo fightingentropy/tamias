@@ -4,15 +4,16 @@ import {
   isUkComplianceVisible,
 } from "@tamias/compliance";
 import type { Database } from "../../client";
-import {
-  getFilingProfileFromConvex,
-  getInstalledAppFromConvex,
-  setInstalledAppConfigInConvex,
-  type FilingProfileRecord,
-  upsertFilingProfileInConvex,
-} from "@tamias/app-data-convex";
+import { setAppConfig } from "../apps/config";
+import { getAppByAppId } from "../apps/core";
 import { getTeamById } from "../teams";
 import { reuseQueryResult } from "../../utils/request-cache";
+import {
+  getFilingProfileRecord,
+  type FilingProfileRecord,
+  upsertFilingProfileRecord,
+} from "./filings";
+import { rebuildDerivedComplianceJournalEntries } from "./ledger";
 
 export type TeamContext = {
   id: string;
@@ -82,8 +83,7 @@ export async function getTeamContext(db: Database, teamId: string): Promise<Team
 }
 
 export async function getHmrcVatApp(db: Database, teamId: string) {
-  void db;
-  return getInstalledAppFromConvex({
+  return getAppByAppId(db, {
     teamId,
     appId: "hmrc-vat",
   });
@@ -111,7 +111,7 @@ export async function getHmrcProvider(db: Database, teamId: string, profile: Fil
       environment: refreshed.environment,
     };
 
-    await setInstalledAppConfigInConvex({
+    await setAppConfig(db, {
       teamId,
       appId: "hmrc-vat",
       config,
@@ -122,8 +122,7 @@ export async function getHmrcProvider(db: Database, teamId: string, profile: Fil
 }
 
 async function getFilingProfileImpl(db: Database, teamId: string) {
-  void db;
-  return getFilingProfileFromConvex({
+  return getFilingProfileRecord(db, {
     teamId,
     provider: "hmrc-vat",
   });
@@ -142,7 +141,7 @@ export async function upsertFilingProfile(db: Database, params: UpsertFilingProf
     throw new Error("UK compliance currently requires a GB team");
   }
 
-  return upsertFilingProfileInConvex({
+  const profile = await upsertFilingProfileRecord(db, {
     teamId: params.teamId,
     provider: params.provider ?? "hmrc-vat",
     legalEntityType: params.legalEntityType ?? "uk_ltd",
@@ -174,4 +173,10 @@ export async function upsertFilingProfile(db: Database, params: UpsertFilingProf
     accountsPreparedUnderSmallCompaniesRegime:
       params.accountsPreparedUnderSmallCompaniesRegime ?? null,
   });
+
+  await rebuildDerivedComplianceJournalEntries(db, {
+    teamId: params.teamId,
+  });
+
+  return profile;
 }

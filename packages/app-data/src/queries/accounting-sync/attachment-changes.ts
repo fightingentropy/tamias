@@ -1,9 +1,6 @@
-import {
-  getAccountingSyncStatusFromConvex,
-  getTransactionsByIdsFromConvex,
-  type AccountingSyncProvider,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
+import { getTransactionsByIdsFromD1, requireTransactionsD1 } from "../transactions/d1";
+import { getAccountingSyncStatus, type AccountingSyncProvider } from "./records";
 import {
   ACCOUNTING_SYNC_EXCLUDED_STATUS_SET,
   getAttachmentsByTransactionId,
@@ -29,13 +26,13 @@ export type GetSyncedTransactionsWithAttachmentChangesParams = {
 };
 
 export const getSyncedTransactionsWithAttachmentChanges = async (
-  _db: Database,
+  db: Database,
   params: GetSyncedTransactionsWithAttachmentChangesParams,
 ): Promise<TransactionWithAttachmentChanges[]> => {
   const { teamId, provider, sinceDaysAgo = 30, limit = 100 } = params;
 
   const syncRecords = (
-    await getAccountingSyncStatusFromConvex({
+    await getAccountingSyncStatus(db, {
       teamId,
       provider,
     })
@@ -53,7 +50,7 @@ export const getSyncedTransactionsWithAttachmentChanges = async (
 
   const transactionIds = [...new Set(syncRecords.map((record) => record.transactionId))];
   const currentTransactions = (
-    await getTransactionsByIdsFromConvex({
+    await getTransactionsByIdsFromD1(requireTransactionsD1(db), {
       teamId,
       transactionIds,
     })
@@ -67,6 +64,7 @@ export const getSyncedTransactionsWithAttachmentChanges = async (
     }));
 
   const attachmentsByTransactionId = await getAttachmentsByTransactionId({
+    db,
     teamId,
     transactionIds: currentTransactions.map((row) => row.transactionId),
   });

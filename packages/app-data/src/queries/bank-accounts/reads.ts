@@ -1,11 +1,12 @@
-import {
-  getBankAccountByIdFromConvex,
-  getBankAccountTeamIdFromConvex,
-  getBankAccountsBalancesFromConvex,
-  getBankAccountsCurrenciesFromConvex,
-  getBankAccountsFromConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
+import {
+  getBankAccountByIdFromD1,
+  getBankAccountsBalancesFromD1,
+  getBankAccountsCurrenciesFromD1,
+  getBankAccountsFromD1,
+  getBankAccountTeamIdFromD1,
+  requireBankAccountsD1,
+} from "./d1";
 import type { GetBankAccountsParams, GetBankAccountTeamIdParams } from "./types";
 
 type GetBankAccountByIdParams = {
@@ -25,19 +26,12 @@ type GetBankAccountsCurrenciesResponse = {
   currency: string;
 };
 
-export async function getBankAccounts(_db: Database, params: GetBankAccountsParams) {
-  return getBankAccountsFromConvex({
-    teamId: params.teamId,
-    enabled: params.enabled,
-    manual: params.manual,
-  });
+export async function getBankAccounts(db: Database, params: GetBankAccountsParams) {
+  return getBankAccountsFromD1(requireBankAccountsD1(db), params);
 }
 
-export async function getBankAccountById(_db: Database, params: GetBankAccountByIdParams) {
-  return getBankAccountByIdFromConvex({
-    id: params.id,
-    teamId: params.teamId,
-  });
+export async function getBankAccountById(db: Database, params: GetBankAccountByIdParams) {
+  return getBankAccountByIdFromD1(requireBankAccountsD1(db), params);
 }
 
 /**
@@ -45,26 +39,22 @@ export async function getBankAccountById(_db: Database, params: GetBankAccountBy
  * Used by worker processors that don't have teamId in payload
  */
 export async function getBankAccountTeamId(
-  _db: Database,
+  db: Database,
   params: GetBankAccountTeamIdParams,
 ): Promise<string | null> {
-  return getBankAccountTeamIdFromConvex({
-    id: params.id,
-  });
+  return getBankAccountTeamIdFromD1(requireBankAccountsD1(db), params);
 }
 
 export async function getBankAccountsBalances(
   db: Database,
   teamId: string,
 ): Promise<GetBankAccountBalanceResponse[]> {
-  void db;
-  return getBankAccountsBalancesFromConvex({ teamId });
+  return getBankAccountsBalancesFromD1(requireBankAccountsD1(db), teamId);
 }
 
 export async function getBankAccountsCurrencies(
   db: Database,
   teamId: string,
 ): Promise<GetBankAccountsCurrenciesResponse[]> {
-  void db;
-  return getBankAccountsCurrenciesFromConvex({ teamId });
+  return getBankAccountsCurrenciesFromD1(requireBankAccountsD1(db), teamId);
 }

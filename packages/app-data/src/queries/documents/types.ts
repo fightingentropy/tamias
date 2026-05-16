@@ -1,8 +1,5 @@
-import type {
-  DocumentProcessingStatus,
-  DocumentRecord,
-  DocumentTagAssignmentRecord,
-} from "@tamias/app-data-convex";
+import type { DocumentTagAssignmentRecord } from "../document-tag-assignments";
+import type { DocumentProcessingStatus, DocumentRecord } from "./records";
 
 export type GetDocumentQueryParams = {
   teamId: string;

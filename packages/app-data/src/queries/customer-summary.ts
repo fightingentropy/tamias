@@ -21,7 +21,7 @@ export type CustomerPageSummary = {
 };
 
 async function getCustomerPageSummaryImpl(
-  _db: Database,
+  db: Database,
   params: { teamId: string },
 ): Promise<CustomerPageSummary> {
   const { teamId } = params;
@@ -30,6 +30,7 @@ async function getCustomerPageSummaryImpl(
   const thirtyDaysAgoIso = thirtyDaysAgo.toISOString();
   const trackerDateFloor = thirtyDaysAgoIso.split("T")[0] ?? "";
   const recentActivity = await getRecentCustomerActivity({
+    db,
     teamId,
     sinceIso: thirtyDaysAgoIso,
     sinceDate: trackerDateFloor,
@@ -39,6 +40,7 @@ async function getCustomerPageSummaryImpl(
     ...recentActivity.trackerTimeByCustomerId.keys(),
   ]);
   const { inactiveClientsCount, newCustomersCount } = await getRecentCustomerCounts({
+    db,
     teamId,
     sinceIso: thirtyDaysAgoIso,
     activeCustomerIds,

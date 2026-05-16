@@ -1,5 +1,6 @@
-import { deletePublicInvoiceInConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
+import { syncPublicInvoiceComplianceJournalEntry } from "../../compliance/ledger";
+import { deletePublicInvoice } from "../../public-invoices";
 import { getInvoiceById } from "../reads";
 
 export type DeleteInvoiceParams = {
@@ -15,9 +16,14 @@ export async function deleteInvoice(db: Database, params: DeleteInvoiceParams) {
     return null;
   }
 
-  await deletePublicInvoiceInConvex({
+  await deletePublicInvoice(db, {
     teamId,
     id,
+  });
+  await syncPublicInvoiceComplianceJournalEntry(db, {
+    teamId,
+    previous: existing,
+    next: null,
   });
 
   return { id };

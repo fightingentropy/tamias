@@ -1,30 +1,22 @@
-import { deleteUserByConvexId } from "@tamias/app-data/queries";
+import { deleteUser } from "@tamias/app-data/queries";
 import {
-  getCurrentUserFromConvex,
-  getCurrentUserFromConvexAsAuthUser,
-  getInvitesByEmailFromConvex,
-  switchCurrentTeamInConvex,
-  updateCurrentUserInConvex,
+  getCurrentUser,
+  getInvitesByEmail,
+  switchCurrentTeam,
+  updateCurrentUser,
 } from "@tamias/app-services/identity";
 import { generateOptionalFileKey } from "@tamias/encryption";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { updateUserSchema } from "../../schemas/users";
-import { createTRPCRouter, protectedProcedure, protectedWithConvexIdProcedure } from "../init";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const userRouter = createTRPCRouter({
-  me: protectedProcedure.query(async ({ ctx: { session, accessToken } }) => {
-    const fromAuthUser =
-      accessToken && !accessToken.startsWith("mid_")
-        ? await getCurrentUserFromConvexAsAuthUser(accessToken)
-        : null;
-
-    const result =
-      fromAuthUser ??
-      (await getCurrentUserFromConvex({
-        userId: session.user.convexId,
-        email: session.user.email ?? null,
-      }));
+  me: protectedProcedure.query(async ({ ctx: { session } }) => {
+    const result = await getCurrentUser({
+      userId: session.user.id,
+      email: session.user.email ?? null,
+    });
 
     if (!result) {
       return undefined;
@@ -39,8 +31,8 @@ export const userRouter = createTRPCRouter({
   update: protectedProcedure
     .input(updateUserSchema)
     .mutation(async ({ ctx: { session }, input }) => {
-      const result = await updateCurrentUserInConvex({
-        userId: session.user.convexId,
+      const result = await updateCurrentUser({
+        userId: session.user.id,
         currentEmail: session.user.email ?? null,
         fullName: input.fullName,
         email: input.email,
@@ -72,10 +64,10 @@ export const userRouter = createTRPCRouter({
     .input(z.object({ teamId: z.string().uuid() }))
     .mutation(async ({ ctx: { session }, input }) => {
       try {
-        return await switchCurrentTeamInConvex({
-          userId: session.user.convexId,
+        return await switchCurrentTeam({
+          userId: session.user.id,
           email: session.user.email ?? null,
-          publicTeamId: input.teamId,
+          teamId: input.teamId,
         });
       } catch {
         throw new TRPCError({
@@ -85,8 +77,8 @@ export const userRouter = createTRPCRouter({
       }
     }),
 
-  delete: protectedWithConvexIdProcedure.mutation(async ({ ctx: { db, session } }) => {
-    return deleteUserByConvexId(db, session.user.convexId);
+  delete: protectedProcedure.mutation(async ({ ctx: { db, session } }) => {
+    return deleteUser(db, session.user.id);
   }),
 
   invites: protectedProcedure.query(async ({ ctx: { session } }) => {
@@ -94,6 +86,6 @@ export const userRouter = createTRPCRouter({
       return [];
     }
 
-    return getInvitesByEmailFromConvex(session.user.email);
+    return getInvitesByEmail(session.user.email);
   }),
 });

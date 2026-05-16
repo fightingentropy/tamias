@@ -15,7 +15,7 @@ const PURGE_TOKEN = process.env.CLOUDFLARE_CACHE_PURGE_TOKEN;
 
 async function purgeByTags(tags: string[]): Promise<void> {
   if (!ZONE_ID || !PURGE_TOKEN) {
-    // Silently skip in environments without purge configured (dev, staging)
+    // Silently skip in environments without purge configured.
     return;
   }
 

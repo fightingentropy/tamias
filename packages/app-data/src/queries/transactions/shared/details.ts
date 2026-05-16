@@ -1,15 +1,19 @@
-import {
-  getBankAccountsFromConvex,
-  getInboxItemByIdFromConvex,
-  getTeamMembersFromConvexIdentity,
-  getTransactionAttachmentsForTransactionIdsFromConvex,
-  getTransactionByIdFromConvex,
-  getTransactionMatchSuggestionsFromConvex,
-  getTransactionTagAssignmentsForTransactionIdsFromConvex,
-} from "@tamias/app-data-convex";
 import { resolveTaxValues } from "@tamias/utils/tax";
 import type { Database } from "../../../client";
+import { getBankAccounts } from "../../bank-accounts";
+import { getTeamMembers } from "../../teams/reads";
+import { getTransactionAttachmentsForTransactionIds } from "../../transaction-attachments";
 import { getTransactionCategoryContext } from "../../transaction-categories";
+import {
+  getInboxItemByIdFromD1,
+  getTransactionMatchSuggestionsFromD1,
+  requireInboxItemsD1,
+} from "../../inbox/d1";
+import {
+  getTransactionByIdFromD1,
+  getTransactionTagAssignmentsForTransactionIdsFromD1,
+  requireTransactionsD1,
+} from "../d1";
 import {
   buildAssignedTransactionUser,
   buildAssignedUserLookup,
@@ -19,7 +23,7 @@ import {
 import { buildTransactionCategorySummary } from "./types";
 
 export async function getPendingSuggestionTransactionIds(_db: Database, teamId: string) {
-  const rows = await getTransactionMatchSuggestionsFromConvex({
+  const rows = await getTransactionMatchSuggestionsFromD1(requireInboxItemsD1(_db), {
     teamId,
     statuses: ["pending"],
   });
@@ -38,7 +42,7 @@ export async function getPendingSuggestionTransactionIdsForTransactions(
     return new Set<string>();
   }
 
-  const rows = await getTransactionMatchSuggestionsFromConvex({
+  const rows = await getTransactionMatchSuggestionsFromD1(requireInboxItemsD1(_db), {
     teamId: params.teamId,
     transactionIds: params.transactionIds,
     statuses: ["pending"],
@@ -55,7 +59,7 @@ export async function getPendingSuggestionForTransaction(
   },
 ) {
   const suggestion = (
-    await getTransactionMatchSuggestionsFromConvex({
+    await getTransactionMatchSuggestionsFromD1(requireInboxItemsD1(_db), {
       teamId: params.teamId,
       transactionId: params.transactionId,
       statuses: ["pending"],
@@ -66,7 +70,7 @@ export async function getPendingSuggestionForTransaction(
     return null;
   }
 
-  const inboxItem = await getInboxItemByIdFromConvex({
+  const inboxItem = await getInboxItemByIdFromD1(requireInboxItemsD1(_db), {
     teamId: params.teamId,
     inboxId: suggestion.inboxId,
   });
@@ -84,8 +88,8 @@ export async function getPendingSuggestionForTransaction(
 
 export async function getFullTransactionData(db: Database, transactionId: string, teamId: string) {
   const [teamMembers, result, suggestion, bankAccounts] = await Promise.all([
-    getTeamMembersFromConvexIdentity({ teamId }),
-    getTransactionByIdFromConvex({
+    getTeamMembers(db, teamId),
+    getTransactionByIdFromD1(requireTransactionsD1(db), {
       teamId,
       transactionId,
     }),
@@ -93,7 +97,7 @@ export async function getFullTransactionData(db: Database, transactionId: string
       teamId,
       transactionId,
     }),
-    getBankAccountsFromConvex({ teamId }),
+    getBankAccounts(db, { teamId }),
   ]);
 
   if (!result) {
@@ -104,13 +108,13 @@ export async function getFullTransactionData(db: Database, transactionId: string
   const categoryContext = await getTransactionCategoryContext(db, teamId);
 
   const { attachmentsByTransactionId } = buildTransactionAttachmentLookups(
-    await getTransactionAttachmentsForTransactionIdsFromConvex({
+    await getTransactionAttachmentsForTransactionIds(db, {
       teamId,
       transactionIds: [transactionId],
     }),
   );
   const { tagsByTransactionId } = buildTransactionTagLookups(
-    await getTransactionTagAssignmentsForTransactionIdsFromConvex({
+    await getTransactionTagAssignmentsForTransactionIdsFromD1(requireTransactionsD1(db), {
       teamId,
       transactionIds: [transactionId],
     }),

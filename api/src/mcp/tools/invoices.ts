@@ -37,7 +37,7 @@ const DESTRUCTIVE_ANNOTATIONS = {
 } as const;
 
 export const registerInvoiceTools: RegisterTools = (server, ctx) => {
-  const { db, teamId, convexUserId } = ctx;
+  const { db, teamId, userId } = ctx;
 
   // Check scopes
   const hasReadScope = hasScope(ctx, "invoices.read");
@@ -188,7 +188,7 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
           status: params.status,
           paidAt: params.paidAt,
           internalNote: params.internalNote,
-          userId: convexUserId,
+          userId: userId,
         });
 
         if (!result) {
@@ -246,7 +246,7 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
           teamId,
           status: "paid",
           paidAt: params.paidAt ?? new Date().toISOString(),
-          userId: convexUserId,
+          userId: userId,
         });
 
         if (!result) {
@@ -346,9 +346,9 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
         }
 
         try {
-          if (!convexUserId) {
+          if (!userId) {
             return {
-              content: [{ type: "text", text: "Missing Convex user id" }],
+              content: [{ type: "text", text: "Missing user id" }],
               isError: true,
             };
           }
@@ -358,7 +358,7 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
           const result = await duplicateInvoice(db, {
             id,
             teamId,
-            userId: convexUserId,
+            userId: userId,
             invoiceNumber,
           });
 
@@ -422,7 +422,7 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
           id,
           teamId,
           status: "canceled",
-          userId: convexUserId,
+          userId: userId,
         });
 
         if (!result) {

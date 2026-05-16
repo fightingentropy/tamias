@@ -1,19 +1,20 @@
 import { createHash } from "node:crypto";
 import { PassThrough } from "node:stream";
 import { writeToString } from "@fast-csv/format";
-import {
-  listPayrollRunsFromConvex,
-  type ComplianceJournalEntryRecord,
-  type PayrollRunRecord,
-  upsertPayrollRunInConvex,
-} from "@tamias/app-data-convex";
 import { uploadVaultFile } from "@tamias/storage";
 import type { Database } from "../client";
+import type { ComplianceJournalEntryRecord } from "./compliance/ledger";
 import {
   buildLiabilitySummary,
   getPayrollContext,
   listPayrollJournalEntries,
+  type PayrollRunRecord,
 } from "./payroll-shared";
+import {
+  listPayrollRunsFromD1,
+  requirePayrollRunsD1,
+  upsertPayrollRunInD1,
+} from "./payroll-runs-d1";
 
 async function buildZipBundle(files: Array<{ name: string; data: Buffer }>) {
   const { default: archiver } = await import("archiver");
@@ -140,7 +141,8 @@ export async function generatePayrollExport(
   params: { teamId: string; periodKey?: string },
 ) {
   const context = await getPayrollContext(db, params.teamId);
-  const runs = await listPayrollRunsFromConvex({
+  const d1 = requirePayrollRunsD1(db);
+  const runs = await listPayrollRunsFromD1(d1, {
     teamId: params.teamId,
   });
   const run =
@@ -152,7 +154,7 @@ export async function generatePayrollExport(
     throw new Error("Payroll run not found");
   }
 
-  const journalEntries = (await listPayrollJournalEntries(params.teamId)).filter(
+  const journalEntries = (await listPayrollJournalEntries(db, params.teamId)).filter(
     (entry) => entry.sourceId === run.id,
   );
   const exportBundle = await createPayrollExportBundle({
@@ -160,7 +162,7 @@ export async function generatePayrollExport(
     run,
     journalEntries,
   });
-  const updatedRun = await upsertPayrollRunInConvex({
+  const updatedRun = await upsertPayrollRunInD1(d1, {
     id: run.id,
     teamId: params.teamId,
     filingProfileId: run.filingProfileId,
@@ -184,7 +186,7 @@ export async function generatePayrollExport(
   return {
     run: updatedRun,
     summary: buildLiabilitySummary(
-      await listPayrollRunsFromConvex({
+      await listPayrollRunsFromD1(d1, {
         teamId: params.teamId,
       }),
       context.profile.baseCurrency ?? context.team.baseCurrency ?? "GBP",

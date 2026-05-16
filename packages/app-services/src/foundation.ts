@@ -1,237 +1,268 @@
 import { hash } from "@tamias/encryption";
-import { api } from "@tamias/app-data-convex/api";
-import type { Id } from "@tamias/app-data-convex/data-model";
-import { createConvexClient, getConvexServiceKey } from "./convex-client";
+import {
+  createDatabase,
+  requireCloudflareD1Database,
+  type CloudflareD1DatabaseBinding,
+  type Database,
+} from "@tamias/app-data/client";
 
-type ConvexUserId = Id<"appUsers">;
+type ApiKeyRow = {
+  id: string;
+  name: string;
+  key_hash: string;
+  scopes_json: string;
+  team_id: string;
+  user_id: string;
+  created_at: string;
+  last_used_at: string | null;
+  updated_at: string;
+  user_email: string | null;
+  user_full_name: string | null;
+  user_avatar_url: string | null;
+};
 
-function getClient() {
-  return createConvexClient();
+type SerializedApiKey = {
+  id: string;
+  name: string;
+  userId: string | null;
+  teamId: string | null;
+  createdAt: string;
+  scopes: string[];
+  lastUsedAt: string | null;
+  user: {
+    id: string | null;
+    email: string | null;
+    fullName: string | null;
+    avatarUrl: string | null;
+  };
+};
+
+function getFoundationD1(db: Database = createDatabase()) {
+  return requireCloudflareD1Database(db);
 }
 
-function serviceArgs<T extends Record<string, unknown>>(args: T) {
+function nowIso() {
+  return new Date().toISOString();
+}
+
+function randomToken(prefix: string, bytes = 24) {
+  const buffer = new Uint8Array(bytes);
+  crypto.getRandomValues(buffer);
+
+  return `${prefix}${Array.from(buffer, (value) => value.toString(16).padStart(2, "0")).join("")}`;
+}
+
+function parseScopes(value: string) {
+  try {
+    const parsed = JSON.parse(value) as unknown;
+
+    if (Array.isArray(parsed)) {
+      return parsed.filter((scope): scope is string => typeof scope === "string");
+    }
+  } catch {
+    // Treat malformed persisted scopes as no scopes rather than failing auth lookup.
+  }
+
+  return [];
+}
+
+function serializeApiKey(row: ApiKeyRow): SerializedApiKey {
   return {
-    serviceKey: getConvexServiceKey(),
-    ...args,
+    id: row.id,
+    name: row.name,
+    userId: row.user_id,
+    teamId: row.team_id,
+    createdAt: row.created_at,
+    scopes: parseScopes(row.scopes_json),
+    lastUsedAt: row.last_used_at,
+    user: {
+      id: row.user_id,
+      email: row.user_email,
+      fullName: row.user_full_name,
+      avatarUrl: row.user_avatar_url,
+    },
   };
 }
 
-export async function getTeamByPublicTeamIdFromConvex(publicTeamId: string) {
-  return getClient().query(
-    api.foundation.serviceGetTeamByPublicTeamId,
-    serviceArgs({ publicTeamId }),
-  );
+function apiKeySelect(where: string) {
+  return `
+    select
+      api_keys.id,
+      api_keys.name,
+      api_keys.key_hash,
+      api_keys.scopes_json,
+      api_keys.team_id,
+      api_keys.user_id,
+      api_keys.created_at,
+      api_keys.last_used_at,
+      api_keys.updated_at,
+      users.email as user_email,
+      users.full_name as user_full_name,
+      users.avatar_url as user_avatar_url
+    from api_keys
+    left join users on users.id = api_keys.user_id
+    ${where}
+  `;
 }
 
-export async function getApiKeyByTokenFromConvex(token: string) {
-  return getClient().query(
-    api.foundation.serviceGetApiKeyByHash,
-    serviceArgs({ keyHash: hash(token) }),
-  );
+async function getApiKeyByIdAndTeamFromD1(
+  d1: CloudflareD1DatabaseBinding,
+  args: { publicApiKeyId: string; publicTeamId: string },
+) {
+  const row = await d1
+    .prepare(`${apiKeySelect("where api_keys.id = ? and api_keys.team_id = ?")} limit 1`)
+    .bind(args.publicApiKeyId, args.publicTeamId)
+    .first<ApiKeyRow>();
+
+  return row ? serializeApiKey(row) : null;
 }
 
-export async function getApiKeysByTeamFromConvex(publicTeamId: string) {
-  return getClient().query(api.foundation.serviceListApiKeysByTeam, serviceArgs({ publicTeamId }));
+export async function getApiKeyByTokenFromD1(token: string, db?: Database) {
+  const row = await getFoundationD1(db)
+    .prepare(`${apiKeySelect("where api_keys.key_hash = ?")} limit 1`)
+    .bind(hash(token))
+    .first<ApiKeyRow>();
+
+  return row ? serializeApiKey(row) : null;
 }
 
-export async function touchApiKeyFromConvex(publicApiKeyId: string) {
-  return getClient().mutation(api.foundation.serviceTouchApiKey, serviceArgs({ publicApiKeyId }));
+export async function getApiKeysByTeamFromD1(publicTeamId: string, db?: Database) {
+  const result = await getFoundationD1(db)
+    .prepare(`${apiKeySelect("where api_keys.team_id = ?")} order by api_keys.created_at asc`)
+    .bind(publicTeamId)
+    .all<ApiKeyRow>();
+
+  return (result.results ?? []).map(serializeApiKey);
 }
 
-export async function createApiKeyInConvex(args: {
-  userId: ConvexUserId;
+export async function touchApiKeyInD1(publicApiKeyId: string, db?: Database) {
+  const d1 = getFoundationD1(db);
+  const existing = await d1
+    .prepare("select id from api_keys where id = ? limit 1")
+    .bind(publicApiKeyId)
+    .first<{ id: string }>();
+
+  if (!existing) {
+    return null;
+  }
+
+  const timestamp = nowIso();
+  await d1
+    .prepare("update api_keys set last_used_at = ?, updated_at = ? where id = ?")
+    .bind(timestamp, timestamp, publicApiKeyId)
+    .run();
+
+  return publicApiKeyId;
+}
+
+export async function createApiKeyInD1(args: {
+  db: Database;
+  userId: string;
   publicTeamId: string;
   name: string;
   scopes: string[];
 }) {
-  return getClient().action(api.foundationActions.serviceCreateApiKey, serviceArgs(args));
+  const d1 = getFoundationD1(args.db);
+  const [user, team] = await Promise.all([
+    d1
+      .prepare("select id from users where id = ? limit 1")
+      .bind(args.userId)
+      .first<{ id: string }>(),
+    d1
+      .prepare("select id from teams where id = ? limit 1")
+      .bind(args.publicTeamId)
+      .first<{ id: string }>(),
+  ]);
+
+  if (!user || !team) {
+    throw new Error("Missing team or user for API key");
+  }
+
+  const key = randomToken("mid_");
+  const keyHash = hash(key);
+  const timestamp = nowIso();
+  const publicApiKeyId = crypto.randomUUID();
+
+  await d1
+    .prepare(
+      `
+        insert into api_keys (
+          id,
+          name,
+          key_hash,
+          scopes_json,
+          team_id,
+          user_id,
+          created_at,
+          last_used_at,
+          updated_at
+        ) values (?, ?, ?, ?, ?, ?, ?, null, ?)
+      `,
+    )
+    .bind(
+      publicApiKeyId,
+      args.name,
+      keyHash,
+      JSON.stringify(args.scopes),
+      args.publicTeamId,
+      args.userId,
+      timestamp,
+      timestamp,
+    )
+    .run();
+
+  return {
+    key,
+    data: await getApiKeyByIdAndTeamFromD1(d1, {
+      publicApiKeyId,
+      publicTeamId: args.publicTeamId,
+    }),
+  };
 }
 
-export async function updateApiKeyInConvex(args: {
+export async function updateApiKeyInD1(args: {
+  db: Database;
   publicApiKeyId: string;
   publicTeamId: string;
   name: string;
   scopes: string[];
 }) {
-  return getClient().action(api.foundationActions.serviceUpdateApiKey, serviceArgs(args));
+  const d1 = getFoundationD1(args.db);
+  const existing = await getApiKeyByIdAndTeamFromD1(d1, args);
+
+  if (!existing) {
+    throw new Error("API key not found");
+  }
+
+  await d1
+    .prepare(
+      "update api_keys set name = ?, scopes_json = ?, updated_at = ? where id = ? and team_id = ?",
+    )
+    .bind(args.name, JSON.stringify(args.scopes), nowIso(), args.publicApiKeyId, args.publicTeamId)
+    .run();
+
+  return {
+    key: null,
+    data: null,
+  };
 }
 
-export async function deleteApiKeyInConvex(args: { publicApiKeyId: string; publicTeamId: string }) {
-  return getClient().mutation(api.foundation.serviceDeleteApiKey, serviceArgs(args));
-}
-
-export async function getOAuthApplicationByClientIdFromConvex(clientId: string) {
-  return getClient().query(
-    api.foundation.serviceGetOAuthApplicationByClientId,
-    serviceArgs({ clientId }),
-  );
-}
-
-export async function getOAuthApplicationByIdFromConvex(args: {
-  publicApplicationId: string;
-  publicTeamId?: string;
-}) {
-  return getClient().query(api.foundation.serviceGetOAuthApplicationById, serviceArgs(args));
-}
-
-export async function getOAuthApplicationsByTeamFromConvex(publicTeamId: string) {
-  return getClient().query(
-    api.foundation.serviceListOAuthApplicationsByTeam,
-    serviceArgs({ publicTeamId }),
-  );
-}
-
-export async function createOAuthApplicationInConvex(args: {
-  publicTeamId: string;
-  createdByUserId: ConvexUserId;
-  name: string;
-  description?: string;
-  overview?: string;
-  developerName?: string;
-  logoUrl?: string;
-  website?: string;
-  installUrl?: string;
-  screenshots?: string[];
-  redirectUris: string[];
-  scopes: string[];
-  isPublic: boolean;
-}) {
-  return getClient().action(api.foundationActions.serviceCreateOAuthApplication, serviceArgs(args));
-}
-
-export async function updateOAuthApplicationInConvex(args: {
-  publicApplicationId: string;
-  publicTeamId: string;
-  name?: string;
-  description?: string | null;
-  overview?: string | null;
-  developerName?: string | null;
-  logoUrl?: string | null;
-  website?: string | null;
-  installUrl?: string | null;
-  screenshots?: string[];
-  redirectUris?: string[];
-  scopes?: string[];
-  isPublic?: boolean;
-  active?: boolean;
-}) {
-  return getClient().mutation(api.foundation.serviceUpdateOAuthApplication, serviceArgs(args));
-}
-
-export async function deleteOAuthApplicationInConvex(args: {
-  publicApplicationId: string;
+export async function deleteApiKeyInD1(args: {
+  db: Database;
+  publicApiKeyId: string;
   publicTeamId: string;
 }) {
-  return getClient().mutation(api.foundation.serviceDeleteOAuthApplication, serviceArgs(args));
-}
+  const d1 = getFoundationD1(args.db);
+  const existing = await getApiKeyByIdAndTeamFromD1(d1, args);
 
-export async function regenerateOAuthClientSecretInConvex(args: {
-  publicApplicationId: string;
-  publicTeamId: string;
-}) {
-  return getClient().action(
-    api.foundationActions.serviceRegenerateOAuthClientSecret,
-    serviceArgs(args),
-  );
-}
+  if (!existing) {
+    return null;
+  }
 
-export async function updateOAuthApplicationStatusInConvex(args: {
-  publicApplicationId: string;
-  publicTeamId: string;
-  status: "draft" | "pending" | "approved" | "rejected";
-}) {
-  return getClient().mutation(
-    api.foundation.serviceUpdateOAuthApplicationStatus,
-    serviceArgs(args),
-  );
-}
+  await d1
+    .prepare("delete from api_keys where id = ? and team_id = ?")
+    .bind(args.publicApiKeyId, args.publicTeamId)
+    .run();
 
-export async function createAuthorizationCodeInConvex(args: {
-  publicApplicationId: string;
-  userId: ConvexUserId;
-  publicTeamId: string;
-  scopes: string[];
-  redirectUri: string;
-  codeChallenge?: string;
-}) {
-  return getClient().action(
-    api.foundationActions.serviceCreateAuthorizationCode,
-    serviceArgs(args),
-  );
-}
-
-export async function exchangeAuthorizationCodeInConvex(args: {
-  code: string;
-  redirectUri: string;
-  publicApplicationId: string;
-  codeVerifier?: string;
-}) {
-  return getClient().action(
-    api.foundationActions.serviceExchangeAuthorizationCode,
-    serviceArgs(args),
-  );
-}
-
-export async function getOAuthAccessTokenByTokenFromConvex(token: string) {
-  return getClient().query(
-    api.foundation.serviceGetAccessTokenByHash,
-    serviceArgs({ tokenHash: hash(token) }),
-  );
-}
-
-export async function touchOAuthAccessTokenFromConvex(publicAccessTokenId: string) {
-  return getClient().mutation(
-    api.foundation.serviceTouchOAuthAccessToken,
-    serviceArgs({ publicAccessTokenId }),
-  );
-}
-
-export async function refreshAccessTokenInConvex(args: {
-  refreshToken: string;
-  publicApplicationId: string;
-  scopes?: string[];
-}) {
-  return getClient().action(
-    api.foundationActions.serviceRefreshAccessToken,
-    serviceArgs({
-      publicApplicationId: args.publicApplicationId,
-      refreshTokenHash: hash(args.refreshToken),
-      scopes: args.scopes,
-    }),
-  );
-}
-
-export async function revokeAccessTokenInConvex(args: {
-  token: string;
-  publicApplicationId?: string;
-}) {
-  return getClient().mutation(
-    api.foundation.serviceRevokeAccessTokenByHash,
-    serviceArgs({
-      publicApplicationId: args.publicApplicationId,
-      tokenHash: hash(args.token),
-    }),
-  );
-}
-
-export async function getUserAuthorizedApplicationsFromConvex(args: {
-  userId: ConvexUserId;
-  publicTeamId: string;
-}) {
-  return getClient().query(api.foundation.serviceGetUserAuthorizedApplications, serviceArgs(args));
-}
-
-export async function hasUserEverAuthorizedAppInConvex(args: {
-  publicApplicationId: string;
-  userId: ConvexUserId;
-  publicTeamId: string;
-}) {
-  return getClient().query(api.foundation.serviceHasUserEverAuthorizedApp, serviceArgs(args));
-}
-
-export async function revokeUserApplicationTokensInConvex(args: {
-  publicApplicationId: string;
-  userId: ConvexUserId;
-}) {
-  return getClient().mutation(api.foundation.serviceRevokeUserApplicationTokens, serviceArgs(args));
+  return args.publicApiKeyId;
 }

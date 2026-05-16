@@ -50,7 +50,7 @@ describe("tRPC: institutions.get", () => {
     mockFetchLive.mockClear();
   });
 
-  test("uses live provider fallback when Convex returns no rows", async () => {
+  test("uses live provider fallback when D1 returns no rows", async () => {
     const caller = createCaller(createTestContext());
     const result = await caller.get({
       countryCode: "GB",
@@ -63,11 +63,11 @@ describe("tRPC: institutions.get", () => {
     expect(result[0]?.name).toBe("First Sandbox Bank");
   });
 
-  test("skips live fallback when Convex returns rows", async () => {
+  test("skips live fallback when D1 returns rows", async () => {
     mocks.getInstitutions.mockImplementation(() =>
       Promise.resolve([
         {
-          id: "from_convex",
+          id: "from_d1",
           name: "Local Bank",
           logo: null,
           popularity: 1,
@@ -84,7 +84,7 @@ describe("tRPC: institutions.get", () => {
     const result = await caller.get({ countryCode: "GB", limit: 50 });
 
     expect(mockFetchLive).not.toHaveBeenCalled();
-    expect(result[0]?.id).toBe("from_convex");
+    expect(result[0]?.id).toBe("from_d1");
   });
 
   test("live fallback returns no rows when the active provider is excluded", async () => {
@@ -106,7 +106,7 @@ describe("tRPC: institutions.updateUsage", () => {
     mocks.updateInstitutionUsage.mockImplementation(() => Promise.resolve(null));
   });
 
-  test("returns data null when institution is not in Convex (live-fallback picks)", async () => {
+  test("returns data null when institution is not in D1 (live-fallback picks)", async () => {
     const caller = createCaller(createTestContext());
     const result = await caller.updateUsage({ id: "ins_only_from_live_provider" });
 

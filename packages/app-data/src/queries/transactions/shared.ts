@@ -2,16 +2,21 @@ export type {
   AssignedTransactionUser,
   TransactionAttachmentSummary,
   TransactionCategorySummary,
-  TransactionConvexUserId,
   TransactionDerivedState,
   TransactionFrequency,
+  TransactionMethod,
+  TransactionRecord,
+  TransactionStatus,
   TransactionTag,
+  TransactionTagAssignmentRecord,
+  TransactionUserId,
+  UpsertTransactionInput,
 } from "./shared/types";
 export { buildTransactionCategorySummary } from "./shared/types";
 export {
   MATCHING_EXCLUDED_TRANSACTION_STATUSES,
   buildAccountingSyncLookups,
-  toConvexTransactionInput,
+  toTransactionUpsertInput,
 } from "./shared/serialization";
 export {
   buildAssignedTransactionUser,

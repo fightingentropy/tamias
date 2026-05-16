@@ -1,9 +1,15 @@
 import { TZDate } from "@date-fns/tz";
-import { createAttachments, getInvoiceById, updateInvoice } from "@tamias/app-data/queries";
 import {
-  getPublicInvoicesByStatusesFromConvex,
-  getTransactionsByAmountRangeFromConvex,
-} from "@tamias/app-data-convex";
+  createAttachments,
+  getInvoiceById,
+  getPublicInvoicesByStatuses,
+  updateInvoice,
+} from "@tamias/app-data/queries";
+import type { Database } from "@tamias/app-data/client";
+import {
+  getTransactionsByAmountRangeFromD1,
+  requireTransactionsD1,
+} from "@tamias/app-data/queries/transactions";
 import { enqueue } from "@tamias/job-client";
 import { format, subDays } from "date-fns";
 import type { InvoiceStatusSchedulerPayload } from "../../schemas/invoices";
@@ -47,8 +53,9 @@ export class InvoiceStatusSchedulerProcessor extends BaseProcessor<InvoiceStatus
 
     await this.updateProgress(job, 10, undefined, "loading-invoices");
 
+    const db = getDb();
     const invoiceIds = (
-      await getPublicInvoicesByStatusesFromConvex({
+      await getPublicInvoicesByStatuses(db, {
         statuses: ["unpaid", "overdue"],
       })
     )
@@ -73,7 +80,7 @@ export class InvoiceStatusSchedulerProcessor extends BaseProcessor<InvoiceStatus
     const results = await mapWithConcurrency(
       invoiceIds,
       INVOICE_STATUS_CHECK_CONCURRENCY,
-      async (invoiceId) => this.checkInvoiceStatus(invoiceId),
+      async (invoiceId) => this.checkInvoiceStatus(db, invoiceId),
     );
 
     const summary: ProcessResult = {
@@ -113,9 +120,11 @@ export class InvoiceStatusSchedulerProcessor extends BaseProcessor<InvoiceStatus
     return summary;
   }
 
-  private async checkInvoiceStatus(invoiceId: string): Promise<InvoiceStatusCheckResult> {
+  private async checkInvoiceStatus(
+    db: Database,
+    invoiceId: string,
+  ): Promise<InvoiceStatusCheckResult> {
     try {
-      const db = getDb();
       const invoice = await getInvoiceById(db, { id: invoiceId });
 
       if (!invoice) {
@@ -132,7 +141,7 @@ export class InvoiceStatusSchedulerProcessor extends BaseProcessor<InvoiceStatus
         return { kind: "skipped", invoiceId };
       }
 
-      const matchingTransactions = await this.findMatchingTransactions(invoice);
+      const matchingTransactions = await this.findMatchingTransactions(db, invoice);
 
       if (matchingTransactions.length === 1) {
         const transactionId = matchingTransactions[0]?.id;
@@ -208,7 +217,7 @@ export class InvoiceStatusSchedulerProcessor extends BaseProcessor<InvoiceStatus
     }
   }
 
-  private async findMatchingTransactions(invoice: {
+  private async findMatchingTransactions(db: Database, invoice: {
     amount: number | null;
     currency: string | null;
     dueDate: string | null;
@@ -227,7 +236,7 @@ export class InvoiceStatusSchedulerProcessor extends BaseProcessor<InvoiceStatus
     }
 
     const amountSearchValue = Math.round(Math.abs(invoiceAmount) * 100);
-    const candidateTransactions = await getTransactionsByAmountRangeFromConvex({
+    const candidateTransactions = await getTransactionsByAmountRangeFromD1(requireTransactionsD1(db), {
       teamId: invoice.teamId,
       minAmount: amountSearchValue,
       maxAmount: amountSearchValue,

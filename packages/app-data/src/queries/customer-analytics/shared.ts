@@ -1,4 +1,5 @@
-import { getCustomersByIdsFromConvex } from "@tamias/app-data-convex";
+import type { Database } from "../../client";
+import { getCustomersByIdsFromD1, requireCustomersD1 } from "../customers/d1";
 
 export const CUSTOMER_REVENUE_STATUSES = ["paid", "unpaid", "overdue"] as const;
 
@@ -6,12 +7,12 @@ export function roundMoney(value: number) {
   return Math.round(value * 100) / 100;
 }
 
-export async function getCustomerNameMap(teamId: string, customerIds: string[]) {
+export async function getCustomerNameMap(db: Database, teamId: string, customerIds: string[]) {
   if (customerIds.length === 0) {
     return new Map<string, string>();
   }
 
-  const customers = await getCustomersByIdsFromConvex({
+  const customers = await getCustomersByIdsFromD1(requireCustomersD1(db), {
     teamId,
     customerIds: [...new Set(customerIds)],
   });

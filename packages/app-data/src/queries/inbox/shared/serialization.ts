@@ -1,8 +1,5 @@
-import type {
-  InboxItemRecord,
-  TransactionMatchSuggestionRecord,
-  TransactionRecord,
-} from "@tamias/app-data-convex";
+import type { TransactionRecord } from "../../transactions/shared";
+import type { InboxItemRecord, TransactionMatchSuggestionRecord } from "../d1";
 
 export function toUpsertInboxItem(item: InboxItemRecord, overrides: Partial<InboxItemRecord> = {}) {
   const next = { ...item, ...overrides };

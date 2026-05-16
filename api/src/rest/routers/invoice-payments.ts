@@ -376,7 +376,7 @@ app.openapi(
   async (c) => {
     const db = c.get("db");
     const { token } = c.req.valid("json");
-    const invoice = await getInvoiceByToken(token);
+    const invoice = await getInvoiceByToken(token, db);
 
     if (!invoice) {
       throw new HTTPException(400, { message: "Invalid invoice token" });

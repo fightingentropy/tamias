@@ -1,4 +1,4 @@
-import type { CloudflareRecurringScheduleRequest } from "./bridge-helpers";
+import type { CloudflareRecurringScheduleRequest } from "./async-helpers";
 import type { CloudflareAsyncEnv } from "./shared";
 
 export async function upsertRecurringScheduleInRunCoordinator(

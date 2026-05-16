@@ -1,8 +1,6 @@
-import {
-  getTrackerEntriesByRangeFromConvex,
-  getTrackerProjectsByIdsFromConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
+import { getTrackerEntriesByRangeFromD1, requireTrackerEntriesD1 } from "../../tracker-entries/d1";
+import { getTrackerProjectsByIdsFromD1, requireTrackerProjectsD1 } from "../../tracker-projects/d1";
 import type { GetInsightActivityDataParams } from "./types";
 
 type TrackerActivityStats = {
@@ -12,11 +10,11 @@ type TrackerActivityStats = {
 };
 
 export async function getTrackerActivityStats(
-  _db: Database,
+  db: Database,
   params: GetInsightActivityDataParams,
 ): Promise<TrackerActivityStats> {
   const { teamId, from, to } = params;
-  const entries = await getTrackerEntriesByRangeFromConvex({
+  const entries = await getTrackerEntriesByRangeFromD1(requireTrackerEntriesD1(db), {
     teamId,
     from,
     to,
@@ -30,7 +28,7 @@ export async function getTrackerActivityStats(
   ];
   const projects =
     projectIds.length > 0
-      ? await getTrackerProjectsByIdsFromConvex({
+      ? await getTrackerProjectsByIdsFromD1(requireTrackerProjectsD1(db), {
           teamId,
           projectIds,
         })

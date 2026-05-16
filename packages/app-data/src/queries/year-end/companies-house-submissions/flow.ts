@@ -1,18 +1,18 @@
 import { CompaniesHouseXmlGatewayProvider } from "@tamias/compliance";
-import {
-  createSubmissionEventInConvex,
-  getCloseCompanyLoansScheduleByPeriodFromConvex,
-  getCorporationTaxRateScheduleByPeriodFromConvex,
-  getYearEndPackByPeriodFromConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
+import { createSubmissionEvent } from "../../filing-events";
 import { buildCtSubmissionArtifacts } from "../drafts";
 import { getYearEndContext } from "../pack";
+import { getYearEndPackByPeriod } from "../pack-store";
 import {
   getSubmissionEventRequestSubmissionNumber,
   listYearEndSubmissionEvents,
   requireReadyYearEndPack,
 } from "../submission-common";
+import {
+  getCloseCompanyLoansScheduleByPeriod,
+  getCorporationTaxRateScheduleByPeriod,
+} from "../tax-schedules";
 import { allocateCompaniesHouseSubmissionIdentifiers } from "./identifiers";
 import {
   buildCompaniesHouseAccountsSubmissionRequestSummary,
@@ -24,9 +24,7 @@ export async function listAccountsSubmissionEvents(
   db: Database,
   params: { teamId: string; periodKey?: string },
 ) {
-  void db;
-
-  return listYearEndSubmissionEvents({
+  return listYearEndSubmissionEvents(db, {
     teamId: params.teamId,
     provider: "companies-house",
     obligationType: "accounts",
@@ -45,17 +43,17 @@ export async function submitAnnualAccountsToCompaniesHouse(
 ) {
   const context = await getYearEndContext(db, params.teamId, params.periodKey);
   const [packRecord, closeCompanyLoansSchedule, corporationTaxRateSchedule] = await Promise.all([
-    getYearEndPackByPeriodFromConvex({
+    getYearEndPackByPeriod(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       periodKey: context.period.periodKey,
     }),
-    getCloseCompanyLoansScheduleByPeriodFromConvex({
+    getCloseCompanyLoansScheduleByPeriod(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       periodKey: context.period.periodKey,
     }),
-    getCorporationTaxRateScheduleByPeriodFromConvex({
+    getCorporationTaxRateScheduleByPeriod(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       periodKey: context.period.periodKey,
@@ -96,7 +94,7 @@ export async function submitAnnualAccountsToCompaniesHouse(
   try {
     provider = CompaniesHouseXmlGatewayProvider.fromEnvironment();
   } catch (error) {
-    await createSubmissionEventInConvex({
+    await createSubmissionEvent(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       provider: "companies-house",
@@ -120,7 +118,7 @@ export async function submitAnnualAccountsToCompaniesHouse(
     | null = null;
 
   try {
-    identifiers = await allocateCompaniesHouseSubmissionIdentifiers(provider);
+    identifiers = await allocateCompaniesHouseSubmissionIdentifiers(db, provider);
     requestSummary = {
       ...buildCompaniesHouseAccountsSubmissionRequestSummary({
         periodKey: context.period.periodKey,
@@ -152,7 +150,7 @@ export async function submitAnnualAccountsToCompaniesHouse(
       identifiers.submissionNumber,
     );
 
-    await createSubmissionEventInConvex({
+    await createSubmissionEvent(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       provider: "companies-house",
@@ -173,7 +171,7 @@ export async function submitAnnualAccountsToCompaniesHouse(
       submissionXml,
     };
   } catch (error) {
-    await createSubmissionEventInConvex({
+    await createSubmissionEvent(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       provider: "companies-house",
@@ -233,7 +231,7 @@ export async function pollAnnualAccountsSubmission(
     });
     const selectedStatus = findCompaniesHouseSubmissionStatus(receipt, submissionNumber);
 
-    await createSubmissionEventInConvex({
+    await createSubmissionEvent(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       provider: "companies-house",
@@ -253,7 +251,7 @@ export async function pollAnnualAccountsSubmission(
       previousSubmission: targetEvent,
     };
   } catch (error) {
-    await createSubmissionEventInConvex({
+    await createSubmissionEvent(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       provider: "companies-house",

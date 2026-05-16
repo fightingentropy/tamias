@@ -74,7 +74,7 @@ export class DispatchInsightsProcessor extends BaseProcessor<DispatchInsightsPay
     // Check which teams are enabled for insights (env var override for testing)
     const enabledTeamIds = getEnabledTeamIds();
 
-    // Empty array = no teams enabled (safe default for staging)
+    // Empty array = no teams enabled.
     if (enabledTeamIds !== undefined && enabledTeamIds.length === 0) {
       this.logger.info("No teams configured for insights (INSIGHTS_ENABLED_TEAM_IDS is empty)", {
         periodType,

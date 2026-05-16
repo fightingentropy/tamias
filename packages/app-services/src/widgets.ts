@@ -1,6 +1,4 @@
 import type { Database } from "@tamias/app-data/client";
-import { api } from "@tamias/app-data-convex/api";
-import type { Id } from "@tamias/app-data-convex/data-model";
 import {
   getBillableHours,
   getCashBalance,
@@ -25,14 +23,6 @@ import {
 } from "@tamias/app-data/queries";
 import { getPaymentStatus } from "@tamias/app-data/queries/invoices";
 import type { WidgetType } from "@tamias/domain";
-import { createConvexClient, getConvexServiceKey, getSharedConvexClient } from "./convex-client";
-
-function serviceArgs<T extends Record<string, unknown>>(args: T) {
-  return {
-    serviceKey: getConvexServiceKey(),
-    ...args,
-  };
-}
 
 const OVERVIEW_TRANSACTION_WIDGETS = new Set<WidgetType>([
   "runway",
@@ -564,39 +554,4 @@ export async function getContextualHydratableWidgetsData(args: {
   );
 
   return Object.fromEntries(entries.flatMap(([widget, data]) => (data ? [[widget, data]] : [])));
-}
-
-export async function getWidgetPreferencesFromConvex(args: {
-  userId: Id<"appUsers">;
-  teamId: string;
-}) {
-  return getSharedConvexClient().query(api.widgets.serviceGetWidgetPreferences, serviceArgs(args));
-}
-
-export async function getWidgetPreferencesFromConvexAsAuthUser(accessToken?: string) {
-  if (!accessToken) {
-    return null;
-  }
-
-  const client = createConvexClient();
-
-  try {
-    client.setAuth(accessToken);
-    return await client.query(api.widgets.myWidgetPreferences, {});
-  } catch {
-    return null;
-  } finally {
-    client.clearAuth();
-  }
-}
-
-export async function updateWidgetPreferencesInConvex(args: {
-  userId: Id<"appUsers">;
-  teamId: string;
-  primaryWidgets: WidgetType[];
-}) {
-  return getSharedConvexClient().mutation(
-    api.widgets.serviceUpdateWidgetPreferences,
-    serviceArgs(args),
-  );
 }

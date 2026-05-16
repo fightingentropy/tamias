@@ -26,6 +26,7 @@ const API_PREFIX_SEGMENTS = new Set([
   "tracker-entries",
   "chat",
   "transcription",
+  "uploads",
   "mcp",
   "internal",
 ]);

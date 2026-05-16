@@ -1,8 +1,7 @@
-import type { TransactionRecord } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import { deleteAccountingSyncRecordsForTransactions } from "../../accounting-sync";
 import { createActivity } from "../../activities";
-import type { TransactionConvexUserId } from "../shared";
+import type { TransactionRecord, TransactionUserId } from "../shared";
 
 export type TransactionMutationStatus =
   | "pending"
@@ -57,7 +56,7 @@ export async function clearAccountingSyncForStatusChange(args: {
 export function recordTransactionMutationActivities(args: {
   db: Database;
   teamId: string;
-  userId?: TransactionConvexUserId;
+  userId?: TransactionUserId;
   categorySlug?: string | null;
   assignedId?: string | null;
   transactionIds: string[];

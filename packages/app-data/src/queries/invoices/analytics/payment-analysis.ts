@@ -1,8 +1,8 @@
 import { UTCDate } from "@date-fns/utc";
-import { getInvoiceAnalyticsAggregateRowsFromConvex } from "@tamias/app-data-convex";
 import { eachMonthOfInterval, endOfMonth, format, parseISO, startOfMonth } from "date-fns";
 import type { Database } from "../../../client";
 import { reuseQueryResult } from "../../../utils/request-cache";
+import { getInvoiceAnalyticsAggregateRowsFromD1 } from "../../reports/shared/aggregates";
 
 export type GetInvoicePaymentAnalysisParams = {
   teamId: string;
@@ -37,13 +37,13 @@ export type InvoicePaymentAnalysisResult = {
 };
 
 async function getInvoicePaymentAnalysisImpl(
-  _db: Database,
+  db: Database,
   params: GetInvoicePaymentAnalysisParams,
 ): Promise<InvoicePaymentAnalysisResult> {
   const { teamId, from, to, currency: inputCurrency } = params;
   const fromDate = startOfMonth(new UTCDate(parseISO(from)));
   const toDate = endOfMonth(new UTCDate(parseISO(to)));
-  const allRows = await getInvoiceAnalyticsAggregateRowsFromConvex({
+  const allRows = await getInvoiceAnalyticsAggregateRowsFromD1(db, {
     teamId,
     dateField: "createdAt",
     dateFrom: fromDate.toISOString(),

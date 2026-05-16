@@ -8,7 +8,7 @@ import {
   getTeamById,
   getTrackerProjectById,
   getTrackerRecordsByRange,
-  getUserByConvexId,
+  getUserById,
 } from "@tamias/app-data/queries";
 import { transformCustomerToContent } from "@tamias/invoice/utils";
 import { TRPCError } from "@trpc/server";
@@ -16,7 +16,7 @@ import { addDays, format, parseISO } from "date-fns";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
 import { protectedProcedure } from "../init";
-import { defaultTemplate, requireConvexUserId } from "./invoice-shared";
+import { defaultTemplate, requireUserId } from "./invoice-shared";
 
 export const invoiceDefaultProcedures = {
   createFromTracker: protectedProcedure
@@ -29,7 +29,7 @@ export const invoiceDefaultProcedures = {
     )
     .mutation(async ({ ctx: { db, teamId, session }, input }) => {
       const { projectId, dateFrom, dateTo } = input;
-      const convexUserId = requireConvexUserId(session);
+      const userId = requireUserId(session);
 
       const [projectData, trackerData] = await Promise.all([
         getTrackerProjectById(db, { id: projectId, teamId: teamId! }),
@@ -75,7 +75,7 @@ export const invoiceDefaultProcedures = {
 
       const [nextInvoiceNumber, template, team, fullCustomer, user] = await Promise.all([
         allocateNextInvoiceNumber(db, teamId!),
-        getInvoiceTemplate(teamId!),
+        getInvoiceTemplate(db, teamId!),
         getTeamById(db, teamId!),
         projectData.customerId
           ? getCustomerById(db, {
@@ -83,7 +83,7 @@ export const invoiceDefaultProcedures = {
               teamId: teamId!,
             })
           : null,
-        getUserByConvexId(db, convexUserId),
+        getUserById(db, userId),
       ]);
 
       const invoiceId = uuidv4();
@@ -117,7 +117,7 @@ export const invoiceDefaultProcedures = {
       return draftInvoice(db, {
         id: invoiceId,
         teamId: teamId!,
-        userId: convexUserId,
+        userId: userId,
         customerId: projectData.customerId,
         customerName: fullCustomer?.name,
         invoiceNumber: nextInvoiceNumber,
@@ -149,13 +149,13 @@ export const invoiceDefaultProcedures = {
     }),
 
   defaultSettings: protectedProcedure.query(async ({ ctx: { db, teamId, session, geo } }) => {
-    const convexUserId = requireConvexUserId(session);
+    const userId = requireUserId(session);
 
     const [nextInvoiceNumber, template, team, user] = await Promise.all([
       getNextInvoiceNumber(db, teamId!),
-      getInvoiceTemplate(teamId!),
+      getInvoiceTemplate(db, teamId!),
       getTeamById(db, teamId!),
-      getUserByConvexId(db, convexUserId),
+      getUserById(db, userId),
     ]);
 
     const locale = user?.locale ?? geo?.locale ?? "en";

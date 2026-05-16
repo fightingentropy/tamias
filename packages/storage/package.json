@@ -9,7 +9,7 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "convex": "^1.34.1"
+    "@tamias/encryption": "workspace:*"
   },
   "devDependencies": {
     "typescript": "catalog:"

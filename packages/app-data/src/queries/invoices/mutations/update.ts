@@ -1,7 +1,7 @@
 import type { DatabaseOrTransaction } from "../../../client";
 import { logActivity, type InvoiceActivityType } from "../../../utils/log-activity";
 import { getInvoiceById } from "../reads";
-import { type InvoiceConvexUserId, hasOwnKey, upsertProjectedInvoiceRecord } from "../shared";
+import { type InvoiceUserId, hasOwnKey, upsertProjectedInvoiceRecord } from "../shared";
 
 export type UpdateInvoiceParams = {
   id: string;
@@ -20,7 +20,7 @@ export type UpdateInvoiceParams = {
   invoiceRecurringId?: string | null;
   recurringSequence?: number | null;
   teamId: string;
-  userId?: InvoiceConvexUserId;
+  userId?: InvoiceUserId;
 };
 
 export async function updateInvoice(db: DatabaseOrTransaction, params: UpdateInvoiceParams) {

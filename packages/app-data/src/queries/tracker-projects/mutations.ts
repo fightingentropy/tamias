@@ -1,15 +1,16 @@
-import {
-  deleteTrackerProjectInConvex,
-  replaceTrackerProjectTagsInConvex,
-  upsertTrackerProjectInConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { createActivity } from "../activities";
 import { getTrackerProjectById } from "./by-id";
+import {
+  deleteTrackerProjectFromD1,
+  replaceTrackerProjectTagsInD1,
+  requireTrackerProjectsD1,
+  upsertTrackerProjectInD1,
+} from "./d1";
 import type { DeleteTrackerProjectParams, UpsertTrackerProjectParams } from "./types";
 
-export async function deleteTrackerProject(_db: Database, params: DeleteTrackerProjectParams) {
-  return deleteTrackerProjectInConvex({
+export async function deleteTrackerProject(db: Database, params: DeleteTrackerProjectParams) {
+  return deleteTrackerProjectFromD1(requireTrackerProjectsD1(db), {
     teamId: params.teamId,
     id: params.id,
   });
@@ -18,7 +19,7 @@ export async function deleteTrackerProject(_db: Database, params: DeleteTrackerP
 export async function upsertTrackerProject(db: Database, params: UpsertTrackerProjectParams) {
   const projectId = params.id ?? crypto.randomUUID();
 
-  await upsertTrackerProjectInConvex({
+  await upsertTrackerProjectInD1(requireTrackerProjectsD1(db), {
     id: projectId,
     teamId: params.teamId,
     name: params.name,
@@ -51,7 +52,7 @@ export async function upsertTrackerProject(db: Database, params: UpsertTrackerPr
   }
 
   if (params.tags) {
-    await replaceTrackerProjectTagsInConvex({
+    await replaceTrackerProjectTagsInD1(requireTrackerProjectsD1(db), {
       teamId: params.teamId,
       trackerProjectId: projectId,
       tagIds: params.tags.map((tag) => tag.id),

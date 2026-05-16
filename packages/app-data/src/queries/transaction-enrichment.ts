@@ -1,9 +1,10 @@
-import {
-  getTransactionsByIdsFromConvex,
-  type TransactionRecord,
-  upsertTransactionsInConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../client";
+import {
+  getTransactionsByIdsFromD1,
+  requireTransactionsD1,
+  upsertTransactionsInD1,
+} from "./transactions/d1";
+import type { TransactionRecord } from "./transactions/shared";
 
 function compareTransactionsByDateDesc(
   left: Pick<TransactionRecord, "id" | "date" | "createdAt">,
@@ -98,7 +99,7 @@ function toUpsertTransaction(
 }
 
 export async function getTransactionsForEnrichment(
-  _db: Database,
+  db: Database,
   params: GetTransactionsForEnrichmentParams,
 ): Promise<TransactionForEnrichment[]> {
   if (params.transactionIds.length === 0) {
@@ -106,7 +107,7 @@ export async function getTransactionsForEnrichment(
   }
 
   return (
-    await getTransactionsByIdsFromConvex({
+    await getTransactionsByIdsFromD1(requireTransactionsD1(db), {
       teamId: params.teamId,
       transactionIds: params.transactionIds,
     })
@@ -126,7 +127,7 @@ export async function getTransactionsForEnrichment(
 }
 
 export async function updateTransactionEnrichments(
-  _db: Database,
+  db: Database,
   params: UpdateTransactionEnrichmentsParams,
 ): Promise<void> {
   const { teamId, updates } = params;
@@ -162,7 +163,7 @@ export async function updateTransactionEnrichments(
     }
 
     const updatesByTransactionId = deduped;
-    const transactions = await getTransactionsByIdsFromConvex({
+    const transactions = await getTransactionsByIdsFromD1(requireTransactionsD1(db), {
       teamId,
       transactionIds: [...updatesByTransactionId.keys()],
     }).then((records) => records.sort(compareTransactionsByDateDesc));
@@ -171,7 +172,7 @@ export async function updateTransactionEnrichments(
       return;
     }
 
-    await upsertTransactionsInConvex({
+    await upsertTransactionsInD1(requireTransactionsD1(db), {
       teamId,
       transactions: transactions.map((transaction) =>
         toUpsertTransaction(transaction, {
@@ -191,7 +192,7 @@ export async function updateTransactionEnrichments(
 }
 
 export async function markTransactionsAsEnriched(
-  _db: Database,
+  db: Database,
   params: MarkTransactionsAsEnrichedParams,
 ): Promise<void> {
   const { teamId, transactionIds } = params;
@@ -211,7 +212,7 @@ export async function markTransactionsAsEnriched(
   }
 
   try {
-    const transactions = await getTransactionsByIdsFromConvex({
+    const transactions = await getTransactionsByIdsFromD1(requireTransactionsD1(db), {
       teamId,
       transactionIds,
     }).then((records) => records.sort(compareTransactionsByDateDesc));
@@ -220,7 +221,7 @@ export async function markTransactionsAsEnriched(
       return;
     }
 
-    await upsertTransactionsInConvex({
+    await upsertTransactionsInD1(requireTransactionsD1(db), {
       teamId,
       transactions: transactions.map((transaction) =>
         toUpsertTransaction(transaction, {

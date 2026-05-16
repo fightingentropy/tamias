@@ -6,7 +6,7 @@ export const inboxNeedsReview: NotificationHandler = {
 
   createActivity: (data, user) => ({
     teamId: user.team_id,
-    userId: user.convex_id,
+    userId: user.id,
     type: "inbox_needs_review",
     source: "system",
     priority: 3,

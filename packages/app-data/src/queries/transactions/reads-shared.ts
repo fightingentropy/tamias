@@ -1,4 +1,4 @@
-import type { TransactionStatus } from "@tamias/app-data-convex";
+import type { TransactionStatus } from "./shared";
 
 export type GetTransactionsParams = {
   teamId: string;
@@ -61,7 +61,7 @@ export function buildEmptyProcessedTransactionPage(args?: {
   };
 }
 
-export function getConvexStatusesNotIn(args: {
+export function getTransactionStatusesNotIn(args: {
   statuses?: GetTransactionsParams["statuses"];
   exported?: boolean | null;
 }): TransactionStatus[] {

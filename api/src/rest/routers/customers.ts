@@ -93,7 +93,7 @@ app.openapi(
     const result = await upsertCustomer(db, {
       ...body,
       teamId,
-      userId: session.user.convexId ?? undefined,
+      userId: session.user.id ?? undefined,
     });
 
     return c.json(validateResponse(result, customerResponseSchema), 201);
@@ -177,7 +177,7 @@ app.openapi(
       ...body,
       id,
       teamId,
-      userId: session.user.convexId ?? undefined,
+      userId: session.user.id ?? undefined,
     });
 
     return c.json(validateResponse(result, customerResponseSchema));

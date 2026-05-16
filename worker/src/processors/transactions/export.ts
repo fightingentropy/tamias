@@ -1,6 +1,5 @@
 import { PassThrough } from "node:stream";
 import { writeToString } from "@fast-csv/format";
-import type { CurrentUserIdentityRecord } from "@tamias/app-data-convex";
 import {
   createShortLink,
   markTransactionsAsExported,
@@ -9,7 +8,8 @@ import {
 import { enqueue } from "@tamias/job-client";
 import { getVaultSignedUrl, uploadVaultFile } from "@tamias/storage";
 import { getAppUrl } from "@tamias/utils/envs";
-import archiver from "archiver";
+// @ts-expect-error @types/archiver still models the removed legacy factory export.
+import { ZipArchive } from "archiver";
 import type { WorkerJob as Job } from "../../types/job";
 import { format } from "date-fns";
 import xlsx from "node-xlsx";
@@ -19,7 +19,7 @@ import { TIMEOUTS, withTimeout } from "../../utils/timeout";
 import { BaseProcessor } from "../base";
 import { ProcessExportProcessor } from "./process-export";
 
-type ConvexUserId = CurrentUserIdentityRecord["convexId"];
+type AppUserId = string;
 
 const columns = [
   { label: "ID", key: "id" },
@@ -185,7 +185,7 @@ export class ExportTransactionsProcessor extends BaseProcessor<ExportTransaction
       stream.on("end", () => resolve(Buffer.concat(chunks)));
       stream.on("error", reject);
 
-      const archive = archiver("zip", { zlib: { level: 9 } });
+      const archive = new ZipArchive({ zlib: { level: 9 } });
       archive.on("error", reject);
       archive.pipe(stream);
 
@@ -244,7 +244,7 @@ export class ExportTransactionsProcessor extends BaseProcessor<ExportTransaction
         const shortLink = await createShortLink(getDb(), {
           url: signedUrlData.signedUrl,
           teamId,
-          userId: userId as ConvexUserId,
+          userId: userId as AppUserId,
           type: "download",
           fileName,
           mimeType: "application/zip",

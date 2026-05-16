@@ -1,7 +1,5 @@
-import {
-  getPublicInvoiceByPublicInvoiceIdFromConvex,
-  getPublicInvoicesByIdsFromConvex,
-} from "@tamias/app-data-convex";
+import type { DatabaseOrTransaction } from "../../../client";
+import { getPublicInvoiceByPublicInvoiceId, getPublicInvoicesByIds } from "../../public-invoices";
 import {
   type InvoiceByIdResult,
   type ProjectedInvoiceRecord,
@@ -51,6 +49,7 @@ export function buildInvoicePageResponse(args: {
 }
 
 export async function getProjectedInvoicesByIdsInOrder(args: {
+  db: DatabaseOrTransaction;
   teamId: string;
   invoiceIds: string[];
 }) {
@@ -58,7 +57,7 @@ export async function getProjectedInvoicesByIdsInOrder(args: {
     return [];
   }
 
-  const records = await getPublicInvoicesByIdsFromConvex({
+  const records = await getPublicInvoicesByIds(args.db, {
     teamId: args.teamId,
     invoiceIds: args.invoiceIds,
   });
@@ -78,10 +77,11 @@ export async function getProjectedInvoicesByIdsInOrder(args: {
 }
 
 export async function getInvoiceById(
+  db: DatabaseOrTransaction,
   params: GetInvoiceByIdParams,
 ): Promise<InvoiceByIdResult | null> {
   const { id, teamId } = params;
-  const projected = await getPublicInvoiceByPublicInvoiceIdFromConvex({
+  const projected = await getPublicInvoiceByPublicInvoiceId(db, {
     invoiceId: id,
   });
   const payload = getProjectedInvoicePayload(projected);

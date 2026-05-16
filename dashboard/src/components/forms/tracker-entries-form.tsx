@@ -205,7 +205,6 @@ export function TrackerEntriesForm({
               <FormControl>
                 <AssignUser
                   selectedId={form.watch("assignedId")}
-                  valueKey="convexId"
                   onSelect={(user) => {
                     if (user?.id) {
                       field.onChange(user.id);

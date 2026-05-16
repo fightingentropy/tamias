@@ -1,7 +1,7 @@
-import { getInboxStatusCountSummaryFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
 import { normalizeTimestampBoundary } from "../date-boundaries";
+import { getInboxStatusCountSummaryFromD1, requireInboxItemsD1 } from "./d1";
 import { getTeamMatchSuggestions } from "./shared";
 import type { GetInboxStatsParams } from "./types";
 
@@ -10,13 +10,13 @@ async function getInboxStatsImpl(_db: Database, params: GetInboxStatsParams) {
   const fromBoundary = normalizeTimestampBoundary(from, "start");
   const toBoundary = normalizeTimestampBoundary(to, "end");
   const [statusSummary, suggestions] = await Promise.all([
-    getInboxStatusCountSummaryFromConvex({
+    getInboxStatusCountSummaryFromD1(requireInboxItemsD1(_db), {
       teamId,
       createdAtFrom: fromBoundary,
       createdAtTo: toBoundary,
       rangeStatus: "done",
     }),
-    getTeamMatchSuggestions(teamId, ["pending"]),
+    getTeamMatchSuggestions(_db, teamId, ["pending"]),
   ]);
 
   const { totals, rangeCount: recentMatches } = statusSummary;

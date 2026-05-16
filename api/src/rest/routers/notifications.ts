@@ -49,7 +49,7 @@ app.openapi(
 
     const result = await getActivities(db, {
       teamId,
-      userId: session.user.convexId ?? undefined,
+      userId: session.user.id ?? undefined,
       ...query,
     });
 
@@ -152,12 +152,12 @@ app.openapi(
     const session = c.get("session");
     const body = c.req.valid("json");
 
-    if (!session.user.convexId) {
-      throw new Error("Missing Convex user id");
+    if (!session.user.id) {
+      throw new Error("Missing user id");
     }
 
     const result = await updateAllActivitiesStatus(db, teamId, body.status, {
-      userId: session.user.convexId,
+      userId: session.user.id,
     });
 
     return c.json(validateResponse({ data: result }, updateAllNotificationsStatusResponseSchema));

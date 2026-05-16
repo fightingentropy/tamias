@@ -4,6 +4,7 @@ import type {
   DashboardCloudflareEnv,
   DashboardRequestContext,
 } from "@/start/server/cloudflare-context";
+import { runWithDashboardRequestContext } from "@/start/server/cloudflare-request-scope";
 
 export const startHandler = createStartHandler(defaultStreamHandler);
 
@@ -35,12 +36,14 @@ export function createServerEntry(
         ? (incoming: Request) => options.internalApiEntry!(incoming, env, executionCtx)
         : undefined;
 
-      return (entry.fetch as any)(request, {
-        context: {
-          ...createRequestContext(env, executionCtx),
-          ...(internalApiFetch ? { internalApiFetch } : {}),
-        },
-      });
+      const context = {
+        ...createRequestContext(env, executionCtx),
+        ...(internalApiFetch ? { internalApiFetch } : {}),
+      };
+
+      return runWithDashboardRequestContext(context, () =>
+        (entry.fetch as any)(request, { context }),
+      );
     },
   };
 }

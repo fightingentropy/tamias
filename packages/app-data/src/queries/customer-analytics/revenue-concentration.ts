@@ -1,7 +1,7 @@
-import { getInvoiceCustomerDateAggregateRowsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
 import { normalizeTimestampBoundary } from "../date-boundaries";
+import { getInvoiceCustomerDateAggregateRowsFromD1 } from "../reports/shared/aggregates";
 import {
   getCustomerNameMap,
   roundMoney,
@@ -10,11 +10,11 @@ import {
 } from "./shared";
 
 async function getRevenueConcentrationImpl(
-  _db: Database,
+  db: Database,
   params: GetRevenueConcentrationParams,
 ): Promise<RevenueConcentration> {
   const { teamId, from, to, currency } = params;
-  const rows = await getInvoiceCustomerDateAggregateRowsFromConvex({
+  const rows = await getInvoiceCustomerDateAggregateRowsFromD1(db, {
     teamId,
     statuses: ["paid"],
     dateField: "paidAt",
@@ -34,6 +34,7 @@ async function getRevenueConcentrationImpl(
   }
 
   const customerNames = await getCustomerNameMap(
+    db,
     teamId,
     rows.map((row) => row.customerId),
   );

@@ -1,20 +1,20 @@
-import { createActivityInConvex, type CurrentUserIdentityRecord } from "@tamias/app-data-convex";
 import type { DatabaseOrTransaction } from "../client";
+import { createActivity } from "../queries/activities";
 
 export type InvoiceActivityType = "invoice_paid" | "invoice_cancelled" | "invoice_duplicated";
 
-type ConvexUserId = CurrentUserIdentityRecord["convexId"];
+type ActivityUserId = string;
 
 export function logActivity(options: {
   db: DatabaseOrTransaction;
   teamId: string;
-  userId: ConvexUserId;
+  userId: ActivityUserId;
   type: InvoiceActivityType;
   metadata: Record<string, any>;
   priority?: number;
   source?: "user" | "system";
 }) {
-  createActivityInConvex({
+  createActivity(options.db, {
     teamId: options.teamId,
     userId: options.userId,
     type: options.type,

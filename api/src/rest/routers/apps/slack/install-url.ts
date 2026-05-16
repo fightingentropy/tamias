@@ -49,15 +49,15 @@ app.openapi(
       });
     }
 
-    if (!session.user.convexId) {
+    if (!session.user.id) {
       throw new HTTPException(500, {
-        message: "Missing Convex user id",
+        message: "Missing user id",
       });
     }
 
     const url = await getInstallUrl({
       teamId: session.teamId,
-      convexUserId: session.user.convexId,
+      userId: session.user.id,
     });
 
     return c.json({ url });

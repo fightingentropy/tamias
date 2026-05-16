@@ -1,17 +1,22 @@
-import { getTransactionsPageFromConvex } from "@tamias/app-data-convex";
 import { toTransactionCandidate } from "../candidates";
 import { loadCandidatesForSource, matchesSearchTerm, matchesSemanticCandidate } from "../helpers";
 import type { RawSearchCandidateLoadParams, SearchCandidateLoadParams } from "../types";
 import { getTransactionStatusExclusions } from "./filters";
+import { getTransactionsPageFromD1, requireTransactionsD1 } from "../../transactions/d1";
 
 export async function loadTransactionCandidates(params: SearchCandidateLoadParams) {
+  if (!params.db) {
+    throw new Error("Transaction search requires Cloudflare D1");
+  }
+
+  const db = params.db;
   const itemsPerTableLimit = params.itemsPerTableLimit ?? 5;
 
   return loadCandidatesForSource({
     searchTerm: params.searchTerm,
     itemsPerTableLimit,
     loadPage: (cursor, pageSize) =>
-      getTransactionsPageFromConvex({
+      getTransactionsPageFromD1(requireTransactionsD1(db), {
         teamId: params.teamId,
         cursor,
         pageSize,
@@ -25,11 +30,16 @@ export async function loadTransactionCandidates(params: SearchCandidateLoadParam
 }
 
 export async function loadRawTransactionCandidates(params: RawSearchCandidateLoadParams) {
+  if (!params.db) {
+    throw new Error("Transaction search requires Cloudflare D1");
+  }
+
+  const db = params.db;
   return loadCandidatesForSource({
     searchTerm: params.searchTerm,
     itemsPerTableLimit: params.itemsPerTableLimit,
     loadPage: (cursor, pageSize) =>
-      getTransactionsPageFromConvex({
+      getTransactionsPageFromD1(requireTransactionsD1(db), {
         teamId: params.teamId,
         cursor,
         pageSize,

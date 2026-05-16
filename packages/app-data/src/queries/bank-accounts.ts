@@ -6,7 +6,12 @@ export type {
   GetNetPositionParams,
   UpdateBankAccountParams,
 } from "./bank-accounts/types";
-export { createBankAccount, deleteBankAccount, updateBankAccount } from "./bank-accounts/crud";
+export {
+  createBankAccount,
+  deleteBankAccount,
+  patchBankAccount,
+  updateBankAccount,
+} from "./bank-accounts/crud";
 export {
   getBankAccountById,
   getBankAccountTeamId,

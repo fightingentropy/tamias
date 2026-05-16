@@ -4,11 +4,12 @@ import {
 } from "@tamias/job-client/cloudflare-runtime";
 import { configureEmailRuntime } from "@tamias/email/send";
 import "./runtime-shims";
-import type { CloudflareAsyncMessage } from "./bridge-helpers";
-import { isSupportedCloudflareMessage } from "./bridge-helpers";
+import type { CloudflareAsyncMessage } from "./async-helpers";
+import { isSupportedCloudflareMessage } from "./async-helpers";
 import { configureCloudflareImagesBinding } from "./images-client";
 import { createCloudflareScheduleRuntime } from "./schedule-runtime";
 import { type CloudflareAsyncEnv, handleProcessorMessage, logger, updateRunStatus } from "./shared";
+import { configureWorkerRuntime } from "./worker-runtime";
 
 function configureCaptureRuntime(env: CloudflareAsyncEnv) {
   configureCloudflareQueueRuntime({
@@ -18,6 +19,7 @@ function configureCaptureRuntime(env: CloudflareAsyncEnv) {
   configureCloudflareScheduleRuntime(createCloudflareScheduleRuntime(env));
   configureCloudflareImagesBinding(env.IMAGES);
   configureEmailRuntime(env.EMAIL);
+  configureWorkerRuntime(env);
 }
 
 async function processSyncInstitutionsMessage(message: Message<CloudflareAsyncMessage>) {
@@ -247,19 +249,3 @@ export async function handleCaptureQueueBatch(
     await processQueueMessage(message, env);
   }
 }
-
-export default {
-  fetch(_request: Request, env: CloudflareAsyncEnv) {
-    configureCaptureRuntime(env);
-
-    return Response.json({
-      status: "ok",
-      runtime: "cloudflare-capture-worker",
-      environment: env.TAMIAS_ENVIRONMENT ?? "development",
-    });
-  },
-
-  async queue(batch: MessageBatch<CloudflareAsyncMessage>, env: CloudflareAsyncEnv) {
-    await handleCaptureQueueBatch(batch, env);
-  },
-};

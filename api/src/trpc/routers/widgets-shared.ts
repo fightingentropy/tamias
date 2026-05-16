@@ -1,16 +1,15 @@
-import type { CurrentUserIdentityRecord } from "@tamias/app-data-convex";
 import type { Session } from "@tamias/auth-session";
 
-type ConvexUserId = CurrentUserIdentityRecord["convexId"];
+type AppUserId = string;
 
-export function getWidgetAssignedUserId(session: Session): ConvexUserId {
-  return session.user.convexId ?? session.user.id;
+export function getWidgetAssignedUserId(session: Session): AppUserId {
+  return session.user.id ?? session.user.id;
 }
 
-export function requireWidgetConvexUserId(session: Session): ConvexUserId {
-  if (!session.user.convexId) {
-    throw new Error("Missing Convex user id");
+export function requireWidgetUserId(session: Session): AppUserId {
+  if (!session.user.id) {
+    throw new Error("Missing user id");
   }
 
-  return session.user.convexId;
+  return session.user.id;
 }

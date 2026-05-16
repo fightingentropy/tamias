@@ -1,5 +1,5 @@
-import { getTransactionsPageFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
+import { getTransactionsPageFromD1, requireTransactionsD1 } from "../../transactions/d1";
 import type { GetInsightActivityDataParams } from "./types";
 
 const ACTIVITY_PAGE_SIZE = 200;
@@ -9,6 +9,7 @@ type TransactionActivityStats = {
 };
 
 async function countCategorizedTransactionsByDateRange(args: {
+  db: Database;
   teamId: string;
   from: string;
   to: string;
@@ -17,7 +18,7 @@ async function countCategorizedTransactionsByDateRange(args: {
   let categorizedCount = 0;
 
   while (true) {
-    const page = await getTransactionsPageFromConvex({
+    const page = await getTransactionsPageFromD1(requireTransactionsD1(args.db), {
       teamId: args.teamId,
       cursor,
       pageSize: ACTIVITY_PAGE_SIZE,
@@ -48,13 +49,14 @@ async function countCategorizedTransactionsByDateRange(args: {
 }
 
 export async function getTransactionActivityStats(
-  _db: Database,
+  db: Database,
   params: GetInsightActivityDataParams,
 ): Promise<TransactionActivityStats> {
   const { teamId, from, to } = params;
 
   return {
     categorizedCount: await countCategorizedTransactionsByDateRange({
+      db,
       teamId,
       from,
       to,

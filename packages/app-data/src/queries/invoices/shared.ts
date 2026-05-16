@@ -3,7 +3,7 @@ export type {
   DraftInvoiceParams,
   DraftInvoiceTemplateParams,
   InvoiceByIdResult,
-  InvoiceConvexUserId,
+  InvoiceUserId,
   InvoiceProjectionInput,
   InvoiceRecurringFrequency,
   ProjectedInvoiceRecord,

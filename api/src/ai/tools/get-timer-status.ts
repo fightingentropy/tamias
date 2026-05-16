@@ -1,5 +1,4 @@
 import { db } from "@tamias/app-data/client";
-import type { CurrentUserIdentityRecord } from "@tamias/app-data-convex";
 import { getTimerStatus } from "@tamias/app-data/queries";
 import { getAppUrl } from "@tamias/utils/envs";
 import { formatDate } from "@tamias/utils/format";
@@ -8,7 +7,7 @@ import { formatDistance } from "date-fns";
 import { z } from "zod";
 import { getToolAppContext, getToolTeamId } from "../utils/tool-runtime";
 
-type ConvexUserId = CurrentUserIdentityRecord["convexId"];
+type AppUserId = string;
 
 const getTimerStatusSchema = z.object({
   assignedId: z.string().nullable().optional().describe("Assigned app user ID"),
@@ -21,8 +20,8 @@ export const getTimerStatusTool = tool({
     const appContext = getToolAppContext(executionOptions);
     const teamId = getToolTeamId(appContext);
     const userId =
-      (assignedId as ConvexUserId | null | undefined) ||
-      (appContext.convexUserId as ConvexUserId | undefined) ||
+      (assignedId as AppUserId | null | undefined) ||
+      (appContext.appUserId as AppUserId | undefined) ||
       null;
 
     if (!teamId) {

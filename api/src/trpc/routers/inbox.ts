@@ -53,8 +53,8 @@ export const inboxRouter = createTRPCRouter({
           error: error instanceof Error ? error.message : String(error),
           stack: error instanceof Error ? error.stack : undefined,
         });
-        // Return empty result instead of crashing — the inbox can load
-        // without Convex data and show the empty state
+        // Return empty result instead of crashing; the inbox can load
+        // without records and show the empty state.
         return {
           meta: { cursor: undefined, hasPreviousPage: false, hasNextPage: false },
           data: [],

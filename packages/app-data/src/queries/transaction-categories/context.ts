@@ -1,8 +1,5 @@
-import {
-  getTransactionCategoriesFromConvex,
-  type TransactionCategoryRecord,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
+import { listTransactionCategoryRecords, type TransactionCategoryRecord } from "./d1";
 import type { TransactionCategoryContext } from "./types";
 
 type CachedTransactionCategoryContext = {
@@ -61,7 +58,7 @@ export function invalidateTransactionCategoryContext(teamId: string) {
 }
 
 export async function getTransactionCategoryContext(
-  _db: Database,
+  db: Database,
   teamId: string,
 ): Promise<TransactionCategoryContext> {
   const cached = transactionCategoryContextCache.get(teamId);
@@ -70,7 +67,7 @@ export async function getTransactionCategoryContext(
     return cached.context;
   }
 
-  const categories = await getTransactionCategoriesFromConvex({ teamId });
+  const categories = await listTransactionCategoryRecords(db, teamId);
   const context = buildTransactionCategoryContext(categories);
 
   transactionCategoryContextCache.set(teamId, {

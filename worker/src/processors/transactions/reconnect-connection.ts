@@ -1,5 +1,4 @@
-import { getBankAccounts, getBankConnectionById } from "@tamias/app-data/queries";
-import { patchBankAccountInConvex, patchBankConnectionInConvex } from "@tamias/app-data-convex";
+import { getBankAccounts, getBankConnectionById, patchBankAccount } from "@tamias/app-data/queries";
 import { enqueue } from "@tamias/job-client";
 import { trpc } from "@tamias/trpc";
 import {
@@ -16,6 +15,7 @@ import { getDb } from "../../utils/db";
 import { BaseProcessor } from "../base";
 
 async function matchAndUpdateAccountIds(params: {
+  db: ReturnType<typeof getDb>;
   existingAccounts: DbAccount[];
   apiAccounts: ApiAccount[];
   teamId: string;
@@ -31,7 +31,7 @@ async function matchAndUpdateAccountIds(params: {
 
     matchedDbIds.add(match.id);
 
-    await patchBankAccountInConvex({
+    await patchBankAccount(params.db, {
       id: match.id,
       teamId: params.teamId,
       accountId: apiAccount.id,
@@ -95,6 +95,7 @@ export class ReconnectConnectionProcessor extends BaseProcessor<ReconnectConnect
 
     if (existingAccounts.length > 0) {
       await matchAndUpdateAccountIds({
+        db,
         existingAccounts,
         apiAccounts: accountsResponse.data,
         teamId,

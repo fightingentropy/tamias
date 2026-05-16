@@ -1,11 +1,8 @@
 import type { Database } from "@tamias/app-data/client";
-import type { CurrentUserIdentityRecord } from "@tamias/app-data-convex";
 import type { Activity } from "@tamias/app-data/queries";
 import type { EmailMessage } from "@tamias/email/send";
 import { z } from "zod";
 import type { CreateActivityInput } from "./schemas";
-
-type ConvexUserId = CurrentUserIdentityRecord["convexId"];
 
 export interface TeamContext {
   id: string;
@@ -58,7 +55,6 @@ export interface NotificationHandler<T = any> {
 
 export interface UserData {
   id: string;
-  convex_id: ConvexUserId;
   full_name?: string;
   email: string;
   locale?: string;
@@ -91,7 +87,6 @@ export interface NotificationResult {
 // Common schemas
 export const userSchema = z.object({
   id: z.string().uuid(),
-  convex_id: z.custom<ConvexUserId>((value) => typeof value === "string"),
   full_name: z.string(),
   email: z.string().email(),
   locale: z.string().optional(),

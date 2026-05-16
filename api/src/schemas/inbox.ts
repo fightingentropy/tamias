@@ -269,7 +269,7 @@ export const inboxPreSignedUrlResponseSchema = z.object({
   url: z.string().url().openapi({
     description: "Pre-signed URL for accessing the inbox attachment, valid for 60 seconds",
     example:
-      "https://service.tamias.xyz/storage/v1/object/sign/vault/inbox/document.pdf?token=abc123&expires=1640995200",
+      "https://api.tamias.xyz/files/proxy?filePath=vault/inbox/document.pdf",
   }),
   expiresAt: z.string().datetime().openapi({
     description: "ISO 8601 timestamp when the URL expires",

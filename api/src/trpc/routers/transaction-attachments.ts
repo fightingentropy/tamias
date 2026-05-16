@@ -14,7 +14,7 @@ export const transactionAttachmentsRouter = createTRPCRouter({
     .mutation(async ({ input, ctx: { db, teamId, session } }) => {
       return createAttachments(db, {
         teamId: teamId!,
-        userId: session.user.convexId ?? undefined,
+        userId: session.user.id ?? undefined,
         attachments: input,
       });
     }),
@@ -51,7 +51,7 @@ export const transactionAttachmentsRouter = createTRPCRouter({
             "transactions",
             {
               publicTeamId: teamId!,
-              appUserId: session.user.convexId ?? undefined,
+              appUserId: session.user.id ?? undefined,
             },
           ),
         ),

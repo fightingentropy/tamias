@@ -1,3 +1,4 @@
+import { createDatabase } from "@tamias/app-data/client";
 import { fetchAllInstitutions, syncInstitutionLogos } from "@tamias/banking";
 import {
   getActiveInstitutionIds,
@@ -12,7 +13,7 @@ type SyncInstitutionsPayload = Record<string, never>;
 
 /**
  * Scheduled processor that syncs institutions from banking providers
- * into the Convex institutions store.
+ * into the D1 institutions store.
  *
  * Runs daily to:
  * 1. Fetch latest institutions from all providers
@@ -58,8 +59,10 @@ export class SyncInstitutionsProcessor extends BaseProcessor<SyncInstitutionsPay
       );
     }
 
+    const db = createDatabase();
+
     // 2. Sync logos to R2 for new institutions only
-    const existingIds = new Set(await getActiveInstitutionIds(undefined, succeededProviders));
+    const existingIds = new Set(await getActiveInstitutionIds(db, succeededProviders));
     const newInstitutions = institutions.filter((inst) => !existingIds.has(inst.id));
 
     if (newInstitutions.length > 0) {
@@ -80,14 +83,14 @@ export class SyncInstitutionsProcessor extends BaseProcessor<SyncInstitutionsPay
     // Only mark institutions as removed for providers that successfully returned data.
     // This prevents a transient outage of a single provider from incorrectly
     // removing all of that provider's institutions.
-    const upserted = await upsertInstitutions(undefined, institutions);
+    const upserted = await upsertInstitutions(db, institutions);
 
     this.logger.info(`Upserted ${upserted} institutions`);
 
     const fetchedIds = new Set(institutions.map((i) => i.id));
-    const activeIds = await getActiveInstitutionIds(undefined, succeededProviders);
+    const activeIds = await getActiveInstitutionIds(db, succeededProviders);
     const removedIds = activeIds.filter((id) => !fetchedIds.has(id));
-    const removed = await markInstitutionsRemoved(undefined, removedIds);
+    const removed = await markInstitutionsRemoved(db, removedIds);
 
     if (removed > 0) {
       this.logger.info(`Marked ${removed} institutions as removed`);

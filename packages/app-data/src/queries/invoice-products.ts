@@ -1,17 +1,17 @@
 import type { LineItem } from "@tamias/invoice/types";
+import type { Database } from "../client";
 import {
-  createInvoiceProductInConvex,
-  deleteInvoiceProductInConvex,
-  getInvoiceProductByIdFromConvex,
-  getInvoiceProductsFromConvex,
-  incrementInvoiceProductUsageInConvex,
-  type CurrentUserIdentityRecord,
-  type InvoiceProductRecord,
-  updateInvoiceProductInConvex,
-  upsertInvoiceProductInConvex,
-} from "@tamias/app-data-convex";
+  createInvoiceProductInD1,
+  deleteInvoiceProductFromD1,
+  getInvoiceProductByIdFromD1,
+  getInvoiceProductsD1,
+  getInvoiceProductsFromD1,
+  incrementInvoiceProductUsageInD1,
+  updateInvoiceProductInD1,
+  upsertInvoiceProductInD1,
+} from "./invoice-products/d1";
 
-type ConvexUserId = CurrentUserIdentityRecord["convexId"];
+type UserId = string;
 
 export type InvoiceProduct = {
   id: string;
@@ -29,6 +29,33 @@ export type InvoiceProduct = {
   usageCount: number;
   lastUsedAt: string | null;
 };
+
+export type InvoiceProductRecord = {
+  id: string;
+  createdAt: string;
+  updatedAt: string | null;
+  teamId: string;
+  createdBy: UserId | null;
+  name: string;
+  description: string | null;
+  price: number | null;
+  currency: string | null;
+  unit: string | null;
+  taxRate: number | null;
+  isActive: boolean;
+  usageCount: number;
+  lastUsedAt: string | null;
+};
+
+function requireInvoiceProductsD1(db: Database) {
+  const d1 = getInvoiceProductsD1(db);
+
+  if (!d1) {
+    throw new Error("Invoice products require Cloudflare D1");
+  }
+
+  return d1;
+}
 
 function toInvoiceProduct(record: InvoiceProductRecord): InvoiceProduct {
   return {
@@ -51,7 +78,7 @@ function toInvoiceProduct(record: InvoiceProductRecord): InvoiceProduct {
 
 export type CreateInvoiceProductParams = {
   teamId: string;
-  createdBy: ConvexUserId;
+  createdBy: UserId;
   name: string;
   description?: string | null;
   price?: number | null;
@@ -76,26 +103,15 @@ export type UpdateInvoiceProductParams = {
 };
 
 export async function createInvoiceProduct(
+  db: Database,
   params: CreateInvoiceProductParams,
 ): Promise<InvoiceProduct> {
-  return toInvoiceProduct(
-    await createInvoiceProductInConvex({
-      teamId: params.teamId,
-      userId: params.createdBy,
-      name: params.name,
-      description: params.description,
-      price: params.price,
-      currency: params.currency,
-      unit: params.unit,
-      taxRate: params.taxRate,
-      isActive: params.isActive,
-    }),
-  );
+  return toInvoiceProduct(await createInvoiceProductInD1(requireInvoiceProductsD1(db), params));
 }
 
 export type UpsertInvoiceProductParams = {
   teamId: string;
-  createdBy: ConvexUserId;
+  createdBy: UserId;
   name: string;
   description?: string | null;
   price?: number | null;
@@ -105,40 +121,26 @@ export type UpsertInvoiceProductParams = {
 };
 
 export async function upsertInvoiceProduct(
+  db: Database,
   params: UpsertInvoiceProductParams,
 ): Promise<InvoiceProduct> {
-  return toInvoiceProduct(
-    await upsertInvoiceProductInConvex({
-      teamId: params.teamId,
-      userId: params.createdBy,
-      name: params.name,
-      description: params.description,
-      price: params.price,
-      currency: params.currency,
-      unit: params.unit,
-      taxRate: params.taxRate,
-    }),
-  );
+  return toInvoiceProduct(await upsertInvoiceProductInD1(requireInvoiceProductsD1(db), params));
 }
 
 export async function updateInvoiceProduct(
+  db: Database,
   params: UpdateInvoiceProductParams,
 ): Promise<InvoiceProduct | null> {
-  const { id, teamId, ...updates } = params;
-  const result = await updateInvoiceProductInConvex({
-    id,
-    teamId,
-    ...updates,
-  });
-
+  const result = await updateInvoiceProductInD1(requireInvoiceProductsD1(db), params);
   return result ? toInvoiceProduct(result) : null;
 }
 
 export async function getInvoiceProductById(
+  db: Database,
   id: string,
   teamId: string,
 ): Promise<InvoiceProduct | null> {
-  const result = await getInvoiceProductByIdFromConvex({ id, teamId });
+  const result = await getInvoiceProductByIdFromD1(requireInvoiceProductsD1(db), id, teamId);
   return result ? toInvoiceProduct(result) : null;
 }
 
@@ -149,60 +151,60 @@ export type GetInvoiceProductsParams = {
   currency?: string | null;
 };
 
-export async function incrementProductUsage(id: string, teamId: string): Promise<void> {
-  await incrementInvoiceProductUsageInConvex({ id, teamId });
+export async function incrementProductUsage(
+  db: Database,
+  id: string,
+  teamId: string,
+): Promise<void> {
+  await incrementInvoiceProductUsageInD1(requireInvoiceProductsD1(db), id, teamId);
 }
 
 export async function getPopularInvoiceProducts(
+  db: Database,
   teamId: string,
   limit = 20,
 ): Promise<InvoiceProduct[]> {
-  return (
-    await getInvoiceProductsFromConvex({
-      teamId,
-      sortBy: "popular",
-      limit,
-      includeInactive: false,
-    })
-  ).map(toInvoiceProduct);
+  return getInvoiceProducts(db, teamId, {
+    sortBy: "popular",
+    limit,
+    includeInactive: false,
+  });
 }
 
 export async function getRecentInvoiceProducts(
+  db: Database,
   teamId: string,
   limit = 10,
 ): Promise<InvoiceProduct[]> {
-  return (
-    await getInvoiceProductsFromConvex({
-      teamId,
-      sortBy: "recent",
-      limit,
-      includeInactive: false,
-    })
-  ).map(toInvoiceProduct);
+  return getInvoiceProducts(db, teamId, {
+    sortBy: "recent",
+    limit,
+    includeInactive: false,
+  });
 }
 
 export async function getInvoiceProducts(
+  db: Database,
   teamId: string,
   params: GetInvoiceProductsParams = {},
 ): Promise<InvoiceProduct[]> {
-  return (
-    await getInvoiceProductsFromConvex({
-      teamId,
-      sortBy: params.sortBy,
-      limit: params.limit,
-      includeInactive: params.includeInactive,
-      currency: params.currency,
-    })
-  ).map(toInvoiceProduct);
+  return (await getInvoiceProductsFromD1(requireInvoiceProductsD1(db), teamId, params)).map(
+    toInvoiceProduct,
+  );
 }
 
-export async function deleteInvoiceProduct(id: string, teamId: string): Promise<boolean> {
-  return deleteInvoiceProductInConvex({ id, teamId });
+export async function deleteInvoiceProduct(
+  db: Database,
+  id: string,
+  teamId: string,
+): Promise<boolean> {
+  return deleteInvoiceProductFromD1(requireInvoiceProductsD1(db), id, teamId);
 }
 
 export async function saveLineItemAsProduct(
+  db: Database,
   teamId: string,
-  userId: ConvexUserId,
+  userId: UserId,
   lineItem: LineItem,
   currency?: string,
 ): Promise<{ product: InvoiceProduct | null; shouldClearProductId: boolean }> {
@@ -214,10 +216,10 @@ export async function saveLineItemAsProduct(
 
   try {
     if (lineItem.productId) {
-      const existingProduct = await getInvoiceProductById(lineItem.productId, teamId);
+      const existingProduct = await getInvoiceProductById(db, lineItem.productId, teamId);
 
       if (existingProduct) {
-        const updatedProduct = await updateInvoiceProduct({
+        const updatedProduct = await updateInvoiceProduct(db, {
           id: lineItem.productId,
           teamId,
           name: trimmedName,
@@ -231,7 +233,7 @@ export async function saveLineItemAsProduct(
       }
     }
 
-    const product = await upsertInvoiceProduct({
+    const product = await upsertInvoiceProduct(db, {
       teamId,
       createdBy: userId,
       name: trimmedName,

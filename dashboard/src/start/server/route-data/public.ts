@@ -1,6 +1,6 @@
 import { decrypt } from "@tamias/encryption";
 import { format, parseISO } from "date-fns";
-import { getConvexAuthToken } from "@/start/auth/server";
+import { getAuthToken } from "@/start/auth/server";
 import { getChartDisplayName } from "@/components/metrics/utils/chart-types";
 import { loadOAuthParams } from "@/hooks/use-oauth-params";
 import { getTRPCClient, getQueryClient, trpc } from "@/trpc/server";
@@ -203,7 +203,7 @@ export async function buildOAuthAuthorizePageData(href?: string) {
 }
 
 export async function buildPublicInvoicePageData(params: { token: string; viewer?: string }) {
-  const authToken = await getConvexAuthToken();
+  const authToken = await getAuthToken();
   const client = await getTRPCClient();
   const invoice = await client.invoice.getInvoiceByToken
     .query({

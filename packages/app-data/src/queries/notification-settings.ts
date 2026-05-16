@@ -1,9 +1,9 @@
 export type {
-  ConvexUserId,
   GetNotificationSettingsParams,
   NotificationChannel,
   NotificationSetting,
   UpsertNotificationSettingParams,
+  UserId,
   UserNotificationPreference,
   UserSettingsNotificationType,
 } from "./notification-settings/types";

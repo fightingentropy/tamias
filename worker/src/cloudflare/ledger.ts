@@ -4,10 +4,11 @@ import {
   configureCloudflareScheduleRuntime,
 } from "@tamias/job-client/cloudflare-runtime";
 import "./runtime-shims";
-import type { CloudflareAsyncMessage } from "./bridge-helpers";
-import { isSupportedCloudflareMessage } from "./bridge-helpers";
+import type { CloudflareAsyncMessage } from "./async-helpers";
+import { isSupportedCloudflareMessage } from "./async-helpers";
 import { createCloudflareScheduleRuntime } from "./schedule-runtime";
 import { type CloudflareAsyncEnv, handleProcessorMessage, logger, updateRunStatus } from "./shared";
+import { configureWorkerRuntime } from "./worker-runtime";
 
 function configureLedgerRuntime(env: CloudflareAsyncEnv) {
   configureCloudflareQueueRuntime({
@@ -16,6 +17,7 @@ function configureLedgerRuntime(env: CloudflareAsyncEnv) {
   });
   configureCloudflareScheduleRuntime(createCloudflareScheduleRuntime(env));
   configureEmailRuntime(env.EMAIL);
+  configureWorkerRuntime(env);
 }
 
 async function processNotificationMessage(message: Message<CloudflareAsyncMessage>) {
@@ -371,19 +373,3 @@ export async function handleLedgerQueueBatch(
     await processQueueMessage(message);
   }
 }
-
-export default {
-  fetch(_request: Request, env: CloudflareAsyncEnv) {
-    configureLedgerRuntime(env);
-
-    return Response.json({
-      status: "ok",
-      runtime: "cloudflare-ledger-worker",
-      environment: env.TAMIAS_ENVIRONMENT ?? "development",
-    });
-  },
-
-  async queue(batch: MessageBatch<CloudflareAsyncMessage>, env: CloudflareAsyncEnv) {
-    await handleLedgerQueueBatch(batch, env);
-  },
-};

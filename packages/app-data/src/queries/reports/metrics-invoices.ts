@@ -1,7 +1,7 @@
-import { getInvoiceAggregateRowsFromConvex } from "@tamias/app-data-convex";
 import { parseISO } from "date-fns";
 import type { Database } from "../../client";
 import { getTargetCurrency, roundMoney } from "./shared";
+import { getInvoiceAggregateRowsFromD1 } from "./shared/aggregates";
 
 export type GetOutstandingInvoicesParams = {
   teamId: string;
@@ -23,7 +23,7 @@ async function getOverdueInvoicesAlertImpl(db: Database, params: GetOverdueInvoi
     { count: number; totalAmount: number; oldestDueDate: string | null }
   >();
 
-  for (const row of await getInvoiceAggregateRowsFromConvex({
+  for (const row of await getInvoiceAggregateRowsFromD1(db, {
     teamId,
     statuses: ["overdue"],
   })) {
@@ -117,7 +117,7 @@ async function getOutstandingInvoicesImpl(db: Database, params: GetOutstandingIn
   const statuses = new Set(status);
   const grouped = new Map<string, { count: number; totalAmount: number }>();
 
-  for (const row of await getInvoiceAggregateRowsFromConvex({
+  for (const row of await getInvoiceAggregateRowsFromD1(db, {
     teamId,
     statuses: status,
   })) {

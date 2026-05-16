@@ -10,16 +10,16 @@
   "exports": {
     "./auth": "./src/auth.ts",
     "./billing": "./src/billing.ts",
-    "./chat-feedback": "./src/chat-feedback.ts",
     "./chat-memory": "./src/chat-memory.ts",
     "./compliance": "./src/compliance.ts",
-    "./convex-client": "./src/convex-client.ts",
     "./customers": "./src/customers.ts",
     "./foundation": "./src/foundation.ts",
+    "./first-party-auth": "./src/first-party-auth.ts",
     "./identity": "./src/identity.ts",
     "./inbox": "./src/inbox.ts",
     "./invoice-by-token": "./src/invoice-by-token.ts",
     "./invoices": "./src/invoices.ts",
+    "./oauth": "./src/oauth.ts",
     "./oauth-application-info": "./src/oauth-application-info.ts",
     "./public-reads": "./src/public-reads.ts",
     "./suggested-actions": "./src/suggested-actions.ts",
@@ -29,13 +29,11 @@
   "dependencies": {
     "@date-fns/utc": "^2.1.1",
     "@tamias/app-data": "workspace:*",
-    "@tamias/app-data-convex": "workspace:*",
     "@tamias/auth-session": "workspace:*",
     "@tamias/domain": "workspace:*",
     "@tamias/encryption": "workspace:*",
     "@tamias/plans": "workspace:*",
     "@polar-sh/sdk": "^0.45.1",
-    "convex": "^1.34.1",
     "date-fns": "^4.1.0"
   },
   "devDependencies": {

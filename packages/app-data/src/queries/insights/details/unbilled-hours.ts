@@ -1,9 +1,10 @@
-import {
-  getCustomersByIdsFromConvex,
-  getTrackerEntriesByProjectIdsFromConvex,
-  getTrackerProjectsFromConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
+import { getCustomersByIdsFromD1, requireCustomersD1 } from "../../customers/d1";
+import {
+  getTrackerEntriesByProjectIdsFromD1,
+  requireTrackerEntriesD1,
+} from "../../tracker-entries/d1";
+import { getTrackerProjectsFromD1, requireTrackerProjectsD1 } from "../../tracker-projects/d1";
 import { isDefined } from "../shared";
 
 export type UnbilledHoursDetail = {
@@ -17,21 +18,21 @@ export type UnbilledHoursDetail = {
 };
 
 export async function getUnbilledHoursDetails(
-  _db: Database,
+  db: Database,
   params: { teamId: string; currency?: string },
 ): Promise<UnbilledHoursDetail[]> {
   const { teamId, currency } = params;
-  const projects = await getTrackerProjectsFromConvex({ teamId });
+  const projects = await getTrackerProjectsFromD1(requireTrackerProjectsD1(db), { teamId });
   const filteredProjects = currency
     ? projects.filter((project) => project.currency === currency)
     : projects;
-  const entries = await getTrackerEntriesByProjectIdsFromConvex({
+  const entries = await getTrackerEntriesByProjectIdsFromD1(requireTrackerEntriesD1(db), {
     teamId,
     projectIds: filteredProjects.map((project) => project.id),
   });
   const customerIds = filteredProjects.map((project) => project.customerId).filter(isDefined);
   const customerRows = customerIds.length
-    ? await getCustomersByIdsFromConvex({
+    ? await getCustomersByIdsFromD1(requireCustomersD1(db), {
         teamId,
         customerIds: [...new Set(customerIds)],
       })

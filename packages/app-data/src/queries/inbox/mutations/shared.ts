@@ -1,26 +1,29 @@
-import {
-  deleteTransactionMatchSuggestionsInConvex,
-  getInboxItemByIdFromConvex,
-  getTransactionByIdFromConvex,
-  type InboxItemRecord,
-} from "@tamias/app-data-convex";
 import { createLoggerWithContext } from "@tamias/logger";
+import type { Database } from "../../../client";
 import { deleteTransactionAttachmentsByIds } from "../../transaction-attachments";
+import { getTransactionByIdFromD1, requireTransactionsD1 } from "../../transactions/d1";
+import {
+  deleteTransactionMatchSuggestionsFromD1,
+  getInboxItemByIdFromD1,
+  requireInboxItemsD1,
+  type InboxItemRecord,
+} from "../d1";
 import { buildInboxTransactionSummary, patchTransactionFields } from "../shared";
 
 export const logger = createLoggerWithContext("inbox");
 
 export async function clearTransactionTaxFieldsIfAttachmentless(
+  db: Database,
   teamId: string,
   transactionId: string,
 ) {
-  const transaction = await getTransactionByIdFromConvex({
+  const transaction = await getTransactionByIdFromD1(requireTransactionsD1(db), {
     teamId,
     transactionId,
   });
 
   if (transaction && !transaction.hasAttachment) {
-    await patchTransactionFields(teamId, transactionId, {
+    await patchTransactionFields(db, teamId, transactionId, {
       taxRate: null,
       taxType: null,
     });
@@ -28,29 +31,34 @@ export async function clearTransactionTaxFieldsIfAttachmentless(
 }
 
 export async function cleanupDeletedInboxArtifacts(
+  db: Database,
   teamId: string,
   item: Pick<InboxItemRecord, "attachmentId" | "transactionId" | "id">,
 ) {
   if (item.attachmentId && item.transactionId) {
-    await deleteTransactionAttachmentsByIds({
+    await deleteTransactionAttachmentsByIds(db, {
       teamId,
       attachmentIds: [item.attachmentId],
     });
-    await clearTransactionTaxFieldsIfAttachmentless(teamId, item.transactionId);
+    await clearTransactionTaxFieldsIfAttachmentless(db, teamId, item.transactionId);
   }
 
-  await deleteTransactionMatchSuggestionsInConvex({
+  await deleteTransactionMatchSuggestionsFromD1(requireInboxItemsD1(db), {
     teamId,
     inboxIds: [item.id],
   });
 }
 
-export async function buildInboxItemWithTransaction(teamId: string, item: InboxItemRecord) {
+export async function buildInboxItemWithTransaction(
+  db: Database,
+  teamId: string,
+  item: InboxItemRecord,
+) {
   return {
     ...item,
     transaction: item.transactionId
       ? buildInboxTransactionSummary(
-          await getTransactionByIdFromConvex({
+          await getTransactionByIdFromD1(requireTransactionsD1(db), {
             teamId,
             transactionId: item.transactionId,
           }),
@@ -59,8 +67,8 @@ export async function buildInboxItemWithTransaction(teamId: string, item: InboxI
   };
 }
 
-export async function getInboxItemWithTransaction(teamId: string, inboxId: string) {
-  const item = await getInboxItemByIdFromConvex({
+export async function getInboxItemWithTransaction(db: Database, teamId: string, inboxId: string) {
+  const item = await getInboxItemByIdFromD1(requireInboxItemsD1(db), {
     teamId,
     inboxId,
   });
@@ -69,7 +77,7 @@ export async function getInboxItemWithTransaction(teamId: string, inboxId: strin
     return null;
   }
 
-  return buildInboxItemWithTransaction(teamId, item);
+  return buildInboxItemWithTransaction(db, teamId, item);
 }
 
 export function toInboxFileResponse(

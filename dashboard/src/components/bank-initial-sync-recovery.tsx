@@ -57,7 +57,7 @@ export function BankInitialSyncRecovery() {
         variant: "error",
         title: "Bank setup did not finish",
         description:
-          "In local dev, ensure the API can reach your Cloudflare worker/bridge so the sync job can run. You can try connecting again.",
+          "In local dev, ensure the unified Cloudflare Worker has queue and workflow bindings so the sync job can run. You can try connecting again.",
       });
       return;
     }

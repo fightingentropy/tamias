@@ -4,7 +4,7 @@ import { upsertProjectedInvoiceRecurringRecord } from "../shared";
 import type { CreateInvoiceRecurringParams } from "../shared";
 
 export async function createInvoiceRecurring(
-  _db: DatabaseOrTransaction,
+  db: DatabaseOrTransaction,
   params: CreateInvoiceRecurringParams,
 ) {
   const now = new Date();
@@ -22,7 +22,7 @@ export async function createInvoiceRecurring(
   );
   const timestamp = now.toISOString();
 
-  return upsertProjectedInvoiceRecurringRecord({
+  return upsertProjectedInvoiceRecurringRecord(db, {
     id: crypto.randomUUID(),
     createdAt: timestamp,
     updatedAt: timestamp,

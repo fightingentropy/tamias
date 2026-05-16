@@ -1,14 +1,17 @@
+import type { Database } from "../../client";
 import {
-  getInboxItemsByAmountRangeFromConvex,
-  searchInboxItemsFromConvex,
-} from "@tamias/app-data-convex";
+  getInboxItemsByAmountRangeFromD1,
+  requireInboxItemsD1,
+  searchInboxItemsFromD1,
+} from "../inbox/d1";
 
-export async function getIndexedInboxMatchCandidates(params: {
+export async function getIndexedInboxMatchCandidates(db: Database, params: {
   teamId: string;
   amount: number | null | undefined;
   searchTerms: Array<string | null | undefined>;
   limit: number;
 }) {
+  const d1 = requireInboxItemsD1(db);
   const searchTerms = [
     ...new Set(
       params.searchTerms
@@ -23,7 +26,7 @@ export async function getIndexedInboxMatchCandidates(params: {
   const [textCandidateGroups, amountCandidates] = await Promise.all([
     Promise.all(
       searchTerms.map((searchTerm) =>
-        searchInboxItemsFromConvex({
+        searchInboxItemsFromD1(d1, {
           teamId: params.teamId,
           query: searchTerm,
           limit: params.limit,
@@ -31,7 +34,7 @@ export async function getIndexedInboxMatchCandidates(params: {
       ),
     ),
     absoluteAmount > 0
-      ? getInboxItemsByAmountRangeFromConvex({
+      ? getInboxItemsByAmountRangeFromD1(d1, {
           teamId: params.teamId,
           minAmount: Math.max(0, searchAmount - searchTolerance),
           maxAmount: searchAmount + searchTolerance,

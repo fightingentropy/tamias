@@ -71,7 +71,7 @@ function resolveAssistantProvider(aiProvider?: AIProvider | null): AssistantProv
         },
         configurationError: process.env.KIMI_API_KEY
           ? null
-          : "Kimi is selected, but KIMI_API_KEY is not configured on the API service.",
+          : "Kimi is selected, but KIMI_API_KEY is not configured on the Cloudflare Worker.",
       };
     case "openrouter":
       return {
@@ -91,7 +91,7 @@ function resolveAssistantProvider(aiProvider?: AIProvider | null): AssistantProv
         },
         configurationError: process.env.OPENROUTER_API_KEY
           ? null
-          : "OpenRouter is selected, but OPENROUTER_API_KEY is not configured on the API service.",
+          : "OpenRouter is selected, but OPENROUTER_API_KEY is not configured on the Cloudflare Worker.",
       };
   }
 }

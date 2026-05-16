@@ -1,14 +1,13 @@
 import { getAvailablePlans } from "@tamias/app-data/queries";
 import { getBankConnections } from "@tamias/app-data/queries/bank-connections";
-import { isHostedConvexMissingServiceKey } from "@tamias/app-services/convex-client";
 import {
-  getCurrentTeamFromConvexAsAuthUser,
-  getInvitesByEmailFromConvex,
-  getTeamByPublicTeamIdFromConvexIdentity,
-  getTeamInvitesByPublicTeamIdFromConvex,
-  getTeamMembersFromConvex,
-  listTeamsForUserFromConvex,
-  listTeamsForUserFromConvexAsAuthUser,
+  getCurrentTeamForAccessToken,
+  getInvitesByEmail,
+  getTeamById,
+  getTeamInvitesByTeamId,
+  getTeamMembers,
+  listTeamsForAccessToken,
+  listTeamsForUser,
 } from "@tamias/app-services/identity";
 import { getInboxAccountsForTeam } from "@tamias/app-services/inbox";
 import { protectedProcedure } from "../init";
@@ -21,18 +20,14 @@ export const teamReadProcedures = {
 
     const fromAuthUser =
       accessToken && !accessToken.startsWith("mid_")
-        ? await getCurrentTeamFromConvexAsAuthUser(accessToken)
+        ? await getCurrentTeamForAccessToken(accessToken)
         : null;
 
     if (fromAuthUser && fromAuthUser.id === teamId) {
       return fromAuthUser;
     }
 
-    if (isHostedConvexMissingServiceKey()) {
-      return null;
-    }
-
-    return getTeamByPublicTeamIdFromConvexIdentity(teamId);
+    return getTeamById(teamId);
   }),
 
   members: protectedProcedure.query(async ({ ctx: { teamId } }) => {
@@ -40,25 +35,21 @@ export const teamReadProcedures = {
       return [];
     }
 
-    return getTeamMembersFromConvex(teamId);
+    return getTeamMembers(teamId);
   }),
 
   list: protectedProcedure.query(async ({ ctx: { session, accessToken } }) => {
     const fromAuthUser =
       accessToken && !accessToken.startsWith("mid_")
-        ? await listTeamsForUserFromConvexAsAuthUser(accessToken)
+        ? await listTeamsForAccessToken(accessToken)
         : null;
 
     if (fromAuthUser !== null) {
       return fromAuthUser;
     }
 
-    if (isHostedConvexMissingServiceKey()) {
-      return [];
-    }
-
-    return listTeamsForUserFromConvex({
-      userId: session.user.convexId,
+    return listTeamsForUser({
+      userId: session.user.id,
       email: session.user.email ?? null,
     });
   }),
@@ -68,7 +59,7 @@ export const teamReadProcedures = {
       return [];
     }
 
-    return getTeamInvitesByPublicTeamIdFromConvex(teamId);
+    return getTeamInvitesByTeamId(teamId);
   }),
 
   invitesByEmail: protectedProcedure.query(async ({ ctx: { session } }) => {
@@ -76,7 +67,7 @@ export const teamReadProcedures = {
       return [];
     }
 
-    return getInvitesByEmailFromConvex(session.user.email);
+    return getInvitesByEmail(session.user.email);
   }),
 
   availablePlans: protectedProcedure.query(async ({ ctx: { db, teamId } }) => {
@@ -90,7 +81,7 @@ export const teamReadProcedures = {
 
     const [bankConnections, inboxAccounts] = await Promise.all([
       getBankConnections(db, { teamId }),
-      getInboxAccountsForTeam(teamId),
+      getInboxAccountsForTeam(teamId, db),
     ]);
 
     return {

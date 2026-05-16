@@ -1,28 +1,28 @@
-import {
-  type CurrentUserIdentityRecord,
-  getCurrentTrackerTimerFromConvex,
-  getTrackerEntryByIdFromConvex,
-} from "@tamias/app-data-convex";
 import { endOfMonth, endOfWeek, formatISO, startOfMonth, startOfWeek } from "date-fns";
 import type { Database } from "../../client";
 import { getTeamById } from "../teams";
+import {
+  getCurrentTrackerTimerFromD1,
+  getTrackerEntryByIdFromD1,
+  requireTrackerEntriesD1,
+} from "./d1";
 import { getTrackerRecordsByRange } from "./records";
 import { enrichTrackerEntries } from "./shared";
 
-type ConvexUserId = CurrentUserIdentityRecord["convexId"];
+type AppUserId = string;
 
 export type GetCurrentTimerParams = {
   teamId: string;
-  assignedId?: ConvexUserId | null;
+  assignedId?: AppUserId | null;
 };
 
 export type GetTimerStatusParams = {
   teamId: string;
-  assignedId?: ConvexUserId | null;
+  assignedId?: AppUserId | null;
 };
 
 export async function getCurrentTimer(db: Database, params: GetCurrentTimerParams) {
-  const result = await getCurrentTrackerTimerFromConvex({
+  const result = await getCurrentTrackerTimerFromD1(requireTrackerEntriesD1(db), {
     teamId: params.teamId,
     assignedId: params.assignedId,
   });
@@ -81,7 +81,7 @@ export type GetTrackedTimeParams = {
   teamId: string;
   from: string;
   to: string;
-  assignedId?: ConvexUserId;
+  assignedId?: AppUserId;
 };
 
 export async function getTrackedTime(_db: Database, params: GetTrackedTimeParams) {
@@ -228,8 +228,8 @@ export type GetTrackerEntryByIdParams = {
   teamId: string;
 };
 
-export async function getTrackerEntryById(_db: Database, params: GetTrackerEntryByIdParams) {
-  return getTrackerEntryByIdFromConvex({
+export async function getTrackerEntryById(db: Database, params: GetTrackerEntryByIdParams) {
+  return getTrackerEntryByIdFromD1(requireTrackerEntriesD1(db), {
     teamId: params.teamId,
     id: params.id,
   });

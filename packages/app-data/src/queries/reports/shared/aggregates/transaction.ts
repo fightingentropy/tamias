@@ -1,8 +1,3 @@
-import {
-  getTransactionMetricAggregateRowsFromConvex,
-  getTransactionRecurringAggregateRowsFromConvex,
-  getTransactionTaxAggregateRowsFromConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../../../client";
 import { createQueryCacheKey, getOrSetQueryCacheValue } from "../../../../client";
 import type {
@@ -10,6 +5,11 @@ import type {
   ReportTransactionRecurringAggregateRow,
   ReportTransactionTaxAggregateRow,
 } from "../types";
+import {
+  getTransactionMetricAggregateRowsFromD1,
+  getTransactionRecurringAggregateRowsFromD1,
+  getTransactionTaxAggregateRowsFromD1,
+} from "./transaction-d1";
 import { getTransactionAggregateScopeContext } from "./shared";
 
 export async function getReportTransactionAggregateRows(
@@ -44,7 +44,7 @@ export async function getReportTransactionAggregateRows(
         };
       }
 
-      const rows = await getTransactionMetricAggregateRowsFromConvex({
+      const rows = await getTransactionMetricAggregateRowsFromD1(db, {
         teamId: params.teamId,
         scope: context.scope,
         currency: context.currency,
@@ -95,7 +95,7 @@ export async function getReportTransactionRecurringAggregateRows(
         };
       }
 
-      const rows = await getTransactionRecurringAggregateRowsFromConvex({
+      const rows = await getTransactionRecurringAggregateRowsFromD1(db, {
         teamId: params.teamId,
         scope: context.scope,
         direction: params.direction,
@@ -147,7 +147,7 @@ export async function getReportTransactionTaxAggregateRows(
         };
       }
 
-      const rows = await getTransactionTaxAggregateRowsFromConvex({
+      const rows = await getTransactionTaxAggregateRowsFromD1(db, {
         teamId: params.teamId,
         scope: context.scope,
         direction: params.direction,

@@ -1,12 +1,8 @@
-import {
-  getTaggedTrackerProjectsFromConvex,
-  getTrackerProjectsFromConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import { reuseQueryResult } from "../../../utils/request-cache";
+import { getTrackerProjectsFromD1, requireTrackerProjectsD1 } from "../d1";
 import { enrichProjects } from "../enrich";
 import type { GetTrackerProjectsParams } from "../types";
-import { canUseIndexedTrackerProjectPage, getIndexedTrackerProjectsPage } from "./indexed-page";
 import { matchesProjectSearch, paginate, serializeTrackerProjectListParams } from "./shared";
 import { sortTrackerProjects } from "./sort";
 
@@ -24,20 +20,11 @@ async function getTrackerProjectsImpl(db: Database, params: GetTrackerProjectsPa
     tags: tagIds,
   } = params;
 
-  if (canUseIndexedTrackerProjectPage(sort)) {
-    return getIndexedTrackerProjectsPage(db, params);
-  }
-
-  let projects = tagIds?.length
-    ? await getTaggedTrackerProjectsFromConvex({
-        teamId,
-        tagIds,
-        status: status ?? undefined,
-      })
-    : await getTrackerProjectsFromConvex({
-        teamId,
-        status: status ?? undefined,
-      });
+  let projects = await getTrackerProjectsFromD1(requireTrackerProjectsD1(db), {
+    teamId,
+    tagIds,
+    status,
+  });
 
   if (status) {
     projects = projects.filter((project) => project.status === status);

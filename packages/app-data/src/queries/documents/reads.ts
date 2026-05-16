@@ -1,11 +1,11 @@
-import {
-  getDocumentByIdFromConvex,
-  getDocumentByNameFromConvex,
-  getDocumentsPageFromConvex,
-  getTaggedDocumentsPageFromConvex,
-  type DocumentRecord,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
+import { getTaggedDocumentIdPage } from "../document-tag-assignments";
+import {
+  getDocumentById as getDocumentRecordById,
+  getDocumentByName,
+  getDocumentsPage,
+  type DocumentRecord,
+} from "./records";
 import {
   attachAssignments,
   decodeIndexedDocumentCursor,
@@ -21,14 +21,14 @@ import {
 } from "./shared";
 import type { GetDocumentQueryParams, GetDocumentsParams } from "./types";
 
-export async function getDocumentById(_db: Database, params: GetDocumentQueryParams) {
+export async function getDocumentById(db: Database, params: GetDocumentQueryParams) {
   const document = params.id
-    ? await getDocumentByIdFromConvex({
+    ? await getDocumentRecordById(db, {
         teamId: params.teamId,
         documentId: params.id,
       })
     : params.filePath
-      ? await getDocumentByNameFromConvex({
+      ? await getDocumentByName(db, {
           teamId: params.teamId,
           name: params.filePath,
         })
@@ -42,12 +42,12 @@ export async function getDocumentById(_db: Database, params: GetDocumentQueryPar
     return null;
   }
 
-  const [documentWithAssignments] = await attachAssignments(params.teamId, [document]);
+  const [documentWithAssignments] = await attachAssignments(db, params.teamId, [document]);
 
   return documentWithAssignments ?? null;
 }
 
-export async function getDocuments(_db: Database, params: GetDocumentsParams) {
+export async function getDocuments(db: Database, params: GetDocumentsParams) {
   const { teamId, pageSize = 20, cursor, tags, q, start, end, language } = params;
   const normalizedQuery = normalizeDocumentQuery(q);
   const cursorState = decodeIndexedDocumentCursor(cursor);
@@ -76,7 +76,7 @@ export async function getDocuments(_db: Database, params: GetDocumentsParams) {
 
   while (eligibleDocuments.length <= pageSize && bufferedIds.length > 0) {
     const takeCount = pageSize + 1 - eligibleDocuments.length;
-    const bufferedDocuments = await getDocumentsByIdsInOrder({
+    const bufferedDocuments = await getDocumentsByIdsInOrder(db, {
       teamId,
       documentIds: bufferedIds.slice(0, takeCount),
     });
@@ -94,6 +94,7 @@ export async function getDocuments(_db: Database, params: GetDocumentsParams) {
     bufferedIds.length === 0
   ) {
     const searchCandidates = await getDocumentSearchCandidates({
+      db,
       teamId,
       query: normalizedQuery,
       limit: getIndexedDocumentSearchLimit(pageSize),
@@ -106,7 +107,7 @@ export async function getDocuments(_db: Database, params: GetDocumentsParams) {
   while (eligibleDocuments.length <= pageSize && !sourceExhausted) {
     const previousSourceCursor = sourceCursor;
     const result = hasTagFilter
-      ? await getTaggedDocumentsPageFromConvex({
+      ? await getTaggedDocumentIdPage(db, {
           teamId,
           tagIds: tags ?? [],
           cursor: sourceCursor,
@@ -115,19 +116,28 @@ export async function getDocuments(_db: Database, params: GetDocumentsParams) {
           start,
           end,
         })
-      : await getDocumentsPageFromConvex({
+      : await getDocumentsPage(db, {
           teamId,
           cursor: sourceCursor,
           pageSize: getIndexedDocumentBatchSize(pageSize),
           order: "desc",
         });
 
-    eligibleDocuments.push(...result.page.filter(matchesIndexedDocumentCandidate));
+    const documents = hasTagFilter
+      ? await getDocumentsByIdsInOrder(db, {
+          teamId,
+          documentIds: "documentIds" in result ? result.documentIds : [],
+        })
+      : "page" in result
+        ? result.page
+        : [];
+
+    eligibleDocuments.push(...documents.filter(matchesIndexedDocumentCandidate));
 
     sourceCursor = result.isDone ? null : result.continueCursor;
     sourceExhausted = result.isDone;
 
-    if (result.page.length === 0 && (result.isDone || sourceCursor === previousSourceCursor)) {
+    if (documents.length === 0 && (result.isDone || sourceCursor === previousSourceCursor)) {
       break;
     }
   }
@@ -145,7 +155,7 @@ export async function getDocuments(_db: Database, params: GetDocumentsParams) {
         bufferedIds: nextBufferedIds,
       })
     : undefined;
-  const data = await attachAssignments(teamId, page);
+  const data = await attachAssignments(db, teamId, page);
 
   return {
     meta: {

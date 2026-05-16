@@ -1,8 +1,9 @@
-import {
-  mergeInstalledAppConfigInConvex,
-  setInstalledAppConfigInConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
+import {
+  mergeInstalledAppConfigInD1,
+  requireInstalledAppsD1,
+  setInstalledAppConfigInD1,
+} from "./d1";
 import { toAppRecord } from "./shared";
 
 export type UpdateAppTokensParams = {
@@ -13,8 +14,8 @@ export type UpdateAppTokensParams = {
   expiresAt: string;
 };
 
-export const updateAppTokens = async (_db: Database, params: UpdateAppTokensParams) => {
-  const result = await mergeInstalledAppConfigInConvex({
+export const updateAppTokens = async (db: Database, params: UpdateAppTokensParams) => {
+  const result = await mergeInstalledAppConfigInD1(requireInstalledAppsD1(db), {
     teamId: params.teamId,
     appId: params.appId,
     configPatch: {
@@ -33,8 +34,8 @@ export type SetAppConfigParams = {
   config: unknown;
 };
 
-export const setAppConfig = async (_db: Database, params: SetAppConfigParams) => {
-  const result = await setInstalledAppConfigInConvex({
+export const setAppConfig = async (db: Database, params: SetAppConfigParams) => {
+  const result = await setInstalledAppConfigInD1(requireInstalledAppsD1(db), {
     teamId: params.teamId,
     appId: params.appId,
     config: params.config,

@@ -15,19 +15,19 @@ import {
   listInsightsSchema,
   markInsightAsReadSchema,
 } from "../../schemas/insights";
-import { createTRPCRouter, protectedProcedure, protectedWithConvexIdProcedure } from "../init";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const insightsRouter = createTRPCRouter({
   /**
    * Get paginated list of insights for the team with user's read/dismiss status
    * By default, filters out insights the user has dismissed
    */
-  list: protectedWithConvexIdProcedure
+  list: protectedProcedure
     .input(listInsightsSchema)
     .query(async ({ ctx: { db, teamId, session }, input }) => {
       return getInsightsForUser(db, {
         teamId: teamId!,
-        userId: session.user.convexId,
+        userId: session.user.id,
         periodType: input.periodType,
         pageSize: input.limit,
         cursor: input.cursor,
@@ -96,7 +96,7 @@ export const insightsRouter = createTRPCRouter({
    * Mark an insight as read for the current user
    * Safe to call multiple times - only sets readAt if not already set
    */
-  markAsRead: protectedWithConvexIdProcedure
+  markAsRead: protectedProcedure
     .input(markInsightAsReadSchema)
     .mutation(async ({ ctx: { db, teamId, session }, input }) => {
       // Verify the insight belongs to the user's team
@@ -114,7 +114,7 @@ export const insightsRouter = createTRPCRouter({
 
       const result = await markInsightAsRead(db, {
         insightId: input.id,
-        userId: session.user.convexId,
+        userId: session.user.id,
       });
 
       return { success: true, readAt: result.readAt };
@@ -124,7 +124,7 @@ export const insightsRouter = createTRPCRouter({
    * Dismiss an insight for the current user
    * The insight will no longer appear in their list unless includeDismissed is true
    */
-  dismiss: protectedWithConvexIdProcedure
+  dismiss: protectedProcedure
     .input(dismissInsightSchema)
     .mutation(async ({ ctx: { db, teamId, session }, input }) => {
       // Verify the insight belongs to the user's team
@@ -142,7 +142,7 @@ export const insightsRouter = createTRPCRouter({
 
       const result = await dismissInsight(db, {
         insightId: input.id,
-        userId: session.user.convexId,
+        userId: session.user.id,
       });
 
       return { success: true, dismissedAt: result.dismissedAt };

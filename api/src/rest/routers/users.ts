@@ -1,5 +1,5 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
-import { getCurrentUserFromConvex, updateCurrentUserInConvex } from "@tamias/app-services/identity";
+import { getCurrentUser, updateCurrentUser } from "@tamias/app-services/identity";
 import { generateOptionalFileKey } from "@tamias/encryption";
 import { updateUserSchema, userSchema } from "../../schemas/users";
 import { validateResponse } from "../../utils/validate-response";
@@ -32,8 +32,8 @@ app.openapi(
   async (c) => {
     const session = c.get("session");
 
-    const result = await getCurrentUserFromConvex({
-      userId: session.user.convexId,
+    const result = await getCurrentUser({
+      userId: session.user.id,
       email: session.user.email ?? null,
     });
 
@@ -83,8 +83,8 @@ app.openapi(
     const session = c.get("session");
     const body = c.req.valid("json");
 
-    const result = await updateCurrentUserInConvex({
-      userId: session.user.convexId,
+    const result = await updateCurrentUser({
+      userId: session.user.id,
       currentEmail: session.user.email ?? null,
       fullName: body.fullName,
       email: body.email,

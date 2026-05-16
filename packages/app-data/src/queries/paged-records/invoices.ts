@@ -1,9 +1,11 @@
-import { getPublicInvoicesPageFromConvex } from "@tamias/app-data-convex";
+import { createDatabase, type Database } from "../../client";
 import { normalizeTimestampBoundary } from "../date-boundaries";
 import { getProjectedInvoicePayload, type ProjectedInvoiceRecord } from "../invoices/shared";
+import { getPublicInvoicesPage } from "../public-invoices";
 import { collectCursorPages, DEFAULT_PAGE_SIZE } from "./shared";
 
 async function collectPublicInvoicePages(args: {
+  db: Database;
   teamId: string;
   status?: string;
   createdAtFrom?: string;
@@ -11,7 +13,7 @@ async function collectPublicInvoicePages(args: {
   pageSize?: number;
 }) {
   return collectCursorPages((cursor) =>
-    getPublicInvoicesPageFromConvex({
+    getPublicInvoicesPage(args.db, {
       teamId: args.teamId,
       cursor,
       pageSize: args.pageSize ?? DEFAULT_PAGE_SIZE,
@@ -24,6 +26,7 @@ async function collectPublicInvoicePages(args: {
 }
 
 export async function getProjectedInvoicesPaged(args: {
+  db?: Database;
   teamId: string;
   statuses?: string[];
   createdAtFrom?: string;
@@ -37,12 +40,14 @@ export async function getProjectedInvoicesPaged(args: {
     ? normalizeTimestampBoundary(args.createdAtTo, "end")
     : undefined;
   const statuses = args.statuses && args.statuses.length > 0 ? [...new Set(args.statuses)] : null;
+  const db = args.db ?? createDatabase();
 
   const records = statuses
     ? (
         await Promise.all(
           statuses.map((status) =>
             collectPublicInvoicePages({
+              db,
               teamId: args.teamId,
               status,
               createdAtFrom,
@@ -53,6 +58,7 @@ export async function getProjectedInvoicesPaged(args: {
         )
       ).flat()
     : await collectPublicInvoicePages({
+        db,
         teamId: args.teamId,
         createdAtFrom,
         createdAtTo,

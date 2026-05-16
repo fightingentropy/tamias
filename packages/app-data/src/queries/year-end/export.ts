@@ -1,8 +1,8 @@
-import { upsertYearEndPackInConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { buildYearEndExportArchive } from "./export-archive";
 import { persistYearEndExportBundle } from "./export-persistence";
 import { getTeamContext, getYearEndPack, rebuildYearEndPack } from "./pack";
+import { upsertYearEndPack } from "./pack-store";
 
 export async function generateYearEndExport(
   db: Database,
@@ -32,7 +32,7 @@ export async function generateYearEndExport(
     periodKey: pack.periodKey,
     archive,
   });
-  const updatedPack = await upsertYearEndPackInConvex({
+  const updatedPack = await upsertYearEndPack(db, {
     id: pack.id,
     teamId: params.teamId,
     filingProfileId: pack.filingProfileId,

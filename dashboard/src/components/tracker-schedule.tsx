@@ -1384,8 +1384,8 @@ export function TrackerSchedule() {
         eventId={formEvent?.id}
         onCreate={handleCreateEvent}
         isSaving={upsertTrackerEntry.isPending}
-        userId={user?.convexId || ""}
-        assignedId={formEvent?.user?.id ?? user?.convexId ?? ""}
+        userId={user?.id || ""}
+        assignedId={formEvent?.user?.id ?? user?.id ?? ""}
         teamId={user?.teamId || ""}
         projectId={formEvent?.trackerProject?.id ?? selectedProjectId}
         description={formEvent?.description ?? undefined}

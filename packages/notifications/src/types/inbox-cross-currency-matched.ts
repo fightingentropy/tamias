@@ -6,7 +6,7 @@ export const inboxCrossCurrencyMatched: NotificationHandler = {
 
   createActivity: (data, user) => ({
     teamId: user.team_id,
-    userId: user.convex_id,
+    userId: user.id,
     type: "inbox_cross_currency_matched",
     source: "system",
     priority: 2,

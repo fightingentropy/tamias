@@ -1,4 +1,3 @@
-import { getTransactionByIdFromConvex } from "@tamias/app-data-convex";
 import { createLoggerWithContext } from "@tamias/logger";
 import type { Database } from "../../../client";
 import {
@@ -8,6 +7,7 @@ import {
   calculateNameScore as calculateUnifiedNameScore,
   scoreMatch,
 } from "../../../utils/transaction-matching";
+import { getTransactionByIdFromD1, requireTransactionsD1 } from "../../transactions/d1";
 import { compareNullableDates, includesSearch, shiftIsoDate } from "../shared";
 import {
   getIndexedInboxSearchCandidates,
@@ -35,12 +35,14 @@ export async function getInboxSearch(_db: Database, params: GetInboxSearchParams
       const candidateLimit = Math.max(limit * 20, 100);
       const [textCandidates, amountCandidates] = await Promise.all([
         getIndexedInboxSearchCandidates({
+          db: _db,
           teamId,
           searchTerms: [searchTerm],
           limit: candidateLimit,
         }),
         isNumericSearch
           ? getIndexedInboxSearchCandidates({
+              db: _db,
               teamId,
               searchTerms: [],
               amount: numericSearch,
@@ -98,7 +100,7 @@ export async function getInboxSearch(_db: Database, params: GetInboxSearchParams
     }
 
     if (transactionId) {
-      const transaction = await getTransactionByIdFromConvex({
+      const transaction = await getTransactionByIdFromD1(requireTransactionsD1(_db), {
         teamId,
         transactionId,
       });
@@ -113,6 +115,7 @@ export async function getInboxSearch(_db: Database, params: GetInboxSearchParams
         const dateGte = shiftIsoDate(transaction.date, -123);
         const dateLte = shiftIsoDate(transaction.date, 30);
         const items = await getIndexedInboxSearchCandidates({
+          db: _db,
           teamId,
           searchTerms: [transaction.name, transaction.merchantName, transaction.counterpartyName],
           amount: transaction.amount,
@@ -185,7 +188,7 @@ export async function getInboxSearch(_db: Database, params: GetInboxSearchParams
       }
     }
 
-    return getRecentInboxSearchItems(teamId, limit);
+    return getRecentInboxSearchItems(_db, teamId, limit);
   } catch (error) {
     logger.error("Error in getInboxSearch:", { error });
     return [];

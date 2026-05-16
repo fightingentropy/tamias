@@ -1,10 +1,11 @@
+import type { Database } from "../../../client";
 import {
-  type TransactionRecord,
-  type TransactionStatus as ConvexTransactionStatus,
-  getTransactionsByAmountRangeFromConvex,
-  searchTransactionsFromConvex,
-} from "@tamias/app-data-convex";
+  getTransactionsByAmountRangeFromD1,
+  requireTransactionsD1,
+  searchTransactionsFromD1,
+} from "../d1";
 import { compareTransactionsByDateDesc } from "./sorting";
+import type { TransactionRecord, TransactionStatus } from "./types";
 
 const MATCHING_SEARCH_STOP_WORDS = new Set([
   "bill",
@@ -78,12 +79,13 @@ function buildIndexedTransactionMatchQueries(searchTerms: Array<string | null | 
 }
 
 export async function getIndexedTransactionMatchCandidates(args: {
+  db: Database;
   teamId: string;
   searchTerms: Array<string | null | undefined>;
   amount?: number | null;
   dateGte?: string | null;
   dateLte?: string | null;
-  statusesNotIn?: ConvexTransactionStatus[];
+  statusesNotIn?: TransactionStatus[];
   limit?: number;
 }) {
   const searchQueries = buildIndexedTransactionMatchQueries(args.searchTerms);
@@ -99,7 +101,7 @@ export async function getIndexedTransactionMatchCandidates(args: {
 
   const groups = await Promise.all([
     ...searchQueries.map((query) =>
-      searchTransactionsFromConvex({
+      searchTransactionsFromD1(requireTransactionsD1(args.db), {
         teamId: args.teamId,
         query,
         dateGte: args.dateGte ?? undefined,
@@ -110,7 +112,7 @@ export async function getIndexedTransactionMatchCandidates(args: {
     ),
     ...(absoluteAmount !== null && amountTolerance !== null
       ? [
-          getTransactionsByAmountRangeFromConvex({
+          getTransactionsByAmountRangeFromD1(requireTransactionsD1(args.db), {
             teamId: args.teamId,
             minAmount: Math.max(0, Math.round((absoluteAmount - amountTolerance) * 100)),
             maxAmount: Math.round((absoluteAmount + amountTolerance) * 100),

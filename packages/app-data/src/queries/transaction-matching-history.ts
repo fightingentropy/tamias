@@ -26,9 +26,9 @@ export function extractDomainToken(url: string | null | undefined): string {
   return cleaned?.split(".")[0]?.toLowerCase() ?? "";
 }
 
-async function loadTeamPairHistory(_db: Database, teamId: string): Promise<TeamPairHistoryMap> {
+async function loadTeamPairHistory(db: Database, teamId: string): Promise<TeamPairHistoryMap> {
   const cutoff = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString();
-  const suggestions = await getTeamSuggestions(teamId, ["confirmed", "declined", "unmatched"], {
+  const suggestions = await getTeamSuggestions(db, teamId, ["confirmed", "declined", "unmatched"], {
     createdAtFrom: cutoff,
     limit: HISTORY_SUGGESTION_LIMIT,
   });

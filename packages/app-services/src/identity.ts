@@ -1,306 +1,244 @@
-import { api } from "@tamias/app-data-convex/api";
-import type { Id } from "@tamias/app-data-convex/data-model";
-import type { AIProvider } from "@tamias/domain/identity";
-import { createConvexClient, getConvexServiceKey, getSharedConvexClient } from "./convex-client";
+import {
+  createDatabase,
+  type Database,
+} from "@tamias/app-data/client";
+import {
+  acceptTeamInviteInD1,
+  createTeamInvitesInD1,
+  declineTeamInviteInD1,
+  deleteTeamInviteInD1,
+  deleteTeamMemberFromD1,
+  ensureUserInD1,
+  getInvitesByEmailFromD1,
+  getTeamByIdFromD1,
+  getTeamInvitesByTeamIdFromD1,
+  getTeamMembersFromD1,
+  getTeamMembershipIdsFromD1,
+  getUserByEmailFromD1,
+  getUserByIdFromD1,
+  hasTeamAccessInD1,
+  leaveTeamInD1,
+  listTeamsForUserFromD1,
+  requireIdentityD1,
+  switchCurrentTeamInD1,
+  updateTeamMemberInD1,
+  updateUserInD1,
+  type CreateTeamInvitesD1Input,
+  type UpdateUserD1Input,
+} from "@tamias/app-data/queries";
+import {
+  verifyAccessToken,
+  type AuthIdentity,
+  type SessionUserRecord,
+} from "@tamias/auth-session";
 
-type ConvexUserId = Id<"appUsers">;
-type ConvexTeamId = Id<"teams">;
+function identityD1(db: Database = createDatabase()) {
+  return requireIdentityD1(db);
+}
 
-export type ConvexSession = {
-  user: {
-    id: ConvexUserId;
-    convexId?: ConvexUserId;
-    email?: string;
-    full_name?: string;
-  };
-  teamId?: string;
-  convexTeamId?: ConvexTeamId;
-  teamMembershipIds?: string[];
-  convexTeamMembershipIds?: ConvexTeamId[];
-};
+function toSessionUserRecord(record: Awaited<ReturnType<typeof getUserByIdFromD1>>): SessionUserRecord | null {
+  if (!record) {
+    return null;
+  }
 
-function serviceArgs<T extends Record<string, unknown>>(args: T) {
   return {
-    serviceKey: getConvexServiceKey(),
-    ...args,
+    id: record.id,
+    email: record.email,
+    fullName: record.fullName,
+    avatarUrl: record.avatarUrl,
+    teamId: record.teamId,
   };
 }
 
-export async function getSessionFromConvex(accessToken?: string): Promise<ConvexSession | null> {
-  if (!accessToken) {
-    return null;
-  }
-
-  const client = createConvexClient();
-
-  try {
-    client.setAuth(accessToken);
-    return (await client.query(api.identity.currentSession, {})) ?? null;
-  } catch {
-    return null;
-  } finally {
-    client.clearAuth();
-  }
-}
-
-/**
- * Same data as {@link getCurrentUserFromConvex} / `serviceGetUserById`, but uses the caller's
- * Convex JWT (no deploy key). Use for dashboard `user.me` so local `wrangler dev` works without
- * `CONVEX_SERVICE_KEY` for hosted deployments.
- */
-export async function getCurrentUserFromConvexAsAuthUser(accessToken?: string) {
-  if (!accessToken) {
-    return null;
-  }
-
-  const client = createConvexClient();
-
-  try {
-    client.setAuth(accessToken);
-    return (await client.query(api.identity.currentUser, {})) ?? null;
-  } catch {
-    return null;
-  } finally {
-    client.clearAuth();
-  }
-}
-
-/**
- * Current team for the JWT identity (no deploy key). Matches Convex `currentTeam`.
- */
-export async function getCurrentTeamFromConvexAsAuthUser(accessToken?: string) {
-  if (!accessToken) {
-    return null;
-  }
-
-  const client = createConvexClient();
-
-  try {
-    client.setAuth(accessToken);
-    return (await client.query(api.identity.currentTeam, {})) ?? null;
-  } catch {
-    return null;
-  } finally {
-    client.clearAuth();
-  }
-}
-
-/**
- * Team memberships for the JWT identity (no deploy key). Matches Convex `teamList`.
- */
-export async function listTeamsForUserFromConvexAsAuthUser(accessToken?: string) {
-  if (!accessToken) {
-    return null;
-  }
-
-  const client = createConvexClient();
-
-  try {
-    client.setAuth(accessToken);
-    return await client.query(api.identity.teamList, {});
-  } catch {
-    return null;
-  } finally {
-    client.clearAuth();
-  }
-}
-
-export async function ensureCurrentAppUserInConvex(accessToken?: string) {
-  if (!accessToken) {
-    return null;
-  }
-
-  const client = createConvexClient();
-
-  try {
-    client.setAuth(accessToken);
-    return (await client.mutation(api.identity.ensureCurrentAppUser, {})) ?? null;
-  } catch {
-    return null;
-  } finally {
-    client.clearAuth();
-  }
-}
-
-export async function getCurrentUserFromConvex(args: {
-  userId?: ConvexUserId;
-  email?: string | null;
-}) {
-  return getSharedConvexClient().query(
-    api.identity.serviceGetUserById,
-    serviceArgs({
-      userId: args.userId,
-      email: args.email ?? undefined,
-    }),
-  );
-}
-
-export async function updateCurrentUserInConvex(args: {
-  userId?: ConvexUserId;
-  currentEmail?: string | null;
-  fullName?: string | null;
-  email?: string | null;
-  avatarUrl?: string | null;
-  locale?: string | null;
-  weekStartsOnMonday?: boolean;
-  timezone?: string | null;
-  timezoneAutoSync?: boolean;
-  timeFormat?: 12 | 24;
-  dateFormat?: string | null;
-  aiProvider?: AIProvider;
-}) {
-  return getSharedConvexClient().mutation(
-    api.identity.serviceUpdateUserById,
-    serviceArgs({
-      userId: args.userId,
-      currentEmail: args.currentEmail ?? undefined,
-      fullName: args.fullName,
-      email: args.email,
-      avatarUrl: args.avatarUrl,
-      locale: args.locale,
-      weekStartsOnMonday: args.weekStartsOnMonday,
-      timezone: args.timezone,
-      timezoneAutoSync: args.timezoneAutoSync,
-      timeFormat: args.timeFormat,
-      dateFormat: args.dateFormat,
-      aiProvider: args.aiProvider,
-    }),
-  );
-}
-
-export async function getTeamByPublicTeamIdFromConvexIdentity(publicTeamId: string) {
-  return getSharedConvexClient().query(
-    api.identity.serviceGetTeamByPublicTeamId,
-    serviceArgs({ publicTeamId }),
-  );
-}
-
-export async function listTeamsForUserFromConvex(args: {
-  userId?: ConvexUserId;
-  email?: string | null;
-}) {
-  return getSharedConvexClient().query(
-    api.identity.serviceListTeamsByUserId,
-    serviceArgs({
-      userId: args.userId,
-      email: args.email ?? undefined,
-    }),
-  );
-}
-
-export async function getTeamMembershipIdsFromConvex(args: {
-  userId?: ConvexUserId;
-  email?: string | null;
-}) {
-  const teams = await listTeamsForUserFromConvex(args);
-  return teams.map((team) => team.id);
-}
-
-export async function hasTeamAccessInConvex(args: {
-  userId?: ConvexUserId;
-  email?: string | null;
-  publicTeamId: string;
-}) {
-  const teamMembershipIds = await getTeamMembershipIdsFromConvex({
-    userId: args.userId,
-    email: args.email ?? undefined,
+export async function ensureCurrentUser(
+  _accessToken?: string,
+  identity?: AuthIdentity | null,
+  db?: Database,
+) {
+  const user = await ensureUserInD1(identityD1(db), {
+    authUserId: identity?.subject ?? null,
+    email: identity?.email ?? null,
+    fullName: identity?.full_name ?? null,
+    avatarUrl: identity?.avatar_url ?? null,
   });
 
-  return teamMembershipIds.includes(args.publicTeamId);
+  return toSessionUserRecord(user);
 }
 
-export async function switchCurrentTeamInConvex(args: {
-  userId?: ConvexUserId;
+export async function getCurrentUser(args: {
+  userId?: string | null;
   email?: string | null;
-  publicTeamId: string;
+  db?: Database;
 }) {
-  return getSharedConvexClient().mutation(
-    api.identity.serviceSwitchCurrentTeam,
-    serviceArgs({
-      userId: args.userId,
-      email: args.email ?? undefined,
-      publicTeamId: args.publicTeamId,
-    }),
-  );
+  const d1 = identityD1(args.db);
+
+  if (args.userId) {
+    const byId = await getUserByIdFromD1(d1, args.userId);
+
+    if (byId) {
+      return byId;
+    }
+  }
+
+  if (args.email) {
+    return getUserByEmailFromD1(d1, args.email);
+  }
+
+  return null;
 }
 
-export async function getTeamMembersFromConvex(publicTeamId: string) {
-  return getSharedConvexClient().query(
-    api.identity.serviceGetTeamMembersByPublicTeamId,
-    serviceArgs({ publicTeamId }),
-  );
+export async function getCurrentSessionUser(args: {
+  userId?: string | null;
+  email?: string | null;
+  db?: Database;
+}) {
+  return toSessionUserRecord(await getCurrentUser(args));
 }
 
-export async function updateTeamMemberInConvex(args: {
-  publicTeamId: string;
-  userId: ConvexUserId;
+export async function getCurrentUserAsAuthUser(accessToken?: string | null, db?: Database) {
+  const identity = await verifyAccessToken(accessToken ?? undefined);
+
+  if (!identity) {
+    return null;
+  }
+
+  return ensureCurrentUser(accessToken ?? undefined, identity, db);
+}
+
+export async function updateCurrentUser(
+  input: UpdateUserD1Input & {
+    currentEmail?: string | null;
+    db?: Database;
+  },
+) {
+  return updateUserInD1(identityD1(input.db), input);
+}
+
+export async function getTeamMembershipIds(args: {
+  userId?: string | null;
+  email?: string | null;
+  db?: Database;
+}) {
+  return getTeamMembershipIdsFromD1(identityD1(args.db), args);
+}
+
+export async function getTeamById(teamId: string, db?: Database) {
+  return getTeamByIdFromD1(identityD1(db), teamId);
+}
+
+export async function listTeamsForUser(args: {
+  userId?: string | null;
+  email?: string | null;
+  db?: Database;
+}) {
+  return listTeamsForUserFromD1(identityD1(args.db), args);
+}
+
+export async function listTeamsForAccessToken(accessToken?: string | null, db?: Database) {
+  const user = await getCurrentUserAsAuthUser(accessToken, db);
+
+  if (!user) {
+    return null;
+  }
+
+  return listTeamsForUser({
+    userId: user.id,
+    email: user.email ?? null,
+    db,
+  });
+}
+
+export async function getCurrentTeamForAccessToken(accessToken?: string | null, db?: Database) {
+  const user = await getCurrentUserAsAuthUser(accessToken, db);
+
+  if (!user?.teamId) {
+    return null;
+  }
+
+  return getTeamById(user.teamId, db);
+}
+
+export async function getTeamMembers(teamId: string, db?: Database) {
+  return getTeamMembersFromD1(identityD1(db), teamId);
+}
+
+export async function updateTeamMember(args: {
+  teamId: string;
+  userId: string;
   role: "owner" | "member";
+  db?: Database;
 }) {
-  return getSharedConvexClient().mutation(api.identity.serviceUpdateTeamMember, serviceArgs(args));
+  return updateTeamMemberInD1(identityD1(args.db), args);
 }
 
-export async function deleteTeamMemberInConvex(args: {
-  publicTeamId: string;
-  userId: ConvexUserId;
+export async function deleteTeamMember(args: {
+  teamId: string;
+  userId: string;
+  db?: Database;
 }) {
-  return getSharedConvexClient().mutation(api.identity.serviceDeleteTeamMember, serviceArgs(args));
+  return deleteTeamMemberFromD1(identityD1(args.db), args);
 }
 
-export async function leaveTeamInConvex(args: {
-  publicTeamId: string;
-  userId?: ConvexUserId;
+export async function hasTeamAccess(args: {
+  userId?: string | null;
   email?: string | null;
+  teamId: string;
+  db?: Database;
 }) {
-  return getSharedConvexClient().mutation(
-    api.identity.serviceLeaveTeam,
-    serviceArgs({
-      publicTeamId: args.publicTeamId,
-      userId: args.userId,
-      email: args.email ?? undefined,
-    }),
-  );
+  return hasTeamAccessInD1(identityD1(args.db), args);
 }
 
-export async function getInvitesByEmailFromConvex(email: string) {
-  return getSharedConvexClient().query(
-    api.identity.serviceGetInvitesByEmail,
-    serviceArgs({ email }),
-  );
-}
-
-export async function getTeamInvitesByPublicTeamIdFromConvex(publicTeamId: string) {
-  return getSharedConvexClient().query(
-    api.identity.serviceGetTeamInvitesByPublicTeamId,
-    serviceArgs({ publicTeamId }),
-  );
-}
-
-export async function createTeamInvitesInConvex(args: {
-  publicTeamId: string;
-  invitedByUserId?: ConvexUserId;
-  invites: {
-    email: string;
-    role: "owner" | "member";
-  }[];
+export async function leaveTeam(args: {
+  teamId: string;
+  userId?: string | null;
+  email?: string | null;
+  db?: Database;
 }) {
-  return getSharedConvexClient().mutation(api.identity.serviceCreateTeamInvites, serviceArgs(args));
+  return leaveTeamInD1(identityD1(args.db), args);
 }
 
-export async function acceptTeamInviteInConvex(args: {
-  publicInviteId: string;
-  userId?: ConvexUserId;
-  email: string;
+export async function switchCurrentTeam(args: {
+  userId?: string | null;
+  email?: string | null;
+  teamId: string;
+  db?: Database;
 }) {
-  return getSharedConvexClient().mutation(api.identity.serviceAcceptTeamInvite, serviceArgs(args));
+  return switchCurrentTeamInD1(identityD1(args.db), args);
 }
 
-export async function declineTeamInviteInConvex(args: { publicInviteId: string; email: string }) {
-  return getSharedConvexClient().mutation(api.identity.serviceDeclineTeamInvite, serviceArgs(args));
+export async function getInvitesByEmail(email: string, db?: Database) {
+  return getInvitesByEmailFromD1(identityD1(db), email);
 }
 
-export async function deleteTeamInviteInConvex(args: {
-  publicInviteId: string;
-  publicTeamId: string;
+export async function getTeamInvitesByTeamId(teamId: string, db?: Database) {
+  return getTeamInvitesByTeamIdFromD1(identityD1(db), teamId);
+}
+
+export async function createTeamInvites(input: CreateTeamInvitesD1Input & { db?: Database }) {
+  return createTeamInvitesInD1(identityD1(input.db), input);
+}
+
+export async function acceptTeamInvite(args: {
+  inviteId: string;
+  userId?: string | null;
+  email?: string | null;
+  db?: Database;
 }) {
-  return getSharedConvexClient().mutation(api.identity.serviceDeleteTeamInvite, serviceArgs(args));
+  return acceptTeamInviteInD1(identityD1(args.db), args);
+}
+
+export async function declineTeamInvite(args: {
+  inviteId: string;
+  email?: string | null;
+  db?: Database;
+}) {
+  return declineTeamInviteInD1(identityD1(args.db), args);
+}
+
+export async function deleteTeamInvite(args: {
+  inviteId: string;
+  teamId: string;
+  db?: Database;
+}) {
+  return deleteTeamInviteInD1(identityD1(args.db), args);
 }

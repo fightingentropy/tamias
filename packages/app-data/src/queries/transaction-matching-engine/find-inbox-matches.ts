@@ -1,4 +1,3 @@
-import { getTransactionByIdFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import {
   calculateAmountScore,
@@ -16,7 +15,9 @@ import {
   normalizeNameForLearning,
 } from "../transaction-matching-history";
 import type { FindInboxMatchesParams, InboxMatchResult } from "../transaction-matching-types";
+import { getTransactionByIdFromD1, requireTransactionsD1 } from "../transactions/d1";
 import { getIsoDateDistanceInDays, shiftIsoDate } from "../transactions/shared";
+import type { TransactionRecord } from "../transactions/shared";
 import { getIndexedInboxMatchCandidates } from "./inbox-candidates";
 import {
   getDismissedInboxIds,
@@ -26,7 +27,7 @@ import {
   roundMatchMetric,
 } from "./shared";
 
-type TransactionItem = NonNullable<Awaited<ReturnType<typeof getTransactionByIdFromConvex>>>;
+type TransactionItem = TransactionRecord;
 
 type InboxCandidateRecord =
   | Awaited<ReturnType<typeof getIndexedInboxMatchCandidates>>[number]
@@ -157,7 +158,7 @@ export async function findInboxMatches(
 ): Promise<InboxMatchResult | null> {
   const { teamId, transactionId, excludeInboxIds, candidateInboxItems } = params;
   const { suggestedThreshold, autoThreshold } = await getMatchThresholds(db, teamId);
-  const transactionItem = await getTransactionByIdFromConvex({
+  const transactionItem = await getTransactionByIdFromD1(requireTransactionsD1(db), {
     teamId,
     transactionId,
   });
@@ -171,7 +172,7 @@ export async function findInboxMatches(
   );
   const inboxItems: InboxCandidateRecord[] =
     candidateInboxItems ??
-    (await getIndexedInboxMatchCandidates({
+    (await getIndexedInboxMatchCandidates(db, {
       teamId,
       amount: transactionItem.amount,
       searchTerms: [
@@ -269,7 +270,7 @@ export async function findInboxMatches(
 
   scoredCandidates.sort((left, right) => right.confidenceScore - left.confidenceScore);
 
-  const dismissedInboxIds = await getDismissedInboxIds({
+  const dismissedInboxIds = await getDismissedInboxIds(db, {
     teamId,
     transactionId,
     inboxIds: scoredCandidates.map((candidate) => candidate.inboxId),

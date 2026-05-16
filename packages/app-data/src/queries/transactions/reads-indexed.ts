@@ -1,15 +1,15 @@
-import {
-  getTransactionsByBankAccountPageFromConvex,
-  getTransactionsByIdsFromConvex,
-  getTransactionsPageFromConvex,
-  getTaggedTransactionsPageFromConvex,
-  type TransactionRecord,
-  type TransactionStatus,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { getAccountingSyncStatus } from "../accounting-sync";
+import {
+  getTransactionsByBankAccountPageFromD1,
+  getTransactionsByIdsFromD1,
+  getTransactionsPageFromD1,
+  getTaggedTransactionsPageFromD1,
+  requireTransactionsD1,
+} from "./d1";
 import { buildProcessedTransactionPage } from "./reads-process";
 import { getIndexedPageOrder, type GetTransactionsParams } from "./reads-shared";
+import type { TransactionRecord, TransactionStatus } from "./shared";
 
 type ReviewPageCursorState = {
   sourceCursor: string | null;
@@ -61,12 +61,16 @@ function getIndexedReviewBatchSize(pageSize: number) {
   return Math.min(Math.max(pageSize * 2, 100), 250);
 }
 
-async function getTransactionsByIdsInOrder(args: { teamId: string; transactionIds: string[] }) {
+async function getTransactionsByIdsInOrder(args: {
+  db: Database;
+  teamId: string;
+  transactionIds: string[];
+}) {
   if (args.transactionIds.length === 0) {
     return [];
   }
 
-  const transactions = await getTransactionsByIdsFromConvex({
+  const transactions = await getTransactionsByIdsFromD1(requireTransactionsD1(args.db), {
     teamId: args.teamId,
     transactionIds: args.transactionIds,
   });
@@ -129,6 +133,7 @@ export async function getIndexedReviewTransactionPage(args: {
 
   while (eligibleTransactions.length <= args.pageSize && bufferedIds.length > 0) {
     const bufferedTransactions = await getTransactionsByIdsInOrder({
+      db: args.db,
       teamId: args.teamId,
       transactionIds: bufferedIds.slice(0, args.pageSize + 1 - eligibleTransactions.length),
     });
@@ -144,7 +149,7 @@ export async function getIndexedReviewTransactionPage(args: {
   }
 
   while (eligibleTransactions.length <= args.pageSize && !sourceExhausted) {
-    const candidatePage = await getTransactionsPageFromConvex({
+    const candidatePage = await getTransactionsPageFromD1(requireTransactionsD1(args.db), {
       teamId: args.teamId,
       cursor: sourceCursor,
       pageSize: getIndexedReviewBatchSize(args.pageSize),
@@ -202,7 +207,7 @@ export async function getIndexedTaggedTransactionPage(args: {
   tags: GetTransactionsParams["tags"];
   statusesNotIn: TransactionStatus[];
 }) {
-  const indexedPage = await getTaggedTransactionsPageFromConvex({
+  const indexedPage = await getTaggedTransactionsPageFromD1(requireTransactionsD1(args.db), {
     teamId: args.teamId,
     tagIds: args.tags ?? [],
     cursor: args.cursor,
@@ -236,7 +241,7 @@ export async function getIndexedTransactionPage(args: {
 }) {
   const bankAccountId = args.accounts && args.accounts.length === 1 ? args.accounts[0] : undefined;
   const indexedPage = bankAccountId
-    ? await getTransactionsByBankAccountPageFromConvex({
+    ? await getTransactionsByBankAccountPageFromD1(requireTransactionsD1(args.db), {
         teamId: args.teamId,
         bankAccountId,
         cursor: args.cursor,
@@ -246,7 +251,7 @@ export async function getIndexedTransactionPage(args: {
         dateLte: args.end ?? undefined,
         statusesNotIn: args.statusesNotIn,
       })
-    : await getTransactionsPageFromConvex({
+    : await getTransactionsPageFromD1(requireTransactionsD1(args.db), {
         teamId: args.teamId,
         cursor: args.cursor,
         pageSize: args.pageSize,

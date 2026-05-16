@@ -1,6 +1,6 @@
 import { createLoggerWithContext } from "@tamias/logger";
-import { getInboxItemByIdFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
+import { getInboxItemByIdFromD1, requireInboxItemsD1 } from "../inbox/d1";
 import { updateInbox } from "../inbox";
 import { createMatchSuggestion, findMatches, type MatchResult } from "../transaction-matching";
 import { matchTransaction } from "../inbox";
@@ -178,7 +178,7 @@ export async function calculateInboxSuggestions(
     };
   } catch (error) {
     try {
-      const currentInbox = await getInboxItemByIdFromConvex({
+      const currentInbox = await getInboxItemByIdFromD1(requireInboxItemsD1(db), {
         teamId,
         inboxId,
       });

@@ -94,7 +94,7 @@ describe("tRPC: transactions.get", () => {
 });
 
 describe("tRPC: transactions.getById", () => {
-  const convexStyleTransactionId = "4awvtgnpr2ymczbdc7n6vzeviizjutwn";
+  const transactionId = "4awvtgnpr2ymczbdc7n6vzeviizjutwn";
 
   beforeEach(() => {
     mocks.getTransactionById.mockReset();
@@ -125,16 +125,16 @@ describe("tRPC: transactions.getById", () => {
   test("accepts non-UUID transaction ids", async () => {
     mocks.getTransactionById.mockImplementation(() =>
       createValidTransactionResponse({
-        id: convexStyleTransactionId,
+        id: transactionId,
       }),
     );
 
     const caller = createCaller(createTestContext());
     const result = await caller.getById({
-      id: convexStyleTransactionId,
+      id: transactionId,
     });
 
-    expect(result?.id).toBe(convexStyleTransactionId);
+    expect(result?.id).toBe(transactionId);
   });
 
   test("passes correct parameters to DB query", async () => {
@@ -155,17 +155,17 @@ describe("tRPC: transactions.getById", () => {
   test("passes non-UUID transaction ids through to the DB query", async () => {
     mocks.getTransactionById.mockImplementation(() =>
       createValidTransactionResponse({
-        id: convexStyleTransactionId,
+        id: transactionId,
       }),
     );
 
     const caller = createCaller(createTestContext());
-    await caller.getById({ id: convexStyleTransactionId });
+    await caller.getById({ id: transactionId });
 
     expect(mocks.getTransactionById).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
-        id: convexStyleTransactionId,
+        id: transactionId,
         teamId: "test-team-id",
       }),
     );

@@ -1,18 +1,19 @@
-import {
-  countTransactionsFromConvex,
-  getBankConnectionsFromConvex,
-  getPublicInvoicesByTeamFromConvex,
-  getTeamByIdFromConvexIdentity,
-  getTeamByInboxIdFromConvexIdentity,
-  getTeamByStripeAccountIdFromConvexIdentity,
-  getTeamMembersFromConvexIdentity,
-} from "@tamias/app-data-convex";
 import type { Database, QueryClient } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
+import { getBankConnections } from "../bank-connections";
+import {
+  getTeamByIdFromD1,
+  getTeamByInboxIdFromD1,
+  getTeamByStripeAccountIdFromD1,
+  getTeamMembersFromD1,
+  requireIdentityD1,
+} from "../identity/d1";
+import { getPublicInvoicesByTeam } from "../public-invoices";
+import { countTransactionsFromD1, requireTransactionsD1 } from "../transactions/d1";
 import type { TeamOwnerInfo } from "./shared";
 
-export async function getTeamByIdImpl(_db: Database | QueryClient, id: string) {
-  return getTeamByIdFromConvexIdentity({ teamId: id });
+export async function getTeamByIdImpl(db: Database | QueryClient, id: string) {
+  return getTeamByIdFromD1(requireIdentityD1(db), id);
 }
 
 const getTeamByIdReused = reuseQueryResult({
@@ -25,8 +26,8 @@ export async function getTeamById(_db: Database | QueryClient, id: string) {
   return getTeamByIdReused(_db as Database, id);
 }
 
-export const getTeamByInboxId = async (_db: Database | QueryClient, inboxId: string) => {
-  return getTeamByInboxIdFromConvexIdentity({ inboxId });
+export const getTeamByInboxId = async (db: Database | QueryClient, inboxId: string) => {
+  return getTeamByInboxIdFromD1(requireIdentityD1(db), inboxId);
 };
 
 /**
@@ -38,18 +39,17 @@ export const getTeamByInboxId = async (_db: Database | QueryClient, inboxId: str
  * @returns The team if found, undefined otherwise
  */
 export const getTeamByStripeAccountId = async (
-  _db: Database | QueryClient,
+  db: Database | QueryClient,
   stripeAccountId: string,
 ) => {
-  return getTeamByStripeAccountIdFromConvexIdentity({ stripeAccountId });
+  return getTeamByStripeAccountIdFromD1(requireIdentityD1(db), stripeAccountId);
 };
 
-async function getTeamMembersImpl(_db: Database, teamId: string) {
-  const members = await getTeamMembersFromConvexIdentity({ teamId });
+async function getTeamMembersImpl(db: Database, teamId: string) {
+  const members = await getTeamMembersFromD1(requireIdentityD1(db), teamId);
 
   return members.map((member) => ({
     id: member.user.id,
-    convexId: member.user.convexId,
     role: member.role,
     fullName: member.user.fullName,
     avatarUrl: member.user.avatarUrl,
@@ -113,16 +113,12 @@ export async function isTeamStillCanceled(db: Database, teamId: string) {
 }
 
 export async function hasTeamData(db: Database, teamId: string) {
-  void db;
-
   const [transactionCount, bankConnections, invoices] = await Promise.all([
-    countTransactionsFromConvex({
+    countTransactionsFromD1(requireTransactionsD1(db), {
       teamId,
     }),
-    getBankConnectionsFromConvex({
-      teamId,
-    }),
-    getPublicInvoicesByTeamFromConvex({
+    getBankConnections(db, { teamId }),
+    getPublicInvoicesByTeam(db, {
       teamId,
     }),
   ]);

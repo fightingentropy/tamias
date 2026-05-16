@@ -5,11 +5,11 @@ import type { Database } from "../../../client";
 import { logActivity, type InvoiceActivityType } from "../../../utils/log-activity";
 import { draftInvoice } from "./draft";
 import { getInvoiceById } from "../reads";
-import type { DraftInvoiceTemplateParams, InvoiceConvexUserId } from "../shared";
+import type { DraftInvoiceTemplateParams, InvoiceUserId } from "../shared";
 
 export type DuplicateInvoiceParams = {
   id: string;
-  userId: InvoiceConvexUserId;
+  userId: InvoiceUserId;
   invoiceNumber: string;
   teamId: string;
 };

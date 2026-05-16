@@ -1,9 +1,10 @@
-import {
-  getInboxItemInfoFromConvex,
-  getInboxItemsFromConvex,
-  upsertInboxItemsInConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
+import {
+  getInboxItemInfoFromD1,
+  getInboxItemsFromD1,
+  requireInboxItemsD1,
+  upsertInboxItemsInD1,
+} from "../d1";
 import { markInboxItems } from "../shared";
 import { logger, toInboxFileResponse, toProcessedInboxResponse } from "./shared";
 
@@ -23,6 +24,7 @@ export type CreateInboxParams = {
 };
 
 export async function createInbox(_db: Database, params: CreateInboxParams) {
+  const d1 = requireInboxItemsD1(_db);
   const {
     displayName,
     teamId,
@@ -40,7 +42,7 @@ export async function createInbox(_db: Database, params: CreateInboxParams) {
 
   if (referenceId) {
     const existing = (
-      await getInboxItemsFromConvex({
+      await getInboxItemsFromD1(d1, {
         teamId,
         referenceIds: [referenceId],
       })
@@ -59,7 +61,7 @@ export async function createInbox(_db: Database, params: CreateInboxParams) {
   }
 
   const now = new Date().toISOString();
-  const [result] = await upsertInboxItemsInConvex({
+  const [result] = await upsertInboxItemsInD1(d1, {
     items: [
       {
         teamId,
@@ -115,7 +117,7 @@ export async function updateInboxWithProcessedData(
   _db: Database,
   params: UpdateInboxWithProcessedDataParams,
 ) {
-  const current = await getInboxItemInfoFromConvex({
+  const current = await getInboxItemInfoFromD1(requireInboxItemsD1(_db), {
     inboxId: params.id,
   });
 
@@ -124,6 +126,7 @@ export async function updateInboxWithProcessedData(
   }
 
   const [result] = await markInboxItems(
+    _db,
     [
       {
         ...current,

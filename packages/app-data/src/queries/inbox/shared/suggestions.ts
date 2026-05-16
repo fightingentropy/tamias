@@ -1,17 +1,19 @@
+import { type Database } from "../../../client";
+import { getTransactionsByIdsFromD1, requireTransactionsD1 } from "../../transactions/d1";
 import {
-  getTransactionMatchSuggestionsFromConvex,
-  getTransactionsByIdsFromConvex,
-  upsertTransactionMatchSuggestionsInConvex,
-  type CurrentUserIdentityRecord,
+  getTransactionMatchSuggestionsFromD1,
+  requireInboxItemsD1,
+  upsertTransactionMatchSuggestionsInD1,
   type MatchSuggestionStatus,
   type TransactionMatchSuggestionRecord,
-} from "@tamias/app-data-convex";
+} from "../d1";
 import { buildInboxTransactionSummary, type InboxTransactionSummary } from "./transactions";
 import { toUpsertSuggestion } from "./serialization";
 
-export type InboxConvexUserId = CurrentUserIdentityRecord["convexId"];
+export type InboxUserId = string;
 
 export async function loadSuggestionMaps(
+  db: Database,
   teamId: string,
   suggestions: TransactionMatchSuggestionRecord[],
 ) {
@@ -22,7 +24,7 @@ export async function loadSuggestionMaps(
     return transactionMap;
   }
 
-  const transactions = await getTransactionsByIdsFromConvex({
+  const transactions = await getTransactionsByIdsFromD1(requireTransactionsD1(db), {
     teamId,
     transactionIds: suggestionIds,
   });
@@ -34,12 +36,16 @@ export async function loadSuggestionMaps(
   return transactionMap;
 }
 
-export async function getTeamMatchSuggestions(teamId: string, statuses?: MatchSuggestionStatus[]) {
-  return getTransactionMatchSuggestionsFromConvex({ teamId, statuses });
+export async function getTeamMatchSuggestions(
+  db: Database,
+  teamId: string,
+  statuses?: MatchSuggestionStatus[],
+) {
+  return getTransactionMatchSuggestionsFromD1(requireInboxItemsD1(db), { teamId, statuses });
 }
 
-export async function getPendingSuggestionForInbox(teamId: string, inboxId: string) {
-  const suggestions = await getTransactionMatchSuggestionsFromConvex({
+export async function getPendingSuggestionForInbox(db: Database, teamId: string, inboxId: string) {
+  const suggestions = await getTransactionMatchSuggestionsFromD1(requireInboxItemsD1(db), {
     teamId,
     inboxId,
     statuses: ["pending"],
@@ -51,18 +57,19 @@ export async function getPendingSuggestionForInbox(teamId: string, inboxId: stri
 }
 
 export async function clearInboxSuggestions(
+  db: Database,
   teamId: string,
   suggestions: TransactionMatchSuggestionRecord[],
   params: {
     status: MatchSuggestionStatus;
-    userId?: InboxConvexUserId | null;
+    userId?: InboxUserId | null;
   },
 ) {
   if (suggestions.length === 0) {
     return;
   }
 
-  await upsertTransactionMatchSuggestionsInConvex({
+  await upsertTransactionMatchSuggestionsInD1(requireInboxItemsD1(db), {
     suggestions: suggestions.map((suggestion) =>
       toUpsertSuggestion(suggestion, {
         status: params.status,

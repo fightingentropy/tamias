@@ -8,12 +8,12 @@ type InvoiceTransportLogger = {
   error: (message: string, payload?: Record<string, unknown>) => void;
 };
 
-export function requireSessionConvexUserId(session: Session, onMissing: () => never) {
-  if (!session.user.convexId) {
+export function requireSessionUserId(session: Session, onMissing: () => never) {
+  if (!session.user.id) {
     return onMissing();
   }
 
-  return session.user.convexId;
+  return session.user.id;
 }
 
 export function assertScheduledAtInFuture(scheduledAt: string, onInvalid: () => never) {

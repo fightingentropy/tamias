@@ -1,18 +1,18 @@
 import {
-  createAuthorizationCodeInConvex,
-  createOAuthApplicationInConvex,
-  deleteOAuthApplicationInConvex,
-  getOAuthApplicationByClientIdFromConvex,
-  getOAuthApplicationByIdFromConvex,
-  getOAuthApplicationsByTeamFromConvex,
-  getTeamByPublicTeamIdFromConvex,
-  getUserAuthorizedApplicationsFromConvex,
-  hasUserEverAuthorizedAppInConvex,
-  regenerateOAuthClientSecretInConvex,
-  revokeUserApplicationTokensInConvex,
-  updateOAuthApplicationInConvex,
-  updateOAuthApplicationStatusInConvex,
-} from "@tamias/app-services/foundation";
+  createAuthorizationCodeInD1,
+  createOAuthApplicationInD1,
+  deleteOAuthApplicationInD1,
+  getOAuthApplicationByClientIdFromD1,
+  getOAuthApplicationByIdFromD1,
+  getOAuthApplicationsByTeamFromD1,
+  getOAuthTeamNameFromD1,
+  getUserAuthorizedApplicationsFromD1,
+  hasUserEverAuthorizedAppInD1,
+  regenerateOAuthClientSecretInD1,
+  revokeUserApplicationTokensInD1,
+  updateOAuthApplicationInD1,
+  updateOAuthApplicationStatusInD1,
+} from "@tamias/app-services/oauth";
 import { getOAuthApplicationInfo } from "@tamias/app-services/oauth-application-info";
 import { AppInstalledEmail } from "@tamias/email/emails/app-installed";
 import { AppReviewRequestEmail } from "@tamias/email/emails/app-review-request";
@@ -32,14 +32,14 @@ import {
   updateOAuthApplicationSchema,
 } from "../../schemas/oauth-applications";
 import { revokeUserApplicationAccessSchema } from "../../schemas/oauth-flow";
-import { createTRPCRouter, protectedProcedure, protectedWithConvexIdProcedure } from "../init";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 const logger = createLoggerWithContext("trpc:oauth-applications");
 
 export const oauthApplicationsRouter = createTRPCRouter({
   list: protectedProcedure.query(async ({ ctx }) => {
-    const { teamId } = ctx;
-    const applications = await getOAuthApplicationsByTeamFromConvex(teamId!);
+    const { db, teamId } = ctx;
+    const applications = await getOAuthApplicationsByTeamFromD1(teamId!, db);
 
     return {
       data: applications,
@@ -48,16 +48,16 @@ export const oauthApplicationsRouter = createTRPCRouter({
 
   getApplicationInfo: protectedProcedure
     .input(getApplicationInfoSchema)
-    .query(async ({ input }) => getOAuthApplicationInfo(input)),
+    .query(async ({ ctx, input }) => getOAuthApplicationInfo(input, ctx.db)),
 
   authorize: protectedProcedure
     .input(authorizeOAuthApplicationSchema)
     .mutation(async ({ ctx, input }) => {
-      const { session } = ctx;
+      const { db, session } = ctx;
       const { clientId, decision, scopes, redirectUri, state, codeChallenge, teamId } = input;
 
       // Validate client_id first (needed for both allow and deny)
-      const application = await getOAuthApplicationByClientIdFromConvex(clientId);
+      const application = await getOAuthApplicationByClientIdFromD1(clientId, db);
       if (!application || !application.active) {
         throw new TRPCError({
           code: "BAD_REQUEST",
@@ -105,17 +105,11 @@ export const oauthApplicationsRouter = createTRPCRouter({
         });
       }
 
-      if (!session.user.convexId) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Missing Convex user id",
-        });
-      }
-
       // Create authorization code
-      const authCode = await createAuthorizationCodeInConvex({
+      const authCode = await createAuthorizationCodeInD1({
+        db,
         publicApplicationId: application.id,
-        userId: session.user.convexId,
+        userId: session.user.id,
         publicTeamId: teamId,
         scopes,
         redirectUri,
@@ -132,21 +126,22 @@ export const oauthApplicationsRouter = createTRPCRouter({
       // Send app installation email only if this is the first time authorizing this app
       try {
         // Check if user has ever authorized this application for this team (including expired tokens)
-        const hasAuthorizedBefore = await hasUserEverAuthorizedAppInConvex({
-          userId: session.user.convexId,
+        const hasAuthorizedBefore = await hasUserEverAuthorizedAppInD1({
+          db,
+          userId: session.user.id,
           publicTeamId: teamId,
           publicApplicationId: application.id,
         });
 
         if (!hasAuthorizedBefore) {
           // Get team information
-          const userTeam = await getTeamByPublicTeamIdFromConvex(teamId);
+          const teamName = await getOAuthTeamNameFromD1(teamId, db);
 
-          if (userTeam && session.user.email) {
+          if (teamName && session.user.email) {
             const html = await render(
               AppInstalledEmail({
                 email: session.user.email,
-                teamName: userTeam.name!,
+                teamName,
                 appName: application.name,
               }),
             );
@@ -175,27 +170,31 @@ export const oauthApplicationsRouter = createTRPCRouter({
       return { redirect_url: redirectUrl.toString() };
     }),
 
-  create: protectedWithConvexIdProcedure
+  create: protectedProcedure
     .input(createOAuthApplicationSchema)
     .mutation(async ({ ctx, input }) => {
-      const { teamId, session } = ctx;
+      const { db, teamId, session } = ctx;
 
-      const application = await createOAuthApplicationInConvex({
+      const application = await createOAuthApplicationInD1({
+        db,
         ...input,
         publicTeamId: teamId!,
-        createdByUserId: session.user.convexId,
+        createdByUserId: session.user.id,
       });
 
       return application;
     }),
 
   get: protectedProcedure.input(getOAuthApplicationSchema).query(async ({ ctx, input }) => {
-    const { teamId } = ctx;
+    const { db, teamId } = ctx;
 
-    const application = await getOAuthApplicationByIdFromConvex({
-      publicApplicationId: input.id,
-      publicTeamId: teamId!,
-    });
+    const application = await getOAuthApplicationByIdFromD1(
+      {
+        publicApplicationId: input.id,
+        publicTeamId: teamId!,
+      },
+      db,
+    );
 
     if (!application) {
       throw new TRPCError({ code: "NOT_FOUND", message: "OAuth application not found" });
@@ -207,10 +206,11 @@ export const oauthApplicationsRouter = createTRPCRouter({
   update: protectedProcedure
     .input(updateOAuthApplicationSchema)
     .mutation(async ({ ctx, input }) => {
-      const { teamId } = ctx;
+      const { db, teamId } = ctx;
       const { id, ...updateData } = input;
 
-      const application = await updateOAuthApplicationInConvex({
+      const application = await updateOAuthApplicationInD1({
+        db,
         ...updateData,
         publicApplicationId: id,
         publicTeamId: teamId!,
@@ -226,9 +226,10 @@ export const oauthApplicationsRouter = createTRPCRouter({
   delete: protectedProcedure
     .input(deleteOAuthApplicationSchema)
     .mutation(async ({ ctx, input }) => {
-      const { teamId } = ctx;
+      const { db, teamId } = ctx;
 
-      const result = await deleteOAuthApplicationInConvex({
+      const result = await deleteOAuthApplicationInD1({
+        db,
         publicApplicationId: input.id,
         publicTeamId: teamId!,
       });
@@ -243,9 +244,10 @@ export const oauthApplicationsRouter = createTRPCRouter({
   regenerateSecret: protectedProcedure
     .input(regenerateClientSecretSchema)
     .mutation(async ({ ctx, input }) => {
-      const { teamId } = ctx;
+      const { db, teamId } = ctx;
 
-      const result = await regenerateOAuthClientSecretInConvex({
+      const result = await regenerateOAuthClientSecretInD1({
+        db,
         publicApplicationId: input.id,
         publicTeamId: teamId!,
       });
@@ -258,14 +260,11 @@ export const oauthApplicationsRouter = createTRPCRouter({
     }),
 
   authorized: protectedProcedure.query(async ({ ctx }) => {
-    const { teamId, session } = ctx;
+    const { db, teamId, session } = ctx;
 
-    if (!session.user.convexId) {
-      return { data: [] };
-    }
-
-    const applications = await getUserAuthorizedApplicationsFromConvex({
-      userId: session.user.convexId,
+    const applications = await getUserAuthorizedApplicationsFromD1({
+      db,
+      userId: session.user.id,
       publicTeamId: teamId!,
     });
 
@@ -274,13 +273,14 @@ export const oauthApplicationsRouter = createTRPCRouter({
     };
   }),
 
-  revokeAccess: protectedWithConvexIdProcedure
+  revokeAccess: protectedProcedure
     .input(revokeUserApplicationAccessSchema)
     .mutation(async ({ ctx, input }) => {
-      const { session } = ctx;
+      const { db, session } = ctx;
 
-      await revokeUserApplicationTokensInConvex({
-        userId: session.user.convexId,
+      await revokeUserApplicationTokensInD1({
+        db,
+        userId: session.user.id,
         publicApplicationId: input.applicationId,
       });
 
@@ -290,19 +290,23 @@ export const oauthApplicationsRouter = createTRPCRouter({
   updateApprovalStatus: protectedProcedure
     .input(updateApprovalStatusSchema)
     .mutation(async ({ ctx, input }) => {
-      const { teamId, session } = ctx;
+      const { db, teamId, session } = ctx;
 
       // Get full application details before updating
-      const application = await getOAuthApplicationByIdFromConvex({
-        publicApplicationId: input.id,
-        publicTeamId: teamId!,
-      });
+      const application = await getOAuthApplicationByIdFromD1(
+        {
+          publicApplicationId: input.id,
+          publicTeamId: teamId!,
+        },
+        db,
+      );
 
       if (!application) {
         throw new TRPCError({ code: "NOT_FOUND", message: "OAuth application not found" });
       }
 
-      const result = await updateOAuthApplicationStatusInConvex({
+      const result = await updateOAuthApplicationStatusInD1({
+        db,
         publicApplicationId: input.id,
         publicTeamId: teamId!,
         status: input.status,
@@ -316,14 +320,14 @@ export const oauthApplicationsRouter = createTRPCRouter({
       if (input.status === "pending") {
         try {
           // Get team information
-          const currentTeam = await getTeamByPublicTeamIdFromConvex(teamId!);
+          const teamName = await getOAuthTeamNameFromD1(teamId!, db);
 
-          if (currentTeam && session.user.email) {
+          if (teamName && session.user.email) {
             const html = await render(
               AppReviewRequestEmail({
                 applicationName: application.name,
                 developerName: application.developerName || undefined,
-                teamName: currentTeam.name!,
+                teamName,
                 userEmail: session.user.email,
               }),
             );

@@ -1,8 +1,9 @@
-import {
-  getInboxItemsPageFromConvex,
-  getTransactionMatchSuggestionsFromConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
+import {
+  getInboxItemsPageFromD1,
+  getTransactionMatchSuggestionsFromD1,
+  requireInboxItemsD1,
+} from "../inbox/d1";
 
 export type PendingInboxItem = {
   id: string;
@@ -24,7 +25,7 @@ export async function getPendingInboxForMatching(
   let cursor: string | null = null;
 
   while (pendingItems.length < limit) {
-    const page = await getInboxItemsPageFromConvex({
+    const page = await getInboxItemsPageFromD1(requireInboxItemsD1(_db), {
       teamId,
       cursor,
       pageSize: Math.min(limit * 2, 200),
@@ -61,7 +62,7 @@ export async function getSuggestionByInboxAndTransaction(
   const { inboxId, transactionId, teamId } = params;
 
   const result = (
-    await getTransactionMatchSuggestionsFromConvex({
+    await getTransactionMatchSuggestionsFromD1(requireInboxItemsD1(_db), {
       teamId,
       inboxId,
       statuses: ["pending"],

@@ -43,10 +43,10 @@ function calculateInvoiceLimitForPeriod(
 }
 
 export async function getRecurringInvoiceProjection(
-  _db: Database,
+  db: Database,
   params: GetRecurringInvoiceProjectionParams,
 ): Promise<RecurringInvoiceProjectionResult> {
-  const activeRecurring = (await getProjectedInvoiceRecurringForTeam(params.teamId)).filter(
+  const activeRecurring = (await getProjectedInvoiceRecurringForTeam(db, params.teamId)).filter(
     (record) =>
       record.status === "active" && (!params.currency || record.currency === params.currency),
   );

@@ -1,6 +1,6 @@
 import { roundCurrency } from "@tamias/compliance";
-import type { CorporationTaxRateScheduleRecord } from "@tamias/app-data-convex";
 import { differenceInCalendarDays, parseISO } from "date-fns";
+import type { CorporationTaxRateScheduleRecord } from "../../tax-schedules";
 import type { CorporationTaxRateSummary } from "../types";
 
 const PRE_SMALL_PROFITS_MAIN_RATE = 0.19;

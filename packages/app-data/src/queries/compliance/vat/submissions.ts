@@ -1,29 +1,32 @@
 import { createHash } from "node:crypto";
 import { HmrcVatProvider, roundCurrency } from "@tamias/compliance";
-import {
-  createSubmissionEventInConvex,
-  getEvidencePackByIdFromConvex,
-  listVatSubmissionsFromConvex,
-  markVatReturnAcceptedInConvex,
-  upsertEvidencePackInConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
+import { createSubmissionEvent } from "../../filing-events";
 import { reuseQueryResult } from "../../../utils/request-cache";
 import { getHmrcProvider } from "../shared";
 import { getRequiredVatContext } from "./context";
+import {
+  getEvidencePackByIdFromD1,
+  listVatSubmissionsFromD1,
+  markVatReturnAcceptedInD1,
+  upsertEvidencePackInD1,
+} from "./d1";
 import { getVatDraft } from "./draft";
-import type { ConvexUserId, GetEvidencePackParams, SubmitVatReturnParams } from "./types";
+import type { GetEvidencePackParams, SubmitVatReturnParams, VatFilingActorId } from "./types";
 
-async function buildEvidencePack(params: {
-  teamId: string;
-  filingProfileId: string;
-  vatReturnId: string;
-  createdBy: ConvexUserId;
-  payload: Record<string, unknown>;
-}) {
+async function buildEvidencePack(
+  db: Database,
+  params: {
+    teamId: string;
+    filingProfileId: string;
+    vatReturnId: string;
+    createdBy: VatFilingActorId;
+    payload: Record<string, unknown>;
+  },
+) {
   const checksum = createHash("sha256").update(JSON.stringify(params.payload)).digest("hex");
 
-  return upsertEvidencePackInConvex({
+  return upsertEvidencePackInD1(db, {
     teamId: params.teamId,
     filingProfileId: params.filingProfileId,
     vatReturnId: params.vatReturnId,
@@ -89,14 +92,14 @@ export async function submitVatReturn(db: Database, params: SubmitVatReturnParam
   });
   const submittedAt = new Date().toISOString();
 
-  await markVatReturnAcceptedInConvex({
+  await markVatReturnAcceptedInD1(db, {
     vatReturnId: params.vatReturnId,
     submittedAt,
     externalSubmissionId:
       receipt.formBundleNumber ?? receipt.chargeRefNumber ?? receipt.processingDate ?? null,
   });
 
-  await createSubmissionEventInConvex({
+  await createSubmissionEvent(db, {
     teamId: params.teamId,
     filingProfileId: profile.id,
     provider: "hmrc-vat",
@@ -109,7 +112,7 @@ export async function submitVatReturn(db: Database, params: SubmitVatReturnParam
     responsePayload: receipt,
   });
 
-  const evidencePack = await buildEvidencePack({
+  const evidencePack = await buildEvidencePack(db, {
     teamId: params.teamId,
     filingProfileId: profile.id,
     vatReturnId: params.vatReturnId,
@@ -136,9 +139,7 @@ export async function submitVatReturn(db: Database, params: SubmitVatReturnParam
 }
 
 async function listVatSubmissionsImpl(db: Database, params: { teamId: string }) {
-  void db;
-
-  return listVatSubmissionsFromConvex({
+  return listVatSubmissionsFromD1(db, {
     teamId: params.teamId,
   });
 }
@@ -149,8 +150,8 @@ export const listVatSubmissions = reuseQueryResult({
   load: listVatSubmissionsImpl,
 });
 
-export async function getEvidencePack(params: GetEvidencePackParams) {
-  return getEvidencePackByIdFromConvex({
+export async function getEvidencePack(db: Database, params: GetEvidencePackParams) {
+  return getEvidencePackByIdFromD1(db, {
     teamId: params.teamId,
     id: params.evidencePackId,
   });

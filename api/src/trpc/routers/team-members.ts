@@ -1,14 +1,14 @@
 import {
-  deleteTeamMemberInConvex,
-  getTeamMembersFromConvex,
-  updateTeamMemberInConvex,
+  deleteTeamMember,
+  getTeamMembers,
+  updateTeamMember,
 } from "@tamias/app-services/identity";
 import { TRPCError } from "@trpc/server";
 import { deleteTeamMemberSchema, updateTeamMemberSchema } from "../../schemas/team";
 import { protectedProcedure } from "../init";
 import {
   getTeamMemberByPublicId,
-  getTeamMemberRoleByConvexId,
+  getTeamMemberRoleByUserId,
   getTeamMemberRoleByPublicId,
   getTeamOwnerCount,
 } from "./team-shared";
@@ -24,8 +24,8 @@ export const teamMemberProcedures = {
         });
       }
 
-      const teamMembers = await getTeamMembersFromConvex(teamId!);
-      const callerRole = getTeamMemberRoleByConvexId(teamMembers, session.user.id);
+      const teamMembers = await getTeamMembers(teamId!);
+      const callerRole = getTeamMemberRoleByUserId(teamMembers, session.user.id);
 
       if (callerRole !== "owner") {
         throw new TRPCError({
@@ -51,9 +51,9 @@ export const teamMemberProcedures = {
         });
       }
 
-      return deleteTeamMemberInConvex({
-        publicTeamId: input.teamId,
-        userId: targetMember.user.convexId,
+      return deleteTeamMember({
+        teamId: input.teamId,
+        userId: targetMember.user.id,
       });
     }),
 
@@ -67,8 +67,8 @@ export const teamMemberProcedures = {
         });
       }
 
-      const teamMembers = await getTeamMembersFromConvex(teamId!);
-      const callerRole = getTeamMemberRoleByConvexId(teamMembers, session.user.id);
+      const teamMembers = await getTeamMembers(teamId!);
+      const callerRole = getTeamMemberRoleByUserId(teamMembers, session.user.id);
 
       if (callerRole !== "owner") {
         throw new TRPCError({
@@ -97,9 +97,9 @@ export const teamMemberProcedures = {
         });
       }
 
-      return updateTeamMemberInConvex({
-        publicTeamId: input.teamId,
-        userId: targetMember.user.convexId,
+      return updateTeamMember({
+        teamId: input.teamId,
+        userId: targetMember.user.id,
         role: input.role,
       });
     }),

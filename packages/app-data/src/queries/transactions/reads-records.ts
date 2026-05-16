@@ -1,13 +1,14 @@
-import {
-  countTransactionsFromConvex,
-  getBankAccountsFromConvex,
-  getTransactionAttachmentsForTransactionIdsFromConvex,
-  getTransactionsByIdsFromConvex,
-  getTransactionsFromConvex,
-  getTransactionTagAssignmentsForTransactionIdsFromConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
+import { getBankAccounts } from "../bank-accounts";
+import { getTransactionAttachmentsForTransactionIds } from "../transaction-attachments";
 import { getTransactionCategoryContext } from "../transaction-categories";
+import {
+  countTransactionsFromD1,
+  getTransactionsByIdsFromD1,
+  getTransactionsFromD1,
+  getTransactionTagAssignmentsForTransactionIdsFromD1,
+  requireTransactionsD1,
+} from "./d1";
 import {
   buildTransactionAttachmentLookups,
   buildTransactionCategorySummary,
@@ -37,22 +38,22 @@ export async function getTransactionsByIds(db: Database, params: GetTransactions
   }
 
   const [results, bankAccounts] = await Promise.all([
-    getTransactionsByIdsFromConvex({
+    getTransactionsByIdsFromD1(requireTransactionsD1(db), {
       teamId,
       transactionIds: ids,
     }),
-    getBankAccountsFromConvex({ teamId }),
+    getBankAccounts(db, { teamId }),
   ]);
   const bankAccountsById = new Map(bankAccounts.map((account) => [account.id, account]));
   const categoryContext = await getTransactionCategoryContext(db, teamId);
   const { assignmentsByTransactionId } = buildTransactionTagLookups(
-    await getTransactionTagAssignmentsForTransactionIdsFromConvex({
+    await getTransactionTagAssignmentsForTransactionIdsFromD1(requireTransactionsD1(db), {
       teamId,
       transactionIds: ids,
     }),
   );
   const { attachmentsByTransactionId } = buildTransactionAttachmentLookups(
-    await getTransactionAttachmentsForTransactionIdsFromConvex({
+    await getTransactionAttachmentsForTransactionIds(db, {
       teamId,
       transactionIds: ids,
     }),
@@ -100,10 +101,10 @@ export type GetTransactionsByAccountIdParams = {
 };
 
 export async function getTransactionsByAccountId(
-  _db: Database,
+  db: Database,
   params: GetTransactionsByAccountIdParams,
 ) {
-  return getTransactionsFromConvex({
+  return getTransactionsFromD1(requireTransactionsD1(db), {
     teamId: params.teamId,
     bankAccountId: params.accountId,
   });
@@ -115,10 +116,10 @@ export type GetTransactionCountByBankAccountIdParams = {
 };
 
 export async function getTransactionCountByBankAccountId(
-  _db: Database,
+  db: Database,
   params: GetTransactionCountByBankAccountIdParams,
 ): Promise<number> {
-  return countTransactionsFromConvex({
+  return countTransactionsFromD1(requireTransactionsD1(db), {
     teamId: params.teamId,
     bankAccountId: params.bankAccountId,
   });

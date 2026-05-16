@@ -1,24 +1,26 @@
-import { getDocumentsPageFromConvex, searchDocumentsFromConvex } from "@tamias/app-data-convex";
+import { createDatabase } from "../../../client";
+import { getDocumentsPage, searchDocuments } from "../../documents/records";
 import { isSearchableDocument, toDocumentCandidate } from "../candidates";
 import { loadCandidatesForSource, matchesSearchTerm, matchesSemanticCandidate } from "../helpers";
 import type { RawSearchCandidateLoadParams, SearchCandidateLoadParams } from "../types";
 
 export async function loadDocumentCandidates(params: SearchCandidateLoadParams) {
   const itemsPerTableLimit = params.itemsPerTableLimit ?? 5;
+  const db = params.db ?? createDatabase();
 
   return loadCandidatesForSource({
     searchTerm: params.searchTerm,
     itemsPerTableLimit,
     loadSearch: params.searchTerm
       ? (limit) =>
-          searchDocumentsFromConvex({
+          searchDocuments(db, {
             teamId: params.teamId,
             query: params.searchTerm!,
             limit,
           })
       : undefined,
     loadPage: (cursor, pageSize) =>
-      getDocumentsPageFromConvex({
+      getDocumentsPage(db, {
         teamId: params.teamId,
         cursor,
         pageSize,
@@ -31,19 +33,21 @@ export async function loadDocumentCandidates(params: SearchCandidateLoadParams) 
 }
 
 export async function loadRawDocumentCandidates(params: RawSearchCandidateLoadParams) {
+  const db = params.db ?? createDatabase();
+
   return loadCandidatesForSource({
     searchTerm: params.searchTerm,
     itemsPerTableLimit: params.itemsPerTableLimit,
     loadSearch: params.searchTerm
       ? (limit) =>
-          searchDocumentsFromConvex({
+          searchDocuments(db, {
             teamId: params.teamId,
             query: params.searchTerm!,
             limit,
           })
       : undefined,
     loadPage: (cursor, pageSize) =>
-      getDocumentsPageFromConvex({
+      getDocumentsPage(db, {
         teamId: params.teamId,
         cursor,
         pageSize,

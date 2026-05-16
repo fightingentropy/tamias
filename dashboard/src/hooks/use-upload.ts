@@ -29,7 +29,7 @@ export function useUpload() {
     try {
       const result = await uploadFileToStorage(
         {
-          generateUploadUrl: () => generateUploadUrl.mutateAsync(),
+          generateUploadUrl: (args) => generateUploadUrl.mutateAsync(args),
           registerUpload: (args) => registerUpload.mutateAsync(args),
         },
         {

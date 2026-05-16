@@ -4,3 +4,4 @@ export * from "./transactions/matching";
 export * from "./transactions/base-currency";
 export * from "./transactions/mutations";
 export * from "./transactions/export";
+export * from "./transactions/d1";

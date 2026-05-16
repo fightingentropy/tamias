@@ -1,5 +1,4 @@
 import { decryptOAuthState, encryptOAuthState } from "@tamias/encryption";
-import type { GenericId } from "convex/values";
 import type { AccountingProviderId, MappedTransaction } from "./types";
 
 // ============================================================================
@@ -12,7 +11,7 @@ import type { AccountingProviderId, MappedTransaction } from "./types";
  */
 export interface AccountingOAuthStatePayload {
   teamId: string;
-  convexUserId: GenericId<"appUsers">;
+  userId: string;
   provider: AccountingProviderId;
   source: "apps" | "settings";
 }
@@ -25,7 +24,7 @@ function isValidAccountingOAuthState(parsed: unknown): parsed is AccountingOAuth
     typeof parsed === "object" &&
     parsed !== null &&
     typeof (parsed as Record<string, unknown>).teamId === "string" &&
-    typeof (parsed as Record<string, unknown>).convexUserId === "string" &&
+    typeof (parsed as Record<string, unknown>).userId === "string" &&
     ["quickbooks", "fortnox"].includes(
       (parsed as Record<string, unknown>).provider as string,
     ) &&

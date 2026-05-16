@@ -33,7 +33,7 @@ import { validateResponse } from "../../utils/validate-response";
 import { withRequiredScope } from "../middleware";
 import type { Context } from "../types";
 import {
-  requireRestConvexUserId,
+  requireRestUserId,
   restInvoiceLogger,
   serializeInvoiceForRest,
 } from "./invoices-shared";
@@ -133,12 +133,12 @@ export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
       const teamId = c.get("teamId");
       const session = c.get("session");
       const input = c.req.valid("json");
-      const convexUserId = requireRestConvexUserId(session);
+      const userId = requireRestUserId(session);
 
       const invoiceId = uuidv4();
       const finalInvoiceNumber =
         input.invoiceNumber || (await allocateNextInvoiceNumber(db, teamId));
-      const template = await getInvoiceTemplate(teamId);
+      const template = await getInvoiceTemplate(db, teamId);
       const paymentTermsDays = template?.paymentTermsDays ?? 30;
       const issueDate = input.issueDate || new Date().toISOString();
       const dueDate = input.dueDate || addDays(new Date(issueDate), paymentTermsDays).toISOString();
@@ -159,7 +159,7 @@ export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
           return await draftInvoice(db, {
             id: invoiceId,
             teamId,
-            userId: convexUserId,
+            userId: userId,
             invoiceNumber: finalInvoiceNumber,
             issueDate,
             dueDate,
@@ -204,7 +204,7 @@ export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
           id: result.id,
           status: "unpaid",
           teamId,
-          userId: convexUserId,
+          userId: userId,
         });
 
         if (updatedInvoice) {
@@ -242,7 +242,7 @@ export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
           scheduledAt: input.scheduledAt,
           scheduledJobId,
           teamId,
-          userId: convexUserId,
+          userId: userId,
         });
 
         if (!updatedInvoice) {
@@ -315,7 +315,7 @@ export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
       const result = await updateInvoice(db, {
         id,
         teamId,
-        userId: session.user.convexId ?? undefined,
+        userId: session.user.id ?? undefined,
         ...input,
       });
 

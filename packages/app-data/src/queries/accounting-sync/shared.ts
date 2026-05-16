@@ -1,9 +1,7 @@
-import {
-  getTransactionAttachmentsForTransactionIdsFromConvex,
-  getTransactionsPageFromConvex,
-  type TransactionRecord,
-  type TransactionStatus,
-} from "@tamias/app-data-convex";
+import type { Database } from "../../client";
+import { getTransactionAttachmentsForTransactionIds } from "../transaction-attachments";
+import { getTransactionsPageFromD1, requireTransactionsD1 } from "../transactions/d1";
+import type { TransactionRecord, TransactionStatus } from "../transactions/shared";
 
 export type AccountingSyncAttachment = {
   id: string;
@@ -39,6 +37,7 @@ export function compareTransactionsByDateDesc(
 }
 
 export async function getRecentUnsyncedTransactions(args: {
+  db: Database;
   teamId: string;
   dateGte: string;
   limit: number;
@@ -48,7 +47,7 @@ export async function getRecentUnsyncedTransactions(args: {
   let cursor: string | null = null;
 
   while (records.length < args.limit) {
-    const result = await getTransactionsPageFromConvex({
+    const result = await getTransactionsPageFromD1(requireTransactionsD1(args.db), {
       teamId: args.teamId,
       cursor,
       pageSize: Math.min(Math.max(args.limit, 100), 500),
@@ -80,10 +79,11 @@ export async function getRecentUnsyncedTransactions(args: {
 }
 
 export async function getAttachmentsByTransactionId(args: {
+  db: Database;
   teamId: string;
   transactionIds: string[];
 }) {
-  const attachments = await getTransactionAttachmentsForTransactionIdsFromConvex({
+  const attachments = await getTransactionAttachmentsForTransactionIds(args.db, {
     teamId: args.teamId,
     transactionIds: args.transactionIds,
   });

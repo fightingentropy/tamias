@@ -1,8 +1,8 @@
-import { upsertTransactionsInConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import { nanoid } from "nanoid";
 import { createAttachments, type Attachment } from "../../transaction-attachments";
 import { getFullTransactionData } from "../shared";
+import { requireTransactionsD1, upsertTransactionsInD1 } from "../d1";
 
 export type CreateTransactionParams = {
   name: string;
@@ -49,7 +49,7 @@ export async function createTransaction(db: Database, params: CreateTransactionP
   const id = crypto.randomUUID();
   const createdAt = new Date().toISOString();
 
-  await upsertTransactionsInConvex({
+  await upsertTransactionsInD1(requireTransactionsD1(db), {
     teamId: params.teamId,
     transactions: [
       buildManualTransactionInput({
@@ -98,7 +98,7 @@ export async function createTransactions(db: Database, params: CreateTransaction
   }
 
   for (const [teamId, transactionsForTeam] of transactionsByTeam) {
-    await upsertTransactionsInConvex({
+    await upsertTransactionsInD1(requireTransactionsD1(db), {
       teamId,
       transactions: transactionsForTeam.map(({ input, id }) =>
         buildManualTransactionInput({

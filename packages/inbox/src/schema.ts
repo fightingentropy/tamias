@@ -12,18 +12,10 @@ export const inboxAttachment = z
 
 export const inboxWebhookPostSchema = z
   .object({
-    OriginalRecipient: z.union([
-      z
-        .string({ required_error: "OriginalRecipient is required" })
-        .email({ message: "Invalid email format" })
-        .endsWith("@inbox.tamias.xyz", { message: "Invalid email domain" }),
-      z
-        .string({ required_error: "OriginalRecipient is required" })
-        .email({ message: "Invalid email format" })
-        .endsWith("@inbox.staging.tamias.xyz", {
-          message: "Invalid email domain",
-        }),
-    ]),
+    OriginalRecipient: z
+      .string({ required_error: "OriginalRecipient is required" })
+      .email({ message: "Invalid email format" })
+      .endsWith("@inbox.tamias.xyz", { message: "Invalid email domain" }),
     Attachments: z.array(inboxAttachment).optional(),
     Subject: z.string().optional(),
     TextBody: z.string().optional(),

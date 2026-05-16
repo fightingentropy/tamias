@@ -84,7 +84,7 @@ export const mocks = {
     meta: { hasNextPage: false, hasPreviousPage: false },
   })) as MockFn,
 
-  // Institution reference (Convex catalog + live provider fallback in router)
+  // Institution reference and live provider fallback in router
   getInstitutions: mock(() => []) as MockFn,
   getInstitutionById: mock(() => null) as MockFn,
   updateInstitutionUsage: mock(() => null) as MockFn,
@@ -343,7 +343,6 @@ const dbQueriesMock = createModuleMock({
   getUserById: mocks.getUserById,
   getUser: mocks.getUser,
   updateUser: mocks.updateUser,
-  getUserByConvexId: mock(() => null),
   getUserTeamId: mock(() => "test-team-id"),
 
   // Teams
@@ -517,7 +516,6 @@ mock.module("@tamias/auth-session", () => ({
     teamId: "test-team-id",
     user: {
       id: "test-user-id",
-      convexId: "test-user-id",
       email: "test@example.com",
       full_name: "Test User",
     },
@@ -531,7 +529,6 @@ mock.module("@tamias/auth-session", () => ({
       teamId: "test-team-id",
       user: {
         id: "test-user-id",
-        convexId: "test-user-id",
         email: "test@example.com",
         full_name: "Test User",
       },
@@ -549,12 +546,13 @@ mock.module("@tamias/app-data/client", () => ({
     (namespace: string, input: unknown) => `${namespace}:${JSON.stringify(input)}`,
   ),
   db: mockDb,
+  requireCloudflareD1Database: mock(() => {
+    throw new Error("Cloudflare D1 database binding is not configured");
+  }),
   getOrSetQueryCacheValue: mock(async (_db: unknown, _key: string, load: () => Promise<unknown>) =>
     load(),
   ),
 }));
 
 // Set required environment variables for tests
-process.env.CONVEX_URL = process.env.CONVEX_URL || "http://127.0.0.1:3210";
-process.env.CONVEX_SITE_URL = process.env.CONVEX_SITE_URL || "http://127.0.0.1:3211";
-process.env.TAMIAS_DASHBOARD_URL = process.env.TAMIAS_DASHBOARD_URL || "https://tamias.xyz";
+process.env.DASHBOARD_URL = process.env.DASHBOARD_URL || "https://tamias.xyz";

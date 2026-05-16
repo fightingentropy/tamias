@@ -1,21 +1,19 @@
-import {
-  countComplianceAdjustmentsByVatReturnIdFromConvex,
-  countSourceLinksBySourceTypesFromConvex,
-  getLatestVatReturnFromConvex,
-  getVatReturnByIdFromConvex,
-  getVatReturnByObligationIdFromConvex,
-} from "@tamias/app-data-convex";
 import { type VatReturnDraft } from "@tamias/compliance";
 import type { Database } from "../../../../client";
+import { countSourceLinksBySourceTypes } from "../../ledger";
+import {
+  countComplianceAdjustmentsByVatReturnIdFromD1,
+  getLatestVatReturnFromD1,
+  getVatReturnByIdFromD1,
+  getVatReturnByObligationIdFromD1,
+} from "../d1";
 import type { GetVatDraftParams } from "../types";
 
 async function readVatReturnDraft(
   db: Database,
   vatReturnId: string,
 ): Promise<VatReturnDraft | null> {
-  void db;
-
-  const draft = await getVatReturnByIdFromConvex({
+  const draft = await getVatReturnByIdFromD1(db, {
     id: vatReturnId,
   });
 
@@ -23,11 +21,11 @@ async function readVatReturnDraft(
     return null;
   }
 
-  const salesCount = await countSourceLinksBySourceTypesFromConvex({
+  const salesCount = await countSourceLinksBySourceTypes(db, {
     teamId: draft.teamId,
     sourceTypes: ["transaction", "invoice", "invoice_refund"],
   });
-  const purchaseCount = await countSourceLinksBySourceTypesFromConvex({
+  const purchaseCount = await countSourceLinksBySourceTypes(db, {
     teamId: draft.teamId,
     sourceTypes: ["transaction"],
   });
@@ -49,7 +47,7 @@ async function readVatReturnDraft(
     netVatDue: draft.netVatDue ?? 0,
     salesCount,
     purchaseCount,
-    adjustmentCount: await countComplianceAdjustmentsByVatReturnIdFromConvex({
+    adjustmentCount: await countComplianceAdjustmentsByVatReturnIdFromD1(db, {
       teamId: draft.teamId,
       vatReturnId,
     }),
@@ -63,7 +61,7 @@ export async function getVatDraft(db: Database, params: GetVatDraftParams) {
   }
 
   if (params.obligationId) {
-    const draft = await getVatReturnByObligationIdFromConvex({
+    const draft = await getVatReturnByObligationIdFromD1(db, {
       teamId: params.teamId,
       obligationId: params.obligationId,
     });
@@ -73,7 +71,7 @@ export async function getVatDraft(db: Database, params: GetVatDraftParams) {
     }
   }
 
-  const latest = await getLatestVatReturnFromConvex({
+  const latest = await getLatestVatReturnFromD1(db, {
     teamId: params.teamId,
   });
 

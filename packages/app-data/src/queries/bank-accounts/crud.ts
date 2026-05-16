@@ -1,48 +1,45 @@
-import {
-  createBankAccountInConvex,
-  deleteBankAccountInConvex,
-  updateBankAccountInConvex,
-} from "@tamias/app-data-convex";
 import { nanoid } from "nanoid";
 import type { Database } from "../../client";
-import type { CreateBankAccountParams, UpdateBankAccountParams } from "./types";
+import {
+  createBankAccountInD1,
+  deleteBankAccountFromD1,
+  getBankAccountByIdFromD1,
+  patchBankAccountInD1,
+  requireBankAccountsD1,
+} from "./d1";
+import type {
+  CreateBankAccountParams,
+  PatchBankAccountParams,
+  UpdateBankAccountParams,
+} from "./types";
 
 type DeleteBankAccountParams = {
   id: string;
   teamId: string;
 };
 
-export async function createBankAccount(_db: Database, params: CreateBankAccountParams) {
-  return createBankAccountInConvex({
-    teamId: params.teamId,
-    userId: params.userId,
-    name: params.name,
-    currency: params.currency,
-    manual: params.manual,
+export async function createBankAccount(db: Database, params: CreateBankAccountParams) {
+  return createBankAccountInD1(requireBankAccountsD1(db), {
+    ...params,
     accountId: nanoid(),
-    type: "depository",
   });
 }
 
-export async function deleteBankAccount(_db: Database, params: DeleteBankAccountParams) {
-  return deleteBankAccountInConvex({
-    id: params.id,
-    teamId: params.teamId,
-  });
+export async function deleteBankAccount(db: Database, params: DeleteBankAccountParams) {
+  const d1 = requireBankAccountsD1(db);
+  const deleted = await getBankAccountByIdFromD1(d1, params);
+
+  if (deleted) {
+    await deleteBankAccountFromD1(d1, params);
+  }
+
+  return deleted;
 }
 
-export async function updateBankAccount(_db: Database, params: UpdateBankAccountParams) {
-  const { id, teamId, ...data } = params;
+export async function updateBankAccount(db: Database, params: UpdateBankAccountParams) {
+  return patchBankAccountInD1(requireBankAccountsD1(db), params);
+}
 
-  return updateBankAccountInConvex({
-    id,
-    teamId,
-    name: data.name,
-    type: data.type,
-    balance: data.balance,
-    enabled: data.enabled,
-    currency: data.currency,
-    baseBalance: data.baseBalance,
-    baseCurrency: data.baseCurrency,
-  });
+export async function patchBankAccount(db: Database, params: PatchBankAccountParams) {
+  return patchBankAccountInD1(requireBankAccountsD1(db), params);
 }

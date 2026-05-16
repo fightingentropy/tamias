@@ -1,12 +1,13 @@
-import {
-  getInboxItemsByAmountRangeFromConvex,
-  getInboxItemsFromConvex,
-  getInboxItemsPageFromConvex,
-  type InboxItemRecord,
-  searchInboxItemsFromConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import { getInboxBlocklist } from "../../inbox-blocklist";
+import {
+  getInboxItemsByAmountRangeFromD1,
+  getInboxItemsFromD1,
+  getInboxItemsPageFromD1,
+  requireInboxItemsD1,
+  searchInboxItemsFromD1,
+  type InboxItemRecord,
+} from "../d1";
 import type { GetInboxParams } from "../types";
 import {
   buildHydratedInboxPage,
@@ -26,21 +27,23 @@ import {
 import { separateBlocklistEntries } from "../../../utils/blocklist";
 
 async function getIndexedInboxQueryCandidates(args: {
+  db: Database;
   teamId: string;
   query: string;
   limit: number;
 }) {
+  const d1 = requireInboxItemsD1(args.db);
   const numericAmount = isAmountLikeInboxQuery(args.query)
     ? parseInboxQueryAmount(args.query)
     : null;
   const [textCandidates, amountCandidates] = await Promise.all([
-    searchInboxItemsFromConvex({
+    searchInboxItemsFromD1(d1, {
       teamId: args.teamId,
       query: args.query,
       limit: args.limit,
     }),
     numericAmount !== null
-      ? getInboxItemsByAmountRangeFromConvex({
+      ? getInboxItemsByAmountRangeFromD1(d1, {
           teamId: args.teamId,
           minAmount: Math.max(
             0,
@@ -61,12 +64,16 @@ async function getIndexedInboxQueryCandidates(args: {
   ];
 }
 
-async function getInboxItemsByIdsInOrder(args: { teamId: string; inboxIds: string[] }) {
+async function getInboxItemsByIdsInOrder(args: {
+  db: Database;
+  teamId: string;
+  inboxIds: string[];
+}) {
   if (args.inboxIds.length === 0) {
     return [];
   }
 
-  const items = await getInboxItemsFromConvex({
+  const items = await getInboxItemsFromD1(requireInboxItemsD1(args.db), {
     teamId: args.teamId,
     ids: args.inboxIds,
   });
@@ -93,6 +100,7 @@ async function getIndexedInboxPage(db: Database, params: GetInboxParams) {
   while (eligibleItems.length <= pageSize && bufferedIds.length > 0) {
     const takeCount = pageSize + 1 - eligibleItems.length;
     const bufferedItems = await getInboxItemsByIdsInOrder({
+      db,
       teamId,
       inboxIds: bufferedIds.slice(0, takeCount),
     });
@@ -118,6 +126,7 @@ async function getIndexedInboxPage(db: Database, params: GetInboxParams) {
     bufferedIds.length === 0
   ) {
     const searchCandidates = await getIndexedInboxQueryCandidates({
+      db,
       teamId,
       query: normalizedQuery,
       limit: getIndexedInboxSearchLimit(pageSize),
@@ -145,7 +154,7 @@ async function getIndexedInboxPage(db: Database, params: GetInboxParams) {
   }
 
   while (eligibleItems.length <= pageSize && !sourceExhausted) {
-    const result = await getInboxItemsPageFromConvex({
+    const result = await getInboxItemsPageFromD1(requireInboxItemsD1(db), {
       teamId,
       cursor: sourceCursor,
       pageSize: getIndexedInboxBatchSize(pageSize),
@@ -184,6 +193,7 @@ async function getIndexedInboxPage(db: Database, params: GetInboxParams) {
     : undefined;
 
   return buildHydratedInboxPage({
+    db,
     teamId,
     items: pagedItems,
     cursor,

@@ -1,16 +1,17 @@
-import {
-  getTransactionByIdFromConvex,
-  getTransactionsByIdsFromConvex,
-  getTransactionsPageFromConvex,
-  upsertTransactionsInConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
 import {
   deleteAccountingSyncRecordsForTransactions,
   getAccountingSyncStatus,
 } from "../accounting-sync";
-import { toConvexTransactionInput } from "./shared";
+import {
+  getTransactionByIdFromD1,
+  getTransactionsByIdsFromD1,
+  getTransactionsPageFromD1,
+  requireTransactionsD1,
+  upsertTransactionsInD1,
+} from "./d1";
+import { toTransactionUpsertInput } from "./shared";
 
 const READY_FOR_EXPORT_COUNT_BATCH_SIZE = 250;
 
@@ -22,7 +23,7 @@ async function getTransactionsReadyForExportCountImpl(
   let count = 0;
 
   while (true) {
-    const result = await getTransactionsPageFromConvex({
+    const result = await getTransactionsPageFromD1(requireTransactionsD1(db), {
       teamId,
       cursor,
       pageSize: READY_FOR_EXPORT_COUNT_BATCH_SIZE,
@@ -67,13 +68,13 @@ export const getTransactionsReadyForExportCount = reuseQueryResult({
 });
 
 export async function markTransactionsAsExported(
-  _db: Database,
+  db: Database,
   transactionIds: string[],
   teamId: string,
 ): Promise<void> {
   if (transactionIds.length === 0) return;
 
-  const currentTransactions = await getTransactionsByIdsFromConvex({
+  const currentTransactions = await getTransactionsByIdsFromD1(requireTransactionsD1(db), {
     teamId,
     transactionIds,
   });
@@ -82,10 +83,10 @@ export async function markTransactionsAsExported(
     return;
   }
 
-  await upsertTransactionsInConvex({
+  await upsertTransactionsInD1(requireTransactionsD1(db), {
     teamId,
     transactions: currentTransactions.map((transaction) =>
-      toConvexTransactionInput(transaction, {
+      toTransactionUpsertInput(transaction, {
         status: "exported",
       }),
     ),
@@ -96,16 +97,16 @@ export async function moveTransactionToReview(
   db: Database,
   params: { transactionId: string; teamId: string },
 ): Promise<void> {
-  const transaction = await getTransactionByIdFromConvex({
+  const transaction = await getTransactionByIdFromD1(requireTransactionsD1(db), {
     teamId: params.teamId,
     transactionId: params.transactionId,
   });
 
   if (transaction?.status === "exported") {
-    await upsertTransactionsInConvex({
+    await upsertTransactionsInD1(requireTransactionsD1(db), {
       teamId: params.teamId,
       transactions: [
-        toConvexTransactionInput(transaction, {
+        toTransactionUpsertInput(transaction, {
           status: "posted",
         }),
       ],

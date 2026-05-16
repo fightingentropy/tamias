@@ -99,7 +99,7 @@ export function registerTransactionWriteRoutes(app: OpenAPIHono<Context>) {
     async (c) => {
       const db = c.get("db");
       const teamId = c.get("teamId");
-      const userId = c.get("session").user.convexId ?? undefined;
+      const userId = c.get("session").user.id ?? undefined;
       const { id } = c.req.valid("param");
       const params = c.req.valid("json");
 
@@ -148,7 +148,7 @@ export function registerTransactionWriteRoutes(app: OpenAPIHono<Context>) {
     async (c) => {
       const db = c.get("db");
       const teamId = c.get("teamId");
-      const userId = c.get("session").user.convexId ?? undefined;
+      const userId = c.get("session").user.id ?? undefined;
       const params = c.req.valid("json");
 
       const result = await updateTransactions(db, {

@@ -1,12 +1,26 @@
-import {
-  deleteAccountingSyncRecordsInConvex,
-  getAccountingSyncStatusFromConvex,
-  type AccountingSyncProvider,
-  type AccountingSyncStatus,
-  upsertAccountingSyncRecordInConvex,
-  updateSyncedAttachmentMappingInConvex,
-} from "@tamias/app-data-convex";
 import type { Database, DatabaseOrTransaction } from "../../client";
+import {
+  deleteAccountingSyncRecordsInD1,
+  getAccountingSyncD1,
+  getAccountingSyncStatusFromD1,
+  type AccountingSyncProvider,
+  type AccountingSyncRecord,
+  type AccountingSyncStatus,
+  upsertAccountingSyncRecordInD1,
+  updateSyncedAttachmentMappingInD1,
+} from "./d1";
+
+export type { AccountingSyncProvider, AccountingSyncRecord, AccountingSyncStatus } from "./d1";
+
+function requireAccountingSyncD1(db: Database) {
+  const d1 = getAccountingSyncD1(db);
+
+  if (!d1) {
+    throw new Error("Accounting sync records require Cloudflare D1");
+  }
+
+  return d1;
+}
 
 export type CreateAccountingSyncRecordParams = {
   transactionId: string;
@@ -23,10 +37,10 @@ export type CreateAccountingSyncRecordParams = {
 };
 
 export const upsertAccountingSyncRecord = async (
-  _db: Database,
+  db: Database,
   params: CreateAccountingSyncRecordParams,
 ) => {
-  return upsertAccountingSyncRecordInConvex({
+  return upsertAccountingSyncRecordInD1(requireAccountingSyncD1(db), {
     teamId: params.teamId,
     transactionId: params.transactionId,
     provider: params.provider,
@@ -47,10 +61,10 @@ export type GetSyncedTransactionIdsParams = {
 };
 
 export const getSyncedTransactionIds = async (
-  _db: Database,
+  db: Database,
   params: GetSyncedTransactionIdsParams,
 ): Promise<string[]> => {
-  const records = await getAccountingSyncStatusFromConvex({
+  const records = await getAccountingSyncStatusFromD1(requireAccountingSyncD1(db), {
     teamId: params.teamId,
     provider: params.provider,
   });
@@ -68,8 +82,11 @@ export type GetSyncStatusParams = {
   provider?: AccountingSyncProvider;
 };
 
-export const getAccountingSyncStatus = async (_db: Database, params: GetSyncStatusParams) => {
-  return getAccountingSyncStatusFromConvex({
+export const getAccountingSyncStatus = async (
+  db: Database,
+  params: GetSyncStatusParams,
+): Promise<AccountingSyncRecord[]> => {
+  return getAccountingSyncStatusFromD1(requireAccountingSyncD1(db), {
     teamId: params.teamId,
     transactionIds: params.transactionIds,
     provider: params.provider,
@@ -77,14 +94,14 @@ export const getAccountingSyncStatus = async (_db: Database, params: GetSyncStat
 };
 
 export async function deleteAccountingSyncRecordsForTransactions(
-  _db: DatabaseOrTransaction,
+  db: DatabaseOrTransaction,
   params: {
     teamId: string;
     transactionIds: string[];
     provider?: AccountingSyncProvider;
   },
 ) {
-  return deleteAccountingSyncRecordsInConvex({
+  return deleteAccountingSyncRecordsInD1(requireAccountingSyncD1(db), {
     teamId: params.teamId,
     transactionIds: params.transactionIds,
     provider: params.provider,
@@ -100,10 +117,10 @@ export type UpdateSyncedAttachmentMappingParams = {
 };
 
 export const updateSyncedAttachmentMapping = async (
-  _db: Database,
+  db: Database,
   params: UpdateSyncedAttachmentMappingParams,
 ) => {
-  return updateSyncedAttachmentMappingInConvex({
+  return updateSyncedAttachmentMappingInD1(requireAccountingSyncD1(db), {
     syncRecordId: params.syncRecordId,
     syncedAttachmentMapping: params.syncedAttachmentMapping,
     status: params.status,

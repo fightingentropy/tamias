@@ -10,7 +10,7 @@ import {
 import type { GetInvoicesParams } from "./types";
 import type { ProjectedInvoiceRecord } from "./shared";
 
-export async function getInvoices(_db: Database, params: GetInvoicesParams) {
+export async function getInvoices(db: Database, params: GetInvoicesParams) {
   const {
     teamId,
     sort,
@@ -34,10 +34,10 @@ export async function getInvoices(_db: Database, params: GetInvoicesParams) {
       recurringIds,
     })
   ) {
-    return getIndexedInvoicesPage(params);
+    return getIndexedInvoicesPage(db, params);
   }
 
-  let data = await getProjectedInvoicesForTeam(teamId);
+  let data = await getProjectedInvoicesForTeam(db, teamId);
 
   if (ids && ids.length > 0) {
     const idSet = new Set(ids);

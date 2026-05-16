@@ -1,9 +1,9 @@
+import type { FilingProfileRecord } from "../compliance/filings";
+import type { YearEndPackRecord } from "./pack-store";
 import type {
   CloseCompanyLoansScheduleRecord,
   CorporationTaxRateScheduleRecord,
-  FilingProfileRecord,
-  YearEndPackRecord,
-} from "@tamias/app-data-convex";
+} from "./tax-schedules";
 import {
   renderAccountsAttachmentIxbrl,
   renderComputationsAttachmentIxbrl,

@@ -1,4 +1,5 @@
-import { getOAuthApplicationByClientIdFromConvex } from "./foundation";
+import type { Database } from "@tamias/app-data/client";
+import { getOAuthApplicationByClientIdFromD1 } from "./oauth";
 
 export type OAuthApplicationInfoInput = {
   clientId: string;
@@ -7,9 +8,9 @@ export type OAuthApplicationInfoInput = {
   state?: string;
 };
 
-export async function getOAuthApplicationInfo(input: OAuthApplicationInfoInput) {
+export async function getOAuthApplicationInfo(input: OAuthApplicationInfoInput, db?: Database) {
   const { clientId, redirectUri, scope, state } = input;
-  const application = await getOAuthApplicationByClientIdFromConvex(clientId);
+  const application = await getOAuthApplicationByClientIdFromD1(clientId, db);
 
   if (!application || !application.active) {
     throw new Error("Invalid client_id");

@@ -1,20 +1,21 @@
-import {
-  getInboxItemByIdFromConvex,
-  getInboxItemsFromConvex,
-  getTransactionByIdFromConvex,
-  getTransactionMatchSuggestionsFromConvex,
-  type TransactionRecord,
-} from "@tamias/app-data-convex";
 import type { Database, DatabaseOrTransaction } from "../../../client";
+import {
+  getInboxItemByIdFromD1,
+  getInboxItemsFromD1,
+  getTransactionMatchSuggestionsFromD1,
+  requireInboxItemsD1,
+} from "../d1";
 import {
   createAttachments,
   deleteTransactionAttachmentsByIds,
 } from "../../transaction-attachments";
+import { getTransactionByIdFromD1, requireTransactionsD1 } from "../../transactions/d1";
+import type { TransactionRecord } from "../../transactions/shared";
 import {
   clearInboxSuggestions,
   getRelatedInboxItems,
   markInboxItems,
-  type InboxConvexUserId,
+  type InboxUserId,
   patchTransactionFields,
 } from "../shared";
 import {
@@ -32,8 +33,8 @@ export type MatchTransactionParams = {
 export async function matchTransaction(db: DatabaseOrTransaction, params: MatchTransactionParams) {
   const { id, transactionId, teamId } = params;
   const [result, targetTransaction] = await Promise.all([
-    getInboxItemByIdFromConvex({ teamId, inboxId: id }),
-    getTransactionByIdFromConvex({ teamId, transactionId }),
+    getInboxItemByIdFromD1(requireInboxItemsD1(db), { teamId, inboxId: id }),
+    getTransactionByIdFromD1(requireTransactionsD1(db), { teamId, transactionId }),
   ]);
 
   if (!result) {
@@ -45,7 +46,7 @@ export async function matchTransaction(db: DatabaseOrTransaction, params: MatchT
   }
 
   const primaryItemId = result.groupedInboxId || result.id;
-  const relatedItems = await getRelatedInboxItems(teamId, result);
+  const relatedItems = await getRelatedInboxItems(db, teamId, result);
   const alreadyMatched = relatedItems.find((item) => item.transactionId);
 
   if (alreadyMatched) {
@@ -56,7 +57,7 @@ export async function matchTransaction(db: DatabaseOrTransaction, params: MatchT
     throw new Error("Transaction not found or belongs to another team");
   }
 
-  const existingMatches = await getInboxItemsFromConvex({
+  const existingMatches = await getInboxItemsFromD1(requireInboxItemsD1(db), {
     teamId,
     transactionIds: [transactionId],
   });
@@ -101,10 +102,11 @@ export async function matchTransaction(db: DatabaseOrTransaction, params: MatchT
   }
 
   if (Object.keys(taxUpdates).length > 0) {
-    await patchTransactionFields(teamId, transactionId, taxUpdates);
+    await patchTransactionFields(db, teamId, transactionId, taxUpdates);
   }
 
   await markInboxItems(
+    db,
     relatedItems.map((item) => ({
       ...item,
       attachmentId: attachmentIds.get(item.id) ?? item.attachmentId,
@@ -114,7 +116,7 @@ export async function matchTransaction(db: DatabaseOrTransaction, params: MatchT
     {},
   );
 
-  return getInboxItemWithTransaction(teamId, id);
+  return getInboxItemWithTransaction(db, teamId, id);
 }
 
 export type UnmatchTransactionParams = {
@@ -123,21 +125,21 @@ export type UnmatchTransactionParams = {
 };
 
 export async function unmatchTransaction(
-  _db: Database,
-  params: UnmatchTransactionParams & { userId?: InboxConvexUserId },
+  db: Database,
+  params: UnmatchTransactionParams & { userId?: InboxUserId },
 ) {
   const { id, teamId, userId } = params;
-  const result = await getInboxItemByIdFromConvex({ teamId, inboxId: id });
+  const result = await getInboxItemByIdFromD1(requireInboxItemsD1(db), { teamId, inboxId: id });
 
   if (!result) {
     return null;
   }
 
-  const relatedItems = await getRelatedInboxItems(teamId, result);
+  const relatedItems = await getRelatedInboxItems(db, teamId, result);
   const transactionId = relatedItems.find((item) => item.transactionId)?.transactionId;
 
   if (transactionId) {
-    const transactionSuggestions = await getTransactionMatchSuggestionsFromConvex({
+    const transactionSuggestions = await getTransactionMatchSuggestionsFromD1(requireInboxItemsD1(db), {
       teamId,
       transactionId,
       statuses: ["confirmed"],
@@ -151,13 +153,13 @@ export async function unmatchTransaction(
       ),
     );
 
-    await clearInboxSuggestions(teamId, originalSuggestions, {
+    await clearInboxSuggestions(db, teamId, originalSuggestions, {
       status: "unmatched",
       userId,
     });
   }
 
-  await markInboxItems(relatedItems, {
+  await markInboxItems(db, relatedItems, {
     transactionId: null,
     attachmentId: null,
     status: "pending",
@@ -168,17 +170,17 @@ export async function unmatchTransaction(
     .filter((attachmentId): attachmentId is string => attachmentId !== null);
 
   if (attachmentIds.length > 0) {
-    await deleteTransactionAttachmentsByIds({
+    await deleteTransactionAttachmentsByIds(db, {
       teamId,
       attachmentIds,
     });
   }
 
   if (transactionId) {
-    await clearTransactionTaxFieldsIfAttachmentless(teamId, transactionId);
+    await clearTransactionTaxFieldsIfAttachmentless(db, teamId, transactionId);
   }
 
-  const resultData = await getInboxItemByIdFromConvex({
+  const resultData = await getInboxItemByIdFromD1(requireInboxItemsD1(db), {
     teamId,
     inboxId: id,
   });
@@ -187,5 +189,5 @@ export async function unmatchTransaction(
     return null;
   }
 
-  return buildInboxItemWithTransaction(teamId, resultData);
+  return buildInboxItemWithTransaction(db, teamId, resultData);
 }

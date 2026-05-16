@@ -1,27 +1,26 @@
-import {
-  deleteInstalledAppInConvex,
-  getInstalledAppBySlackTeamIdFromConvex,
-  getInstalledAppFromConvex,
-  listInstalledAppsFromConvex,
-  type CurrentUserIdentityRecord,
-  upsertInstalledAppInConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { toAppRecord } from "./shared";
+import {
+  deleteInstalledAppFromD1,
+  getInstalledAppBySlackTeamIdFromD1,
+  getInstalledAppFromD1,
+  getInstalledAppsFromD1,
+  requireInstalledAppsD1,
+  upsertInstalledAppInD1,
+} from "./d1";
 
 export type CreateAppParams = {
   teamId: string;
-  createdByUserId: CurrentUserIdentityRecord["convexId"];
+  createdByUserId: string;
   appId: string;
   settings?: unknown;
   config?: unknown;
 };
 
-export const createApp = async (_db: Database, params: CreateAppParams) => {
-  const result = await upsertInstalledAppInConvex({
-    publicAppRecordId: crypto.randomUUID(),
+export const createApp = async (db: Database, params: CreateAppParams) => {
+  const result = await upsertInstalledAppInD1(requireInstalledAppsD1(db), {
     teamId: params.teamId,
-    createdByUserId: params.createdByUserId,
+    createdBy: params.createdByUserId,
     appId: params.appId,
     settings: params.settings,
     config: params.config,
@@ -31,8 +30,8 @@ export const createApp = async (_db: Database, params: CreateAppParams) => {
   return toAppRecord(result);
 };
 
-export const getApps = async (_db: Database, teamId: string) => {
-  const results = await listInstalledAppsFromConvex({ teamId });
+export const getApps = async (db: Database, teamId: string) => {
+  const results = await getInstalledAppsFromD1(requireInstalledAppsD1(db), { teamId });
 
   return results.map((result) => ({
     app_id: result.appId,
@@ -47,11 +46,8 @@ export type GetAppByAppIdParams = {
   teamId: string;
 };
 
-export const getAppByAppId = async (_db: Database, params: GetAppByAppIdParams) => {
-  const result = await getInstalledAppFromConvex({
-    teamId: params.teamId,
-    appId: params.appId,
-  });
+export const getAppByAppId = async (db: Database, params: GetAppByAppIdParams) => {
+  const result = await getInstalledAppFromD1(requireInstalledAppsD1(db), params);
 
   return result ? toAppRecord(result) : null;
 };
@@ -61,11 +57,8 @@ export type GetAppBySlackTeamIdParams = {
   channelId?: string;
 };
 
-export const getAppBySlackTeamId = async (_db: Database, params: GetAppBySlackTeamIdParams) => {
-  const result = await getInstalledAppBySlackTeamIdFromConvex({
-    slackTeamId: params.slackTeamId,
-    channelId: params.channelId,
-  });
+export const getAppBySlackTeamId = async (db: Database, params: GetAppBySlackTeamIdParams) => {
+  const result = await getInstalledAppBySlackTeamIdFromD1(requireInstalledAppsD1(db), params);
 
   return result ? toAppRecord(result) : null;
 };
@@ -75,11 +68,8 @@ export type DisconnectAppParams = {
   teamId: string;
 };
 
-export const disconnectApp = async (_db: Database, params: DisconnectAppParams) => {
-  const result = await deleteInstalledAppInConvex({
-    appId: params.appId,
-    teamId: params.teamId,
-  });
+export const disconnectApp = async (db: Database, params: DisconnectAppParams) => {
+  const result = await deleteInstalledAppFromD1(requireInstalledAppsD1(db), params);
 
   return result ? toAppRecord(result) : null;
 };

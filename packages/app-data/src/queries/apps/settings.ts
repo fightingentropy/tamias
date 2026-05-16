@@ -1,6 +1,6 @@
-import { setInstalledAppSettingsInConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { getAppByAppId } from "./core";
+import { requireInstalledAppsD1, setInstalledAppSettingsInD1 } from "./d1";
 import { toAppRecord, type AppSetting } from "./shared";
 
 export type UpdateAppSettingsParams = {
@@ -31,7 +31,7 @@ export const updateAppSettings = async (db: Database, params: UpdateAppSettingsP
     return setting;
   });
 
-  const result = await setInstalledAppSettingsInConvex({
+  const result = await setInstalledAppSettingsInD1(requireInstalledAppsD1(db), {
     appId: params.appId,
     teamId: params.teamId,
     settings: updatedSettings,
@@ -50,8 +50,8 @@ export type UpdateAppSettingsBulkParams = {
   }>;
 };
 
-export const updateAppSettingsBulk = async (_db: Database, params: UpdateAppSettingsBulkParams) => {
-  const result = await setInstalledAppSettingsInConvex({
+export const updateAppSettingsBulk = async (db: Database, params: UpdateAppSettingsBulkParams) => {
+  const result = await setInstalledAppSettingsInD1(requireInstalledAppsD1(db), {
     appId: params.appId,
     teamId: params.teamId,
     settings: params.settings,

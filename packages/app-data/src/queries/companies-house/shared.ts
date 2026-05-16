@@ -4,8 +4,8 @@ import {
   CompaniesHouseProviderConfigSchema,
   type CompaniesHouseEnvironment,
 } from "@tamias/compliance";
-import { createSubmissionEventInConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
+import { createSubmissionEvent } from "../filing-events";
 import { getAppByAppId, setAppConfig } from "../apps";
 import { getFilingProfile } from "../compliance/shared";
 
@@ -157,7 +157,7 @@ export async function createAccountsSubmissionEvent(args: {
     return null;
   }
 
-  return createSubmissionEventInConvex({
+  return createSubmissionEvent(args.db, {
     teamId: args.teamId,
     filingProfileId: profile.id,
     provider: "companies-house",

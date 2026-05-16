@@ -1,9 +1,9 @@
 import {
   getBankAccountById,
+  patchBankAccount,
   upsertTransactions as upsertTransactionsQuery,
   type UpsertTransactionData,
 } from "@tamias/app-data/queries";
-import { patchBankAccountInConvex } from "@tamias/app-data-convex";
 import { enqueue } from "@tamias/job-client";
 import { trpc } from "@tamias/trpc";
 import type { SyncBankAccountPayload } from "../../schemas/transactions";
@@ -116,7 +116,7 @@ export async function syncBankAccount(payload: SyncBankAccountPayload, logger: L
     errorRetries?: number | null;
     currency?: string;
   }) => {
-    await patchBankAccountInConvex({
+    await patchBankAccount(db, {
       id,
       teamId,
       balance: data.balance ?? undefined,

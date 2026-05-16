@@ -92,7 +92,7 @@ export const transactionsRouter = createTRPCRouter({
     .mutation(async ({ input, ctx: { db, teamId, session } }) => {
       return updateTransaction(db, {
         ...input,
-        userId: session.user.convexId ?? undefined,
+        userId: session.user.id ?? undefined,
         teamId: teamId!,
       });
     }),
@@ -102,7 +102,7 @@ export const transactionsRouter = createTRPCRouter({
     .mutation(async ({ input, ctx: { db, teamId, session } }) => {
       return updateTransactions(db, {
         ...input,
-        userId: session.user.convexId ?? undefined,
+        userId: session.user.id ?? undefined,
         teamId: teamId!,
       });
     }),
@@ -150,7 +150,7 @@ export const transactionsRouter = createTRPCRouter({
           "transactions",
           {
             publicTeamId: teamId!,
-            appUserId: session.user.convexId ?? undefined,
+            appUserId: session.user.id ?? undefined,
           },
         );
 
@@ -163,7 +163,7 @@ export const transactionsRouter = createTRPCRouter({
           "inbox",
           {
             publicTeamId: teamId!,
-            appUserId: session.user.convexId ?? undefined,
+            appUserId: session.user.id ?? undefined,
           },
         );
       }
@@ -192,7 +192,7 @@ export const transactionsRouter = createTRPCRouter({
         "transactions",
         {
           publicTeamId: teamId,
-          appUserId: session.user.convexId ?? undefined,
+          appUserId: session.user.id ?? undefined,
         },
       );
     }),
@@ -246,7 +246,7 @@ export const transactionsRouter = createTRPCRouter({
         "transactions",
         {
           publicTeamId: teamId,
-          appUserId: session.user.convexId ?? undefined,
+          appUserId: session.user.id ?? undefined,
         },
       );
     }),

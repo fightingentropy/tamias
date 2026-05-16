@@ -94,7 +94,7 @@ export const invoiceDeliveryProcedures = {
         id: input.id,
         status: "unpaid",
         teamId: teamId!,
-        userId: session.user.convexId ?? undefined,
+        userId: session.user.id ?? undefined,
       });
 
       if (!data) {

@@ -1,9 +1,9 @@
 import {
-  acceptTeamInviteInConvex,
-  createTeamInvitesInConvex,
-  declineTeamInviteInConvex,
-  deleteTeamInviteInConvex,
-  getInvitesByEmailFromConvex,
+  acceptTeamInvite,
+  createTeamInvites,
+  declineTeamInvite,
+  deleteTeamInvite,
+  getInvitesByEmail,
 } from "@tamias/app-services/identity";
 import { enqueue } from "@tamias/job-client";
 import { TRPCError } from "@trpc/server";
@@ -14,7 +14,7 @@ import {
   inviteTeamMembersSchema,
 } from "../../schemas/team";
 import { protectedProcedure } from "../init";
-import { requireTeamConvexUserId } from "./team-shared";
+import { requireTeamUserId } from "./team-shared";
 
 type InviteTeamMemberEmail = {
   email: string;
@@ -34,7 +34,7 @@ export const teamInviteProcedures = {
         });
       }
 
-      const invites = await getInvitesByEmailFromConvex(session.user.email);
+      const invites = await getInvitesByEmail(session.user.email);
       const invite = invites.find((candidate) => candidate.id === input.id);
 
       if (!invite || !invite.team?.id) {
@@ -44,9 +44,9 @@ export const teamInviteProcedures = {
         });
       }
 
-      return acceptTeamInviteInConvex({
-        publicInviteId: input.id,
-        userId: session.user.convexId,
+      return acceptTeamInvite({
+        inviteId: input.id,
+        userId: session.user.id,
         email: session.user.email,
       });
     }),
@@ -61,8 +61,8 @@ export const teamInviteProcedures = {
         });
       }
 
-      return declineTeamInviteInConvex({
-        publicInviteId: input.id,
+      return declineTeamInvite({
+        inviteId: input.id,
         email: session.user.email,
       });
     }),
@@ -79,9 +79,9 @@ export const teamInviteProcedures = {
         });
       }
 
-      const data = await createTeamInvitesInConvex({
-        publicTeamId: teamId!,
-        invitedByUserId: requireTeamConvexUserId(session),
+      const data = await createTeamInvites({
+        teamId: teamId!,
+        invitedByUserId: requireTeamUserId(session),
         invites: input,
       });
       const results = data?.results ?? [];
@@ -113,7 +113,7 @@ export const teamInviteProcedures = {
           "teams",
           {
             publicTeamId: teamId!,
-            appUserId: session.user.convexId,
+            appUserId: session.user.id,
           },
         );
       }
@@ -128,9 +128,9 @@ export const teamInviteProcedures = {
   deleteInvite: protectedProcedure
     .input(deleteTeamInviteSchema)
     .mutation(async ({ ctx: { teamId }, input }) => {
-      return deleteTeamInviteInConvex({
-        publicInviteId: input.id,
-        publicTeamId: teamId!,
+      return deleteTeamInvite({
+        inviteId: input.id,
+        teamId: teamId!,
       });
     }),
 };

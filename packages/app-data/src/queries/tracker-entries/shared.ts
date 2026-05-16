@@ -1,20 +1,46 @@
-import {
-  type CurrentUserIdentityRecord,
-  getCustomersByIdsFromConvex,
-  getTeamMembersFromConvexIdentity,
-  getTrackerProjectsByIdsFromConvex,
-  type TrackerEntryRecord,
-  type TrackerProjectRecord,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
+import { getCustomersByIdsFromD1, requireCustomersD1 } from "../customers/d1";
+import { getTeamMembers } from "../teams";
+import { getTrackerProjectsByIdsFromD1, requireTrackerProjectsD1 } from "../tracker-projects/d1";
+import type { TrackerProjectRecord } from "../tracker-projects/types";
 
-type ConvexUserId = CurrentUserIdentityRecord["convexId"];
+export type TrackerEntryRecord = {
+  id: string;
+  teamId: string;
+  projectId: string | null;
+  assignedId: string | null;
+  description: string | null;
+  start: string | null;
+  stop: string | null;
+  duration: number | null;
+  date: string;
+  rate: number | null;
+  currency: string | null;
+  billed: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type UpsertTrackerEntryInput = {
+  id: string;
+  teamId: string;
+  projectId?: string | null;
+  assignedId?: string | null;
+  description?: string | null;
+  start?: string | null;
+  stop?: string | null;
+  duration?: number | null;
+  date: string;
+  rate?: number | null;
+  currency?: string | null;
+  billed?: boolean | null;
+};
 
 function isDefined<T>(value: T | null | undefined): value is T {
   return value !== null && value !== undefined;
 }
 
-async function getCustomersByIds(teamId: string, customerIds: string[]) {
+async function getCustomersByIds(db: Database, teamId: string, customerIds: string[]) {
   if (customerIds.length === 0) {
     return new Map<
       string,
@@ -26,7 +52,7 @@ async function getCustomersByIds(teamId: string, customerIds: string[]) {
     >();
   }
 
-  const rows = await getCustomersByIdsFromConvex({
+  const rows = await getCustomersByIdsFromD1(requireCustomersD1(db), {
     teamId,
     customerIds: [...new Set(customerIds)],
   });
@@ -49,14 +75,14 @@ async function getUsersByIds(_db: Database, teamId: string, assignedIds: string[
   const assignedIdSet = new Set(assignedIds);
 
   return new Map(
-    (await getTeamMembersFromConvexIdentity({ teamId }))
-      .filter((member) => assignedIdSet.has(member.user.convexId))
+    (await getTeamMembers(_db, teamId))
+      .filter((member) => assignedIdSet.has(member.id))
       .map((member) => [
-        member.user.convexId,
+        member.id,
         {
-          id: member.user.convexId,
-          fullName: member.user.fullName,
-          avatarUrl: member.user.avatarUrl,
+          id: member.id,
+          fullName: member.fullName,
+          avatarUrl: member.avatarUrl,
         },
       ]),
   );
@@ -85,11 +111,12 @@ export async function enrichTrackerEntries(
   entries: TrackerEntryRecord[],
 ): Promise<EnrichedTrackerEntry[]> {
   const projectIds = [...new Set(entries.map((entry) => entry.projectId).filter(isDefined))];
-  const projects = await getTrackerProjectsByIdsFromConvex({
+  const projects = await getTrackerProjectsByIdsFromD1(requireTrackerProjectsD1(db), {
     teamId,
     projectIds,
   });
   const customersById = await getCustomersByIds(
+    db,
     teamId,
     projects.map((project) => project.customerId).filter(isDefined),
   );

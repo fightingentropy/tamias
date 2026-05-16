@@ -2,7 +2,7 @@
 
 Deep-dive notes for integrations and shared packages. **Day-to-day setup, env, deploys:** see [README.md](README.md).
 
-**Repository layout (current):** [Bun](https://bun.sh) monorepo with root `"type": "module"`. Workspaces: **`dashboard/`** (TanStack Start, SSR, public site host, **`dashboard/convex/`**), **`api/`** (Hono, tRPC, REST, OpenAPI, MCP — bundled with the dashboard in the unified Cloudflare Worker in production), **`worker/`** (queue consumers, workflows, schedules via **`@tamias/worker`** exports), **`packages/*`**. Single root **`wrangler.jsonc`**, root **`playwright.config.ts`**, specs in **`e2e/`**, secrets in root **`.env`** (gitignored). AI assistant prompt markdown lives in **`agent-prompts/`** and is compiled into the API with **`bun run --cwd api prompts:generate`**.
+**Repository layout (current):** [Bun](https://bun.sh) monorepo with root `"type": "module"`. Workspaces: **`dashboard/`** (TanStack Start, SSR, public site host), **`api/`** (Hono, tRPC, REST, OpenAPI, MCP — bundled with the dashboard in the unified Cloudflare Worker in production), **`worker/`** (queue consumers, workflows, schedules via **`@tamias/worker`** exports), **`packages/*`**. Single root **`wrangler.jsonc`**, root **`playwright.config.ts`**, specs in **`e2e/`**, secrets in root **`.env`** (gitignored). AI assistant prompt markdown lives in **`agent-prompts/`** and is compiled into the API with **`bun run --cwd api prompts:generate`**.
 
 ## Table of contents
 
@@ -603,7 +603,7 @@ flowchart TB
         ATT[(transaction_attachments)]
     end
 
-    subgraph Convex["Convex"]
+    subgraph AppDatabase["Cloudflare D1"]
         SYNC[(accountingSyncRecords)]
     end
 
@@ -736,7 +736,7 @@ sequenceDiagram
 
 ### Accounting Sync Store
 
-`accountingSyncRecords` is stored in Convex and tracks export status for each transaction per provider.
+`accountingSyncRecords` is stored in Cloudflare D1 and tracks export status for each transaction per provider.
 
 ```mermaid
 erDiagram
@@ -1002,12 +1002,12 @@ updateSyncedAttachmentMapping(db, {
 # QuickBooks
 QUICKBOOKS_CLIENT_ID=your_client_id
 QUICKBOOKS_CLIENT_SECRET=your_client_secret
-QUICKBOOKS_OAUTH_REDIRECT_URL=https://api.tamias.xyz/v1/apps/quickbooks/oauth-callback
+QUICKBOOKS_OAUTH_REDIRECT_URL=https://api.tamias.xyz/apps/quickbooks/oauth-callback
 
 # Fortnox
 FORTNOX_CLIENT_ID=your_client_id
 FORTNOX_CLIENT_SECRET=your_client_secret
-FORTNOX_OAUTH_REDIRECT_URL=https://api.tamias.xyz/v1/apps/fortnox/oauth-callback
+FORTNOX_OAUTH_REDIRECT_URL=https://api.tamias.xyz/apps/fortnox/oauth-callback
 
 # OAuth state encryption
 ACCOUNTING_OAUTH_SECRET=32_byte_encryption_key
@@ -2028,9 +2028,9 @@ Supports four period types with automatic date calculations:
 - `quarterly` - Q1-Q4
 - `yearly` - Full year
 
-#### Team Filtering (Staging)
+#### Team Filtering
 
-For staged rollouts, use the `INSIGHTS_ENABLED_TEAM_IDS` environment variable:
+Use the `INSIGHTS_ENABLED_TEAM_IDS` environment variable to limit insight generation:
 
 ```bash
 # Specific teams only
@@ -2039,7 +2039,7 @@ INSIGHTS_ENABLED_TEAM_IDS=uuid-1,uuid-2,uuid-3
 # All teams (production)
 INSIGHTS_ENABLED_TEAM_IDS=*
 
-# Disabled (default, safe for staging)
+# Disabled by default
 INSIGHTS_ENABLED_TEAM_IDS=
 ```
 

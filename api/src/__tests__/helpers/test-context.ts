@@ -20,7 +20,6 @@ export function createTestContext(options: TestContextOptions = {}): any {
       teamMembershipIds: [teamId],
       user: {
         id: userId,
-        convexId: userId,
         email: "test@example.com",
       },
     },

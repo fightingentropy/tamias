@@ -1,23 +1,23 @@
-import { ConvexChatMemoryProvider } from "@tamias/app-data-convex/chat-memory";
+import { AppDataChatMemoryProvider } from "@tamias/app-data/queries/chat-memory";
 
-let chatMemoryProviderSingleton: ConvexChatMemoryProvider | undefined;
+let chatMemoryProviderSingleton: AppDataChatMemoryProvider | undefined;
 
-function getChatMemoryProvider(): ConvexChatMemoryProvider {
-  chatMemoryProviderSingleton ??= new ConvexChatMemoryProvider();
+function getChatMemoryProvider(): AppDataChatMemoryProvider {
+  chatMemoryProviderSingleton ??= new AppDataChatMemoryProvider();
   return chatMemoryProviderSingleton;
 }
 
 /**
  * Lazily constructs the provider so bundled workers do not instantiate it during
- * circular ESM evaluation (e.g. convex barrel ↔ Stripe webhook modules).
+ * circular ESM evaluation between shared query exports and webhook modules.
  */
-export const chatMemoryProvider = new Proxy({} as ConvexChatMemoryProvider, {
+export const chatMemoryProvider = new Proxy({} as AppDataChatMemoryProvider, {
   get(_target, prop: string | symbol) {
     if (prop === "then") {
       return undefined;
     }
     const inst = getChatMemoryProvider();
-    const value = inst[prop as keyof ConvexChatMemoryProvider];
+    const value = inst[prop as keyof AppDataChatMemoryProvider];
     if (typeof value === "function") {
       return (value as (...args: never[]) => unknown).bind(inst);
     }

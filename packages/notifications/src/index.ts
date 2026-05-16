@@ -1,5 +1,4 @@
 import type { Database } from "@tamias/app-data/client";
-import type { CurrentUserIdentityRecord } from "@tamias/app-data-convex";
 import { createLoggerWithContext } from "@tamias/logger";
 
 const logger = createLoggerWithContext("notifications");
@@ -35,8 +34,6 @@ import { transactionsAssigned } from "./types/transactions-assigned";
 import { transactionsCategorized } from "./types/transactions-categorized";
 import { transactionsCreated } from "./types/transactions-created";
 import { transactionsExported } from "./types/transactions-exported";
-
-type ConvexUserId = CurrentUserIdentityRecord["convexId"];
 
 const handlers = {
   transactions_created: transactionsCreated,
@@ -76,7 +73,6 @@ export class Notifications {
   #toUserData(
     teamMembers: Array<{
       id: string;
-      convexId: ConvexUserId;
       role: "owner" | "member" | null;
       fullName: string | null;
       avatarUrl: string | null;
@@ -88,7 +84,6 @@ export class Notifications {
   ): UserData[] {
     return teamMembers.map((member) => ({
       id: member.id,
-      convex_id: member.convexId as UserData["convex_id"],
       full_name: member.fullName ?? undefined,
       avatar_url: member.avatarUrl ?? undefined,
       email: member.email ?? "",
@@ -153,7 +148,7 @@ export class Notifications {
         // Check if user wants in-app notifications for this type
         const inAppEnabled = await shouldSendNotification(
           this.#db,
-          user.convex_id,
+          user.id,
           user.team_id,
           notificationType,
           "in_app",

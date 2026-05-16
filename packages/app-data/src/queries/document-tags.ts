@@ -1,13 +1,11 @@
+import { randomUUID } from "node:crypto";
 import {
-  createDocumentTagInConvex,
-  deleteDocumentTagInConvex,
-  getDocumentTagsFromConvex,
-  upsertDocumentTagsInConvex,
-  type DocumentTagRecord,
-} from "@tamias/app-data-convex";
-import type { Database } from "../client";
+  requireCloudflareD1Database,
+  type CloudflareD1DatabaseBinding,
+  type Database,
+} from "../client";
 
-type DocumentTag = {
+export type DocumentTagRecord = {
   id: string;
   name: string;
   slug: string;
@@ -15,18 +13,89 @@ type DocumentTag = {
   createdAt: string;
 };
 
-function toDocumentTag(record: DocumentTagRecord): DocumentTag {
+type DocumentTagRow = {
+  id: string;
+  team_id: string;
+  name: string;
+  slug: string;
+  created_at: string;
+  updated_at: string;
+};
+
+function toDocumentTag(row: DocumentTagRow): DocumentTagRecord {
   return {
-    id: record.id,
-    name: record.name,
-    slug: record.slug,
-    teamId: record.teamId,
-    createdAt: record.createdAt,
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    teamId: row.team_id,
+    createdAt: row.created_at,
   };
 }
 
-export const getDocumentTags = async (_db: Database, teamId: string) => {
-  const results = await getDocumentTagsFromConvex({ teamId });
+function getDocumentTagsD1(db: Database) {
+  return requireCloudflareD1Database(db);
+}
+
+async function upsertDocumentTagInD1(
+  d1: CloudflareD1DatabaseBinding,
+  params: { id?: string; teamId: string; name: string; slug: string },
+) {
+  const timestamp = new Date().toISOString();
+  const existing = await d1
+    .prepare(
+      `select id, team_id, name, slug, created_at, updated_at
+       from document_tags
+       where team_id = ? and slug = ?
+       limit 1`,
+    )
+    .bind(params.teamId, params.slug)
+    .first<DocumentTagRow>();
+
+  if (existing) {
+    await d1
+      .prepare(
+        `update document_tags
+         set name = ?, updated_at = ?
+         where id = ? and team_id = ?`,
+      )
+      .bind(params.name, timestamp, existing.id, params.teamId)
+      .run();
+
+    return {
+      ...toDocumentTag(existing),
+      name: params.name,
+    };
+  }
+
+  const id = params.id ?? randomUUID();
+
+  await d1
+    .prepare(
+      `insert into document_tags (id, team_id, name, slug, created_at, updated_at)
+       values (?, ?, ?, ?, ?, ?)`,
+    )
+    .bind(id, params.teamId, params.name, params.slug, timestamp, timestamp)
+    .run();
+
+  return {
+    id,
+    teamId: params.teamId,
+    name: params.name,
+    slug: params.slug,
+    createdAt: timestamp,
+  };
+}
+
+export const getDocumentTags = async (db: Database, teamId: string) => {
+  const { results = [] } = await getDocumentTagsD1(db)
+    .prepare(
+      `select id, team_id, name, slug, created_at, updated_at
+       from document_tags
+       where team_id = ?
+       order by created_at desc`,
+    )
+    .bind(teamId)
+    .all<DocumentTagRow>();
 
   return results.map(({ id, name }) => ({
     id,
@@ -40,8 +109,8 @@ export type CreateDocumentTagParams = {
   slug: string;
 };
 
-export const createDocumentTag = async (_db: Database, params: CreateDocumentTagParams) => {
-  const result = await createDocumentTagInConvex({
+export const createDocumentTag = async (db: Database, params: CreateDocumentTagParams) => {
+  const result = await upsertDocumentTagInD1(getDocumentTagsD1(db), {
     teamId: params.teamId,
     name: params.name,
     slug: params.slug,
@@ -59,11 +128,32 @@ export type DeleteDocumentTagParams = {
   teamId: string;
 };
 
-export const deleteDocumentTag = async (_db: Database, params: DeleteDocumentTagParams) => {
-  return deleteDocumentTagInConvex({
-    id: params.id,
-    teamId: params.teamId,
-  });
+export const deleteDocumentTag = async (db: Database, params: DeleteDocumentTagParams) => {
+  const d1 = getDocumentTagsD1(db);
+  const existing = await d1
+    .prepare(
+      `select id, team_id, name, slug, created_at, updated_at
+       from document_tags
+       where id = ? and team_id = ?
+       limit 1`,
+    )
+    .bind(params.id, params.teamId)
+    .first<DocumentTagRow>();
+
+  if (!existing) {
+    return null;
+  }
+
+  await d1
+    .prepare("delete from document_tag_assignments where team_id = ? and tag_id = ?")
+    .bind(params.teamId, params.id)
+    .run();
+  await d1
+    .prepare("delete from document_tags where id = ? and team_id = ?")
+    .bind(params.id, params.teamId)
+    .run();
+
+  return { id: params.id };
 };
 
 export type UpsertDocumentTagParams = {
@@ -72,16 +162,21 @@ export type UpsertDocumentTagParams = {
   teamId: string;
 };
 
-export const upsertDocumentTags = async (_db: Database, params: UpsertDocumentTagParams[]) => {
+export const upsertDocumentTags = async (db: Database, params: UpsertDocumentTagParams[]) => {
   if (params.length === 0) {
     return [];
   }
 
-  return upsertDocumentTagsInConvex({
-    tags: params.map((tag) => ({
-      teamId: tag.teamId,
-      name: tag.name,
-      slug: tag.slug,
-    })),
-  });
+  const d1 = getDocumentTagsD1(db);
+  const results = [];
+
+  for (const tag of params) {
+    const result = await upsertDocumentTagInD1(d1, tag);
+    results.push({
+      id: result.id,
+      slug: result.slug,
+    });
+  }
+
+  return results;
 };

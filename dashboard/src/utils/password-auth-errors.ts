@@ -6,7 +6,6 @@ const ACCOUNT_EXISTS_PATTERN = /Account .* already exists/i;
 const INVALID_PASSWORD_PATTERN = /Invalid password/i;
 const NETWORK_ERROR_PATTERN =
   /fetch failed|Failed to fetch|NetworkError|ECONNREFUSED|connection refused|Load failed|networkerror|not connected|ECONNRESET/i;
-const MISSING_CONVEX_URL_PATTERN = /CONVEX_URL is not set/i;
 
 export function getPasswordAuthErrorMessage(authError: unknown, mode: PasswordAuthMode): string {
   const fallbackMessage =
@@ -34,12 +33,8 @@ export function getPasswordAuthErrorMessage(authError: unknown, mode: PasswordAu
     return "Password must be at least 8 characters.";
   }
 
-  if (MISSING_CONVEX_URL_PATTERN.test(message)) {
-    return message;
-  }
-
   if (NETWORK_ERROR_PATTERN.test(message)) {
-    return "Could not reach Convex (password auth uses it). Run the full stack with `bun run dev` from the repo root, set CONVEX_URL in the repo root `.env`, and run Convex dev (`bun run convex:dev` from `dashboard`, or `bunx convex dev` with root env loaded) if you use a dev deployment.";
+    return "Could not reach the authentication service. Run the full stack with `bun run dev` from the repo root and confirm the API worker is available.";
   }
 
   return fallbackMessage;

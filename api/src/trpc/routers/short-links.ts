@@ -10,18 +10,18 @@ import {
 import { getVaultSignedUrl } from "../../services/storage";
 import {
   createTRPCRouter,
-  protectedWithConvexIdProcedure,
+  protectedProcedure,
   publicProcedure,
 } from "../init";
 
 export const shortLinksRouter = createTRPCRouter({
-  createForUrl: protectedWithConvexIdProcedure
+  createForUrl: protectedProcedure
     .input(createShortLinkSchema)
     .mutation(async ({ ctx: { db, teamId, session }, input }) => {
       const result = await createShortLink(db, {
         url: input.url,
         teamId: teamId!,
-        userId: session.user.convexId,
+        userId: session.user.id,
         type: "redirect",
       });
 
@@ -35,7 +35,7 @@ export const shortLinksRouter = createTRPCRouter({
       };
     }),
 
-  createForDocument: protectedWithConvexIdProcedure
+  createForDocument: protectedProcedure
     .input(createShortLinkForDocumentSchema)
     .mutation(async ({ ctx: { db, teamId, session }, input }) => {
       const document = await getDocumentById(db, {
@@ -65,7 +65,7 @@ export const shortLinksRouter = createTRPCRouter({
       const result = await createShortLink(db, {
         url: response.data.signedUrl,
         teamId: teamId!,
-        userId: session.user.convexId,
+        userId: session.user.id,
         type: "download",
         fileName: document.name ?? undefined,
         // @ts-expect-error

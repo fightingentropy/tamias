@@ -1,14 +1,12 @@
-import { getCustomerByPortalIdFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { reuseQueryResult } from "../../utils/request-cache";
 import { getTeamById } from "../index";
+import { getCustomerByPortalIdFromD1, requireCustomersD1 } from "./d1";
 import { getProjectedInvoicesForCustomers } from "./shared";
 import type { GetCustomerByPortalIdParams, GetCustomerPortalInvoicesParams } from "./types";
 
 async function getCustomerByPortalIdImpl(db: Database, params: GetCustomerByPortalIdParams) {
-  const customer = await getCustomerByPortalIdFromConvex({
-    portalId: params.portalId,
-  });
+  const customer = await getCustomerByPortalIdFromD1(requireCustomersD1(db), params);
 
   if (!customer) {
     return null;
@@ -38,12 +36,12 @@ export const getCustomerByPortalId = reuseQueryResult({
 });
 
 async function getCustomerPortalInvoicesImpl(
-  _db: Database,
+  db: Database,
   params: GetCustomerPortalInvoicesParams,
 ) {
   const { customerId, teamId, cursor, pageSize = 10 } = params;
   const offset = cursor ? Number.parseInt(cursor, 10) : 0;
-  const allInvoices = (await getProjectedInvoicesForCustomers(teamId, [customerId]))
+  const allInvoices = (await getProjectedInvoicesForCustomers(db, teamId, [customerId]))
     .filter(
       (invoice) =>
         invoice.customerId === customerId &&

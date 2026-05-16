@@ -1,12 +1,12 @@
 import { createHash } from "node:crypto";
-import { upsertTransactionCategoriesInConvex } from "@tamias/app-data-convex";
-import { createTeam, deleteTeam, getTeamById } from "@tamias/app-data/queries";
-import { getBankConnections } from "@tamias/app-data/queries/bank-connections";
 import {
-  getTeamMembersFromConvex,
-  hasTeamAccessInConvex,
-  leaveTeamInConvex,
-} from "@tamias/app-services/identity";
+  createTeam,
+  deleteTeam,
+  getTeamById,
+  upsertTransactionCategories,
+} from "@tamias/app-data/queries";
+import { getBankConnections } from "@tamias/app-data/queries/bank-connections";
+import { getTeamMembers, hasTeamAccess, leaveTeam } from "@tamias/app-services/identity";
 import { chatCache } from "@tamias/cache/chat-cache";
 import { CATEGORIES, getTaxRateForCategory } from "@tamias/categories";
 import { enqueue, startCloudflareWorkflow } from "@tamias/job-client";
@@ -20,9 +20,9 @@ import {
 import { protectedProcedure, publicProcedure } from "../init";
 import {
   buildTeamSystemCategoryInputs,
-  getTeamMemberRoleByConvexId,
+  getTeamMemberRoleByUserId,
   getTeamOwnerCount,
-  requireTeamConvexUserId,
+  requireTeamUserId,
 } from "./team-shared";
 
 export const teamLifecycleProcedures = {
@@ -49,7 +49,7 @@ export const teamLifecycleProcedures = {
         createdTeam = await createTeam(db, {
           id: crypto.randomUUID(),
           ...input,
-          userId: requireTeamConvexUserId(session),
+          userId: requireTeamUserId(session),
           email: session.user.email!,
           companyType: input.companyType,
         });
@@ -69,7 +69,7 @@ export const teamLifecycleProcedures = {
         createdTeam.id,
         categoryCountryCode,
       );
-      const insertedParents = await upsertTransactionCategoriesInConvex({
+      const insertedParents = await upsertTransactionCategories(db, {
         teamId: createdTeam.id,
         categories: parentCategories,
       });
@@ -82,7 +82,7 @@ export const teamLifecycleProcedures = {
       });
 
       if (childCategories.length > 0) {
-        await upsertTransactionCategoriesInConvex({
+        await upsertTransactionCategories(db, {
           teamId: createdTeam.id,
           categories: childCategories,
         });
@@ -92,16 +92,16 @@ export const teamLifecycleProcedures = {
     }),
 
   leave: protectedProcedure.input(leaveTeamSchema).mutation(async ({ ctx: { session }, input }) => {
-    const teamMembers = await getTeamMembersFromConvex(input.teamId);
-    const currentUserRole = getTeamMemberRoleByConvexId(teamMembers, session.user.id);
+    const teamMembers = await getTeamMembers(input.teamId);
+    const currentUserRole = getTeamMemberRoleByUserId(teamMembers, session.user.id);
 
     if (currentUserRole === "owner" && getTeamOwnerCount(teamMembers) === 1) {
       throw Error("Action not allowed");
     }
 
-    return leaveTeamInConvex({
-      publicTeamId: input.teamId,
-      userId: session.user.convexId,
+    return leaveTeam({
+      teamId: input.teamId,
+      userId: session.user.id,
       email: session.user.email ?? null,
     });
   }),
@@ -109,10 +109,10 @@ export const teamLifecycleProcedures = {
   delete: protectedProcedure
     .input(deleteTeamSchema)
     .mutation(async ({ ctx: { db, session }, input }) => {
-      const canAccess = await hasTeamAccessInConvex({
-        userId: session.user.convexId,
+      const canAccess = await hasTeamAccess({
+        userId: session.user.id,
         email: session.user.email ?? null,
-        publicTeamId: input.teamId,
+        teamId: input.teamId,
       });
 
       if (!canAccess) {
@@ -148,7 +148,7 @@ export const teamLifecycleProcedures = {
         "teams",
         {
           publicTeamId: input.teamId!,
-          appUserId: session.user.convexId,
+          appUserId: session.user.id,
         },
       );
 

@@ -1,4 +1,3 @@
-import type { CurrentUserIdentityRecord } from "@tamias/app-data-convex";
 import {
   deleteTrackerEntry,
   deleteTrackerProject,
@@ -27,7 +26,7 @@ import {
 } from "../../schemas/tracker-projects";
 import { hasScope, READ_ONLY_ANNOTATIONS, type RegisterTools } from "../types";
 
-type ConvexUserId = CurrentUserIdentityRecord["convexId"];
+type AppUserId = string;
 
 // Annotations for write operations
 const WRITE_ANNOTATIONS = {
@@ -46,7 +45,7 @@ const DESTRUCTIVE_ANNOTATIONS = {
 } as const;
 
 export const registerTrackerTools: RegisterTools = (server, ctx) => {
-  const { db, teamId, convexUserId } = ctx;
+  const { db, teamId, userId } = ctx;
 
   // Check scopes
   const hasProjectReadScope = hasScope(ctx, "tracker-projects.read");
@@ -144,7 +143,7 @@ export const registerTrackerTools: RegisterTools = (server, ctx) => {
       async (params) => {
         const result = await upsertTrackerProject(db, {
           teamId,
-          userId: convexUserId,
+          userId: userId,
           name: params.name,
           description: params.description,
           estimate: params.estimate,
@@ -203,7 +202,7 @@ export const registerTrackerTools: RegisterTools = (server, ctx) => {
         const result = await upsertTrackerProject(db, {
           id: params.id,
           teamId,
-          userId: convexUserId,
+          userId: userId,
           name: params.name ?? existing.name ?? "",
           description: params.description ?? existing.description,
           estimate: params.estimate ?? existing.estimate,
@@ -303,7 +302,7 @@ export const registerTrackerTools: RegisterTools = (server, ctx) => {
       async (params) => {
         const result = await getTimerStatus(db, {
           teamId,
-          assignedId: params.assignedId as ConvexUserId | null | undefined,
+          assignedId: params.assignedId as AppUserId | null | undefined,
         });
 
         return {
@@ -335,14 +334,14 @@ export const registerTrackerTools: RegisterTools = (server, ctx) => {
       async (params) => {
         const result = await upsertTrackerEntries(db, {
           teamId,
-          activityUserId: convexUserId,
+          activityUserId: userId,
           projectId: params.projectId,
           dates: params.dates,
           start: params.start,
           stop: params.stop,
           duration: params.duration,
           description: params.description,
-          assignedId: params.assignedId as ConvexUserId | null | undefined,
+          assignedId: params.assignedId as AppUserId | null | undefined,
         });
 
         return {
@@ -402,14 +401,14 @@ export const registerTrackerTools: RegisterTools = (server, ctx) => {
         const result = await upsertTrackerEntries(db, {
           id: params.id,
           teamId,
-          activityUserId: convexUserId,
+          activityUserId: userId,
           projectId,
           dates: existing.date ? [existing.date] : [],
           start,
           stop,
           duration: params.duration ?? existing.duration ?? 0,
           description: params.description ?? existing.description,
-          assignedId: (params.assignedId as ConvexUserId | null | undefined) ?? existing.assignedId,
+          assignedId: (params.assignedId as AppUserId | null | undefined) ?? existing.assignedId,
         });
 
         return {
@@ -469,7 +468,7 @@ export const registerTrackerTools: RegisterTools = (server, ctx) => {
           teamId,
           projectId: params.projectId,
           description: params.description,
-          assignedId: params.assignedId as ConvexUserId | null | undefined,
+          assignedId: params.assignedId as AppUserId | null | undefined,
           start: params.start,
         });
 
@@ -497,7 +496,7 @@ export const registerTrackerTools: RegisterTools = (server, ctx) => {
           const result = await stopTimer(db, {
             teamId,
             entryId: params.entryId,
-            assignedId: params.assignedId as ConvexUserId | null | undefined,
+            assignedId: params.assignedId as AppUserId | null | undefined,
             stop: params.stop,
           });
 

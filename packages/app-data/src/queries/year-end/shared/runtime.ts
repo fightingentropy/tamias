@@ -1,5 +1,5 @@
 import { isUkComplianceVisible, type HmrcCtEnvironment } from "@tamias/compliance";
-import type { FilingProfileRecord } from "@tamias/app-data-convex";
+import type { FilingProfileRecord } from "../../compliance/filings";
 import type { HmrcCtRuntimeStatus, TeamContext } from "./types";
 
 export function buildEmptyYearEndDashboard(args: {

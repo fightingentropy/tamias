@@ -1,9 +1,9 @@
-import type { CurrentUserIdentityRecord, InstalledAppRecord } from "@tamias/app-data-convex";
+import type { InstalledAppRecord } from "./d1";
 
 export type AppRecord = {
   id: string;
   teamId: string | null;
-  createdBy: CurrentUserIdentityRecord["convexId"] | null;
+  createdBy: string | null;
   appId: string;
   config: unknown;
   settings: unknown;
@@ -38,8 +38,4 @@ export function toAppRecord(record: InstalledAppRecord): AppRecord {
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
   };
-}
-
-export function isConvexMessage(error: unknown, message: string) {
-  return error instanceof Error && error.message.includes(message);
 }

@@ -6,7 +6,7 @@ export const recurringSeriesCompleted: NotificationHandler = {
 
   createActivity: (data, user) => ({
     teamId: user.team_id,
-    userId: user.convex_id,
+    userId: user.id,
     type: "recurring_series_completed",
     source: "system",
     priority: 3,

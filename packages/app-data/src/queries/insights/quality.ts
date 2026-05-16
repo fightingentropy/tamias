@@ -1,9 +1,7 @@
-import {
-  getBankConnectionsFromConvex,
-  getInvoiceDateAggregateRowsFromConvex,
-  countTransactionsFromConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
+import { getBankConnections } from "../bank-connections";
+import { getInvoiceDateAggregateRowsFromD1 } from "../reports/shared/aggregates";
+import { countTransactionsFromD1, requireTransactionsD1 } from "../transactions/d1";
 import { isDefined } from "./shared";
 
 export const DATA_QUALITY_THRESHOLDS = {
@@ -49,19 +47,19 @@ export async function checkInsightDataQuality(
   const issueDateTo = periodEnd.slice(0, 10);
 
   const [transactionResult, invoiceResult, bankConnectionResult] = await Promise.all([
-    countTransactionsFromConvex({
+    countTransactionsFromD1(requireTransactionsD1(db), {
       teamId,
       dateGte: transactionDateFrom,
       dateLte: transactionDateTo,
     }),
-    getInvoiceDateAggregateRowsFromConvex({
+    getInvoiceDateAggregateRowsFromD1(db, {
       teamId,
       statuses: [...ALL_INVOICE_STATUSES],
       dateField: "issueDate",
       dateFrom: issueDateFrom,
       dateTo: issueDateTo,
     }).then((rows) => rows.reduce((sum, row) => sum + row.invoiceCount, 0)),
-    getBankConnectionsFromConvex({
+    getBankConnections(db, {
       teamId,
       enabled: true,
     }).then(

@@ -1,5 +1,6 @@
-import { getPublicInvoicesPageFromConvex } from "@tamias/app-data-convex";
+import type { DatabaseOrTransaction } from "../../../client";
 import type { InvoiceStatus } from "../../invoice-projections";
+import { getPublicInvoicesPage } from "../../public-invoices";
 import { type ProjectedInvoiceRecord, getProjectedInvoicePayload } from "../shared";
 import type { GetInvoicesParams } from "../types";
 import { getValidInvoiceStatuses } from "./common";
@@ -143,7 +144,7 @@ export function matchesIndexedInvoiceCandidate(
   return true;
 }
 
-export async function getIndexedInvoicesPage(params: GetInvoicesParams) {
+export async function getIndexedInvoicesPage(db: DatabaseOrTransaction, params: GetInvoicesParams) {
   const {
     teamId,
     cursor,
@@ -174,6 +175,7 @@ export async function getIndexedInvoicesPage(params: GetInvoicesParams) {
   while (eligibleInvoices.length <= pageSize && bufferedIds.length > 0) {
     const takeCount = pageSize + 1 - eligibleInvoices.length;
     const bufferedInvoices = await getProjectedInvoicesByIdsInOrder({
+      db,
       teamId,
       invoiceIds: bufferedIds.slice(0, takeCount),
     });
@@ -194,7 +196,7 @@ export async function getIndexedInvoicesPage(params: GetInvoicesParams) {
 
   while (eligibleInvoices.length <= pageSize && !sourceExhausted) {
     const remainingCount = pageSize + 1 - eligibleInvoices.length;
-    const result = await getPublicInvoicesPageFromConvex({
+    const result = await getPublicInvoicesPage(db, {
       teamId,
       cursor: sourceCursor,
       pageSize: requiresCandidateFiltering ? getIndexedInvoiceBatchSize(pageSize) : remainingCount,

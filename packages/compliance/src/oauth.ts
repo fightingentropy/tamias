@@ -1,10 +1,9 @@
 import { decryptOAuthState, encryptOAuthState } from "@tamias/encryption";
-import type { GenericId } from "convex/values";
 import { type AuthorityProviderId, AuthorityProviderIdSchema } from "./types";
 
 export interface ComplianceOAuthStatePayload {
   teamId: string;
-  convexUserId: GenericId<"appUsers">;
+  userId: string;
   provider: AuthorityProviderId;
   source: "apps" | "settings";
 }
@@ -18,7 +17,7 @@ function isValidComplianceOAuthState(parsed: unknown): parsed is ComplianceOAuth
 
   return (
     typeof record.teamId === "string" &&
-    typeof record.convexUserId === "string" &&
+    typeof record.userId === "string" &&
     AuthorityProviderIdSchema.safeParse(record.provider).success &&
     ["apps", "settings"].includes(record.source as string)
   );

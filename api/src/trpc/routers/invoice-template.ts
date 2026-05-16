@@ -14,15 +14,15 @@ import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const invoiceTemplateRouter = createTRPCRouter({
   // List all templates for the team
-  list: protectedProcedure.query(async ({ ctx: { teamId } }) => {
-    return getInvoiceTemplates(teamId!);
+  list: protectedProcedure.query(async ({ ctx: { db, teamId } }) => {
+    return getInvoiceTemplates(db, teamId!);
   }),
 
   // Get a single template by ID
   get: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
-    .query(async ({ ctx: { teamId }, input }) => {
-      return getInvoiceTemplateById({ id: input.id, teamId: teamId! });
+    .query(async ({ ctx: { db, teamId }, input }) => {
+      return getInvoiceTemplateById(db, { id: input.id, teamId: teamId! });
     }),
 
   // Create a new template
@@ -33,8 +33,8 @@ export const invoiceTemplateRouter = createTRPCRouter({
         isDefault: z.boolean().optional(),
       }),
     )
-    .mutation(async ({ ctx: { teamId }, input }) => {
-      return createInvoiceTemplate({
+    .mutation(async ({ ctx: { db, teamId }, input }) => {
+      return createInvoiceTemplate(db, {
         ...input,
         teamId: teamId!,
         fromDetails: parseInputValue(input.fromDetails),
@@ -51,8 +51,8 @@ export const invoiceTemplateRouter = createTRPCRouter({
         name: z.string().optional(),
       }),
     )
-    .mutation(async ({ ctx: { teamId }, input }) => {
-      return upsertInvoiceTemplate({
+    .mutation(async ({ ctx: { db, teamId }, input }) => {
+      return upsertInvoiceTemplate(db, {
         ...input,
         teamId: teamId!,
         fromDetails: parseInputValue(input.fromDetails),
@@ -64,19 +64,19 @@ export const invoiceTemplateRouter = createTRPCRouter({
   // Set a template as the default
   setDefault: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
-    .mutation(async ({ ctx: { teamId }, input }) => {
-      return setDefaultTemplate({ id: input.id, teamId: teamId! });
+    .mutation(async ({ ctx: { db, teamId }, input }) => {
+      return setDefaultTemplate(db, { id: input.id, teamId: teamId! });
     }),
 
   // Delete a template (returns the new default to switch to)
   delete: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
-    .mutation(async ({ ctx: { teamId }, input }) => {
-      return deleteInvoiceTemplate({ id: input.id, teamId: teamId! });
+    .mutation(async ({ ctx: { db, teamId }, input }) => {
+      return deleteInvoiceTemplate(db, { id: input.id, teamId: teamId! });
     }),
 
   // Get template count for the team
-  count: protectedProcedure.query(async ({ ctx: { teamId } }) => {
-    return getInvoiceTemplateCount(teamId!);
+  count: protectedProcedure.query(async ({ ctx: { db, teamId } }) => {
+    return getInvoiceTemplateCount(db, teamId!);
   }),
 });

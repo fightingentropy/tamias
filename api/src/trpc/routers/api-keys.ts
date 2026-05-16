@@ -1,8 +1,8 @@
 import {
-  createApiKeyInConvex,
-  deleteApiKeyInConvex,
-  getApiKeysByTeamFromConvex,
-  updateApiKeyInConvex,
+  createApiKeyInD1,
+  deleteApiKeyInD1,
+  getApiKeysByTeamFromD1,
+  updateApiKeyInD1,
 } from "@tamias/app-services/foundation";
 import { ApiKeyCreatedEmail } from "@tamias/email/emails/api-key-created";
 import { render } from "@tamias/email/render";
@@ -13,27 +13,31 @@ import { deleteApiKeySchema, upsertApiKeySchema } from "../../schemas/api-keys";
 import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const apiKeysRouter = createTRPCRouter({
-  get: protectedProcedure.query(async ({ ctx: { teamId } }) => {
-    return getApiKeysByTeamFromConvex(teamId!);
+  get: protectedProcedure.query(async ({ ctx: { db, teamId } }) => {
+    return getApiKeysByTeamFromD1(teamId!, db);
   }),
 
   upsert: protectedProcedure
     .input(upsertApiKeySchema)
-    .mutation(async ({ ctx: { teamId, session, geo }, input }) => {
-      if (!input.id && !session.user.convexId) {
-        throw new Error("Missing Convex user id");
+    .mutation(async ({ ctx: { db, teamId, session, geo }, input }) => {
+      const userId = session.user.id ?? session.user.id;
+
+      if (!input.id && !userId) {
+        throw new Error("Missing user id");
       }
 
       const { data, key } = input.id
-        ? await updateApiKeyInConvex({
+        ? await updateApiKeyInD1({
+            db,
             publicApiKeyId: input.id,
             publicTeamId: teamId!,
             name: input.name,
             scopes: input.scopes,
           })
-        : await createApiKeyInConvex({
+        : await createApiKeyInD1({
+            db,
             publicTeamId: teamId!,
-            userId: session.user.convexId!,
+            userId: userId!,
             name: input.name,
             scopes: input.scopes,
           });
@@ -69,8 +73,9 @@ export const apiKeysRouter = createTRPCRouter({
 
   delete: protectedProcedure
     .input(deleteApiKeySchema)
-    .mutation(async ({ ctx: { teamId }, input }) => {
-      return deleteApiKeyInConvex({
+    .mutation(async ({ ctx: { db, teamId }, input }) => {
+      return deleteApiKeyInD1({
+        db,
         publicApiKeyId: input.id,
         publicTeamId: teamId!,
       });

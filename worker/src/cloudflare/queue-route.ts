@@ -1,7 +1,7 @@
-import type { CloudflareAsyncMessage } from "./bridge-helpers";
+import type { CloudflareAsyncMessage } from "./async-helpers";
 import type { CloudflareAsyncEnv } from "./shared";
 
-export type { CloudflareAsyncMessage } from "./bridge-helpers";
+export type { CloudflareAsyncMessage } from "./async-helpers";
 
 export function isCaptureConsumerQueue(queueName: string) {
   return queueName.includes("tamias-capture") && !queueName.includes("-dlq");

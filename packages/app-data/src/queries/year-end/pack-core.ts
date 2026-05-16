@@ -1,8 +1,10 @@
-import type { FilingProfileRecord } from "@tamias/app-data-convex";
-import { upsertComplianceObligationInConvex } from "@tamias/app-data-convex";
 import { addDays, addMonths, isAfter, isValid } from "date-fns";
 import type { Database } from "../../client";
 import { getFilingProfile } from "../compliance";
+import {
+  type FilingProfileRecord,
+  upsertComplianceObligationRecord,
+} from "../compliance/filings";
 import { getTeamById } from "../teams";
 import { coerceDate } from "./formatting";
 import { assertUkComplianceEnabled } from "./runtime";
@@ -118,12 +120,13 @@ function determineObligationStatus(dueDate: string) {
 }
 
 async function ensureAnnualObligations(
+  db: Database,
   teamId: string,
   profile: FilingProfileRecord,
   period: AnnualPeriod,
 ): Promise<YearEndPeriodContext["obligations"]> {
   const [accounts, corporationTax] = await Promise.all([
-    upsertComplianceObligationInConvex({
+    upsertComplianceObligationRecord(db, {
       teamId,
       filingProfileId: profile.id,
       provider: "companies-house",
@@ -139,7 +142,7 @@ async function ensureAnnualObligations(
         kind: "annual_internal_obligation",
       },
     }),
-    upsertComplianceObligationInConvex({
+    upsertComplianceObligationRecord(db, {
       teamId,
       filingProfileId: profile.id,
       provider: "hmrc-ct",
@@ -174,7 +177,7 @@ export async function getYearEndContext(db: Database, teamId: string, periodKey?
   assertUkComplianceEnabled(team, profile);
 
   const period = resolveAnnualPeriod(profile, { periodKey });
-  const obligations = await ensureAnnualObligations(teamId, profile, period);
+  const obligations = await ensureAnnualObligations(db, teamId, profile, period);
 
   return {
     team,

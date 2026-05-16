@@ -1,10 +1,8 @@
-import type {
-  CustomerRecord,
-  DocumentRecord,
-  TrackerProjectRecord,
-  TransactionRecord,
-} from "@tamias/app-data-convex";
+import type { CustomerRecord } from "../customers/types";
+import type { DocumentRecord } from "../documents/records";
 import { getProjectedInvoicePayload, type ProjectedInvoiceRecord } from "../invoices/shared";
+import type { TrackerProjectRecord } from "../tracker-projects/types";
+import type { TransactionRecord } from "../transactions/shared";
 import type { SearchCandidate } from "./types";
 
 function normalizeText(value: string | null | undefined) {

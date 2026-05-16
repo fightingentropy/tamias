@@ -9,7 +9,7 @@ import {
   canUseIndexedReviewTransactionPage,
   canUseIndexedTaggedTransactionPage,
   canUseIndexedTransactionPage,
-  getConvexStatusesNotIn,
+  getTransactionStatusesNotIn,
   type GetTransactionsParams,
 } from "./reads-shared";
 
@@ -48,7 +48,7 @@ export async function getTransactions(db: Database, params: GetTransactionsParam
     exported,
     fulfilled,
   } = params;
-  const convexStatusesNotIn = getConvexStatusesNotIn({
+  const statusesNotIn = getTransactionStatusesNotIn({
     statuses,
     exported,
   });
@@ -111,7 +111,7 @@ export async function getTransactions(db: Database, params: GetTransactionsParam
       start,
       end,
       tags: filterTags,
-      statusesNotIn: convexStatusesNotIn,
+      statusesNotIn,
     });
   }
 
@@ -144,7 +144,7 @@ export async function getTransactions(db: Database, params: GetTransactionsParam
       accounts: filterAccounts,
       start,
       end,
-      statusesNotIn: convexStatusesNotIn,
+      statusesNotIn,
     });
   }
 
@@ -154,6 +154,6 @@ export async function getTransactions(db: Database, params: GetTransactionsParam
       ...params,
       pageSize,
     },
-    convexStatusesNotIn,
+    statusesNotIn,
   );
 }

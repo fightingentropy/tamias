@@ -1,11 +1,11 @@
+import type { InboxLiabilityAggregateRowRecord } from "../../inbox/d1";
 import type {
-  InboxLiabilityAggregateRowRecord,
   InvoiceAgingAggregateRowRecord,
   InvoiceDateAggregateRowRecord,
   TransactionMetricAggregateRowRecord,
   TransactionRecurringAggregateRowRecord,
   TransactionTaxAggregateRowRecord,
-} from "@tamias/app-data-convex";
+} from "./aggregates/types";
 
 export type ReportTransactionAggregateRow = TransactionMetricAggregateRowRecord;
 export type ReportTransactionRecurringAggregateRow = TransactionRecurringAggregateRowRecord;

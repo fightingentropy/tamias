@@ -1,16 +1,17 @@
-import {
-  getTransactionMatchSuggestionsFromConvex,
-  upsertTransactionMatchSuggestionsInConvex,
-} from "@tamias/app-data-convex";
 import type { DatabaseOrTransaction } from "../client";
+import {
+  getTransactionMatchSuggestionsFromD1,
+  requireInboxItemsD1,
+  upsertTransactionMatchSuggestionsInD1,
+} from "./inbox/d1";
 import type { CreateMatchSuggestionParams } from "./transaction-matching-types";
 
 export async function createMatchSuggestion(
-  _db: DatabaseOrTransaction,
+  db: DatabaseOrTransaction,
   params: CreateMatchSuggestionParams,
 ) {
   const existing = (
-    await getTransactionMatchSuggestionsFromConvex({
+    await getTransactionMatchSuggestionsFromD1(requireInboxItemsD1(db), {
       teamId: params.teamId,
       inboxId: params.inboxId,
     })
@@ -20,7 +21,7 @@ export async function createMatchSuggestion(
     return null;
   }
 
-  const [result] = await upsertTransactionMatchSuggestionsInConvex({
+  const [result] = await upsertTransactionMatchSuggestionsInD1(requireInboxItemsD1(db), {
     suggestions: [
       existing
         ? {

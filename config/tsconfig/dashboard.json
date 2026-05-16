@@ -8,7 +8,6 @@
     "noEmit": true,
     "paths": {
       "@/*": ["../../dashboard/src/*"],
-      "@convex/*": ["../../dashboard/convex/*"],
       "@app-data/*": ["../../packages/app-data/src/*"],
       "nuqs": ["../../dashboard/src/framework/nuqs/index.tsx"],
       "nuqs/server": ["../../dashboard/src/framework/nuqs/server.ts"],

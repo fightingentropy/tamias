@@ -1,8 +1,8 @@
-import type { TransactionRecord } from "@tamias/app-data-convex";
 import { compareTransactionsForSort, isActiveWorkflowStatus } from "../shared";
 import type { ProcessedTransactionLookups } from "../reads-process";
 import type { GetTransactionsParams } from "../reads-shared";
 import type { getTransactionCategoryContext } from "../../transaction-categories";
+import type { TransactionRecord } from "../shared";
 
 type CategoryContext = Awaited<ReturnType<typeof getTransactionCategoryContext>>;
 

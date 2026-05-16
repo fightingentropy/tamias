@@ -38,7 +38,7 @@ export const transactionCategoriesRouter = createTRPCRouter({
     .mutation(async ({ input, ctx: { db, teamId, session } }) => {
       return createTransactionCategory(db, {
         teamId: teamId!,
-        userId: session.user.convexId ?? undefined,
+        userId: session.user.id ?? undefined,
         ...input,
       });
     }),

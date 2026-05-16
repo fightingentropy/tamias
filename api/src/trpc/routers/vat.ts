@@ -70,7 +70,7 @@ export const vatRouter = createTRPCRouter({
 
   getEvidencePack: protectedProcedure
     .input(getEvidencePackSchema)
-    .query(async ({ ctx: { teamId }, input }) => {
-      return getEvidencePack({ teamId: teamId!, ...input });
+    .query(async ({ ctx: { db, teamId }, input }) => {
+      return getEvidencePack(db, { teamId: teamId!, ...input });
     }),
 });

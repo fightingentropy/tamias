@@ -7,13 +7,14 @@ type CustomerActivityStats = {
 };
 
 export async function getCustomerActivityStats(
-  _db: Database,
+  db: Database,
   params: GetInsightActivityDataParams,
 ): Promise<CustomerActivityStats> {
   const { teamId, from, to } = params;
 
   return {
     newCount: await countCustomersCreatedBetween({
+      db,
       teamId,
       from,
       to,

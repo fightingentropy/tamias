@@ -1,5 +1,16 @@
 export { getFilingProfile, upsertFilingProfile } from "./compliance/shared";
-export { listDerivedLedgerEntries } from "./compliance/ledger";
+export {
+  countSourceLinksBySourceTypes,
+  deleteComplianceJournalEntryBySource,
+  listComplianceJournalEntries,
+  listDerivedLedgerEntries,
+  rebuildDerivedComplianceJournalEntries,
+  upsertComplianceJournalEntry,
+  type ComplianceJournalEntryRecord,
+  type ComplianceJournalLineRecord,
+  type ComplianceJournalSourceType,
+  type SourceLinkType,
+} from "./compliance/ledger";
 export {
   addVatAdjustment,
   getEvidencePack,

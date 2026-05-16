@@ -1,17 +1,23 @@
-import { getCustomersPageFromConvex, searchCustomersFromConvex } from "@tamias/app-data-convex";
+import { createDatabase } from "../../../client";
+import {
+  getCustomersPageFromD1,
+  requireCustomersD1,
+  searchCustomersFromD1,
+} from "../../customers/d1";
 import { toCustomerCandidate } from "../candidates";
 import { loadCandidatesForSource, matchesSearchTerm, matchesSemanticCandidate } from "../helpers";
 import type { RawSearchCandidateLoadParams, SearchCandidateLoadParams } from "../types";
 
 export async function loadCustomerCandidates(params: SearchCandidateLoadParams) {
   const itemsPerTableLimit = params.itemsPerTableLimit ?? 5;
+  const d1 = requireCustomersD1(params.db ?? createDatabase());
 
   return loadCandidatesForSource({
     searchTerm: params.searchTerm,
     itemsPerTableLimit,
     loadSearch: params.searchTerm
       ? (limit) =>
-          searchCustomersFromConvex({
+          searchCustomersFromD1(d1, {
             teamId: params.teamId,
             query: params.searchTerm!,
             status: params.status,
@@ -19,7 +25,7 @@ export async function loadCustomerCandidates(params: SearchCandidateLoadParams) 
           })
       : undefined,
     loadPage: (cursor, pageSize) =>
-      getCustomersPageFromConvex({
+      getCustomersPageFromD1(d1, {
         teamId: params.teamId,
         cursor,
         pageSize,
@@ -31,19 +37,21 @@ export async function loadCustomerCandidates(params: SearchCandidateLoadParams) 
 }
 
 export async function loadRawCustomerCandidates(params: RawSearchCandidateLoadParams) {
+  const d1 = requireCustomersD1(params.db ?? createDatabase());
+
   return loadCandidatesForSource({
     searchTerm: params.searchTerm,
     itemsPerTableLimit: params.itemsPerTableLimit,
     loadSearch: params.searchTerm
       ? (limit) =>
-          searchCustomersFromConvex({
+          searchCustomersFromD1(d1, {
             teamId: params.teamId,
             query: params.searchTerm!,
             limit,
           })
       : undefined,
     loadPage: (cursor, pageSize) =>
-      getCustomersPageFromConvex({
+      getCustomersPageFromD1(d1, {
         teamId: params.teamId,
         cursor,
         pageSize,

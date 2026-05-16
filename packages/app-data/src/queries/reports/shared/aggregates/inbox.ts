@@ -1,6 +1,9 @@
-import { getInboxLiabilityAggregateRowsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../../../client";
 import { createQueryCacheKey, getOrSetQueryCacheValue } from "../../../../client";
+import {
+  getInboxLiabilityAggregateRowsFromD1,
+  requireInboxItemsD1,
+} from "../../../inbox/d1";
 
 export async function getReportInboxLiabilityAggregateRows(
   db: Database,
@@ -18,7 +21,7 @@ export async function getReportInboxLiabilityAggregateRows(
       to: params.to ?? null,
     }),
     () =>
-      getInboxLiabilityAggregateRowsFromConvex({
+      getInboxLiabilityAggregateRowsFromD1(requireInboxItemsD1(db), {
         teamId: params.teamId,
         dateFrom: params.from ?? null,
         dateTo: params.to ?? null,

@@ -5,9 +5,9 @@ export type AuthCookieState = {
 };
 
 const AUTH_COOKIE_SUFFIXES = {
-  token: "__convexAuthJWT",
-  refreshToken: "__convexAuthRefreshToken",
-  verifier: "__convexAuthOAuthVerifier",
+  token: "__tamiasAuthJWT",
+  refreshToken: "__tamiasAuthRefreshToken",
+  verifier: "__tamiasAuthOAuthVerifier",
 } as const;
 
 export function isLocalHost(host: string) {

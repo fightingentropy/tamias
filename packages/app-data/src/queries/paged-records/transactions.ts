@@ -1,11 +1,8 @@
-import {
-  getTransactionsPageFromConvex,
-  type TransactionRecord,
-  type TransactionStatus,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
 import { createQueryCacheKey, getOrSetQueryCacheValue } from "../../client";
 import { normalizeTimestampBoundary } from "../date-boundaries";
+import { getTransactionsPageFromD1, requireTransactionsD1 } from "../transactions/d1";
+import type { TransactionRecord, TransactionStatus } from "../transactions/shared";
 import { collectCursorPages, DEFAULT_PAGE_SIZE } from "./shared";
 
 const transactionRangeCache = new WeakMap<
@@ -103,9 +100,13 @@ export async function getTransactionsPaged(args: {
   statusesNotIn?: TransactionStatus[];
   pageSize?: number;
 }) {
+  if (!args.db) {
+    throw new Error("Paged transaction records require Cloudflare D1");
+  }
+
   const load = async () =>
     collectCursorPages((cursor) =>
-      getTransactionsPageFromConvex({
+      getTransactionsPageFromD1(requireTransactionsD1(args.db!), {
         teamId: args.teamId,
         cursor,
         pageSize: args.pageSize ?? DEFAULT_PAGE_SIZE,
@@ -115,10 +116,6 @@ export async function getTransactionsPaged(args: {
         statusesNotIn: args.statusesNotIn,
       }),
     );
-
-  if (!args.db) {
-    return load();
-  }
 
   const normalizedRange = {
     dateGte: normalizeRangeBoundary(args.dateGte, "start"),

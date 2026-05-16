@@ -1,7 +1,9 @@
 import {
-  getUnnotifiedTransactionsFromConvex,
-  upsertTransactionsInConvex,
-} from "@tamias/app-data-convex";
+  getUnnotifiedTransactionsFromD1,
+  requireTransactionsD1,
+  toTransactionUpsertInput,
+  upsertTransactionsInD1,
+} from "@tamias/app-data/queries/transactions";
 import { Notifications } from "@tamias/notifications";
 import { parseISO } from "date-fns";
 import type { WorkerJob as Job } from "../../types/job";
@@ -23,47 +25,21 @@ export class TransactionNotificationsProcessor extends BaseProcessor<Transaction
     notificationCreated: boolean;
   }> {
     const { teamId } = job.data;
-    const notifications = new Notifications(getDb());
+    const db = getDb();
+    const notifications = new Notifications(db);
 
     await this.updateProgress(job, 20, undefined, "loading-transactions");
 
-    const pendingTransactions = await getUnnotifiedTransactionsFromConvex({
+    const pendingTransactions = await getUnnotifiedTransactionsFromD1(requireTransactionsD1(db), {
       teamId,
     });
 
     if (pendingTransactions.length > 0) {
-      await upsertTransactionsInConvex({
+      await upsertTransactionsInD1(requireTransactionsD1(db), {
         teamId,
-        transactions: pendingTransactions.map((transaction) => ({
-          id: transaction.id,
-          createdAt: transaction.createdAt,
-          date: transaction.date,
-          name: transaction.name,
-          method: transaction.method,
-          amount: transaction.amount,
-          currency: transaction.currency,
-          assignedId: transaction.assignedId,
-          note: transaction.note,
-          bankAccountId: transaction.bankAccountId,
-          internalId: transaction.internalId,
-          status: transaction.status,
-          balance: transaction.balance,
-          manual: transaction.manual,
-          notified: true,
-          internal: transaction.internal,
-          description: transaction.description,
-          categorySlug: transaction.categorySlug,
-          baseAmount: transaction.baseAmount,
-          counterpartyName: transaction.counterpartyName,
-          baseCurrency: transaction.baseCurrency,
-          taxAmount: transaction.taxAmount,
-          taxRate: transaction.taxRate,
-          taxType: transaction.taxType,
-          recurring: transaction.recurring,
-          frequency: transaction.frequency,
-          merchantName: transaction.merchantName,
-          enrichmentCompleted: transaction.enrichmentCompleted,
-        })),
+        transactions: pendingTransactions.map((transaction) =>
+          toTransactionUpsertInput(transaction, { notified: true }),
+        ),
       });
     }
 

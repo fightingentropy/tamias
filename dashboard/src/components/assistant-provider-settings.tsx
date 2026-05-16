@@ -21,13 +21,13 @@ const providerOptions: Array<{
     value: "kimi",
     label: "Kimi",
     description:
-      "Moonshot/Kimi via its OpenAI-compatible API. Requires KIMI_API_KEY on the API service.",
+      "Moonshot/Kimi via its OpenAI-compatible API. Requires KIMI_API_KEY on the Cloudflare Worker.",
   },
   {
     value: "openrouter",
     label: "OpenRouter",
     description:
-      "OpenRouter (OpenAI-compatible). Set OPENROUTER_API_KEY on the API service. Default model: Qwen3.6 Plus (free).",
+      "OpenRouter (OpenAI-compatible). Set OPENROUTER_API_KEY on the Cloudflare Worker. Default model: Qwen3.6 Plus (free).",
   },
 ];
 

@@ -1,5 +1,4 @@
-import type { CustomerRecord } from "@tamias/app-data-convex";
-import type { CustomerListRow } from "../types";
+import type { CustomerListRow, CustomerRecord } from "../types";
 import { compareCustomersByTags } from "./tags";
 
 export function matchesCustomerSearch(customer: CustomerRecord, query?: string | null) {

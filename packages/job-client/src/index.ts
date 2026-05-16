@@ -2,21 +2,21 @@ import { createLoggerWithContext } from "@tamias/logger";
 import {
   createRunRecord,
   extractPublicTeamId,
-  getAsyncRunByProviderRunIdFromConvex,
-  getAsyncRunFromConvex,
+  getAsyncRunByProviderRunId,
+  getAsyncRun,
   getErrorMessage,
   mapCloudflareWorkflowStatus,
   normalizeStoredRun,
-  updateAsyncRunInConvex,
+  updateAsyncRun,
 } from "./async-runs";
 import {
-  cancelCloudflareScheduleViaBridge,
-  cancelCloudflareWorkflowViaBridge,
-  enqueueViaCloudflareBridge,
-  getCloudflareWorkflowStatusViaBridge,
-  startCloudflareWorkflowViaBridge,
-  upsertCloudflareRecurringScheduleViaBridge,
-} from "./cloudflare-bridge";
+  cancelCloudflareScheduleViaTransport,
+  cancelCloudflareWorkflowViaTransport,
+  enqueueViaCloudflareTransport,
+  getCloudflareWorkflowStatusViaTransport,
+  startCloudflareWorkflowViaTransport,
+  upsertCloudflareRecurringScheduleViaTransport,
+} from "./cloudflare-transport";
 import {
   buildCloudflareRecurringScheduleId,
   buildCloudflareRecurringScheduleMessage,
@@ -91,7 +91,7 @@ export async function enqueue(
   });
 
   try {
-    await enqueueViaCloudflareBridge({
+    await enqueueViaCloudflareTransport({
       queue: queueGroup,
       queueName,
       runId: asyncRun.id,
@@ -101,7 +101,7 @@ export async function enqueue(
       maxAttempts: 4,
     });
 
-    await updateAsyncRunInConvex({
+    await updateAsyncRun({
       runId: asyncRun.id,
       providerQueueName: queueName,
       providerJobName: jobName,
@@ -111,7 +111,7 @@ export async function enqueue(
 
     return { runId: asyncRun.id };
   } catch (error) {
-    await updateAsyncRunInConvex({
+    await updateAsyncRun({
       runId: asyncRun.id,
       status: "failed",
       error: getErrorMessage(error),
@@ -125,7 +125,7 @@ export async function startCloudflareWorkflow(
   payload: unknown,
   options: StartCloudflareWorkflowOptions,
 ): Promise<AsyncRunResponse> {
-  const existingRun = await getAsyncRunByProviderRunIdFromConvex(
+  const existingRun = await getAsyncRunByProviderRunId(
     "cloudflare-workflow",
     options.instanceId,
   ).catch(() => null);
@@ -146,14 +146,14 @@ export async function startCloudflareWorkflow(
   });
 
   try {
-    await startCloudflareWorkflowViaBridge({
+    await startCloudflareWorkflowViaTransport({
       workflow: workflowName,
       instanceId: options.instanceId,
       runId: asyncRun.id,
       payload,
     });
 
-    await updateAsyncRunInConvex({
+    await updateAsyncRun({
       runId: asyncRun.id,
       providerRunId: options.instanceId,
       providerJobName: workflowName,
@@ -162,7 +162,7 @@ export async function startCloudflareWorkflow(
 
     return { runId: asyncRun.id };
   } catch (error) {
-    await updateAsyncRunInConvex({
+    await updateAsyncRun({
       runId: asyncRun.id,
       status: "failed",
       error: getErrorMessage(error),
@@ -198,10 +198,9 @@ export async function scheduleRecurring(
     externalId: options.externalId,
     deduplicationKey: options.deduplicationKey,
   };
-  const existingRun = await getAsyncRunByProviderRunIdFromConvex(
-    "cloudflare-schedule",
-    scheduleId,
-  ).catch(() => null);
+  const existingRun = await getAsyncRunByProviderRunId("cloudflare-schedule", scheduleId).catch(
+    () => null,
+  );
   const asyncRun =
     existingRun ??
     (await createRunRecord({
@@ -216,7 +215,7 @@ export async function scheduleRecurring(
     }));
 
   try {
-    await upsertCloudflareRecurringScheduleViaBridge({
+    await upsertCloudflareRecurringScheduleViaTransport({
       scheduleId,
       taskId,
       cron,
@@ -226,7 +225,7 @@ export async function scheduleRecurring(
       message,
     });
 
-    await updateAsyncRunInConvex({
+    await updateAsyncRun({
       runId: asyncRun.id,
       providerRunId: scheduleId,
       providerJobName: taskId,
@@ -236,7 +235,7 @@ export async function scheduleRecurring(
 
     return { runId: asyncRun.id };
   } catch (error) {
-    await updateAsyncRunInConvex({
+    await updateAsyncRun({
       runId: asyncRun.id,
       status: "failed",
       error: getErrorMessage(error),
@@ -250,20 +249,20 @@ export async function cancelSchedule(scheduleIdOrRunId: string) {
 }
 
 export async function cancelRun(runId: string): Promise<boolean> {
-  const asyncRun = await getAsyncRunFromConvex(runId);
+  const asyncRun = await getAsyncRun(runId);
 
   if (!asyncRun) {
     return false;
   }
 
   if (asyncRun.provider === "cloudflare-schedule" && asyncRun.providerRunId) {
-    const canceled = await cancelCloudflareScheduleViaBridge(asyncRun.providerRunId);
+    const canceled = await cancelCloudflareScheduleViaTransport(asyncRun.providerRunId);
 
     if (!canceled) {
       return false;
     }
 
-    await updateAsyncRunInConvex({
+    await updateAsyncRun({
       runId,
       status: "canceled",
       canceledAt: new Date().toISOString(),
@@ -272,7 +271,7 @@ export async function cancelRun(runId: string): Promise<boolean> {
   }
 
   if (asyncRun.provider === "cloudflare-workflow" && asyncRun.providerRunId) {
-    const canceled = await cancelCloudflareWorkflowViaBridge({
+    const canceled = await cancelCloudflareWorkflowViaTransport({
       instanceId: asyncRun.providerRunId,
     });
 
@@ -280,7 +279,7 @@ export async function cancelRun(runId: string): Promise<boolean> {
       return false;
     }
 
-    await updateAsyncRunInConvex({
+    await updateAsyncRun({
       runId,
       status: "canceled",
       canceledAt: new Date().toISOString(),
@@ -297,7 +296,7 @@ export async function getRunStatus(
     teamId?: string;
   },
 ): Promise<RunStatusResponse> {
-  const asyncRun = await getAsyncRunFromConvex(runId);
+  const asyncRun = await getAsyncRun(runId);
 
   if (!asyncRun) {
     return {
@@ -316,7 +315,7 @@ export async function getRunStatus(
 
   if (asyncRun.provider === "cloudflare-workflow" && asyncRun.providerRunId) {
     try {
-      const workflow = await getCloudflareWorkflowStatusViaBridge(asyncRun.providerRunId);
+      const workflow = await getCloudflareWorkflowStatusViaTransport(asyncRun.providerRunId);
       const status = mapCloudflareWorkflowStatus(workflow.workflowStatus);
       const error =
         typeof workflow.error?.message === "string" ? workflow.error.message : undefined;
@@ -326,7 +325,7 @@ export async function getRunStatus(
         error,
       } satisfies RunStatusResponse;
 
-      await updateAsyncRunInConvex({
+      await updateAsyncRun({
         runId,
         status,
         result: workflow.output,

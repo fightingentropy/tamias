@@ -1,5 +1,4 @@
-import { getCookies, getRequestHeaders, setCookie } from "@tanstack/react-start/server";
-import { getStartContext } from "@tanstack/start-storage-context";
+import { createIsomorphicFn } from "@tanstack/react-start";
 
 type CookieValue = {
   name: string;
@@ -22,6 +21,48 @@ type CookieStore = {
   set: (...args: [CookieSetValue] | [string, string, Partial<CookieSetValue>?]) => void;
 };
 
+type ServerCookieApi = {
+  cookieValues: Record<string, string>;
+  setCookie: (
+    name: string,
+    value: string,
+    options?: {
+      expires?: Date;
+      httpOnly?: boolean;
+      maxAge?: number;
+      path?: string;
+      sameSite?: "lax" | "strict" | "none";
+      secure?: boolean;
+    },
+  ) => void;
+};
+
+const getRuntimeHeaders = createIsomorphicFn()
+  .client(async () => new Headers())
+  .server(async () => {
+    const [{ getRequestHeaders }, { getStartContext }] = await Promise.all([
+      import("@tanstack/react-start/server"),
+      import("@tanstack/start-storage-context"),
+    ]);
+    const startContext = getStartContext({ throwIfNotFound: false });
+
+    return (startContext?.request.headers ?? getRequestHeaders()) as Headers;
+  });
+
+const getServerCookieApi = createIsomorphicFn()
+  .client(async (): Promise<ServerCookieApi> => ({
+    cookieValues: {},
+    setCookie: () => undefined,
+  }))
+  .server(async (): Promise<ServerCookieApi> => {
+    const { getCookies, setCookie } = await import("@tanstack/react-start/server");
+
+    return {
+      cookieValues: getCookies(),
+      setCookie,
+    };
+  });
+
 function normalizeCookieArgs(args: [CookieSetValue] | [string, string, Partial<CookieSetValue>?]) {
   if (typeof args[0] === "object") {
     return args[0];
@@ -35,13 +76,12 @@ function normalizeCookieArgs(args: [CookieSetValue] | [string, string, Partial<C
 }
 
 export async function headers() {
-  const startContext = getStartContext({ throwIfNotFound: false });
-
-  return (startContext?.request.headers ?? getRequestHeaders()) as Headers;
+  return getRuntimeHeaders();
 }
 
 export async function cookies(): Promise<CookieStore> {
-  const cookieMap = new Map<string, string>(Object.entries(getCookies()));
+  const cookieApi = await getServerCookieApi();
+  const cookieMap = new Map<string, string>(Object.entries(cookieApi.cookieValues));
 
   return {
     get(name) {
@@ -68,7 +108,7 @@ export async function cookies(): Promise<CookieStore> {
 
       cookieMap.set(cookie.name, cookie.value);
 
-      setCookie(cookie.name, cookie.value, {
+      cookieApi.setCookie(cookie.name, cookie.value, {
         expires: typeof cookie.expires === "number" ? new Date(cookie.expires) : cookie.expires,
         httpOnly: cookie.httpOnly,
         maxAge: cookie.maxAge,

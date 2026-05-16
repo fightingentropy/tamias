@@ -1,4 +1,4 @@
-import type { CloudflareAsyncMessage, CloudflareQueueGroup } from "./bridge-helpers";
+import type { CloudflareAsyncMessage, CloudflareQueueGroup } from "./async-helpers";
 
 export type CloudflareQueueBindingsEnv = {
   CAPTURE_QUEUE?: Queue<CloudflareAsyncMessage>;

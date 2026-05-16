@@ -8,6 +8,7 @@
  */
 
 import { Provider } from "@tamias/banking";
+import type { CloudflareD1DatabaseBinding } from "@tamias/app-data/client";
 import type { CloudflareEmailBinding } from "@tamias/email/send";
 import type { Dependency } from "./registry";
 
@@ -15,48 +16,19 @@ import type { Dependency } from "./registry";
 // Tier 1 — Core infrastructure (app breaks without these)
 // ---------------------------------------------------------------------------
 
-type ConvexQueryResponse =
-  | { status: "success"; value: unknown }
-  | { status: "error"; errorMessage?: string };
-
-/** Convex: run a no-op public query against the active deployment */
-export function convexProbe(): Dependency {
+/** D1: run a tiny no-op query against the bound application database */
+export function d1Probe(binding?: CloudflareD1DatabaseBinding): Dependency {
   return {
-    name: "convex",
+    name: "cloudflare-d1",
     tier: 1,
-    timeoutMs: 6_000,
+    timeoutMs: 5_000,
     probe: async () => {
-      const url =
-        process.env.CONVEX_URL || process.env.TAMIAS_CONVEX_URL || process.env.CONVEX_SITE_URL;
-
-      if (!url) {
-        throw new Error("CONVEX_URL not set");
+      if (!binding) {
+        throw new Error("APP_DB binding is not configured");
       }
 
-      const response = await fetch(`${url}/api/query`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Convex-Client": "tamias-health",
-        },
-        body: JSON.stringify({
-          path: "health:ping",
-          format: "convex_encoded_json",
-          args: [{}],
-        }),
-        signal: AbortSignal.timeout(5_000),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Convex query returned HTTP ${response.status}`);
-      }
-
-      const result = (await response.json()) as ConvexQueryResponse;
-      if (result.status === "error") {
-        throw new Error(result.errorMessage ?? "Convex health query failed");
-      }
-
-      return result.value === true;
+      const row = await binding.prepare("select 1 as ok").first<{ ok: number }>();
+      return row?.ok === 1;
     },
   };
 }
@@ -275,11 +247,13 @@ export function mistralProbe(): Dependency {
 // Pre-built registry sets for each service
 // ---------------------------------------------------------------------------
 
-/** Dependencies used by the API service */
-export function apiDependencies(options: { email?: CloudflareEmailBinding } = {}): Dependency[] {
+/** Dependencies used by the API runtime */
+export function apiDependencies(
+  options: { email?: CloudflareEmailBinding; d1?: CloudflareD1DatabaseBinding } = {},
+): Dependency[] {
   const dependencies: Dependency[] = [
     // Tier 1 — Core
-    convexProbe(),
+    d1Probe(options.d1),
     // Tier 2 — Important
     truelayerProbe(),
     stripeProbe(),

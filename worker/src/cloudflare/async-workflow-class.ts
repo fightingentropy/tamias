@@ -4,9 +4,10 @@ import {
   configureCloudflareQueueRuntime,
   configureCloudflareScheduleRuntime,
 } from "@tamias/job-client/cloudflare-runtime";
-import type { CloudflareWorkflowPayload } from "./bridge-helpers";
+import type { CloudflareWorkflowPayload } from "./async-helpers";
 import { createCloudflareScheduleRuntime } from "./schedule-runtime";
 import type { CloudflareAsyncEnv } from "./shared";
+import { configureWorkerRuntime } from "./worker-runtime";
 
 export class AsyncWorkflow extends WorkflowEntrypoint<
   CloudflareAsyncEnv,
@@ -19,6 +20,7 @@ export class AsyncWorkflow extends WorkflowEntrypoint<
     });
     configureCloudflareScheduleRuntime(createCloudflareScheduleRuntime(this.env));
     configureEmailRuntime(this.env.EMAIL);
+    configureWorkerRuntime(this.env);
 
     try {
       const { runBankInitialSetupWorkflow, runOnboardTeamWorkflow, runTeamCancellationWorkflow } =

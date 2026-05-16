@@ -1,13 +1,7 @@
-import {
-  type TransactionMethod as ConvexTransactionMethod,
-  type TransactionStatus as ConvexTransactionStatus,
-  type TransactionRecord,
-  type UpsertTransactionInConvexInput,
-} from "@tamias/app-data-convex";
 import type { AccountingSyncRecord } from "../../accounting-sync";
-import type { TransactionFrequency } from "./types";
+import type { TransactionRecord, TransactionStatus, UpsertTransactionInput } from "./types";
 
-export const MATCHING_EXCLUDED_TRANSACTION_STATUSES: ConvexTransactionStatus[] = [
+export const MATCHING_EXCLUDED_TRANSACTION_STATUSES: TransactionStatus[] = [
   "pending",
   "excluded",
   "completed",
@@ -15,10 +9,10 @@ export const MATCHING_EXCLUDED_TRANSACTION_STATUSES: ConvexTransactionStatus[] =
   "exported",
 ];
 
-export function toConvexTransactionInput(
+export function toTransactionUpsertInput(
   row: TransactionRecord,
   overrides: Partial<TransactionRecord> = {},
-): UpsertTransactionInConvexInput {
+): UpsertTransactionInput {
   const next = { ...row, ...overrides };
 
   return {
@@ -26,14 +20,14 @@ export function toConvexTransactionInput(
     createdAt: next.createdAt,
     date: next.date,
     name: next.name,
-    method: next.method as ConvexTransactionMethod,
+    method: next.method,
     amount: Number(next.amount),
     currency: next.currency,
     assignedId: next.assignedId,
     note: next.note,
     bankAccountId: next.bankAccountId,
     internalId: next.internalId,
-    status: next.status as ConvexTransactionStatus,
+    status: next.status,
     balance: next.balance,
     manual: next.manual ?? false,
     notified: next.notified ?? false,
@@ -47,7 +41,7 @@ export function toConvexTransactionInput(
     taxRate: next.taxRate,
     taxType: next.taxType,
     recurring: next.recurring ?? false,
-    frequency: next.frequency as TransactionFrequency | null | undefined,
+    frequency: next.frequency,
     merchantName: next.merchantName,
     enrichmentCompleted: next.enrichmentCompleted ?? false,
     hasAttachment: next.hasAttachment ?? false,

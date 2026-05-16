@@ -101,7 +101,7 @@ export interface ForcedToolCall {
 
 export interface AppContext {
   userId: string;
-  convexUserId: string;
+  appUserId: string;
   fullName: string;
   companyName: string;
   baseCurrency: string;
@@ -146,7 +146,7 @@ export function buildAppContext(
 
   return {
     userId: scopedUserId,
-    convexUserId: context.userId,
+    appUserId: context.userId,
     fullName: context.fullName ?? "",
     companyName: context.teamName ?? "",
     country: context.country ?? undefined,

@@ -1,14 +1,14 @@
 import {
-  createAsyncRunInConvex,
-  getAsyncRunByProviderRunIdFromConvex,
-  getAsyncRunFromConvex,
-  updateAsyncRunInConvex,
+  createAsyncRun,
+  getAsyncRun,
+  getAsyncRunByProviderRunId,
+  updateAsyncRun,
   type AsyncRunRecord,
   type AsyncRunStatus,
-} from "@tamias/app-data-convex";
+} from "@tamias/app-data/queries";
 import type { RunStatus, RunStatusResponse } from "./types";
 
-export { getAsyncRunByProviderRunIdFromConvex, getAsyncRunFromConvex, updateAsyncRunInConvex };
+export { getAsyncRun, getAsyncRunByProviderRunId, updateAsyncRun };
 
 export function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : "Unknown error";
@@ -72,7 +72,7 @@ export async function createRunRecord(params: {
   providerJobName?: string;
   metadata?: Record<string, unknown>;
 }) {
-  return createAsyncRunInConvex({
+  return createAsyncRun({
     publicTeamId: params.publicTeamId,
     appUserId: params.appUserId,
     provider: params.provider,

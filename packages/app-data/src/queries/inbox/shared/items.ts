@@ -1,17 +1,20 @@
+import { type Database } from "../../../client";
 import {
-  getInboxItemByIdFromConvex,
-  getInboxItemsFromConvex,
-  upsertInboxItemsInConvex,
+  getInboxItemByIdFromD1,
+  getInboxItemsFromD1,
+  requireInboxItemsD1,
+  upsertInboxItemsInD1,
   type InboxItemRecord,
-} from "@tamias/app-data-convex";
+} from "../d1";
 import { getInboxAccountMap } from "./accounts";
 import { toUpsertInboxItem } from "./serialization";
 import { getInboxTransactionMap } from "./transactions";
 
-export async function hydrateInboxItems(teamId: string, items: InboxItemRecord[]) {
+export async function hydrateInboxItems(db: Database, teamId: string, items: InboxItemRecord[]) {
   const [inboxAccountMap, transactionMap] = await Promise.all([
     getInboxAccountMap(items.map((item) => item.inboxAccountId)),
     getInboxTransactionMap(
+      db,
       teamId,
       items.map((item) => item.transactionId),
     ),
@@ -24,16 +27,17 @@ export async function hydrateInboxItems(teamId: string, items: InboxItemRecord[]
   }));
 }
 
-export async function getRelatedInboxItems(teamId: string, item: InboxItemRecord) {
+export async function getRelatedInboxItems(db: Database, teamId: string, item: InboxItemRecord) {
+  const d1 = requireInboxItemsD1(db);
   const primaryInboxId = item.groupedInboxId ?? item.id;
   const [resolvedPrimaryItem, groupedItems] = await Promise.all([
     item.groupedInboxId
-      ? getInboxItemByIdFromConvex({
+      ? getInboxItemByIdFromD1(d1, {
           teamId,
           inboxId: primaryInboxId,
         })
       : Promise.resolve(item),
-    getInboxItemsFromConvex({
+    getInboxItemsFromD1(d1, {
       teamId,
       groupedInboxIds: [primaryInboxId],
     }),
@@ -52,6 +56,7 @@ export async function getRelatedInboxItems(teamId: string, item: InboxItemRecord
 }
 
 export async function markInboxItems(
+  db: Database,
   items: InboxItemRecord[],
   overrides: Partial<InboxItemRecord>,
 ) {
@@ -59,7 +64,7 @@ export async function markInboxItems(
     return [];
   }
 
-  return upsertInboxItemsInConvex({
+  return upsertInboxItemsInD1(requireInboxItemsD1(db), {
     items: items.map((item) =>
       toUpsertInboxItem(item, {
         ...overrides,

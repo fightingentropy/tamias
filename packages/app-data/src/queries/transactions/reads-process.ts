@@ -1,13 +1,9 @@
-import {
-  getBankAccountsFromConvex,
-  getTeamMembersFromConvexIdentity,
-  getTransactionAttachmentsForTransactionIdsFromConvex,
-  getTransactionTagAssignmentsForTransactionIdsFromConvex,
-  type TransactionRecord,
-} from "@tamias/app-data-convex";
 import { resolveTaxValues } from "@tamias/utils/tax";
 import type { Database } from "../../client";
 import { getAccountingSyncStatus } from "../accounting-sync";
+import { getBankAccounts } from "../bank-accounts";
+import { getTeamMembers } from "../teams/reads";
+import { getTransactionAttachmentsForTransactionIds } from "../transaction-attachments";
 import { getTransactionCategoryContext } from "../transaction-categories";
 import {
   buildAccountingSyncLookups,
@@ -18,17 +14,22 @@ import {
   buildTransactionTagLookups,
   getPendingSuggestionTransactionIdsForTransactions,
   getTransactionDerivedState,
+  type TransactionRecord,
 } from "./shared";
+import {
+  getTransactionTagAssignmentsForTransactionIdsFromD1,
+  requireTransactionsD1,
+} from "./d1";
 import { buildEmptyProcessedTransactionPage, buildTransactionsPageMeta } from "./reads-shared";
 
 type CategoryContext = Awaited<ReturnType<typeof getTransactionCategoryContext>>;
-type TeamMembers = Awaited<ReturnType<typeof getTeamMembersFromConvexIdentity>>;
-type BankAccounts = Awaited<ReturnType<typeof getBankAccountsFromConvex>>;
+type TeamMembers = Awaited<ReturnType<typeof getTeamMembers>>;
+type BankAccounts = Awaited<ReturnType<typeof getBankAccounts>>;
 type TransactionAttachments = Awaited<
-  ReturnType<typeof getTransactionAttachmentsForTransactionIdsFromConvex>
+  ReturnType<typeof getTransactionAttachmentsForTransactionIds>
 >;
 type TransactionTagAssignments = Awaited<
-  ReturnType<typeof getTransactionTagAssignmentsForTransactionIdsFromConvex>
+  ReturnType<typeof getTransactionTagAssignmentsForTransactionIdsFromD1>
 >;
 
 export function buildProcessedTransactionLookups(args: {
@@ -79,15 +80,16 @@ export function buildProcessedTransactionLookups(args: {
 export type ProcessedTransactionLookups = ReturnType<typeof buildProcessedTransactionLookups>;
 
 export async function loadTransactionPageDecorations(args: {
+  db: Database;
   teamId: string;
   transactionIds: string[];
 }) {
   const [transactionAttachments, transactionTagAssignments] = await Promise.all([
-    getTransactionAttachmentsForTransactionIdsFromConvex({
+    getTransactionAttachmentsForTransactionIds(args.db, {
       teamId: args.teamId,
       transactionIds: args.transactionIds,
     }),
-    getTransactionTagAssignmentsForTransactionIdsFromConvex({
+    getTransactionTagAssignmentsForTransactionIdsFromD1(requireTransactionsD1(args.db), {
       teamId: args.teamId,
       transactionIds: args.transactionIds,
     }),
@@ -115,22 +117,22 @@ export async function loadProcessedTransactionLookups(args: {
     transactionAttachments,
     transactionTagAssignments,
   ] = await Promise.all([
-    getTeamMembersFromConvexIdentity({ teamId: args.teamId }),
+    getTeamMembers(args.db, args.teamId),
     getAccountingSyncStatus(args.db, {
       teamId: args.teamId,
       transactionIds,
     }),
     getTransactionCategoryContext(args.db, args.teamId),
-    getBankAccountsFromConvex({ teamId: args.teamId }),
+    getBankAccounts(args.db, { teamId: args.teamId }),
     getPendingSuggestionTransactionIdsForTransactions(args.db, {
       teamId: args.teamId,
       transactionIds,
     }),
-    getTransactionAttachmentsForTransactionIdsFromConvex({
+    getTransactionAttachmentsForTransactionIds(args.db, {
       teamId: args.teamId,
       transactionIds,
     }),
-    getTransactionTagAssignmentsForTransactionIdsFromConvex({
+    getTransactionTagAssignmentsForTransactionIdsFromD1(requireTransactionsD1(args.db), {
       teamId: args.teamId,
       transactionIds,
     }),

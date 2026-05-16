@@ -10,10 +10,7 @@ const webServerURL =
   process.env.PLAYWRIGHT_WEB_SERVER_URL ?? new URL("/login", localBaseURL).toString();
 const authStatePath = path.join(repoRoot, "e2e", ".auth", "user.json");
 const sharedApiUrl =
-  process.env.PLAYWRIGHT_API_URL ??
-  process.env.TAMIAS_API_URL ??
-  process.env.API_URL ??
-  "https://api.tamias.xyz";
+  process.env.PLAYWRIGHT_API_URL ?? process.env.API_URL ?? "https://api.tamias.xyz";
 const webServerCommand = `DASHBOARD_URL=${appBaseURL} API_URL=${sharedApiUrl} bun run --cwd dashboard build:start && DASHBOARD_URL=${appBaseURL} API_URL=${sharedApiUrl} bun run --cwd dashboard preview:start`;
 const hostResolverRules = "MAP tamias.test 127.0.0.1, MAP *.tamias.test 127.0.0.1";
 

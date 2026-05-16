@@ -1,13 +1,14 @@
-import {
-  getTransactionMatchSuggestionsFromConvex,
-  upsertTransactionMatchSuggestionsInConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../client";
+import {
+  getTransactionMatchSuggestionsFromD1,
+  requireInboxItemsD1,
+  upsertTransactionMatchSuggestionsInD1,
+} from "../inbox/d1";
 import { createActivity } from "../activities";
 import { matchTransaction } from "../inbox";
 import { updateInbox } from "../inbox";
 
-type ConvexUserId = import("@tamias/app-data-convex").CurrentUserIdentityRecord["convexId"];
+type InboxUserId = string;
 
 export async function confirmSuggestedMatch(
   db: Database,
@@ -16,13 +17,13 @@ export async function confirmSuggestedMatch(
     suggestionId: string;
     inboxId: string;
     transactionId: string;
-    userId?: ConvexUserId | null;
+    userId?: InboxUserId | null;
   },
 ) {
   const { teamId, suggestionId, inboxId, transactionId, userId } = params;
-  const [suggestion] = await upsertTransactionMatchSuggestionsInConvex({
+  const [suggestion] = await upsertTransactionMatchSuggestionsInD1(requireInboxItemsD1(db), {
     suggestions: (
-      await getTransactionMatchSuggestionsFromConvex({
+      await getTransactionMatchSuggestionsFromD1(requireInboxItemsD1(db), {
         teamId,
         inboxId,
       })
@@ -67,19 +68,19 @@ export async function declineSuggestedMatch(
   params: {
     suggestionId: string;
     inboxId: string;
-    userId?: ConvexUserId | null;
+    userId?: InboxUserId | null;
     teamId: string;
   },
 ) {
   const { suggestionId, inboxId, userId, teamId } = params;
-  const suggestions = await getTransactionMatchSuggestionsFromConvex({
+  const suggestions = await getTransactionMatchSuggestionsFromD1(requireInboxItemsD1(db), {
     teamId,
     inboxId,
   });
   const suggestion = suggestions.find((row) => row.id === suggestionId);
 
   if (suggestion) {
-    await upsertTransactionMatchSuggestionsInConvex({
+    await upsertTransactionMatchSuggestionsInD1(requireInboxItemsD1(db), {
       suggestions: [
         {
           ...suggestion,

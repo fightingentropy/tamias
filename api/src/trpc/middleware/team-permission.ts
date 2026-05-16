@@ -1,5 +1,5 @@
 import type { Database } from "@tamias/app-data/client";
-import { getTeamMembershipIdsFromConvex } from "@tamias/app-services/identity";
+import { getTeamMembershipIds } from "@tamias/app-services/identity";
 import type { Session } from "@tamias/auth-session";
 import { createLoggerWithContext } from "@tamias/logger";
 import { TRPCError } from "@trpc/server";
@@ -65,12 +65,12 @@ async function resolveTeamPermission(
     return { teamId };
   }
 
-  const convexStart = DEBUG_PERF ? performance.now() : 0;
-  const teamMembershipIds = await getTeamMembershipIdsFromConvex({
-    userId: session?.user?.convexId,
+  const dbStart = DEBUG_PERF ? performance.now() : 0;
+  const teamMembershipIds = await getTeamMembershipIds({
+    userId: session?.user?.id,
     email: session?.user?.email ?? null,
   });
-  const convexMs = DEBUG_PERF ? performance.now() - convexStart : 0;
+  const dbMs = DEBUG_PERF ? performance.now() - dbStart : 0;
 
   if (teamMembershipIds.length === 0 && session?.teamId) {
     teamPermissionLogger.warn("permission denied: user has no team access", {
@@ -109,9 +109,9 @@ async function resolveTeamPermission(
   if (DEBUG_PERF) {
     perfLogger.info("teamPermission", {
       totalMs: +(performance.now() - resolveStart).toFixed(2),
-      dbQueryMs: +convexMs.toFixed(2),
+      dbQueryMs: +dbMs.toFixed(2),
       teamId,
-      source: "convex",
+      source: "d1",
     });
   }
 

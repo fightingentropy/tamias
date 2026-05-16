@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
-import { allocateFilingSequenceInConvex } from "@tamias/app-data-convex";
+import type { Database } from "../../../client";
+import { allocateFilingSequence } from "../../filing-events";
 import {
   COMPANIES_HOUSE_SUBMISSION_NUMBER_MAX,
   COMPANIES_HOUSE_SUBMISSION_NUMBER_WIDTH,
@@ -37,9 +38,10 @@ export function buildCompaniesHouseSubmissionSequenceScope(
 }
 
 export async function allocateCompaniesHouseSubmissionIdentifiers(
+  db: Database,
   provider: CompaniesHouseXmlGatewayProvider,
 ) {
-  const sequence = await allocateFilingSequenceInConvex({
+  const sequence = await allocateFilingSequence(db, {
     scope: buildCompaniesHouseSubmissionSequenceScope(provider),
   });
 

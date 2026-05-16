@@ -1,8 +1,8 @@
-import { type InboxItemRecord } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
 import { separateBlocklistEntries } from "../../../utils/blocklist";
 import { getInboxBlocklist } from "../../inbox-blocklist";
 import { getInboxItemsPaged } from "../../paged-records";
+import type { InboxItemRecord } from "../d1";
 import type { GetInboxParams } from "../types";
 import {
   compareInboxListItems,
@@ -36,7 +36,7 @@ export async function getInbox(db: Database, params: GetInboxParams) {
   }
 
   const [items, blocklistEntries] = await Promise.all([
-    getInboxItemsPaged({ teamId, order: "desc" }),
+    getInboxItemsPaged(db, { teamId, order: "desc" }),
     getInboxBlocklist(db, { teamId }),
   ]);
   const relatedCountByGroupedInboxId = new Map<string, number>();
@@ -75,7 +75,7 @@ export async function getInbox(db: Database, params: GetInboxParams) {
 
   const offset = cursor ? Number.parseInt(cursor, 10) : 0;
   const paged: InboxListItem[] = filtered.slice(offset, offset + pageSize);
-  const hydrated = await hydrateInboxItems(teamId, paged);
+  const hydrated = await hydrateInboxItems(db, teamId, paged);
   const nextCursor = paged.length === pageSize ? (offset + pageSize).toString() : undefined;
 
   return {

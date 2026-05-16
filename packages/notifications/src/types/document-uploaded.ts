@@ -6,7 +6,7 @@ export const documentUploaded: NotificationHandler = {
 
   createActivity: (data, user) => ({
     teamId: user.team_id,
-    userId: user.convex_id,
+    userId: user.id,
     type: "document_uploaded",
     source: "user",
     priority: 7,

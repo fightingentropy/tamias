@@ -6,7 +6,7 @@ export const invoiceCancelled: NotificationHandler = {
 
   createActivity: (data, user) => ({
     teamId: user.team_id,
-    userId: user.convex_id,
+    userId: user.id,
     type: "invoice_cancelled",
     source: "user",
     priority: 3,

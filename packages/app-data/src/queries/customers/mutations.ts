@@ -1,13 +1,13 @@
-import {
-  deleteCustomerInConvex,
-  deleteCustomerTagsForCustomerInConvex,
-  replaceCustomerTagsInConvex,
-  toggleCustomerPortalInConvex,
-  upsertCustomerInConvex,
-} from "@tamias/app-data-convex";
 import { generateToken } from "@tamias/invoice/token";
 import type { Database } from "../../client";
 import { createActivity } from "../activities";
+import {
+  deleteCustomerFromD1,
+  replaceCustomerTagsInD1,
+  requireCustomersD1,
+  toggleCustomerPortalInD1,
+  upsertCustomerInD1,
+} from "./d1";
 import { getCustomerById } from "./reads";
 import type {
   DeleteCustomerParams,
@@ -20,7 +20,8 @@ export const upsertCustomer = async (db: Database, params: UpsertCustomerParams)
   const customerId = id ?? crypto.randomUUID();
   const isNewCustomer = !id;
   const token = await generateToken(customerId);
-  const customer = await upsertCustomerInConvex({
+  const d1 = requireCustomersD1(db);
+  const customer = await upsertCustomerInD1(d1, {
     teamId,
     id: customerId,
     createdAt: isNewCustomer ? new Date().toISOString() : undefined,
@@ -46,7 +47,7 @@ export const upsertCustomer = async (db: Database, params: UpsertCustomerParams)
     });
   }
 
-  await replaceCustomerTagsInConvex({
+  await replaceCustomerTagsInD1(d1, {
     teamId,
     customerId,
     tagIds: inputTags?.map((tag) => tag.id) ?? [],
@@ -69,23 +70,11 @@ export const deleteCustomer = async (db: Database, params: DeleteCustomerParams)
     throw new Error("Customer not found");
   }
 
-  await deleteCustomerInConvex({
-    teamId,
-    customerId: id,
-  });
-
-  await deleteCustomerTagsForCustomerInConvex({
-    teamId,
-    customerId: id,
-  });
+  await deleteCustomerFromD1(requireCustomersD1(db), params);
 
   return customerToDelete;
 };
 
-export async function toggleCustomerPortal(_db: Database, params: ToggleCustomerPortalParams) {
-  return toggleCustomerPortalInConvex({
-    teamId: params.teamId,
-    customerId: params.customerId,
-    enabled: params.enabled,
-  });
+export async function toggleCustomerPortal(db: Database, params: ToggleCustomerPortalParams) {
+  return toggleCustomerPortalInD1(requireCustomersD1(db), params);
 }

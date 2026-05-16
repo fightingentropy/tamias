@@ -1,11 +1,6 @@
 import { createHash } from "node:crypto";
 import { writeToString } from "@fast-csv/format";
-import type {
-  CloseCompanyLoansScheduleRecord,
-  CorporationTaxRateScheduleRecord,
-  FilingProfileRecord,
-  YearEndPackRecord,
-} from "@tamias/app-data-convex";
+import type { FilingProfileRecord } from "../compliance/filings";
 import { buildCsvChecksum, buildZipBundle } from "./artifacts";
 import { buildCtSubmissionArtifacts } from "./drafts";
 import { parsePackArray } from "./formatting";
@@ -16,6 +11,11 @@ import type {
   TrialBalanceLine,
   WorkingPaperSection,
 } from "./types";
+import type { YearEndPackRecord } from "./pack-store";
+import type {
+  CloseCompanyLoansScheduleRecord,
+  CorporationTaxRateScheduleRecord,
+} from "./tax-schedules";
 
 type ArchiveFile = {
   name: string;

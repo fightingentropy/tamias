@@ -11,12 +11,12 @@ export type DraftInvoiceDetail = {
 };
 
 export async function getDraftInvoices(
-  _db: Database,
+  db: Database,
   params: { teamId: string; currency?: string },
 ): Promise<DraftInvoiceDetail[]> {
   const { teamId, currency } = params;
   const result = (
-    await getProjectedInvoicesByFilters({
+    await getProjectedInvoicesByFilters(db, {
       teamId,
       statuses: ["draft"],
       currency,

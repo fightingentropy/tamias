@@ -1,5 +1,6 @@
 import { CompaniesHouseXmlGatewayProvider } from "@tamias/compliance";
-import type { FilingProfileRecord, YearEndPackRecord } from "@tamias/app-data-convex";
+import type { FilingProfileRecord } from "../compliance/filings";
+import type { YearEndPackRecord } from "./pack-store";
 import { buildCompaniesHousePreviewSubmissionIdentifiers } from "./companies-house-submissions";
 import type { CtSubmissionArtifacts } from "./types";
 

@@ -50,14 +50,14 @@ function resolveExcludeProviders(
 }
 
 export const institutionsRouter = createTRPCRouter({
-  get: protectedProcedure.input(getInstitutionsSchema).query(async ({ input }) => {
+  get: protectedProcedure.input(getInstitutionsSchema).query(async ({ ctx: { db }, input }) => {
     try {
       const effectiveExcludeProviders = resolveExcludeProviders(
         input.countryCode,
         input.excludeProviders,
       );
 
-      const results = await getInstitutions(undefined, {
+      const results = await getInstitutions(db, {
         countryCode: input.countryCode,
         q: input.q,
         limit: input.limit,
@@ -105,32 +105,34 @@ export const institutionsRouter = createTRPCRouter({
     }
   }),
 
-  getById: protectedProcedure.input(getInstitutionByIdSchema).query(async ({ input }) => {
-    const result = await getInstitutionById(undefined, { id: input.id });
+  getById: protectedProcedure
+    .input(getInstitutionByIdSchema)
+    .query(async ({ ctx: { db }, input }) => {
+      const result = await getInstitutionById(db, { id: input.id });
 
-    if (!result) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Institution not found",
-      });
-    }
+      if (!result) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Institution not found",
+        });
+      }
 
-    return {
-      id: result.id,
-      name: result.name,
-      logo: result.logo ?? null,
-      provider: result.provider,
-      availableHistory: result.availableHistory ?? null,
-      maximumConsentValidity: result.maximumConsentValidity ?? null,
-      popularity: result.popularity,
-      type: (result.type as "personal" | "business" | null) ?? null,
-      country: result.countries?.[0] ?? undefined,
-    };
-  }),
+      return {
+        id: result.id,
+        name: result.name,
+        logo: result.logo ?? null,
+        provider: result.provider,
+        availableHistory: result.availableHistory ?? null,
+        maximumConsentValidity: result.maximumConsentValidity ?? null,
+        popularity: result.popularity,
+        type: (result.type as "personal" | "business" | null) ?? null,
+        country: result.countries?.[0] ?? undefined,
+      };
+    }),
 
-  updateUsage: protectedProcedure.input(updateUsageSchema).mutation(async ({ input }) => {
+  updateUsage: protectedProcedure.input(updateUsageSchema).mutation(async ({ ctx: { db }, input }) => {
     try {
-      const result = await updateInstitutionUsage(undefined, {
+      const result = await updateInstitutionUsage(db, {
         id: input.id,
       });
 

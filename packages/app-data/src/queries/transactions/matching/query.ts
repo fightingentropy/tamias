@@ -1,9 +1,11 @@
-import {
-  getTransactionAttachmentsForTransactionIdsFromConvex,
-  getTransactionsByAmountRangeFromConvex,
-  searchTransactionsFromConvex,
-} from "@tamias/app-data-convex";
+import type { Database } from "../../../client";
 import { calculateNameScore } from "../../../utils/transaction-matching";
+import { getTransactionAttachmentsForTransactionIds } from "../../transaction-attachments";
+import {
+  getTransactionsByAmountRangeFromD1,
+  requireTransactionsD1,
+  searchTransactionsFromD1,
+} from "../d1";
 import {
   buildTransactionAttachmentLookups,
   compareTransactionsByDateDesc,
@@ -16,6 +18,7 @@ import {
 } from "./common";
 
 export async function searchTransactionMatchByQuery(params: {
+  db: Database;
   teamId: string;
   query: string;
   maxResults: number;
@@ -32,13 +35,13 @@ export async function searchTransactionMatchByQuery(params: {
   const amountSearchValue = Math.round(Math.abs(numericQuery) * 100);
   const amountTolerance = Math.ceil(Math.max(1, Math.abs(numericQuery)) * 0.65 * 100);
   const indexedCandidates = dedupeTransactionsById([
-    ...(await searchTransactionsFromConvex({
+    ...(await searchTransactionsFromD1(requireTransactionsD1(params.db), {
       teamId: params.teamId,
       query: normalizedQuery,
       limit: candidateLimit,
     })),
     ...(!Number.isNaN(numericQuery)
-      ? await getTransactionsByAmountRangeFromConvex({
+      ? await getTransactionsByAmountRangeFromD1(requireTransactionsD1(params.db), {
           teamId: params.teamId,
           minAmount: Math.max(0, amountSearchValue - amountTolerance),
           maxAmount: amountSearchValue + amountTolerance,
@@ -88,7 +91,7 @@ export async function searchTransactionMatchByQuery(params: {
     .slice(0, Math.max(params.maxResults * 3, 30));
 
   const { attachmentsByTransactionId } = buildTransactionAttachmentLookups(
-    await getTransactionAttachmentsForTransactionIdsFromConvex({
+    await getTransactionAttachmentsForTransactionIds(params.db, {
       teamId: params.teamId,
       transactionIds: candidateTransactions.map((candidate) => candidate.transaction.id),
     }),

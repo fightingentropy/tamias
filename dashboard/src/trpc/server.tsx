@@ -6,7 +6,10 @@ import { createTRPCOptionsProxy, type TRPCQueryOptions } from "@trpc/tanstack-re
 import { cache } from "react";
 import superjson from "superjson";
 import { noteSsrTrpcCall } from "@/server/perf";
-import { getApiServiceBinding } from "@/start/server/cloudflare-context";
+import {
+  getInternalApiFetch as getIsomorphicInternalApiFetch,
+  type DashboardRequestContext,
+} from "@/start/server/cloudflare-context";
 import { makeQueryClient } from "./query-client";
 import { buildTRPCRequestHeaders, getServerRequestContext } from "./request-context";
 
@@ -20,7 +23,12 @@ function resolveDashboardSsrTrpcBaseUrl(): string {
     return internal;
   }
 
-  if (import.meta.env.DEV) {
+  const apiUrl = process.env.API_URL;
+  if (apiUrl) {
+    return apiUrl;
+  }
+
+  if (process.env.NODE_ENV !== "production") {
     const dash = process.env.DASHBOARD_URL;
     if (dash) {
       try {
@@ -58,9 +66,37 @@ function mergeRequestHeaders(base: Headers, override: Headers): Headers {
   return out;
 }
 
-function shouldUseInProcessApiGateway(resolvedUrl: string): boolean {
-  const apiService = getApiServiceBinding();
-  if (!apiService) {
+async function getInternalApiFetch() {
+  if (import.meta.env.SSR) {
+    const { getScopedDashboardRequestContext } = await import(
+      "@/start/server/cloudflare-request-scope"
+    );
+    const scopedInternalApiFetch = getScopedDashboardRequestContext()?.internalApiFetch;
+    if (scopedInternalApiFetch) {
+      return scopedInternalApiFetch;
+    }
+  }
+
+  const isomorphicInternalApiFetch = getIsomorphicInternalApiFetch();
+  if (isomorphicInternalApiFetch || !import.meta.env.SSR) {
+    return isomorphicInternalApiFetch;
+  }
+
+  const { getStartContext } = await import("@tanstack/start-storage-context");
+  const startContext = getStartContext({ throwIfNotFound: false });
+  const requestContext = startContext?.contextAfterGlobalMiddlewares as
+    | DashboardRequestContext
+    | null
+    | undefined;
+
+  return requestContext?.internalApiFetch;
+}
+
+function shouldUseInProcessApiGateway(
+  resolvedUrl: string,
+  internalApiFetch: DashboardRequestContext["internalApiFetch"] | undefined,
+): boolean {
+  if (!internalApiFetch) {
     return false;
   }
 
@@ -89,30 +125,32 @@ function shouldUseInProcessApiGateway(resolvedUrl: string): boolean {
  */
 function ensureJsonResponse(response: Response): Response {
   const contentType = response.headers.get("content-type") ?? "";
-  if (response.ok || contentType.includes("application/json")) {
+  if (contentType.includes("application/json")) {
     return response;
   }
 
-  // Non-JSON error response (e.g. Cloudflare 522 HTML page) — synthesize
+  const status = response.ok ? 502 : response.status;
+
+  // Non-JSON tRPC response (e.g. Cloudflare 522 HTML/plain body) — synthesize
   // a tRPC-compatible JSON error so the client can handle it normally.
   return new Response(
     JSON.stringify({
       error: {
         json: {
-          message: `Upstream error: HTTP ${response.status}`,
+          message: `Upstream non-JSON response: HTTP ${response.status}`,
           code: -32603,
-          data: { code: "INTERNAL_SERVER_ERROR", httpStatus: response.status },
+          data: { code: "INTERNAL_SERVER_ERROR", httpStatus: status },
         },
       },
     }),
     {
-      status: response.status,
+      status,
       headers: { "content-type": "application/json" },
     },
   );
 }
 
-function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   const timeoutSignal = AbortSignal.timeout(SSR_FETCH_TIMEOUT_MS);
   const signal = init?.signal ? AbortSignal.any([init.signal, timeoutSignal]) : timeoutSignal;
 
@@ -127,11 +165,10 @@ function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit): Promise
   const resolvedUrl = resolveSsrFetchUrl(input);
   noteSsrTrpcCall(resolvedUrl);
 
-  if (shouldUseInProcessApiGateway(resolvedUrl)) {
-    const apiService = getApiServiceBinding();
-
-    if (!apiService) {
-      throw new Error("Missing API service binding");
+  const internalApiFetch = await getInternalApiFetch();
+  if (shouldUseInProcessApiGateway(resolvedUrl, internalApiFetch)) {
+    if (!internalApiFetch) {
+      throw new Error("Missing internal API gateway");
     }
 
     const subrequest =
@@ -145,7 +182,7 @@ function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit): Promise
           } as RequestInit)
         : new Request(resolvedUrl, { ...init, signal, headers });
 
-    return apiService.fetch(subrequest).then(ensureJsonResponse);
+    return internalApiFetch(subrequest).then(ensureJsonResponse);
   }
 
   const outbound =

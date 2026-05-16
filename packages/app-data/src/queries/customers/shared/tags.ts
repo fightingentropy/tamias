@@ -1,69 +1,20 @@
-import {
-  getCustomerTagAssignmentsForCustomerIdsFromConvex,
-  getTagsByIdsFromConvex,
-  type CustomerTagAssignmentRecord,
-} from "@tamias/app-data-convex";
+import type { Database } from "../../../client";
+import { getCustomerTagsByCustomerIdFromD1, requireCustomersD1 } from "../d1";
 import type { CustomerTag } from "../types";
 
-function groupCustomerTagAssignmentsByCustomerId(assignments: CustomerTagAssignmentRecord[]) {
-  const assignmentsByCustomerId = new Map<string, CustomerTagAssignmentRecord[]>();
-
-  for (const assignment of assignments) {
-    const current = assignmentsByCustomerId.get(assignment.customerId) ?? [];
-    current.push(assignment);
-    assignmentsByCustomerId.set(assignment.customerId, current);
-  }
-
-  return assignmentsByCustomerId;
-}
-
-async function getCustomerTagsByCustomerId(teamId: string, customerIds: string[]) {
+async function getCustomerTagsByCustomerId(db: Database, teamId: string, customerIds: string[]) {
   if (customerIds.length === 0) {
     return new Map<string, CustomerTag[]>();
   }
 
-  const assignments = await getCustomerTagAssignmentsForCustomerIdsFromConvex({
+  return getCustomerTagsByCustomerIdFromD1(requireCustomersD1(db), {
     teamId,
     customerIds,
   });
-
-  if (assignments.length === 0) {
-    return new Map<string, CustomerTag[]>();
-  }
-
-  const assignmentsByCustomerId = groupCustomerTagAssignmentsByCustomerId(assignments);
-  const tagIds = [...new Set(assignments.map((assignment) => assignment.tagId))];
-  const tagRows = await getTagsByIdsFromConvex({
-    teamId,
-    tagIds,
-  });
-  const tagNameById = new Map(tagRows.map((tag) => [tag.id, tag.name]));
-  const tagsByCustomerId = new Map<string, CustomerTag[]>();
-
-  for (const [customerId, customerAssignments] of assignmentsByCustomerId) {
-    const customerTags = customerAssignments
-      .map((assignment) => {
-        const name = tagNameById.get(assignment.tagId);
-
-        if (!name) {
-          return null;
-        }
-
-        return {
-          id: assignment.tagId,
-          name,
-        };
-      })
-      .filter((tag): tag is CustomerTag => tag !== null)
-      .sort((left, right) => left.name.localeCompare(right.name));
-
-    tagsByCustomerId.set(customerId, customerTags);
-  }
-
-  return tagsByCustomerId;
 }
 
 export async function attachCustomerTags<T extends { id: string }>(
+  db: Database,
   teamId: string,
   rows: T[],
 ): Promise<Array<T & { tags: CustomerTag[] }>> {
@@ -72,6 +23,7 @@ export async function attachCustomerTags<T extends { id: string }>(
   }
 
   const tagsByCustomerId = await getCustomerTagsByCustomerId(
+    db,
     teamId,
     rows.map((row) => row.id),
   );

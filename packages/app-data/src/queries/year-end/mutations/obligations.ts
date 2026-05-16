@@ -1,10 +1,10 @@
-import { listComplianceObligationsFromConvex } from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
+import { listComplianceObligationRecords } from "../../compliance/filings";
 import { getYearEndMutationContext } from "./common";
 
 export async function listAnnualObligations(db: Database, params: { teamId: string }) {
   const context = await getYearEndMutationContext(db, params.teamId);
-  const obligations = await listComplianceObligationsFromConvex({
+  const obligations = await listComplianceObligationRecords(db, {
     teamId: params.teamId,
   });
 

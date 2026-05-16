@@ -1,5 +1,10 @@
-import { createAsyncRunInConvex, updateAsyncRunInConvex } from "@tamias/app-data-convex";
-import { getTeamById, refreshTeamBaseCurrencyData, updateTeamById } from "@tamias/app-data/queries";
+import {
+  createAsyncRun,
+  getTeamById,
+  refreshTeamBaseCurrencyData,
+  updateAsyncRun,
+  updateTeamById,
+} from "@tamias/app-data/queries";
 import { enqueue } from "@tamias/job-client";
 import { updateBaseCurrencySchema, updateTeamByIdSchema } from "../../schemas/team";
 import { protectedProcedure } from "../init";
@@ -21,7 +26,7 @@ export const teamSettingProcedures = {
       const team = await getTeamById(db, teamId!);
 
       if ((team?.baseCurrency ?? "").toUpperCase() === normalizedBaseCurrency) {
-        const asyncRun = await createAsyncRunInConvex({
+        const asyncRun = await createAsyncRun({
           publicTeamId: teamId!,
           provider: "cloudflare-queue",
           kind: "job",
@@ -42,7 +47,7 @@ export const teamSettingProcedures = {
             baseCurrency: normalizedBaseCurrency,
           });
 
-          await updateAsyncRunInConvex({
+          await updateAsyncRun({
             runId: asyncRun.id,
             status: "completed",
             progress: 100,
@@ -51,7 +56,7 @@ export const teamSettingProcedures = {
             completedAt: new Date().toISOString(),
           });
         } catch (error) {
-          await updateAsyncRunInConvex({
+          await updateAsyncRun({
             runId: asyncRun.id,
             status: "failed",
             error: error instanceof Error ? error.message : String(error),

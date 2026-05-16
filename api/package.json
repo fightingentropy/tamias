@@ -25,7 +25,6 @@
     "@tamias/contracts": "workspace:*",
     "@tamias/ai-artifacts": "workspace:*",
     "@tamias/app-data": "workspace:*",
-    "@tamias/app-data-convex": "workspace:*",
     "@tamias/app-services": "workspace:*",
     "@tamias/app-store": "workspace:*",
     "@tamias/auth-session": "workspace:*",

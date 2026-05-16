@@ -13,12 +13,12 @@ export type OverdueInvoiceDetail = {
 };
 
 export async function getOverdueInvoiceDetails(
-  _db: Database,
+  db: Database,
   params: { teamId: string; currency?: string },
 ): Promise<OverdueInvoiceDetail[]> {
   const { teamId, currency } = params;
   const result = (
-    await getProjectedInvoicesByFilters({
+    await getProjectedInvoicesByFilters(db, {
       teamId,
       statuses: ["overdue"],
       currency,
@@ -69,7 +69,7 @@ export async function getOverdueInvoicesWithBehavior(
   const behaviorByCustomer = new Map<string, { avgDays: number; count: number }>();
   const paidDaysByCustomer = new Map<string, number[]>();
 
-  for (const invoice of await getProjectedInvoicesByFilters({
+  for (const invoice of await getProjectedInvoicesByFilters(db, {
     teamId,
     statuses: ["paid"],
     currency,

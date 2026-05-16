@@ -1,9 +1,10 @@
+import type { Database } from "../../../client";
 import {
-  getDocumentsByIdsFromConvex,
-  getDocumentsPageFromConvex,
-  searchDocumentsFromConvex,
+  getDocumentsByIds,
+  getDocumentsPage,
+  searchDocuments,
   type DocumentRecord,
-} from "@tamias/app-data-convex";
+} from "../records";
 import { isFolderPlaceholder, normalizeText } from "./text";
 
 function tokenizeDocumentText(document: Partial<DocumentRecord>) {
@@ -43,12 +44,15 @@ function getRelatedDocumentSearchQueries(document: Partial<DocumentRecord>) {
     .filter((value, index, values) => value.length >= 3 && values.indexOf(value) === index);
 }
 
-export async function getRecentDocumentsPage(args: { teamId: string; limit: number }) {
+export async function getRecentDocumentsPage(
+  db: Database,
+  args: { teamId: string; limit: number },
+) {
   const documents: DocumentRecord[] = [];
   let cursor: string | null = null;
 
   while (documents.length < args.limit) {
-    const result = await getDocumentsPageFromConvex({
+    const result = await getDocumentsPage(db, {
       teamId: args.teamId,
       cursor,
       pageSize: Math.max(args.limit * 2, 20),
@@ -68,12 +72,13 @@ export async function getRecentDocumentsPage(args: { teamId: string; limit: numb
 }
 
 export async function getDocumentSearchCandidates(args: {
+  db: Database;
   teamId: string;
   query: string;
   limit: number;
 }) {
   return (
-    await searchDocumentsFromConvex({
+    await searchDocuments(args.db, {
       teamId: args.teamId,
       query: args.query,
       limit: args.limit,
@@ -84,6 +89,7 @@ export async function getDocumentSearchCandidates(args: {
 }
 
 export async function getRelatedDocumentCandidates(args: {
+  db: Database;
   teamId: string;
   source: DocumentRecord;
   pageSize: number;
@@ -96,7 +102,7 @@ export async function getRelatedDocumentCandidates(args: {
 
   const searchResults = await Promise.all(
     queries.map((query) =>
-      searchDocumentsFromConvex({
+      searchDocuments(args.db, {
         teamId: args.teamId,
         query,
         limit: Math.max(args.pageSize * 4, 20),
@@ -115,7 +121,10 @@ export async function getRelatedDocumentCandidates(args: {
   ];
 }
 
-export async function getDocumentsByIdsInOrder(args: { teamId: string; documentIds: string[] }) {
+export async function getDocumentsByIdsInOrder(
+  db: Database,
+  args: { teamId: string; documentIds: string[] },
+) {
   if (args.documentIds.length === 0) {
     return [];
   }
@@ -127,7 +136,7 @@ export async function getDocumentsByIdsInOrder(args: { teamId: string; documentI
           length: Math.ceil(args.documentIds.length / 200),
         },
         (_, index) =>
-          getDocumentsByIdsFromConvex({
+          getDocumentsByIds(db, {
             teamId: args.teamId,
             documentIds: args.documentIds.slice(index * 200, (index + 1) * 200),
           }),

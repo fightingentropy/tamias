@@ -1,13 +1,16 @@
 import { roundCurrency } from "@tamias/compliance";
-import type { CorporationTaxAdjustmentRecord } from "@tamias/app-data-convex";
 import type { AnnualPeriod, CorporationTaxSummary, SummaryLine } from "../types";
 import { buildCorporationTaxRateSummary } from "../tax";
+import type {
+  CorporationTaxAdjustmentRecord,
+  CorporationTaxRateScheduleRecord,
+} from "../tax-schedules";
 
 export function buildCorporationTaxSummary(
   period: AnnualPeriod,
   profitAndLoss: SummaryLine[],
   adjustments: CorporationTaxAdjustmentRecord[],
-  rateSchedule?: import("@tamias/app-data-convex").CorporationTaxRateScheduleRecord | null,
+  rateSchedule?: CorporationTaxRateScheduleRecord | null,
 ): CorporationTaxSummary {
   const accountingProfitBeforeTax =
     profitAndLoss.find((line) => line.key === "profit_before_tax")?.amount ?? 0;

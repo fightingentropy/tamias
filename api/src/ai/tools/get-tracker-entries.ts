@@ -1,5 +1,4 @@
 import { db } from "@tamias/app-data/client";
-import type { CurrentUserIdentityRecord } from "@tamias/app-data-convex";
 import { getTrackerRecordsByRange } from "@tamias/app-data/queries";
 import { getAppUrl } from "@tamias/utils/envs";
 import { formatDate } from "@tamias/utils/format";
@@ -7,8 +6,6 @@ import { tool } from "ai";
 import { formatDistance } from "date-fns";
 import { z } from "zod";
 import { getToolAppContext, getToolTeamId } from "../utils/tool-runtime";
-
-type ConvexUserId = CurrentUserIdentityRecord["convexId"];
 
 const getTrackerEntriesSchema = z.object({
   from: z.string().describe("Start date (ISO 8601)"),
@@ -38,7 +35,7 @@ export const getTrackerEntriesTool = tool({
         from,
         to,
         projectId: projectId ?? undefined,
-        userId: (userId as ConvexUserId | null | undefined) ?? undefined,
+        userId: userId ?? undefined,
       };
 
       const result = await getTrackerRecordsByRange(db, params);

@@ -1,6 +1,5 @@
 export * from "./auth";
 export * from "./billing";
-export * from "./chat-feedback";
 export * from "./chat-memory";
 export * from "./compliance";
 export * from "./foundation";

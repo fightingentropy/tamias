@@ -1,7 +1,7 @@
 import type { WorkflowStep } from "cloudflare:workers";
 import { enqueue, getRunStatus, scheduleRecurring } from "@tamias/job-client";
 import { generateCronTag } from "../utils/generate-cron-tag";
-import type { CloudflareWorkflowPayload } from "./bridge-helpers";
+import type { CloudflareWorkflowPayload } from "./async-helpers";
 import { updateRunStatus } from "./shared";
 
 export async function runTeamCancellationWorkflow(

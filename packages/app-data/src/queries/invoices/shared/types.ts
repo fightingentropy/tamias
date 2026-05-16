@@ -1,8 +1,8 @@
-import type { CurrentUserIdentityRecord } from "@tamias/app-data-convex";
 import type { EditorDoc, LineItem } from "@tamias/invoice/types";
 import { type InvoiceStatus, type Template } from "../../invoice-projections";
+import type { CurrentUserIdentityRecord } from "../../teams/shared";
 
-export type InvoiceConvexUserId = CurrentUserIdentityRecord["convexId"];
+export type InvoiceUserId = CurrentUserIdentityRecord["id"];
 
 export type InvoiceRecurringFrequency =
   | "weekly"
@@ -166,5 +166,5 @@ export type DraftInvoiceParams = {
   lineItems?: DraftInvoiceLineItemParams[];
   token?: string;
   teamId: string;
-  userId: InvoiceConvexUserId;
+  userId: InvoiceUserId;
 };

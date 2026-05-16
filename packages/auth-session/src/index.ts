@@ -1,48 +1,51 @@
-import { createRemoteJWKSet, type JWTPayload, jwtVerify } from "jose";
-import type { Id } from "@tamias/app-data-convex/data-model";
+import { SignJWT, type JWTPayload, jwtVerify } from "jose";
 import { expandScopes } from "./scopes";
 import { safeCompare } from "./safe-compare";
 
-type ConvexUserId = Id<"appUsers">;
-type ConvexTeamId = Id<"teams">;
+type UserId = string;
+type TeamId = string;
 
 export type Session = {
   user: {
-    id: ConvexUserId;
-    convexId?: ConvexUserId;
+    id: UserId;
     email?: string;
     full_name?: string;
   };
   teamId?: string;
-  convexTeamId?: ConvexTeamId;
   teamMembershipIds?: string[];
-  convexTeamMembershipIds?: ConvexTeamId[];
 };
 
 export type AuthIdentity = {
+  subject?: string;
   email?: string;
   full_name?: string;
+  avatar_url?: string;
+  session_id?: string;
 };
 
-type ConvexJWTPayload = JWTPayload & {
+type AuthJWTPayload = JWTPayload & {
   email?: string;
   name?: string;
+  picture?: string;
+  sid?: string;
 };
 
 export type SessionUserRecord = {
-  convexId: ConvexUserId;
+  id: UserId;
   email?: string | null;
   fullName?: string | null;
+  avatarUrl?: string | null;
   teamId?: string | null;
-  convexTeamId?: ConvexTeamId | null;
 };
 
 export type SessionResolverDependencies = {
-  getSessionFromConvex(accessToken?: string): Promise<Session | null>;
-  ensureCurrentAppUser(accessToken?: string): Promise<SessionUserRecord | null>;
-  getTeamMembershipIds(args: { userId?: ConvexUserId; email?: string | null }): Promise<string[]>;
+  ensureCurrentUser(
+    accessToken?: string,
+    identity?: AuthIdentity | null,
+  ): Promise<SessionUserRecord | null>;
+  getTeamMembershipIds(args: { userId?: UserId; email?: string | null }): Promise<string[]>;
   getCurrentUser(args: {
-    userId?: ConvexUserId;
+    userId?: UserId;
     email?: string | null;
   }): Promise<SessionUserRecord | null>;
 };
@@ -53,8 +56,7 @@ type OAuthApplicationRecord = {
 };
 
 type OAuthTokenUserRecord = {
-  id: ConvexUserId;
-  convexId?: ConvexUserId | null;
+  id: UserId;
   email?: string | null;
   fullName?: string | null;
 };
@@ -62,7 +64,6 @@ type OAuthTokenUserRecord = {
 export type OAuthAccessTokenRecord = {
   id: string;
   teamId: string;
-  convexTeamId?: ConvexTeamId | null;
   scopes?: string[] | null;
   applicationId: string;
   application?: OAuthApplicationRecord | null;
@@ -72,7 +73,6 @@ export type OAuthAccessTokenRecord = {
 export type ApiKeyRecord = {
   id: string;
   teamId: string;
-  convexTeamId?: ConvexTeamId | null;
   scopes?: string[] | null;
   user?: OAuthTokenUserRecord | null;
 };
@@ -96,14 +96,24 @@ export type RequestAuthResult = {
 export const DASHBOARD_AUTH_HEADER = "x-dashboard-key";
 export const TRUSTED_SESSION_HEADER = "x-trusted-session";
 
-const convexJwksByIssuer = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
+const DEFAULT_ACCESS_TOKEN_ISSUER = "tamias-auth";
 
-function getDefaultAccessTokenIssuer() {
-  return (
-    process.env.CONVEX_SITE_URL ||
-    process.env.CONVEX_URL ||
-    process.env.TAMIAS_CONVEX_URL
-  )?.replace(/\/$/, "");
+function getAccessTokenIssuer() {
+  return (process.env.TAMIAS_AUTH_ISSUER || DEFAULT_ACCESS_TOKEN_ISSUER).replace(/\/$/, "");
+}
+
+function getAccessTokenSecret() {
+  const secret =
+    process.env.TAMIAS_AUTH_SECRET ||
+    process.env.INTERNAL_API_KEY ||
+    process.env.FILE_KEY_SECRET ||
+    process.env.INVOICE_JWT_SECRET;
+
+  if (!secret) {
+    throw new Error("TAMIAS_AUTH_SECRET or INTERNAL_API_KEY is required for auth tokens");
+  }
+
+  return new TextEncoder().encode(secret);
 }
 
 function getHeader(headers: Headers | Record<string, string | undefined>, name: string) {
@@ -123,36 +133,59 @@ function getHeader(headers: Headers | Record<string, string | undefined>, name: 
 }
 
 function toSessionUserRecord(record: SessionUserRecord, identity: AuthIdentity | null) {
+  const userId = record.id;
+
   return {
-    id: record.convexId,
-    convexId: record.convexId,
+    id: userId,
     email: record.email ?? identity?.email ?? undefined,
     full_name: record.fullName ?? identity?.full_name,
   };
 }
 
+export async function createAccessToken(
+  user: {
+    id: string;
+    email?: string | null;
+    fullName?: string | null;
+    avatarUrl?: string | null;
+  },
+  options: {
+    sessionId: string;
+    expiresIn?: string | number;
+  },
+) {
+  return new SignJWT({
+    email: user.email ?? undefined,
+    name: user.fullName ?? undefined,
+    picture: user.avatarUrl ?? undefined,
+    sid: options.sessionId,
+  })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuer(getAccessTokenIssuer())
+    .setSubject(user.id)
+    .setIssuedAt()
+    .setExpirationTime(options.expiresIn ?? "15m")
+    .sign(getAccessTokenSecret());
+}
+
 export async function verifyAccessToken(
   accessToken?: string,
-  issuer = getDefaultAccessTokenIssuer(),
+  issuer = getAccessTokenIssuer(),
 ): Promise<AuthIdentity | null> {
   if (!accessToken || !issuer) {
     return null;
   }
 
   try {
-    let jwks = convexJwksByIssuer.get(issuer);
-
-    if (!jwks) {
-      jwks = createRemoteJWKSet(new URL(`${issuer}/.well-known/jwks.json`));
-      convexJwksByIssuer.set(issuer, jwks);
-    }
-
-    const { payload } = await jwtVerify(accessToken, jwks, { issuer });
-    const convexPayload = payload as ConvexJWTPayload;
+    const { payload } = await jwtVerify(accessToken, getAccessTokenSecret(), { issuer });
+    const authPayload = payload as AuthJWTPayload;
 
     return {
-      email: convexPayload.email,
-      full_name: convexPayload.name,
+      subject: authPayload.sub,
+      email: authPayload.email,
+      full_name: authPayload.name,
+      avatar_url: authPayload.picture,
+      session_id: authPayload.sid,
     };
   } catch {
     return null;
@@ -164,23 +197,16 @@ export async function resolveSession(
   identity: AuthIdentity | null,
   accessToken?: string,
 ): Promise<Session | null> {
-  const convexSession = await dependencies.getSessionFromConvex(accessToken);
+  const ensuredUser = await dependencies.ensureCurrentUser(accessToken, identity);
 
-  if (convexSession?.user.id) {
-    return convexSession;
-  }
-
-  const ensuredUser = await dependencies.ensureCurrentAppUser(accessToken);
-
-  if (ensuredUser?.convexId) {
+  if (ensuredUser?.id) {
     const teamMembershipIds = await dependencies.getTeamMembershipIds({
-      userId: ensuredUser.convexId,
+      userId: ensuredUser.id,
       email: ensuredUser.email ?? identity?.email ?? null,
     });
 
     return {
       teamId: ensuredUser.teamId ?? undefined,
-      convexTeamId: ensuredUser.convexTeamId ?? undefined,
       teamMembershipIds,
       user: toSessionUserRecord(ensuredUser, identity),
     };
@@ -194,18 +220,17 @@ export async function resolveSession(
     email: identity.email,
   });
 
-  if (!user?.convexId) {
+  if (!user?.id) {
     return null;
   }
 
   const teamMembershipIds = await dependencies.getTeamMembershipIds({
-    userId: user.convexId,
+    userId: user.id,
     email: user.email ?? identity.email,
   });
 
   return {
     teamId: user.teamId ?? undefined,
-    convexTeamId: user.convexTeamId ?? undefined,
     teamMembershipIds,
     user: toSessionUserRecord(user, identity),
   };
@@ -335,10 +360,8 @@ export async function resolveRequestAuth(
     return {
       session: {
         teamId: tokenData.teamId,
-        convexTeamId: tokenData.convexTeamId ?? undefined,
         user: {
           id: tokenData.user.id,
-          convexId: tokenData.user.convexId ?? undefined,
           email: tokenData.user.email ?? undefined,
           full_name: tokenData.user.fullName ?? undefined,
         },
@@ -374,10 +397,8 @@ export async function resolveRequestAuth(
   return {
     session: {
       teamId: apiKey.teamId,
-      convexTeamId: apiKey.convexTeamId ?? undefined,
       user: {
         id: apiKey.user.id,
-        convexId: apiKey.user.convexId ?? undefined,
         email: apiKey.user.email ?? undefined,
         full_name: apiKey.user.fullName ?? undefined,
       },

@@ -10,8 +10,7 @@
   },
   "scripts": {
     "test": "bun test --exit src",
-    "typecheck": "tsc --noEmit",
-    "generate-insight": "bun run scripts/generate-test-insight.ts"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@ai-sdk/google": "catalog:",
@@ -21,7 +20,6 @@
     "@tamias/app-store": "workspace:*",
     "@tamias/banking": "workspace:*",
     "@tamias/app-data": "workspace:*",
-    "@tamias/app-data-convex": "workspace:*",
     "@tamias/documents": "workspace:*",
     "@tamias/email": "workspace:*",
     "@tamias/import": "workspace:*",

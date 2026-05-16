@@ -1,11 +1,12 @@
 import { getBankConnections } from "@tamias/app-data/queries";
 import { enqueue } from "@tamias/job-client";
 import { createLoggerWithContext } from "@tamias/logger";
+import { getDb } from "../utils/db";
 
 const logger = createLoggerWithContext("worker:cloudflare:bank-sync-scheduler");
 
 export async function runBankSyncScheduler(teamId: string) {
-  const connections = await getBankConnections(undefined as never, {
+  const connections = await getBankConnections(getDb(), {
     teamId,
   });
 

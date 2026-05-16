@@ -15,7 +15,6 @@ const baseSession: Session = {
   teamId: "team_123",
   user: {
     id: "user_123" as Session["user"]["id"],
-    convexId: "user_123" as Session["user"]["convexId"],
     email: "user@example.com",
     full_name: "User Example",
   },
@@ -65,12 +64,12 @@ describe("resolveRequestAuth", () => {
 
     const result = await resolveRequestAuth(
       {
-        authorization: "Bearer convex-jwt",
+        authorization: "Bearer first-party-jwt",
       },
       dependencies,
     );
 
-    expect(dependencies.resolveUserSession).toHaveBeenCalledWith("convex-jwt");
+    expect(dependencies.resolveUserSession).toHaveBeenCalledWith("first-party-jwt");
     expect(result.session).toEqual(baseSession);
     expect(result.teamId).toBe("team_123");
   });

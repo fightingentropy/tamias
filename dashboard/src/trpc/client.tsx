@@ -18,6 +18,33 @@ const trpcBrowserConsole = {
   warn: (...args: unknown[]) => console.warn(...args),
 };
 
+async function trpcFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  const response = await fetch(input, init);
+  const contentType = response.headers.get("content-type") ?? "";
+
+  if (contentType.includes("application/json")) {
+    return response;
+  }
+
+  const status = response.ok ? 502 : response.status;
+
+  return new Response(
+    JSON.stringify({
+      error: {
+        json: {
+          message: `Upstream non-JSON response: HTTP ${response.status}`,
+          code: -32603,
+          data: { code: "INTERNAL_SERVER_ERROR", httpStatus: status },
+        },
+      },
+    }),
+    {
+      status,
+      headers: { "content-type": "application/json" },
+    },
+  );
+}
+
 export function useTRPC() {
   const trpc = useContext(TRPCContext);
 
@@ -65,7 +92,7 @@ export function TRPCReactProvider(
           httpBatchLink({
             url: `${apiUrl}/trpc`,
             transformer: superjson,
-            fetch,
+            fetch: trpcFetch,
             headers() {
               const headers: Record<string, string> = {};
 

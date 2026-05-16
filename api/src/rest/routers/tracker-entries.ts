@@ -1,5 +1,4 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
-import type { CurrentUserIdentityRecord } from "@tamias/app-data-convex";
 import {
   bulkCreateTrackerEntries,
   deleteTrackerEntry,
@@ -30,7 +29,6 @@ import { withRequiredScope } from "../middleware";
 import type { Context } from "../types";
 
 const app = new OpenAPIHono<Context>();
-type ConvexUserId = CurrentUserIdentityRecord["convexId"];
 
 app.openapi(
   createRoute({
@@ -104,11 +102,11 @@ app.openapi(
     const teamId = c.get("teamId");
     const session = c.get("session");
     const { assignedId, ...rest } = c.req.valid("json");
-    const finalAssignedId = (assignedId ?? session.user.id) as ConvexUserId;
+    const finalAssignedId = assignedId ?? session.user.id;
 
     const result = await upsertTrackerEntries(db, {
       teamId,
-      activityUserId: session.user.convexId ?? undefined,
+      activityUserId: session.user.id,
       assignedId: finalAssignedId,
       ...rest,
     });
@@ -163,7 +161,7 @@ app.openapi(
     const result = await bulkCreateTrackerEntries(db, {
       teamId,
       entries: entries.map(({ assignedId, ...rest }) => ({
-        assignedId: (assignedId ?? session.user.id) as ConvexUserId,
+        assignedId: assignedId ?? session.user.id,
         ...rest,
       })),
     });
@@ -218,10 +216,10 @@ app.openapi(
     const result = await upsertTrackerEntries(db, {
       id,
       teamId,
-      activityUserId: session.user.convexId ?? undefined,
+      activityUserId: session.user.id,
       ...rest,
       ...(assignedId !== undefined && {
-        assignedId: assignedId as ConvexUserId,
+        assignedId,
       }),
     });
 
@@ -306,7 +304,7 @@ app.openapi(
     const teamId = c.get("teamId");
     const session = c.get("session");
     const { assignedId, ...rest } = c.req.valid("json");
-    const finalAssignedId = (assignedId ?? session.user.id) as ConvexUserId;
+    const finalAssignedId = assignedId ?? session.user.id;
 
     const result = await startTimer(db, {
       teamId,
@@ -353,7 +351,7 @@ app.openapi(
     const teamId = c.get("teamId");
     const session = c.get("session");
     const { assignedId, ...rest } = c.req.valid("json");
-    const finalAssignedId = (assignedId ?? session.user.id) as ConvexUserId;
+    const finalAssignedId = assignedId ?? session.user.id;
 
     const result = await stopTimer(db, {
       teamId,
@@ -394,7 +392,7 @@ app.openapi(
     const teamId = c.get("teamId");
     const session = c.get("session");
     const { assignedId } = c.req.valid("query");
-    const finalAssignedId = (assignedId ?? session.user.id) as ConvexUserId;
+    const finalAssignedId = assignedId ?? session.user.id;
 
     const result = await getCurrentTimer(db, {
       teamId,
@@ -434,7 +432,7 @@ app.openapi(
     const teamId = c.get("teamId");
     const session = c.get("session");
     const { assignedId } = c.req.valid("query");
-    const finalAssignedId = (assignedId ?? session.user.id) as ConvexUserId;
+    const finalAssignedId = assignedId ?? session.user.id;
 
     const result = await getTimerStatus(db, {
       teamId,

@@ -14,8 +14,8 @@ export async function getInboxPage(args: {
   });
 }
 
-export async function getInboxAccountsForTeam(teamId: string) {
-  return getInboxAccounts(teamId);
+export async function getInboxAccountsForTeam(teamId: string, db?: Database) {
+  return getInboxAccounts(teamId, db);
 }
 
 export async function getInboxItemForTeam(args: { db: Database; teamId: string; inboxId: string }) {

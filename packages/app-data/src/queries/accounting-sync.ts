@@ -1,4 +1,8 @@
-export type { AccountingSyncRecord } from "@tamias/app-data-convex";
+export type {
+  AccountingSyncProvider,
+  AccountingSyncRecord,
+  AccountingSyncStatus,
+} from "./accounting-sync/records";
 
 export * from "./accounting-sync/attachment-changes";
 export * from "./accounting-sync/records";

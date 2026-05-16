@@ -23,6 +23,17 @@ import { SyncInboxAccount } from "./sync-inbox-account";
 
 type InboxAccount = NonNullable<RouterOutputs["inboxAccounts"]["get"]>[number];
 
+function getAttachmentsProcessed(result: unknown) {
+  if (!result || typeof result !== "object" || !("attachmentsProcessed" in result)) {
+    return 0;
+  }
+
+  const attachmentsProcessed = (result as { attachmentsProcessed?: unknown }).attachmentsProcessed;
+  return typeof attachmentsProcessed === "number" && Number.isFinite(attachmentsProcessed)
+    ? attachmentsProcessed
+    : 0;
+}
+
 function InboxAccountItem({ account }: { account: InboxAccount }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -74,8 +85,7 @@ function InboxAccountItem({ account }: { account: InboxAccount }) {
       setRunId(undefined);
       setSyncing(false);
 
-      // Show success toast with attachment count
-      const attachmentCount = result?.attachmentsProcessed || 0;
+      const attachmentCount = getAttachmentsProcessed(result);
       const description =
         attachmentCount > 0
           ? `Found ${attachmentCount} new ${attachmentCount === 1 ? "attachment" : "attachments"}.`

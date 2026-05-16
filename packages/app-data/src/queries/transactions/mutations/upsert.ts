@@ -1,9 +1,11 @@
-import {
-  getTransactionsByIdsFromConvex,
-  upsertTransactionsInConvex,
-} from "@tamias/app-data-convex";
 import type { Database } from "../../../client";
-import { toConvexTransactionInput } from "../shared";
+import { syncTransactionComplianceJournalEntries } from "../../compliance/ledger";
+import {
+  getTransactionsByIdsFromD1,
+  requireTransactionsD1,
+  upsertTransactionsInD1,
+} from "../d1";
+import { toTransactionUpsertInput } from "../shared";
 
 export type UpsertTransactionData = {
   name: string;
@@ -91,18 +93,23 @@ function buildUpsertTransactionInput(transaction: UpsertTransactionData) {
 }
 
 export async function upsertTransactions(
-  _db: Database,
+  db: Database,
   params: UpsertTransactionsParams,
 ): Promise<Array<{ id: string }>> {
   if (params.transactions.length === 0) {
     return [];
   }
 
-  const upserted = await upsertTransactionsInConvex({
+  const upserted = await upsertTransactionsInD1(requireTransactionsD1(db), {
     teamId: params.teamId,
     transactions: params.transactions.map((transaction) =>
       buildUpsertTransactionInput(transaction),
     ),
+  });
+
+  await syncTransactionComplianceJournalEntries(db, {
+    teamId: params.teamId,
+    transactions: upserted,
   });
 
   return upserted.map((transaction) => ({ id: transaction.id }));
@@ -122,19 +129,24 @@ export async function bulkUpdateTransactionsBaseCurrency(
     return;
   }
 
-  const currentTransactions = await getTransactionsByIdsFromConvex({
+  const currentTransactions = await getTransactionsByIdsFromD1(requireTransactionsD1(_db), {
     teamId,
     transactionIds: transactionsData.map((transaction) => transaction.id),
   });
   const updatesById = new Map(transactionsData.map((transaction) => [transaction.id, transaction]));
 
-  await upsertTransactionsInConvex({
+  const upserted = await upsertTransactionsInD1(requireTransactionsD1(_db), {
     teamId,
     transactions: currentTransactions.map((transaction) =>
-      toConvexTransactionInput(transaction, {
+      toTransactionUpsertInput(transaction, {
         baseAmount: updatesById.get(transaction.id)?.baseAmount ?? transaction.baseAmount,
         baseCurrency: updatesById.get(transaction.id)?.baseCurrency ?? transaction.baseCurrency,
       }),
     ),
+  });
+
+  await syncTransactionComplianceJournalEntries(_db, {
+    teamId,
+    transactions: upserted,
   });
 }

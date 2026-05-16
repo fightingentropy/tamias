@@ -1,11 +1,9 @@
-import { getConvexUrl } from "@tamias/utils/envs";
+import { getApiUrl } from "@tamias/utils/envs";
 import { redirect } from "@tanstack/react-router";
-import { getStartContext } from "@tanstack/start-storage-context";
-import { ConvexHttpClient } from "convex/browser";
-import type { FunctionReference, FunctionReturnType } from "convex/server";
-import { ConvexError } from "convex/values";
+import { createIsomorphicFn } from "@tanstack/react-start";
 import { serialize } from "cookie-es";
 import { jwtDecode } from "jwt-decode";
+import { getInternalApiFetch } from "@/start/server/cloudflare-context";
 import {
   type AuthCookieState,
   getAuthCookieNames,
@@ -23,7 +21,7 @@ export type RequestAuthContext = AuthCookieState & {
   cookieHeaders: string[];
 };
 
-type ConvexSignInResult =
+type AuthActionResult =
   | {
       redirect: string;
       verifier?: string;
@@ -52,48 +50,10 @@ export function createAnonymousRequestAuthContext(): RequestAuthContext {
   };
 }
 
-function requireConvexUrlForAuth(): string {
-  const url = getConvexUrl().trim();
-  if (!url) {
-    throw new Error(
-      "CONVEX_URL is not set. Add CONVEX_URL (and typically CONVEX_SITE_URL) to the repo root `.env`.",
-    );
-  }
-  return url;
-}
-
-function createConvexHttpClient(token?: string) {
-  const client = new ConvexHttpClient(requireConvexUrlForAuth(), {
-    logger: false,
-  });
-
-  if (token) {
-    client.setAuth(token);
-  }
-
-  (client as any).setFetchOptions?.({ cache: "no-store" });
-  return client;
-}
-
-async function fetchConvexAction<Action extends FunctionReference<"action">>(
-  action: Action,
-  args?: Record<string, unknown>,
-  opts?: { token?: string },
-): Promise<FunctionReturnType<Action>> {
-  return (createConvexHttpClient(opts?.token) as any).action(action, args ?? {});
-}
-
-function convexSignInErrorResponseBody(error: unknown) {
+function authActionErrorResponseBody(error: unknown) {
   if (process.env.NODE_ENV === "production") {
     return {
       error: error instanceof Error ? error.message : "Auth error",
-    };
-  }
-
-  if (error instanceof ConvexError) {
-    return {
-      error: error.message,
-      details: error.data,
     };
   }
 
@@ -107,6 +67,41 @@ function convexSignInErrorResponseBody(error: unknown) {
   }
 
   return { error: String(error) };
+}
+
+async function fetchAuthAction(
+  request: Request,
+  action: "auth:signIn" | "auth:signOut",
+  args?: Record<string, unknown>,
+  opts?: { token?: string },
+): Promise<AuthActionResult> {
+  const internalApiFetch = getInternalApiFetch();
+  const url = new URL("/auth", internalApiFetch ? request.url : getApiUrl()).toString();
+  const headers = new Headers({
+    "content-type": "application/json",
+  });
+
+  if (opts?.token) {
+    headers.set("authorization", `Bearer ${opts.token}`);
+  }
+
+  const requestInit: RequestInit = {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ action, args: args ?? {} }),
+  };
+  const response = internalApiFetch
+    ? await internalApiFetch(new Request(url, requestInit))
+    : await fetch(url, requestInit);
+  const body = (await response.json().catch(() => null)) as
+    | ({ error?: string } & AuthActionResult)
+    | null;
+
+  if (!response.ok) {
+    throw new Error(body?.error ?? `Auth request failed with HTTP ${response.status}`);
+  }
+
+  return (body ?? {}) as AuthActionResult;
 }
 
 function decodeToken(token: string) {
@@ -224,30 +219,41 @@ function isCrossOriginRequest(request: Request) {
   );
 }
 
-function getCurrentStartAuthContext() {
-  const startContext = getStartContext({ throwIfNotFound: false });
+const getCurrentStartAuthContext = createIsomorphicFn()
+  .client(() => undefined as RequestAuthContext | undefined)
+  .server(async () => {
+    const { getStartContext } = await import("@tanstack/start-storage-context");
+    const startContext = getStartContext({ throwIfNotFound: false });
 
-  return startContext?.contextAfterGlobalMiddlewares?.auth as RequestAuthContext | undefined;
-}
+    return startContext?.contextAfterGlobalMiddlewares?.auth as RequestAuthContext | undefined;
+  });
 
-export async function getConvexAuthToken() {
-  const authContext = getCurrentStartAuthContext();
+const getCurrentStartRequest = createIsomorphicFn()
+  .client(() => undefined as Request | undefined)
+  .server(async () => {
+    const { getStartContext } = await import("@tanstack/start-storage-context");
+    const startContext = getStartContext({ throwIfNotFound: false });
+
+    return startContext?.request as Request | undefined;
+  });
+
+export async function getAuthToken() {
+  const authContext = await getCurrentStartAuthContext();
 
   if (authContext) {
     return authContext.token ?? undefined;
   }
 
-  const startContext = getStartContext({ throwIfNotFound: false });
-
-  if (!startContext) {
+  const request = await getCurrentStartRequest();
+  if (!request) {
     return undefined;
   }
 
-  return readAuthCookiesFromRequest(startContext.request).token ?? undefined;
+  return readAuthCookiesFromRequest(request).token ?? undefined;
 }
 
 export async function isAuthenticated() {
-  return Boolean(await getConvexAuthToken());
+  return Boolean(await getAuthToken());
 }
 
 async function refreshTokensIfNeeded(
@@ -278,13 +284,14 @@ async function refreshTokensIfNeeded(
   }
 
   try {
-    const result = (await fetchConvexAction(
-      "auth:signIn" as any,
+    const result = await fetchAuthAction(
+      request,
+      "auth:signIn",
       {
         refreshToken: authState.refreshToken,
       },
       authState.token ? { token: authState.token } : undefined,
-    )) as ConvexSignInResult;
+    );
 
     if (result.tokens === undefined) {
       throw new Error("Invalid auth refresh response");
@@ -366,11 +373,12 @@ export async function proxyAuthActionRequest(request: Request) {
 
   try {
     if (action === "auth:signIn") {
-      const result = (await fetchConvexAction(
-        "auth:signIn" as any,
+      const result = await fetchAuthAction(
+        request,
+        "auth:signIn",
         args,
         token ? { token } : undefined,
-      )) as ConvexSignInResult;
+      );
 
       if (result.redirect) {
         const response = jsonResponse({ redirect: result.redirect });
@@ -397,14 +405,14 @@ export async function proxyAuthActionRequest(request: Request) {
       return jsonResponse(result);
     }
 
-    await fetchConvexAction("auth:signOut" as any, args, token ? { token } : undefined);
+    await fetchAuthAction(request, "auth:signOut", args, token ? { token } : undefined);
   } catch (error) {
     if (action === "auth:signIn") {
       if (process.env.NODE_ENV !== "production") {
-        console.error("[auth] Convex auth:signIn failed:", error);
+        console.error("[auth] auth:signIn failed:", error);
       }
 
-      const response = jsonResponse(convexSignInErrorResponseBody(error), 400);
+      const response = jsonResponse(authActionErrorResponseBody(error), 400);
       return appendCookieHeaders(response, buildAuthCookieHeaders(host, null, null));
     }
   }
@@ -418,27 +426,4 @@ export function middlewareRedirect(request: Request, route: string) {
     href: url.toString(),
     throw: true,
   });
-}
-
-export function convexAuthMiddleware<
-  THandler extends (
-    request: Request,
-    ctx: {
-      event: unknown;
-      convexAuth: { isAuthenticated: () => Promise<boolean> };
-    },
-  ) => Response | Promise<Response>,
->(handler?: THandler) {
-  return async (request: Request) => {
-    if (!handler) {
-      return new Response(null, { status: 200 });
-    }
-
-    return handler(request, {
-      event: undefined,
-      convexAuth: {
-        isAuthenticated: async () => Boolean(await getConvexAuthToken()),
-      },
-    });
-  };
 }

@@ -8,7 +8,7 @@ export const inboxNew: NotificationHandler<InboxNewInput> = {
 
   createActivity: (data, user) => ({
     teamId: user.team_id,
-    userId: user.convex_id,
+    userId: user.id,
     type: "inbox_new",
     source: "system",
     priority: 3,
@@ -28,7 +28,7 @@ export const inboxNew: NotificationHandler<InboxNewInput> = {
     ): Promise<Activity | null> => {
       return findRecentActivity(db, {
         teamId: user.team_id,
-        userId: user.convex_id,
+        userId: user.id,
         type: "inbox_new",
         timeWindowMinutes: 5,
       });

@@ -81,7 +81,7 @@ export async function updateInvoiceRecurring(
 
   const { nextCustomerId, nextCustomerName } = mergeNextCustomer(existing, params);
 
-  return upsertProjectedInvoiceRecurringRecord({
+  return upsertProjectedInvoiceRecurringRecord(db as DatabaseOrTransaction, {
     ...existing,
     updatedAt: new Date().toISOString(),
     customerId: nextCustomerId,

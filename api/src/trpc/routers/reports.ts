@@ -35,7 +35,6 @@ import {
 import {
   createTRPCRouter,
   protectedProcedure,
-  protectedWithConvexIdProcedure,
   publicProcedure,
 } from "../init";
 
@@ -135,7 +134,7 @@ export const reportsRouter = createTRPCRouter({
       });
     }),
 
-  create: protectedWithConvexIdProcedure
+  create: protectedProcedure
     .input(createReportSchema)
     .mutation(async ({ ctx: { db, teamId, session }, input }) => {
       const result = await createReport(db, {
@@ -144,7 +143,7 @@ export const reportsRouter = createTRPCRouter({
         to: input.to,
         currency: input.currency,
         teamId: teamId!,
-        createdByUserId: session.user.convexId,
+        createdByUserId: session.user.id,
         expireAt: input.expireAt,
       });
 
