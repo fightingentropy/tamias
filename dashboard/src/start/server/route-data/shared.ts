@@ -1,6 +1,10 @@
 import { dehydrate } from "@tanstack/react-query";
 import { redirect } from "@tanstack/react-router";
 import { getStartContext } from "@tanstack/start-storage-context";
+import {
+  DirectRouteDataError,
+  prefetchDirectShellData,
+} from "@/start/server/direct-data/shell";
 import { getQueryClient, trpc } from "@/trpc/server";
 import { hasCompletedOnboarding } from "@/utils/auth-routing";
 
@@ -101,6 +105,44 @@ export function isNotFoundQueryError(error: unknown) {
 
 export async function buildBaseAppShellState(opts?: { allowIncomplete?: boolean }) {
   const queryClient = getQueryClient();
+
+  try {
+    const directShellData = await prefetchDirectShellData(queryClient);
+
+    if (directShellData) {
+      const { user, team } = directShellData;
+
+      if (!user) {
+        throw redirect({
+          to: "/login",
+          throw: true,
+        });
+      }
+
+      if (!opts?.allowIncomplete && !hasCompletedOnboarding(user)) {
+        throw redirect({
+          to: "/onboarding",
+          throw: true,
+        });
+      }
+
+      return {
+        queryClient,
+        user,
+        team,
+      };
+    }
+  } catch (error) {
+    if (error instanceof DirectRouteDataError && error.data.code === "UNAUTHORIZED") {
+      throw redirect({
+        to: "/login",
+        throw: true,
+      });
+    }
+
+    throw error;
+  }
+
   const currentTeamQuery = trpc.team.current.queryOptions();
   const currentUserQuery = trpc.user.me.queryOptions();
   const [teamResult, userResult] = await Promise.allSettled([

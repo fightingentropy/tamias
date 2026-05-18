@@ -1,0 +1,120 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "tamias-documents-local",
+  "main": "./src/cloudflare/documents-service.ts",
+  "compatibility_date": "2026-03-28",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true,
+  },
+  "images": {
+    "binding": "IMAGES",
+    "remote": true,
+  },
+  "r2_buckets": [
+    {
+      "binding": "VAULT_BUCKET",
+      "bucket_name": "tamias-vault-local",
+    },
+  ],
+  "d1_databases": [
+    {
+      "binding": "APP_DB",
+      "database_name": "tamias-app-data-local",
+      "database_id": "2eee43fb-12b9-4cfe-90b5-af95250d1062",
+      "migrations_dir": "../api/migrations/d1",
+    },
+  ],
+  "send_email": [
+    {
+      "name": "EMAIL",
+    },
+  ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "CAPTURE_QUEUE",
+        "queue": "tamias-capture-local",
+      },
+      {
+        "binding": "DOCUMENTS_QUEUE",
+        "queue": "tamias-documents-local",
+      },
+      {
+        "binding": "LEDGER_QUEUE",
+        "queue": "tamias-ledger-local",
+      },
+    ],
+    "consumers": [
+      {
+        "queue": "tamias-documents-local",
+        "max_batch_size": 5,
+        "max_batch_timeout": 5,
+        "max_retries": 3,
+        "dead_letter_queue": "tamias-documents-dlq-local",
+      },
+    ],
+  },
+  "vars": {
+    "TAMIAS_ENVIRONMENT": "development",
+    "DASHBOARD_URL": "http://127.0.0.1:8787",
+    "WEBSITE_URL": "http://127.0.0.1:8787",
+    "API_URL": "http://127.0.0.1:8787",
+  },
+  "env": {
+    "production": {
+      "name": "tamias-documents",
+      "images": { "binding": "IMAGES", "remote": true },
+      "send_email": [
+        {
+          "name": "EMAIL",
+        },
+      ],
+      "queues": {
+        "producers": [
+          {
+            "binding": "CAPTURE_QUEUE",
+            "queue": "tamias-capture",
+          },
+          {
+            "binding": "DOCUMENTS_QUEUE",
+            "queue": "tamias-documents",
+          },
+          {
+            "binding": "LEDGER_QUEUE",
+            "queue": "tamias-ledger",
+          },
+        ],
+        "consumers": [
+          {
+            "queue": "tamias-documents",
+            "max_batch_size": 5,
+            "max_batch_timeout": 5,
+            "max_retries": 3,
+            "dead_letter_queue": "tamias-documents-dlq",
+          },
+        ],
+      },
+      "vars": {
+        "TAMIAS_ENVIRONMENT": "production",
+        "DASHBOARD_URL": "https://app.tamias.xyz",
+        "WEBSITE_URL": "https://tamias.xyz",
+        "API_URL": "https://api.tamias.xyz",
+      },
+      "r2_buckets": [
+        {
+          "binding": "VAULT_BUCKET",
+          "bucket_name": "tamias-vault",
+        },
+      ],
+      "d1_databases": [
+        {
+          "binding": "APP_DB",
+          "database_name": "tamias-app-data-production",
+          "database_id": "04abc5e2-fed9-4811-9b74-e16c1e708b9a",
+          "migrations_dir": "../api/migrations/d1",
+        },
+      ],
+    },
+  },
+}

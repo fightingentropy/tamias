@@ -2,9 +2,17 @@ import type { CloudflareAsyncMessage, CloudflareQueueGroup } from "./async-helpe
 
 export type CloudflareQueueBindingsEnv = {
   CAPTURE_QUEUE?: Queue<CloudflareAsyncMessage>;
+  DOCUMENTS_QUEUE?: Queue<CloudflareAsyncMessage>;
   LEDGER_QUEUE?: Queue<CloudflareAsyncMessage>;
 };
 
 export function getQueueBinding(env: CloudflareQueueBindingsEnv, queue: CloudflareQueueGroup) {
-  return queue === "capture" ? env.CAPTURE_QUEUE : env.LEDGER_QUEUE;
+  switch (queue) {
+    case "capture":
+      return env.CAPTURE_QUEUE;
+    case "documents":
+      return env.DOCUMENTS_QUEUE;
+    case "ledger":
+      return env.LEDGER_QUEUE;
+  }
 }

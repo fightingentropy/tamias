@@ -9,8 +9,6 @@ import {
   refreshAccessTokenInD1,
   revokeAccessTokenInD1,
 } from "@tamias/app-services/oauth";
-import { AppInstalledEmail } from "@tamias/email/emails/app-installed";
-import { render } from "@tamias/email/render";
 import { sendEmail } from "@tamias/email/send";
 import { createLoggerWithContext } from "@tamias/logger";
 import { getSupportFromDisplay } from "@tamias/utils/envs";
@@ -270,6 +268,11 @@ app.openapi(
         const teamName = await getOAuthTeamNameFromD1(teamId, db);
 
         if (teamName && session.user.email) {
+          const [{ AppInstalledEmail }, { render }] = await Promise.all([
+            import("@tamias/email/emails/app-installed"),
+            import("@tamias/email/render"),
+          ]);
+
           const html = await render(
             AppInstalledEmail({
               email: session.user.email,

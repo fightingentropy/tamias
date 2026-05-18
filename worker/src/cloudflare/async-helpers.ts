@@ -1,4 +1,4 @@
-export type CloudflareQueueGroup = "capture" | "ledger";
+export type CloudflareQueueGroup = "capture" | "ledger" | "documents";
 
 export type CloudflareAsyncMessage = {
   queue: CloudflareQueueGroup;
@@ -189,7 +189,7 @@ export function isSupportedCloudflareMessage(message: CloudflareAsyncMessage) {
     (message.queue === "capture" &&
       message.queueName === "inbox-provider" &&
       (message.jobName === "initial-setup" || message.jobName === "sync-scheduler")) ||
-    (message.queue === "capture" &&
+    (message.queue === "documents" &&
       message.queueName === "documents" &&
       (message.jobName === "process-document" ||
         message.jobName === "classify-image" ||

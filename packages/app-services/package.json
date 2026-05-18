@@ -33,7 +33,7 @@
     "@tamias/domain": "workspace:*",
     "@tamias/encryption": "workspace:*",
     "@tamias/plans": "workspace:*",
-    "@polar-sh/sdk": "^0.45.1",
+    "@polar-sh/sdk": "^0.46.7",
     "date-fns": "^4.1.0"
   },
   "devDependencies": {

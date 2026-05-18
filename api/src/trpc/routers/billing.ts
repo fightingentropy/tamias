@@ -12,7 +12,7 @@ import {
   createCheckoutSchema,
   getBillingOrdersSchema,
 } from "../../schemas/billing";
-import { api } from "../../utils/polar";
+import { getPolarApi } from "../../utils/polar";
 import { createTRPCRouter, protectedProcedure } from "../init";
 
 const logger = createLoggerWithContext("trpc:billing");
@@ -35,6 +35,7 @@ export const billingRouter = createTRPCRouter({
 
       const yearly = planType?.endsWith("_yearly") ?? false;
       const productId = getPlanProductId(plan, yearly);
+      const api = await getPolarApi();
 
       // Create Polar checkout
       const checkout = await api.checkouts.create({
@@ -68,6 +69,7 @@ export const billingRouter = createTRPCRouter({
     .input(z.string())
     .mutation(async ({ input: orderId, ctx: { teamId } }) => {
       try {
+        const api = await getPolarApi();
         const order = await api.orders.get({
           id: orderId,
         });
@@ -117,6 +119,7 @@ export const billingRouter = createTRPCRouter({
     .input(z.string())
     .query(async ({ input: orderId, ctx: { teamId } }) => {
       try {
+        const api = await getPolarApi();
         const order = await api.orders.get({
           id: orderId,
         });
@@ -159,6 +162,7 @@ export const billingRouter = createTRPCRouter({
   ),
 
   getPortalUrl: protectedProcedure.mutation(async ({ ctx: { teamId } }) => {
+    const api = await getPolarApi();
     const result = await api.customerSessions.create({
       externalCustomerId: teamId!,
     });
@@ -169,6 +173,7 @@ export const billingRouter = createTRPCRouter({
   cancelSubscription: protectedProcedure
     .input(cancelSubscriptionSchema)
     .mutation(async ({ input, ctx: { db, teamId } }) => {
+      const api = await getPolarApi();
       const subscriptions = await api.subscriptions.list({
         externalCustomerId: teamId!,
       });
@@ -226,6 +231,7 @@ export const billingRouter = createTRPCRouter({
     }),
 
   reactivateSubscription: protectedProcedure.mutation(async ({ ctx: { db, teamId } }) => {
+    const api = await getPolarApi();
     const subscriptions = await api.subscriptions.list({
       externalCustomerId: teamId!,
     });

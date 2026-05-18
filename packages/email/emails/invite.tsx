@@ -1,5 +1,11 @@
 import { getAppUrl } from "@tamias/utils/envs";
-import { Body, Container, Heading, Link, Preview, Section, Text } from "@react-email/components";
+import { Body } from "@react-email/body";
+import { Container } from "@react-email/container";
+import { Heading } from "@react-email/heading";
+import { Link } from "@react-email/link";
+import { Preview } from "@react-email/preview";
+import { Section } from "@react-email/section";
+import { Text } from "@react-email/text";
 import { Footer } from "../components/footer";
 import { Logo } from "../components/logo";
 import {

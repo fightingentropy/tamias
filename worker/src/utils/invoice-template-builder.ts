@@ -3,7 +3,7 @@
  * Centralizes template construction logic for consistency and maintainability.
  */
 
-import { DEFAULT_TEMPLATE_LABELS, DEFAULT_TEMPLATE_SETTINGS } from "@tamias/invoice";
+import { DEFAULT_TEMPLATE_LABELS, DEFAULT_TEMPLATE_SETTINGS } from "@tamias/invoice/defaults";
 
 /**
  * Invoice line item type

@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import darkPosterSrc from "@/assets/login/bg-login-dark.jpg";
-import posterSrc from "@/assets/login/bg-login.jpg";
-import videoSrc from "@/assets/login/login-video.mp4";
+import darkPosterSrc from "@/assets/login/bg-login-dark.webp";
+import posterSrc from "@/assets/login/bg-login.webp";
 
 const posterUrl = posterSrc.src;
 const darkPosterUrl = darkPosterSrc.src;
-const videoUrl = videoSrc.src;
+const videoUrl = "https://cdn.midday.ai/videos/login-video.mp4";
 
 function prefersReducedData() {
   if (typeof window === "undefined" || typeof window.matchMedia !== "function") {

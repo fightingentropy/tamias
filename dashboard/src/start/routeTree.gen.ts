@@ -238,7 +238,7 @@ const ITokenRoute = ITokenRouteImport.update({
   id: '/i/$token',
   path: '/i/$token',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any).lazy(() => import('./routes/i/$token.lazy').then((d) => d.Route))
 const ComplianceYearEndRoute = ComplianceYearEndRouteImport.update({
   id: '/compliance/year-end',
   path: '/compliance/year-end',

@@ -14,9 +14,6 @@ import {
   updateOAuthApplicationStatusInD1,
 } from "@tamias/app-services/oauth";
 import { getOAuthApplicationInfo } from "@tamias/app-services/oauth-application-info";
-import { AppInstalledEmail } from "@tamias/email/emails/app-installed";
-import { AppReviewRequestEmail } from "@tamias/email/emails/app-review-request";
-import { render } from "@tamias/email/render";
 import { sendEmail } from "@tamias/email/send";
 import { createLoggerWithContext } from "@tamias/logger";
 import { TRPCError } from "@trpc/server";
@@ -138,6 +135,11 @@ export const oauthApplicationsRouter = createTRPCRouter({
           const teamName = await getOAuthTeamNameFromD1(teamId, db);
 
           if (teamName && session.user.email) {
+            const [{ AppInstalledEmail }, { render }] = await Promise.all([
+              import("@tamias/email/emails/app-installed"),
+              import("@tamias/email/render"),
+            ]);
+
             const html = await render(
               AppInstalledEmail({
                 email: session.user.email,
@@ -323,6 +325,11 @@ export const oauthApplicationsRouter = createTRPCRouter({
           const teamName = await getOAuthTeamNameFromD1(teamId!, db);
 
           if (teamName && session.user.email) {
+            const [{ AppReviewRequestEmail }, { render }] = await Promise.all([
+              import("@tamias/email/emails/app-review-request"),
+              import("@tamias/email/render"),
+            ]);
+
             const html = await render(
               AppReviewRequestEmail({
                 applicationName: application.name,

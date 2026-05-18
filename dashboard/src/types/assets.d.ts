@@ -9,7 +9,7 @@ declare module "*.jpg" {
   export default asset;
 }
 
-declare module "*.mp4" {
+declare module "*.webp" {
   const asset: StaticAssetModule;
   export default asset;
 }

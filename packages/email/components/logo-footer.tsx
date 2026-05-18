@@ -1,5 +1,7 @@
 import { getEmailUrl } from "@tamias/utils/envs";
-import { Img, Link, Section } from "@react-email/components";
+import { Img } from "@react-email/img";
+import { Link } from "@react-email/link";
+import { Section } from "@react-email/section";
 
 const baseUrl = getEmailUrl();
 

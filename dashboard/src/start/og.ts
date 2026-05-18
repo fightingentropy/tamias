@@ -1,3 +1,5 @@
+import { getDashboardRequestContext } from "@/start/server/cloudflare-context";
+
 const HEDVIG_SANS_FONT_URL =
   "https://cdn.tamias.xyz/fonts/HedvigSans/HedvigLettersSans-Regular.ttf";
 const HEDVIG_SERIF_FONT_URL =
@@ -120,14 +122,28 @@ export function editorDocToLines(
 }
 
 export async function renderPngResponse(svg: string, cacheControl?: string) {
-  const { default: sharp } = await import("sharp");
-  const png = await sharp(new TextEncoder().encode(svg)).png().toBuffer();
+  const images = getDashboardRequestContext()?.cloudflare?.env?.IMAGES;
 
-  return new Response(new Uint8Array(png), {
-    headers: {
-      "content-type": "image/png",
-      ...(cacheControl ? { "cache-control": cacheControl } : {}),
-    },
+  if (!images) {
+    throw new Error("Cloudflare Images binding is required to render Open Graph PNGs.");
+  }
+
+  const result = await images
+    .input(new Blob([svg], { type: "image/svg+xml" }).stream())
+    .output({ format: "image/png" });
+  const response = result.response();
+  const headers = new Headers(response.headers);
+
+  headers.set("content-type", "image/png");
+
+  if (cacheControl) {
+    headers.set("cache-control", cacheControl);
+  }
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
   });
 }
 

@@ -1,7 +1,7 @@
 import { getInvoiceById, updateInvoice } from "@tamias/app-data/queries";
-import { PdfTemplate, renderToBuffer } from "@tamias/invoice";
 import { enqueue } from "@tamias/job-client";
 import { uploadVaultFile } from "@tamias/storage";
+import { renderInvoicePdfInDocumentsWorker } from "../../cloudflare/documents-client";
 import type { WorkerJob as Job } from "../../types/job";
 import type { GenerateInvoicePayload } from "../../schemas/invoices";
 import { getDb } from "../../utils/db";
@@ -35,8 +35,8 @@ export class GenerateInvoiceProcessor extends BaseProcessor<GenerateInvoicePaylo
 
     this.logger.debug("Generating PDF", { invoiceId });
 
-    // Generate PDF buffer
-    const buffer = await renderToBuffer(await PdfTemplate(invoice));
+    // Generate PDF in the documents Worker so ledger jobs do not load the React PDF renderer.
+    const buffer = await renderInvoicePdfInDocumentsWorker(invoice);
 
     const filename = `${invoiceData.invoiceNumber}.pdf`;
     const fullPath = `${invoiceData.teamId}/invoices/${filename}`;
@@ -44,14 +44,14 @@ export class GenerateInvoiceProcessor extends BaseProcessor<GenerateInvoicePaylo
     this.logger.debug("Uploading PDF to storage", {
       invoiceId,
       fullPath,
-      fileSize: buffer.length,
+      fileSize: buffer.byteLength,
     });
 
     const { error: uploadError } = await uploadVaultFile({
       path: fullPath,
       blob: buffer,
       contentType: "application/pdf",
-      size: buffer.length,
+      size: buffer.byteLength,
       upsert: true,
     });
 
@@ -70,7 +70,7 @@ export class GenerateInvoiceProcessor extends BaseProcessor<GenerateInvoicePaylo
       id: invoiceId,
       teamId: invoiceData.teamId,
       filePath: [invoiceData.teamId, "invoices", filename],
-      fileSize: buffer.length,
+      fileSize: buffer.byteLength,
     });
 
     if (!updated) {

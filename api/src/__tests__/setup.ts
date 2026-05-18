@@ -465,7 +465,7 @@ mock.module("@tamias/import", () => ({
   extractRevolutStatementFromText: mock(() => null),
 }));
 
-// Mock @tamias/invoice
+// Mock @tamias/invoice subpaths
 mock.module("@tamias/invoice/calculate", () => ({
   calculateTotal: mock(({ lineItems }: { lineItems: any[] }) => ({
     subTotal: lineItems.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0),
@@ -491,7 +491,7 @@ mock.module("@tamias/invoice/token", () => ({
   verify: mock(() => ({ id: "invoice-123", teamId: "test-team-id" })),
 }));
 
-mock.module("@tamias/invoice", () => ({
+mock.module("@tamias/invoice/defaults", () => ({
   DEFAULT_TEMPLATE: {},
 }));
 

@@ -1,41 +1,5 @@
-import {
-  PDF_STATEMENT_CSV_COLUMNS,
-  PDF_STATEMENT_EXTRACTION_PROMPT,
-  type ExtractedPdfStatement,
-  extractedPdfStatementSchema,
-  extractedTransactionsToCsvRows,
-  extractRevolutStatementFromText,
-} from "@tamias/import";
-import { downloadVaultFile, uploadVaultFile } from "@tamias/storage";
 import { TRPCError } from "@trpc/server";
-import { extractStatementWithCodex, isCodexBridgeAvailable } from "./codex-bridge";
-
-const MAX_PDF_BYTES = 15 * 1024 * 1024;
-
-function csvEscape(value: string): string {
-  if (value.includes(",") || value.includes('"') || value.includes("\n") || value.includes("\r")) {
-    return `"${value.replace(/"/g, '""')}"`;
-  }
-  return value;
-}
-
-function rowsToCsv(columns: readonly string[], rows: Record<string, string>[]): string {
-  const header = columns.map(csvEscape).join(",");
-  const body = rows
-    .map((row) => columns.map((col) => csvEscape(row[col] ?? "")).join(","))
-    .join("\n");
-  return body ? `${header}\n${body}\n` : `${header}\n`;
-}
-
-function deriveCsvPath(pdfPath: string[]): string[] {
-  if (pdfPath.length === 0) {
-    throw new Error("pdfPath must not be empty");
-  }
-  const filename = pdfPath[pdfPath.length - 1] ?? "statement.pdf";
-  const stem = filename.replace(/\.pdf$/i, "");
-  const csvName = `${stem}.extracted.csv`;
-  return [...pdfPath.slice(0, -1), csvName];
-}
+import { requireDocumentsWorkerRuntime } from "../../documents-worker/runtime";
 
 export type ExtractStatementPdfResult = {
   csvFilePath: string[];
@@ -45,75 +9,17 @@ export type ExtractStatementPdfResult = {
   transactionCount: number;
 };
 
-async function extractWithOpenAi({
-  pdfBytes,
-  filename,
-}: {
-  pdfBytes: Uint8Array;
-  filename: string;
-}): Promise<ExtractedPdfStatement> {
-  const [{ openai }, { generateObject }] = await Promise.all([
-    import("@ai-sdk/openai"),
-    import("ai"),
-  ]);
+type DocumentsWorkerError = {
+  code?: TRPCError["code"];
+  error?: string;
+};
 
-  const result = await generateObject({
-    model: openai("gpt-5-mini"),
-    schema: extractedPdfStatementSchema,
-    abortSignal: AbortSignal.timeout(120_000),
-    messages: [
-      {
-        role: "system",
-        content: PDF_STATEMENT_EXTRACTION_PROMPT,
-      },
-      {
-        role: "user",
-        content: [
-          {
-            type: "text",
-            text: "Extract every transaction from the attached statement PDF.",
-          },
-          {
-            type: "file",
-            data: pdfBytes,
-            mediaType: "application/pdf",
-            filename,
-          },
-        ],
-      },
-    ],
-  });
-
-  return result.object;
-}
-
-async function extractTextFromPdfBytes(pdfBytes: Uint8Array): Promise<string | null> {
-  try {
-    const { extractText, getDocumentProxy } = await import("unpdf");
-    const doc = await getDocumentProxy(pdfBytes);
-    const { text } = await extractText(doc, { mergePages: true });
-    return Array.isArray(text) ? text.join("\n") : text;
-  } catch (error) {
-    console.warn("Could not extract text from PDF statement", {
-      error: error instanceof Error ? error.message : String(error),
-    });
-    return null;
-  }
-}
-
-async function extractKnownStatementFormat(
-  pdfBytes: Uint8Array,
-): Promise<ExtractedPdfStatement | null> {
-  const text = await extractTextFromPdfBytes(pdfBytes);
-  if (!text?.trim()) {
-    return null;
-  }
-
-  return extractRevolutStatementFromText(text);
-}
-
-function hasExtractedTransactions(extracted: ExtractedPdfStatement | null | undefined): boolean {
-  return (extracted?.transactions?.length ?? 0) > 0;
+function codeForStatus(status: number): TRPCError["code"] {
+  if (status === 404) return "NOT_FOUND";
+  if (status === 413) return "PAYLOAD_TOO_LARGE";
+  if (status === 412) return "PRECONDITION_FAILED";
+  if (status === 422) return "UNPROCESSABLE_CONTENT";
+  return "INTERNAL_SERVER_ERROR";
 }
 
 export async function extractStatementPdf({
@@ -121,115 +27,36 @@ export async function extractStatementPdf({
 }: {
   pdfPath: string[];
 }): Promise<ExtractStatementPdfResult> {
-  const { data: blob, error: downloadError } = await downloadVaultFile(pdfPath);
-
-  if (downloadError || !blob) {
+  let documentsWorker: ReturnType<typeof requireDocumentsWorkerRuntime>;
+  try {
+    documentsWorker = requireDocumentsWorkerRuntime();
+  } catch (error) {
     throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Could not read the uploaded statement.",
+      code: "PRECONDITION_FAILED",
+      message: error instanceof Error ? error.message : "DOCUMENTS_WORKER is not configured.",
     });
   }
 
-  if (blob.size > MAX_PDF_BYTES) {
+  const response = await documentsWorker.fetch(
+    "https://documents-worker.local/extract-statement-pdf",
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ pdfPath }),
+    },
+  );
+
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => null)) as DocumentsWorkerError | null;
     throw new TRPCError({
-      code: "PAYLOAD_TOO_LARGE",
-      message: `Statement is too large. Maximum size is ${MAX_PDF_BYTES / (1024 * 1024)} MB.`,
-    });
-  }
-
-  const arrayBuffer = await blob.arrayBuffer();
-  const pdfBytes = new Uint8Array(arrayBuffer);
-  const filename = pdfPath[pdfPath.length - 1] ?? "statement.pdf";
-
-  let extracted = await extractKnownStatementFormat(pdfBytes);
-
-  if (!hasExtractedTransactions(extracted)) {
-    const codexAvailable = await isCodexBridgeAvailable();
-
-    if (!codexAvailable && !process.env.OPENAI_API_KEY) {
-      throw new TRPCError({
-        code: "PRECONDITION_FAILED",
-        message:
-          "PDF statement extraction is not configured. Sign in with `codex login` for local dev, or set OPENAI_API_KEY.",
-      });
-    }
-
-    const failures: Array<{ via: string; error: string }> = [];
-
-    if (codexAvailable) {
-      try {
-        const codexExtracted = await extractStatementWithCodex({ pdfBytes });
-        if (hasExtractedTransactions(codexExtracted)) {
-          extracted = codexExtracted;
-        } else {
-          failures.push({ via: "codex", error: "No transactions detected" });
-        }
-      } catch (error) {
-        failures.push({
-          via: "codex",
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }
-    }
-
-    if (!hasExtractedTransactions(extracted) && process.env.OPENAI_API_KEY) {
-      try {
-        const openAiExtracted = await extractWithOpenAi({ pdfBytes, filename });
-        if (hasExtractedTransactions(openAiExtracted)) {
-          extracted = openAiExtracted;
-        } else {
-          failures.push({ via: "openai", error: "No transactions detected" });
-        }
-      } catch (error) {
-        failures.push({
-          via: "openai",
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }
-    }
-
-    if (!hasExtractedTransactions(extracted)) {
-      console.error("PDF statement extraction failed", { failures });
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Could not extract transactions from this statement. Try a clearer PDF or CSV.",
-      });
-    }
-  }
-
-  if (!extracted?.transactions || extracted.transactions.length === 0) {
-    throw new TRPCError({
-      code: "UNPROCESSABLE_CONTENT",
+      code: payload?.code ?? codeForStatus(response.status),
       message:
-        "No transactions were detected. Please upload a recognised bank or credit-card statement.",
+        payload?.error ??
+        "Could not extract transactions from this statement. Try a clearer PDF or CSV.",
     });
   }
 
-  const rows = extractedTransactionsToCsvRows(extracted.transactions);
-  const columns = [...PDF_STATEMENT_CSV_COLUMNS];
-  const csvContent = rowsToCsv(columns, rows);
-  const csvBlob = new Blob([csvContent], { type: "text/csv" });
-
-  const csvPath = deriveCsvPath(pdfPath);
-  const { data: uploaded, error: uploadError } = await uploadVaultFile({
-    path: csvPath,
-    blob: csvBlob,
-    contentType: "text/csv",
-    size: csvBlob.size,
-  });
-
-  if (uploadError || !uploaded) {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Could not store the extracted transactions.",
-    });
-  }
-
-  return {
-    csvFilePath: csvPath,
-    columns,
-    rows,
-    detectedCurrency: extracted.detectedCurrency,
-    transactionCount: extracted.transactions.length,
-  };
+  return (await response.json()) as ExtractStatementPdfResult;
 }

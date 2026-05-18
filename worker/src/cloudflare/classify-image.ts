@@ -11,7 +11,7 @@ import { TIMEOUTS, withTimeout } from "../utils/timeout";
 import type { CloudflareAsyncMessage } from "./async-helpers";
 
 type CloudflareClassifyImageEnv = {
-  CAPTURE_QUEUE?: Queue<CloudflareAsyncMessage>;
+  DOCUMENTS_QUEUE?: Queue<CloudflareAsyncMessage>;
 };
 
 interface ImageClassificationResult {
@@ -136,10 +136,10 @@ export async function runCloudflareClassifyImage(
     throw new Error(`Document update returned invalid data for path ${fileName}`);
   }
 
-  if (classificationResult?.tags && classificationResult.tags.length > 0 && env.CAPTURE_QUEUE) {
-    await env.CAPTURE_QUEUE.send(
+  if (classificationResult?.tags && classificationResult.tags.length > 0 && env.DOCUMENTS_QUEUE) {
+    await env.DOCUMENTS_QUEUE.send(
       {
-        queue: "capture",
+        queue: "documents",
         queueName: "documents",
         jobName: "embed-document-tags",
         payload: {

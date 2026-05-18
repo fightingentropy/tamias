@@ -4,8 +4,6 @@ import {
   getApiKeysByTeamFromD1,
   updateApiKeyInD1,
 } from "@tamias/app-services/foundation";
-import { ApiKeyCreatedEmail } from "@tamias/email/emails/api-key-created";
-import { render } from "@tamias/email/render";
 import { sendEmail } from "@tamias/email/send";
 import { logger } from "@tamias/logger";
 import { getSupportFromDisplay } from "@tamias/utils/envs";
@@ -44,6 +42,11 @@ export const apiKeysRouter = createTRPCRouter({
 
       if (data) {
         try {
+          const [{ ApiKeyCreatedEmail }, { render }] = await Promise.all([
+            import("@tamias/email/emails/api-key-created"),
+            import("@tamias/email/render"),
+          ]);
+
           await sendEmail({
             from: getSupportFromDisplay(),
             to: session.user.email!,

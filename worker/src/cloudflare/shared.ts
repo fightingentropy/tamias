@@ -13,7 +13,9 @@ export type CloudflareAsyncEnv = {
   TAMIAS_ENVIRONMENT?: string;
   EMAIL?: CloudflareEmailBinding;
   IMAGES?: ImagesBinding;
+  DOCUMENTS_WORKER?: Fetcher;
   CAPTURE_QUEUE?: Queue<CloudflareAsyncMessage>;
+  DOCUMENTS_QUEUE?: Queue<CloudflareAsyncMessage>;
   LEDGER_QUEUE?: Queue<CloudflareAsyncMessage>;
   RUN_COORDINATOR?: DurableObjectNamespace;
   ASYNC_WORKFLOW?: Workflow<CloudflareWorkflowPayload>;

@@ -35,6 +35,12 @@
       "name": "EMAIL",
     },
   ],
+  "services": [
+    {
+      "binding": "DOCUMENTS_WORKER",
+      "service": "tamias-documents-local",
+    },
+  ],
   "triggers": {
     "crons": ["0 2 * * *", "0 3 * * *", "*/30 * * * *", "0 0,12 * * *", "*/30 * * * 1"],
   },
@@ -62,6 +68,10 @@
       {
         "binding": "CAPTURE_QUEUE",
         "queue": "tamias-capture-local",
+      },
+      {
+        "binding": "DOCUMENTS_QUEUE",
+        "queue": "tamias-documents-local",
       },
       {
         "binding": "LEDGER_QUEUE",
@@ -111,6 +121,12 @@
           "name": "EMAIL",
         },
       ],
+      "services": [
+        {
+          "binding": "DOCUMENTS_WORKER",
+          "service": "tamias-documents",
+        },
+      ],
       "triggers": {
         "crons": ["0 2 * * *", "0 3 * * *", "*/30 * * * *", "0 0,12 * * *", "*/30 * * * 1"],
       },
@@ -138,6 +154,10 @@
           {
             "binding": "CAPTURE_QUEUE",
             "queue": "tamias-capture",
+          },
+          {
+            "binding": "DOCUMENTS_QUEUE",
+            "queue": "tamias-documents",
           },
           {
             "binding": "LEDGER_QUEUE",

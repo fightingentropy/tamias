@@ -2,7 +2,6 @@ import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { getInvoiceById } from "@tamias/app-data/queries";
 import { getInvoiceByToken } from "@tamias/app-services/invoice-by-token";
 import { verifyFileKey } from "@tamias/encryption";
-import { PdfTemplate, renderToStream } from "@tamias/invoice";
 import { HTTPException } from "hono/http-exception";
 import { downloadFileSchema, downloadInvoiceSchema } from "../../../schemas/files";
 import { downloadVaultFile } from "../../../services/storage";
@@ -14,6 +13,14 @@ import type { Context } from "../../types";
 import { getContentTypeFromFilename, normalizeAndValidatePath, sanitizeFilename } from "./utils";
 
 const app = new OpenAPIHono<Context>();
+
+type DocumentsWorkerBinding = {
+  fetch(input: Request | string | URL, init?: RequestInit): Promise<Response>;
+};
+
+type DocumentsWorkerError = {
+  error?: string;
+};
 
 const errorResponseSchema = z.object({
   error: z.string(),
@@ -252,10 +259,33 @@ downloadInvoiceApp.openapi(
     }
 
     try {
-      const stream = await renderToStream(await PdfTemplate(invoiceData, { isReceipt }));
+      const documentsWorker = (c.env as { DOCUMENTS_WORKER?: DocumentsWorkerBinding })
+        .DOCUMENTS_WORKER;
 
-      // Convert stream to blob
-      const blob = await new Response(stream as any).blob();
+      if (!documentsWorker) {
+        throw new Error("DOCUMENTS_WORKER service binding is not configured");
+      }
+
+      const pdfResponse = await documentsWorker.fetch(
+        "https://documents-worker.local/render-invoice-pdf",
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({
+            invoiceData,
+            isReceipt,
+          }),
+        },
+      );
+
+      if (!pdfResponse.ok) {
+        const payload = (await pdfResponse.json().catch(() => null)) as DocumentsWorkerError | null;
+        throw new Error(payload?.error ?? `Documents worker failed with HTTP ${pdfResponse.status}`);
+      }
+
+      const blob = await pdfResponse.arrayBuffer();
 
       const headers: Record<string, string> = {
         "Content-Type": "application/pdf",

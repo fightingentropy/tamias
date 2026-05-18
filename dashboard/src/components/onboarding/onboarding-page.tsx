@@ -49,7 +49,7 @@ function DashboardImageAnimation() {
       style={{ width: "100%", height: "100%", transformOrigin: "center" }}
     >
       <Image
-        src="/images/dashboard-light.svg"
+        src="/images/dashboard-light.webp"
         alt="Dashboard illustration"
         width={2400}
         height={1800}
@@ -58,7 +58,7 @@ function DashboardImageAnimation() {
         priority
       />
       <Image
-        src="/images/dashboard-dark.svg"
+        src="/images/dashboard-dark.webp"
         alt="Dashboard illustration"
         width={2400}
         height={1800}

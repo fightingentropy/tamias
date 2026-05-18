@@ -14,6 +14,7 @@ import { configureWorkerRuntime } from "./worker-runtime";
 function configureCaptureRuntime(env: CloudflareAsyncEnv) {
   configureCloudflareQueueRuntime({
     captureQueue: env.CAPTURE_QUEUE,
+    documentsQueue: env.DOCUMENTS_QUEUE,
     ledgerQueue: env.LEDGER_QUEUE,
   });
   configureCloudflareScheduleRuntime(createCloudflareScheduleRuntime(env));
@@ -90,43 +91,6 @@ async function processWhatsAppUploadMessage(message: Message<CloudflareAsyncMess
   });
 }
 
-async function processClassifyDocumentMessage(message: Message<CloudflareAsyncMessage>) {
-  return handleProcessorMessage(message, async () => {
-    const { ClassifyDocumentProcessor } = await import("../processors/documents/classify-document");
-    return new ClassifyDocumentProcessor();
-  });
-}
-
-async function processDocumentMessage(message: Message<CloudflareAsyncMessage>) {
-  return handleProcessorMessage(message, async () => {
-    const { ProcessDocumentProcessor } = await import("../processors/documents/process-document");
-    return new ProcessDocumentProcessor();
-  });
-}
-
-async function processClassifyImageMessage(
-  message: Message<CloudflareAsyncMessage>,
-  env: CloudflareAsyncEnv,
-) {
-  const { runCloudflareClassifyImage } = await import("./classify-image");
-
-  return runCloudflareClassifyImage(
-    env,
-    message.body.payload as {
-      fileName: string;
-      teamId: string;
-    },
-  );
-}
-
-async function processEmbedDocumentTagsMessage(message: Message<CloudflareAsyncMessage>) {
-  return handleProcessorMessage(message, async () => {
-    const { EmbedDocumentTagsProcessor } =
-      await import("../processors/documents/embed-document-tags");
-    return new EmbedDocumentTagsProcessor();
-  });
-}
-
 async function processRatesSchedulerMessage(message: Message<CloudflareAsyncMessage>) {
   return handleProcessorMessage(message, async () => {
     const { RatesSchedulerProcessor } = await import("../processors/rates/rates-scheduler");
@@ -184,14 +148,6 @@ async function processQueueMessage(
       result = await processInitialInboxSetupMessage(message);
     } else if (body.queueName === "inbox-provider" && body.jobName === "sync-scheduler") {
       result = await processInboxSyncSchedulerMessage(message);
-    } else if (body.queueName === "documents" && body.jobName === "process-document") {
-      result = await processDocumentMessage(message);
-    } else if (body.queueName === "documents" && body.jobName === "classify-image") {
-      result = await processClassifyImageMessage(message, env);
-    } else if (body.queueName === "documents" && body.jobName === "classify-document") {
-      result = await processClassifyDocumentMessage(message);
-    } else if (body.queueName === "documents" && body.jobName === "embed-document-tags") {
-      result = await processEmbedDocumentTagsMessage(message);
     } else if (body.queueName === "institutions" && body.jobName === "sync-institutions") {
       result = await processSyncInstitutionsMessage(message);
     } else if (body.queueName === "rates" && body.jobName === "rates-scheduler") {

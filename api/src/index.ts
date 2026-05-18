@@ -182,6 +182,9 @@ async function callTrpcHandler(
 
 type ApiRuntimeEnv = {
   EMAIL?: CloudflareEmailBinding;
+  DOCUMENTS_WORKER?: {
+    fetch(input: Request | string | URL, init?: RequestInit): Promise<Response>;
+  };
   RATE_LIMIT_COORDINATOR?: DurableObjectNamespace;
   /** Present in unified dashboard+API+async worker deploys */
   RUN_COORDINATOR?: DurableObjectNamespace;
@@ -409,15 +412,19 @@ async function configureApiRuntime(env?: ApiRuntimeEnv) {
 
   const [
     { configureCloudflareAsyncServiceRuntime },
+    { configureDocumentsWorkerRuntime },
     { createInProcessAsyncRuntime },
     { configureDatabaseRuntime },
     { configureStorageRuntime },
   ] = await Promise.all([
     import("@tamias/job-client/cloudflare-runtime"),
+    import("./documents-worker/runtime"),
     import("@tamias/worker/cloudflare"),
     import("@tamias/app-data/client"),
     import("@tamias/storage"),
   ]);
+
+  configureDocumentsWorkerRuntime(env?.DOCUMENTS_WORKER);
 
   configureDatabaseRuntime({
     cloudflare: {

@@ -16,6 +16,7 @@ export class AsyncWorkflow extends WorkflowEntrypoint<
   async run(event: Readonly<WorkflowEvent<CloudflareWorkflowPayload>>, step: WorkflowStep) {
     configureCloudflareQueueRuntime({
       captureQueue: this.env.CAPTURE_QUEUE,
+      documentsQueue: this.env.DOCUMENTS_QUEUE,
       ledgerQueue: this.env.LEDGER_QUEUE,
     });
     configureCloudflareScheduleRuntime(createCloudflareScheduleRuntime(this.env));

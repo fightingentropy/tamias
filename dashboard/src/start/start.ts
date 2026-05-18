@@ -21,7 +21,6 @@ function isStaticAssetPath(pathname: string) {
   return (
     pathname.startsWith("/assets/") ||
     pathname.startsWith("/images/") ||
-    pathname.startsWith("/stories/") ||
     pathname.startsWith("/email/") ||
     pathname.startsWith("/.well-known/") ||
     /\.[a-z0-9]+$/i.test(pathname)

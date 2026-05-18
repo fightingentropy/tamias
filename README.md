@@ -12,8 +12,8 @@ Tamias is a Bun workspaces monorepo for the product workspace, API, Cloudflare a
 | Surface   | Directory          | Local URL                 | What it does                                                                                                           |
 | --------- | ------------------ | ------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | Dashboard | `dashboard`        | `http://localhost:3001`   | Main authenticated app, public invoice/customer/report links, auth, SSR, client providers, lightweight public homepage |
-| API       | `api`              | `http://localhost:3001`   | Hono API routes bundled into the unified Cloudflare Worker with tRPC, REST, OpenAPI, MCP, webhooks, and health checks  |
-| Worker    | `worker`           | unified Worker runtime    | Queue, workflow, recurring schedule, notification, and document-processing modules used by the unified Worker          |
+| API       | `api`              | `http://localhost:3001`   | Hono API routes bundled into the main Cloudflare Worker with tRPC, REST, OpenAPI, MCP, webhooks, and health checks     |
+| Worker    | `worker`           | Cloudflare Workers        | Queue, workflow, recurring schedule, notification, and document/PDF modules split across main and documents Workers    |
 | Website   | `dashboard`        | `https://tamias.xyz`      | Marketing site, integrations catalog, comparison pages, and MCP install guides served from the dashboard deployment    |
 
 ## Product areas
@@ -46,14 +46,20 @@ flowchart LR
   QueryLayer --> D1["Cloudflare D1<br/>durable app data + identity"]
   TRPC --> D1
   TRPC --> R2["Cloudflare R2<br/>file storage"]
-  TRPC --> AsyncRuntime["Cloudflare async transport<br/>in-process unified runtime"]
+  TRPC --> AsyncRuntime["Cloudflare async transport<br/>main Worker runtime"]
+  TRPC --> DocumentsWorker["Documents Worker<br/>PDF render + statement extraction"]
   TRPC --> Providers["External providers"]
   MCP --> QueryLayer
 
-  AsyncRuntime --> Worker["Worker<br/>queues + workflows + schedules"]
+  AsyncRuntime --> Worker["Main Worker<br/>capture + ledger queues, workflows, schedules"]
+  AsyncRuntime --> DocumentsQueue["Documents queue"]
+  DocumentsQueue --> DocumentsWorker
   Worker --> D1
   Worker --> R2
+  DocumentsWorker --> D1
+  DocumentsWorker --> R2
   Worker --> Providers
+  DocumentsWorker --> Providers
 ```
 
 ### Request and data flow
@@ -70,7 +76,8 @@ flowchart LR
    - OpenAPI + Scalar docs
    - MCP tools/resources/prompts for agent clients
 7. Long-running work is enqueued through Cloudflare queues/workflows and processed by `worker`.
-8. Durable app state is stored through Cloudflare D1 and file blobs live in R2; async status is coordinated through the shared app-data layer and Cloudflare worker runtime.
+8. Document processing, invoice PDF rendering, and PDF statement extraction run in the separate documents Worker (`worker/documents.wrangler.jsonc`) via `DOCUMENTS_QUEUE` and the `DOCUMENTS_WORKER` service binding.
+9. Durable app state is stored through Cloudflare D1 and file blobs live in R2; async status is coordinated through the shared app-data layer and Cloudflare worker runtime.
 
 ### Data model and boundaries
 
@@ -78,6 +85,7 @@ flowchart LR
 - Cloudflare D1 stores users, teams, app state, documents metadata, inbox, invoices, tracker data, links, widgets, insights state, tags, transaction metadata, and async records.
 - Cloudflare R2 stores file blobs and generated artifacts.
 - Cloudflare queues/workflows provide the async execution plane. Durable product state does not live in the worker runtime.
+- The documents queue is a separate physical queue consumed only by the documents Worker; the main Worker can produce document jobs but does not consume them.
 
 ## Feature map
 
@@ -248,8 +256,9 @@ HMRC_CT_PRODUCT_VERSION=0.1.0
 - `HMRC_CT_ENVIRONMENT` defaults to `test`. Keep it there in deployed environments until you intentionally want live HMRC CT filing.
 - In `test`, CT submissions use `HMRC_CT_TEST_UTR` when present. In `production`, the filing profile UTR is required.
 - Companies House annual accounts filing uses the XML gateway presenter runtime on the Cloudflare Worker; it does not use the OAuth app credentials.
-- In the unified Cloudflare Worker, async jobs run through queue, workflow, and durable-object bindings in the same deployment.
-- Cloudflare D1, R2, queue, workflow, and runtime bindings are declared in the root `wrangler.jsonc`; regenerate `types/cloudflare-env.d.ts` after binding changes.
+- In the main Cloudflare Worker, capture/ledger async jobs run through queue, workflow, and durable-object bindings in the dashboard/API deployment.
+- Document/PDF-heavy work runs in the separate documents Worker configured by `worker/documents.wrangler.jsonc`.
+- Cloudflare D1, R2, queue, workflow, service, and runtime bindings are declared in `wrangler.jsonc` and `worker/documents.wrangler.jsonc`; regenerate `types/cloudflare-env.d.ts` after binding changes.
 
 #### Assistant backends (chat)
 
@@ -289,6 +298,7 @@ bun run dev:dashboard
 ```
 
 The current local setup routes dashboard SSR calls to the deployed API route, so separate local `api` and `worker` Cloudflare processes are not required for the normal dashboard flow.
+Use `bun --filter @tamias/dashboard preview:cf` when you need a local Cloudflare preview of both the main Worker and the documents Worker.
 
 ### First login
 
@@ -341,16 +351,20 @@ bun run deploy:cloudflare:production
 
 ```bash
 bun run preflight:cloudflare
+bun run preflight:cloudflare:documents
 bun run preflight:cloudflare:production
+bun run preflight:cloudflare:documents:production
 ```
 
 ## Deployment notes
 
-- Cloudflare deployment uses a single Worker (`tamias`) for the dashboard, public site, API route, queues, cron triggers, Durable Objects, workflows, D1, R2, email, and image handling.
-- **`wrangler.jsonc`** at the **repository root** configures the Cloudflare Worker and runtime bindings.
+- Cloudflare deployment uses the main Worker (`tamias`) for the dashboard, public site, API route, capture/ledger queues, cron triggers, Durable Objects, workflows, D1, R2, email, and image handling.
+- Document-heavy work runs in the documents Worker (`tamias-documents`) with its own `DOCUMENTS_QUEUE` consumer.
+- **`wrangler.jsonc`** at the **repository root** configures the main Cloudflare Worker and runtime bindings.
+- **`worker/documents.wrangler.jsonc`** configures the documents Worker and its document queue consumer.
 - **`.wrangler/`** (under the repo or `dashboard`) is Wrangler’s local cache; it is **gitignored** and should not be committed.
 - `dashboard` serves `app.tamias.xyz` and `tamias.xyz`; public-site routes are host-rewritten into the internal `/site` tree. API traffic to `api.tamias.xyz` reaches the same Worker.
-- Cloudflare preflight runs the Vite production build then Wrangler `deploy --dry-run` with **`../wrangler.jsonc`**.
+- Cloudflare preflight runs a documents Worker dry-run and the Vite production build plus Wrangler `deploy --dry-run` with **`../wrangler.jsonc`**.
 - GitHub Actions deploys expect these repository secrets:
   - `CLOUDFLARE_API_TOKEN`
   - `CLOUDFLARE_ACCOUNT_ID`

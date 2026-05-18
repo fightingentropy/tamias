@@ -1,5 +1,11 @@
 import { getAppUrl, getEmailUrl } from "@tamias/utils/envs";
-import { Column, Hr, Img, Link, Row, Section, Text } from "@react-email/components";
+import { Column } from "@react-email/column";
+import { Hr } from "@react-email/hr";
+import { Img } from "@react-email/img";
+import { Link } from "@react-email/link";
+import { Row } from "@react-email/row";
+import { Section } from "@react-email/section";
+import { Text } from "@react-email/text";
 import { LogoFooter } from "./logo-footer";
 import { getEmailInlineStyles, getEmailThemeClasses } from "./theme";
 

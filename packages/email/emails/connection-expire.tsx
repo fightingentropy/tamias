@@ -1,4 +1,9 @@
-import { Body, Container, Heading, Preview, Section, Text } from "@react-email/components";
+import { Body } from "@react-email/body";
+import { Container } from "@react-email/container";
+import { Heading } from "@react-email/heading";
+import { Preview } from "@react-email/preview";
+import { Section } from "@react-email/section";
+import { Text } from "@react-email/text";
 import { addDays, formatDistance } from "date-fns";
 import { Footer } from "../components/footer";
 import { Logo } from "../components/logo";

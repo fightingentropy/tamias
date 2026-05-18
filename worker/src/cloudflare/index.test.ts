@@ -134,7 +134,7 @@ describe("Cloudflare async helpers", () => {
 
     expect(
       isSupportedCloudflareMessage({
-        queue: "capture",
+        queue: "documents",
         queueName: "documents",
         jobName: "process-document",
         payload: {
@@ -147,7 +147,7 @@ describe("Cloudflare async helpers", () => {
 
     expect(
       isSupportedCloudflareMessage({
-        queue: "capture",
+        queue: "documents",
         queueName: "documents",
         jobName: "classify-image",
         payload: {
@@ -159,7 +159,7 @@ describe("Cloudflare async helpers", () => {
 
     expect(
       isSupportedCloudflareMessage({
-        queue: "capture",
+        queue: "documents",
         queueName: "documents",
         jobName: "classify-document",
         payload: {
@@ -172,7 +172,7 @@ describe("Cloudflare async helpers", () => {
 
     expect(
       isSupportedCloudflareMessage({
-        queue: "capture",
+        queue: "documents",
         queueName: "documents",
         jobName: "embed-document-tags",
         payload: {

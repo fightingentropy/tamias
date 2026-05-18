@@ -1,8 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { createAppPublicFileRoute } from "@/start/route-hosts";
 import { createServerFn } from "@tanstack/react-start";
 import { getAppUrl } from "@tamias/utils/envs";
-import { PublicInvoicePage } from "./-public-invoice-page";
 
 const appUrl = getAppUrl();
 
@@ -19,7 +17,6 @@ const loadPublicInvoice = createServerFn({ method: "GET" })
 export type PublicInvoiceLoaderData = Awaited<ReturnType<typeof loadPublicInvoice>>;
 
 export const Route = createAppPublicFileRoute("/i/$token")({
-  component: PublicInvoicePage,
   loader: ({ params, location }) => {
     const url = new URL(location.href, "http://localhost");
     return loadPublicInvoice({

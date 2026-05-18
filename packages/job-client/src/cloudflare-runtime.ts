@@ -1,6 +1,6 @@
 type CloudflareRecurringScheduleTask = "inbox-sync-scheduler" | "bank-sync-scheduler";
 
-type CloudflareQueueGroup = "capture" | "ledger";
+type CloudflareQueueGroup = "capture" | "ledger" | "documents";
 
 export type CloudflareQueueRequest = {
   queue: CloudflareQueueGroup;
@@ -59,6 +59,7 @@ type CloudflareQueueBinding = {
 
 type CloudflareQueueRuntime = {
   captureQueue?: CloudflareQueueBinding;
+  documentsQueue?: CloudflareQueueBinding;
   ledgerQueue?: CloudflareQueueBinding;
 };
 
@@ -85,10 +86,11 @@ type CloudflareScheduleRuntime = {
 const captureQueueNames = new Set([
   "inbox",
   "inbox-provider",
-  "documents",
   "institutions",
   "rates",
 ]);
+
+const documentsQueueNames = new Set(["documents"]);
 
 const ledgerQueueNames = new Set([
   "transactions",
@@ -105,6 +107,10 @@ let cloudflareAsyncServiceRuntime: CloudflareAsyncServiceRuntime | null = null;
 let cloudflareScheduleRuntime: CloudflareScheduleRuntime | null = null;
 
 function getCloudflareQueueGroup(queueName: string): CloudflareQueueGroup | null {
+  if (documentsQueueNames.has(queueName)) {
+    return "documents";
+  }
+
   if (captureQueueNames.has(queueName)) {
     return "capture";
   }
@@ -117,13 +123,22 @@ function getCloudflareQueueGroup(queueName: string): CloudflareQueueGroup | null
 }
 
 function hasCloudflareQueueRuntime() {
-  return !!(cloudflareQueueRuntime?.captureQueue || cloudflareQueueRuntime?.ledgerQueue);
+  return !!(
+    cloudflareQueueRuntime?.captureQueue ||
+    cloudflareQueueRuntime?.documentsQueue ||
+    cloudflareQueueRuntime?.ledgerQueue
+  );
 }
 
 export function getCloudflareQueueBinding(queue: CloudflareQueueGroup) {
-  return queue === "capture"
-    ? cloudflareQueueRuntime?.captureQueue
-    : cloudflareQueueRuntime?.ledgerQueue;
+  switch (queue) {
+    case "capture":
+      return cloudflareQueueRuntime?.captureQueue;
+    case "documents":
+      return cloudflareQueueRuntime?.documentsQueue;
+    case "ledger":
+      return cloudflareQueueRuntime?.ledgerQueue;
+  }
 }
 
 export function configureCloudflareQueueRuntime(runtime: CloudflareQueueRuntime | null) {

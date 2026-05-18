@@ -1,4 +1,4 @@
-import { Section } from "@react-email/components";
+import { Section } from "@react-email/section";
 import { Button } from "./theme";
 
 export function GetStarted() {

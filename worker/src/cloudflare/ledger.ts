@@ -13,6 +13,7 @@ import { configureWorkerRuntime } from "./worker-runtime";
 function configureLedgerRuntime(env: CloudflareAsyncEnv) {
   configureCloudflareQueueRuntime({
     captureQueue: env.CAPTURE_QUEUE,
+    documentsQueue: env.DOCUMENTS_QUEUE,
     ledgerQueue: env.LEDGER_QUEUE,
   });
   configureCloudflareScheduleRuntime(createCloudflareScheduleRuntime(env));

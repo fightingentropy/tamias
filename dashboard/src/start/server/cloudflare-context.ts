@@ -6,6 +6,7 @@ export type DashboardCloudflareEnv = {
   API_URL?: string;
   DASHBOARD_URL?: string;
   WEBSITE_URL?: string;
+  IMAGES?: ImagesBinding;
 };
 
 export type DashboardRequestContext = {

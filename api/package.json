@@ -62,7 +62,6 @@
     "parse-duration": "^2.1.4",
     "stripe": "^21.0.1",
     "superjson": "^2.2.6",
-    "unpdf": "^1.6.2",
     "uuid": "catalog:",
     "zod": "catalog:"
   },
