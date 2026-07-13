@@ -26,6 +26,7 @@
     "test": "bun run --workspaces --parallel --if-present test",
     "test:e2e": "playwright test -c playwright.config.ts",
     "test:e2e:headed": "playwright test -c playwright.config.ts --headed",
+    "types:cloudflare": "wrangler types types/cloudflare-env.d.ts --config wrangler.jsonc && bun run scripts/sanitize-cloudflare-types.ts",
     "start:dashboard": "bun run --filter @tamias/dashboard start",
     "dev:dashboard": "bun run --filter @tamias/dashboard dev",
     "build:dashboard": "bun run --filter @tamias/dashboard build",

@@ -10203,7 +10203,7 @@ type AiGatewayLog = {
     response_head_complete: boolean;
     created_at: Date;
 };
-type AIGatewayProviders = 'workers-ai' | 'anthropic' | 'aws-bedrock' | 'azure-openai' | 'google-vertex-ai' | 'huggingface' | 'openai' | 'perplexity-ai' | 'replicate' | 'groq' | 'cohere' | 'google-ai-studio' | 'mistral' | 'grok' | 'openrouter' | 'deepseek' | 'cerebras' | 'cartesia' | 'elevenlabs' | 'adobe-firefly';
+type AIGatewayProviders = string;
 type AIGatewayHeaders = {
     'cf-aig-metadata': Record<string, number | string | boolean | null | bigint> | string;
     'cf-aig-custom-cost': {

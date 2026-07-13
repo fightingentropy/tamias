@@ -258,7 +258,7 @@ HMRC_CT_PRODUCT_VERSION=0.1.0
 - Companies House annual accounts filing uses the XML gateway presenter runtime on the Cloudflare Worker; it does not use the OAuth app credentials.
 - In the main Cloudflare Worker, capture/ledger async jobs run through queue, workflow, and durable-object bindings in the dashboard/API deployment.
 - Document/PDF-heavy work runs in the separate documents Worker configured by `worker/documents.wrangler.jsonc`.
-- Cloudflare D1, R2, queue, workflow, service, and runtime bindings are declared in `wrangler.jsonc` and `worker/documents.wrangler.jsonc`; regenerate `types/cloudflare-env.d.ts` after binding changes.
+- Cloudflare D1, R2, queue, workflow, service, and runtime bindings are declared in `wrangler.jsonc` and `worker/documents.wrangler.jsonc`; run `bun run types:cloudflare` after binding changes.
 
 #### Assistant backends (chat)
 
