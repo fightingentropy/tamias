@@ -300,6 +300,13 @@ export function loadRuntimeEnvironment(
     }
   }
 
+  for (const key of allowedKeys) {
+    const value = process.env[key];
+    if (value !== undefined) {
+      environment[key] = value;
+    }
+  }
+
   assertNoUnexpectedSensitiveCredentials(environment, allowedKeys);
   return environment;
 }
