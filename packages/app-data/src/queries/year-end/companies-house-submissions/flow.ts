@@ -1,6 +1,15 @@
-import { CompaniesHouseXmlGatewayProvider } from "@tamias/compliance";
+import {
+  assertExternalMutationEnvironment,
+  CompaniesHouseXmlGatewayProvider,
+} from "@tamias/compliance";
 import type { Database } from "../../../client";
 import { createSubmissionEvent } from "../../filing-events";
+import {
+  beginIdempotentOperation,
+  completeIdempotentOperation,
+  failIdempotentOperation,
+  requireIdempotentOperationReconciliation,
+} from "../../operational-safety";
 import { buildCtSubmissionArtifacts } from "../drafts";
 import { getYearEndContext } from "../pack";
 import { getYearEndPackByPeriod } from "../pack-store";
@@ -19,6 +28,13 @@ import {
   findCompaniesHouseSubmissionStatus,
   resolveCompaniesHouseAccountsSubmissionStatus,
 } from "./status";
+
+type CompaniesHouseSubmissionResult = {
+  receipt: Awaited<ReturnType<CompaniesHouseXmlGatewayProvider["submitAccountsXml"]>>;
+  request: ReturnType<typeof buildCompaniesHouseAccountsSubmissionRequestSummary> & {
+    submittedBy: string;
+  };
+};
 
 export async function listAccountsSubmissionEvents(
   db: Database,
@@ -39,8 +55,10 @@ export async function submitAnnualAccountsToCompaniesHouse(
     submittedBy: string;
     periodKey?: string;
     declarationAccepted: true;
+    idempotencyKey: string;
+    confirmationId: string;
   },
-) {
+): Promise<CompaniesHouseSubmissionResult> {
   const context = await getYearEndContext(db, params.teamId, params.periodKey);
   const [packRecord, closeCompanyLoansSchedule, corporationTaxRateSchedule] = await Promise.all([
     getYearEndPackByPeriod(db, {
@@ -108,6 +126,21 @@ export async function submitAnnualAccountsToCompaniesHouse(
     });
     throw error;
   }
+  assertExternalMutationEnvironment({ kind: "filing", providerEnvironment: provider.environment });
+  const operation = await beginIdempotentOperation(db, {
+    teamId: params.teamId,
+    scope: "filing.companies-house.accounts.submit",
+    idempotencyKey: params.idempotencyKey,
+    request: {
+      periodKey: context.period.periodKey,
+      filingProfileId: context.profile.id,
+      environment: provider.environment,
+      packId: pack.id,
+    },
+  });
+  if (operation.state === "replayed") {
+    return operation.result as CompaniesHouseSubmissionResult;
+  }
 
   let identifiers: Awaited<ReturnType<typeof allocateCompaniesHouseSubmissionIdentifiers>> | null =
     null;
@@ -116,6 +149,8 @@ export async function submitAnnualAccountsToCompaniesHouse(
         submittedBy: string;
       })
     | null = null;
+  let providerAttempted = false;
+  let providerReceipt: CompaniesHouseSubmissionResult["receipt"] | null = null;
 
   try {
     identifiers = await allocateCompaniesHouseSubmissionIdentifiers(db, provider);
@@ -144,7 +179,9 @@ export async function submitAnnualAccountsToCompaniesHouse(
       transactionId: identifiers.transactionId,
       customerReference: requestSummary.customerReference,
     });
+    providerAttempted = true;
     const receipt = await provider.submitAccountsXml(submissionXml);
+    providerReceipt = receipt;
     const selectedStatus = findCompaniesHouseSubmissionStatus(
       receipt,
       identifiers.submissionNumber,
@@ -165,19 +202,72 @@ export async function submitAnnualAccountsToCompaniesHouse(
       } as unknown as Record<string, unknown>,
     });
 
-    return {
+    const result = {
       receipt,
       request: requestSummary,
-      submissionXml,
     };
+    await completeIdempotentOperation(db, {
+      teamId: params.teamId,
+      scope: "filing.companies-house.accounts.submit",
+      idempotencyKey: params.idempotencyKey,
+      leaseToken: operation.leaseToken,
+      result,
+      audit: {
+        actorType: "user",
+        actorId: params.submittedBy,
+        action: "filing.companies-house.accounts.submitted",
+        resourceType: "year_end_pack",
+        resourceId: pack.id,
+        confirmationId: params.confirmationId,
+        environment: provider.environment,
+        payload: {
+          filingProfileId: context.profile.id,
+          periodKey: context.period.periodKey,
+          submissionNumber: identifiers.submissionNumber,
+        },
+      },
+      outbox: {
+        topic: "filing.companies-house.accounts.submitted",
+        aggregateType: "year_end_pack",
+        aggregateId: pack.id,
+        payload: {
+          filingProfileId: context.profile.id,
+          periodKey: context.period.periodKey,
+          submissionNumber: identifiers.submissionNumber,
+        },
+      },
+    });
+    return result;
   } catch (error) {
+    if (providerAttempted) {
+      await requireIdempotentOperationReconciliation(db, {
+        teamId: params.teamId,
+        scope: "filing.companies-house.accounts.submit",
+        idempotencyKey: params.idempotencyKey,
+        leaseToken: operation.leaseToken,
+        error,
+        providerResult: providerReceipt ?? {
+          outcome: "unknown_after_provider_attempt",
+        },
+      });
+    } else {
+      await failIdempotentOperation(db, {
+        teamId: params.teamId,
+        scope: "filing.companies-house.accounts.submit",
+        idempotencyKey: params.idempotencyKey,
+        leaseToken: operation.leaseToken,
+        error,
+      });
+    }
     await createSubmissionEvent(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       provider: "companies-house",
       obligationType: "accounts",
-      status: "failed",
-      eventType: "annual_accounts_submission_failed",
+      status: providerAttempted ? "reconciliation_required" : "failed",
+      eventType: providerAttempted
+        ? "annual_accounts_submission_reconciliation_required"
+        : "annual_accounts_submission_failed",
       correlationId: identifiers?.submissionNumber,
       requestPayload: requestSummary ?? {
         periodKey: context.period.periodKey,
@@ -185,6 +275,7 @@ export async function submitAnnualAccountsToCompaniesHouse(
         presenterId: provider.presenterId,
         packageReference: provider.packageReference,
       },
+      responsePayload: providerReceipt ?? undefined,
       errorMessage: error instanceof Error ? error.message : String(error),
     });
     throw error;

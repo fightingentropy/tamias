@@ -11,6 +11,7 @@
   },
   "exports": {
     ".": "./src/index.ts",
+    "./service-identity": "./src/service-identity.ts",
     "./scopes": "./src/scopes.ts"
   },
   "dependencies": {

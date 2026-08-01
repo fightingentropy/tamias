@@ -1097,6 +1097,8 @@ export function YearEndDashboard() {
                       submitCt600.mutate({
                         periodKey: period.periodKey,
                         declarationAccepted: true,
+                        idempotencyKey: crypto.randomUUID(),
+                        confirmationId: crypto.randomUUID(),
                       })
                     }
                     disabled={
@@ -1500,6 +1502,8 @@ export function YearEndDashboard() {
                           ? submitAccounts.mutate({
                               periodKey: period.periodKey,
                               declarationAccepted: true,
+                              idempotencyKey: crypto.randomUUID(),
+                              confirmationId: crypto.randomUUID(),
                             })
                           : undefined
                       }

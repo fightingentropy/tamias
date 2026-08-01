@@ -140,9 +140,7 @@ describe("insights D1", () => {
       });
       expect(second).not.toBeNull();
 
-      await expect(
-        getInsightById(db, { teamId: "team_1", id: first!.id }),
-      ).resolves.toMatchObject({
+      await expect(getInsightById(db, { teamId: "team_1", id: first!.id })).resolves.toMatchObject({
         id: first!.id,
         status: "pending",
         selectedMetrics: null,

@@ -32,11 +32,7 @@ import {
   getSpendingSchema,
   getTaxSummarySchema,
 } from "../../schemas/reports";
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "../init";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../init";
 
 export const reportsRouter = createTRPCRouter({
   revenue: protectedProcedure

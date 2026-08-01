@@ -1,20 +1,18 @@
 import type { AppRouter } from "@tamias/api/trpc/routers/_app.types";
+import {
+  createServiceIdentityTokenFromEnvironment,
+  SERVICE_AUTH_HEADER,
+} from "@tamias/auth-session/service-identity";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import superjson from "superjson";
 import { fetchWithRetry } from "./fetch-with-retry";
 
 /**
  * Create a tRPC client for internal service-to-service calls.
- * Authenticates via INTERNAL_API_KEY header.
+ * Authenticates with a short-lived, scoped service identity token.
  */
 export function createInternalClient() {
   const apiUrl = process.env.API_INTERNAL_URL || process.env.API_URL || "http://localhost:3001";
-
-  const internalApiKey = process.env.INTERNAL_API_KEY;
-
-  if (!internalApiKey) {
-    throw new Error("INTERNAL_API_KEY environment variable is required for internal tRPC client");
-  }
 
   const trpcUrl = `${apiUrl}/trpc`;
 
@@ -30,9 +28,9 @@ export function createInternalClient() {
         url: trpcUrl,
         transformer: superjson,
         fetch: fetchWithRetry,
-        headers() {
+        async headers() {
           return {
-            "x-internal-key": internalApiKey,
+            [SERVICE_AUTH_HEADER]: `Bearer ${await createServiceIdentityTokenFromEnvironment("api")}`,
           };
         },
       }),

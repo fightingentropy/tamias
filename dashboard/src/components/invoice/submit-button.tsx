@@ -269,7 +269,10 @@ export function SubmitButton({ isSubmitting, disabled, className }: Props) {
 
       // If changing from scheduled to another type, cancel the scheduled job
       if (currentDeliveryType === "scheduled" && invoiceId) {
-        cancelScheduleMutation.mutate({ id: invoiceId });
+        cancelScheduleMutation.mutate({
+          id: invoiceId,
+          idempotencyKey: crypto.randomUUID(),
+        });
       }
     }
 

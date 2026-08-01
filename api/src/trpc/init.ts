@@ -6,6 +6,7 @@ import { withTeamPermission } from "./middleware/team-permission";
 
 export const DEBUG_PERF = process.env.DEBUG_PERF === "true";
 const perfLogger = createLoggerWithContext("perf:trpc");
+const serviceIdentityLogger = createLoggerWithContext("auth:service-identity");
 
 export const createTRPCContext = async (
   _: unknown,
@@ -86,35 +87,54 @@ export const protectedProcedure = t.procedure
     });
   });
 
-/**
- * Internal procedure for service-to-service calls ONLY.
- * Authenticates exclusively via x-internal-key header (INTERNAL_API_KEY).
- * Used by the async worker, and other internal services.
- * Regular user sessions are NOT accepted — use protectedProcedure for browser-facing endpoints.
- */
-export const internalProcedure = t.procedure.use(withTimingMiddleware).use(async (opts) => {
-  const { isInternalRequest } = opts.ctx;
+export function scopedInternalProcedure(requiredScope: string) {
+  return t.procedure.use(withTimingMiddleware).use(async (opts) => {
+    const { serviceIdentity } = opts.ctx;
 
-  if (!isInternalRequest) {
-    throw new TRPCError({ code: "UNAUTHORIZED" });
-  }
+    if (!serviceIdentity || !serviceIdentity.scopes.includes(requiredScope)) {
+      serviceIdentityLogger.warn("Scoped internal request denied", {
+        path: opts.path,
+        requiredScope,
+        serviceId: serviceIdentity?.id,
+        keyId: serviceIdentity?.keyId,
+        tokenId: serviceIdentity?.tokenId,
+        requestId: opts.ctx.requestId,
+      });
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
 
-  return opts.next({
-    ctx: opts.ctx,
+    serviceIdentityLogger.info("Scoped internal request authorized", {
+      path: opts.path,
+      requiredScope,
+      serviceId: serviceIdentity.id,
+      keyId: serviceIdentity.keyId,
+      tokenId: serviceIdentity.tokenId,
+      requestId: opts.ctx.requestId,
+    });
+
+    return opts.next({ ctx: opts.ctx });
   });
-});
+}
 
 /**
- * Procedure that accepts EITHER a valid user session OR a valid internal key.
+ * Procedure that accepts EITHER a valid user session OR a scoped service identity.
  * Use for endpoints called from both the dashboard (browser) and internal services
  * (async worker, etc.).
  */
 export const protectedOrInternalProcedure = t.procedure
   .use(withTimingMiddleware)
   .use(async (opts) => {
-    const { isInternalRequest, session } = opts.ctx;
+    const { serviceIdentity, session } = opts.ctx;
 
-    if (isInternalRequest) {
+    if (serviceIdentity?.scopes.includes("banking.read")) {
+      serviceIdentityLogger.info("Scoped internal request authorized", {
+        path: opts.path,
+        requiredScope: "banking.read",
+        serviceId: serviceIdentity.id,
+        keyId: serviceIdentity.keyId,
+        tokenId: serviceIdentity.tokenId,
+        requestId: opts.ctx.requestId,
+      });
       return opts.next({ ctx: opts.ctx });
     }
 

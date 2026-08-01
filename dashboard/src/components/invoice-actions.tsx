@@ -26,7 +26,7 @@ import {
 import { Icons } from "@tamias/ui/icons";
 import { useToast } from "@tamias/ui/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useFileUrl } from "@/hooks/use-file-url";
 import { useInvoiceParams } from "@/hooks/use-invoice-params";
 import { useUserQuery } from "@/hooks/use-user";
@@ -57,6 +57,7 @@ export function InvoiceActions({
   const { data: user } = useUserQuery();
   const [cancelSeriesOpen, setCancelSeriesOpen] = useState(false);
   const [refundOpen, setRefundOpen] = useState(false);
+  const refundConfirmationId = useRef<string | null>(null);
 
   const canCancelSeries =
     invoiceRecurringId && (recurringStatus === "active" || recurringStatus === "paused");
@@ -223,7 +224,7 @@ export function InvoiceActions({
   );
 
   const handleDeleteInvoice = () => {
-    deleteInvoiceMutation.mutate({ id });
+    deleteInvoiceMutation.mutate({ id, idempotencyKey: crypto.randomUUID() });
     setParams(null);
   };
 
@@ -254,7 +255,18 @@ export function InvoiceActions({
   );
 
   const refundDialog = (
-    <AlertDialog open={refundOpen} onOpenChange={setRefundOpen}>
+    <AlertDialog
+      open={refundOpen}
+      onOpenChange={(open) => {
+        if (open && !refundConfirmationId.current) {
+          refundConfirmationId.current = crypto.randomUUID();
+        }
+        if (!open && !refundMutation.isPending) {
+          refundConfirmationId.current = null;
+        }
+        setRefundOpen(open);
+      }}
+    >
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Refund payment</AlertDialogTitle>
@@ -265,7 +277,18 @@ export function InvoiceActions({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={() => refundMutation.mutate({ invoiceId: id })}>
+          <AlertDialogAction
+            onClick={() => {
+              const confirmationId = refundConfirmationId.current ?? crypto.randomUUID();
+              refundConfirmationId.current = confirmationId;
+              refundMutation.mutate({
+                invoiceId: id,
+                idempotencyKey: `refund:${confirmationId}`,
+                confirmationId,
+                confirmation: "CONFIRM_REFUND_PAYMENT",
+              });
+            }}
+          >
             Refund
           </AlertDialogAction>
         </AlertDialogFooter>
@@ -304,6 +327,7 @@ export function InvoiceActions({
                       id,
                       status: "unpaid",
                       paidAt: null,
+                      idempotencyKey: crypto.randomUUID(),
                     })
                   }
                 >
@@ -401,6 +425,7 @@ export function InvoiceActions({
                       sendReminderMutation.mutate({
                         id,
                         date: new Date().toISOString(),
+                        idempotencyKey: crypto.randomUUID(),
                       })
                     }
                     disabled={sendReminderMutation.isPending}
@@ -443,6 +468,7 @@ export function InvoiceActions({
                             id,
                             status: "paid",
                             paidAt: date.toISOString(),
+                            idempotencyKey: crypto.randomUUID(),
                           });
                         } else {
                           // NOTE: Today is undefined
@@ -450,6 +476,7 @@ export function InvoiceActions({
                             id,
                             status: "paid",
                             paidAt: new Date().toISOString(),
+                            idempotencyKey: crypto.randomUUID(),
                           });
                         }
                       }}
@@ -466,6 +493,7 @@ export function InvoiceActions({
                     updateInvoiceMutation.mutate({
                       id,
                       status: "canceled",
+                      idempotencyKey: crypto.randomUUID(),
                     })
                   }
                 >

@@ -80,12 +80,11 @@ function addDateRangeFilter(
   }
 }
 
-async function allRows<T>(
-  d1: CloudflareD1DatabaseBinding,
-  query: string,
-  values: unknown[],
-) {
-  const { results = [] } = await d1.prepare(query).bind(...values).all<T>();
+async function allRows<T>(d1: CloudflareD1DatabaseBinding, query: string, values: unknown[]) {
+  const { results = [] } = await d1
+    .prepare(query)
+    .bind(...values)
+    .all<T>();
 
   return results;
 }
@@ -94,9 +93,7 @@ function toBoolean(value: number | boolean) {
   return value === true || value === 1;
 }
 
-function toMetricRecord(
-  row: TransactionMetricAggregateD1Row,
-): TransactionMetricAggregateRowRecord {
+function toMetricRecord(row: TransactionMetricAggregateD1Row): TransactionMetricAggregateRowRecord {
   return {
     scope: row.scope,
     date: row.date,

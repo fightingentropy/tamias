@@ -188,11 +188,14 @@ export async function findMatches(
     .filter((transaction) => isRelevantTransactionCandidate(inboxItem, transaction))
     .sort((left, right) => compareTransactionCandidates(inboxItem, left, right))
     .slice(0, 90);
-  const pendingSuggestionRows = await getTransactionMatchSuggestionsFromD1(requireInboxItemsD1(db), {
-    teamId,
-    transactionIds: candidateTransactionRows.map((transaction) => transaction.id),
-    statuses: ["pending"],
-  });
+  const pendingSuggestionRows = await getTransactionMatchSuggestionsFromD1(
+    requireInboxItemsD1(db),
+    {
+      teamId,
+      transactionIds: candidateTransactionRows.map((transaction) => transaction.id),
+      statuses: ["pending"],
+    },
+  );
   const pendingSuggestionIdSet = new Set(pendingSuggestionRows.map((row) => row.transactionId));
   const candidates = candidateTransactionRows
     .filter((transaction) => !transaction.hasAttachment)

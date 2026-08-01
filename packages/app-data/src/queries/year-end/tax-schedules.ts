@@ -210,9 +210,9 @@ function toCloseCompanyLoansScheduleRecord(
       row.loans_made_json,
     ),
     taxChargeable: row.tax_chargeable,
-    reliefEarlierThan: parseJsonArray<
-      CloseCompanyLoansScheduleRecord["reliefEarlierThan"][number]
-    >(row.relief_earlier_than_json),
+    reliefEarlierThan: parseJsonArray<CloseCompanyLoansScheduleRecord["reliefEarlierThan"][number]>(
+      row.relief_earlier_than_json,
+    ),
     reliefEarlierDue: row.relief_earlier_due,
     loanLaterReliefNow: parseJsonArray<
       CloseCompanyLoansScheduleRecord["loanLaterReliefNow"][number]

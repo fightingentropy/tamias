@@ -295,9 +295,7 @@ export const AccountingProviderConfigSchema = z.discriminatedUnion("provider", [
  * Union type for all provider configurations
  * Discriminated by 'provider' field for type safety
  */
-export type AccountingProviderConfig =
-  | QuickBooksProviderConfig
-  | FortnoxProviderConfig;
+export type AccountingProviderConfig = QuickBooksProviderConfig | FortnoxProviderConfig;
 
 /**
  * Parse and validate a provider config from unknown data (e.g., from database)

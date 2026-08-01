@@ -784,8 +784,7 @@ export const getTransactionAttachmentPreSignedUrlSchema = z.object({
 export const transactionAttachmentPreSignedUrlResponseSchema = z.object({
   url: z.string().url().openapi({
     description: "Pre-signed URL for accessing the attachment, valid for 60 seconds",
-    example:
-      "https://api.tamias.xyz/files/proxy?filePath=vault/transactions/receipt.pdf",
+    example: "https://api.tamias.xyz/files/proxy?filePath=vault/transactions/receipt.pdf",
   }),
   expiresAt: z.string().datetime().openapi({
     description: "ISO 8601 timestamp when the URL expires",

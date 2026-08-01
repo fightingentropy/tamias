@@ -43,10 +43,7 @@ function toDocumentTagEmbedding(row: DocumentTagEmbeddingRow): DocumentTagEmbedd
   };
 }
 
-async function getDocumentTagEmbeddingsFromD1(
-  d1: CloudflareD1DatabaseBinding,
-  slugs: string[],
-) {
+async function getDocumentTagEmbeddingsFromD1(d1: CloudflareD1DatabaseBinding, slugs: string[]) {
   if (slugs.length === 0) {
     return [];
   }

@@ -4,11 +4,7 @@ import {
   type CloudflareD1DatabaseBinding,
   type Database,
 } from "@tamias/app-data/client";
-import {
-  ensureUserInD1,
-  getUserByIdFromD1,
-  requireIdentityD1,
-} from "@tamias/app-data/queries";
+import { ensureUserInD1, getUserByIdFromD1, requireIdentityD1 } from "@tamias/app-data/queries";
 import { createAccessToken, verifyAccessToken } from "@tamias/auth-session";
 import { normalizeEmail } from "@tamias/domain/identity";
 
@@ -97,13 +93,9 @@ async function sha256(value: string) {
 
 async function derivePassword(password: string, salt: Uint8Array, iterations: number) {
   const passwordBytes = textEncoder.encode(password);
-  const key = await crypto.subtle.importKey(
-    "raw",
-    toArrayBuffer(passwordBytes),
-    "PBKDF2",
-    false,
-    ["deriveBits"],
-  );
+  const key = await crypto.subtle.importKey("raw", toArrayBuffer(passwordBytes), "PBKDF2", false, [
+    "deriveBits",
+  ]);
   const bits = await crypto.subtle.deriveBits(
     {
       name: "PBKDF2",
@@ -237,7 +229,13 @@ async function createSessionTokens(
         created_at
       ) values (?, ?, ?, ?, ?)`,
     )
-    .bind(refreshTokenId, sessionId, await sha256(refreshToken), futureIso(SESSION_TTL_MS), timestamp)
+    .bind(
+      refreshTokenId,
+      sessionId,
+      await sha256(refreshToken),
+      futureIso(SESSION_TTL_MS),
+      timestamp,
+    )
     .run();
 
   return {
@@ -272,7 +270,9 @@ async function signUpWithPassword(
   const timestamp = nowIso();
 
   await d1
-    .prepare("update users set auth_user_id = coalesce(auth_user_id, id), updated_at = ? where id = ?")
+    .prepare(
+      "update users set auth_user_id = coalesce(auth_user_id, id), updated_at = ? where id = ?",
+    )
     .bind(timestamp, user.id)
     .run();
 
@@ -288,7 +288,14 @@ async function signUpWithPassword(
         updated_at
       ) values (?, ?, 'password', ?, ?, ?, ?)`,
     )
-    .bind(crypto.randomUUID(), user.id, args.email, await hashPassword(args.password), timestamp, timestamp)
+    .bind(
+      crypto.randomUUID(),
+      user.id,
+      args.email,
+      await hashPassword(args.password),
+      timestamp,
+      timestamp,
+    )
     .run();
 
   return {
@@ -353,7 +360,9 @@ async function refreshSession(
   const nextRefreshToken = randomToken("tamias_rt_");
 
   await d1
-    .prepare("update auth_refresh_tokens set first_used_at = coalesce(first_used_at, ?), revoked_at = ? where id = ?")
+    .prepare(
+      "update auth_refresh_tokens set first_used_at = coalesce(first_used_at, ?), revoked_at = ? where id = ?",
+    )
     .bind(timestamp, timestamp, row.id)
     .run();
   await d1
@@ -377,7 +386,9 @@ async function refreshSession(
     )
     .run();
   await d1
-    .prepare("update auth_sessions set last_used_at = ?, updated_at = ?, user_agent = coalesce(?, user_agent), ip_hash = coalesce(?, ip_hash) where id = ?")
+    .prepare(
+      "update auth_sessions set last_used_at = ?, updated_at = ?, user_agent = coalesce(?, user_agent), ip_hash = coalesce(?, ip_hash) where id = ?",
+    )
     .bind(
       timestamp,
       timestamp,
@@ -414,7 +425,9 @@ async function signOut(d1: CloudflareD1DatabaseBinding, options: DashboardAuthAc
       .bind(timestamp, timestamp, identity.session_id)
       .run();
     await d1
-      .prepare("update auth_refresh_tokens set revoked_at = ? where session_id = ? and revoked_at is null")
+      .prepare(
+        "update auth_refresh_tokens set revoked_at = ? where session_id = ? and revoked_at is null",
+      )
       .bind(timestamp, identity.session_id)
       .run();
   }
@@ -446,7 +459,11 @@ export async function handleDashboardAuthAction(
   const passwordParams = readPasswordParams(args);
 
   if (passwordParams.flow === "signUp") {
-    return signUpWithPassword(requireIdentityD1(options.db ?? createDatabase()), passwordParams, options);
+    return signUpWithPassword(
+      requireIdentityD1(options.db ?? createDatabase()),
+      passwordParams,
+      options,
+    );
   }
 
   return signInWithPassword(d1, passwordParams, options);

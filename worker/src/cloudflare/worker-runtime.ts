@@ -1,13 +1,13 @@
 import { configureEmailRuntime } from "@tamias/email/send";
-import { configureDatabaseRuntime, type CloudflareD1DatabaseBinding } from "@tamias/app-data/client";
+import {
+  configureDatabaseRuntime,
+  type CloudflareD1DatabaseBinding,
+} from "@tamias/app-data/client";
 import {
   configureCloudflareQueueRuntime,
   configureCloudflareScheduleRuntime,
 } from "@tamias/job-client/cloudflare-runtime";
-import {
-  configureStorageRuntime,
-  type CloudflareR2BucketBinding,
-} from "@tamias/storage";
+import { configureStorageRuntime, type CloudflareR2BucketBinding } from "@tamias/storage";
 import { configureDocumentsWorkerBinding } from "./documents-client";
 import { createCloudflareScheduleRuntime } from "./schedule-runtime";
 import type { CloudflareAsyncEnv } from "./shared";

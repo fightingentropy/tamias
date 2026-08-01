@@ -1,7 +1,17 @@
 import { createHash } from "node:crypto";
-import { HmrcVatProvider, roundCurrency } from "@tamias/compliance";
+import {
+  assertExternalMutationEnvironment,
+  HmrcVatProvider,
+  roundCurrency,
+} from "@tamias/compliance";
 import type { Database } from "../../../client";
 import { createSubmissionEvent } from "../../filing-events";
+import {
+  beginIdempotentOperation,
+  completeIdempotentOperation,
+  failIdempotentOperation,
+  requireIdempotentOperationReconciliation,
+} from "../../operational-safety";
 import { reuseQueryResult } from "../../../utils/request-cache";
 import { getHmrcProvider } from "../shared";
 import { getRequiredVatContext } from "./context";
@@ -13,7 +23,17 @@ import {
   upsertEvidencePackInD1,
 } from "./d1";
 import { getVatDraft } from "./draft";
-import type { GetEvidencePackParams, SubmitVatReturnParams, VatFilingActorId } from "./types";
+import type {
+  EvidencePackRecord,
+  GetEvidencePackParams,
+  SubmitVatReturnParams,
+  VatFilingActorId,
+} from "./types";
+
+type VatSubmissionResult = {
+  receipt: Awaited<ReturnType<HmrcVatProvider["submitReturn"]>>;
+  evidencePack: EvidencePackRecord;
+};
 
 async function buildEvidencePack(
   db: Database,
@@ -37,7 +57,10 @@ async function buildEvidencePack(
   });
 }
 
-export async function submitVatReturn(db: Database, params: SubmitVatReturnParams) {
+export async function submitVatReturn(
+  db: Database,
+  params: SubmitVatReturnParams,
+): Promise<VatSubmissionResult> {
   const { team, profile } = await getRequiredVatContext(db, params.teamId);
 
   if (!profile.vrn) {
@@ -73,9 +96,7 @@ export async function submitVatReturn(db: Database, params: SubmitVatReturnParam
   const hmrcPeriodKey = (obligation?.externalId ?? draft.periodKey).trim();
 
   if (hmrcPeriodKey.length !== 4) {
-    throw new Error(
-      "HMRC VAT submission requires the four-character HMRC obligation period key",
-    );
+    throw new Error("HMRC VAT submission requires the four-character HMRC obligation period key");
   }
 
   const requestPayload = {
@@ -91,63 +112,134 @@ export async function submitVatReturn(db: Database, params: SubmitVatReturnParam
     totalAcquisitionsExVAT: Math.round(boxMap.box9 ?? 0),
     finalised: true,
   };
-  const receipt = await providerData.provider.submitReturn({
-    vrn: profile.vrn,
-    submission: requestPayload,
-    accessToken: providerData.config.accessToken,
-    fraudHeaders: HmrcVatProvider.buildFraudPreventionHeaders({
-      deviceId: crypto.randomUUID(),
-      userId: params.submittedBy,
-      userAgent: params.userAgent,
-      publicIp: params.publicIp,
-    }),
+  assertExternalMutationEnvironment({
+    kind: "filing",
+    providerEnvironment: providerData.provider.environment,
   });
-  const submittedAt = new Date().toISOString();
-
-  await markVatReturnAcceptedInD1(db, {
-    vatReturnId: params.vatReturnId,
-    submittedAt,
-    externalSubmissionId:
-      receipt.formBundleNumber ?? receipt.chargeRefNumber ?? receipt.processingDate ?? null,
-  });
-
-  await createSubmissionEvent(db, {
+  const operation = await beginIdempotentOperation(db, {
     teamId: params.teamId,
-    filingProfileId: profile.id,
-    provider: "hmrc-vat",
-    obligationType: "vat",
-    vatReturnId: params.vatReturnId,
-    status: "accepted",
-    eventType: "return_submitted",
-    correlationId: receipt.formBundleNumber ?? null,
-    requestPayload,
-    responsePayload: receipt,
-  });
-
-  const evidencePack = await buildEvidencePack(db, {
-    teamId: params.teamId,
-    filingProfileId: profile.id,
-    vatReturnId: params.vatReturnId,
-    createdBy: params.submittedBy,
-    payload: {
-      team: {
-        id: team.id,
-        name: team.name,
-      },
-      profile,
-      draft,
-      submission: {
-        request: requestPayload,
-        response: receipt,
-      },
-      generatedAt: new Date().toISOString(),
+    scope: "filing.hmrc-vat.submit",
+    idempotencyKey: params.idempotencyKey,
+    request: {
+      vatReturnId: params.vatReturnId,
+      environment: providerData.provider.environment,
+      payload: requestPayload,
     },
   });
+  if (operation.state === "replayed") {
+    return operation.result as VatSubmissionResult;
+  }
 
-  return {
-    receipt,
-    evidencePack,
-  };
+  let providerAttempted = false;
+  let providerReceipt: VatSubmissionResult["receipt"] | null = null;
+  try {
+    providerAttempted = true;
+    const receipt = await providerData.provider.submitReturn({
+      vrn: profile.vrn,
+      submission: requestPayload,
+      accessToken: providerData.config.accessToken,
+      fraudHeaders: HmrcVatProvider.buildFraudPreventionHeaders({
+        deviceId: crypto.randomUUID(),
+        userId: params.submittedBy,
+        userAgent: params.userAgent,
+        publicIp: params.publicIp,
+      }),
+    });
+    providerReceipt = receipt;
+    const submittedAt = new Date().toISOString();
+
+    await markVatReturnAcceptedInD1(db, {
+      vatReturnId: params.vatReturnId,
+      submittedAt,
+      externalSubmissionId:
+        receipt.formBundleNumber ?? receipt.chargeRefNumber ?? receipt.processingDate ?? null,
+    });
+
+    await createSubmissionEvent(db, {
+      teamId: params.teamId,
+      filingProfileId: profile.id,
+      provider: "hmrc-vat",
+      obligationType: "vat",
+      vatReturnId: params.vatReturnId,
+      status: "accepted",
+      eventType: "return_submitted",
+      correlationId: receipt.formBundleNumber ?? null,
+      requestPayload: { ...requestPayload, idempotencyKey: params.idempotencyKey },
+      responsePayload: receipt,
+    });
+
+    const evidencePack = await buildEvidencePack(db, {
+      teamId: params.teamId,
+      filingProfileId: profile.id,
+      vatReturnId: params.vatReturnId,
+      createdBy: params.submittedBy,
+      payload: {
+        team: {
+          id: team.id,
+          name: team.name,
+        },
+        profile,
+        draft,
+        submission: {
+          request: requestPayload,
+          response: receipt,
+        },
+        generatedAt: new Date().toISOString(),
+      },
+    });
+    const result = { receipt, evidencePack };
+    await completeIdempotentOperation(db, {
+      teamId: params.teamId,
+      scope: "filing.hmrc-vat.submit",
+      idempotencyKey: params.idempotencyKey,
+      leaseToken: operation.leaseToken,
+      result,
+      audit: {
+        actorType: "user",
+        actorId: params.submittedBy,
+        action: "filing.hmrc-vat.submitted",
+        resourceType: "vat_return",
+        resourceId: params.vatReturnId,
+        confirmationId: params.confirmationId,
+        environment: providerData.provider.environment,
+        payload: {
+          filingProfileId: profile.id,
+          periodKey: hmrcPeriodKey,
+          externalSubmissionId:
+            receipt.formBundleNumber ?? receipt.chargeRefNumber ?? receipt.processingDate ?? null,
+        },
+      },
+      outbox: {
+        topic: "filing.hmrc-vat.submitted",
+        aggregateType: "vat_return",
+        aggregateId: params.vatReturnId,
+        payload: { filingProfileId: profile.id, periodKey: hmrcPeriodKey },
+      },
+    });
+    return result;
+  } catch (error) {
+    if (providerAttempted) {
+      await requireIdempotentOperationReconciliation(db, {
+        teamId: params.teamId,
+        scope: "filing.hmrc-vat.submit",
+        idempotencyKey: params.idempotencyKey,
+        leaseToken: operation.leaseToken,
+        error,
+        providerResult: providerReceipt ?? {
+          outcome: "unknown_after_provider_attempt",
+        },
+      });
+    } else {
+      await failIdempotentOperation(db, {
+        teamId: params.teamId,
+        scope: "filing.hmrc-vat.submit",
+        idempotencyKey: params.idempotencyKey,
+        leaseToken: operation.leaseToken,
+        error,
+      });
+    }
+    throw error;
+  }
 }
 
 async function listVatSubmissionsImpl(db: Database, params: { teamId: string }) {

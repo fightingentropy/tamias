@@ -42,7 +42,14 @@
     },
   ],
   "triggers": {
-    "crons": ["0 2 * * *", "0 3 * * *", "*/30 * * * *", "0 0,12 * * *", "*/30 * * * 1"],
+    "crons": [
+      "*/5 * * * *",
+      "0 2 * * *",
+      "0 3 * * *",
+      "*/30 * * * *",
+      "0 0,12 * * *",
+      "*/30 * * * 1",
+    ],
   },
   "durable_objects": {
     "bindings": [
@@ -77,6 +84,10 @@
         "binding": "LEDGER_QUEUE",
         "queue": "tamias-ledger-local",
       },
+      {
+        "binding": "OUTBOX_QUEUE",
+        "queue": "tamias-outbox-local",
+      },
     ],
     "consumers": [
       {
@@ -92,6 +103,31 @@
         "max_batch_timeout": 5,
         "max_retries": 3,
         "dead_letter_queue": "tamias-ledger-dlq-local",
+      },
+      {
+        "queue": "tamias-outbox-local",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5,
+        "max_retries": 3,
+        "dead_letter_queue": "tamias-outbox-dlq-local",
+      },
+      {
+        "queue": "tamias-capture-dlq-local",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5,
+        "max_retries": 10,
+      },
+      {
+        "queue": "tamias-ledger-dlq-local",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5,
+        "max_retries": 10,
+      },
+      {
+        "queue": "tamias-outbox-dlq-local",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5,
+        "max_retries": 10,
       },
     ],
   },
@@ -128,7 +164,14 @@
         },
       ],
       "triggers": {
-        "crons": ["0 2 * * *", "0 3 * * *", "*/30 * * * *", "0 0,12 * * *", "*/30 * * * 1"],
+        "crons": [
+          "*/5 * * * *",
+          "0 2 * * *",
+          "0 3 * * *",
+          "*/30 * * * *",
+          "0 0,12 * * *",
+          "*/30 * * * 1",
+        ],
       },
       "durable_objects": {
         "bindings": [
@@ -163,6 +206,10 @@
             "binding": "LEDGER_QUEUE",
             "queue": "tamias-ledger",
           },
+          {
+            "binding": "OUTBOX_QUEUE",
+            "queue": "tamias-outbox",
+          },
         ],
         "consumers": [
           {
@@ -178,6 +225,31 @@
             "max_batch_timeout": 5,
             "max_retries": 3,
             "dead_letter_queue": "tamias-ledger-dlq",
+          },
+          {
+            "queue": "tamias-outbox",
+            "max_batch_size": 10,
+            "max_batch_timeout": 5,
+            "max_retries": 3,
+            "dead_letter_queue": "tamias-outbox-dlq",
+          },
+          {
+            "queue": "tamias-capture-dlq",
+            "max_batch_size": 10,
+            "max_batch_timeout": 5,
+            "max_retries": 10,
+          },
+          {
+            "queue": "tamias-ledger-dlq",
+            "max_batch_size": 10,
+            "max_batch_timeout": 5,
+            "max_retries": 10,
+          },
+          {
+            "queue": "tamias-outbox-dlq",
+            "max_batch_size": 10,
+            "max_batch_timeout": 5,
+            "max_retries": 10,
           },
         ],
       },

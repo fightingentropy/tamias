@@ -47,7 +47,11 @@ export async function attachAssignments<TDocument extends { id: string }>(
   }));
 }
 
-export async function deleteDocumentTagAssignments(db: Database, teamId: string, documentId: string) {
+export async function deleteDocumentTagAssignments(
+  db: Database,
+  teamId: string,
+  documentId: string,
+) {
   await deleteDocumentTagAssignmentsForDocument(db, {
     teamId,
     documentId,

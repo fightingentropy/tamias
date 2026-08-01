@@ -146,8 +146,7 @@ function niceAxisTicks(min: number, max: number, tickCount = 5): number[] {
   const rawStep = range / (tickCount - 1);
   const magnitude = 10 ** Math.floor(Math.log10(rawStep));
   const niceSteps = [1, 2, 2.5, 5, 10];
-  const niceStep =
-    magnitude * (niceSteps.find((s) => s * magnitude >= rawStep) ?? 10);
+  const niceStep = magnitude * (niceSteps.find((s) => s * magnitude >= rawStep) ?? 10);
   const start = Math.floor(min / niceStep) * niceStep;
   const ticks: number[] = [];
   for (let v = start; v <= max + niceStep * 0.01; v += niceStep) {
@@ -308,13 +307,7 @@ export function PublicBurnRateChart({
       />
       {/* Dots */}
       {points.map((point, index) => (
-        <circle
-          key={labels[index]}
-          cx={point.x}
-          cy={point.y}
-          r="3"
-          fill="hsl(var(--foreground))"
-        />
+        <circle key={labels[index]} cx={point.x} cy={point.y} r="3" fill="hsl(var(--foreground))" />
       ))}
     </Frame>
   );
@@ -352,8 +345,7 @@ export function PublicComparisonBarChart({
 
   const chartW = svgW - MARGIN.left - MARGIN.right;
 
-  const lxBand = (index: number, count: number) =>
-    MARGIN.left + (index / count) * chartW;
+  const lxBand = (index: number, count: number) => MARGIN.left + (index / count) * chartW;
 
   const lxCenter = (index: number, count: number) => {
     if (count <= 1) return MARGIN.left + chartW / 2;
@@ -587,10 +579,16 @@ export function PublicComparisonBarChart({
         >
           <div className="bg-background border border-border px-3 py-2 text-xs shadow-md">
             <p className="text-muted-foreground mb-1">{hoveredItem.label}</p>
-            <p className="text-foreground font-medium">Current: {formatValue(hoveredItem.primary)}</p>
-            <p className="text-foreground font-medium">Previous: {formatValue(hoveredItem.secondary)}</p>
+            <p className="text-foreground font-medium">
+              Current: {formatValue(hoveredItem.primary)}
+            </p>
+            <p className="text-foreground font-medium">
+              Previous: {formatValue(hoveredItem.secondary)}
+            </p>
             {showAverage && (
-              <p className="text-foreground font-medium">Average: {formatValue(Math.round(average))}</p>
+              <p className="text-foreground font-medium">
+                Average: {formatValue(Math.round(average))}
+              </p>
             )}
           </div>
         </div>

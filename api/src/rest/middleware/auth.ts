@@ -22,7 +22,7 @@ export const withAuth: MiddlewareHandler = async (c, next) => {
 
   const auth = await resolveRequestAuth(c.req.raw.headers, {
     ...getRequestAuthDependencies(),
-    internalApiKey: undefined,
+    verifyServiceIdentity: undefined,
   });
 
   if (!auth.session) {

@@ -6,13 +6,10 @@ import {
   type ResolveRequestAuthDependencies,
   type SessionResolverDependencies,
 } from "@tamias/auth-session";
+import { verifyServiceIdentityTokenFromEnvironment } from "@tamias/auth-session/service-identity";
 import { getApiKeyByTokenFromD1, touchApiKeyInD1 } from "./foundation";
 import { getOAuthAccessTokenByTokenFromD1, touchOAuthAccessTokenInD1 } from "./oauth";
-import {
-  ensureCurrentUser,
-  getCurrentUser,
-  getTeamMembershipIds,
-} from "./identity";
+import { ensureCurrentUser, getCurrentUser, getTeamMembershipIds } from "./identity";
 
 export const sessionResolverDependencies: SessionResolverDependencies = {
   ensureCurrentUser,
@@ -28,7 +25,8 @@ export async function createTamiasTrustedSessionSnapshot(accessToken?: string | 
 
 export function getRequestAuthDependencies(): ResolveRequestAuthDependencies {
   return {
-    internalApiKey: process.env.INTERNAL_API_KEY,
+    dashboardSessionKey: process.env.TAMIAS_DASHBOARD_SESSION_KEY,
+    verifyServiceIdentity: verifyServiceIdentityTokenFromEnvironment,
     resolveUserSession: resolveTamiasUserSession,
     async getOAuthAccessTokenByToken(token) {
       const record = await getOAuthAccessTokenByTokenFromD1(token);

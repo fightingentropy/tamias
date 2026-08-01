@@ -4,7 +4,8 @@ import { cloudflare } from "@cloudflare/vite-plugin";
 import babel from "@rolldown/plugin-babel";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
-import { defineConfig, loadEnv, type Plugin } from "vite";
+import { defineConfig, type Plugin } from "vite";
+import { loadRuntimeEnvironment } from "../scripts/lib/runtime-env";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const workspaceRoot = path.resolve(__dirname, "..");
@@ -85,7 +86,9 @@ function getBuildEnvValue(mode: string, explicitValue: string | undefined, fallb
 }
 
 function getPublicEnv(mode: string) {
-  const env = loadEnv(mode, workspaceRoot, "");
+  const env = loadRuntimeEnvironment(workspaceRoot, ["dashboard"], {
+    includeLocalOverrides: mode !== "production",
+  });
 
   const dashboardUrl = getBuildEnvValue(
     mode,
@@ -119,8 +122,7 @@ export default defineConfig(({ mode, command }) => {
     Object.entries(publicEnv).map(([key, value]) => [`process.env.${key}`, JSON.stringify(value)]),
   );
   const workerVars = {
-    TAMIAS_ENVIRONMENT:
-      process.env.TAMIAS_ENVIRONMENT ?? (mode === "production" ? "production" : "development"),
+    TAMIAS_ENVIRONMENT: mode === "production" ? "production" : "development",
     API_URL: publicEnv.API_URL,
     DASHBOARD_URL: publicEnv.DASHBOARD_URL,
     STRIPE_PUBLISHABLE_KEY: publicEnv.STRIPE_PUBLISHABLE_KEY,
@@ -147,6 +149,8 @@ export default defineConfig(({ mode, command }) => {
           entry: "./start/router.tsx",
           routesDirectory: "./start/routes",
           generatedRouteTree: "./start/routeTree.gen.ts",
+          quoteStyle: "double",
+          semicolons: true,
         },
         start: {
           entry: "./start/start.ts",
@@ -194,7 +198,9 @@ export default defineConfig(({ mode, command }) => {
       dedupe: ["react", "react-dom"],
     },
     define: defineEntries,
-    envDir: workspaceRoot,
+    // Environment files are loaded through the dashboard allowlist above. Keeping Vite's
+    // automatic dotenv loader disabled prevents a root .env from exposing API/filing secrets.
+    envDir: path.join(workspaceRoot, "config", "no-automatic-env"),
     server: {
       host: "0.0.0.0",
       port: 3001,
@@ -227,9 +233,7 @@ export default defineConfig(({ mode, command }) => {
     ssr: {
       noExternal: [
         // Bundle API + worker inline for local unified wrangler dev.
-        ...(command === "serve"
-          ? [/^@tamias\/api(?:\/.*)?$/, /^@tamias\/worker(?:\/.*)?$/]
-          : []),
+        ...(command === "serve" ? [/^@tamias\/api(?:\/.*)?$/, /^@tamias\/worker(?:\/.*)?$/] : []),
         /^@tanstack\/react-start(?:\/.*)?$/,
         /^@tanstack\/start-storage-context(?:\/.*)?$/,
         // Rebundle from source so `resolve.alias` can replace motion-dom's addDomEvent

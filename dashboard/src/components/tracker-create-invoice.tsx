@@ -169,6 +169,7 @@ export function TrackerCreateInvoice({ projectId }: Props) {
       projectId,
       dateFrom: formatISO(date.from, { representation: "date" }),
       dateTo: formatISO(date.to, { representation: "date" }),
+      idempotencyKey: crypto.randomUUID(),
     });
   };
 

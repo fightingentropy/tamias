@@ -1,7 +1,11 @@
 import {
   allocateNextInvoiceNumber,
+  beginIdempotentOperation,
+  completeIdempotentOperation,
   deleteInvoice,
   duplicateInvoice,
+  failIdempotentOperation,
+  requireIdempotentOperationReconciliation,
   updateInvoice,
 } from "@tamias/app-data/queries";
 import {
@@ -24,9 +28,25 @@ import { hasScope, READ_ONLY_ANNOTATIONS, type RegisterTools } from "../types";
 const WRITE_ANNOTATIONS = {
   readOnlyHint: false,
   destructiveHint: false,
-  idempotentHint: false,
+  idempotentHint: true,
   openWorldHint: false,
 } as const;
+
+function confirmedMutationShape<Confirmation extends string>(confirmation: Confirmation) {
+  return {
+    idempotencyKey: z
+      .string()
+      .min(8)
+      .max(200)
+      .regex(/^[A-Za-z0-9._:-]+$/)
+      .describe("Stable key reused unchanged when retrying this exact mutation"),
+    confirmationId: z
+      .string()
+      .uuid()
+      .describe("Identifier from the human confirmation shown before this mutation"),
+    confirmation: z.literal(confirmation).describe(`Must be exactly ${confirmation}`),
+  };
+}
 
 // Annotations for destructive operations
 const DESTRUCTIVE_ANNOTATIONS = {
@@ -42,6 +62,79 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
   // Check scopes
   const hasReadScope = hasScope(ctx, "invoices.read");
   const hasWriteScope = hasScope(ctx, "invoices.write");
+
+  async function runConfirmedMutation<Result>(args: {
+    action: string;
+    resourceId: string;
+    idempotencyKey: string;
+    confirmationId: string;
+    request: Record<string, unknown>;
+    mutate: () => Promise<Result>;
+  }): Promise<Result> {
+    if (!userId) {
+      throw new Error("A user identity is required for MCP mutations");
+    }
+
+    const operation = await beginIdempotentOperation(db, {
+      teamId,
+      scope: `mcp.${args.action}`,
+      idempotencyKey: args.idempotencyKey,
+      request: args.request,
+    });
+    if (operation.state === "replayed") {
+      return operation.result as Result;
+    }
+
+    let mutationCompleted = false;
+    try {
+      const result = await args.mutate();
+      mutationCompleted = true;
+      await completeIdempotentOperation(db, {
+        teamId,
+        scope: `mcp.${args.action}`,
+        idempotencyKey: args.idempotencyKey,
+        leaseToken: operation.leaseToken,
+        result,
+        audit: {
+          actorType: "mcp",
+          actorId: userId,
+          action: `mcp.${args.action}`,
+          resourceType: "invoice",
+          resourceId: args.resourceId,
+          confirmationId: args.confirmationId,
+          environment: process.env.TAMIAS_ENVIRONMENT ?? "unknown",
+          payload: args.request,
+        },
+        outbox: {
+          topic: `mcp.${args.action}`,
+          aggregateType: "invoice",
+          aggregateId: args.resourceId,
+          payload: { actorId: userId },
+        },
+      });
+      return result;
+    } catch (error) {
+      if (mutationCompleted) {
+        await requireIdempotentOperationReconciliation(db, {
+          teamId,
+          scope: `mcp.${args.action}`,
+          idempotencyKey: args.idempotencyKey,
+          leaseToken: operation.leaseToken,
+          error,
+          providerResult: { resourceId: args.resourceId },
+        });
+      } else {
+        await failIdempotentOperation(db, {
+          teamId,
+          scope: `mcp.${args.action}`,
+          idempotencyKey: args.idempotencyKey,
+          leaseToken: operation.leaseToken,
+          error,
+        });
+      }
+      throw error;
+    }
+  }
 
   // Skip if user has no invoice scopes
   if (!hasReadScope && !hasWriteScope) {
@@ -146,7 +239,7 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
       {
         title: "Update Invoice",
         description:
-          "Update an invoice status (paid, canceled, unpaid) or add an internal note. Can also record payment date.",
+          "Update an invoice after explicit human confirmation. Reuse the idempotency key for retries.",
         inputSchema: {
           id: updateInvoiceSchema.shape.id,
           status: z
@@ -164,6 +257,7 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
             .nullable()
             .optional()
             .describe("Internal note visible only to your team"),
+          ...confirmedMutationShape("CONFIRM_UPDATE_INVOICE"),
         },
         annotations: WRITE_ANNOTATIONS,
       },
@@ -182,13 +276,26 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
           };
         }
 
-        const result = await updateInvoice(db, {
-          id: params.id,
-          teamId,
-          status: params.status,
-          paidAt: params.paidAt,
-          internalNote: params.internalNote,
-          userId: userId,
+        const result = await runConfirmedMutation({
+          action: "invoice.update",
+          resourceId: params.id,
+          idempotencyKey: params.idempotencyKey,
+          confirmationId: params.confirmationId,
+          request: {
+            id: params.id,
+            status: params.status,
+            paidAt: params.paidAt,
+            internalNote: params.internalNote,
+          },
+          mutate: () =>
+            updateInvoice(db, {
+              id: params.id,
+              teamId,
+              status: params.status,
+              paidAt: params.paidAt,
+              internalNote: params.internalNote,
+              userId,
+            }),
         });
 
         if (!result) {
@@ -209,7 +316,7 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
       {
         title: "Mark Invoice as Paid",
         description:
-          "Mark an invoice as paid. Automatically records the current time as payment date if not specified.",
+          "Mark an invoice as paid after explicit human confirmation. This does not initiate a bank payment.",
         inputSchema: {
           id: z.string().uuid().describe("The ID of the invoice to mark paid"),
           paidAt: z
@@ -217,6 +324,7 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
             .datetime()
             .optional()
             .describe("Payment date in ISO 8601 format (defaults to current time)"),
+          ...confirmedMutationShape("CONFIRM_MARK_INVOICE_PAID"),
         },
         annotations: WRITE_ANNOTATIONS,
       },
@@ -241,12 +349,21 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
           };
         }
 
-        const result = await updateInvoice(db, {
-          id: params.id,
-          teamId,
-          status: "paid",
-          paidAt: params.paidAt ?? new Date().toISOString(),
-          userId: userId,
+        const paidAt = params.paidAt ?? new Date().toISOString();
+        const result = await runConfirmedMutation({
+          action: "invoice.mark_paid",
+          resourceId: params.id,
+          idempotencyKey: params.idempotencyKey,
+          confirmationId: params.confirmationId,
+          request: { id: params.id, paidAt },
+          mutate: () =>
+            updateInvoice(db, {
+              id: params.id,
+              teamId,
+              status: "paid",
+              paidAt,
+              userId,
+            }),
         });
 
         if (!result) {
@@ -269,10 +386,11 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
         description: "Delete an invoice. Only draft or canceled invoices can be deleted.",
         inputSchema: {
           id: deleteInvoiceSchema.shape.id,
+          ...confirmedMutationShape("CONFIRM_DELETE_INVOICE"),
         },
         annotations: DESTRUCTIVE_ANNOTATIONS,
       },
-      async ({ id }) => {
+      async ({ id, idempotencyKey, confirmationId }) => {
         // Check invoice exists and status
         const existing = await getInvoiceByIdForTeam({
           db,
@@ -299,7 +417,14 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
           };
         }
 
-        const result = await deleteInvoice(db, { id, teamId });
+        const result = await runConfirmedMutation({
+          action: "invoice.delete",
+          resourceId: id,
+          idempotencyKey,
+          confirmationId,
+          request: { id },
+          mutate: () => deleteInvoice(db, { id, teamId }),
+        });
 
         if (!result) {
           return {
@@ -327,10 +452,11 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
           "Create a copy of an existing invoice with a new invoice number and current date.",
         inputSchema: {
           id: duplicateInvoiceSchema.shape.id,
+          ...confirmedMutationShape("CONFIRM_DUPLICATE_INVOICE"),
         },
         annotations: WRITE_ANNOTATIONS,
       },
-      async ({ id }) => {
+      async ({ id, idempotencyKey, confirmationId }) => {
         // Check invoice exists
         const existing = await getInvoiceByIdForTeam({
           db,
@@ -355,11 +481,19 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
 
           const invoiceNumber = await allocateNextInvoiceNumber(db, teamId);
 
-          const result = await duplicateInvoice(db, {
-            id,
-            teamId,
-            userId: userId,
-            invoiceNumber,
+          const result = await runConfirmedMutation({
+            action: "invoice.duplicate",
+            resourceId: id,
+            idempotencyKey,
+            confirmationId,
+            request: { id, invoiceNumber },
+            mutate: () =>
+              duplicateInvoice(db, {
+                id,
+                teamId,
+                userId,
+                invoiceNumber,
+              }),
           });
 
           return {
@@ -387,10 +521,11 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
           "Cancel an invoice. This marks the invoice as canceled and it can then be deleted if needed.",
         inputSchema: {
           id: z.string().uuid().describe("The ID of the invoice to cancel"),
+          ...confirmedMutationShape("CONFIRM_CANCEL_INVOICE"),
         },
         annotations: WRITE_ANNOTATIONS,
       },
-      async ({ id }) => {
+      async ({ id, idempotencyKey, confirmationId }) => {
         const existing = await getInvoiceByIdForTeam({
           db,
           teamId,
@@ -418,11 +553,19 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
           };
         }
 
-        const result = await updateInvoice(db, {
-          id,
-          teamId,
-          status: "canceled",
-          userId: userId,
+        const result = await runConfirmedMutation({
+          action: "invoice.cancel",
+          resourceId: id,
+          idempotencyKey,
+          confirmationId,
+          request: { id },
+          mutate: () =>
+            updateInvoice(db, {
+              id,
+              teamId,
+              status: "canceled",
+              userId,
+            }),
         });
 
         if (!result) {

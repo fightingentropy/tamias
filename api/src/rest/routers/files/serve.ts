@@ -98,7 +98,9 @@ app.openapi(
       contentType.startsWith("image/") ||
       contentType === "message/rfc822"
     ) {
-      headers["Content-Disposition"] = filename ? `inline; filename="${sanitizeFilename(filename)}"` : "inline";
+      headers["Content-Disposition"] = filename
+        ? `inline; filename="${sanitizeFilename(filename)}"`
+        : "inline";
     }
 
     // Add cache headers for images

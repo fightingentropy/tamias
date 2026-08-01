@@ -1,7 +1,13 @@
-import { HmrcCtProvider } from "@tamias/compliance";
+import { assertExternalMutationEnvironment, HmrcCtProvider } from "@tamias/compliance";
 import type { FilingProfileRecord } from "../../compliance/filings";
 import type { Database } from "../../../client";
 import { createSubmissionEvent } from "../../filing-events";
+import {
+  beginIdempotentOperation,
+  completeIdempotentOperation,
+  failIdempotentOperation,
+  requireIdempotentOperationReconciliation,
+} from "../../operational-safety";
 import { buildCtSubmissionArtifacts } from "../drafts";
 import { getYearEndContext } from "../pack";
 import { getYearEndPackByPeriod } from "../pack-store";
@@ -13,6 +19,11 @@ import {
 } from "../tax-schedules";
 import { createCtSubmissionArtifactBundle, buildCtSubmissionRequestSummary } from "./artifacts";
 import type { SubmissionArtifactBundleRecord } from "../types";
+
+type CtSubmissionResult = {
+  receipt: Awaited<ReturnType<HmrcCtProvider["submitSubmissionXml"]>>;
+  request: ReturnType<typeof buildCtSubmissionRequestSummary>;
+};
 
 function resolveCtSubmissionStatus(message: {
   status?: "submitted" | "accepted" | "rejected";
@@ -60,8 +71,10 @@ export async function submitCt600ToHmrc(
     submittedBy: string;
     periodKey?: string;
     declarationAccepted: true;
+    idempotencyKey: string;
+    confirmationId: string;
   },
-) {
+): Promise<CtSubmissionResult> {
   const context = await getYearEndContext(db, params.teamId, params.periodKey);
   const [packRecord, closeCompanyLoansSchedule, corporationTaxRateSchedule] = await Promise.all([
     getYearEndPackByPeriod(db, {
@@ -123,6 +136,22 @@ export async function submitCt600ToHmrc(
   }
 
   assertHmrcCtSubmissionReferenceReady(provider, context.profile);
+  assertExternalMutationEnvironment({ kind: "filing", providerEnvironment: provider.environment });
+
+  const operation = await beginIdempotentOperation(db, {
+    teamId: params.teamId,
+    scope: "filing.hmrc-ct.submit",
+    idempotencyKey: params.idempotencyKey,
+    request: {
+      periodKey: context.period.periodKey,
+      filingProfileId: context.profile.id,
+      environment: provider.environment,
+      packId: pack.id,
+    },
+  });
+  if (operation.state === "replayed") {
+    return operation.result as CtSubmissionResult;
+  }
 
   const requestSummaryBase = buildCtSubmissionRequestSummary({
     periodKey: context.period.periodKey,
@@ -144,6 +173,13 @@ export async function submitCt600ToHmrc(
       computationsAttachmentIxbrl: artifacts.computationsAttachmentIxbrl,
     });
   } catch (error) {
+    await failIdempotentOperation(db, {
+      teamId: params.teamId,
+      scope: "filing.hmrc-ct.submit",
+      idempotencyKey: params.idempotencyKey,
+      leaseToken: operation.leaseToken,
+      error,
+    });
     await createSubmissionEvent(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
@@ -165,8 +201,12 @@ export async function submitCt600ToHmrc(
     artifactBundle,
   });
 
+  let providerAttempted = false;
+  let providerReceipt: CtSubmissionResult["receipt"] | null = null;
   try {
+    providerAttempted = true;
     const receipt = await provider.submitSubmissionXml(artifacts.ct600DraftXml);
+    providerReceipt = receipt;
 
     await createSubmissionEvent(db, {
       teamId: params.teamId,
@@ -180,19 +220,74 @@ export async function submitCt600ToHmrc(
       responsePayload: receipt as unknown as Record<string, unknown>,
     });
 
-    return {
+    const result = {
       receipt,
       request: requestSummary,
     };
+    await completeIdempotentOperation(db, {
+      teamId: params.teamId,
+      scope: "filing.hmrc-ct.submit",
+      idempotencyKey: params.idempotencyKey,
+      leaseToken: operation.leaseToken,
+      result,
+      audit: {
+        actorType: "user",
+        actorId: params.submittedBy,
+        action: "filing.hmrc-ct.submitted",
+        resourceType: "year_end_pack",
+        resourceId: pack.id,
+        confirmationId: params.confirmationId,
+        environment: provider.environment,
+        payload: {
+          filingProfileId: context.profile.id,
+          periodKey: context.period.periodKey,
+          correlationId: receipt.correlationId,
+        },
+      },
+      outbox: {
+        topic: "filing.hmrc-ct.submitted",
+        aggregateType: "year_end_pack",
+        aggregateId: pack.id,
+        payload: {
+          filingProfileId: context.profile.id,
+          periodKey: context.period.periodKey,
+          correlationId: receipt.correlationId,
+        },
+      },
+    });
+    return result;
   } catch (error) {
+    if (providerAttempted) {
+      await requireIdempotentOperationReconciliation(db, {
+        teamId: params.teamId,
+        scope: "filing.hmrc-ct.submit",
+        idempotencyKey: params.idempotencyKey,
+        leaseToken: operation.leaseToken,
+        error,
+        providerResult: providerReceipt ?? {
+          outcome: "unknown_after_provider_attempt",
+        },
+      });
+    } else {
+      await failIdempotentOperation(db, {
+        teamId: params.teamId,
+        scope: "filing.hmrc-ct.submit",
+        idempotencyKey: params.idempotencyKey,
+        leaseToken: operation.leaseToken,
+        error,
+      });
+    }
     await createSubmissionEvent(db, {
       teamId: params.teamId,
       filingProfileId: context.profile.id,
       provider: "hmrc-ct",
       obligationType: "corporation_tax",
-      status: "failed",
-      eventType: "return_submission_failed",
+      status: providerAttempted ? "reconciliation_required" : "failed",
+      eventType: providerAttempted
+        ? "return_submission_reconciliation_required"
+        : "return_submission_failed",
       requestPayload: requestSummary,
+      responsePayload: providerReceipt ?? undefined,
       errorMessage: error instanceof Error ? error.message : String(error),
     });
     throw error;

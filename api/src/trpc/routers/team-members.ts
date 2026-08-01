@@ -1,8 +1,4 @@
-import {
-  deleteTeamMember,
-  getTeamMembers,
-  updateTeamMember,
-} from "@tamias/app-services/identity";
+import { deleteTeamMember, getTeamMembers, updateTeamMember } from "@tamias/app-services/identity";
 import { TRPCError } from "@trpc/server";
 import { deleteTeamMemberSchema, updateTeamMemberSchema } from "../../schemas/team";
 import { protectedProcedure } from "../init";

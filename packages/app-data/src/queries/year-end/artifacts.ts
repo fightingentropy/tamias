@@ -9,10 +9,9 @@ export function buildCsvChecksum(value: string) {
 
 export async function buildZipBundle(files: Array<{ name: string; data: Buffer }>) {
   return Buffer.from(
-    zipSync(
-      Object.fromEntries(files.map((file) => [file.name, new Uint8Array(file.data)])),
-      { level: 9 },
-    ),
+    zipSync(Object.fromEntries(files.map((file) => [file.name, new Uint8Array(file.data)])), {
+      level: 9,
+    }),
   );
 }
 

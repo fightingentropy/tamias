@@ -68,9 +68,8 @@ function mergeRequestHeaders(base: Headers, override: Headers): Headers {
 
 async function getInternalApiFetch() {
   if (import.meta.env.SSR) {
-    const { getScopedDashboardRequestContext } = await import(
-      "@/start/server/cloudflare-request-scope"
-    );
+    const { getScopedDashboardRequestContext } =
+      await import("@/start/server/cloudflare-request-scope");
     const scopedInternalApiFetch = getScopedDashboardRequestContext()?.internalApiFetch;
     if (scopedInternalApiFetch) {
       return scopedInternalApiFetch;

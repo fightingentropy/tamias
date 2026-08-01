@@ -1,9 +1,13 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { validateEvent, WebhookVerificationError } from "@polar-sh/sdk/webhooks";
 import {
+  beginIdempotentOperation,
+  completeIdempotentOperation,
+  failIdempotentOperation,
   getTeamById,
   getTeamOwnerContact,
   hasTeamData,
+  requireIdempotentOperationReconciliation,
   updateTeamById,
 } from "@tamias/app-data/queries";
 import { enqueue, startCloudflareWorkflow } from "@tamias/job-client";
@@ -87,6 +91,22 @@ app.openapi(
       type: event.type,
     });
 
+    const webhookId = webhookHeaders["webhook-id"];
+    if (!webhookId) {
+      throw new HTTPException(400, { message: "Missing webhook-id" });
+    }
+    const operationTeamId = (event.data?.metadata?.teamId as string | undefined) ?? "polar-global";
+    const operation = await beginIdempotentOperation(db, {
+      teamId: operationTeamId,
+      scope: "webhook.polar",
+      idempotencyKey: webhookId,
+      request: { webhookId, eventType: event.type },
+    });
+    if (operation.state === "replayed") {
+      return c.json({ received: true });
+    }
+
+    let domainMutationCompleted = false;
     try {
       switch (event.type) {
         case "subscription.active": {
@@ -106,6 +126,7 @@ app.openapi(
               subscriptionStatus: "active",
             },
           });
+          domainMutationCompleted = true;
 
           logger.info("Team plan activated", {
             teamId,
@@ -130,6 +151,7 @@ app.openapi(
               canceledAt: new Date().toISOString(),
             },
           });
+          domainMutationCompleted = true;
 
           logger.info("Team subscription canceled", { teamId });
 
@@ -177,6 +199,7 @@ app.openapi(
               subscriptionStatus: "past_due",
             },
           });
+          domainMutationCompleted = true;
 
           logger.info("Team subscription past due", { teamId });
 
@@ -229,6 +252,7 @@ app.openapi(
                 subscriptionStatus: "past_due",
               },
             });
+            domainMutationCompleted = true;
 
             logger.info("Team subscription past due (via revoked event)", {
               teamId,
@@ -243,6 +267,7 @@ app.openapi(
                 subscriptionStatus: null,
               },
             });
+            domainMutationCompleted = true;
 
             logger.info("Team subscription revoked, downgraded to trial", {
               teamId,
@@ -256,7 +281,49 @@ app.openapi(
             type: event.type,
           });
       }
+
+      await completeIdempotentOperation(db, {
+        teamId: operationTeamId,
+        scope: "webhook.polar",
+        idempotencyKey: webhookId,
+        leaseToken: operation.leaseToken,
+        result: { webhookId, eventType: event.type },
+        audit: {
+          actorType: "webhook",
+          actorId: webhookId,
+          action: `webhook.polar.${event.type}`,
+          resourceType: "subscription",
+          resourceId: typeof event.data?.id === "string" ? event.data.id : null,
+          confirmationId: webhookId,
+          environment: process.env.POLAR_ENVIRONMENT ?? "sandbox",
+          payload: { eventType: event.type },
+        },
+        outbox: {
+          topic: "webhook.polar.processed",
+          aggregateType: "subscription",
+          aggregateId: typeof event.data?.id === "string" ? event.data.id : webhookId,
+          payload: { webhookId, eventType: event.type },
+        },
+      });
     } catch (err) {
+      if (domainMutationCompleted) {
+        await requireIdempotentOperationReconciliation(db, {
+          teamId: operationTeamId,
+          scope: "webhook.polar",
+          idempotencyKey: webhookId,
+          leaseToken: operation.leaseToken,
+          error: err,
+          providerResult: { webhookId, eventType: event.type },
+        });
+      } else {
+        await failIdempotentOperation(db, {
+          teamId: operationTeamId,
+          scope: "webhook.polar",
+          idempotencyKey: webhookId,
+          leaseToken: operation.leaseToken,
+          error: err,
+        });
+      }
       logger.error("Error processing Polar webhook", {
         error: err instanceof Error ? err.message : String(err),
         eventType: event.type,

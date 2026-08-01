@@ -58,6 +58,16 @@ const nullableBoolean = z
   .nullable()
   .transform((value) => value ?? null);
 
+const confirmedMutationShape = {
+  idempotencyKey: z
+    .string()
+    .trim()
+    .min(8)
+    .max(200)
+    .regex(/^[A-Za-z0-9._:-]+$/),
+  confirmationId: z.string().uuid(),
+};
+
 export const getVatDraftSchema = z
   .object({
     obligationId: z.string().optional(),
@@ -121,6 +131,7 @@ export const submitVatReturnSchema = z.object({
   declarationAccepted: z.literal(true),
   userAgent: z.string().trim().optional(),
   publicIp: z.string().trim().optional(),
+  ...confirmedMutationShape,
 });
 
 export const getEvidencePackSchema = z.object({
@@ -141,10 +152,12 @@ export const listYearEndAccountsSubmissionsSchema = yearEndPeriodSchema;
 export const submitYearEndCt600Schema = z.object({
   periodKey: z.string().date().optional(),
   declarationAccepted: z.literal(true),
+  ...confirmedMutationShape,
 });
 export const submitYearEndAccountsSchema = z.object({
   periodKey: z.string().date().optional(),
   declarationAccepted: z.literal(true),
+  ...confirmedMutationShape,
 });
 export const pollYearEndCt600Schema = z
   .object({

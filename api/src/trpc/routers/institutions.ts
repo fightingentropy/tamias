@@ -27,7 +27,9 @@ const getInstitutionByIdSchema = z.object({
 
 const updateUsageSchema = z.object({ id: z.string() });
 
-function mapInstitutionRecords(results: Awaited<ReturnType<typeof getInstitutions>>): InstitutionTrpcRow[] {
+function mapInstitutionRecords(
+  results: Awaited<ReturnType<typeof getInstitutions>>,
+): InstitutionTrpcRow[] {
   return results.map((institution) => ({
     id: institution.id,
     name: institution.name,
@@ -41,10 +43,7 @@ function mapInstitutionRecords(results: Awaited<ReturnType<typeof getInstitution
   }));
 }
 
-function resolveExcludeProviders(
-  countryCode: string,
-  excludeProviders?: "truelayer"[],
-) {
+function resolveExcludeProviders(countryCode: string, excludeProviders?: "truelayer"[]) {
   void countryCode;
   return excludeProviders ?? [];
 }
@@ -130,38 +129,40 @@ export const institutionsRouter = createTRPCRouter({
       };
     }),
 
-  updateUsage: protectedProcedure.input(updateUsageSchema).mutation(async ({ ctx: { db }, input }) => {
-    try {
-      const result = await updateInstitutionUsage(db, {
-        id: input.id,
-      });
+  updateUsage: protectedProcedure
+    .input(updateUsageSchema)
+    .mutation(async ({ ctx: { db }, input }) => {
+      try {
+        const result = await updateInstitutionUsage(db, {
+          id: input.id,
+        });
 
-      if (!result) {
-        return { data: null };
+        if (!result) {
+          return { data: null };
+        }
+
+        return {
+          data: {
+            id: result.id,
+            name: result.name,
+            logo: result.logo ?? null,
+            availableHistory: result.availableHistory ?? null,
+            maximumConsentValidity: result.maximumConsentValidity ?? null,
+            popularity: result.popularity,
+            provider: result.provider,
+            type: result.type ?? null,
+            country: result.countries?.[0] ?? undefined,
+          },
+        };
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
+        logger.error("Failed to update institution usage", {
+          error: error instanceof Error ? error.message : String(error),
+        });
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to update institution usage",
+        });
       }
-
-      return {
-        data: {
-          id: result.id,
-          name: result.name,
-          logo: result.logo ?? null,
-          availableHistory: result.availableHistory ?? null,
-          maximumConsentValidity: result.maximumConsentValidity ?? null,
-          popularity: result.popularity,
-          provider: result.provider,
-          type: result.type ?? null,
-          country: result.countries?.[0] ?? undefined,
-        },
-      };
-    } catch (error) {
-      if (error instanceof TRPCError) throw error;
-      logger.error("Failed to update institution usage", {
-        error: error instanceof Error ? error.message : String(error),
-      });
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to update institution usage",
-      });
-    }
-  }),
+    }),
 });

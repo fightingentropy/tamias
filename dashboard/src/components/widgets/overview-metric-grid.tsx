@@ -95,12 +95,10 @@ export function OverviewMetricGrid() {
   const reviewDetail = reviewCount === 0 ? "All up to date" : "Ready to review";
 
   const runway = runwayData?.result;
-  const runwayValue =
-    runway && runway > 0 ? `${runway} ${runway === 1 ? "mo" : "mos"}` : "-";
+  const runwayValue = runway && runway > 0 ? `${runway} ${runway === 1 ? "mo" : "mos"}` : "-";
   const runwayDetail = runway && runway > 0 ? "at current burn rate" : "No data yet";
 
-  const pendingCount =
-    (inboxStats?.pendingItems ?? 0) + (inboxStats?.analyzingItems ?? 0);
+  const pendingCount = (inboxStats?.pendingItems ?? 0) + (inboxStats?.analyzingItems ?? 0);
   const inboxValue = String(pendingCount);
   const inboxDetail = pendingCount === 0 ? "All caught up" : "To review";
 

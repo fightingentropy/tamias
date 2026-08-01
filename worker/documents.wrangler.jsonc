@@ -53,6 +53,12 @@
         "max_retries": 3,
         "dead_letter_queue": "tamias-documents-dlq-local",
       },
+      {
+        "queue": "tamias-documents-dlq-local",
+        "max_batch_size": 5,
+        "max_batch_timeout": 5,
+        "max_retries": 10,
+      },
     ],
   },
   "vars": {
@@ -92,6 +98,12 @@
             "max_batch_timeout": 5,
             "max_retries": 3,
             "dead_letter_queue": "tamias-documents-dlq",
+          },
+          {
+            "queue": "tamias-documents-dlq",
+            "max_batch_size": 5,
+            "max_batch_timeout": 5,
+            "max_retries": 10,
           },
         ],
       },

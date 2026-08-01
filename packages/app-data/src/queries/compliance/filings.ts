@@ -582,19 +582,17 @@ export async function listComplianceObligationRecords(
     .bind(args.teamId)
     .all<ComplianceObligationRow>();
 
-  return (result.results ?? [])
-    .map(toComplianceObligationRecord)
-    .filter((obligation) => {
-      if (args.provider && obligation.provider !== args.provider) {
-        return false;
-      }
+  return (result.results ?? []).map(toComplianceObligationRecord).filter((obligation) => {
+    if (args.provider && obligation.provider !== args.provider) {
+      return false;
+    }
 
-      if (args.obligationType && obligation.obligationType !== args.obligationType) {
-        return false;
-      }
+    if (args.obligationType && obligation.obligationType !== args.obligationType) {
+      return false;
+    }
 
-      return true;
-    });
+    return true;
+  });
 }
 
 export async function getComplianceObligationById(

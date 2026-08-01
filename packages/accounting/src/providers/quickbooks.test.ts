@@ -236,8 +236,9 @@ describe("QuickBooksProvider", () => {
       const apiCall = mock(async (_method: "GET", _endpoint: string) => ({
         CompanyInfo: { CompanyName: "Test Company" },
       }));
-      (provider as unknown as { apiCall: (method: "GET", endpoint: string) => Promise<unknown> })
-        .apiCall = apiCall;
+      (
+        provider as unknown as { apiCall: (method: "GET", endpoint: string) => Promise<unknown> }
+      ).apiCall = apiCall;
 
       const result = await provider.checkConnection();
       expect(result.connected).toBe(true);

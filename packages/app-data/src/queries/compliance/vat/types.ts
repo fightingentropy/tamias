@@ -106,6 +106,8 @@ export type SubmitVatReturnParams = {
   declarationAccepted: boolean;
   userAgent?: string;
   publicIp?: string;
+  idempotencyKey: string;
+  confirmationId: string;
 };
 
 export type ListVatObligationsParams = {

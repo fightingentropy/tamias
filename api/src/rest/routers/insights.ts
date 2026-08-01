@@ -1,9 +1,5 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import {
-  getInsightById,
-  getInsightsForUser,
-  getLatestInsight,
-} from "@tamias/app-data/queries";
+import { getInsightById, getInsightsForUser, getLatestInsight } from "@tamias/app-data/queries";
 import { HTTPException } from "hono/http-exception";
 import {
   insightByIdSchema,

@@ -28,9 +28,7 @@ export function useNavPrefetch() {
       // (errors are silently ignored) so a failed prefetch never blocks nav.
       switch (route) {
         case "/invoices":
-          void queryClient.prefetchQuery(
-            trpc.widgets.getOutstandingInvoices.queryOptions({}),
-          );
+          void queryClient.prefetchQuery(trpc.widgets.getOutstandingInvoices.queryOptions({}));
           break;
         case "/inbox":
           void queryClient.prefetchQuery(
@@ -41,9 +39,7 @@ export function useNavPrefetch() {
           );
           break;
         case "/dashboard":
-          void queryClient.prefetchQuery(
-            trpc.widgets.getAccountBalances.queryOptions({}),
-          );
+          void queryClient.prefetchQuery(trpc.widgets.getAccountBalances.queryOptions({}));
           break;
       }
     },

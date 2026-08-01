@@ -13,6 +13,7 @@ import { transformCustomerToContent } from "@tamias/invoice/utils";
 import { addDays } from "date-fns";
 import { HTTPException } from "hono/http-exception";
 import { v4 as uuidv4 } from "uuid";
+import { runIdempotentInvoiceMutation } from "../../invoice/mutation-safety";
 import {
   assertScheduledAtInFuture,
   createScheduledInvoiceJob,
@@ -26,17 +27,22 @@ import {
   draftInvoiceRequestSchema,
   draftInvoiceResponseSchema,
   getInvoiceByIdSchema,
+  idempotencyKeySchema,
   updateInvoiceRequestSchema,
   updateInvoiceResponseSchema,
 } from "../../schemas/invoice";
 import { validateResponse } from "../../utils/validate-response";
 import { withRequiredScope } from "../middleware";
 import type { Context } from "../types";
-import {
-  requireRestUserId,
-  restInvoiceLogger,
-  serializeInvoiceForRest,
-} from "./invoices-shared";
+import { requireRestUserId, restInvoiceLogger, serializeInvoiceForRest } from "./invoices-shared";
+
+function requireIdempotencyKey(value: string | undefined) {
+  const key = value?.trim();
+  if (!key || key.length < 8 || key.length > 200 || !/^[A-Za-z0-9._:-]+$/.test(key)) {
+    throw new HTTPException(400, { message: "A valid Idempotency-Key header is required" });
+  }
+  return key;
+}
 
 export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
   app.openapi(
@@ -50,6 +56,7 @@ export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
         "Create an invoice for the authenticated team. The behavior depends on deliveryType: 'create' generates and finalizes the invoice immediately, 'create_and_send' also sends it to the customer, 'scheduled' schedules the invoice for automatic processing at the specified date.",
       tags: ["Invoices"],
       request: {
+        headers: z.object({ "Idempotency-Key": idempotencyKeySchema }),
         body: {
           content: {
             "application/json": {
@@ -134,141 +141,157 @@ export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
       const session = c.get("session");
       const input = c.req.valid("json");
       const userId = requireRestUserId(session);
+      const idempotencyKey = requireIdempotencyKey(c.req.header("idempotency-key"));
 
       const invoiceId = uuidv4();
-      const finalInvoiceNumber =
-        input.invoiceNumber || (await allocateNextInvoiceNumber(db, teamId));
-      const template = await getInvoiceTemplate(db, teamId);
-      const paymentTermsDays = template?.paymentTermsDays ?? 30;
-      const issueDate = input.issueDate || new Date().toISOString();
-      const dueDate = input.dueDate || addDays(new Date(issueDate), paymentTermsDays).toISOString();
-
-      const customer = await getCustomerById(db, {
-        id: input.customerId,
+      const createdInvoice = await runIdempotentInvoiceMutation({
+        db,
         teamId,
-      });
+        userId,
+        action: "rest.create",
+        resourceId: invoiceId,
+        idempotencyKey,
+        request: input,
+        mutate: async ({ markMutationApplied }) => {
+          const finalInvoiceNumber =
+            input.invoiceNumber || (await allocateNextInvoiceNumber(db, teamId));
+          const template = await getInvoiceTemplate(db, teamId);
+          const paymentTermsDays = template?.paymentTermsDays ?? 30;
+          const issueDate = input.issueDate || new Date().toISOString();
+          const dueDate =
+            input.dueDate || addDays(new Date(issueDate), paymentTermsDays).toISOString();
 
-      if (!customer) {
-        throw new HTTPException(404, { message: "Customer not found" });
-      }
-
-      const customerDetails = transformCustomerToContent(customer);
-
-      const result = await (async () => {
-        try {
-          return await draftInvoice(db, {
-            id: invoiceId,
+          const customer = await getCustomerById(db, {
+            id: input.customerId,
             teamId,
-            userId: userId,
-            invoiceNumber: finalInvoiceNumber,
-            issueDate,
-            dueDate,
-            template: input.template,
-            paymentDetails: input.paymentDetails,
-            fromDetails: input.fromDetails,
-            customerDetails: customerDetails ? JSON.stringify(customerDetails) : null,
-            noteDetails: input.noteDetails,
-            customerId: input.customerId,
-            customerName: customer.name,
-            logoUrl: input.logoUrl,
-            vat: input.vat,
-            tax: input.tax,
-            discount: input.discount,
-            topBlock: input.topBlock,
-            bottomBlock: input.bottomBlock,
-            amount: input.amount,
-            lineItems: input.lineItems?.map((item) => ({
-              ...item,
-              name: JSON.stringify(item.name),
-            })),
           });
-        } catch (error) {
-          if (isInvoiceNumberConflictError(error)) {
-            throw new HTTPException(409, {
-              message: getInvoiceNumberConflictMessage(finalInvoiceNumber),
+
+          if (!customer) {
+            throw new HTTPException(404, { message: "Customer not found" });
+          }
+
+          const customerDetails = transformCustomerToContent(customer);
+
+          const result = await (async () => {
+            try {
+              return await draftInvoice(db, {
+                id: invoiceId,
+                teamId,
+                userId,
+                invoiceNumber: finalInvoiceNumber,
+                issueDate,
+                dueDate,
+                template: input.template,
+                paymentDetails: input.paymentDetails,
+                fromDetails: input.fromDetails,
+                customerDetails: customerDetails ? JSON.stringify(customerDetails) : null,
+                noteDetails: input.noteDetails,
+                customerId: input.customerId,
+                customerName: customer.name,
+                logoUrl: input.logoUrl,
+                vat: input.vat,
+                tax: input.tax,
+                discount: input.discount,
+                topBlock: input.topBlock,
+                bottomBlock: input.bottomBlock,
+                amount: input.amount,
+                lineItems: input.lineItems?.map((item) => ({
+                  ...item,
+                  name: JSON.stringify(item.name),
+                })),
+              });
+            } catch (error) {
+              if (isInvoiceNumberConflictError(error)) {
+                throw new HTTPException(409, {
+                  message: getInvoiceNumberConflictMessage(finalInvoiceNumber),
+                });
+              }
+
+              throw error;
+            }
+          })();
+
+          if (!result) {
+            throw new HTTPException(500, { message: "Failed to create invoice" });
+          }
+          markMutationApplied({ invoiceId: result.id });
+
+          let finalResult = result;
+
+          if (input.deliveryType === "create" || input.deliveryType === "create_and_send") {
+            const updatedInvoice = await updateInvoice(db, {
+              id: result.id,
+              status: "unpaid",
+              teamId,
+              userId,
+            });
+
+            if (updatedInvoice) {
+              finalResult = updatedInvoice;
+            }
+
+            await enqueueInvoiceGeneration({
+              invoiceId: result.id,
+              deliveryType: input.deliveryType,
+            });
+          } else if (input.deliveryType === "scheduled") {
+            if (!input.scheduledAt) {
+              throw new HTTPException(400, {
+                message: "scheduledAt is required for scheduled delivery",
+              });
+            }
+
+            const { delayMs } = assertScheduledAtInFuture(input.scheduledAt, () => {
+              throw new HTTPException(400, {
+                message: "scheduledAt must be in the future",
+              });
+            });
+            let scheduledJobId: string;
+            try {
+              scheduledJobId = await createScheduledInvoiceJob(result.id, delayMs);
+            } catch {
+              throw new HTTPException(500, {
+                message: "Failed to create scheduled job - no job ID returned",
+              });
+            }
+
+            const updatedInvoice = await updateInvoice(db, {
+              id: result.id,
+              status: "scheduled",
+              scheduledAt: input.scheduledAt,
+              scheduledJobId,
+              teamId,
+              userId,
+            });
+
+            if (!updatedInvoice) {
+              await removeInvoiceJob(scheduledJobId, {
+                logFailureMessage: "Failed to clean up orphaned scheduled job",
+                logger: restInvoiceLogger,
+              });
+
+              throw new HTTPException(404, {
+                message: "Invoice not found",
+              });
+            }
+
+            finalResult = updatedInvoice;
+
+            enqueueInvoiceScheduledNotification({
+              teamId,
+              invoiceId: result.id,
+              invoiceNumber: finalResult.invoiceNumber!,
+              scheduledAt: input.scheduledAt,
+              customerName: finalResult.customerName ?? undefined,
             });
           }
 
-          throw error;
-        }
-      })();
-
-      if (!result) {
-        throw new HTTPException(500, { message: "Failed to create invoice" });
-      }
-
-      let finalResult = result;
-
-      if (input.deliveryType === "create" || input.deliveryType === "create_and_send") {
-        const updatedInvoice = await updateInvoice(db, {
-          id: result.id,
-          status: "unpaid",
-          teamId,
-          userId: userId,
-        });
-
-        if (updatedInvoice) {
-          finalResult = updatedInvoice;
-        }
-
-        await enqueueInvoiceGeneration({
-          invoiceId: result.id,
-          deliveryType: input.deliveryType,
-        });
-      } else if (input.deliveryType === "scheduled") {
-        if (!input.scheduledAt) {
-          throw new HTTPException(400, {
-            message: "scheduledAt is required for scheduled delivery",
-          });
-        }
-
-        const { delayMs } = assertScheduledAtInFuture(input.scheduledAt, () => {
-          throw new HTTPException(400, {
-            message: "scheduledAt must be in the future",
-          });
-        });
-        let scheduledJobId: string;
-        try {
-          scheduledJobId = await createScheduledInvoiceJob(result.id, delayMs);
-        } catch {
-          throw new HTTPException(500, {
-            message: "Failed to create scheduled job - no job ID returned",
-          });
-        }
-
-        const updatedInvoice = await updateInvoice(db, {
-          id: result.id,
-          status: "scheduled",
-          scheduledAt: input.scheduledAt,
-          scheduledJobId,
-          teamId,
-          userId: userId,
-        });
-
-        if (!updatedInvoice) {
-          await removeInvoiceJob(scheduledJobId, {
-            logFailureMessage: "Failed to clean up orphaned scheduled job",
-            logger: restInvoiceLogger,
-          });
-
-          throw new HTTPException(404, {
-            message: "Invoice not found",
-          });
-        }
-
-        finalResult = updatedInvoice;
-
-        enqueueInvoiceScheduledNotification({
-          teamId,
-          invoiceId: result.id,
-          invoiceNumber: finalResult.invoiceNumber!,
-          scheduledAt: input.scheduledAt,
-          customerName: finalResult.customerName ?? undefined,
-        });
-      }
+          return finalResult;
+        },
+      });
 
       return c.json(
-        validateResponse(serializeInvoiceForRest(finalResult), draftInvoiceResponseSchema),
+        validateResponse(serializeInvoiceForRest(createdInvoice), draftInvoiceResponseSchema),
         201,
       );
     },
@@ -284,6 +307,7 @@ export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
       description: "Update an invoice by its unique identifier for the authenticated team.",
       tags: ["Invoices"],
       request: {
+        headers: z.object({ "Idempotency-Key": idempotencyKeySchema }),
         params: getInvoiceByIdSchema.pick({ id: true }),
         body: {
           content: {
@@ -311,12 +335,17 @@ export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
       const session = c.get("session");
       const { id } = c.req.valid("param");
       const input = c.req.valid("json");
+      const userId = requireRestUserId(session);
 
-      const result = await updateInvoice(db, {
-        id,
+      const result = await runIdempotentInvoiceMutation({
+        db,
         teamId,
-        userId: session.user.id ?? undefined,
-        ...input,
+        userId,
+        action: "rest.update",
+        resourceId: id,
+        idempotencyKey: requireIdempotencyKey(c.req.header("idempotency-key")),
+        request: { id, ...input },
+        mutate: () => updateInvoice(db, { id, teamId, userId, ...input }),
       });
 
       if (!result) {
@@ -338,6 +367,7 @@ export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
         "Delete an invoice by its unique identifier for the authenticated team. Only invoices with status 'draft' or 'canceled' can be deleted directly. If the invoice is not in one of these statuses, update its status to 'canceled' before attempting deletion.",
       tags: ["Invoices"],
       request: {
+        headers: z.object({ "Idempotency-Key": idempotencyKeySchema }),
         params: deleteInvoiceSchema.pick({ id: true }),
       },
       responses: {
@@ -355,11 +385,18 @@ export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
     async (c) => {
       const db = c.get("db");
       const teamId = c.get("teamId");
+      const session = c.get("session");
       const { id } = c.req.valid("param");
 
-      const result = await deleteInvoice(db, {
-        id,
+      const result = await runIdempotentInvoiceMutation({
+        db,
         teamId,
+        userId: requireRestUserId(session),
+        action: "rest.delete",
+        resourceId: id,
+        idempotencyKey: requireIdempotencyKey(c.req.header("idempotency-key")),
+        request: { id },
+        mutate: () => deleteInvoice(db, { id, teamId }),
       });
 
       return c.json(validateResponse(result, deleteInvoiceResponseSchema));

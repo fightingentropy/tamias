@@ -37,9 +37,7 @@ export function OverviewMetricCard({
       <span className="text-xs text-muted-foreground">{label}</span>
       <div className="mt-3">
         <span className="text-xl font-medium">{value}</span>
-        {detail ? (
-          <span className="text-xs text-muted-foreground ml-2">{detail}</span>
-        ) : null}
+        {detail ? <span className="text-xs text-muted-foreground ml-2">{detail}</span> : null}
       </div>
     </Link>
   );

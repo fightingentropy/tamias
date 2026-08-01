@@ -139,11 +139,14 @@ export async function unmatchTransaction(
   const transactionId = relatedItems.find((item) => item.transactionId)?.transactionId;
 
   if (transactionId) {
-    const transactionSuggestions = await getTransactionMatchSuggestionsFromD1(requireInboxItemsD1(db), {
-      teamId,
-      transactionId,
-      statuses: ["confirmed"],
-    });
+    const transactionSuggestions = await getTransactionMatchSuggestionsFromD1(
+      requireInboxItemsD1(db),
+      {
+        teamId,
+        transactionId,
+        statuses: ["confirmed"],
+      },
+    );
     const originalSuggestions = relatedItems.flatMap((item) =>
       transactionSuggestions.filter(
         (suggestion) =>

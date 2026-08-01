@@ -622,7 +622,7 @@ export async function getTeamMembersFromD1(
       timezone: row.user_timezone,
       locale: row.user_locale,
     },
-	  }));
+  }));
 }
 
 async function getMembershipFromD1(

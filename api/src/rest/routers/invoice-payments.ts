@@ -1,5 +1,15 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import { getTeamById, updateInvoice, updateTeamById } from "@tamias/app-data/queries";
+import {
+  beginIdempotentOperation,
+  completeIdempotentOperation,
+  failIdempotentOperation,
+  getTeamById,
+  hashOperationRequest,
+  requireIdempotentOperationReconciliation,
+  updateInvoice,
+  updateTeamById,
+} from "@tamias/app-data/queries";
+import { assertExternalMutationEnvironment } from "@tamias/compliance";
 import { getInvoiceByToken } from "@tamias/app-services/invoice-by-token";
 import { decryptOAuthState, encryptOAuthState } from "@tamias/encryption";
 import { toStripeAmount } from "@tamias/invoice/currency";
@@ -9,6 +19,7 @@ import { HTTPException } from "hono/http-exception";
 import Stripe from "stripe";
 import { protectedMiddleware, publicMiddleware } from "../middleware";
 import type { Context } from "../types";
+import { idempotencyKeySchema } from "../../schemas/invoice";
 
 const app = new OpenAPIHono<Context>();
 
@@ -348,6 +359,7 @@ app.openapi(
       "Creates a Stripe PaymentIntent for paying an invoice. This is a public endpoint that uses the invoice token for authentication.",
     tags: ["Invoice Payments"],
     request: {
+      headers: z.object({ "Idempotency-Key": idempotencyKeySchema }),
       body: {
         content: {
           "application/json": {
@@ -376,6 +388,15 @@ app.openapi(
   async (c) => {
     const db = c.get("db");
     const { token } = c.req.valid("json");
+    const idempotencyKey = c.req.header("idempotency-key")?.trim();
+    if (
+      !idempotencyKey ||
+      idempotencyKey.length < 8 ||
+      idempotencyKey.length > 200 ||
+      !/^[A-Za-z0-9._:-]+$/.test(idempotencyKey)
+    ) {
+      throw new HTTPException(400, { message: "A valid Idempotency-Key header is required" });
+    }
     const invoice = await getInvoiceByToken(token, db);
 
     if (!invoice) {
@@ -426,8 +447,76 @@ app.openapi(
       throw new HTTPException(400, { message: "Invalid invoice amount" });
     }
 
+    const paymentEnvironment = process.env.TAMIAS_PAYMENT_ENVIRONMENT ?? "sandbox";
+    assertExternalMutationEnvironment({
+      kind: "payment",
+      providerEnvironment: paymentEnvironment,
+    });
+    const operation = await beginIdempotentOperation(db, {
+      teamId: invoice.teamId,
+      scope: "payment.stripe.intent",
+      idempotencyKey,
+      request: {
+        invoiceId: invoice.id,
+        amount,
+        currency,
+        stripeAccountId: team.stripeAccountId,
+      },
+    });
+
+    let providerPaymentIntent: Stripe.PaymentIntent | null = null;
     try {
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
+      if (operation.state === "replayed") {
+        const paymentIntentId = (operation.result as { paymentIntentId?: unknown } | null)
+          ?.paymentIntentId;
+        if (typeof paymentIntentId !== "string") {
+          throw new Error("Stored payment intent result is invalid");
+        }
+        const replayedIntent = await stripe.paymentIntents.retrieve(paymentIntentId, {
+          stripeAccount: team.stripeAccountId,
+        });
+        return c.json({
+          clientSecret: replayedIntent.client_secret!,
+          amount: replayedIntent.amount,
+          currency: replayedIntent.currency,
+          stripeAccountId: team.stripeAccountId,
+        });
+      }
+
+      const finishPaymentIntent = async (paymentIntent: Stripe.PaymentIntent) => {
+        const response = {
+          clientSecret: paymentIntent.client_secret!,
+          amount: paymentIntent.amount,
+          currency: paymentIntent.currency,
+          stripeAccountId: team.stripeAccountId,
+        };
+        await completeIdempotentOperation(db, {
+          teamId: invoice.teamId,
+          scope: "payment.stripe.intent",
+          idempotencyKey,
+          leaseToken: operation.leaseToken,
+          result: { paymentIntentId: paymentIntent.id },
+          audit: {
+            actorType: "customer",
+            actorId: hashOperationRequest(token),
+            action: "payment.stripe.intent.ready",
+            resourceType: "invoice",
+            resourceId: invoice.id,
+            confirmationId: idempotencyKey,
+            environment: paymentEnvironment,
+            payload: { amount, currency, paymentIntentId: paymentIntent.id },
+          },
+          outbox: {
+            topic: "payment.stripe.intent.ready",
+            aggregateType: "invoice",
+            aggregateId: invoice.id,
+            payload: { amount, currency, paymentIntentId: paymentIntent.id },
+          },
+        });
+        return c.json(response);
+      };
 
       // Check if there's an existing payment intent for this invoice
       if (invoice.paymentIntentId) {
@@ -466,12 +555,8 @@ app.openapi(
                   { amount },
                   { stripeAccount: team.stripeAccountId },
                 );
-                return c.json({
-                  clientSecret: updatedIntent.client_secret!,
-                  amount: updatedIntent.amount,
-                  currency: updatedIntent.currency,
-                  stripeAccountId: team.stripeAccountId,
-                });
+                providerPaymentIntent = updatedIntent;
+                return finishPaymentIntent(updatedIntent);
               }
               // For requires_action or processing, the payment is in-flight
               // (e.g., 3DS authentication in progress or payment being processed)
@@ -480,12 +565,7 @@ app.openapi(
               // manually by the business after the payment completes.
             }
 
-            return c.json({
-              clientSecret: existingIntent.client_secret!,
-              amount: existingIntent.amount,
-              currency: existingIntent.currency,
-              stripeAccountId: team.stripeAccountId,
-            });
+            return finishPaymentIntent(existingIntent);
           }
         } catch (err) {
           // Re-throw HTTP exceptions (like the "already paid" check above)
@@ -500,7 +580,6 @@ app.openapi(
       // Use an idempotency key to prevent race conditions - if two requests
       // arrive simultaneously for the same invoice, Stripe will only create
       // one payment intent and return the same result to both requests.
-      const idempotencyKey = `invoice_payment_${invoice.id}_${amount}_${currency}`;
       const paymentIntent = await stripe.paymentIntents.create(
         {
           amount,
@@ -519,6 +598,7 @@ app.openapi(
           idempotencyKey,
         },
       );
+      providerPaymentIntent = paymentIntent;
 
       // Save payment intent ID to invoice
       await updateInvoice(db, {
@@ -527,13 +607,29 @@ app.openapi(
         paymentIntentId: paymentIntent.id,
       });
 
-      return c.json({
-        clientSecret: paymentIntent.client_secret!,
-        amount: paymentIntent.amount,
-        currency: paymentIntent.currency,
-        stripeAccountId: team.stripeAccountId,
-      });
+      return finishPaymentIntent(paymentIntent);
     } catch (err) {
+      if (providerPaymentIntent && operation.state === "started") {
+        await requireIdempotentOperationReconciliation(db, {
+          teamId: invoice.teamId,
+          scope: "payment.stripe.intent",
+          idempotencyKey,
+          leaseToken: operation.leaseToken,
+          error: err,
+          providerResult: { paymentIntentId: providerPaymentIntent.id },
+        });
+      } else if (operation.state === "started") {
+        await failIdempotentOperation(db, {
+          teamId: invoice.teamId,
+          scope: "payment.stripe.intent",
+          idempotencyKey,
+          leaseToken: operation.leaseToken,
+          error: err,
+        });
+      }
+      if (err instanceof HTTPException) {
+        throw err;
+      }
       logger.error("Failed to create payment intent", {
         error: err instanceof Error ? err.message : String(err),
         invoiceId: invoice.id,

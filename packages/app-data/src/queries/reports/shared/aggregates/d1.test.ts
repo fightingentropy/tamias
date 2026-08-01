@@ -196,7 +196,20 @@ describe("report aggregate D1 reads", () => {
             updated_at
           ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         )
-        .run("team-1", "base", "2026-01-10", "GBP", "income", "sales", "vat", 20, 20, 120, 2, "now");
+        .run(
+          "team-1",
+          "base",
+          "2026-01-10",
+          "GBP",
+          "income",
+          "sales",
+          "vat",
+          20,
+          20,
+          120,
+          2,
+          "now",
+        );
 
       await expect(
         getTransactionMetricAggregateRowsFromD1(db, {
@@ -353,7 +366,21 @@ describe("report aggregate D1 reads", () => {
             updated_at
           ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         )
-        .run("team-1", "paidAt", "2026-01-25", "paid", "GBP", "2026-01-30", 1, 150, 1, 15, 1, 10, "now");
+        .run(
+          "team-1",
+          "paidAt",
+          "2026-01-25",
+          "paid",
+          "GBP",
+          "2026-01-30",
+          1,
+          150,
+          1,
+          15,
+          1,
+          10,
+          "now",
+        );
       sqlite
         .prepare(
           `insert into invoice_aging_aggregates (

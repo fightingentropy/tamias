@@ -50,10 +50,12 @@ const getRuntimeHeaders = createIsomorphicFn()
   });
 
 const getServerCookieApi = createIsomorphicFn()
-  .client(async (): Promise<ServerCookieApi> => ({
-    cookieValues: {},
-    setCookie: () => undefined,
-  }))
+  .client(
+    async (): Promise<ServerCookieApi> => ({
+      cookieValues: {},
+      setCookie: () => undefined,
+    }),
+  )
   .server(async (): Promise<ServerCookieApi> => {
     const { getCookies, setCookie } = await import("@tanstack/react-start/server");
 

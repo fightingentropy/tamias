@@ -297,13 +297,25 @@ export function ActionsMenu({ row }: Props) {
             </DropdownMenuItem>
           )}
 
-          <DropdownMenuItem onClick={() => duplicateInvoiceMutation.mutate({ id: row.id })}>
+          <DropdownMenuItem
+            onClick={() =>
+              duplicateInvoiceMutation.mutate({
+                id: row.id,
+                idempotencyKey: crypto.randomUUID(),
+              })
+            }
+          >
             Duplicate
           </DropdownMenuItem>
 
           {row.status === "scheduled" && row.scheduledJobId && (
             <DropdownMenuItem
-              onClick={() => cancelScheduleMutation.mutate({ id: row.id })}
+              onClick={() =>
+                cancelScheduleMutation.mutate({
+                  id: row.id,
+                  idempotencyKey: crypto.randomUUID(),
+                })
+              }
               className="text-[#FF3638]"
             >
               Cancel schedule
@@ -317,6 +329,7 @@ export function ActionsMenu({ row }: Props) {
                   id: row.id,
                   status: "unpaid",
                   paidAt: null,
+                  idempotencyKey: crypto.randomUUID(),
                 })
               }
             >
@@ -340,6 +353,7 @@ export function ActionsMenu({ row }: Props) {
                           id: row.id,
                           status: "paid",
                           paidAt: date.toISOString(),
+                          idempotencyKey: crypto.randomUUID(),
                         });
                       } else {
                         // NOTE: Today is undefined
@@ -347,6 +361,7 @@ export function ActionsMenu({ row }: Props) {
                           id: row.id,
                           status: "paid",
                           paidAt: new Date().toISOString(),
+                          idempotencyKey: crypto.randomUUID(),
                         });
                       }
                     }}
@@ -360,6 +375,7 @@ export function ActionsMenu({ row }: Props) {
                   updateInvoiceMutation.mutate({
                     id: row.id,
                     status: "canceled",
+                    idempotencyKey: crypto.randomUUID(),
                   })
                 }
                 className="text-[#FF3638]"
@@ -371,7 +387,12 @@ export function ActionsMenu({ row }: Props) {
 
           {row.status === "canceled" && (
             <DropdownMenuItem
-              onClick={() => deleteInvoiceMutation.mutate({ id: row.id })}
+              onClick={() =>
+                deleteInvoiceMutation.mutate({
+                  id: row.id,
+                  idempotencyKey: crypto.randomUUID(),
+                })
+              }
               className="text-[#FF3638]"
             >
               Delete
@@ -380,7 +401,12 @@ export function ActionsMenu({ row }: Props) {
 
           {row.status === "draft" && (
             <DropdownMenuItem
-              onClick={() => deleteInvoiceMutation.mutate({ id: row.id })}
+              onClick={() =>
+                deleteInvoiceMutation.mutate({
+                  id: row.id,
+                  idempotencyKey: crypto.randomUUID(),
+                })
+              }
               className="text-[#FF3638]"
             >
               Delete

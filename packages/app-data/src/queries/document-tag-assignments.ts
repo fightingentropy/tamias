@@ -65,14 +65,16 @@ function encodeTaggedDocumentCursor(cursor: TaggedDocumentCursor) {
   return Buffer.from(JSON.stringify(cursor), "utf8").toString("base64url");
 }
 
-function decodeTaggedDocumentCursor(cursor: string | null | undefined): TaggedDocumentCursor | null {
+function decodeTaggedDocumentCursor(
+  cursor: string | null | undefined,
+): TaggedDocumentCursor | null {
   if (!cursor) {
     return null;
   }
 
-  const parsed = JSON.parse(Buffer.from(cursor, "base64url").toString("utf8")) as Partial<
-    TaggedDocumentCursor
-  >;
+  const parsed = JSON.parse(
+    Buffer.from(cursor, "base64url").toString("utf8"),
+  ) as Partial<TaggedDocumentCursor>;
 
   if (typeof parsed.createdAt !== "string" || typeof parsed.documentId !== "string") {
     throw new Error("Invalid tagged document cursor");

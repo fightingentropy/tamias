@@ -96,7 +96,7 @@ export async function prefetchDirectShellData(queryClient: QueryClient) {
   const { headers, accessToken } = await buildAuthHeaders();
 
   const auth = await resolveRequestAuth(headers, {
-    internalApiKey: process.env.INTERNAL_API_KEY,
+    dashboardSessionKey: process.env.TAMIAS_DASHBOARD_SESSION_KEY,
     resolveUserSession: async (token) => {
       const identity = await verifyAccessToken(token);
       const user = await ensureCurrentUser(token, identity, db);

@@ -1,8 +1,12 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import {
+  beginIdempotentOperation,
+  completeIdempotentOperation,
+  failIdempotentOperation,
   getInvoiceById,
   getInvoiceByPaymentIntentId,
   getTeamByStripeAccountId,
+  requireIdempotentOperationReconciliation,
   updateInvoice,
   updateTeamById,
 } from "@tamias/app-data/queries";
@@ -77,7 +81,42 @@ app.openapi(
       type: event.type,
       id: event.id,
     });
+    const eventObjectId =
+      "id" in event.data.object && typeof event.data.object.id === "string"
+        ? event.data.object.id
+        : `${event.data.object.object}:${event.id}`;
 
+    let operationTeamId = "stripe-global";
+    if (event.data.object.object === "payment_intent") {
+      operationTeamId =
+        (event.data.object as Stripe.PaymentIntent).metadata?.team_id ?? operationTeamId;
+    } else if (event.data.object.object === "charge") {
+      const paymentIntentId = (event.data.object as Stripe.Charge).payment_intent;
+      if (typeof paymentIntentId === "string") {
+        operationTeamId =
+          (await getInvoiceByPaymentIntentId(db, paymentIntentId))?.teamId ?? operationTeamId;
+      }
+    } else if (event.data.object.object === "account") {
+      operationTeamId =
+        (await getTeamByStripeAccountId(db, (event.data.object as Stripe.Account).id))?.id ??
+        operationTeamId;
+    }
+
+    const operation = await beginIdempotentOperation(db, {
+      teamId: operationTeamId,
+      scope: "webhook.stripe",
+      idempotencyKey: event.id,
+      request: {
+        eventId: event.id,
+        eventType: event.type,
+        objectId: eventObjectId,
+      },
+    });
+    if (operation.state === "replayed") {
+      return c.json({ received: true });
+    }
+
+    let domainMutationCompleted = false;
     try {
       switch (event.type) {
         case "payment_intent.succeeded": {
@@ -104,6 +143,7 @@ app.openapi(
           });
 
           if (updatedInvoice) {
+            domainMutationCompleted = true;
             logger.info("Invoice marked as paid", {
               invoiceId,
               paymentIntentId: paymentIntent.id,
@@ -189,6 +229,7 @@ app.openapi(
           });
 
           if (updatedInvoice) {
+            domainMutationCompleted = true;
             logger.info("Invoice marked as refunded", {
               invoiceId: invoice.id,
               invoiceNumber: invoice.invoiceNumber,
@@ -252,6 +293,7 @@ app.openapi(
                   stripeConnectStatus: newStatus,
                 },
               });
+              domainMutationCompleted = true;
 
               logger.info("Team Stripe status updated", {
                 teamId: team.id,
@@ -274,14 +316,55 @@ app.openapi(
             type: event.type,
           });
       }
+
+      await completeIdempotentOperation(db, {
+        teamId: operationTeamId,
+        scope: "webhook.stripe",
+        idempotencyKey: event.id,
+        leaseToken: operation.leaseToken,
+        result: { eventId: event.id, eventType: event.type },
+        audit: {
+          actorType: "webhook",
+          actorId: event.id,
+          action: `webhook.stripe.${event.type}`,
+          resourceType: event.data.object.object,
+          resourceId: eventObjectId,
+          confirmationId: event.id,
+          environment: process.env.TAMIAS_PAYMENT_ENVIRONMENT ?? "sandbox",
+          payload: { eventType: event.type },
+        },
+        outbox: {
+          topic: "webhook.stripe.processed",
+          aggregateType: event.data.object.object,
+          aggregateId: eventObjectId,
+          payload: { eventId: event.id, eventType: event.type },
+        },
+      });
     } catch (err) {
+      if (domainMutationCompleted) {
+        await requireIdempotentOperationReconciliation(db, {
+          teamId: operationTeamId,
+          scope: "webhook.stripe",
+          idempotencyKey: event.id,
+          leaseToken: operation.leaseToken,
+          error: err,
+          providerResult: { eventId: event.id, eventType: event.type },
+        });
+      } else {
+        await failIdempotentOperation(db, {
+          teamId: operationTeamId,
+          scope: "webhook.stripe",
+          idempotencyKey: event.id,
+          leaseToken: operation.leaseToken,
+          error: err,
+        });
+      }
       logger.error("Error processing Stripe webhook", {
         error: err instanceof Error ? err.message : String(err),
         eventType: event.type,
         eventId: event.id,
       });
-      // Don't throw - we want to return 200 to Stripe to prevent retries
-      // for events we partially processed
+      throw new HTTPException(500, { message: "Webhook processing failed" });
     }
 
     return c.json({ received: true });

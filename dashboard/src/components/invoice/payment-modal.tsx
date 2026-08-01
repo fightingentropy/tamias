@@ -229,6 +229,7 @@ export function PaymentModal({
     currency: string;
   } | null>(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const paymentIdempotencyKeyRef = useRef<string | null>(null);
 
   // Need to wait for mount to access theme
   useEffect(() => setMounted(true), []);
@@ -358,10 +359,12 @@ export function PaymentModal({
     setError(null);
 
     try {
+      paymentIdempotencyKeyRef.current ??= crypto.randomUUID();
       const response = await fetch(`${apiUrl}/invoice-payments/payment-intent`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Idempotency-Key": paymentIdempotencyKeyRef.current,
         },
         body: JSON.stringify({ token: invoiceToken }),
       });
@@ -392,6 +395,7 @@ export function PaymentModal({
       setPaymentData(null);
       setError(null);
       setPaymentSuccess(false);
+      paymentIdempotencyKeyRef.current = null;
     }
     onOpenChange(newOpen);
   };

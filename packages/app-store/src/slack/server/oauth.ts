@@ -2,13 +2,7 @@ import { getSlackInstaller } from "./client";
 
 const SLACK_OAUTH_REDIRECT_URL = process.env.SLACK_OAUTH_REDIRECT_URL;
 
-export const getInstallUrl = ({
-  teamId,
-  userId,
-}: {
-  teamId: string;
-  userId: string;
-}) => {
+export const getInstallUrl = ({ teamId, userId }: { teamId: string; userId: string }) => {
   if (!SLACK_OAUTH_REDIRECT_URL) {
     throw new Error("SLACK_OAUTH_REDIRECT_URL is required");
   }

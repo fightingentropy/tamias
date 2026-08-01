@@ -119,10 +119,7 @@ function toAccountingSyncRecord(row: AccountingSyncRecordRow): AccountingSyncRec
   };
 }
 
-async function getAccountingSyncRecordByIdFromD1(
-  d1: CloudflareD1DatabaseBinding,
-  id: string,
-) {
+async function getAccountingSyncRecordByIdFromD1(d1: CloudflareD1DatabaseBinding, id: string) {
   const row = await d1
     .prepare("select * from accounting_sync_records where id = ? limit 1")
     .bind(id)

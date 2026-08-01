@@ -191,7 +191,6 @@ export const bankConnectionsRouter = createTRPCRouter({
         },
       );
     }),
-
 });
 
 async function getTeamBankConnectionById(

@@ -9,8 +9,7 @@
 const definedNodeEnv = process.env.NODE_ENV;
 
 const env: Record<string, string | undefined> = {
-  NODE_ENV:
-    definedNodeEnv === "production" || import.meta.env.PROD ? "production" : "development",
+  NODE_ENV: definedNodeEnv === "production" || import.meta.env.PROD ? "production" : "development",
 };
 
 for (const key of Object.keys(import.meta.env)) {

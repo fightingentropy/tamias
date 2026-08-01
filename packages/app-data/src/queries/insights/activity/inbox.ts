@@ -7,12 +7,15 @@ type InboxActivityStats = {
   matchedCount: number;
 };
 
-async function countInboxItemsCreatedBetween(db: Database, args: {
-  teamId: string;
-  from: string;
-  to: string;
-  status: "done";
-}) {
+async function countInboxItemsCreatedBetween(
+  db: Database,
+  args: {
+    teamId: string;
+    from: string;
+    to: string;
+    status: "done";
+  },
+) {
   const fromBoundary = normalizeTimestampBoundary(args.from, "start");
   const toBoundary = normalizeTimestampBoundary(args.to, "end");
   const summary = await getInboxStatusCountSummaryFromD1(requireInboxItemsD1(db), {

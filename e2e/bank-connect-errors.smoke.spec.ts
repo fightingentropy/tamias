@@ -1,8 +1,5 @@
 import { expect, test } from "@playwright/test";
-import {
-  openBankConnectModal,
-  searchBank,
-} from "./helpers/bank-connect";
+import { openBankConnectModal, searchBank } from "./helpers/bank-connect";
 
 test.describe("bank connect error handling and edge cases", () => {
   test("invalid account params show error and close modal", async ({ page }) => {

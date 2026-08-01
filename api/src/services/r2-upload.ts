@@ -10,10 +10,10 @@ const uploadTokenAudience = "tamias:r2-upload";
 const uploadTokenExpiration = "15m";
 
 function getUploadTokenSecret() {
-  const secret = process.env.FILE_KEY_SECRET ?? process.env.INTERNAL_API_KEY;
+  const secret = process.env.FILE_KEY_SECRET;
 
   if (!secret) {
-    throw new Error("FILE_KEY_SECRET or INTERNAL_API_KEY is required for R2 upload URLs");
+    throw new Error("FILE_KEY_SECRET is required for R2 upload URLs");
   }
 
   return new TextEncoder().encode(secret);

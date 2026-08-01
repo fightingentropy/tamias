@@ -13,16 +13,8 @@ import {
   type StorageRuntimeConfig,
 } from "./runtime";
 
-export {
-  configureStorageRuntime,
-  getStorageRuntime,
-  registerUploadedR2VaultFile,
-};
-export type {
-  CloudflareD1DatabaseBinding,
-  CloudflareR2BucketBinding,
-  StorageRuntimeConfig,
-};
+export { configureStorageRuntime, getStorageRuntime, registerUploadedR2VaultFile };
+export type { CloudflareD1DatabaseBinding, CloudflareR2BucketBinding, StorageRuntimeConfig };
 
 type SignedUrlOptions = {
   download?: boolean;

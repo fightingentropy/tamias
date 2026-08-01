@@ -31,6 +31,7 @@ export * from "./invoices";
 export * from "./invoice-templates";
 export * from "./insights";
 export * from "./notification-settings";
+export * from "./operational-safety";
 export * from "./paged-records";
 export * from "./payroll";
 export * from "./public-invoices";

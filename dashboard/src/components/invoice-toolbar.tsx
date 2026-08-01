@@ -14,9 +14,12 @@ import dynamic from "@/framework/dynamic";
 import { downloadFile } from "@/lib/download";
 import { saveFile } from "@/lib/save-file";
 
-const PaymentModal = dynamic(() => import("./invoice/payment-modal").then((mod) => mod.PaymentModal), {
-  ssr: false,
-});
+const PaymentModal = dynamic(
+  () => import("./invoice/payment-modal").then((mod) => mod.PaymentModal),
+  {
+    ssr: false,
+  },
+);
 
 type Props = {
   token: string;

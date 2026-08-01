@@ -32,6 +32,7 @@ export function InvoiceNote({ id, defaultValue }: Props) {
       updateInvoiceMutation.mutate({
         id,
         internalNote: debouncedValue && debouncedValue.length > 0 ? debouncedValue : null,
+        idempotencyKey: crypto.randomUUID(),
       });
     }
   }, [debouncedValue, defaultValue, id, updateInvoiceMutation.mutate]);

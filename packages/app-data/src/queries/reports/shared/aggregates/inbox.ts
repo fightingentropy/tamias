@@ -1,9 +1,6 @@
 import type { Database } from "../../../../client";
 import { createQueryCacheKey, getOrSetQueryCacheValue } from "../../../../client";
-import {
-  getInboxLiabilityAggregateRowsFromD1,
-  requireInboxItemsD1,
-} from "../../../inbox/d1";
+import { getInboxLiabilityAggregateRowsFromD1, requireInboxItemsD1 } from "../../../inbox/d1";
 
 export async function getReportInboxLiabilityAggregateRows(
   db: Database,

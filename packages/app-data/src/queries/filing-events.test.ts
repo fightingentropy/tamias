@@ -7,7 +7,11 @@ import {
   type CloudflareD1DatabaseBinding,
   type CloudflareD1PreparedStatementBinding,
 } from "../client";
-import { allocateFilingSequence, createSubmissionEvent, listSubmissionEvents } from "./filing-events";
+import {
+  allocateFilingSequence,
+  createSubmissionEvent,
+  listSubmissionEvents,
+} from "./filing-events";
 
 class SqliteD1Statement implements CloudflareD1PreparedStatementBinding {
   constructor(

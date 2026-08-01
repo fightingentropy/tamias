@@ -21,10 +21,7 @@ export const accountTypeEnum = createEnum("account_type", [
   "other_liability",
 ] as const);
 
-export const bankProvidersEnum = createEnum(
-  "bank_providers",
-  ["truelayer"] as const,
-);
+export const bankProvidersEnum = createEnum("bank_providers", ["truelayer"] as const);
 
 export const connectionStatusEnum = createEnum("connection_status", [
   "disconnected",

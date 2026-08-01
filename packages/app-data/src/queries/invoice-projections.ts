@@ -225,10 +225,11 @@ export async function getProjectedInvoiceByRecurringSequence(
 export async function getProjectedInvoicesByRecurringId(
   db: DatabaseOrTransaction,
   params: {
-  teamId: string;
-  invoiceRecurringId: string;
-  statuses?: string[];
-}) {
+    teamId: string;
+    invoiceRecurringId: string;
+    statuses?: string[];
+  },
+) {
   const records = await getPublicInvoicesByRecurringId(db, {
     teamId: params.teamId,
     invoiceRecurringId: params.invoiceRecurringId,

@@ -6,6 +6,7 @@ import { configureEmailRuntime, type CloudflareEmailBinding } from "@tamias/emai
 import type { CloudflareD1DatabaseBinding } from "@tamias/app-data/client";
 import type { CloudflareR2BucketBinding } from "@tamias/storage";
 import { getApiUrl, getAppUrl } from "@tamias/utils/envs";
+import { createRestErrorResponse } from "./rest/error-response";
 import type { Context } from "./rest/types";
 
 export { RateLimitCoordinator } from "./rate-limit/coordinator";
@@ -390,7 +391,7 @@ async function createApp() {
       message: err.message,
       stack: err.stack,
     });
-    return c.json({ error: "Internal Server Error" }, 500);
+    return createRestErrorResponse(err);
   });
 
   return app;

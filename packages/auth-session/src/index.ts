@@ -1,6 +1,7 @@
 import { SignJWT, type JWTPayload, jwtVerify } from "jose";
 import { expandScopes } from "./scopes";
 import { safeCompare } from "./safe-compare";
+import { SERVICE_AUTH_HEADER, type ServiceIdentity } from "./service-identity";
 
 type UserId = string;
 type TeamId = string;
@@ -78,7 +79,8 @@ export type ApiKeyRecord = {
 };
 
 export type ResolveRequestAuthDependencies = {
-  internalApiKey?: string;
+  dashboardSessionKey?: string;
+  verifyServiceIdentity?(token: string): Promise<ServiceIdentity | null>;
   resolveUserSession(accessToken?: string): Promise<Session | null>;
   getOAuthAccessTokenByToken(token: string): Promise<OAuthAccessTokenRecord | null>;
   getApiKeyByToken(token: string): Promise<ApiKeyRecord | null>;
@@ -91,6 +93,7 @@ export type RequestAuthResult = {
   teamId?: string;
   scopes: string[];
   isInternalRequest: boolean;
+  serviceIdentity?: ServiceIdentity | null;
 };
 
 export const DASHBOARD_AUTH_HEADER = "x-dashboard-key";
@@ -103,14 +106,10 @@ function getAccessTokenIssuer() {
 }
 
 function getAccessTokenSecret() {
-  const secret =
-    process.env.TAMIAS_AUTH_SECRET ||
-    process.env.INTERNAL_API_KEY ||
-    process.env.FILE_KEY_SECRET ||
-    process.env.INVOICE_JWT_SECRET;
+  const secret = process.env.TAMIAS_AUTH_SECRET;
 
   if (!secret) {
-    throw new Error("TAMIAS_AUTH_SECRET or INTERNAL_API_KEY is required for auth tokens");
+    throw new Error("TAMIAS_AUTH_SECRET is required for auth tokens");
   }
 
   return new TextEncoder().encode(secret);
@@ -297,18 +296,21 @@ export async function resolveRequestAuth(
   const bearerToken = authorization?.startsWith("Bearer ")
     ? authorization.slice("Bearer ".length)
     : undefined;
-  const internalKey = getHeader(headers, "x-internal-key");
+  const serviceAuthorization = getHeader(headers, SERVICE_AUTH_HEADER);
   const dashboardKey = getHeader(headers, DASHBOARD_AUTH_HEADER);
-
-  const isInternalRequest =
-    !!internalKey &&
-    !!dependencies.internalApiKey &&
-    safeCompare(internalKey, dependencies.internalApiKey);
+  const serviceToken = serviceAuthorization?.startsWith("Bearer ")
+    ? serviceAuthorization.slice("Bearer ".length).trim()
+    : undefined;
+  const serviceIdentity =
+    serviceToken && dependencies.verifyServiceIdentity
+      ? await dependencies.verifyServiceIdentity(serviceToken)
+      : null;
+  const isInternalRequest = Boolean(serviceIdentity);
 
   const hasTrustedDashboardKey =
     !!dashboardKey &&
-    !!dependencies.internalApiKey &&
-    safeCompare(dashboardKey, dependencies.internalApiKey);
+    !!dependencies.dashboardSessionKey &&
+    safeCompare(dashboardKey, dependencies.dashboardSessionKey);
 
   const trustedSession = hasTrustedDashboardKey
     ? parseTrustedSessionHeaderValue(getHeader(headers, TRUSTED_SESSION_HEADER))
@@ -320,6 +322,7 @@ export async function resolveRequestAuth(
       teamId: trustedSession.teamId,
       scopes: expandScopes(["apis.all"]),
       isInternalRequest,
+      serviceIdentity,
     };
   }
 
@@ -331,6 +334,7 @@ export async function resolveRequestAuth(
       teamId: session.teamId,
       scopes: expandScopes(["apis.all"]),
       isInternalRequest,
+      serviceIdentity,
     };
   }
 
@@ -340,6 +344,7 @@ export async function resolveRequestAuth(
       teamId: undefined,
       scopes: [],
       isInternalRequest,
+      serviceIdentity,
     };
   }
 
@@ -352,6 +357,7 @@ export async function resolveRequestAuth(
         teamId: undefined,
         scopes: [],
         isInternalRequest,
+        serviceIdentity,
       };
     }
 
@@ -369,6 +375,7 @@ export async function resolveRequestAuth(
       teamId: tokenData.teamId,
       scopes: expandScopes(tokenData.scopes ?? []),
       isInternalRequest,
+      serviceIdentity,
     };
   }
 
@@ -378,6 +385,7 @@ export async function resolveRequestAuth(
       teamId: undefined,
       scopes: [],
       isInternalRequest,
+      serviceIdentity,
     };
   }
 
@@ -389,6 +397,7 @@ export async function resolveRequestAuth(
       teamId: undefined,
       scopes: [],
       isInternalRequest,
+      serviceIdentity,
     };
   }
 
@@ -406,6 +415,7 @@ export async function resolveRequestAuth(
     teamId: apiKey.teamId,
     scopes: expandScopes(apiKey.scopes ?? []),
     isInternalRequest,
+    serviceIdentity,
   };
 }
 

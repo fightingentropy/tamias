@@ -268,6 +268,14 @@ const dbQueriesMock = createModuleMock({
     (invoiceNumber: string) => `Invoice number ${invoiceNumber} already exists`,
   ),
   isInvoiceNumberConflictError: mock(() => false),
+  beginIdempotentOperation: mock(() => ({
+    state: "started",
+    attemptCount: 1,
+    leaseToken: "test-lease-token",
+  })),
+  completeIdempotentOperation: mock(() => undefined),
+  failIdempotentOperation: mock(() => undefined),
+  requireIdempotentOperationReconciliation: mock(() => undefined),
 
   // Customer functions
   getCustomers: mocks.getCustomers,

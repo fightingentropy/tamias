@@ -29,12 +29,15 @@ export function getSubmissionEventRequestSubmissionNumber(
   return typeof submissionNumber === "string" ? submissionNumber : null;
 }
 
-export async function listYearEndSubmissionEvents(db: Database, args: {
-  teamId: string;
-  provider: "hmrc-ct" | "companies-house";
-  obligationType: "corporation_tax" | "accounts";
-  periodKey?: string;
-}) {
+export async function listYearEndSubmissionEvents(
+  db: Database,
+  args: {
+    teamId: string;
+    provider: "hmrc-ct" | "companies-house";
+    obligationType: "corporation_tax" | "accounts";
+    periodKey?: string;
+  },
+) {
   const events = await listSubmissionEvents(db, {
     teamId: args.teamId,
     provider: args.provider,

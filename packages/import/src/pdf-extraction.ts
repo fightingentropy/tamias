@@ -23,7 +23,9 @@ export const extractedPdfTransactionSchema = z.object({
   balance: z
     .number()
     .nullable()
-    .describe("Running balance after this transaction, when shown on the statement. Null otherwise."),
+    .describe(
+      "Running balance after this transaction, when shown on the statement. Null otherwise.",
+    ),
 });
 
 export type ExtractedPdfTransaction = z.infer<typeof extractedPdfTransactionSchema>;

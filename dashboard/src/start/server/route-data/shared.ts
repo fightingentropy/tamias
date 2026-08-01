@@ -1,10 +1,7 @@
 import { dehydrate } from "@tanstack/react-query";
 import { redirect } from "@tanstack/react-router";
 import { getStartContext } from "@tanstack/start-storage-context";
-import {
-  DirectRouteDataError,
-  prefetchDirectShellData,
-} from "@/start/server/direct-data/shell";
+import { DirectRouteDataError, prefetchDirectShellData } from "@/start/server/direct-data/shell";
 import { getQueryClient, trpc } from "@/trpc/server";
 import { hasCompletedOnboarding } from "@/utils/auth-routing";
 

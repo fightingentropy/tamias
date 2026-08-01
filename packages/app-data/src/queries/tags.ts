@@ -66,7 +66,9 @@ export const createTag = async (db: Database, params: CreateTagParams) => {
 
   try {
     await d1
-      .prepare("insert into tags (id, team_id, name, created_at, updated_at) values (?, ?, ?, ?, ?)")
+      .prepare(
+        "insert into tags (id, team_id, name, created_at, updated_at) values (?, ?, ?, ?, ?)",
+      )
       .bind(id, teamId, name, timestamp, timestamp)
       .run();
   } catch (error) {

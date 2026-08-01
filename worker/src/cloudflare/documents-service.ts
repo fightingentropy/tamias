@@ -3,12 +3,7 @@ import { configureCloudflareQueueRuntime } from "@tamias/job-client/cloudflare-r
 import { configureEmailRuntime } from "@tamias/email/send";
 import { isSupportedCloudflareMessage, type CloudflareAsyncMessage } from "./async-helpers";
 import { configureCloudflareImagesBinding } from "./images-client";
-import {
-  type CloudflareAsyncEnv,
-  handleProcessorMessage,
-  logger,
-  updateRunStatus,
-} from "./shared";
+import { type CloudflareAsyncEnv, handleProcessorMessage, logger, updateRunStatus } from "./shared";
 import { configureWorkerRuntime } from "./worker-runtime";
 
 type DocumentsQueueRequest = {
@@ -194,7 +189,10 @@ async function extractStatementPdf(request: Request) {
   }
 }
 
-async function processQueueMessage(message: Message<CloudflareAsyncMessage>, env: CloudflareAsyncEnv) {
+async function processQueueMessage(
+  message: Message<CloudflareAsyncMessage>,
+  env: CloudflareAsyncEnv,
+) {
   const { body } = message;
   if (!isSupportedCloudflareMessage(body)) {
     logger.warn("Skipping unsupported documents queue message", {
@@ -260,7 +258,8 @@ async function processQueueMessage(message: Message<CloudflareAsyncMessage>, env
       error: messageText,
       completedAt: new Date().toISOString(),
     });
-    message.ack();
+    // A final retry lets Cloudflare route the poison message into the configured DLQ.
+    message.retry();
   }
 }
 
@@ -309,6 +308,12 @@ export default {
 
   async queue(batch: MessageBatch<CloudflareAsyncMessage>, env: CloudflareAsyncEnv) {
     configureDocumentsRuntime(env);
+
+    if (batch.queue.includes("-dlq")) {
+      const { handleDeadLetterQueueBatch } = await import("./dead-letter");
+      await handleDeadLetterQueueBatch(batch, env);
+      return;
+    }
 
     const results = await Promise.allSettled(
       batch.messages.map((message) => processQueueMessage(message, env)),

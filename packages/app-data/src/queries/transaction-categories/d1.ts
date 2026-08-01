@@ -202,8 +202,7 @@ export async function getTransactionCategoryRecordById(
     id: string;
   },
 ) {
-  const d1 =
-    "prepare" in dbOrD1 ? dbOrD1 : requireTransactionCategoriesD1(dbOrD1);
+  const d1 = "prepare" in dbOrD1 ? dbOrD1 : requireTransactionCategoriesD1(dbOrD1);
   const row = await d1
     .prepare("select * from transaction_categories where team_id = ? and id = ? limit 1")
     .bind(args.teamId, args.id)

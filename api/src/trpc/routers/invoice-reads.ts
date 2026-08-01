@@ -35,15 +35,17 @@ export const invoiceReadProcedures = {
       });
     }),
 
-  getInvoiceByToken: publicProcedure.input(getInvoiceByTokenSchema).query(async ({ input, ctx: { db } }) => {
-    const invoice = await getInvoiceByToken(input.token, db);
+  getInvoiceByToken: publicProcedure
+    .input(getInvoiceByTokenSchema)
+    .query(async ({ input, ctx: { db } }) => {
+      const invoice = await getInvoiceByToken(input.token, db);
 
-    if (!invoice) {
-      throw new TRPCError({ code: "NOT_FOUND" });
-    }
+      if (!invoice) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
 
-    return invoice;
-  }),
+      return invoice;
+    }),
 
   markViewedByToken: publicProcedure
     .input(z.object({ token: z.string() }))

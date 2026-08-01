@@ -17,7 +17,12 @@ export function Customize() {
   }
 
   return (
-    <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => setIsCustomizing(!isCustomizing)}>
+    <Button
+      variant="outline"
+      size="icon"
+      className="h-9 w-9"
+      onClick={() => setIsCustomizing(!isCustomizing)}
+    >
       {isCustomizing ? <Icons.Check size={16} /> : <Icons.DashboardCustomize size={16} />}
     </Button>
   );

@@ -143,8 +143,7 @@ export const getDocumentPreSignedUrlSchema = z.object({
 export const preSignedUrlResponseSchema = z.object({
   url: z.string().url().openapi({
     description: "Pre-signed URL for accessing the document, valid for 60 seconds",
-    example:
-      "https://api.tamias.xyz/files/proxy?filePath=vault/documents/2024/invoice.pdf",
+    example: "https://api.tamias.xyz/files/proxy?filePath=vault/documents/2024/invoice.pdf",
   }),
   expiresAt: z.string().datetime().openapi({
     description: "ISO 8601 timestamp when the URL expires",

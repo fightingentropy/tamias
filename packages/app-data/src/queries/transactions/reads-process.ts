@@ -16,10 +16,7 @@ import {
   getTransactionDerivedState,
   type TransactionRecord,
 } from "./shared";
-import {
-  getTransactionTagAssignmentsForTransactionIdsFromD1,
-  requireTransactionsD1,
-} from "./d1";
+import { getTransactionTagAssignmentsForTransactionIdsFromD1, requireTransactionsD1 } from "./d1";
 import { buildEmptyProcessedTransactionPage, buildTransactionsPageMeta } from "./reads-shared";
 
 type CategoryContext = Awaited<ReturnType<typeof getTransactionCategoryContext>>;

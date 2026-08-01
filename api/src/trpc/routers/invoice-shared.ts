@@ -7,6 +7,8 @@ import {
   requireSessionUserId,
 } from "../../invoice/transport";
 
+export { runIdempotentInvoiceMutation } from "../../invoice/mutation-safety";
+
 export const invoiceLogger = createLoggerWithContext("trpc:invoice");
 export const defaultTemplate = DEFAULT_TEMPLATE;
 

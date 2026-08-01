@@ -1,7 +1,4 @@
-import {
-  createDatabase,
-  type Database,
-} from "@tamias/app-data/client";
+import { createDatabase, type Database } from "@tamias/app-data/client";
 import {
   acceptTeamInviteInD1,
   createTeamInvitesInD1,
@@ -26,17 +23,15 @@ import {
   type CreateTeamInvitesD1Input,
   type UpdateUserD1Input,
 } from "@tamias/app-data/queries";
-import {
-  verifyAccessToken,
-  type AuthIdentity,
-  type SessionUserRecord,
-} from "@tamias/auth-session";
+import { verifyAccessToken, type AuthIdentity, type SessionUserRecord } from "@tamias/auth-session";
 
 function identityD1(db: Database = createDatabase()) {
   return requireIdentityD1(db);
 }
 
-function toSessionUserRecord(record: Awaited<ReturnType<typeof getUserByIdFromD1>>): SessionUserRecord | null {
+function toSessionUserRecord(
+  record: Awaited<ReturnType<typeof getUserByIdFromD1>>,
+): SessionUserRecord | null {
   if (!record) {
     return null;
   }
@@ -171,11 +166,7 @@ export async function updateTeamMember(args: {
   return updateTeamMemberInD1(identityD1(args.db), args);
 }
 
-export async function deleteTeamMember(args: {
-  teamId: string;
-  userId: string;
-  db?: Database;
-}) {
+export async function deleteTeamMember(args: { teamId: string; userId: string; db?: Database }) {
   return deleteTeamMemberFromD1(identityD1(args.db), args);
 }
 
@@ -235,10 +226,6 @@ export async function declineTeamInvite(args: {
   return declineTeamInviteInD1(identityD1(args.db), args);
 }
 
-export async function deleteTeamInvite(args: {
-  inviteId: string;
-  teamId: string;
-  db?: Database;
-}) {
+export async function deleteTeamInvite(args: { inviteId: string; teamId: string; db?: Database }) {
   return deleteTeamInviteInD1(identityD1(args.db), args);
 }

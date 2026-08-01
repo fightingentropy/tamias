@@ -13,7 +13,10 @@ function normalizeInvoiceToken(token: string) {
   }
 }
 
-export async function getInvoiceIdFromToken(token: string, db: Database = createDatabase()): Promise<string | null> {
+export async function getInvoiceIdFromToken(
+  token: string,
+  db: Database = createDatabase(),
+): Promise<string | null> {
   const record = await getPublicInvoiceByToken(db, {
     token: normalizeInvoiceToken(token),
   });
