@@ -8,11 +8,7 @@ import {
   getShortLinkSchema,
 } from "../../schemas/short-links";
 import { getVaultSignedUrl } from "../../services/storage";
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "../init";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../init";
 
 export const shortLinksRouter = createTRPCRouter({
   createForUrl: protectedProcedure

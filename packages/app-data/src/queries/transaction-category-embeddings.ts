@@ -153,9 +153,10 @@ export type GetCategoryEmbeddingParams = {
 };
 
 export const getCategoryEmbedding = async (db: Database, params: GetCategoryEmbeddingParams) => {
-  const [result] = await getCategoryEmbeddingsByNamesFromD1(getTransactionCategoryEmbeddingsD1(db), [
-    params.name,
-  ]);
+  const [result] = await getCategoryEmbeddingsByNamesFromD1(
+    getTransactionCategoryEmbeddingsD1(db),
+    [params.name],
+  );
 
   return result ?? null;
 };
@@ -168,10 +169,7 @@ export const getCategoryEmbeddingsByNames = async (
   db: Database,
   params: GetCategoryEmbeddingsByNamesParams,
 ) => {
-  return getCategoryEmbeddingsByNamesFromD1(
-    getTransactionCategoryEmbeddingsD1(db),
-    params.names,
-  );
+  return getCategoryEmbeddingsByNamesFromD1(getTransactionCategoryEmbeddingsD1(db), params.names);
 };
 
 export type CreateCategoryEmbeddingParams = {

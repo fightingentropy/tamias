@@ -116,12 +116,11 @@ function addStatusesFilter(filters: string[], values: unknown[], statuses: strin
   return true;
 }
 
-async function allRows<T>(
-  d1: CloudflareD1DatabaseBinding,
-  query: string,
-  values: unknown[],
-) {
-  const { results = [] } = await d1.prepare(query).bind(...values).all<T>();
+async function allRows<T>(d1: CloudflareD1DatabaseBinding, query: string, values: unknown[]) {
+  const { results = [] } = await d1
+    .prepare(query)
+    .bind(...values)
+    .all<T>();
 
   return results;
 }
@@ -148,7 +147,9 @@ function toInvoiceAggregateRecord(row: InvoiceAggregateD1Row): InvoiceAggregateR
   };
 }
 
-function toInvoiceDateAggregateRecord(row: InvoiceDateAggregateD1Row): InvoiceDateAggregateRowRecord {
+function toInvoiceDateAggregateRecord(
+  row: InvoiceDateAggregateD1Row,
+): InvoiceDateAggregateRowRecord {
   return {
     status: row.status,
     dateField: row.date_field,
@@ -198,7 +199,9 @@ function toInvoiceAnalyticsAggregateRecord(
   };
 }
 
-function toInvoiceAgingAggregateRecord(row: InvoiceAgingAggregateD1Row): InvoiceAgingAggregateRowRecord {
+function toInvoiceAgingAggregateRecord(
+  row: InvoiceAgingAggregateD1Row,
+): InvoiceAgingAggregateRowRecord {
   return {
     status: row.status,
     currency: normalizeCurrency(row.currency),

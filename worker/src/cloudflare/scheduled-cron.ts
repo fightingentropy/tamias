@@ -14,6 +14,13 @@ export async function handleAsyncWorkerScheduled(
 ) {
   configureWorkerRuntime(env);
   const { logger } = await import("./shared");
+  const { relayTransactionalOutbox } = await import("./outbox");
+
+  if (controller.cron === "*/5 * * * *") {
+    const count = await relayTransactionalOutbox(env);
+    logger.info("Transactional outbox relay completed", { count });
+    return;
+  }
   const messages = controller.cron
     ? getScheduledCloudflareMessages(controller.cron, controller.scheduledTime)
     : [];

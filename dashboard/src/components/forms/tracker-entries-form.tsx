@@ -80,8 +80,7 @@ export function TrackerEntriesForm({
     return duration;
   };
 
-  const initialDuration =
-    start && stop ? computeDuration(start, stop) : undefined;
+  const initialDuration = start && stop ? computeDuration(start, stop) : undefined;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

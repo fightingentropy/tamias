@@ -1,9 +1,14 @@
 import {
+  beginIdempotentOperation,
+  completeIdempotentOperation,
+  failIdempotentOperation,
   getInvoiceById,
   getTeamById,
+  requireIdempotentOperationReconciliation,
   updateInvoice,
   updateTeamById,
 } from "@tamias/app-data/queries";
+import { assertExternalMutationEnvironment } from "@tamias/compliance";
 import { logger } from "@tamias/logger";
 import { getApiUrl } from "@tamias/utils/envs";
 import { TRPCError } from "@trpc/server";
@@ -94,8 +99,19 @@ export const invoicePaymentsRouter = createTRPCRouter({
 
   // Refund a Stripe payment for an invoice
   refundPayment: protectedProcedure
-    .input(z.object({ invoiceId: z.string().uuid() }))
-    .mutation(async ({ input, ctx: { db, teamId } }) => {
+    .input(
+      z.object({
+        invoiceId: z.string().uuid(),
+        idempotencyKey: z
+          .string()
+          .min(8)
+          .max(200)
+          .regex(/^[A-Za-z0-9._:-]+$/),
+        confirmationId: z.string().uuid(),
+        confirmation: z.literal("CONFIRM_REFUND_PAYMENT"),
+      }),
+    )
+    .mutation(async ({ input, ctx: { db, teamId, session } }) => {
       if (!teamId) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
@@ -141,22 +157,77 @@ export const invoicePaymentsRouter = createTRPCRouter({
         });
       }
 
+      const paymentEnvironment = process.env.TAMIAS_PAYMENT_ENVIRONMENT ?? "sandbox";
+      assertExternalMutationEnvironment({
+        kind: "payment",
+        providerEnvironment: paymentEnvironment,
+      });
+      const operation = await beginIdempotentOperation(db, {
+        teamId,
+        scope: "payment.stripe.refund",
+        idempotencyKey: input.idempotencyKey,
+        request: {
+          invoiceId: input.invoiceId,
+          paymentIntentId: invoice.paymentIntentId,
+          stripeAccountId: team.stripeAccountId,
+        },
+      });
+      if (operation.state === "replayed") {
+        return operation.result as { success: true; refundId: string };
+      }
+
+      let providerRefund: Stripe.Refund | null = null;
       try {
         const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
         // Create refund on the connected account
         const refund = await stripe.refunds.create(
           { payment_intent: invoice.paymentIntentId },
-          { stripeAccount: team.stripeAccountId },
+          {
+            stripeAccount: team.stripeAccountId,
+            idempotencyKey: input.idempotencyKey,
+          },
         );
+        providerRefund = refund;
 
         // Update invoice status immediately after Stripe confirms refund
         // The webhook will also fire but will find invoice already updated
-        await updateInvoice(db, {
+        const updatedInvoice = await updateInvoice(db, {
           id: input.invoiceId,
           teamId,
           status: "refunded",
           refundedAt: new Date().toISOString(),
+        });
+        if (!updatedInvoice) {
+          throw new Error("Refund succeeded but the invoice could not be updated");
+        }
+
+        const result = { success: true as const, refundId: refund.id };
+        await completeIdempotentOperation(db, {
+          teamId,
+          scope: "payment.stripe.refund",
+          idempotencyKey: input.idempotencyKey,
+          leaseToken: operation.leaseToken,
+          result,
+          audit: {
+            actorType: "user",
+            actorId: session.user.id ?? "unknown",
+            action: "payment.stripe.refunded",
+            resourceType: "invoice",
+            resourceId: input.invoiceId,
+            confirmationId: input.confirmationId,
+            environment: paymentEnvironment,
+            payload: {
+              paymentIntentId: invoice.paymentIntentId,
+              refundId: refund.id,
+            },
+          },
+          outbox: {
+            topic: "payment.stripe.refunded",
+            aggregateType: "invoice",
+            aggregateId: input.invoiceId,
+            payload: { refundId: refund.id },
+          },
         });
 
         logger.info("Refund created and invoice updated", {
@@ -166,8 +237,26 @@ export const invoicePaymentsRouter = createTRPCRouter({
           teamId,
         });
 
-        return { success: true };
+        return result;
       } catch (err) {
+        if (providerRefund) {
+          await requireIdempotentOperationReconciliation(db, {
+            teamId,
+            scope: "payment.stripe.refund",
+            idempotencyKey: input.idempotencyKey,
+            leaseToken: operation.leaseToken,
+            error: err,
+            providerResult: { refundId: providerRefund.id },
+          });
+        } else {
+          await failIdempotentOperation(db, {
+            teamId,
+            scope: "payment.stripe.refund",
+            idempotencyKey: input.idempotencyKey,
+            leaseToken: operation.leaseToken,
+            error: err,
+          });
+        }
         logger.error("Failed to create refund", {
           error: err instanceof Error ? err.message : String(err),
           invoiceId: input.invoiceId,

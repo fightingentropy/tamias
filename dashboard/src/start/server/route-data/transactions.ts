@@ -1,9 +1,6 @@
 import { loadTransactionTab } from "@/hooks/use-transaction-tab";
 import { getInitialTableSettings } from "@/utils/columns";
-import {
-  buildShellOnlyPageData,
-  getRequestUrl,
-} from "@/start/server/route-data/shared";
+import { buildShellOnlyPageData, getRequestUrl } from "@/start/server/route-data/shared";
 
 export async function buildTransactionsPageData(href?: string) {
   const result = await buildShellOnlyPageData();

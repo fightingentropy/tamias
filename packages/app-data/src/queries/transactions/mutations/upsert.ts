@@ -1,10 +1,6 @@
 import type { Database } from "../../../client";
 import { syncTransactionComplianceJournalEntries } from "../../compliance/ledger";
-import {
-  getTransactionsByIdsFromD1,
-  requireTransactionsD1,
-  upsertTransactionsInD1,
-} from "../d1";
+import { getTransactionsByIdsFromD1, requireTransactionsD1, upsertTransactionsInD1 } from "../d1";
 import { toTransactionUpsertInput } from "../shared";
 
 export type UpsertTransactionData = {

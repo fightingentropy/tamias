@@ -11,10 +11,30 @@ export function isLedgerConsumerQueue(queueName: string) {
   return queueName.includes("tamias-ledger") && !queueName.includes("-dlq");
 }
 
+export function isDeadLetterQueue(queueName: string) {
+  return queueName.includes("tamias-") && queueName.includes("-dlq");
+}
+
+export function isOutboxConsumerQueue(queueName: string) {
+  return queueName.includes("tamias-outbox") && !queueName.includes("-dlq");
+}
+
 export async function runUnifiedQueueConsumer(
   batch: MessageBatch<CloudflareAsyncMessage>,
   env: CloudflareAsyncEnv,
 ) {
+  if (isDeadLetterQueue(batch.queue)) {
+    const { handleDeadLetterQueueBatch } = await import("./dead-letter");
+    await handleDeadLetterQueueBatch(batch, env);
+    return;
+  }
+
+  if (isOutboxConsumerQueue(batch.queue)) {
+    const { handleOutboxQueueBatch } = await import("./outbox");
+    await handleOutboxQueueBatch(batch);
+    return;
+  }
+
   if (isCaptureConsumerQueue(batch.queue)) {
     const { handleCaptureQueueBatch } = await import("./capture");
     await handleCaptureQueueBatch(batch, env);

@@ -117,7 +117,6 @@ export interface AccountingProvider {
    * @returns void on success, throws on error
    */
   disconnect?(): Promise<void>;
-
 }
 
 /**

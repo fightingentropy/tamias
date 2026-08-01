@@ -178,6 +178,8 @@ export const yearEndRouter = createTRPCRouter({
         submittedBy: session.user.id,
         periodKey: input.periodKey,
         declarationAccepted: input.declarationAccepted,
+        idempotencyKey: input.idempotencyKey,
+        confirmationId: input.confirmationId,
       });
     }),
 
@@ -189,6 +191,8 @@ export const yearEndRouter = createTRPCRouter({
         submittedBy: session.user.id,
         periodKey: input.periodKey,
         declarationAccepted: input.declarationAccepted,
+        idempotencyKey: input.idempotencyKey,
+        confirmationId: input.confirmationId,
       });
     }),
 

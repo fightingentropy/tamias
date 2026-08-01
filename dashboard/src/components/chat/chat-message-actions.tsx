@@ -13,10 +13,7 @@ interface ChatMessageActionsProps {
   messageContent: string;
 }
 
-export function ChatMessageActions({
-  messageId,
-  messageContent,
-}: ChatMessageActionsProps) {
+export function ChatMessageActions({ messageId, messageContent }: ChatMessageActionsProps) {
   const chatId = useChatId();
   const { regenerate } = useChatActions();
   const [feedbackGiven, setFeedbackGiven] = useState<"positive" | "negative" | null>(null);

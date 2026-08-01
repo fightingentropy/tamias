@@ -282,7 +282,9 @@ downloadInvoiceApp.openapi(
 
       if (!pdfResponse.ok) {
         const payload = (await pdfResponse.json().catch(() => null)) as DocumentsWorkerError | null;
-        throw new Error(payload?.error ?? `Documents worker failed with HTTP ${pdfResponse.status}`);
+        throw new Error(
+          payload?.error ?? `Documents worker failed with HTTP ${pdfResponse.status}`,
+        );
       }
 
       const blob = await pdfResponse.arrayBuffer();

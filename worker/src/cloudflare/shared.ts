@@ -17,6 +17,7 @@ export type CloudflareAsyncEnv = {
   CAPTURE_QUEUE?: Queue<CloudflareAsyncMessage>;
   DOCUMENTS_QUEUE?: Queue<CloudflareAsyncMessage>;
   LEDGER_QUEUE?: Queue<CloudflareAsyncMessage>;
+  OUTBOX_QUEUE?: Queue<CloudflareAsyncMessage>;
   RUN_COORDINATOR?: DurableObjectNamespace;
   ASYNC_WORKFLOW?: Workflow<CloudflareWorkflowPayload>;
   APP_DB?: CloudflareD1DatabaseBinding;

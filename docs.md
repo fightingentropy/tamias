@@ -2,7 +2,7 @@
 
 Deep-dive notes for integrations and shared packages. **Day-to-day setup, env, deploys:** see [README.md](README.md).
 
-**Repository layout (current):** [Bun](https://bun.sh) monorepo with root `"type": "module"`. Workspaces: **`dashboard/`** (TanStack Start, SSR, public site host), **`api/`** (Hono, tRPC, REST, OpenAPI, MCP — bundled with the dashboard in the unified Cloudflare Worker in production), **`worker/`** (queue consumers, workflows, schedules via **`@tamias/worker`** exports), **`packages/*`**. Single root **`wrangler.jsonc`**, root **`playwright.config.ts`**, specs in **`e2e/`**, secrets in root **`.env`** (gitignored). AI assistant prompt markdown lives in **`agent-prompts/`** and is compiled into the API with **`bun run --cwd api prompts:generate`**.
+**Repository layout (current):** [Bun](https://bun.sh) monorepo with root `"type": "module"`. Workspaces: **`dashboard/`** (TanStack Start, SSR, public site host), **`api/`** (Hono, tRPC, REST, OpenAPI, MCP — bundled with the dashboard in the unified Cloudflare Worker in production), **`worker/`** (queue consumers, workflows, schedules via **`@tamias/worker`** exports), **`packages/*`**. Single root **`wrangler.jsonc`**, root **`playwright.config.ts`**, specs in **`e2e/`**, and runtime-scoped local configuration in **`.env.dashboard`**, **`.env.api`**, **`.env.worker`**, **`.env.documents`**, **`.env.filing`**, and **`.env.local-only`** (all gitignored). AI assistant prompt markdown lives in **`agent-prompts/`** and is compiled into the API with **`bun run --cwd api prompts:generate`**.
 
 ## Table of contents
 
@@ -543,7 +543,6 @@ The provider facade in `packages/banking/src/index.ts` accepts only `truelayer`.
 
 ## Accounting integrations
 
-
 ### Table of Contents
 
 1. [Overview](#overview)
@@ -828,10 +827,10 @@ Users manually select which transactions to export. The system validates that tr
 
 #### Provider-Specific Behavior
 
-| Provider   | Entity Type      | Idempotency         | Notes                             |
-| ---------- | ---------------- | ------------------- | --------------------------------- |
-| QuickBooks | Purchase/Deposit | `Request-Id` header | Based on amount sign              |
-| Fortnox    | Voucher          | None (immutable)    | Posted vouchers, double-entry     |
+| Provider   | Entity Type      | Idempotency         | Notes                         |
+| ---------- | ---------------- | ------------------- | ----------------------------- |
+| QuickBooks | Purchase/Deposit | `Request-Id` header | Based on amount sign          |
+| Fortnox    | Voucher          | None (immutable)    | Posted vouchers, double-entry |
 
 #### Important: Re-Export Behavior
 
@@ -1103,19 +1102,18 @@ All providers sort transactions by date before export:
 #### Estimated Export Times
 
 | -------------------------- | ------- | ---------- | ------- |
-| 200                        | ~4 min  | ~30 sec    | ~1 min  |
-| 1000                       | ~18 min | ~2 min     | ~4 min  |
-| 2000                       | ~37 min | ~4 min     | ~8 min  |
-
+| 200 | ~4 min | ~30 sec | ~1 min |
+| 1000 | ~18 min | ~2 min | ~4 min |
+| 2000 | ~37 min | ~4 min | ~8 min |
 
 ---
 
 ### Limitations
 
 1. **No Updates**: Re-exporting creates new entries; existing entries cannot be updated
-3. **Bank Account Mapping**: Currently uses first active account; multi-account mapping planned
-4. **Rate Limits**: Subject to provider API rate limits (handled automatically with throttling)
-5. **Fortnox Vouchers**: Created as posted entries (Fortnox API doesn't support draft vouchers via API)
+2. **Bank Account Mapping**: Currently uses first active account; multi-account mapping planned
+3. **Rate Limits**: Subject to provider API rate limits (handled automatically with throttling)
+4. **Fortnox Vouchers**: Created as posted entries (Fortnox API doesn't support draft vouchers via API)
 
 ---
 
@@ -1475,7 +1473,6 @@ flowchart TB
 
 ### Data Mapping
 
-
 ```mermaid
 flowchart LR
     subgraph Tamias["Tamias Transaction"]
@@ -1556,8 +1553,8 @@ sequenceDiagram
 
 #### Rate Limits
 
-| Provider | Limit           | Tamias Handling                             |
-| -------- | --------------- | ------------------------------------------- |
+| Provider | Limit | Tamias Handling |
+| -------- | ----- | --------------- |
 
 ---
 

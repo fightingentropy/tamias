@@ -16,9 +16,7 @@ export function buildAssignedTransactionUser(member: AssignedTransactionUser | u
   };
 }
 
-export function buildAssignedUserLookup(
-  teamMembers: Awaited<ReturnType<typeof getTeamMembers>>,
-) {
+export function buildAssignedUserLookup(teamMembers: Awaited<ReturnType<typeof getTeamMembers>>) {
   return new Map<string, AssignedTransactionUser>(
     teamMembers.map((member) => [
       member.id,

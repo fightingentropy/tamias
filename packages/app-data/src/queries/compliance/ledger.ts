@@ -149,6 +149,35 @@ function normalizeJournalLines(lines: ComplianceJournalLineRecord[]) {
   }));
 }
 
+export function assertJournalEntryConservesValue(lines: ComplianceJournalLineRecord[]) {
+  if (lines.length < 2) {
+    throw new Error("Journal entries require at least two lines");
+  }
+
+  for (const line of lines) {
+    const debit = line.debit ?? 0;
+    const credit = line.credit ?? 0;
+    if (!line.accountCode.trim()) {
+      throw new Error("Journal lines require an account code");
+    }
+    if (!Number.isFinite(debit) || !Number.isFinite(credit) || debit < 0 || credit < 0) {
+      throw new Error("Journal debit and credit values must be finite and non-negative");
+    }
+    if (debit > 0 && credit > 0) {
+      throw new Error("A journal line cannot contain both a debit and a credit");
+    }
+    if (roundCurrency(debit) === 0 && roundCurrency(credit) === 0) {
+      throw new Error("Journal lines cannot have zero value");
+    }
+  }
+
+  const debits = roundCurrency(lines.reduce((sum, line) => sum + (line.debit ?? 0), 0));
+  const credits = roundCurrency(lines.reduce((sum, line) => sum + (line.credit ?? 0), 0));
+  if (debits <= 0 || credits <= 0 || Math.abs(debits - credits) > 0.009) {
+    throw new Error(`Journal entry does not conserve value (debits ${debits}, credits ${credits})`);
+  }
+}
+
 async function getSourceLinkBySourceFromD1(
   d1: CloudflareD1DatabaseBinding,
   args: {
@@ -219,6 +248,7 @@ export async function upsertComplianceJournalEntryInD1(
     entry: ComplianceJournalEntryRecord;
   },
 ) {
+  assertJournalEntryConservesValue(args.entry.lines);
   const existingSourceLink = await getSourceLinkBySourceFromD1(d1, {
     teamId: args.teamId,
     sourceType: args.entry.sourceType,

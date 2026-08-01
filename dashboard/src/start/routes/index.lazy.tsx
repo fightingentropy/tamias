@@ -37,17 +37,14 @@ const features = [
   },
   {
     title: "Invoices get paid",
-    subtitle:
-      "Customers can pay invoices online, with payments tracked automatically.",
-    mobileSubtitle:
-      "Customers can pay invoices online with payments tracked automatically.",
+    subtitle: "Customers can pay invoices online, with payments tracked automatically.",
+    mobileSubtitle: "Customers can pay invoices online with payments tracked automatically.",
   },
   {
     title: "Automatic reconciliation",
     subtitle:
       "Payments, receipts, and transactions are automatically matched so records stay accurate.",
-    mobileSubtitle:
-      "Transactions are categorized and reconciled automatically.",
+    mobileSubtitle: "Transactions are categorized and reconciled automatically.",
   },
 ];
 
@@ -75,20 +72,17 @@ const painPoints = [
   {
     label: "Cleaning transactions",
     time: "1 hour per week",
-    description:
-      "Categorizing, fixing duplicates, and making numbers line up.",
+    description: "Categorizing, fixing duplicates, and making numbers line up.",
   },
   {
     label: "Preparing invoices",
     time: "1–2 hours per week",
-    description:
-      "Creating invoices, checking payments, and answering questions.",
+    description: "Creating invoices, checking payments, and answering questions.",
   },
   {
     label: "Explaining the numbers",
     time: "1 hour per week",
-    description:
-      "Pulling data together and explaining what changed and why.",
+    description: "Pulling data together and explaining what changed and why.",
   },
 ];
 
@@ -188,10 +182,7 @@ function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 w-full">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-8">
         <div className="flex items-center justify-between h-14">
-          <Link
-            href="/"
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-          >
+          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <LogoSmallIcon className="w-6 h-6 text-foreground" />
           </Link>
           <div className="flex items-center gap-6">
@@ -247,16 +238,12 @@ function HeroSection() {
             <div className="space-y-5 lg:space-y-6 max-w-3xl mx-auto px-2 lg:px-0">
               <h1 className="font-serif text-3xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl 2xl:text-7xl leading-[1.1] tracking-tight text-foreground">
                 The business stack for{" "}
-                <em className="not-italic text-muted-foreground/80">
-                  modern
-                </em>{" "}
-                founders
+                <em className="not-italic text-muted-foreground/80">modern</em> founders
               </h1>
 
               <p className="text-muted-foreground text-base lg:text-lg leading-relaxed font-sans max-w-xl mx-auto">
-                Send invoices, automatic reconciliation, track billable hours,
-                get financial insights, and export clean books to your
-                accountant.
+                Send invoices, automatic reconciliation, track billable hours, get financial
+                insights, and export clean books to your accountant.
               </p>
             </div>
 
@@ -281,9 +268,7 @@ function HeroSection() {
             {/* Poster image with fade */}
             <div
               className={`absolute inset-0 w-full h-full transition-all duration-1000 ease-in-out z-[1] ${
-                isVideoLoaded
-                  ? "opacity-0 pointer-events-none"
-                  : "opacity-100"
+                isVideoLoaded ? "opacity-0 pointer-events-none" : "opacity-100"
               }`}
               style={{
                 filter: isVideoLoaded ? "blur(0px)" : "blur(1px)",
@@ -313,10 +298,7 @@ function HeroSection() {
               playsInline
               preload="none"
             >
-              <source
-                src="https://cdn.midday.ai/videos/login-video.mp4"
-                type="video/mp4"
-              />
+              <source src="https://cdn.midday.ai/videos/login-video.mp4" type="video/mp4" />
             </video>
 
             {/* Dashboard overlay */}
@@ -363,9 +345,7 @@ function HowItWorksSection() {
                   {feature.title}
                 </h2>
                 <p className="font-sans text-base text-muted-foreground leading-normal max-w-md mx-auto">
-                  <span className="sm:hidden">
-                    {feature.mobileSubtitle || feature.subtitle}
-                  </span>
+                  <span className="sm:hidden">{feature.mobileSubtitle || feature.subtitle}</span>
                   <span className="hidden sm:inline">{feature.subtitle}</span>
                 </p>
               </div>
@@ -427,21 +407,14 @@ function HowItWorksSection() {
 
             {/* Text */}
             <div className="flex flex-col justify-center space-y-5 lg:space-y-6 flex-1">
-              <div
-                className="flex items-center mb-4 lg:mb-6"
-                style={{ minHeight: "3rem" }}
-              >
-                <h2 className="font-serif text-2xl text-foreground">
-                  How it works
-                </h2>
+              <div className="flex items-center mb-4 lg:mb-6" style={{ minHeight: "3rem" }}>
+                <h2 className="font-serif text-2xl text-foreground">How it works</h2>
               </div>
               {features.map((feature, index) => (
                 <div
                   key={index}
                   className={`cursor-pointer transition-all duration-300 flex items-start ${
-                    activeFeature === index
-                      ? "opacity-100"
-                      : "opacity-60 hover:opacity-80"
+                    activeFeature === index ? "opacity-100" : "opacity-60 hover:opacity-80"
                   }`}
                   onClick={() => setActiveFeature(index)}
                   style={{ minHeight: "3rem" }}
@@ -548,7 +521,9 @@ function FeatureIllustration({ index }: { index: number }) {
                 <div className="w-5 h-5 bg-secondary border border-border flex-shrink-0" />
                 <span className="text-xs text-foreground truncate">{tx.name}</span>
               </div>
-              <span className={`text-xs ${tx.amount.startsWith("+") ? "text-foreground" : "text-muted-foreground"}`}>
+              <span
+                className={`text-xs ${tx.amount.startsWith("+") ? "text-foreground" : "text-muted-foreground"}`}
+              >
                 {tx.amount}
               </span>
               <span className="text-[10px] text-muted-foreground px-2 py-0.5 bg-secondary border border-border">
@@ -567,17 +542,23 @@ function FeatureIllustration({ index }: { index: number }) {
         <div className="grid grid-cols-3 gap-3 p-4">
           <div className="border border-border p-3">
             <p className="text-[10px] text-muted-foreground">Open</p>
-            <p className="text-lg font-sans text-foreground mt-1">$36,500<span className="text-xs text-muted-foreground">.75</span></p>
+            <p className="text-lg font-sans text-foreground mt-1">
+              $36,500<span className="text-xs text-muted-foreground">.75</span>
+            </p>
             <p className="text-[10px] text-muted-foreground">6 invoices</p>
           </div>
           <div className="border border-border p-3">
             <p className="text-[10px] text-muted-foreground">Overdue</p>
-            <p className="text-lg font-sans text-foreground mt-1">$12,500<span className="text-xs text-muted-foreground">.50</span></p>
+            <p className="text-lg font-sans text-foreground mt-1">
+              $12,500<span className="text-xs text-muted-foreground">.50</span>
+            </p>
             <p className="text-[10px] text-muted-foreground">14 invoices</p>
           </div>
           <div className="border border-border p-3">
             <p className="text-[10px] text-muted-foreground">Paid</p>
-            <p className="text-lg font-sans text-foreground mt-1">$152,825<span className="text-xs text-muted-foreground">.00</span></p>
+            <p className="text-lg font-sans text-foreground mt-1">
+              $152,825<span className="text-xs text-muted-foreground">.00</span>
+            </p>
             <p className="text-[10px] text-muted-foreground">21 invoices</p>
           </div>
         </div>
@@ -601,7 +582,9 @@ function FeatureIllustration({ index }: { index: number }) {
               <span className="text-xs text-foreground">{inv.customer}</span>
               <span className="text-xs text-muted-foreground">{inv.amount}</span>
               <span className="text-[10px] text-muted-foreground">{inv.no}</span>
-              <span className={`text-[10px] px-2 py-0.5 border border-border ${inv.status === "Overdue" ? "text-foreground" : "text-muted-foreground"}`}>
+              <span
+                className={`text-[10px] px-2 py-0.5 border border-border ${inv.status === "Overdue" ? "text-foreground" : "text-muted-foreground"}`}
+              >
                 {inv.status}
               </span>
             </div>
@@ -616,14 +599,22 @@ function FeatureIllustration({ index }: { index: number }) {
     <div className="w-full h-full flex flex-col bg-background border border-border overflow-hidden">
       <div className="p-4 pb-2">
         <div className="flex items-center gap-2 border border-border px-3 py-2">
-          <span className="material-symbols-outlined text-muted-foreground" style={{ fontSize: 16 }}>search</span>
+          <span
+            className="material-symbols-outlined text-muted-foreground"
+            style={{ fontSize: 16 }}
+          >
+            search
+          </span>
           <span className="text-xs text-muted-foreground">Search inbox...</span>
         </div>
       </div>
       <div className="flex flex-1 overflow-hidden">
         <div className="flex-1 px-4 pb-4">
           {inboxData.map((r, i) => (
-            <div key={i} className="flex items-center justify-between py-2.5 border-b border-border last:border-0">
+            <div
+              key={i}
+              className="flex items-center justify-between py-2.5 border-b border-border last:border-0"
+            >
               <span className="text-xs text-foreground">{r.name}</span>
               <span className="text-xs text-muted-foreground">{r.amount}</span>
             </div>
@@ -666,48 +657,42 @@ function FeaturesGridSection() {
             Everything you need to run your business
           </h2>
           <p className="hidden sm:block font-sans text-base text-muted-foreground leading-normal max-w-2xl mx-auto">
-            Invoicing, transactions, time tracking, customers, and files — all
-            connected in one system.
+            Invoicing, transactions, time tracking, customers, and files — all connected in one
+            system.
           </p>
         </div>
 
         <div className="flex flex-col gap-8 sm:gap-10 max-w-sm sm:max-w-none mx-auto">
-          {[featureGridItems.slice(0, 4), featureGridItems.slice(4)].map(
-            (row, rowIdx) => (
-              <div
-                key={rowIdx}
-                className="grid grid-cols-2 gap-6 sm:flex sm:justify-center sm:gap-20"
-              >
-                {row.map((item) => (
-                  <div
-                    key={item.title}
-                    className="flex flex-col items-center w-full sm:w-[150px]"
-                  >
-                    <div className="bg-secondary border border-border w-[60px] h-[60px] flex items-center justify-center rounded-none mb-4 hover:border-muted-foreground transition-all duration-200">
-                      <span
-                        className="material-symbols-outlined text-muted-foreground"
-                        style={{
-                          fontSize: 24,
-                          fontVariationSettings:
-                            "'FILL' 0, 'wght' 300",
-                        }}
-                      >
-                        {item.icon}
-                      </span>
-                    </div>
-                    <div className="flex flex-col items-center text-center">
-                      <h3 className="font-sans text-sm text-foreground leading-[21px]">
-                        {item.title}
-                      </h3>
-                      <p className="font-sans text-sm text-muted-foreground leading-[21px]">
-                        {item.subtitle}
-                      </p>
-                    </div>
+          {[featureGridItems.slice(0, 4), featureGridItems.slice(4)].map((row, rowIdx) => (
+            <div
+              key={rowIdx}
+              className="grid grid-cols-2 gap-6 sm:flex sm:justify-center sm:gap-20"
+            >
+              {row.map((item) => (
+                <div key={item.title} className="flex flex-col items-center w-full sm:w-[150px]">
+                  <div className="bg-secondary border border-border w-[60px] h-[60px] flex items-center justify-center rounded-none mb-4 hover:border-muted-foreground transition-all duration-200">
+                    <span
+                      className="material-symbols-outlined text-muted-foreground"
+                      style={{
+                        fontSize: 24,
+                        fontVariationSettings: "'FILL' 0, 'wght' 300",
+                      }}
+                    >
+                      {item.icon}
+                    </span>
                   </div>
-                ))}
-              </div>
-            ),
-          )}
+                  <div className="flex flex-col items-center text-center">
+                    <h3 className="font-sans text-sm text-foreground leading-[21px]">
+                      {item.title}
+                    </h3>
+                    <p className="font-sans text-sm text-muted-foreground leading-[21px]">
+                      {item.subtitle}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -725,8 +710,7 @@ function TimeSavingsSection() {
             Less admin. More focus.
           </h2>
           <p className="hidden sm:block font-sans text-base text-muted-foreground leading-normal max-w-2xl mx-auto">
-            Tamias removes manual work so you can spend time on what actually
-            matters.
+            Tamias removes manual work so you can spend time on what actually matters.
           </p>
         </div>
 
@@ -741,12 +725,8 @@ function TimeSavingsSection() {
                   <p className="hidden sm:block text-xs tracking-wide text-muted-foreground">
                     {point.label}
                   </p>
-                  <h3 className="mt-1 text-base sm:text-lg text-foreground">
-                    {point.time}
-                  </h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {point.description}
-                  </p>
+                  <h3 className="mt-1 text-base sm:text-lg text-foreground">{point.time}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{point.description}</p>
                 </div>
               </article>
             ))}
@@ -758,12 +738,8 @@ function TimeSavingsSection() {
                 <p className="hidden sm:block text-xs tracking-wide text-muted-foreground">
                   {painPoints[3]!.label}
                 </p>
-                <h3 className="mt-1 text-base sm:text-lg text-foreground">
-                  {painPoints[3]!.time}
-                </h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {painPoints[3]!.description}
-                </p>
+                <h3 className="mt-1 text-base sm:text-lg text-foreground">{painPoints[3]!.time}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">{painPoints[3]!.description}</p>
               </div>
             </article>
 
@@ -772,12 +748,8 @@ function TimeSavingsSection() {
                 <p className="hidden sm:block text-xs tracking-wide text-muted-foreground">
                   {painPoints[2]!.label}
                 </p>
-                <h3 className="mt-1 text-base sm:text-lg text-foreground">
-                  {painPoints[2]!.time}
-                </h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {painPoints[2]!.description}
-                </p>
+                <h3 className="mt-1 text-base sm:text-lg text-foreground">{painPoints[2]!.time}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">{painPoints[2]!.description}</p>
               </div>
             </article>
 
@@ -796,8 +768,12 @@ function TimeSavingsSection() {
                     <span className="hidden group-hover:inline">Get your time back</span>
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    <span className="group-hover:hidden">Manual work caused by disconnected tools.</span>
-                    <span className="hidden group-hover:inline">Tamias handles the busywork so you can focus on running the business.</span>
+                    <span className="group-hover:hidden">
+                      Manual work caused by disconnected tools.
+                    </span>
+                    <span className="hidden group-hover:inline">
+                      Tamias handles the busywork so you can focus on running the business.
+                    </span>
                   </p>
                 </div>
                 <div className="flex flex-col items-end">
@@ -814,9 +790,15 @@ function TimeSavingsSection() {
             >
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex-1">
-                  <p className="hidden sm:block text-xs tracking-wide text-muted-foreground">As things add up</p>
-                  <p className="mt-1 text-base sm:text-lg text-foreground">What disappears over time</p>
-                  <p className="mt-1 text-sm text-muted-foreground">Manual work caused by disconnected tools.</p>
+                  <p className="hidden sm:block text-xs tracking-wide text-muted-foreground">
+                    As things add up
+                  </p>
+                  <p className="mt-1 text-base sm:text-lg text-foreground">
+                    What disappears over time
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Manual work caused by disconnected tools.
+                  </p>
                 </div>
                 <div className="flex flex-col items-end">
                   <div className="text-4xl sm:text-5xl text-foreground">4–6 hours</div>
@@ -853,8 +835,8 @@ function PreAccountingSection() {
             Ready for accounting, without extra work
           </h2>
           <p className="hidden sm:block font-sans text-base text-muted-foreground leading-normal max-w-2xl mx-auto">
-            Receipts, invoices, and transactions stay organized automatically so
-            your books are always ready when you need them.
+            Receipts, invoices, and transactions stay organized automatically so your books are
+            always ready when you need them.
           </p>
         </div>
 
@@ -864,7 +846,12 @@ function PreAccountingSection() {
               {accountingChecklist.map((item, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <div className="w-5 h-5 bg-secondary border border-border flex items-center justify-center flex-shrink-0">
-                    <span className="material-symbols-outlined text-foreground" style={{ fontSize: 14, fontVariationSettings: "'FILL' 0, 'wght' 400" }}>check</span>
+                    <span
+                      className="material-symbols-outlined text-foreground"
+                      style={{ fontSize: 14, fontVariationSettings: "'FILL' 0, 'wght' 400" }}
+                    >
+                      check
+                    </span>
                   </div>
                   <span className="font-sans text-sm text-foreground">
                     <span className="sm:hidden">{item.short}</span>
@@ -901,9 +888,20 @@ function TestimonialsSection() {
           <div className="flex items-center justify-center mb-6 sm:mb-10">
             <div className="flex gap-1">
               {[...Array(4)].map((_, i) => (
-                <span key={i} className="material-symbols-outlined text-muted-foreground" style={{ fontSize: 16, fontVariationSettings: "'FILL' 1, 'wght' 400" }}>star</span>
+                <span
+                  key={i}
+                  className="material-symbols-outlined text-muted-foreground"
+                  style={{ fontSize: 16, fontVariationSettings: "'FILL' 1, 'wght' 400" }}
+                >
+                  star
+                </span>
               ))}
-              <span className="material-symbols-outlined text-muted-foreground" style={{ fontSize: 16, fontVariationSettings: "'FILL' 1, 'wght' 400" }}>star_half</span>
+              <span
+                className="material-symbols-outlined text-muted-foreground"
+                style={{ fontSize: 16, fontVariationSettings: "'FILL' 1, 'wght' 400" }}
+              >
+                star_half
+              </span>
             </div>
           </div>
         </div>
@@ -931,15 +929,11 @@ function TestimonialsSection() {
                         className="w-4 h-4 rounded-full object-cover"
                         style={{ filter: "grayscale(100%)" }}
                       />
-                      <span className="font-sans text-sm text-foreground">
-                        {t.name}
-                      </span>
+                      <span className="font-sans text-sm text-foreground">{t.name}</span>
                     </div>
                   </div>
                   <div className="flex flex-col gap-2 text-left">
-                    <span className="font-sans text-sm text-muted-foreground">
-                      {t.company}
-                    </span>
+                    <span className="font-sans text-sm text-muted-foreground">{t.company}</span>
                     <div className="font-sans text-sm text-muted-foreground leading-relaxed">
                       &quot;{t.content}&quot;
                     </div>
@@ -1002,15 +996,41 @@ function TestimonialsSection() {
 // ─── Integrations Marquee ────────────────────────────────────────────────────
 
 const integrationRow1 = [
-  "Gmail", "Outlook", "Slack", "Telegram", "QuickBooks",
-  "Fortnox", "Stripe", "Linear", "Jira", "Asana", "HubSpot",
-  "Notion", "GitHub", "Google Drive", "Figma", "Shopify",
+  "Gmail",
+  "Outlook",
+  "Slack",
+  "Telegram",
+  "QuickBooks",
+  "Fortnox",
+  "Stripe",
+  "Linear",
+  "Jira",
+  "Asana",
+  "HubSpot",
+  "Notion",
+  "GitHub",
+  "Google Drive",
+  "Figma",
+  "Shopify",
 ];
 const integrationRow2 = [
-  "Salesforce", "Pipedrive", "Calendly", "Zoom", "Intercom",
-  "Zendesk", "Dropbox", "Trello", "Monday.com", "ClickUp",
-  "Google Analytics", "Mailchimp", "Webflow", "Airtable",
-  "FreshBooks", "Square", "DocuSign",
+  "Salesforce",
+  "Pipedrive",
+  "Calendly",
+  "Zoom",
+  "Intercom",
+  "Zendesk",
+  "Dropbox",
+  "Trello",
+  "Monday.com",
+  "ClickUp",
+  "Google Analytics",
+  "Mailchimp",
+  "Webflow",
+  "Airtable",
+  "FreshBooks",
+  "Square",
+  "DocuSign",
 ];
 
 function IntegrationsSection() {
@@ -1022,8 +1042,7 @@ function IntegrationsSection() {
             Works with the tools you already use
           </h2>
           <p className="hidden sm:block font-sans text-base text-muted-foreground leading-normal">
-            Connect your banks, email, payments and accounting software in
-            minutes.
+            Connect your banks, email, payments and accounting software in minutes.
           </p>
         </div>
 
@@ -1049,7 +1068,11 @@ function IntegrationsSection() {
             {/* Row 1 - moves left */}
             <div className="flex animate-marquee-left group-hover/integrations:[animation-play-state:paused] will-change-transform">
               {[0, 1].map((dup) => (
-                <div key={dup} className="flex gap-2 shrink-0 pr-2" aria-hidden={dup === 1 ? "true" : undefined}>
+                <div
+                  key={dup}
+                  className="flex gap-2 shrink-0 pr-2"
+                  aria-hidden={dup === 1 ? "true" : undefined}
+                >
                   {integrationRow1.map((name) => (
                     <div
                       key={`${dup}-${name}`}
@@ -1066,7 +1089,11 @@ function IntegrationsSection() {
             {/* Row 2 - moves right */}
             <div className="flex animate-marquee-right group-hover/integrations:[animation-play-state:paused] will-change-transform">
               {[0, 1].map((dup) => (
-                <div key={dup} className="flex gap-2 shrink-0 pr-2" aria-hidden={dup === 1 ? "true" : undefined}>
+                <div
+                  key={dup}
+                  className="flex gap-2 shrink-0 pr-2"
+                  aria-hidden={dup === 1 ? "true" : undefined}
+                >
                   {integrationRow2.map((name) => (
                     <div
                       key={`${dup}-${name}`}
@@ -1100,8 +1127,18 @@ function Footer() {
             <div className="space-y-3">
               <h3 className="font-sans text-sm text-foreground mb-4">Features</h3>
               <div className="space-y-2.5">
-                {["Invoicing", "Transactions", "Inbox", "Time tracking", "Customers", "Files", "Exports"].map((item) => (
-                  <span key={item} className="font-sans text-sm text-muted-foreground block">{item}</span>
+                {[
+                  "Invoicing",
+                  "Transactions",
+                  "Inbox",
+                  "Time tracking",
+                  "Customers",
+                  "Files",
+                  "Exports",
+                ].map((item) => (
+                  <span key={item} className="font-sans text-sm text-muted-foreground block">
+                    {item}
+                  </span>
                 ))}
               </div>
             </div>
@@ -1109,9 +1146,13 @@ function Footer() {
             <div className="space-y-3">
               <h3 className="font-sans text-sm text-foreground mb-4">Product</h3>
               <div className="space-y-2.5">
-                {["Pricing", "Download", "Pre-accounting", "Integrations", "Customer Stories"].map((item) => (
-                  <span key={item} className="font-sans text-sm text-muted-foreground block">{item}</span>
-                ))}
+                {["Pricing", "Download", "Pre-accounting", "Integrations", "Customer Stories"].map(
+                  (item) => (
+                    <span key={item} className="font-sans text-sm text-muted-foreground block">
+                      {item}
+                    </span>
+                  ),
+                )}
               </div>
             </div>
 
@@ -1119,7 +1160,9 @@ function Footer() {
               <h3 className="font-sans text-sm text-foreground mb-4">Company</h3>
               <div className="space-y-2.5">
                 {["Story", "Updates"].map((item) => (
-                  <span key={item} className="font-sans text-sm text-muted-foreground block">{item}</span>
+                  <span key={item} className="font-sans text-sm text-muted-foreground block">
+                    {item}
+                  </span>
                 ))}
               </div>
             </div>
@@ -1128,7 +1171,9 @@ function Footer() {
               <h3 className="font-sans text-sm text-foreground mb-4">Resources</h3>
               <div className="space-y-2.5">
                 {["Support", "Privacy Policy", "Terms of Service"].map((item) => (
-                  <span key={item} className="font-sans text-sm text-muted-foreground block">{item}</span>
+                  <span key={item} className="font-sans text-sm text-muted-foreground block">
+                    {item}
+                  </span>
                 ))}
               </div>
             </div>

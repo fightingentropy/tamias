@@ -217,14 +217,17 @@ export class InvoiceStatusSchedulerProcessor extends BaseProcessor<InvoiceStatus
     }
   }
 
-  private async findMatchingTransactions(db: Database, invoice: {
-    amount: number | null;
-    currency: string | null;
-    dueDate: string | null;
-    status: string;
-    teamId: string;
-    template?: unknown;
-  }) {
+  private async findMatchingTransactions(
+    db: Database,
+    invoice: {
+      amount: number | null;
+      currency: string | null;
+      dueDate: string | null;
+      status: string;
+      teamId: string;
+      template?: unknown;
+    },
+  ) {
     const timezone = (invoice.template as { timezone?: string } | null)?.timezone || "UTC";
     const threeDaysAgo = format(subDays(new TZDate(new Date(), timezone), 3), "yyyy-MM-dd");
     const invoiceAmount =
@@ -236,14 +239,17 @@ export class InvoiceStatusSchedulerProcessor extends BaseProcessor<InvoiceStatus
     }
 
     const amountSearchValue = Math.round(Math.abs(invoiceAmount) * 100);
-    const candidateTransactions = await getTransactionsByAmountRangeFromD1(requireTransactionsD1(db), {
-      teamId: invoice.teamId,
-      minAmount: amountSearchValue,
-      maxAmount: amountSearchValue,
-      dateGte: threeDaysAgo,
-      statusesNotIn: ["completed"],
-      limit: INVOICE_MATCH_CANDIDATE_LIMIT,
-    });
+    const candidateTransactions = await getTransactionsByAmountRangeFromD1(
+      requireTransactionsD1(db),
+      {
+        teamId: invoice.teamId,
+        minAmount: amountSearchValue,
+        maxAmount: amountSearchValue,
+        dateGte: threeDaysAgo,
+        statusesNotIn: ["completed"],
+        limit: INVOICE_MATCH_CANDIDATE_LIMIT,
+      },
+    );
 
     return candidateTransactions
       .filter((transaction) => transaction.amount === invoiceAmount)

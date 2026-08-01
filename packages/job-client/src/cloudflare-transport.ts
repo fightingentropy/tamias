@@ -10,7 +10,9 @@ import {
   type CloudflareWorkflowStatusResponse,
 } from "./cloudflare-runtime";
 
-export async function enqueueViaCloudflareTransport(request: CloudflareQueueRequest): Promise<void> {
+export async function enqueueViaCloudflareTransport(
+  request: CloudflareQueueRequest,
+): Promise<void> {
   const queueBinding = getCloudflareQueueBinding(request.queue);
 
   if (queueBinding) {

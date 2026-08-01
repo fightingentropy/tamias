@@ -155,9 +155,9 @@ function decodeDocumentCursor(cursor: string | null | undefined): DocumentCursor
     return null;
   }
 
-  const parsed = JSON.parse(Buffer.from(cursor, "base64url").toString("utf8")) as Partial<
-    DocumentCursor
-  >;
+  const parsed = JSON.parse(
+    Buffer.from(cursor, "base64url").toString("utf8"),
+  ) as Partial<DocumentCursor>;
 
   if (typeof parsed.createdAt !== "string" || typeof parsed.id !== "string") {
     throw new Error("Invalid document cursor");
@@ -248,11 +248,7 @@ export async function searchDocuments(
   db: Database,
   args: { teamId: string; query: string; limit?: number },
 ) {
-  const tokens = args.query
-    .trim()
-    .toLowerCase()
-    .split(/\s+/)
-    .filter(Boolean);
+  const tokens = args.query.trim().toLowerCase().split(/\s+/).filter(Boolean);
 
   if (tokens.length === 0) {
     return [];
@@ -296,10 +292,7 @@ export async function getDocumentsByIds(
   return results.map(toDocumentRecord);
 }
 
-export async function getDocumentById(
-  db: Database,
-  args: { teamId: string; documentId: string },
-) {
+export async function getDocumentById(db: Database, args: { teamId: string; documentId: string }) {
   return getDocumentByIdFromD1(getDocumentsD1(db), args);
 }
 
@@ -325,7 +318,8 @@ export async function upsertDocuments(db: Database, args: { documents: UpsertDoc
     const createdAt = document.createdAt ?? existing?.createdAt ?? timestamp;
     const updatedAt = document.updatedAt ?? timestamp;
     const pathTokens = document.pathTokens ?? existing?.pathTokens ?? document.name.split("/");
-    const metadata = document.metadata !== undefined ? document.metadata : existing?.metadata ?? null;
+    const metadata =
+      document.metadata !== undefined ? document.metadata : (existing?.metadata ?? null);
     const nextDocument: DocumentRecord = {
       id,
       teamId: document.teamId,
@@ -334,18 +328,17 @@ export async function upsertDocuments(db: Database, args: { documents: UpsertDoc
       updatedAt,
       metadata,
       pathTokens,
-      parentId: document.parentId !== undefined ? document.parentId : existing?.parentId ?? null,
-      objectId: document.objectId !== undefined ? document.objectId : existing?.objectId ?? null,
-      ownerId: document.ownerId !== undefined ? document.ownerId : existing?.ownerId ?? null,
-      tag: document.tag !== undefined ? document.tag : existing?.tag ?? null,
-      title: document.title !== undefined ? document.title : existing?.title ?? null,
-      body: document.body !== undefined ? document.body : existing?.body ?? null,
-      summary: document.summary !== undefined ? document.summary : existing?.summary ?? null,
-      content: document.content !== undefined ? document.content : existing?.content ?? null,
-      date: document.date !== undefined ? document.date : existing?.date ?? null,
-      language: document.language !== undefined ? document.language : existing?.language ?? null,
-      processingStatus:
-        document.processingStatus ?? existing?.processingStatus ?? "pending",
+      parentId: document.parentId !== undefined ? document.parentId : (existing?.parentId ?? null),
+      objectId: document.objectId !== undefined ? document.objectId : (existing?.objectId ?? null),
+      ownerId: document.ownerId !== undefined ? document.ownerId : (existing?.ownerId ?? null),
+      tag: document.tag !== undefined ? document.tag : (existing?.tag ?? null),
+      title: document.title !== undefined ? document.title : (existing?.title ?? null),
+      body: document.body !== undefined ? document.body : (existing?.body ?? null),
+      summary: document.summary !== undefined ? document.summary : (existing?.summary ?? null),
+      content: document.content !== undefined ? document.content : (existing?.content ?? null),
+      date: document.date !== undefined ? document.date : (existing?.date ?? null),
+      language: document.language !== undefined ? document.language : (existing?.language ?? null),
+      processingStatus: document.processingStatus ?? existing?.processingStatus ?? "pending",
     };
     const searchText = getDocumentSearchText(nextDocument);
 
@@ -447,7 +440,10 @@ export async function deleteDocumentRecord(db: Database, args: { teamId: string;
     return null;
   }
 
-  await d1.prepare("delete from documents where team_id = ? and id = ?").bind(args.teamId, args.id).run();
+  await d1
+    .prepare("delete from documents where team_id = ? and id = ?")
+    .bind(args.teamId, args.id)
+    .run();
 
   return document;
 }

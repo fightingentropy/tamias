@@ -147,7 +147,12 @@ export function SelectBankAccountsContent({
   );
 
   useEffect(() => {
-    if (provider !== "truelayer" || !token || truelayerTokenBlob || truelayerExchangeMutation.isPending) {
+    if (
+      provider !== "truelayer" ||
+      !token ||
+      truelayerTokenBlob ||
+      truelayerExchangeMutation.isPending
+    ) {
       return;
     }
     truelayerExchangeMutation.mutate({ token });

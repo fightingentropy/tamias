@@ -215,41 +215,41 @@ export function AddBankAccountsModal({
 
             {providerSupported &&
               newAccounts.map((account) => (
-              <div key={account.id} className="flex justify-between items-center">
-                <div className="flex items-center space-x-4 mr-8 flex-1 min-w-0">
-                  <Avatar className="size-[34px]">
-                    <AvatarFallback className="text-[11px]">
-                      {getInitials(account.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <p className="font-medium leading-none text-sm truncate">{account.name}</p>
-                    </div>
-                    <div className="flex items-center justify-between mt-1">
-                      <span className="text-xs text-[#878787]">
-                        {/* @ts-ignore */}
-                        {account.type
-                          ? t(`account_type.${account.type}`)
-                          : t("account_type.depository")}
-                      </span>
-                      <span className="text-sm font-medium">
-                        <FormatAmount
-                          amount={
-                            Number.isFinite(account.balance?.amount) ? account.balance.amount : 0
-                          }
-                          currency={account.balance?.currency ?? "USD"}
-                        />
-                      </span>
+                <div key={account.id} className="flex justify-between items-center">
+                  <div className="flex items-center space-x-4 mr-8 flex-1 min-w-0">
+                    <Avatar className="size-[34px]">
+                      <AvatarFallback className="text-[11px]">
+                        {getInitials(account.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <p className="font-medium leading-none text-sm truncate">{account.name}</p>
+                      </div>
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="text-xs text-[#878787]">
+                          {/* @ts-ignore */}
+                          {account.type
+                            ? t(`account_type.${account.type}`)
+                            : t("account_type.depository")}
+                        </span>
+                        <span className="text-sm font-medium">
+                          <FormatAmount
+                            amount={
+                              Number.isFinite(account.balance?.amount) ? account.balance.amount : 0
+                            }
+                            currency={account.balance?.currency ?? "USD"}
+                          />
+                        </span>
+                      </div>
                     </div>
                   </div>
+                  <Switch
+                    checked={selectedIds.has(account.id)}
+                    onCheckedChange={() => toggleAccount(account.id)}
+                  />
                 </div>
-                <Switch
-                  checked={selectedIds.has(account.id)}
-                  onCheckedChange={() => toggleAccount(account.id)}
-                />
-              </div>
-            ))}
+              ))}
           </div>
 
           <DialogFooter className="mt-6">

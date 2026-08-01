@@ -271,6 +271,11 @@ export const draftInvoiceSchema = baseDraftInvoiceSchema.extend({
   lineItems: z.array(draftLineItemSchema).optional().openapi({
     description: "List of line items for the invoice",
   }),
+  idempotencyKey: z
+    .string()
+    .min(8)
+    .max(200)
+    .regex(/^[A-Za-z0-9._:-]+$/),
 });
 
 // Draft invoice schema with TipTap validation for editor fields
@@ -643,6 +648,16 @@ export const invoiceSummarySchema = z
     description: "Query parameters for retrieving invoice summary",
   });
 
+export const idempotencyKeySchema = z
+  .string()
+  .min(8)
+  .max(200)
+  .regex(/^[A-Za-z0-9._:-]+$/)
+  .openapi({
+    description: "Stable key reused unchanged when retrying this exact mutation",
+    example: "invoice:550e8400-e29b-41d4-a716-446655440000",
+  });
+
 export const updateInvoiceSchema = z.object({
   id: z.string().openapi({
     param: {
@@ -654,6 +669,7 @@ export const updateInvoiceSchema = z.object({
   paidAt: z.string().nullable().optional(),
   internalNote: z.string().nullable().optional(),
   scheduledAt: z.string().nullable().optional(),
+  idempotencyKey: idempotencyKeySchema,
 });
 
 export const deleteInvoiceSchema = z.object({
@@ -663,12 +679,14 @@ export const deleteInvoiceSchema = z.object({
       name: "id",
     },
   }),
+  idempotencyKey: idempotencyKeySchema,
 });
 
 export const createInvoiceSchema = z.object({
   id: z.string().uuid(),
   deliveryType: z.enum(["create", "create_and_send", "scheduled"]),
   scheduledAt: z.string().datetime({ offset: true }).optional(),
+  idempotencyKey: idempotencyKeySchema,
 });
 
 export const remindInvoiceSchema = z.object({
@@ -682,15 +700,18 @@ export const remindInvoiceSchema = z.object({
       },
     }),
   date: z.string(),
+  idempotencyKey: idempotencyKeySchema,
 });
 
 export const updateScheduledInvoiceSchema = z.object({
   id: z.string().uuid(),
   scheduledAt: z.string().datetime({ offset: true }),
+  idempotencyKey: idempotencyKeySchema,
 });
 
 export const cancelScheduledInvoiceSchema = z.object({
   id: z.string().uuid(),
+  idempotencyKey: idempotencyKeySchema,
 });
 
 export const duplicateInvoiceSchema = z.object({
@@ -703,6 +724,7 @@ export const duplicateInvoiceSchema = z.object({
         name: "id",
       },
     }),
+  idempotencyKey: idempotencyKeySchema,
 });
 
 export const getInvoiceByTokenSchema = z.object({
@@ -1298,7 +1320,8 @@ export const invoiceResponseSchema = z
     }),
     pdfUrl: z.string().url().nullable().openapi({
       description: "URL to download the invoice PDF, or null if not generated",
-      example: "https://api.tamias.xyz/files/download/invoice?token=eef58951-1682-4062-b010-425866032390",
+      example:
+        "https://api.tamias.xyz/files/download/invoice?token=eef58951-1682-4062-b010-425866032390",
     }),
     previewUrl: z.string().url().nullable().openapi({
       description: "URL to preview the invoice in the browser, or null if not generated",

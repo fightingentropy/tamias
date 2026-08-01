@@ -129,6 +129,7 @@ describe("tRPC: invoice.delete", () => {
     const caller = createCaller(createTestContext());
     const result = await caller.delete({
       id: "a1b2c3d4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      idempotencyKey: "delete-test-12345678",
     });
 
     expect(result).toBeDefined();
@@ -136,7 +137,10 @@ describe("tRPC: invoice.delete", () => {
 
   test("passes teamId to DB query", async () => {
     const caller = createCaller(createTestContext());
-    await caller.delete({ id: "d4e5f6a7-8b9c-4d0e-1f2a-3b4c5d6e7f8a" });
+    await caller.delete({
+      id: "d4e5f6a7-8b9c-4d0e-1f2a-3b4c5d6e7f8a",
+      idempotencyKey: "delete-test-87654321",
+    });
 
     expect(mocks.deleteInvoice).toHaveBeenCalledWith(
       expect.anything(),

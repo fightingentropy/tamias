@@ -229,6 +229,8 @@ export function VatDashboard() {
                 submitReturn.mutate({
                   vatReturnId: draft.id,
                   declarationAccepted: true,
+                  idempotencyKey: crypto.randomUUID(),
+                  confirmationId: crypto.randomUUID(),
                   userAgent: typeof navigator !== "undefined" ? navigator.userAgent : undefined,
                 });
               }}

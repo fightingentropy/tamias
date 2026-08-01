@@ -29,12 +29,10 @@ function getBearerToken(header: string | undefined) {
 }
 
 app.post("/", async (c) => {
-  const body = (await c.req.json().catch(() => null)) as
-    | {
-        action?: unknown;
-        args?: unknown;
-      }
-    | null;
+  const body = (await c.req.json().catch(() => null)) as {
+    action?: unknown;
+    args?: unknown;
+  } | null;
 
   if (!body || typeof body.action !== "string") {
     throw new HTTPException(400, { message: "Invalid auth body" });

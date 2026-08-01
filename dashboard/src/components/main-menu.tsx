@@ -174,7 +174,15 @@ const ChildItem = ({
   );
 };
 
-const Item = ({ item, isActive, isExpanded, isItemExpanded, onToggle, onSelect, onPrefetch }: ItemProps) => {
+const Item = ({
+  item,
+  isActive,
+  isExpanded,
+  isItemExpanded,
+  onToggle,
+  onSelect,
+  onPrefetch,
+}: ItemProps) => {
   const Icon = icons[item.path as keyof typeof icons];
   const pathname = usePathname();
   const hasChildren = item.children && item.children.length > 0;
@@ -190,7 +198,13 @@ const Item = ({ item, isActive, isExpanded, isItemExpanded, onToggle, onSelect, 
 
   return (
     <div className="group">
-      <Link href={item.path} prefetch onPrefetch={onPrefetch} onClick={() => onSelect?.()} className="group">
+      <Link
+        href={item.path}
+        prefetch
+        onPrefetch={onPrefetch}
+        onClick={() => onSelect?.()}
+        className="group"
+      >
         <div className="relative">
           {/* Background that expands */}
           <div

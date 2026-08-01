@@ -1,4 +1,8 @@
-import { requireCloudflareD1Database, type Database, type DatabaseOrTransaction } from "../../client";
+import {
+  requireCloudflareD1Database,
+  type Database,
+  type DatabaseOrTransaction,
+} from "../../client";
 
 export type InsightPeriodType = "weekly" | "monthly" | "quarterly" | "yearly";
 export type InsightStatus = "pending" | "generating" | "completed" | "failed";
@@ -140,7 +144,10 @@ generated_at,
 created_at,
 updated_at`;
 
-export async function listInsightRecords(db: Database | DatabaseOrTransaction, args: { teamId: string }) {
+export async function listInsightRecords(
+  db: Database | DatabaseOrTransaction,
+  args: { teamId: string },
+) {
   const { results = [] } = await getInsightsD1(db)
     .prepare(
       `select ${insightRecordColumns}
@@ -260,7 +267,8 @@ export async function updateInsightRecord(
 
   if (args.status !== undefined) setValue("status", args.status);
   if (args.title !== undefined) setValue("title", args.title);
-  if (args.selectedMetrics !== undefined) setValue("selected_metrics_json", serializeJson(args.selectedMetrics));
+  if (args.selectedMetrics !== undefined)
+    setValue("selected_metrics_json", serializeJson(args.selectedMetrics));
   if (args.allMetrics !== undefined) setValue("all_metrics_json", serializeJson(args.allMetrics));
   if (args.anomalies !== undefined) setValue("anomalies_json", serializeJson(args.anomalies));
   if (args.expenseAnomalies !== undefined) {

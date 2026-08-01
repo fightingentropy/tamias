@@ -330,7 +330,9 @@ export async function markInstitutionsRemoved(
     }
 
     await d1
-      .prepare("update institutions set status = 'removed', updated_at = ? where institution_id = ?")
+      .prepare(
+        "update institutions set status = 'removed', updated_at = ? where institution_id = ?",
+      )
       .bind(timestamp, id)
       .run();
     updated += 1;

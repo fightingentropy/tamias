@@ -81,8 +81,6 @@ export function renderCt600DraftBodyXml(args: {
   )}</TaxPayable></CalculationOfTaxOutstandingOrOverpaid><Declaration><AcceptDeclaration>yes</AcceptDeclaration><Name>${escapeXml(
     args.draft.declarationName,
   )}</Name><Status>${escapeXml(args.draft.declarationStatus)}</Status></Declaration>${ct600aXml}${
-    attachedFiles
-      ? `<AttachedFiles>${attachedFiles}</AttachedFiles>`
-      : ""
+    attachedFiles ? `<AttachedFiles>${attachedFiles}</AttachedFiles>` : ""
   }</CompanyTaxReturn></IRenvelope></Body>`;
 }

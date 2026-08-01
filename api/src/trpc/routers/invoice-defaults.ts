@@ -16,7 +16,7 @@ import { addDays, format, parseISO } from "date-fns";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
 import { protectedProcedure } from "../init";
-import { defaultTemplate, requireUserId } from "./invoice-shared";
+import { defaultTemplate, requireUserId, runIdempotentInvoiceMutation } from "./invoice-shared";
 
 export const invoiceDefaultProcedures = {
   createFromTracker: protectedProcedure
@@ -25,6 +25,11 @@ export const invoiceDefaultProcedures = {
         projectId: z.string().uuid(),
         dateFrom: z.string(),
         dateTo: z.string(),
+        idempotencyKey: z
+          .string()
+          .min(8)
+          .max(200)
+          .regex(/^[A-Za-z0-9._:-]+$/),
       }),
     )
     .mutation(async ({ ctx: { db, teamId, session }, input }) => {
@@ -114,37 +119,47 @@ export const invoiceDefaultProcedures = {
           : defaultTemplate.deliveryType) as "create" | "create_and_send" | undefined,
       };
 
-      return draftInvoice(db, {
-        id: invoiceId,
+      return runIdempotentInvoiceMutation({
+        db,
         teamId: teamId!,
-        userId: userId,
-        customerId: projectData.customerId,
-        customerName: fullCustomer?.name,
-        invoiceNumber: nextInvoiceNumber,
-        amount,
-        lineItems: [
-          {
-            name: dateRangeDescription,
-            quantity: totalHours,
-            price: Number(projectData.rate),
-            vat: 0,
-          },
-        ],
-        issueDate: new Date().toISOString(),
-        dueDate: addDays(new Date(), template?.paymentTermsDays ?? 30).toISOString(),
-        template: templateData,
-        fromDetails: (template?.fromDetails || null) as string | null,
-        paymentDetails: (template?.paymentDetails || null) as string | null,
-        customerDetails: fullCustomer
-          ? JSON.stringify(transformCustomerToContent(fullCustomer))
-          : null,
-        noteDetails: null,
-        topBlock: null,
-        bottomBlock: null,
-        vat: null,
-        tax: null,
-        discount: null,
-        subtotal: null,
+        userId,
+        action: "tracker.create",
+        resourceId: invoiceId,
+        idempotencyKey: input.idempotencyKey,
+        request: { projectId, dateFrom, dateTo },
+        mutate: () =>
+          draftInvoice(db, {
+            id: invoiceId,
+            teamId: teamId!,
+            userId,
+            customerId: projectData.customerId,
+            customerName: fullCustomer?.name,
+            invoiceNumber: nextInvoiceNumber,
+            amount,
+            lineItems: [
+              {
+                name: dateRangeDescription,
+                quantity: totalHours,
+                price: Number(projectData.rate),
+                vat: 0,
+              },
+            ],
+            issueDate: new Date().toISOString(),
+            dueDate: addDays(new Date(), template?.paymentTermsDays ?? 30).toISOString(),
+            template: templateData,
+            fromDetails: (template?.fromDetails || null) as string | null,
+            paymentDetails: (template?.paymentDetails || null) as string | null,
+            customerDetails: fullCustomer
+              ? JSON.stringify(transformCustomerToContent(fullCustomer))
+              : null,
+            noteDetails: null,
+            topBlock: null,
+            bottomBlock: null,
+            vat: null,
+            tax: null,
+            discount: null,
+            subtotal: null,
+          }),
       });
     }),
 

@@ -122,12 +122,11 @@ function toPublicInvoiceRecord(row: PublicInvoiceRow): PublicInvoiceRecord {
   };
 }
 
-async function allRows<T>(
-  d1: CloudflareD1DatabaseBinding,
-  query: string,
-  values: unknown[] = [],
-) {
-  const { results = [] } = await d1.prepare(query).bind(...values).all<T>();
+async function allRows<T>(d1: CloudflareD1DatabaseBinding, query: string, values: unknown[] = []) {
+  const { results = [] } = await d1
+    .prepare(query)
+    .bind(...values)
+    .all<T>();
 
   return results;
 }
@@ -161,7 +160,8 @@ function getPublicInvoiceProjectionFields(
   return {
     invoiceNumber: invoiceNumberOverride ?? getStringFieldFromPayload(payload, "invoiceNumber"),
     invoiceRecurringId: getStringFieldFromPayload(payload, "invoiceRecurringId"),
-    recurringSequence: typeof payload.recurringSequence === "number" ? payload.recurringSequence : null,
+    recurringSequence:
+      typeof payload.recurringSequence === "number" ? payload.recurringSequence : null,
     customerId: getStringFieldFromPayload(payload, "customerId"),
     customerName: getStringFieldFromPayload(payload, "customerName"),
     currency: getStringFieldFromPayload(payload, "currency"),
@@ -384,16 +384,19 @@ function addInFilter(filters: string[], values: unknown[], column: string, items
   return true;
 }
 
-export async function upsertPublicInvoice(db: DatabaseOrTransaction, args: {
-  teamId: string;
-  id: string;
-  token: string;
-  status: string;
-  paymentIntentId?: string | null;
-  viewedAt?: string | null;
-  invoiceNumber?: string | null;
-  payload: Record<string, unknown>;
-}) {
+export async function upsertPublicInvoice(
+  db: DatabaseOrTransaction,
+  args: {
+    teamId: string;
+    id: string;
+    token: string;
+    status: string;
+    paymentIntentId?: string | null;
+    viewedAt?: string | null;
+    invoiceNumber?: string | null;
+    payload: Record<string, unknown>;
+  },
+) {
   const d1 = requirePublicInvoicesD1(db);
   const timestamp = nowIso();
   const payload = args.payload as PublicInvoicePayload;
@@ -525,19 +528,13 @@ export async function getPublicInvoiceByPublicInvoiceId(
   return row ? toPublicInvoiceRecord(row) : null;
 }
 
-export async function getPublicInvoiceByToken(
-  db: DatabaseOrTransaction,
-  args: { token: string },
-) {
+export async function getPublicInvoiceByToken(db: DatabaseOrTransaction, args: { token: string }) {
   const row = await getPublicInvoiceRowByToken(requirePublicInvoicesD1(db), args.token);
 
   return row ? toPublicInvoiceRecord(row) : null;
 }
 
-export async function getPublicInvoicesByTeam(
-  db: DatabaseOrTransaction,
-  args: { teamId: string },
-) {
+export async function getPublicInvoicesByTeam(db: DatabaseOrTransaction, args: { teamId: string }) {
   const rows = await allRows<PublicInvoiceRow>(
     requirePublicInvoicesD1(db),
     `select *
@@ -817,7 +814,9 @@ export async function getNextInvoiceNumberPreview(
   db: DatabaseOrTransaction,
   args: { teamId: string },
 ) {
-  return formatInvoiceNumber(await getNextInvoiceSequence(requirePublicInvoicesD1(db), args.teamId));
+  return formatInvoiceNumber(
+    await getNextInvoiceSequence(requirePublicInvoicesD1(db), args.teamId),
+  );
 }
 
 export async function allocateNextPublicInvoiceNumber(

@@ -131,7 +131,12 @@ export function SummaryTicker() {
                   i === activeIndex % count ? "duration-100" : "duration-0",
                 )}
                 style={{
-                  width: i === activeIndex % count ? `${progress}%` : i < activeIndex % count ? "100%" : "0%",
+                  width:
+                    i === activeIndex % count
+                      ? `${progress}%`
+                      : i < activeIndex % count
+                        ? "100%"
+                        : "0%",
                 }}
               />
             </button>

@@ -204,10 +204,12 @@ describe("year-end tax schedules D1", () => {
         totalLoansOutstanding: 4000,
       });
 
-      await expect(deleteCorporationTaxAdjustmentRecord(db, {
-        teamId: "team-1",
-        id: adjustment.id,
-      })).resolves.toEqual({ deleted: true });
+      await expect(
+        deleteCorporationTaxAdjustmentRecord(db, {
+          teamId: "team-1",
+          id: adjustment.id,
+        }),
+      ).resolves.toEqual({ deleted: true });
       await expect(deleteCorporationTaxRateScheduleRecord(db, period)).resolves.toEqual({
         deleted: true,
       });

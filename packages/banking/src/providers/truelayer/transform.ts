@@ -141,9 +141,7 @@ export function transformAccountBalance({
   accountType: AccountType;
 }): GetAccountBalanceResponse {
   const amount =
-    accountType === "credit"
-      ? (balance.current ?? 0)
-      : ((balance.available ?? balance.current) ?? 0);
+    accountType === "credit" ? (balance.current ?? 0) : (balance.available ?? balance.current ?? 0);
 
   return {
     currency: (balance.currency ?? "GBP").toUpperCase(),
@@ -176,8 +174,7 @@ export function transformAccount({
     kind === "account" ? (account as TrueLayerAccountApi).account_number?.number : null;
   const bic =
     kind === "account" ? (account as TrueLayerAccountApi).account_number?.swift_bic : null;
-  const mask =
-    kind === "card" ? (account as TrueLayerCardApi).partial_card_number : null;
+  const mask = kind === "card" ? (account as TrueLayerCardApi).partial_card_number : null;
 
   return {
     id: account.account_id,
@@ -196,8 +193,8 @@ export function transformAccount({
     iban: iban ?? null,
     subtype:
       kind === "card"
-        ? (account as TrueLayerCardApi).card_type ?? null
-        : (account as TrueLayerAccountApi).account_type ?? null,
+        ? ((account as TrueLayerCardApi).card_type ?? null)
+        : ((account as TrueLayerAccountApi).account_type ?? null),
     bic: bic ?? null,
     routing_number: null,
     wire_routing_number: null,

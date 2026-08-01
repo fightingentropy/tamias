@@ -311,16 +311,17 @@ export function Form() {
       }
     };
 
-    draftInvoiceMutation.mutate(
-      // @ts-expect-error
-      transformFormValuesToDraft(currentFormValues),
-      {
-        onSuccess: () => {
-          draftOk = true;
-          maybeCommitSnapshot();
-        },
+    const draftInput = {
+      // @ts-expect-error FormContext values are validated by the invoice form schema.
+      ...transformFormValuesToDraft(currentFormValues),
+      idempotencyKey: crypto.randomUUID(),
+    };
+    draftInvoiceMutation.mutate(draftInput, {
+      onSuccess: () => {
+        draftOk = true;
+        maybeCommitSnapshot();
       },
-    );
+    });
 
     if (needsRecurringUpdate) {
       // Remove deliveryType from template since "recurring" is not a valid API deliveryType
@@ -423,6 +424,7 @@ export function Form() {
             id: values.id,
             status: "scheduled",
             scheduledAt: issueDate.toISOString(),
+            idempotencyKey: crypto.randomUUID(),
           });
 
           queryClient.invalidateQueries({
@@ -437,6 +439,7 @@ export function Form() {
           createInvoiceMutation.mutate({
             id: values.id,
             deliveryType: "create_and_send",
+            idempotencyKey: crypto.randomUUID(),
           });
         }
       } catch {
@@ -453,6 +456,7 @@ export function Form() {
       id: values.id,
       deliveryType: deliveryType === "recurring" ? "create" : (deliveryType ?? "create"),
       scheduledAt: values.scheduledAt || undefined,
+      idempotencyKey: crypto.randomUUID(),
     });
   };
 

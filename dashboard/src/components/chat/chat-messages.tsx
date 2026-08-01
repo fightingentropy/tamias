@@ -232,10 +232,7 @@ export function ChatMessages({ messages, isStreaming = false }: ChatMessagesProp
                 <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                   <div className="flex items-center gap-1 mt-3">
                     {/* Message actions */}
-                    <ChatMessageActions
-                      messageContent={textContent}
-                      messageId={message.id}
-                    />
+                    <ChatMessageActions messageContent={textContent} messageId={message.id} />
                     {/* Artifact toggle icon */}
                     {artifactType && <ArtifactToggleIcon artifactType={artifactType} />}
                   </div>

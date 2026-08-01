@@ -12,7 +12,10 @@ type DeleteTransactionsParams = {
   ids: string[];
 };
 
-async function deleteTransactionRows(db: Database, args: { teamId: string; transactionIds: string[] }) {
+async function deleteTransactionRows(
+  db: Database,
+  args: { teamId: string; transactionIds: string[] },
+) {
   if (args.transactionIds.length === 0) {
     return;
   }

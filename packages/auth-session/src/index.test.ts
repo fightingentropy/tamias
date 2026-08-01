@@ -10,6 +10,7 @@ import {
   resolveRequestAuth,
   type Session,
 } from "./index";
+import { SERVICE_AUTH_HEADER, type ServiceIdentity } from "./service-identity";
 
 const baseSession: Session = {
   teamId: "team_123",
@@ -24,7 +25,8 @@ function createDependencies(
   overrides: Partial<ResolveRequestAuthDependencies> = {},
 ): ResolveRequestAuthDependencies {
   return {
-    internalApiKey: "internal-key",
+    dashboardSessionKey: "dashboard-session-key",
+    verifyServiceIdentity: mock(async (_token: string): Promise<ServiceIdentity | null> => null),
     resolveUserSession: mock(async (_token?: string): Promise<Session | null> => null),
     getOAuthAccessTokenByToken: mock(
       async (_token: string): Promise<OAuthAccessTokenRecord | null> => null,
@@ -46,7 +48,7 @@ describe("resolveRequestAuth", () => {
 
     const result = await resolveRequestAuth(
       {
-        [DASHBOARD_AUTH_HEADER]: "internal-key",
+        [DASHBOARD_AUTH_HEADER]: "dashboard-session-key",
         [TRUSTED_SESSION_HEADER]: trustedSession ?? "",
       },
       dependencies,
@@ -143,16 +145,36 @@ describe("resolveRequestAuth", () => {
   });
 
   test("marks internal requests separately from auth identity", async () => {
-    const dependencies = createDependencies();
+    const dependencies = createDependencies({
+      verifyServiceIdentity: mock(
+        async (_token: string): Promise<ServiceIdentity> => ({
+          id: "worker",
+          audience: "api",
+          keyId: "worker-v1",
+          scopes: ["banking.read"],
+          tokenId: "token-id",
+        }),
+      ),
+    });
 
     const result = await resolveRequestAuth(
       {
-        "x-internal-key": "internal-key",
+        [SERVICE_AUTH_HEADER]: "Bearer signed-service-token",
       },
       dependencies,
     );
 
     expect(result.isInternalRequest).toBe(true);
+    expect(result.serviceIdentity?.id).toBe("worker");
     expect(result.session).toBeNull();
+  });
+
+  test("does not accept the retired shared internal key", async () => {
+    const result = await resolveRequestAuth(
+      { "x-internal-key": "internal-key" },
+      createDependencies(),
+    );
+
+    expect(result.isInternalRequest).toBe(false);
   });
 });

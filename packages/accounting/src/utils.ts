@@ -25,9 +25,7 @@ function isValidAccountingOAuthState(parsed: unknown): parsed is AccountingOAuth
     parsed !== null &&
     typeof (parsed as Record<string, unknown>).teamId === "string" &&
     typeof (parsed as Record<string, unknown>).userId === "string" &&
-    ["quickbooks", "fortnox"].includes(
-      (parsed as Record<string, unknown>).provider as string,
-    ) &&
+    ["quickbooks", "fortnox"].includes((parsed as Record<string, unknown>).provider as string) &&
     ["apps", "settings"].includes((parsed as Record<string, unknown>).source as string)
   );
 }

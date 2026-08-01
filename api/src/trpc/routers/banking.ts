@@ -14,9 +14,9 @@ import {
 } from "../../schemas/banking";
 import {
   createTRPCRouter,
-  internalProcedure,
   protectedOrInternalProcedure,
   protectedProcedure,
+  scopedInternalProcedure,
 } from "../init";
 
 export type TrueLayerOAuthStatePayload = {
@@ -29,6 +29,8 @@ export type TrueLayerOAuthStatePayload = {
 };
 
 const logger = createLoggerWithContext("trpc:banking");
+const internalBankingReadProcedure = scopedInternalProcedure("banking.read");
+const internalBankingWriteProcedure = scopedInternalProcedure("banking.write");
 
 export const bankingRouter = createTRPCRouter({
   truelayerAuthUrl: protectedProcedure
@@ -65,15 +67,18 @@ export const bankingRouter = createTRPCRouter({
   truelayerExchange: protectedProcedure
     .input(truelayerExchangeSchema)
     .mutation(async ({ input }) => {
-      const tokens = decryptOAuthState<TrueLayerTokens>(input.token, (parsed): parsed is TrueLayerTokens => {
-        if (!parsed || typeof parsed !== "object") return false;
-        const record = parsed as Record<string, unknown>;
-        return (
-          typeof record.accessToken === "string" &&
-          typeof record.refreshToken === "string" &&
-          typeof record.expiresAt === "string"
-        );
-      });
+      const tokens = decryptOAuthState<TrueLayerTokens>(
+        input.token,
+        (parsed): parsed is TrueLayerTokens => {
+          if (!parsed || typeof parsed !== "object") return false;
+          const record = parsed as Record<string, unknown>;
+          return (
+            typeof record.accessToken === "string" &&
+            typeof record.refreshToken === "string" &&
+            typeof record.expiresAt === "string"
+          );
+        },
+      );
 
       if (!tokens) {
         throw new TRPCError({
@@ -85,41 +90,45 @@ export const bankingRouter = createTRPCRouter({
       return { data: tokens };
     }),
 
-  connectionStatus: internalProcedure.input(connectionStatusSchema).query(async ({ input }) => {
-    const api = new Provider({ provider: input.provider });
+  connectionStatus: internalBankingReadProcedure
+    .input(connectionStatusSchema)
+    .query(async ({ input }) => {
+      const api = new Provider({ provider: input.provider });
 
-    try {
-      const data = await api.getConnectionStatus({
-        id: input.id,
-        accessToken: input.accessToken,
-      });
-      return { data };
-    } catch (error) {
-      logger.error("Failed to get connection status", getProviderErrorDetails(error));
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to get connection status",
-      });
-    }
-  }),
+      try {
+        const data = await api.getConnectionStatus({
+          id: input.id,
+          accessToken: input.accessToken,
+        });
+        return { data };
+      } catch (error) {
+        logger.error("Failed to get connection status", getProviderErrorDetails(error));
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to get connection status",
+        });
+      }
+    }),
 
-  deleteConnection: internalProcedure.input(deleteConnectionSchema).mutation(async ({ input }) => {
-    const api = new Provider({ provider: input.provider });
+  deleteConnection: internalBankingWriteProcedure
+    .input(deleteConnectionSchema)
+    .mutation(async ({ input }) => {
+      const api = new Provider({ provider: input.provider });
 
-    try {
-      await api.deleteConnection({
-        id: input.id,
-        accessToken: input.accessToken,
-      });
-      return { data: { success: true } };
-    } catch (error) {
-      logger.error("Failed to delete connection", getProviderErrorDetails(error));
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to delete connection",
-      });
-    }
-  }),
+      try {
+        await api.deleteConnection({
+          id: input.id,
+          accessToken: input.accessToken,
+        });
+        return { data: { success: true } };
+      } catch (error) {
+        logger.error("Failed to delete connection", getProviderErrorDetails(error));
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to delete connection",
+        });
+      }
+    }),
 
   getProviderAccounts: protectedOrInternalProcedure
     .input(getProviderAccountsSchema)
@@ -146,7 +155,7 @@ export const bankingRouter = createTRPCRouter({
       }
     }),
 
-  getBalance: internalProcedure.input(getBalanceSchema).query(async ({ input }) => {
+  getBalance: internalBankingReadProcedure.input(getBalanceSchema).query(async ({ input }) => {
     const api = new Provider({ provider: input.provider });
 
     try {
@@ -165,7 +174,7 @@ export const bankingRouter = createTRPCRouter({
     }
   }),
 
-  getProviderTransactions: internalProcedure
+  getProviderTransactions: internalBankingReadProcedure
     .input(getProviderTransactionsSchema)
     .query(async ({ input }) => {
       const api = new Provider({ provider: input.provider });
@@ -187,7 +196,7 @@ export const bankingRouter = createTRPCRouter({
       }
     }),
 
-  rates: internalProcedure.query(async () => {
+  rates: internalBankingReadProcedure.query(async () => {
     try {
       const data = await getRates();
       return { data };

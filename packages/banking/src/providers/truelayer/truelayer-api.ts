@@ -128,9 +128,7 @@ export class TrueLayerApi {
     // Sandbox exposes only the credentials-sharing Mock bank (uk-cs-mock);
     // production uses real Open Banking + OAuth providers.
     const defaultProviders =
-      this.#environment === "sandbox"
-        ? "uk-cs-mock"
-        : "uk-ob-all uk-oauth-all";
+      this.#environment === "sandbox" ? "uk-cs-mock" : "uk-ob-all uk-oauth-all";
     url.searchParams.set("providers", providers ?? defaultProviders);
     if (this.#environment === "sandbox") {
       url.searchParams.set("enable_mock", "true");
@@ -250,11 +248,10 @@ export class TrueLayerApi {
   }
 
   async getAccounts(accessToken: string): Promise<TrueLayerAccountApi[]> {
-    const envelope =
-      await this.#authedFetch<TrueLayerResponseEnvelope<TrueLayerAccountApi>>(
-        "/data/v1/accounts",
-        accessToken,
-      );
+    const envelope = await this.#authedFetch<TrueLayerResponseEnvelope<TrueLayerAccountApi>>(
+      "/data/v1/accounts",
+      accessToken,
+    );
     return envelope.results ?? [];
   }
 
@@ -283,9 +280,10 @@ export class TrueLayerApi {
   }
 
   async getCardBalance(accessToken: string, accountId: string): Promise<TrueLayerCardBalanceApi> {
-    const envelope = await this.#authedFetch<
-      TrueLayerResponseEnvelope<TrueLayerCardBalanceApi>
-    >(`/data/v1/cards/${accountId}/balance`, accessToken);
+    const envelope = await this.#authedFetch<TrueLayerResponseEnvelope<TrueLayerCardBalanceApi>>(
+      `/data/v1/cards/${accountId}/balance`,
+      accessToken,
+    );
 
     const balance = envelope.results?.[0];
     if (!balance) {
@@ -306,9 +304,10 @@ export class TrueLayerApi {
     if (opts.from) params.set("from", opts.from);
     if (opts.to) params.set("to", opts.to);
     const query = params.toString();
-    const envelope = await this.#authedFetch<
-      TrueLayerResponseEnvelope<TrueLayerTransactionApi>
-    >(`/data/v1/accounts/${accountId}/transactions${query ? `?${query}` : ""}`, accessToken);
+    const envelope = await this.#authedFetch<TrueLayerResponseEnvelope<TrueLayerTransactionApi>>(
+      `/data/v1/accounts/${accountId}/transactions${query ? `?${query}` : ""}`,
+      accessToken,
+    );
     return envelope.results ?? [];
   }
 
@@ -321,9 +320,10 @@ export class TrueLayerApi {
     if (opts.from) params.set("from", opts.from);
     if (opts.to) params.set("to", opts.to);
     const query = params.toString();
-    const envelope = await this.#authedFetch<
-      TrueLayerResponseEnvelope<TrueLayerTransactionApi>
-    >(`/data/v1/cards/${accountId}/transactions${query ? `?${query}` : ""}`, accessToken);
+    const envelope = await this.#authedFetch<TrueLayerResponseEnvelope<TrueLayerTransactionApi>>(
+      `/data/v1/cards/${accountId}/transactions${query ? `?${query}` : ""}`,
+      accessToken,
+    );
     return envelope.results ?? [];
   }
 

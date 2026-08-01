@@ -13,7 +13,9 @@ function prepareBodyXmlForIrmark(bodyXmlWithoutIrmark: string) {
 }
 
 function computeCt600DraftIrmark(bodyXmlWithoutIrmark: string) {
-  return createHash("sha1").update(prepareBodyXmlForIrmark(bodyXmlWithoutIrmark), "utf8").digest("base64");
+  return createHash("sha1")
+    .update(prepareBodyXmlForIrmark(bodyXmlWithoutIrmark), "utf8")
+    .digest("base64");
 }
 
 function resolveHmrcCtSubmissionReference(companyUtr?: string | null) {

@@ -2,6 +2,7 @@ import type { Database } from "@tamias/app-data/client";
 import { createDatabase } from "@tamias/app-data/client";
 import { getRequestAuthDependencies } from "@tamias/app-services/auth";
 import { resolveRequestAuth, type Session } from "@tamias/auth-session";
+import type { ServiceIdentity } from "@tamias/auth-session/service-identity";
 
 export type GeoContext = {
   country: string | null;
@@ -20,6 +21,7 @@ export type TRPCContext = {
   accessToken?: string;
   teamId?: string;
   isInternalRequest?: boolean;
+  serviceIdentity?: ServiceIdentity | null;
   requestId: string;
   cfRay?: string;
   setResponseHeader?: (name: string, value: string) => void;
@@ -85,6 +87,7 @@ export async function createTRPCContextFromHeaders(
     accessToken,
     teamId: auth.teamId,
     isInternalRequest: auth.isInternalRequest,
+    serviceIdentity: auth.serviceIdentity,
     requestId,
     cfRay,
     setResponseHeader: options?.setResponseHeader,

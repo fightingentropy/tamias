@@ -8,3 +8,5 @@ playwright-report
 test-results
 bun.lock
 .react-email
+.env.*.example
+api/migrations/**/*.sql

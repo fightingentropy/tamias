@@ -1,4 +1,8 @@
-import { buildAbsoluteAmountSearchValue, buildSearchIndexText, buildSearchQuery } from "@tamias/domain";
+import {
+  buildAbsoluteAmountSearchValue,
+  buildSearchIndexText,
+  buildSearchQuery,
+} from "@tamias/domain";
 import {
   requireCloudflareD1Database,
   type CloudflareD1DatabaseBinding,
@@ -85,7 +89,7 @@ export function requireTransactionsD1(db: Database) {
 }
 
 function boolToInt(value: boolean | null | undefined, defaultValue = false) {
-  return value ?? defaultValue ? 1 : 0;
+  return (value ?? defaultValue) ? 1 : 0;
 }
 
 function intToBool(value: number | boolean | null | undefined) {
@@ -122,7 +126,9 @@ function encodeTransactionPageCursor(transaction: Pick<TransactionRecord, "date"
   ).toString("base64url")}`;
 }
 
-function decodeTransactionPageCursor(cursor: string | null | undefined): TransactionPageCursor | null {
+function decodeTransactionPageCursor(
+  cursor: string | null | undefined,
+): TransactionPageCursor | null {
   if (!cursor?.startsWith(TRANSACTION_PAGE_CURSOR_PREFIX)) {
     return null;
   }

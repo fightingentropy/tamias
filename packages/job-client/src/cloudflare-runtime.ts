@@ -83,12 +83,7 @@ type CloudflareScheduleRuntime = {
   cancelRecurringSchedule(scheduleId: string): Promise<boolean>;
 };
 
-const captureQueueNames = new Set([
-  "inbox",
-  "inbox-provider",
-  "institutions",
-  "rates",
-]);
+const captureQueueNames = new Set(["inbox", "inbox-provider", "institutions", "rates"]);
 
 const documentsQueueNames = new Set(["documents"]);
 

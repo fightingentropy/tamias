@@ -21,18 +21,13 @@ const sandboxRow = {
   country: "GB",
 };
 
-const mockFetchLive = mock(
-  (input: {
-    excludeProviders?: "truelayer"[];
-    countryCode: string;
-  }) => {
-    if (input.excludeProviders?.includes("truelayer")) {
-      return Promise.resolve([]);
-    }
+const mockFetchLive = mock((input: { excludeProviders?: "truelayer"[]; countryCode: string }) => {
+  if (input.excludeProviders?.includes("truelayer")) {
+    return Promise.resolve([]);
+  }
 
-    return Promise.resolve([sandboxRow]);
-  },
-);
+  return Promise.resolve([sandboxRow]);
+});
 
 mock.module(fallbackModulePath, () => ({
   fetchLiveInstitutionsForSearch: mockFetchLive,

@@ -99,7 +99,10 @@ export class Provider {
 
 export type { FetchInstitutionsResult, InstitutionRecord } from "./institutions";
 export { fetchAllInstitutions } from "./institutions";
-export { encodeTokenBlob as encodeTrueLayerTokens, TrueLayerApi } from "./providers/truelayer/truelayer-api";
+export {
+  encodeTokenBlob as encodeTrueLayerTokens,
+  TrueLayerApi,
+} from "./providers/truelayer/truelayer-api";
 export type { TrueLayerTokens } from "./providers/truelayer/types";
 export { syncInstitutionLogos } from "./sync-logos";
 // Re-export types, provider APIs, and institution sync

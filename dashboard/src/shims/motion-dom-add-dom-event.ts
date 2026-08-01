@@ -12,10 +12,7 @@ export function addDomEvent(
   options: AddEventListenerOptions = { passive: true },
 ): () => void {
   const merged =
-    eventName === "resize" &&
-    options &&
-    typeof options === "object" &&
-    options.passive === true
+    eventName === "resize" && options && typeof options === "object" && options.passive === true
       ? { ...options, passive: false }
       : options;
 

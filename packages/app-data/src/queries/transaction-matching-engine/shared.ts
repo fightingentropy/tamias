@@ -38,11 +38,14 @@ export function resolveMatchType(
   return "suggested";
 }
 
-export async function getDismissedTransactionIds(db: Database, args: {
-  teamId: string;
-  inboxId: string;
-  transactionIds: string[];
-}): Promise<Set<string>> {
+export async function getDismissedTransactionIds(
+  db: Database,
+  args: {
+    teamId: string;
+    inboxId: string;
+    transactionIds: string[];
+  },
+): Promise<Set<string>> {
   if (args.transactionIds.length === 0) {
     return new Set();
   }
@@ -58,11 +61,14 @@ export async function getDismissedTransactionIds(db: Database, args: {
   return new Set(dismissed.map((suggestion) => suggestion.transactionId));
 }
 
-export async function getDismissedInboxIds(db: Database, args: {
-  teamId: string;
-  transactionId: string;
-  inboxIds: string[];
-}): Promise<Set<string>> {
+export async function getDismissedInboxIds(
+  db: Database,
+  args: {
+    teamId: string;
+    transactionId: string;
+    inboxIds: string[];
+  },
+): Promise<Set<string>> {
   if (args.inboxIds.length === 0) {
     return new Set();
   }

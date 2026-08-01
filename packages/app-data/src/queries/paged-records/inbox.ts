@@ -7,14 +7,17 @@ import {
 } from "../inbox/d1";
 import { collectCursorPages, DEFAULT_PAGE_SIZE } from "./shared";
 
-export async function getInboxItemsPaged(db: Database, args: {
-  teamId: string;
-  status?: InboxItemStatus;
-  createdAtFrom?: string;
-  createdAtTo?: string;
-  order?: "asc" | "desc";
-  pageSize?: number;
-}) {
+export async function getInboxItemsPaged(
+  db: Database,
+  args: {
+    teamId: string;
+    status?: InboxItemStatus;
+    createdAtFrom?: string;
+    createdAtTo?: string;
+    order?: "asc" | "desc";
+    pageSize?: number;
+  },
+) {
   const d1 = requireInboxItemsD1(db);
 
   return collectCursorPages((cursor) =>
@@ -30,13 +33,16 @@ export async function getInboxItemsPaged(db: Database, args: {
   );
 }
 
-export async function getInboxItemsByDatePaged(db: Database, args: {
-  teamId: string;
-  dateGte?: string | null;
-  dateLte?: string | null;
-  order?: "asc" | "desc";
-  pageSize?: number;
-}) {
+export async function getInboxItemsByDatePaged(
+  db: Database,
+  args: {
+    teamId: string;
+    dateGte?: string | null;
+    dateLte?: string | null;
+    order?: "asc" | "desc";
+    pageSize?: number;
+  },
+) {
   const d1 = requireInboxItemsD1(db);
 
   return collectCursorPages((cursor) =>

@@ -33,12 +33,7 @@ export class TrueLayerProvider implements Provider {
     return this.#api.getHealthCheck();
   }
 
-  async getTransactions({
-    accessToken,
-    accountId,
-    accountType,
-    latest,
-  }: GetTransactionsRequest) {
+  async getTransactions({ accessToken, accountId, accountType, latest }: GetTransactionsRequest) {
     if (!accessToken || !accountId) {
       throw Error("accessToken or accountId is missing");
     }

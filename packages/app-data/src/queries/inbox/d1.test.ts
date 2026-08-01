@@ -166,12 +166,15 @@ describe("inbox items D1", () => {
         status: "done",
         transactionId: "txn-1",
       });
-      await expect(getInboxItemsFromD1(d1, { teamId: "team-1", referenceIds: ["ref-1"] }))
-        .resolves.toHaveLength(1);
-      await expect(searchInboxItemsFromD1(d1, { teamId: "team-1", query: "Beta", limit: 10 }))
-        .resolves.toEqual([expect.objectContaining({ id: "inbox-2" })]);
-      await expect(searchInboxItemsFromD1(d1, { teamId: "team-1", query: "Acme", limit: 10 }))
-        .resolves.toEqual([]);
+      await expect(
+        getInboxItemsFromD1(d1, { teamId: "team-1", referenceIds: ["ref-1"] }),
+      ).resolves.toHaveLength(1);
+      await expect(
+        searchInboxItemsFromD1(d1, { teamId: "team-1", query: "Beta", limit: 10 }),
+      ).resolves.toEqual([expect.objectContaining({ id: "inbox-2" })]);
+      await expect(
+        searchInboxItemsFromD1(d1, { teamId: "team-1", query: "Acme", limit: 10 }),
+      ).resolves.toEqual([]);
       await expect(
         getInboxItemsByAmountRangeFromD1(d1, {
           teamId: "team-1",

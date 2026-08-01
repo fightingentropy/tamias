@@ -1,10 +1,7 @@
 import { addDays, addMonths, isAfter, isValid } from "date-fns";
 import type { Database } from "../../client";
 import { getFilingProfile } from "../compliance";
-import {
-  type FilingProfileRecord,
-  upsertComplianceObligationRecord,
-} from "../compliance/filings";
+import { type FilingProfileRecord, upsertComplianceObligationRecord } from "../compliance/filings";
 import { getTeamById } from "../teams";
 import { coerceDate } from "./formatting";
 import { assertUkComplianceEnabled } from "./runtime";

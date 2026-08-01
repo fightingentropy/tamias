@@ -348,10 +348,14 @@ function decodeCursor(cursor?: string | null): [string, string] | null {
   }
 }
 
-function applyCreatedAtRange(filters: string[], values: unknown[], params: {
-  createdAtFrom?: string | null;
-  createdAtTo?: string | null;
-}) {
+function applyCreatedAtRange(
+  filters: string[],
+  values: unknown[],
+  params: {
+    createdAtFrom?: string | null;
+    createdAtTo?: string | null;
+  },
+) {
   if (params.createdAtFrom) {
     filters.push("created_at >= ?");
     values.push(params.createdAtFrom);
@@ -491,7 +495,12 @@ export async function getInboxItemsByAmountRangeFromD1(
        order by created_at desc, id desc
        limit ?`,
     )
-    .bind(args.teamId, args.minAmount, args.maxAmount, Math.max(1, Math.min(args.limit ?? 100, 400)))
+    .bind(
+      args.teamId,
+      args.minAmount,
+      args.maxAmount,
+      Math.max(1, Math.min(args.limit ?? 100, 400)),
+    )
     .all<InboxItemRow>();
 
   return results.map(toInboxItemRecord);
@@ -522,9 +531,7 @@ export async function getInboxItemsPageFromD1(
   applyCreatedAtRange(filters, values, args);
 
   if (cursor) {
-    filters.push(
-      order === "asc" ? "(created_at, id) > (?, ?)" : "(created_at, id) < (?, ?)",
-    );
+    filters.push(order === "asc" ? "(created_at, id) > (?, ?)" : "(created_at, id) < (?, ?)");
     values.push(cursor[0], cursor[1]);
   }
 
@@ -593,10 +600,13 @@ export async function getInboxItemsByDatePageFromD1(
   return {
     page: pageRows.map(toInboxItemRecord),
     isDone: results.length <= args.pageSize,
-    continueCursor: pageRows.length > 0 ? encodeCursor({
-      created_at: pageRows[pageRows.length - 1]!.date ?? "",
-      id: pageRows[pageRows.length - 1]!.id,
-    }) : "",
+    continueCursor:
+      pageRows.length > 0
+        ? encodeCursor({
+            created_at: pageRows[pageRows.length - 1]!.date ?? "",
+            id: pageRows[pageRows.length - 1]!.id,
+          })
+        : "",
   };
 }
 
@@ -640,17 +650,16 @@ export async function upsertInboxItemsInD1(
 
   for (const item of args.items) {
     const now = new Date().toISOString();
-    const existing =
-      item.id
-        ? await getInboxItemByIdFromD1(d1, { teamId: item.teamId, inboxId: item.id })
-        : item.referenceId
-          ? (
-              await getInboxItemsFromD1(d1, {
-                teamId: item.teamId,
-                referenceIds: [item.referenceId],
-              })
-            )[0] ?? null
-          : null;
+    const existing = item.id
+      ? await getInboxItemByIdFromD1(d1, { teamId: item.teamId, inboxId: item.id })
+      : item.referenceId
+        ? ((
+            await getInboxItemsFromD1(d1, {
+              teamId: item.teamId,
+              referenceIds: [item.referenceId],
+            })
+          )[0] ?? null)
+        : null;
     const id = existing?.id ?? item.id ?? crypto.randomUUID();
     const createdAt = item.createdAt ?? existing?.createdAt ?? now;
     const updatedAt = item.updatedAt ?? now;
@@ -824,17 +833,19 @@ export async function getInboxStatusCountSummaryFromD1(
   let rangeCount = 0;
   if (args.rangeStatus && args.createdAtFrom && args.createdAtTo) {
     rangeCount =
-      (await d1
-        .prepare(
-          `select count(*) as count
+      (
+        await d1
+          .prepare(
+            `select count(*) as count
            from inbox_items
            where team_id = ?
              and status = ?
              and created_at >= ?
              and created_at <= ?`,
-        )
-        .bind(args.teamId, args.rangeStatus, args.createdAtFrom, args.createdAtTo)
-        .first<{ count: number }>())?.count ?? 0;
+          )
+          .bind(args.teamId, args.rangeStatus, args.createdAtFrom, args.createdAtTo)
+          .first<{ count: number }>()
+      )?.count ?? 0;
   }
 
   return { totals, rangeCount };
@@ -1013,19 +1024,18 @@ export async function upsertTransactionMatchSuggestionsInD1(
 
   for (const suggestion of args.suggestions) {
     const now = new Date().toISOString();
-    const existing =
-      suggestion.id
-        ? (
-            await getTransactionMatchSuggestionsFromD1(d1, {
-              teamId: suggestion.teamId,
-            })
-          ).find((row) => row.id === suggestion.id) ?? null
-        : (
-            await getTransactionMatchSuggestionsFromD1(d1, {
-              teamId: suggestion.teamId,
-              inboxId: suggestion.inboxId,
-            })
-          ).find((row) => row.transactionId === suggestion.transactionId) ?? null;
+    const existing = suggestion.id
+      ? ((
+          await getTransactionMatchSuggestionsFromD1(d1, {
+            teamId: suggestion.teamId,
+          })
+        ).find((row) => row.id === suggestion.id) ?? null)
+      : ((
+          await getTransactionMatchSuggestionsFromD1(d1, {
+            teamId: suggestion.teamId,
+            inboxId: suggestion.inboxId,
+          })
+        ).find((row) => row.transactionId === suggestion.transactionId) ?? null);
     const id = existing?.id ?? suggestion.id ?? crypto.randomUUID();
     const learningFields = await getSuggestionLearningFields(d1, suggestion);
 
@@ -1097,11 +1107,12 @@ export async function upsertTransactionMatchSuggestionsInD1(
       teamId: suggestion.teamId,
       inboxId: suggestion.inboxId,
     });
-    const result = updated?.id === id
-      ? updated
-      : (await getTransactionMatchSuggestionsFromD1(d1, { teamId: suggestion.teamId })).find(
-          (row) => row.id === id,
-        );
+    const result =
+      updated?.id === id
+        ? updated
+        : (await getTransactionMatchSuggestionsFromD1(d1, { teamId: suggestion.teamId })).find(
+            (row) => row.id === id,
+          );
 
     if (!result) {
       throw new Error("Failed to upsert transaction match suggestion");

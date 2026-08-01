@@ -43,10 +43,7 @@ function getExchangeRatesD1(db: Database) {
   return requireCloudflareD1Database(db);
 }
 
-async function upsertExchangeRatesInD1(
-  d1: CloudflareD1DatabaseBinding,
-  rates: ExchangeRateData[],
-) {
+async function upsertExchangeRatesInD1(d1: CloudflareD1DatabaseBinding, rates: ExchangeRateData[]) {
   if (rates.length === 0) {
     return { processed: 0 };
   }

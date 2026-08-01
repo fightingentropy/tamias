@@ -14,11 +14,7 @@ type Props = {
   connectRef?: MutableRefObject<(() => void) | null>;
 };
 
-export function ConnectBankProvider({
-  id,
-  provider,
-  connectRef,
-}: Props) {
+export function ConnectBankProvider({ id, provider, connectRef }: Props) {
   const trpc = useTRPC();
   const updateUsageMutation = useMutation(trpc.institutions.updateUsage.mutationOptions());
 

@@ -5,12 +5,15 @@ import {
   searchInboxItemsFromD1,
 } from "../inbox/d1";
 
-export async function getIndexedInboxMatchCandidates(db: Database, params: {
-  teamId: string;
-  amount: number | null | undefined;
-  searchTerms: Array<string | null | undefined>;
-  limit: number;
-}) {
+export async function getIndexedInboxMatchCandidates(
+  db: Database,
+  params: {
+    teamId: string;
+    amount: number | null | undefined;
+    searchTerms: Array<string | null | undefined>;
+    limit: number;
+  },
+) {
   const d1 = requireInboxItemsD1(db);
   const searchTerms = [
     ...new Set(

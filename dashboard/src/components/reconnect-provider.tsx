@@ -13,12 +13,7 @@ type Props = {
   variant?: "button" | "icon";
 };
 
-export function ReconnectProvider({
-  id,
-  provider,
-  institutionId,
-  variant,
-}: Props) {
+export function ReconnectProvider({ id, provider, institutionId, variant }: Props) {
   const trpc = useTRPC();
   const createTrueLayerLink = useMutation(
     trpc.banking.truelayerAuthUrl.mutationOptions({

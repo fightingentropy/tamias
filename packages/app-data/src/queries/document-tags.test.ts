@@ -7,11 +7,7 @@ import {
   type CloudflareD1DatabaseBinding,
   type CloudflareD1PreparedStatementBinding,
 } from "../client";
-import {
-  deleteDocumentTag,
-  getDocumentTags,
-  upsertDocumentTags,
-} from "./document-tags";
+import { deleteDocumentTag, getDocumentTags, upsertDocumentTags } from "./document-tags";
 import {
   getDocumentTagAssignmentsForDocumentIds,
   getTaggedDocumentIdPage,

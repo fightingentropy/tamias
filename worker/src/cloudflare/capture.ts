@@ -187,7 +187,8 @@ async function processQueueMessage(
     });
 
     if (isFinalAttempt) {
-      message.ack();
+      // A final retry lets Cloudflare route the poison message into the configured DLQ.
+      message.retry();
       return;
     }
 

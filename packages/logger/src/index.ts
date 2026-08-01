@@ -13,9 +13,7 @@ const isNodeRuntime =
  * The worker/browser entry (`workerd.ts`) skips this path entirely.
  */
 const isPretty =
-  isNodeRuntime &&
-  process.env.LOG_PRETTY === "true" &&
-  process.env.NODE_ENV === "development";
+  isNodeRuntime && process.env.LOG_PRETTY === "true" && process.env.NODE_ENV === "development";
 
 function createBaseLogger(): pino.Logger {
   const options = {

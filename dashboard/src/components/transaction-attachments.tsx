@@ -270,6 +270,7 @@ export function TransactionAttachments({
           id: file.data.id,
           status: "paid",
           paidAt: transactionDate,
+          idempotencyKey: crypto.randomUUID(),
         });
 
         // Create transaction attachment using invoice filePath

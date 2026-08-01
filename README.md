@@ -9,12 +9,12 @@ Tamias is a Bun workspaces monorepo for the product workspace, API, Cloudflare a
 
 ## What lives here
 
-| Surface   | Directory          | Local URL                 | What it does                                                                                                           |
-| --------- | ------------------ | ------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Dashboard | `dashboard`        | `http://localhost:3001`   | Main authenticated app, public invoice/customer/report links, auth, SSR, client providers, lightweight public homepage |
-| API       | `api`              | `http://localhost:3001`   | Hono API routes bundled into the main Cloudflare Worker with tRPC, REST, OpenAPI, MCP, webhooks, and health checks     |
-| Worker    | `worker`           | Cloudflare Workers        | Queue, workflow, recurring schedule, notification, and document/PDF modules split across main and documents Workers    |
-| Website   | `dashboard`        | `https://tamias.xyz`      | Marketing site, integrations catalog, comparison pages, and MCP install guides served from the dashboard deployment    |
+| Surface   | Directory   | Local URL               | What it does                                                                                                           |
+| --------- | ----------- | ----------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Dashboard | `dashboard` | `http://localhost:3001` | Main authenticated app, public invoice/customer/report links, auth, SSR, client providers, lightweight public homepage |
+| API       | `api`       | `http://localhost:3001` | Hono API routes bundled into the main Cloudflare Worker with tRPC, REST, OpenAPI, MCP, webhooks, and health checks     |
+| Worker    | `worker`    | Cloudflare Workers      | Queue, workflow, recurring schedule, notification, and document/PDF modules split across main and documents Workers    |
+| Website   | `dashboard` | `https://tamias.xyz`    | Marketing site, integrations catalog, comparison pages, and MCP install guides served from the dashboard deployment    |
 
 ## Product areas
 
@@ -91,14 +91,14 @@ flowchart LR
 
 | Area                       | Main routes / entry points                                                                              | Backing packages and services                                                                                            |
 | -------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| Overview and widgets       | `/dashboard`                                                                                            | `api/src/trpc/routers/widgets.ts`, `packages/insights`                                                                  |
+| Overview and widgets       | `/dashboard`                                                                                            | `api/src/trpc/routers/widgets.ts`, `packages/insights`                                                                   |
 | Transactions and banking   | `/transactions`, `/settings/accounts`                                                                   | `packages/banking`, `packages/import`, `packages/categories`, transaction/banking routers, worker transaction processors |
 | Inbox and document capture | `/inbox`, `/inbox/settings`                                                                             | `packages/inbox`, `packages/documents`, inbox/document workers, Gmail/Outlook/Slack/WhatsApp integrations                |
 | Invoicing and payments     | `/invoices`, `/invoices/products`, public `/i/<token>`                                                  | `packages/invoice`, invoice/payment routers, Stripe and Stripe Payments integrations                                     |
 | Time tracking              | `/tracker`                                                                                              | tracker project/entry routers, export flows, Raycast and MCP integrations                                                |
 | Customers and portal       | `/customers`, public `/p/<portalId>`                                                                    | customer analytics, `worker/src/customers`, enrichment jobs                                                              |
 | Vault and files            | `/vault`, file download/proxy routes                                                                    | `packages/storage`, file routes, document processing                                                                     |
-| Reports and public links   | `/dashboard`, public `/r/<linkId>` and `/s/<shortId>`                                                   | reports routers, short links, report links in `packages/app-data`                                                       |
+| Reports and public links   | `/dashboard`, public `/r/<linkId>` and `/s/<shortId>`                                                   | reports routers, short links, report links in `packages/app-data`                                                        |
 | AI assistant and insights  | `/chat/[id]`, insight notifications/audio                                                               | `api/src/ai`, `packages/insights`, MCP server/tools, suggested actions                                                   |
 | Compliance                 | `/compliance`, `/compliance/vat`, `/compliance/settings`, `/compliance/year-end`, `/compliance/payroll` | `packages/compliance`, HMRC VAT integration, year-end packs, payroll runs, evidence/export bundles                       |
 | Apps and developer tooling | `/apps`, `/settings/developer`                                                                          | `packages/app-store`, OAuth applications, API keys, MCP, public integrations catalog                                     |
@@ -193,72 +193,44 @@ bun install
 
 ### Env files
 
-Create a single **`.env`** at the **repository root** (gitignored). Put every variable the app needs there: dashboard, API (bundled in the same Worker in production), worker-style jobs, and scripts. Vite loads this file via `envDir` at the repo root; root `package.json` backfill scripts use `bun --env-file=.env`.
+Configuration is split by runtime. Copy only the examples needed for the process you are running, then add local values to the corresponding gitignored file:
 
-Optional **`.env.local`** at the repo root is also loaded (after `.env`) by Vite and by `scripts/lib/load-repo-env.ts` for local overrides.
+| Runtime    | Example                   | Local file        | Purpose                                                          |
+| ---------- | ------------------------- | ----------------- | ---------------------------------------------------------------- |
+| Dashboard  | `.env.dashboard.example`  | `.env.dashboard`  | Browser-safe build values and dashboard SSR secrets              |
+| API        | `.env.api.example`        | `.env.api`        | API, auth, integrations, webhooks, and verifier keys             |
+| Worker     | `.env.worker.example`     | `.env.worker`     | Queue, workflow, and scheduled-job configuration                 |
+| Documents  | `.env.documents.example`  | `.env.documents`  | Isolated document/PDF Worker configuration                       |
+| Filing     | `.env.filing.example`     | `.env.filing`     | HMRC and Companies House credentials and interlocks              |
+| Local only | `.env.local-only.example` | `.env.local-only` | Developer/operator tooling credentials; never a deployed binding |
 
-**Wrangler without Bun:** `bun run preview:cf` (in `dashboard`) runs Wrangler with **`bun --env-file=../.env`** and **`--config ../wrangler.jsonc`**, so secrets match the root `.env`. If you run **`wrangler dev`** yourself, point it at **`wrangler.jsonc` in the repo root**; Wrangler will read **`.dev.vars` next to that file** (same `KEY=value` format as `.env`). You can symlink `.dev.vars` to `.env` at the repo root.
+Optional `.local` overrides use the same name, for example `.env.api.local`. Every loader enforces a typed allowlist for its selected runtime and constructs a sanitized child environment. An unexpected credential-shaped key fails loading instead of becoming visible to another runtime.
 
-If you still have old **`dashboard/.env.local`**, **`api/.env`**, or **`worker/.env`** files, merge their contents into the repo root **`.env`** and remove the duplicates.
+The legacy root `.env` is not a supported runtime configuration source. Do not merge the runtime files, symlink `.dev.vars` to a root file, or expose filing/API credentials to Vite. The repository scripts disable Bun, Vite, and Wrangler automatic root-dotenv loading where those tools cross runtime boundaries.
 
-### Minimum env checklist
-
-Use one root `.env` with the blocks below (grouped by surface so you can see what each part of the stack needs). Values that appear in multiple blocks must match.
-
-#### Dashboard
-
-```dotenv
-DASHBOARD_URL=http://localhost:3001
-WEBSITE_URL=http://localhost:3000
-API_URL=http://localhost:3001
-
-INTERNAL_API_KEY=...
-INVOICE_JWT_SECRET=...
-FILE_KEY_SECRET=...
-```
-
-#### API
-
-```dotenv
-ALLOWED_API_ORIGINS=http://localhost:3001
-DASHBOARD_URL=http://localhost:3001
-API_URL=http://localhost:3001
-
-INTERNAL_API_KEY=...
-INVOICE_JWT_SECRET=...
-FILE_KEY_SECRET=...
-TAMIAS_ENCRYPTION_KEY=<64-char hex string>
-
-COMPANIES_HOUSE_CLIENT_ID=...
-COMPANIES_HOUSE_CLIENT_SECRET=...
-COMPANIES_HOUSE_OAUTH_REDIRECT_URL=http://localhost:3001/apps/companies-house/oauth-callback
-COMPANIES_HOUSE_ENVIRONMENT=sandbox
-COMPANIES_HOUSE_API_KEY=...
-COMPANIES_HOUSE_XML_ENVIRONMENT=test
-COMPANIES_HOUSE_XML_PRESENTER_ID=...
-COMPANIES_HOUSE_XML_PRESENTER_AUTHENTICATION_CODE=...
-# Optional in test mode; defaults to OPSLDG
-COMPANIES_HOUSE_XML_PACKAGE_REFERENCE=...
-
-HMRC_CT_ENVIRONMENT=test
-HMRC_CT_SENDER_ID=...
-HMRC_CT_SENDER_PASSWORD=...
-HMRC_CT_VENDOR_ID=...
-HMRC_CT_TEST_UTR=...
-HMRC_CT_PRODUCT_NAME=Tamias
-HMRC_CT_PRODUCT_VERSION=0.1.0
-```
+Cloudflare production secrets remain remote Worker secrets. The runtime files are for local execution and operator tooling; do not commit values or pass `.env.local-only` as a Worker env file.
 
 #### Important env notes
 
-- `INTERNAL_API_KEY`, `INVOICE_JWT_SECRET`, and `FILE_KEY_SECRET` must match everywhere they are used.
-- Public site features run inside `dashboard`; keep their variables in the same root `.env` alongside API/worker keys.
+- `TAMIAS_AUTH_SECRET`, `TAMIAS_DASHBOARD_SESSION_KEY`, `INVOICE_JWT_SECRET`, and `FILE_KEY_SECRET` are separate keys. Share a value across runtime files only when both runtimes genuinely verify the same artifact.
+- Internal calls use short-lived signed service identities, not a universal internal key. Callers set `TAMIAS_SERVICE_ID`, `TAMIAS_SERVICE_KEY_ID`, and `TAMIAS_SERVICE_KEY`; the API holds the matching per-service verifier key. The fixed service identity determines the allowed scopes.
+- To rotate a service key, deploy the new API verifier key while retaining the old key in that service's `*_PREVIOUS_KEY_ID`/`*_PREVIOUS_KEY`, switch the caller to the new key ID/key, then remove the previous key after the rollout and token lifetime have elapsed.
 - `HMRC_CT_ENVIRONMENT` defaults to `test`. Keep it there in deployed environments until you intentionally want live HMRC CT filing.
 - In `test`, CT submissions use `HMRC_CT_TEST_UTR` when present. In `production`, the filing profile UTR is required.
 - Companies House annual accounts filing uses the XML gateway presenter runtime on the Cloudflare Worker; it does not use the OAuth app credentials.
+- A live filing provider additionally requires `TAMIAS_ENVIRONMENT=production`, `TAMIAS_LIVE_FILING_ENABLED=true`, and `TAMIAS_LIVE_FILING_CONFIRMATION=ENABLE_LIVE_FILING`.
+- Live payment mutation additionally requires `TAMIAS_ENVIRONMENT=production`, `TAMIAS_LIVE_PAYMENTS_ENABLED=true`, and `TAMIAS_LIVE_PAYMENTS_CONFIRMATION=ENABLE_LIVE_PAYMENTS`.
 - In the main Cloudflare Worker, capture/ledger async jobs run through queue, workflow, and durable-object bindings in the dashboard/API deployment.
 - Document/PDF-heavy work runs in the separate documents Worker configured by `worker/documents.wrangler.jsonc`.
 - Cloudflare D1, R2, queue, workflow, service, and runtime bindings are declared in `wrangler.jsonc` and `worker/documents.wrangler.jsonc`; run `bun run types:cloudflare` after binding changes.
+
+#### Financial and compliance mutation safety
+
+- Filing submissions, payment-intent creation, financial webhooks, and MCP invoice mutations use durable idempotency records. Reusing a key with different input is rejected.
+- Filings require an explicit confirmation ID. MCP mutations additionally require the tool-specific confirmation phrase documented in the tool schema.
+- Accepted mutations append immutable audit events and transactional outbox records. Outbox delivery is relayed to `tamias-outbox`; exhausted queue deliveries are retained in the configured dead-letter queue and persisted for investigation.
+- If a provider accepted an external side effect but local persistence did not finish, the operation becomes `reconciliation_required`. Automatic retry remains blocked until an operator reconciles the provider and local records.
+- Compliance journals enforce balanced, non-zero debit/credit lines before persistence.
 
 #### Assistant backends (chat)
 
@@ -384,13 +356,13 @@ Consolidated engineering documentation is in **`docs.md`** (design system, banki
 - Dashboard loads but API-backed data fails:
   `API_URL` is wrong, or the API is not running.
 - Login/signup fails:
-  `TAMIAS_AUTH_SECRET`, `INTERNAL_API_KEY`, or the API auth route is misconfigured.
+  `TAMIAS_AUTH_SECRET`, `TAMIAS_DASHBOARD_SESSION_KEY`, or the API auth route is misconfigured.
 - Queue-backed features do nothing:
   the unified async runtime is missing D1, queue, workflow, or durable-object bindings.
 - Public invoice downloads fail:
   `INVOICE_JWT_SECRET` does not match across services.
 - Internal service calls fail:
-  `INTERNAL_API_KEY` is missing or mismatched.
+  the caller's service ID/key ID/key does not match the API's per-service verifier configuration, or the service lacks the route's required scope.
 - OAuth/integration setup breaks with encryption errors:
   `TAMIAS_ENCRYPTION_KEY` is missing or invalid.
 - Compliance pages show disabled states or missing data:
