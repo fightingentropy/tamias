@@ -64,6 +64,7 @@
     "file-saver": "^2.0.5",
     "framer-motion": "^12.34.0",
     "js.foresight": "^3.5.0",
+    "jwt-decode": "4.0.0",
     "little-date": "^1.2.1",
     "motion": "^12.34.0",
     "papaparse": "catalog:",
