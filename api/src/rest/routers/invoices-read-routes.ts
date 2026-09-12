@@ -16,7 +16,7 @@ import {
   invoicesResponseSchema,
 } from "../../schemas/invoice";
 import { validateResponse } from "../../utils/validate-response";
-import { withRequiredScope } from "../middleware";
+import { withRequiredScope } from "../middleware/scope";
 import type { Context } from "../types";
 import { serializeInvoiceForRest, serializeInvoicePageForRest } from "./invoices-shared";
 

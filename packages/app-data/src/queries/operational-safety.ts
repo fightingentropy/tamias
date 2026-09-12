@@ -169,6 +169,7 @@ export async function beginIdempotentOperation(
     requestHash,
     attemptCount: reacquired.attempt_count,
     leaseToken,
+    resumedFrom: existing.status === "failed" ? ("failed" as const) : ("expired_lease" as const),
   };
 }
 

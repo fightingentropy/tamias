@@ -2,6 +2,11 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { Database as SqliteDatabase } from "bun:sqlite";
 import { describe, expect, test } from "bun:test";
+import { createDatabase } from "../../client";
+import {
+  calculateInboxSuggestions,
+  persistInboxSuggestionWorkflow,
+} from "../inbox-matching/workflow";
 import type {
   CloudflareD1DatabaseBinding,
   CloudflareD1PreparedStatementBinding,
@@ -103,6 +108,70 @@ function createD1() {
 }
 
 describe("inbox items D1", () => {
+  test("native high-confidence candidates remain pending suggestions in batch and bidirectional workflows", async () => {
+    const { d1, close } = createD1();
+    const db = createDatabase({ cloudflare: { d1 } });
+    try {
+      for (const source of [undefined, "bidirectional"]) {
+        const id = `native-${source ?? "batch"}`;
+        await upsertInboxItemsInD1(d1, {
+          items: [
+            {
+              id,
+              teamId: "team-1",
+              filePath: ["team-1", `${id}.png`],
+              status: "analyzing",
+              meta: { source: "native" },
+            },
+          ],
+        });
+        const result = await persistInboxSuggestionWorkflow(db, {
+          teamId: "team-1",
+          inboxId: id,
+          source,
+          candidate: {
+            transactionId: "transaction-1",
+            confidenceScore: 0.99,
+            amountScore: 1,
+            currencyScore: 1,
+            dateScore: 1,
+            nameScore: 1,
+            matchType: "auto_matched",
+          },
+        });
+        expect(result).toEqual({ action: "suggestion_created", matchType: "high_confidence" });
+        expect(await getInboxItemByIdFromD1(d1, { teamId: "team-1", inboxId: id })).toMatchObject({
+          status: "suggested_match",
+          transactionId: null,
+          attachmentId: null,
+        });
+        expect(
+          await getTransactionMatchSuggestionsFromD1(d1, { teamId: "team-1", inboxId: id }),
+        ).toEqual([expect.objectContaining({ matchType: "high_confidence", status: "pending" })]);
+      }
+      await upsertInboxItemsInD1(d1, {
+        items: [
+          {
+            id: "linked-native",
+            teamId: "team-1",
+            filePath: ["team-1", "linked.png"],
+            status: "done",
+            transactionId: "transaction-1",
+            meta: { source: "native" },
+          },
+        ],
+      });
+      expect(
+        await calculateInboxSuggestions(db, { teamId: "team-1", inboxId: "linked-native" }),
+      ).toEqual({ action: "no_match_yet" });
+      expect(
+        await getInboxItemByIdFromD1(d1, { teamId: "team-1", inboxId: "linked-native" }),
+      ).toMatchObject({ status: "done", transactionId: "transaction-1" });
+    } finally {
+      close();
+    }
+  });
+
   test("upserts, searches, pages, counts, and stores match suggestions", async () => {
     const { d1, close } = createD1();
 

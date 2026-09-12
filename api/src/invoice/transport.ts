@@ -80,12 +80,20 @@ export async function removeInvoiceJob(
 export async function enqueueInvoiceGeneration(args: {
   invoiceId: string;
   deliveryType: "create" | "create_and_send" | "scheduled";
+  expectedCustomerEmail?: string;
+  expectedBillingEmails?: string[];
 }) {
   await enqueue(
     "generate-invoice",
     {
       invoiceId: args.invoiceId,
       deliveryType: args.deliveryType,
+      ...(args.expectedCustomerEmail !== undefined
+        ? { expectedCustomerEmail: args.expectedCustomerEmail }
+        : {}),
+      ...(args.expectedBillingEmails !== undefined
+        ? { expectedBillingEmails: args.expectedBillingEmails }
+        : {}),
     },
     "invoices",
   );

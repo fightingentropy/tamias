@@ -199,6 +199,8 @@ export const updateInboxSchema = z.object({
       "other",
     ])
     .optional(),
+  date: z.string().date().optional(),
+  description: z.string().max(10000).optional(),
   displayName: z.string().optional(),
   currency: z.string().optional(),
   amount: z.number().optional(),

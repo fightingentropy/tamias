@@ -56,6 +56,8 @@ export type InvoiceStatusSchedulerPayload = z.infer<typeof invoiceStatusSchedule
 export const generateInvoiceSchema = z.object({
   invoiceId: z.string().uuid(),
   deliveryType: z.enum(["create", "create_and_send"]),
+  expectedCustomerEmail: z.string().email().optional(),
+  expectedBillingEmails: z.array(z.string().email()).optional(),
 });
 
 export type GenerateInvoicePayload = z.infer<typeof generateInvoiceSchema>;
@@ -68,6 +70,8 @@ export const sendInvoiceEmailSchema = z.object({
   invoiceId: z.string().uuid(),
   filename: z.string(),
   fullPath: z.string(),
+  expectedCustomerEmail: z.string().email().optional(),
+  expectedBillingEmails: z.array(z.string().email()).optional(),
 });
 
 export type SendInvoiceEmailPayload = z.infer<typeof sendInvoiceEmailSchema>;

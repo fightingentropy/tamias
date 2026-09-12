@@ -82,6 +82,27 @@ function createD1() {
 }
 
 describe("operational mutation safety", () => {
+  test("identifies expired pending leases separately from known failed attempts", async () => {
+    const { sqlite, db } = createD1();
+    try {
+      const input = {
+        teamId: "team-1",
+        scope: "inbox.complete",
+        idempotencyKey: "expired-12345678",
+        request: { upload: "receipt" },
+      };
+      await beginIdempotentOperation(db, input);
+      sqlite.exec("update operation_idempotency set lease_expires_at = '2000-01-01T00:00:00.000Z'");
+      expect(await beginIdempotentOperation(db, input)).toMatchObject({
+        state: "started",
+        attemptCount: 2,
+        resumedFrom: "expired_lease",
+      });
+    } finally {
+      sqlite.close();
+    }
+  });
+
   test("claims, completes, audits, enqueues, and replays an idempotent operation", async () => {
     const { sqlite, db } = createD1();
     try {
@@ -176,7 +197,7 @@ describe("operational mutation safety", () => {
         ...base,
         request: { period: "2026-Q1" },
       });
-      expect(retry).toMatchObject({ state: "started", attemptCount: 2 });
+      expect(retry).toMatchObject({ state: "started", attemptCount: 2, resumedFrom: "failed" });
       if (retry.state !== "started") throw new Error("Expected a retried operation");
 
       await expect(

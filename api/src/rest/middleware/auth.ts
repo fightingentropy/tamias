@@ -29,6 +29,18 @@ export const withAuth: MiddlewareHandler = async (c, next) => {
     throw new HTTPException(401, { message: "Invalid or expired token" });
   }
 
+  const expectedTeamId = c.req.header("X-Tamias-Team-Id");
+  if (expectedTeamId !== undefined && expectedTeamId !== auth.teamId) {
+    return c.json(
+      {
+        error: "Conflict",
+        code: "workspace_changed",
+        description: "Workspace changed. Refresh your workspace before continuing.",
+      },
+      409,
+    );
+  }
+
   c.set("session", auth.session);
   c.set("teamId", auth.teamId);
   c.set("scopes", auth.scopes);

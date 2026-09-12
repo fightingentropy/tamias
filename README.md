@@ -9,6 +9,8 @@ Tamias is a Bun workspaces monorepo for the product workspace, API, Cloudflare a
 
 ## What lives here
 
+The native SwiftUI iPhone/iPad app lives in [`ios/`](ios/README.md). It includes a business overview, searchable transactions, invoices, local invoice drafts and native receipt capture, with sign-in to the existing Tamias API. Open `ios/Tamias.xcodeproj` in Xcode or run `./ios/scripts/xcode.sh build`; see the iOS README for device installation, tests and current mobile scope.
+
 | Surface   | Directory   | Local URL               | What it does                                                                                                           |
 | --------- | ----------- | ----------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | Dashboard | `dashboard` | `http://localhost:3001` | Main authenticated app, public invoice/customer/report links, auth, SSR, client providers, lightweight public homepage |
@@ -248,6 +250,12 @@ The current UK filing paths split by authority and transport:
 - `HMRC corporation tax`: CT600/iXBRL generation plus Transaction Engine submit/poll. Runtime is switchable between `test` and `production`, but should stay on `test` by default until you have live sender credentials and a real company UTR.
 - `Companies House annual accounts`: XML gateway submission from the year-end workspace using presenter credentials and the company authentication code saved in compliance settings.
 
+The native app also has a sole-trader tax-year view, business-use bulk review,
+Self Assessment working-paper export and a restricted 2025/26 personal filing
+flow. See [Self Assessment setup and supported scope](docs/self-assessment.md).
+Live filing needs separate HMRC Self Assessment setup and validation; this is
+not an MTD Income Tax implementation.
+
 Additional compliance and filing notes can be appended to **`docs.md`** or the README as they are written.
 
 ### Start the stack
@@ -332,6 +340,7 @@ bun run preflight:cloudflare:documents:production
 
 - Cloudflare deployment uses the main Worker (`tamias`) for the dashboard, public site, API route, capture/ledger queues, cron triggers, Durable Objects, workflows, D1, R2, email, and image handling.
 - Document-heavy work runs in the documents Worker (`tamias-documents`) with its own `DOCUMENTS_QUEUE` consumer.
+- Its production HTTP routes are internal: `workers_dev` and `preview_urls` are disabled, and API callers use the private `DOCUMENTS_WORKER` service binding.
 - **`wrangler.jsonc`** at the **repository root** configures the main Cloudflare Worker and runtime bindings.
 - **`worker/documents.wrangler.jsonc`** configures the documents Worker and its document queue consumer.
 - **`.wrangler/`** (under the repo or `dashboard`) is Wrangler’s local cache; it is **gitignored** and should not be committed.

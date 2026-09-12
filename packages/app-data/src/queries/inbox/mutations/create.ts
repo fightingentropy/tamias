@@ -92,11 +92,11 @@ export async function createInbox(_db: Database, params: CreateInboxParams) {
 
 export type UpdateInboxWithProcessedDataParams = {
   id: string;
-  amount?: number;
+  amount?: number | null;
   currency?: string;
   displayName?: string;
   website?: string;
-  date?: string;
+  date?: string | null;
   taxAmount?: number;
   taxRate?: number;
   taxType?: string;

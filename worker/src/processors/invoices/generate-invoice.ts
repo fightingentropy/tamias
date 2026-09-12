@@ -31,7 +31,7 @@ export class GenerateInvoiceProcessor extends BaseProcessor<GenerateInvoicePaylo
       throw new Error(`Invoice not found: ${invoiceId}`);
     }
 
-    const { user, ...invoice } = invoiceData;
+    const { user: _user, ...invoice } = invoiceData;
 
     this.logger.debug("Generating PDF", { invoiceId });
 
@@ -88,6 +88,12 @@ export class GenerateInvoiceProcessor extends BaseProcessor<GenerateInvoicePaylo
           invoiceId,
           filename,
           fullPath,
+          ...(job.data.expectedCustomerEmail !== undefined
+            ? { expectedCustomerEmail: job.data.expectedCustomerEmail }
+            : {}),
+          ...(job.data.expectedBillingEmails !== undefined
+            ? { expectedBillingEmails: job.data.expectedBillingEmails }
+            : {}),
         },
         "invoices",
         {

@@ -7,11 +7,24 @@ const createMockDb = () => ({});
 
 export const mockDb = createMockDb();
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type MockFn = ReturnType<typeof mock<(...args: any[]) => any>>;
 
 // Create reusable mock functions that tests can access
 export const mocks = {
+  beginIdempotentOperation: mock(() => ({
+    state: "started",
+    attemptCount: 1,
+    leaseToken: "test-lease-token",
+  })) as MockFn,
+  completeIdempotentOperation: mock(() => undefined) as MockFn,
+  failIdempotentOperation: mock(() => undefined) as MockFn,
+  requireIdempotentOperationReconciliation: mock(() => undefined) as MockFn,
+  createInbox: mock(() => ({})) as MockFn,
+  matchTransaction: mock(() => ({})) as MockFn,
+  confirmSuggestedMatch: mock(() => ({})) as MockFn,
+  getCategories: mock(() => []) as MockFn,
+  enqueue: mock(() => ({ runId: "run-123" })) as MockFn,
+
   // Transaction queries
   getTransactions: mock(() => ({
     data: [],
@@ -163,6 +176,9 @@ export const mocks = {
   updateApiKeyLastUsedAt: mock(() => ({})) as MockFn,
 
   // Users
+  getCurrentUser: mock(() => null) as MockFn,
+  updateCurrentUser: mock(() => null) as MockFn,
+  hasTeamAccess: mock(() => false) as MockFn,
   getUserById: mock(() => null) as MockFn,
   getUser: mock(() => null) as MockFn,
   updateUser: mock(() => ({})) as MockFn,
@@ -268,14 +284,11 @@ const dbQueriesMock = createModuleMock({
     (invoiceNumber: string) => `Invoice number ${invoiceNumber} already exists`,
   ),
   isInvoiceNumberConflictError: mock(() => false),
-  beginIdempotentOperation: mock(() => ({
-    state: "started",
-    attemptCount: 1,
-    leaseToken: "test-lease-token",
-  })),
-  completeIdempotentOperation: mock(() => undefined),
-  failIdempotentOperation: mock(() => undefined),
-  requireIdempotentOperationReconciliation: mock(() => undefined),
+  beginIdempotentOperation: mocks.beginIdempotentOperation,
+  completeIdempotentOperation: mocks.completeIdempotentOperation,
+  failIdempotentOperation: mocks.failIdempotentOperation,
+  requireIdempotentOperationReconciliation: mocks.requireIdempotentOperationReconciliation,
+  getCategories: mocks.getCategories,
 
   // Customer functions
   getCustomers: mocks.getCustomers,
@@ -326,7 +339,7 @@ const dbQueriesMock = createModuleMock({
     meta: { hasNextPage: false, hasPreviousPage: false },
   })),
   getInboxById: mocks.getInboxById,
-  createInbox: mock(() => ({})),
+  createInbox: mocks.createInbox,
   updateInbox: mocks.updateInbox,
   deleteInbox: mocks.deleteInbox,
   deleteInboxMany: mock(() => []),
@@ -335,9 +348,9 @@ const dbQueriesMock = createModuleMock({
   createInboxBlocklist: mock(() => ({})),
   deleteInboxBlocklist: mock(() => ({})),
   checkInboxAttachments: mock(() => []),
-  matchTransaction: mock(() => ({})),
+  matchTransaction: mocks.matchTransaction,
   unmatchTransaction: mock(() => ({})),
-  confirmSuggestedMatch: mock(() => ({})),
+  confirmSuggestedMatch: mocks.confirmSuggestedMatch,
   declineSuggestedMatch: mock(() => ({})),
 
   // API Keys
@@ -432,7 +445,20 @@ mock.module("@tamias/app-data/queries/payroll", () => ({
 }));
 mock.module("@tamias/app-services/inbox", () => ({
   getInboxBlocklistForTeam: mocks.getInboxBlocklistForTeam,
+  getInboxItemForTeam: mocks.getInboxItemById,
   getInboxPage: mocks.getInboxPage,
+}));
+// Route tests provide their own session. Keep auth dependencies isolated in every test process,
+// rather than relying on context.test.ts or team-permission.test.ts loading first.
+mock.module("@tamias/app-services/auth", () => ({
+  getRequestAuthDependencies: () => ({}),
+}));
+mock.module("@tamias/app-services/identity", () => ({
+  getTeamMembershipIds: mock(async () => [] as string[]),
+  getCurrentUser: mocks.getCurrentUser,
+  updateCurrentUser: mocks.updateCurrentUser,
+  hasTeamAccess: mocks.hasTeamAccess,
+  getTeamById: mocks.getTeamById,
 }));
 mock.module("@tamias/app-services/public-reads", () => ({
   getCustomerPortalData: mocks.getCustomerPortalData,
@@ -453,7 +479,7 @@ mock.module("@tamias/app-data/queries/transaction-categories", () => ({
 
 // Mock @tamias/job-client
 mock.module("@tamias/job-client", () => ({
-  enqueue: mock(() => ({ runId: "run-123" })),
+  enqueue: mocks.enqueue,
   startCloudflareWorkflow: mock(() => ({ runId: "run-123" })),
   scheduleRecurring: mock(() => ({ runId: "run-123" })),
   cancelRun: mock(() => false),
@@ -474,14 +500,6 @@ mock.module("@tamias/import", () => ({
 }));
 
 // Mock @tamias/invoice subpaths
-mock.module("@tamias/invoice/calculate", () => ({
-  calculateTotal: mock(({ lineItems }: { lineItems: any[] }) => ({
-    subTotal: lineItems.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0),
-    total: lineItems.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0),
-    vat: 0,
-    tax: 0,
-  })),
-}));
 
 mock.module("@tamias/invoice/utils", () => ({
   transformCustomerToContent: mock((customer: any) => ({

@@ -129,6 +129,10 @@ export const userSchema = z.object({
     example:
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0ZWFtSWQiOiIxMjM0NTY3OC05YWJjLWRlZmctMTIzNC01Njc4OTBhYmNkZWYifQ.signature",
   }),
+  teamId: z.string().uuid().openapi({
+    description: "Identifier of the team authenticated for this request",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  }),
   team: z
     .object({
       id: z.string().uuid().openapi({
@@ -139,7 +143,7 @@ export const userSchema = z.object({
         description: "Name of the team or organization",
         example: "Acme Corporation",
       }),
-      logoUrl: z.string().url().openapi({
+      logoUrl: z.string().url().nullable().openapi({
         description: "URL to the team's logo image",
         example: "https://cdn.tamias.xyz/logos/acme-corp.png",
       }),

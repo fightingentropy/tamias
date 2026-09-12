@@ -1,12 +1,34 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
-import { getCurrentUser, updateCurrentUser } from "@tamias/app-services/identity";
+import {
+  getCurrentUser,
+  getTeamById,
+  hasTeamAccess,
+  updateCurrentUser,
+} from "@tamias/app-services/identity";
 import { generateOptionalFileKey } from "@tamias/encryption";
+import type { Context as HonoContext } from "hono";
+import { HTTPException } from "hono/http-exception";
 import { updateUserSchema, userSchema } from "../../schemas/users";
 import { validateResponse } from "../../utils/validate-response";
 import { withRequiredScope } from "../middleware";
 import type { Context } from "../types";
 
 const app = new OpenAPIHono<Context>();
+
+async function getAuthenticatedTeam(c: HonoContext<Context>) {
+  const teamId = c.get("teamId");
+  const session = c.get("session");
+  const db = c.get("db");
+  if (!teamId || !(await hasTeamAccess({ userId: session.user.id, teamId, db }))) {
+    throw new HTTPException(403, { message: "Authenticated team access denied" });
+  }
+
+  const team = await getTeamById(teamId, db);
+  if (!team) {
+    throw new HTTPException(404, { message: "Authenticated team not found" });
+  }
+  return team;
+}
 
 app.openapi(
   createRoute({
@@ -31,17 +53,21 @@ app.openapi(
   }),
   async (c) => {
     const session = c.get("session");
+    const team = await getAuthenticatedTeam(c);
 
     const result = await getCurrentUser({
       userId: session.user.id,
       email: session.user.email ?? null,
+      db: c.get("db"),
     });
 
-    // Add fileKey if user has a teamId
+    // API credentials can be pinned to a different team from the user's selected team.
     const response = result
       ? {
           ...result,
-          fileKey: await generateOptionalFileKey(result.teamId),
+          teamId: team.id,
+          team,
+          fileKey: await generateOptionalFileKey(team.id),
         }
       : null;
 
@@ -82,9 +108,11 @@ app.openapi(
   async (c) => {
     const session = c.get("session");
     const body = c.req.valid("json");
+    const team = await getAuthenticatedTeam(c);
 
     const result = await updateCurrentUser({
       userId: session.user.id,
+      db: c.get("db"),
       currentEmail: session.user.email ?? null,
       fullName: body.fullName,
       email: body.email,
@@ -101,7 +129,9 @@ app.openapi(
     const response = result
       ? {
           ...result,
-          fileKey: await generateOptionalFileKey(result.teamId),
+          teamId: team.id,
+          team,
+          fileKey: await generateOptionalFileKey(team.id),
         }
       : null;
 

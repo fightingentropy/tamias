@@ -14,10 +14,12 @@ import {
 } from "../../schemas/inbox";
 import { getVaultSignedUrl } from "../../services/storage";
 import { validateResponse } from "../../utils/validate-response";
-import { withRequiredScope } from "../middleware";
+import { withRequiredScope } from "../middleware/scope";
 import type { Context } from "../types";
+import { registerInboxCaptureRoutes } from "./inbox-capture-routes";
 
 const app = new OpenAPIHono<Context>();
+registerInboxCaptureRoutes(app);
 
 app.openapi(
   createRoute({

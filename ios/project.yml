@@ -1,0 +1,124 @@
+name: Tamias
+
+options:
+  deploymentTarget:
+    iOS: "18.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+  xcodeVersion: "16.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    DEVELOPMENT_TEAM: T29NU9NCA2
+    CODE_SIGN_STYLE: Automatic
+    MARKETING_VERSION: "1.2.0"
+    CURRENT_PROJECT_VERSION: "4"
+    ENABLE_USER_SCRIPT_SANDBOXING: true
+    ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: true
+
+targets:
+  Tamias:
+    type: application
+    platform: iOS
+    sources:
+      - path: Tamias
+      - path: Shared
+    dependencies:
+      - target: TamiasShare
+        embed: true
+    entitlements:
+      path: config/Tamias.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.erlinhoxha.tamias
+    info:
+      path: config/Info.plist
+      properties:
+        CFBundleDisplayName: Tamias
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        ITSAppUsesNonExemptEncryption: false
+        LSApplicationCategoryType: public.app-category.finance
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        NSCameraUsageDescription: Scan receipts to save them privately on your iPhone.
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.erlinhoxha.tamias
+        PRODUCT_NAME: Tamias
+        TARGETED_DEVICE_FAMILY: "1,2"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        SUPPORTS_MACCATALYST: false
+        SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD: false
+    scheme:
+      testTargets:
+        - TamiasTests
+        - TamiasUITests
+      gatherCoverageData: true
+
+  TamiasShare:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: ShareExtension
+      - path: Shared
+    info:
+      path: config/ShareInfo.plist
+      properties:
+        CFBundleDisplayName: Tamias
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.share-services
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
+          NSExtensionAttributes:
+            NSExtensionActivationRule: 'SUBQUERY(extensionItems, $item, SUBQUERY($item.attachments, $attachment, ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.image" OR ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "com.adobe.pdf").@count == $item.attachments.@count AND $item.attachments.@count > 0 AND $item.attachments.@count <= 5).@count == extensionItems.@count'
+    entitlements:
+      path: config/TamiasShare.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.erlinhoxha.tamias
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.erlinhoxha.tamias.share
+        TARGETED_DEVICE_FAMILY: "1,2"
+        APPLICATION_EXTENSION_API_ONLY: true
+        SKIP_INSTALL: true
+
+  TamiasTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: TamiasTests
+    dependencies:
+      - target: Tamias
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.erlinhoxha.tamias.tests
+        GENERATE_INFOPLIST_FILE: true
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Tamias.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Tamias"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+
+  TamiasUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: TamiasUITests
+    dependencies:
+      - target: Tamias
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.erlinhoxha.tamias.uitests
+        GENERATE_INFOPLIST_FILE: true
+        TEST_TARGET_NAME: Tamias

@@ -62,7 +62,7 @@ export class MatchTransactionsBidirectionalProcessor extends BaseProcessor<Match
             status: "analyzing",
           });
 
-          const { action } = await persistInboxSuggestionWorkflow(db, {
+          const { action, matchType } = await persistInboxSuggestionWorkflow(db, {
             teamId,
             inboxId: inboxMatch.inboxId,
             candidate: {
@@ -125,7 +125,7 @@ export class MatchTransactionsBidirectionalProcessor extends BaseProcessor<Match
                   currency: transaction.currency,
                   date: transaction.date,
                   confidenceScore: inboxMatch.confidenceScore,
-                  matchType: action === "auto_matched" ? "auto_matched" : inboxMatch.matchType,
+                  matchType,
                   amountScore: inboxMatch.amountScore,
                   currencyScore: inboxMatch.currencyScore,
                   dateScore: inboxMatch.dateScore,

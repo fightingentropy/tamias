@@ -10,3 +10,5 @@ bun.lock
 .react-email
 .env.*.example
 api/migrations/**/*.sql
+ios/build
+ios/artifacts

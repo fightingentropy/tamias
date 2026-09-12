@@ -63,7 +63,7 @@ function getCorsHeaders(request: Request): Record<string, string> {
     "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS,PATCH",
     "Access-Control-Allow-Headers":
-      "Authorization,Content-Type,User-Agent,accept-language,cf-ray,trpc-accept,x-request-id,x-trpc-source,x-user-locale,x-user-timezone,x-user-country,x-slack-signature,x-slack-request-timestamp",
+      "Authorization,Content-Type,Idempotency-Key,X-Tamias-Team-Id,User-Agent,accept-language,cf-ray,trpc-accept,x-request-id,x-trpc-source,x-user-locale,x-user-timezone,x-user-country,x-slack-signature,x-slack-request-timestamp",
     "Access-Control-Expose-Headers":
       "Content-Length,Content-Type,Cache-Control,Cross-Origin-Resource-Policy",
     "Access-Control-Max-Age": "86400",
@@ -299,6 +299,8 @@ async function createApp() {
       allowHeaders: [
         "Authorization",
         "Content-Type",
+        "Idempotency-Key",
+        "X-Tamias-Team-Id",
         "User-Agent",
         "accept-language",
         "cf-ray",

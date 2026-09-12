@@ -67,4 +67,30 @@ describe("withAuth", () => {
 
     expect(response.status).toBe(401);
   });
+
+  test("accepts requests pinned to the authenticated workspace", async () => {
+    const app = new Hono<Context>();
+    app.use("*", withAuth);
+    app.get("/", (c) => c.text("ok"));
+    const response = await app.request("/", {
+      headers: { Authorization: "Bearer token-123", "X-Tamias-Team-Id": "team_123" },
+    });
+    expect(response.status).toBe(200);
+  });
+
+  test("rejects stale workspace reads and writes before route work", async () => {
+    const app = new Hono<Context>();
+    const route = mock(() => new Response("must not run"));
+    app.use("*", withAuth);
+    app.all("/", route);
+    for (const method of ["GET", "POST", "PATCH", "DELETE"]) {
+      const response = await app.request("/", {
+        method,
+        headers: { Authorization: "Bearer token-123", "X-Tamias-Team-Id": "previous_team" },
+      });
+      expect(response.status).toBe(409);
+      expect(await response.json()).toMatchObject({ error: "Conflict", code: "workspace_changed" });
+    }
+    expect(route).not.toHaveBeenCalled();
+  });
 });

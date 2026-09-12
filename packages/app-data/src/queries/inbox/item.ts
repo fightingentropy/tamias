@@ -132,6 +132,8 @@ export async function getInboxByFilePath(_db: Database, params: GetInboxByFilePa
     createdAt: item.createdAt,
     contentType: item.contentType,
     displayName: item.displayName,
+    meta: item.meta,
+    transactionId: item.transactionId,
   };
 }
 

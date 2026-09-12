@@ -338,6 +338,14 @@ export const transactionResponseSchema = z
       description: "Whether the transaction has been fulfilled or processed",
       example: true,
     }),
+    isExported: z.boolean().optional().openapi({
+      description: "Whether the transaction was exported or synced to an accounting provider",
+      example: false,
+    }),
+    hasExportError: z.boolean().optional().openapi({
+      description: "Whether an accounting export error needs attention",
+      example: false,
+    }),
     note: z.string().nullable().openapi({
       description: "Optional note or memo attached to the transaction",
       example: "Paid with company credit card for office renovation",

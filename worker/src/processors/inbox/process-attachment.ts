@@ -16,6 +16,7 @@ import { NonRetryableError } from "../../utils/error-classification";
 import { convertHeicToJpeg } from "../../utils/image-processing";
 import { TIMEOUTS, withTimeout } from "../../utils/timeout";
 import { BaseProcessor } from "../base";
+import { reviewedReceiptFields } from "./reviewed-receipt-fields";
 
 export class ProcessAttachmentProcessor extends BaseProcessor<ProcessAttachmentPayload> {
   async process(job: Job<ProcessAttachmentPayload>): Promise<void> {
@@ -56,7 +57,9 @@ export class ProcessAttachmentProcessor extends BaseProcessor<ProcessAttachmentP
       teamId,
     });
 
-    let inboxData = await getInboxByFilePath(db, {
+    let inboxData:
+      | Awaited<ReturnType<typeof getInboxByFilePath>>
+      | Awaited<ReturnType<typeof createInbox>> = await getInboxByFilePath(db, {
       filePath,
       teamId,
     });
@@ -300,6 +303,13 @@ export class ProcessAttachmentProcessor extends BaseProcessor<ProcessAttachmentP
         duration: `${docProcessingDuration}ms`,
       });
 
+      // Re-read after extraction: a user may already have matched the receipt.
+      const currentInbox = await getInboxByFilePath(db, { filePath, teamId });
+      if (!currentInbox || currentInbox.status === "done" || currentInbox.transactionId) {
+        return;
+      }
+      const reviewedFields = reviewedReceiptFields(currentInbox.meta);
+
       // Check if document is classified as "other" (non-financial document)
       if (result.document_type === "other") {
         await updateInboxWithProcessedData(db, {
@@ -307,6 +317,7 @@ export class ProcessAttachmentProcessor extends BaseProcessor<ProcessAttachmentP
           displayName: result.name ?? inboxData.displayName ?? undefined,
           type: "other",
           status: "other",
+          ...reviewedFields,
         });
 
         this.logger.info("Document classified as other (non-financial), skipping matching", {
@@ -331,6 +342,7 @@ export class ProcessAttachmentProcessor extends BaseProcessor<ProcessAttachmentP
         type: result.type as "invoice" | "expense" | null | undefined,
         invoiceNumber: result.invoice_number ?? undefined,
         status: "analyzing", // Keep analyzing until matching is complete
+        ...reviewedFields,
       });
 
       // Group related inbox items after storing invoice number

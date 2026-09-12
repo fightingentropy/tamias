@@ -23,6 +23,11 @@ export type UpdateInboxParams = {
     | "suggested_match"
     | "other";
   contentType?: string;
+  displayName?: string;
+  amount?: number | null;
+  currency?: string;
+  date?: string | null;
+  description?: string;
 };
 
 export async function updateInbox(db: DatabaseOrTransaction, params: UpdateInboxParams) {

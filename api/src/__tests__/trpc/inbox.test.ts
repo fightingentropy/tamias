@@ -18,6 +18,7 @@ mock.module("@tamias/app-data/queries", () => ({
   createInbox: mock(() => ({})),
   updateInbox: mockUpdateInbox,
   deleteInbox: mockDeleteInbox,
+  deleteInboxMany: mock(() => []),
   getInboxSearch: mock(() => []),
   getInboxBlocklist: mock(() => []),
   createInboxBlocklist: mock(() => ({})),

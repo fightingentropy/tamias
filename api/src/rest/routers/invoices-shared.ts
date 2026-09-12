@@ -1,25 +1,29 @@
 import type { Session } from "@tamias/auth-session";
-import { calculateTotal } from "@tamias/invoice/calculate";
+import { getRestInvoiceTotals } from "../../invoice/rest-totals";
 import { createLoggerWithContext } from "@tamias/logger";
 import { getApiUrl, getAppUrl } from "@tamias/utils/envs";
 import { HTTPException } from "hono/http-exception";
 import { requireSessionUserId } from "../../invoice/transport";
 
 type RestInvoiceTemplate = {
+  currency?: string | null;
   taxRate?: number | null;
   vatRate?: number | null;
   includeVat?: boolean | null;
   includeTax?: boolean | null;
+  includeLineItemTax?: boolean | null;
 };
 
 type RestInvoiceLineItem = {
   price?: number | string | null;
   quantity?: number | string | null;
+  taxRate?: number | string | null;
 };
 
 type RestInvoiceLike = {
   token?: string | null;
   lineItems?: RestInvoiceLineItem[] | null;
+  currency?: string | null;
   template?: RestInvoiceTemplate | null;
   discount?: number | null;
   paymentDetails?: unknown;
@@ -42,24 +46,16 @@ function getInvoiceCalculatedAmounts(invoice: RestInvoiceLike) {
     return {};
   }
 
-  const { subTotal, total, vat, tax } = calculateTotal({
+  return getRestInvoiceTotals({
     lineItems: invoice.lineItems.map((item) => ({
       price: typeof item.price === "number" ? item.price : Number(item.price) || 0,
       quantity: typeof item.quantity === "number" ? item.quantity : Number(item.quantity) || 0,
+      taxRate: typeof item.taxRate === "number" ? item.taxRate : Number(item.taxRate) || 0,
     })),
-    taxRate: invoice.template?.taxRate ?? 0,
-    vatRate: invoice.template?.vatRate ?? 0,
+    currency: invoice.currency,
+    template: invoice.template,
     discount: invoice.discount ?? 0,
-    includeVat: invoice.template?.includeVat ?? true,
-    includeTax: invoice.template?.includeTax ?? true,
   });
-
-  return {
-    subtotal: subTotal,
-    amount: total,
-    vat,
-    tax,
-  };
 }
 
 function getInvoiceUrls(token: string | null | undefined) {

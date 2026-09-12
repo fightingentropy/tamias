@@ -11,6 +11,8 @@ playwright-report
 test-results
 e2e/.auth
 dashboard/playwright
+/artifacts/
+*.xcresult/
 
 # expo
 .expo/

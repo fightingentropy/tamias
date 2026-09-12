@@ -7,3 +7,6 @@ export * from "./providers/hmrc-ct";
 export * from "./providers/hmrc-vat";
 export * from "./types";
 export * from "./vat";
+export * from "./self-assessment";
+export * from "./self-assessment-filing";
+export * from "./providers/hmrc-self-assessment";

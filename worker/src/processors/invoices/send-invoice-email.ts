@@ -1,10 +1,18 @@
-import { getInvoiceById, updateInvoice } from "@tamias/app-data/queries";
+import {
+  beginIdempotentOperation,
+  completeIdempotentOperation,
+  getInvoiceById,
+  requireIdempotentOperationReconciliation,
+  updateInvoice,
+} from "@tamias/app-data/queries";
 import { Notifications } from "@tamias/notifications";
 import { downloadVaultFile } from "@tamias/storage";
 import type { WorkerJob as Job } from "../../types/job";
 import type { SendInvoiceEmailPayload } from "../../schemas/invoices";
 import { getDb } from "../../utils/db";
 import { BaseProcessor } from "../base";
+import { assertReviewedRecipients } from "./reviewed-recipients";
+import { requireAcceptedInvoiceEmail, runReviewedDelivery } from "./reviewed-delivery";
 
 /**
  * Send Invoice Email Processor
@@ -62,6 +70,7 @@ export class SendInvoiceEmailProcessor extends BaseProcessor<SendInvoiceEmailPay
 
     // Build BCC list
     const bcc = [...billingEmails, ...(shouldSendCopy && userEmail ? [userEmail] : [])];
+    assertReviewedRecipients(job.data, customerEmail, bcc);
 
     if (!customerEmail) {
       this.logger.error("Invoice customer email not found", { invoiceId });
@@ -77,15 +86,17 @@ export class SendInvoiceEmailProcessor extends BaseProcessor<SendInvoiceEmailPay
       throw new Error(`Invoice missing required fields: ${invoiceId}`);
     }
 
-    // Send notification (email)
-    try {
-      await notifications.create(
+    const invoiceNumber = invoice.invoiceNumber;
+    const customerName = invoice.customer.name;
+    // Send notification and persist its accepted state as one guarded native operation.
+    const deliver = async () => {
+      const notification = await notifications.create(
         "invoice_sent",
         invoice.teamId,
         {
           invoiceId,
-          invoiceNumber: invoice.invoiceNumber,
-          customerName: invoice.customer.name,
+          invoiceNumber,
+          customerName,
           customerEmail,
           token: invoice.token,
           // Gmail structured data fields
@@ -112,30 +123,69 @@ export class SendInvoiceEmailProcessor extends BaseProcessor<SendInvoiceEmailPay
           replyTo: invoice.team?.email ?? undefined,
         },
       );
-    } catch (error) {
-      this.logger.error("Failed to send invoice email", {
-        invoiceId,
-        error: error instanceof Error ? error.message : "Unknown error",
+      requireAcceptedInvoiceEmail(notification.emails);
+
+      this.logger.debug("Invoice email sent", { invoiceId, customerEmail });
+
+      // Update invoice status after the send completes
+      const updated = await updateInvoice(db, {
+        id: invoiceId,
+        teamId: invoice.teamId,
+        status: "unpaid",
+        sentTo: customerEmail,
+        sentAt: new Date().toISOString(),
       });
-      throw new Error("Invoice email failed to send");
-    }
 
-    this.logger.debug("Invoice email sent", { invoiceId, customerEmail });
+      if (!updated) {
+        this.logger.error("Failed to update invoice status after email", {
+          invoiceId,
+        });
+        if (job.data.expectedCustomerEmail !== undefined) {
+          throw new Error("Accepted invoice email could not be recorded");
+        }
+      }
+    };
 
-    // Update invoice status after the send completes
-    const updated = await updateInvoice(db, {
-      id: invoiceId,
-      teamId: invoice.teamId,
-      status: "unpaid",
-      sentTo: customerEmail,
-      sentAt: new Date().toISOString(),
-    });
-
-    if (!updated) {
-      this.logger.error("Failed to update invoice status after email", {
-        invoiceId,
-      });
-      // Don't throw here - email was sent successfully
+    if (job.data.expectedCustomerEmail !== undefined) {
+      const operation = {
+        teamId: invoice.teamId,
+        scope: "invoice.native-email",
+        idempotencyKey: `native-invoice-send:${invoiceId}`,
+      };
+      await runReviewedDelivery(
+        {
+          claim: () =>
+            beginIdempotentOperation(db, {
+              ...operation,
+              request: { invoiceId, customerEmail, bcc: [...bcc].sort() },
+            }),
+          complete: (claim) =>
+            completeIdempotentOperation(db, {
+              ...operation,
+              leaseToken: claim.leaseToken,
+              result: { invoiceId, accepted: true },
+              audit: {
+                actorType: "system",
+                actorId: "invoice-worker",
+                action: "invoice.native-email",
+                resourceType: "invoice",
+                resourceId: invoiceId,
+                environment: process.env.TAMIAS_ENVIRONMENT ?? "unknown",
+                payload: { accepted: true },
+              },
+            }),
+          reconcile: (claim, error) =>
+            requireIdempotentOperationReconciliation(db, {
+              ...operation,
+              leaseToken: claim.leaseToken,
+              error,
+              providerResult: { invoiceId },
+            }),
+        },
+        deliver,
+      );
+    } else {
+      await deliver();
     }
 
     this.logger.info("Send invoice email completed", {

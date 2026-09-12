@@ -117,6 +117,9 @@ function getPublicEnv(mode: string) {
 }
 
 export default defineConfig(({ mode, command }) => {
+  // The Cloudflare plugin has its own dotenv loader, separate from Vite's envDir.
+  // Production builds use the runtime allowlist and must not copy the legacy root .env.
+  if (command === "build") process.env.CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV = "false";
   const publicEnv = getPublicEnv(mode);
   const defineEntries = Object.fromEntries(
     Object.entries(publicEnv).map(([key, value]) => [`process.env.${key}`, JSON.stringify(value)]),

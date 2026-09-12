@@ -1,0 +1,857 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		00391D988E2E5EBF407DF7E1 /* WorkspaceSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A81BF6BB8EDB8DE9AA0D197E /* WorkspaceSnapshot.swift */; };
+		02C5D3A0B177666B35746783 /* TamiasStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1804B501BDE05C4595A1B337 /* TamiasStore.swift */; };
+		06761093166D88D0225EA966 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D4986912B5FB6D4DFCFD492 /* Models.swift */; };
+		0948C370E1060F100B37B52A /* TaxProfileSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 511257147AF9CE48EF643450 /* TaxProfileSheet.swift */; };
+		0F7CF1AF238C658AB06F7CD3 /* TamiasTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76C9ADAF7018B4676DDF3C71 /* TamiasTheme.swift */; };
+		1055E2A5FBA540C3D46DE539 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8BE29D187CAB33F93BA66CFF /* PrivacyInfo.xcprivacy */; };
+		12FFE30BA96F6A92E5C377FA /* TamiasShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7E5AE06B87280E2308BF07BD /* TamiasShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		19967E6A1CCBBFAAEF31F702 /* ReceiptFormComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 677C15BE4C5E5854C42EC921 /* ReceiptFormComponents.swift */; };
+		213956898227CE6BA4317C31 /* InvoicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE352AAB5B3AD48F184A9A2C /* InvoicesView.swift */; };
+		21C62ECE9CAB711A174A75B9 /* InvoiceComposerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF17AB2396B4560AF7EF016F /* InvoiceComposerTests.swift */; };
+		264A70FF616508CB139ED052 /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79CAC0EAF652CBAAE7A7B811 /* ActivityView.swift */; };
+		2B51A4A39271C23EDC0203D6 /* TaxModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A39A45BF5A1BB2001BCAC4AE /* TaxModels.swift */; };
+		30FD3E05CAC1B48D470141BD /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E7717B9CEC8024346922F7 /* ShareViewController.swift */; };
+		3E9581EDC6C3077FBD1D796E /* TaxFilingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3E42B9BC05C430BC4E93E7 /* TaxFilingView.swift */; };
+		4E3B7450763C6C16CBC7C251 /* ReceiptImportUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DEADC811252B8340CF8D465 /* ReceiptImportUITests.swift */; };
+		563AE97384491A444DCADB73 /* TamiasApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070879383ADFC9E6B105B2D1 /* TamiasApp.swift */; };
+		563F2E247D38B74CB4884A2D /* SharedReceiptQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7AA0A2117A33C8290148FA5 /* SharedReceiptQueue.swift */; };
+		61B4DBF5CEE9913ABD00AE4C /* InboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DFD75CB01C00715EFBA40B5 /* InboxView.swift */; };
+		62F718DDB3E6D7FC92634EC8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9F419325FD3F35457D54E089 /* Assets.xcassets */; };
+		75D3710ED3A2CC909EEC3DF2 /* LocalStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D553E278D6FDA4DD2731C6 /* LocalStorage.swift */; };
+		7CC9FD49E254A5D5DA325A10 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C6939E42425313F852751F /* APIClient.swift */; };
+		7E647BC16FCBB86BE5F76C0E /* OverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D412137AE651DBD9C88A3D12 /* OverviewView.swift */; };
+		837FEDE3F099EB99A7119D6F /* TaxFilingModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA13917FCF98F0458ED658D /* TaxFilingModels.swift */; };
+		84D645C4470AE8254AD21A7E /* SharedReceiptQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7AA0A2117A33C8290148FA5 /* SharedReceiptQueue.swift */; };
+		9B23F634CC2E77064715EF1E /* TaxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FAF9D986843B22179345A59 /* TaxView.swift */; };
+		9DBAFB2FF791B73033698014 /* TamiasUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F57E2DD502B5C5D4CFFF73B1 /* TamiasUITests.swift */; };
+		9E9A50548B2D36049536DB90 /* SampleWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEF9F8C93E92366DC2B1E22B /* SampleWorkspace.swift */; };
+		B06D622DBAF152B405A954DC /* TaxTransactionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4D5027795DF7F5A533C2CB /* TaxTransactionsView.swift */; };
+		B3E8F8B51E330F4C7FF280B1 /* TaxWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F14200F8758B461F3C53740 /* TaxWorkspace.swift */; };
+		B46D1E21A3B1B8008AEEE105 /* ReceiptRecognitionUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 804950EBFFA45456C9AFD59D /* ReceiptRecognitionUITests.swift */; };
+		B6CF1CF8F6DBEFC0E245BB0C /* WorkflowAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9942668325276B107D80E3F /* WorkflowAPIClient.swift */; };
+		BDB3B12F87FBB34F4C3A5D8A /* WorkspaceSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40DA9511B9559A262936C0BF /* WorkspaceSettingsView.swift */; };
+		BF60FF30E0CD3A1005F2092F /* ReceiptCaptureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A02F914CC3C4566491F85DC /* ReceiptCaptureTests.swift */; };
+		C14DE92F5CC4E7D206BAB256 /* TamiasCoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE78CF91F2F4D59398068A27 /* TamiasCoreTests.swift */; };
+		C4F797EA6063CCC0096EA46F /* TaxPreparationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E6F4045B1B2A9BE245B9B4E /* TaxPreparationView.swift */; };
+		C7A9B0321968CE2BBAB5292D /* WorkflowModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15201A44B071B0479861A859 /* WorkflowModels.swift */; };
+		CA81B925496C4F3B28ABC303 /* SharedReceiptInboxSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B03DEAEFCB06403FB107F5 /* SharedReceiptInboxSection.swift */; };
+		CCD229245190C3C767F96EC7 /* ReceiptReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 674CB89FB8327B278F3E76BD /* ReceiptReviewView.swift */; };
+		CEBDE8AF60075014498B599B /* ReceiptRecognition.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8CE7992573EF2C1434D8F7E /* ReceiptRecognition.swift */; };
+		CEDF258C9303084B3A506C44 /* ReceiptShareUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C632444B51A4DFA3F328D413 /* ReceiptShareUITests.swift */; };
+		D59CF77699EA839DAB8A2781 /* SAMPLE-receipt.png in Resources */ = {isa = PBXBuildFile; fileRef = 2F5308813AFA184088F62390 /* SAMPLE-receipt.png */; };
+		F23F61FA3B5AEA109CB9C34C /* ReceiptCaptureSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A873BC2A3A0CAD0080BF346 /* ReceiptCaptureSheet.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		58B835D1151D48D454F0BD1C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08E86D4E78B3AB2FE6BE6F83 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 137D8167E288CC4CD479FFF0;
+			remoteInfo = Tamias;
+		};
+		8BDD54B4F2BCB19E28911738 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08E86D4E78B3AB2FE6BE6F83 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B80EBD437715A82DB638AE4D;
+			remoteInfo = TamiasShare;
+		};
+		A38EAA53120D203B2E3C82BA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08E86D4E78B3AB2FE6BE6F83 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 137D8167E288CC4CD479FFF0;
+			remoteInfo = Tamias;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		7B91D799D47AC38F38B3A47B /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				12FFE30BA96F6A92E5C377FA /* TamiasShare.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		070879383ADFC9E6B105B2D1 /* TamiasApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TamiasApp.swift; sourceTree = "<group>"; };
+		0A02F914CC3C4566491F85DC /* ReceiptCaptureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiptCaptureTests.swift; sourceTree = "<group>"; };
+		0D4986912B5FB6D4DFCFD492 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		0E6F4045B1B2A9BE245B9B4E /* TaxPreparationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaxPreparationView.swift; sourceTree = "<group>"; };
+		14C6939E42425313F852751F /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		15201A44B071B0479861A859 /* WorkflowModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowModels.swift; sourceTree = "<group>"; };
+		1804B501BDE05C4595A1B337 /* TamiasStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TamiasStore.swift; sourceTree = "<group>"; };
+		1A873BC2A3A0CAD0080BF346 /* ReceiptCaptureSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiptCaptureSheet.swift; sourceTree = "<group>"; };
+		21D553E278D6FDA4DD2731C6 /* LocalStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalStorage.swift; sourceTree = "<group>"; };
+		2D3E42B9BC05C430BC4E93E7 /* TaxFilingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaxFilingView.swift; sourceTree = "<group>"; };
+		2DEADC811252B8340CF8D465 /* ReceiptImportUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiptImportUITests.swift; sourceTree = "<group>"; };
+		2F14200F8758B461F3C53740 /* TaxWorkspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaxWorkspace.swift; sourceTree = "<group>"; };
+		2F5308813AFA184088F62390 /* SAMPLE-receipt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "SAMPLE-receipt.png"; sourceTree = "<group>"; };
+		3FAF9D986843B22179345A59 /* TaxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaxView.swift; sourceTree = "<group>"; };
+		40DA9511B9559A262936C0BF /* WorkspaceSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceSettingsView.swift; sourceTree = "<group>"; };
+		511257147AF9CE48EF643450 /* TaxProfileSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaxProfileSheet.swift; sourceTree = "<group>"; };
+		674CB89FB8327B278F3E76BD /* ReceiptReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiptReviewView.swift; sourceTree = "<group>"; };
+		677C15BE4C5E5854C42EC921 /* ReceiptFormComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiptFormComponents.swift; sourceTree = "<group>"; };
+		6DFD75CB01C00715EFBA40B5 /* InboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxView.swift; sourceTree = "<group>"; };
+		6E4D5027795DF7F5A533C2CB /* TaxTransactionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaxTransactionsView.swift; sourceTree = "<group>"; };
+		76C9ADAF7018B4676DDF3C71 /* TamiasTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TamiasTheme.swift; sourceTree = "<group>"; };
+		79CAC0EAF652CBAAE7A7B811 /* ActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityView.swift; sourceTree = "<group>"; };
+		7E5AE06B87280E2308BF07BD /* TamiasShare.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = TamiasShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		804950EBFFA45456C9AFD59D /* ReceiptRecognitionUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiptRecognitionUITests.swift; sourceTree = "<group>"; };
+		87E7717B9CEC8024346922F7 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		8BE29D187CAB33F93BA66CFF /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		99ACCD5D894056D26975ADC5 /* TamiasUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TamiasUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		99B03DEAEFCB06403FB107F5 /* SharedReceiptInboxSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedReceiptInboxSection.swift; sourceTree = "<group>"; };
+		9DA13917FCF98F0458ED658D /* TaxFilingModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaxFilingModels.swift; sourceTree = "<group>"; };
+		9F419325FD3F35457D54E089 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A39A45BF5A1BB2001BCAC4AE /* TaxModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaxModels.swift; sourceTree = "<group>"; };
+		A81BF6BB8EDB8DE9AA0D197E /* WorkspaceSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceSnapshot.swift; sourceTree = "<group>"; };
+		A8B8FAD590CBAB1A8B366E91 /* Tamias.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Tamias.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BF17AB2396B4560AF7EF016F /* InvoiceComposerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceComposerTests.swift; sourceTree = "<group>"; };
+		C632444B51A4DFA3F328D413 /* ReceiptShareUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiptShareUITests.swift; sourceTree = "<group>"; };
+		C8CE7992573EF2C1434D8F7E /* ReceiptRecognition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiptRecognition.swift; sourceTree = "<group>"; };
+		CE352AAB5B3AD48F184A9A2C /* InvoicesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoicesView.swift; sourceTree = "<group>"; };
+		CE78CF91F2F4D59398068A27 /* TamiasCoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TamiasCoreTests.swift; sourceTree = "<group>"; };
+		CEF9F8C93E92366DC2B1E22B /* SampleWorkspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleWorkspace.swift; sourceTree = "<group>"; };
+		D17190404D8B6C90512389A9 /* TamiasTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TamiasTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D412137AE651DBD9C88A3D12 /* OverviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewView.swift; sourceTree = "<group>"; };
+		D7AA0A2117A33C8290148FA5 /* SharedReceiptQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedReceiptQueue.swift; sourceTree = "<group>"; };
+		E9942668325276B107D80E3F /* WorkflowAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowAPIClient.swift; sourceTree = "<group>"; };
+		F57E2DD502B5C5D4CFFF73B1 /* TamiasUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TamiasUITests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		028523D8FF7ED33D1DC87965 /* Capture */ = {
+			isa = PBXGroup;
+			children = (
+				1A873BC2A3A0CAD0080BF346 /* ReceiptCaptureSheet.swift */,
+				677C15BE4C5E5854C42EC921 /* ReceiptFormComponents.swift */,
+				C8CE7992573EF2C1434D8F7E /* ReceiptRecognition.swift */,
+				674CB89FB8327B278F3E76BD /* ReceiptReviewView.swift */,
+				99B03DEAEFCB06403FB107F5 /* SharedReceiptInboxSection.swift */,
+			);
+			path = Capture;
+			sourceTree = "<group>";
+		};
+		0533918C0033275AAE6AB60B /* Tamias */ = {
+			isa = PBXGroup;
+			children = (
+				9F419325FD3F35457D54E089 /* Assets.xcassets */,
+				8BE29D187CAB33F93BA66CFF /* PrivacyInfo.xcprivacy */,
+				FFA9F430D09B44D000DC4520 /* App */,
+				115EF5F433D17DD3B8CB73EE /* Core */,
+				3DDAC5839E9F28473817B403 /* Design */,
+				BD47799D94E819DD095A23C3 /* Features */,
+			);
+			path = Tamias;
+			sourceTree = "<group>";
+		};
+		115EF5F433D17DD3B8CB73EE /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				14C6939E42425313F852751F /* APIClient.swift */,
+				21D553E278D6FDA4DD2731C6 /* LocalStorage.swift */,
+				0D4986912B5FB6D4DFCFD492 /* Models.swift */,
+				CEF9F8C93E92366DC2B1E22B /* SampleWorkspace.swift */,
+				1804B501BDE05C4595A1B337 /* TamiasStore.swift */,
+				9DA13917FCF98F0458ED658D /* TaxFilingModels.swift */,
+				A39A45BF5A1BB2001BCAC4AE /* TaxModels.swift */,
+				E9942668325276B107D80E3F /* WorkflowAPIClient.swift */,
+				15201A44B071B0479861A859 /* WorkflowModels.swift */,
+				A81BF6BB8EDB8DE9AA0D197E /* WorkspaceSnapshot.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		2E00BC1F32D802184B5A0FE7 /* Tax */ = {
+			isa = PBXGroup;
+			children = (
+				2D3E42B9BC05C430BC4E93E7 /* TaxFilingView.swift */,
+				0E6F4045B1B2A9BE245B9B4E /* TaxPreparationView.swift */,
+				511257147AF9CE48EF643450 /* TaxProfileSheet.swift */,
+				6E4D5027795DF7F5A533C2CB /* TaxTransactionsView.swift */,
+				3FAF9D986843B22179345A59 /* TaxView.swift */,
+				2F14200F8758B461F3C53740 /* TaxWorkspace.swift */,
+			);
+			path = Tax;
+			sourceTree = "<group>";
+		};
+		311926A418441140FD7CD5E9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A8B8FAD590CBAB1A8B366E91 /* Tamias.app */,
+				7E5AE06B87280E2308BF07BD /* TamiasShare.appex */,
+				D17190404D8B6C90512389A9 /* TamiasTests.xctest */,
+				99ACCD5D894056D26975ADC5 /* TamiasUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3DDAC5839E9F28473817B403 /* Design */ = {
+			isa = PBXGroup;
+			children = (
+				76C9ADAF7018B4676DDF3C71 /* TamiasTheme.swift */,
+			);
+			path = Design;
+			sourceTree = "<group>";
+		};
+		8717A0B50BD74B9F42FC08F8 /* Fixtures */ = {
+			isa = PBXGroup;
+			children = (
+				2F5308813AFA184088F62390 /* SAMPLE-receipt.png */,
+			);
+			path = Fixtures;
+			sourceTree = "<group>";
+		};
+		9610F246052C180FBFE9FF35 /* TamiasUITests */ = {
+			isa = PBXGroup;
+			children = (
+				2DEADC811252B8340CF8D465 /* ReceiptImportUITests.swift */,
+				804950EBFFA45456C9AFD59D /* ReceiptRecognitionUITests.swift */,
+				C632444B51A4DFA3F328D413 /* ReceiptShareUITests.swift */,
+				F57E2DD502B5C5D4CFFF73B1 /* TamiasUITests.swift */,
+				8717A0B50BD74B9F42FC08F8 /* Fixtures */,
+			);
+			path = TamiasUITests;
+			sourceTree = "<group>";
+		};
+		BD47799D94E819DD095A23C3 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				79CAC0EAF652CBAAE7A7B811 /* ActivityView.swift */,
+				6DFD75CB01C00715EFBA40B5 /* InboxView.swift */,
+				CE352AAB5B3AD48F184A9A2C /* InvoicesView.swift */,
+				D412137AE651DBD9C88A3D12 /* OverviewView.swift */,
+				40DA9511B9559A262936C0BF /* WorkspaceSettingsView.swift */,
+				028523D8FF7ED33D1DC87965 /* Capture */,
+				2E00BC1F32D802184B5A0FE7 /* Tax */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		C4BB136A18AF83EABCEAE0A5 /* TamiasTests */ = {
+			isa = PBXGroup;
+			children = (
+				BF17AB2396B4560AF7EF016F /* InvoiceComposerTests.swift */,
+				0A02F914CC3C4566491F85DC /* ReceiptCaptureTests.swift */,
+				CE78CF91F2F4D59398068A27 /* TamiasCoreTests.swift */,
+			);
+			path = TamiasTests;
+			sourceTree = "<group>";
+		};
+		D6DDC9F17BF1B3BB94A25489 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				D7AA0A2117A33C8290148FA5 /* SharedReceiptQueue.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		D98F442C801F76287D4E706D = {
+			isa = PBXGroup;
+			children = (
+				D6DDC9F17BF1B3BB94A25489 /* Shared */,
+				E1E252E6CCC6F67E28F6D070 /* ShareExtension */,
+				0533918C0033275AAE6AB60B /* Tamias */,
+				C4BB136A18AF83EABCEAE0A5 /* TamiasTests */,
+				9610F246052C180FBFE9FF35 /* TamiasUITests */,
+				311926A418441140FD7CD5E9 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E1E252E6CCC6F67E28F6D070 /* ShareExtension */ = {
+			isa = PBXGroup;
+			children = (
+				87E7717B9CEC8024346922F7 /* ShareViewController.swift */,
+			);
+			path = ShareExtension;
+			sourceTree = "<group>";
+		};
+		FFA9F430D09B44D000DC4520 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				070879383ADFC9E6B105B2D1 /* TamiasApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		137D8167E288CC4CD479FFF0 /* Tamias */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0F10F483612567FF27B2113B /* Build configuration list for PBXNativeTarget "Tamias" */;
+			buildPhases = (
+				ED00E21CE2B234A279FFEE8B /* Sources */,
+				222920B7D80FA8031D848CBB /* Resources */,
+				7B91D799D47AC38F38B3A47B /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BBFC1474E0815C48C5A7EC92 /* PBXTargetDependency */,
+			);
+			name = Tamias;
+			packageProductDependencies = (
+			);
+			productName = Tamias;
+			productReference = A8B8FAD590CBAB1A8B366E91 /* Tamias.app */;
+			productType = "com.apple.product-type.application";
+		};
+		B80EBD437715A82DB638AE4D /* TamiasShare */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A9E2923B761E96034DF08DE /* Build configuration list for PBXNativeTarget "TamiasShare" */;
+			buildPhases = (
+				525C76B700E8911E5AEE4C84 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TamiasShare;
+			packageProductDependencies = (
+			);
+			productName = TamiasShare;
+			productReference = 7E5AE06B87280E2308BF07BD /* TamiasShare.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		E3736712AA50A51AF26147F1 /* TamiasTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 96B8018CD4B244C5B320005C /* Build configuration list for PBXNativeTarget "TamiasTests" */;
+			buildPhases = (
+				A6AAA980B03B36FD9B39A2AA /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D174E565DA68613D2725663F /* PBXTargetDependency */,
+			);
+			name = TamiasTests;
+			packageProductDependencies = (
+			);
+			productName = TamiasTests;
+			productReference = D17190404D8B6C90512389A9 /* TamiasTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		FB2DC00DFBB1AD2027DF1566 /* TamiasUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A25873E8FDB2729C31DE476 /* Build configuration list for PBXNativeTarget "TamiasUITests" */;
+			buildPhases = (
+				0B9E5BF2EBE3F914A055A1ED /* Sources */,
+				90DEBCA27D861E553973A60C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				580F257A00989D01BB8EC44F /* PBXTargetDependency */,
+			);
+			name = TamiasUITests;
+			packageProductDependencies = (
+			);
+			productName = TamiasUITests;
+			productReference = 99ACCD5D894056D26975ADC5 /* TamiasUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		08E86D4E78B3AB2FE6BE6F83 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					137D8167E288CC4CD479FFF0 = {
+						DevelopmentTeam = T29NU9NCA2;
+						ProvisioningStyle = Automatic;
+					};
+					B80EBD437715A82DB638AE4D = {
+						DevelopmentTeam = T29NU9NCA2;
+						ProvisioningStyle = Automatic;
+					};
+					E3736712AA50A51AF26147F1 = {
+						DevelopmentTeam = T29NU9NCA2;
+						ProvisioningStyle = Automatic;
+					};
+					FB2DC00DFBB1AD2027DF1566 = {
+						DevelopmentTeam = T29NU9NCA2;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 137D8167E288CC4CD479FFF0;
+					};
+				};
+			};
+			buildConfigurationList = F5A5AAC97D4AF941A0B6B199 /* Build configuration list for PBXProject "Tamias" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = D98F442C801F76287D4E706D;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 311926A418441140FD7CD5E9 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				137D8167E288CC4CD479FFF0 /* Tamias */,
+				B80EBD437715A82DB638AE4D /* TamiasShare */,
+				E3736712AA50A51AF26147F1 /* TamiasTests */,
+				FB2DC00DFBB1AD2027DF1566 /* TamiasUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		222920B7D80FA8031D848CBB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				62F718DDB3E6D7FC92634EC8 /* Assets.xcassets in Resources */,
+				1055E2A5FBA540C3D46DE539 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		90DEBCA27D861E553973A60C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D59CF77699EA839DAB8A2781 /* SAMPLE-receipt.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0B9E5BF2EBE3F914A055A1ED /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E3B7450763C6C16CBC7C251 /* ReceiptImportUITests.swift in Sources */,
+				B46D1E21A3B1B8008AEEE105 /* ReceiptRecognitionUITests.swift in Sources */,
+				CEDF258C9303084B3A506C44 /* ReceiptShareUITests.swift in Sources */,
+				9DBAFB2FF791B73033698014 /* TamiasUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		525C76B700E8911E5AEE4C84 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				30FD3E05CAC1B48D470141BD /* ShareViewController.swift in Sources */,
+				563F2E247D38B74CB4884A2D /* SharedReceiptQueue.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A6AAA980B03B36FD9B39A2AA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				21C62ECE9CAB711A174A75B9 /* InvoiceComposerTests.swift in Sources */,
+				BF60FF30E0CD3A1005F2092F /* ReceiptCaptureTests.swift in Sources */,
+				C14DE92F5CC4E7D206BAB256 /* TamiasCoreTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ED00E21CE2B234A279FFEE8B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7CC9FD49E254A5D5DA325A10 /* APIClient.swift in Sources */,
+				264A70FF616508CB139ED052 /* ActivityView.swift in Sources */,
+				61B4DBF5CEE9913ABD00AE4C /* InboxView.swift in Sources */,
+				213956898227CE6BA4317C31 /* InvoicesView.swift in Sources */,
+				75D3710ED3A2CC909EEC3DF2 /* LocalStorage.swift in Sources */,
+				06761093166D88D0225EA966 /* Models.swift in Sources */,
+				7E647BC16FCBB86BE5F76C0E /* OverviewView.swift in Sources */,
+				F23F61FA3B5AEA109CB9C34C /* ReceiptCaptureSheet.swift in Sources */,
+				19967E6A1CCBBFAAEF31F702 /* ReceiptFormComponents.swift in Sources */,
+				CEBDE8AF60075014498B599B /* ReceiptRecognition.swift in Sources */,
+				CCD229245190C3C767F96EC7 /* ReceiptReviewView.swift in Sources */,
+				9E9A50548B2D36049536DB90 /* SampleWorkspace.swift in Sources */,
+				CA81B925496C4F3B28ABC303 /* SharedReceiptInboxSection.swift in Sources */,
+				84D645C4470AE8254AD21A7E /* SharedReceiptQueue.swift in Sources */,
+				563AE97384491A444DCADB73 /* TamiasApp.swift in Sources */,
+				02C5D3A0B177666B35746783 /* TamiasStore.swift in Sources */,
+				0F7CF1AF238C658AB06F7CD3 /* TamiasTheme.swift in Sources */,
+				837FEDE3F099EB99A7119D6F /* TaxFilingModels.swift in Sources */,
+				3E9581EDC6C3077FBD1D796E /* TaxFilingView.swift in Sources */,
+				2B51A4A39271C23EDC0203D6 /* TaxModels.swift in Sources */,
+				C4F797EA6063CCC0096EA46F /* TaxPreparationView.swift in Sources */,
+				0948C370E1060F100B37B52A /* TaxProfileSheet.swift in Sources */,
+				B06D622DBAF152B405A954DC /* TaxTransactionsView.swift in Sources */,
+				9B23F634CC2E77064715EF1E /* TaxView.swift in Sources */,
+				B3E8F8B51E330F4C7FF280B1 /* TaxWorkspace.swift in Sources */,
+				B6CF1CF8F6DBEFC0E245BB0C /* WorkflowAPIClient.swift in Sources */,
+				C7A9B0321968CE2BBAB5292D /* WorkflowModels.swift in Sources */,
+				BDB3B12F87FBB34F4C3A5D8A /* WorkspaceSettingsView.swift in Sources */,
+				00391D988E2E5EBF407DF7E1 /* WorkspaceSnapshot.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		580F257A00989D01BB8EC44F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 137D8167E288CC4CD479FFF0 /* Tamias */;
+			targetProxy = 58B835D1151D48D454F0BD1C /* PBXContainerItemProxy */;
+		};
+		BBFC1474E0815C48C5A7EC92 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B80EBD437715A82DB638AE4D /* TamiasShare */;
+			targetProxy = 8BDD54B4F2BCB19E28911738 /* PBXContainerItemProxy */;
+		};
+		D174E565DA68613D2725663F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 137D8167E288CC4CD479FFF0 /* Tamias */;
+			targetProxy = A38EAA53120D203B2E3C82BA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		10F9E810278F41AF5C263CB5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 4;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = T29NU9NCA2;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.2.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		6FB4C1C39FCC70E28353B04D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.erlinhoxha.tamias.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Tamias;
+			};
+			name = Debug;
+		};
+		BB8D844617F989D79330E926 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = config/TamiasShare.entitlements;
+				INFOPLIST_FILE = config/ShareInfo.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.erlinhoxha.tamias.share;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C0D1123550D402390D1D715A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = config/Tamias.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = config/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.erlinhoxha.tamias;
+				PRODUCT_NAME = Tamias;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		C2105D02CE4EFFA711D65F1C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 4;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = T29NU9NCA2;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.2.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		C912C1358B51226E94823D5A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = config/TamiasShare.entitlements;
+				INFOPLIST_FILE = config/ShareInfo.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.erlinhoxha.tamias.share;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		D1B1C8136492A1A670E38DAF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.erlinhoxha.tamias.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Tamias;
+			};
+			name = Release;
+		};
+		DD58157ABC71E7B50B659B41 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.erlinhoxha.tamias.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tamias.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Tamias";
+			};
+			name = Debug;
+		};
+		E5180687800D4D9C0705762D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = config/Tamias.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = config/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.erlinhoxha.tamias;
+				PRODUCT_NAME = Tamias;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		E7F04E8696610016423F49AE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.erlinhoxha.tamias.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tamias.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Tamias";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0F10F483612567FF27B2113B /* Build configuration list for PBXNativeTarget "Tamias" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E5180687800D4D9C0705762D /* Debug */,
+				C0D1123550D402390D1D715A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		1A25873E8FDB2729C31DE476 /* Build configuration list for PBXNativeTarget "TamiasUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6FB4C1C39FCC70E28353B04D /* Debug */,
+				D1B1C8136492A1A670E38DAF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		1A9E2923B761E96034DF08DE /* Build configuration list for PBXNativeTarget "TamiasShare" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB8D844617F989D79330E926 /* Debug */,
+				C912C1358B51226E94823D5A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		96B8018CD4B244C5B320005C /* Build configuration list for PBXNativeTarget "TamiasTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DD58157ABC71E7B50B659B41 /* Debug */,
+				E7F04E8696610016423F49AE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F5A5AAC97D4AF941A0B6B199 /* Build configuration list for PBXProject "Tamias" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C2105D02CE4EFFA711D65F1C /* Debug */,
+				10F9E810278F41AF5C263CB5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 08E86D4E78B3AB2FE6BE6F83 /* Project object */;
+}

@@ -14,6 +14,9 @@ import {
   updateSyncedAttachmentMapping,
   upsertAccountingSyncRecord,
 } from "./records";
+import { getFullTransactionData } from "../transactions/shared/details";
+import { upsertTransactionsInD1 } from "../transactions/d1";
+import { buildProcessedTransactionPage } from "../transactions/reads-process";
 
 class SqliteD1Statement implements CloudflareD1PreparedStatementBinding {
   constructor(
@@ -83,7 +86,7 @@ class SqliteD1Database implements CloudflareD1DatabaseBinding {
   }
 }
 
-function createD1() {
+function createD1(includeTransactionDetails = false) {
   const sqlite = new SqliteDatabase(":memory:");
   const d1 = new SqliteD1Database(sqlite);
   const migration = readFileSync(
@@ -92,8 +95,25 @@ function createD1() {
   );
 
   sqlite.exec(migration);
+  if (includeTransactionDetails) {
+    for (const name of [
+      "0003_tags.sql",
+      "0004_bank_accounts.sql",
+      "0005_bank_connections.sql",
+      "0020_identity_core.sql",
+      "0039_transaction_attachments.sql",
+      "0041_inbox_items.sql",
+      "0044_transaction_categories.sql",
+      "0047_transactions.sql",
+    ]) {
+      sqlite.exec(
+        readFileSync(resolve(import.meta.dir, "../../../../../api/migrations/d1", name), "utf8"),
+      );
+    }
+  }
 
   return {
+    d1,
     db: createDatabase({
       cloudflare: { d1 },
     }),
@@ -102,6 +122,74 @@ function createD1() {
 }
 
 describe("accounting sync D1", () => {
+  test("transaction detail and mutation reads preserve the list export state without cross-team leakage", async () => {
+    const { db, d1, close } = createD1(true);
+    const teamId = "transaction-export-flags-team";
+    try {
+      const transactions = await upsertTransactionsInD1(d1, {
+        teamId,
+        transactions: [
+          { id: "synced", status: "completed" as const },
+          { id: "failed", status: "completed" as const },
+          { id: "exported", status: "exported" as const },
+          { id: "other-team-sync", status: "completed" as const },
+        ].map((item) => ({
+          ...item,
+          createdAt: "2026-09-08T00:00:00Z",
+          date: "2026-09-08",
+          name: item.id,
+          internalId: item.id,
+          method: "card_purchase" as const,
+          amount: -25,
+          currency: "GBP",
+          manual: false,
+        })),
+      });
+      for (const transactionId of ["synced", "failed", "other-team-sync"]) {
+        await upsertAccountingSyncRecord(db, {
+          teamId: transactionId === "other-team-sync" ? "different-team" : teamId,
+          transactionId,
+          provider: "quickbooks",
+          providerTenantId: "provider-tenant",
+          status: transactionId === "failed" ? "failed" : "synced",
+        });
+      }
+      const page = await buildProcessedTransactionPage({
+        db,
+        teamId,
+        transactions,
+        cursor: null,
+        nextCursor: null,
+        hasNextPage: false,
+      });
+      for (const row of page.data) {
+        expect(await getFullTransactionData(db, row.id, teamId)).toMatchObject({
+          isFulfilled: row.isFulfilled,
+          isExported: row.isExported,
+          hasExportError: row.hasExportError,
+        });
+      }
+      expect(page.data.find((row) => row.id === "synced")).toMatchObject({
+        isExported: true,
+        hasExportError: false,
+      });
+      expect(page.data.find((row) => row.id === "failed")).toMatchObject({
+        isExported: false,
+        hasExportError: true,
+      });
+      expect(page.data.find((row) => row.id === "exported")).toMatchObject({
+        isExported: true,
+        hasExportError: false,
+      });
+      expect(page.data.find((row) => row.id === "other-team-sync")).toMatchObject({
+        isExported: false,
+        hasExportError: false,
+      });
+    } finally {
+      close();
+    }
+  });
+
   test("upserts, lists, updates, and deletes sync records", async () => {
     const { db, close } = createD1();
 

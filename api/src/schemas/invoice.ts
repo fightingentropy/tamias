@@ -734,6 +734,8 @@ export const getInvoiceByTokenSchema = z.object({
 // Invoice creation schemas with TipTap validation
 export const createInvoiceRequestSchema = z
   .object({
+    expectedCustomerEmail: z.string().email().optional(),
+    expectedBillingEmails: z.array(z.string().email()).max(50).optional(),
     template: restUpsertInvoiceTemplateSchema.openapi({
       description: "Invoice template details",
     }),
@@ -837,9 +839,9 @@ export const createInvoiceRequestSchema = z
     lineItems: z.array(restDraftLineItemSchema).optional().openapi({
       description: "List of line items for the invoice",
     }),
-    deliveryType: z.enum(["create", "create_and_send", "scheduled"]).openapi({
+    deliveryType: z.enum(["draft", "create", "create_and_send", "scheduled"]).openapi({
       description:
-        "How the invoice should be processed: 'create' - finalize immediately, 'create_and_send' - finalize and send to customer, 'scheduled' - schedule for automatic processing at specified date",
+        "How the invoice should be processed: 'draft' - save without issuing or sending, 'create' - finalize immediately, 'create_and_send' - finalize and send to customer, 'scheduled' - schedule for automatic processing at specified date",
       example: "create",
     }),
     scheduledAt: z.string().datetime({ offset: true }).optional().openapi({

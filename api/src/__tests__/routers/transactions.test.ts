@@ -86,6 +86,38 @@ describe("REST: GET /transactions", () => {
     expect(json.data).toEqual([]);
   });
 
+  test("preserves the derived export flags used for offline status filters", async () => {
+    mocks.getTransactions.mockReturnValue(
+      createTransactionsListResponse([
+        {
+          ...createValidTransactionResponse(),
+          isFulfilled: true,
+          isExported: true,
+          hasExportError: false,
+        },
+        {
+          ...createValidTransactionResponse(),
+          isFulfilled: true,
+          isExported: false,
+          hasExportError: true,
+        },
+      ]),
+    );
+    const response = await app.request("/transactions");
+    expect(response.status).toBe(200);
+    const result = (await response.json()) as TransactionListResponse;
+    expect(result.data[0]).toMatchObject({
+      isFulfilled: true,
+      isExported: true,
+      hasExportError: false,
+    });
+    expect(result.data[1]).toMatchObject({
+      isFulfilled: true,
+      isExported: false,
+      hasExportError: true,
+    });
+  });
+
   test("handles transactions with nested category", async () => {
     mocks.getTransactions.mockImplementation(() =>
       createTransactionsListResponse([createTransactionWithCategory()]),
@@ -317,6 +349,26 @@ describe("REST: PATCH /transactions/:id", () => {
     expect(res.status).toBe(200);
     const json = (await res.json()) as TransactionResponse;
     expect(json.status).toBe("archived");
+  });
+
+  test("preserves export flags in updated transactions", async () => {
+    mocks.updateTransaction.mockReturnValue({
+      ...createValidTransactionResponse(),
+      isFulfilled: true,
+      isExported: true,
+      hasExportError: false,
+    });
+    const response = await app.request("/transactions/b3b7c8e2-1f2a-4c3d-9e4f-5a6b7c8d9e0f", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ note: "Reviewed" }),
+    });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({
+      isFulfilled: true,
+      isExported: true,
+      hasExportError: false,
+    });
   });
 
   test("updates transaction category", async () => {

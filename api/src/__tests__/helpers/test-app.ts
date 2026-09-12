@@ -1,10 +1,12 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { createMiddleware } from "hono/factory";
 import type { Context } from "../../rest/types";
+import { createRestErrorResponse } from "../../rest/error-response";
 
 export interface TestAppOptions {
   teamId?: string;
   userId?: string;
+  scopes?: Context["Variables"]["scopes"];
 }
 
 /**
@@ -15,6 +17,7 @@ export function createTestApp(options: TestAppOptions = {}) {
   const { teamId = "test-team-id", userId = "test-user-id" } = options;
 
   const app = new OpenAPIHono<Context>();
+  app.onError(createRestErrorResponse);
   const testEnv = {
     RATE_LIMIT_COORDINATOR: {
       getByName() {
@@ -44,16 +47,22 @@ export function createTestApp(options: TestAppOptions = {}) {
       });
       c.set("db", {} as Context["Variables"]["db"]); // Mock DB instance - actual queries are mocked at module level
       // Set all scopes for testing (grants full access)
-      c.set("scopes", [
-        "transactions.read",
-        "transactions.write",
-        "invoices.read",
-        "invoices.write",
-        "customers.read",
-        "customers.write",
-        "bank_accounts.read",
-        "bank_accounts.write",
-      ] as Context["Variables"]["scopes"]);
+      c.set(
+        "scopes",
+        options.scopes ??
+          ([
+            "transactions.read",
+            "transactions.write",
+            "inbox.read",
+            "inbox.write",
+            "invoices.read",
+            "invoices.write",
+            "customers.read",
+            "customers.write",
+            "bank_accounts.read",
+            "bank_accounts.write",
+          ] as Context["Variables"]["scopes"]),
+      );
       await next();
     }),
   );

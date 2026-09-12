@@ -70,6 +70,9 @@
   "env": {
     "production": {
       "name": "tamias-documents",
+      // Internal service-binding and queue consumers must not expose unauthenticated HTTP routes.
+      "workers_dev": false,
+      "preview_urls": false,
       "images": { "binding": "IMAGES", "remote": true },
       "send_email": [
         {

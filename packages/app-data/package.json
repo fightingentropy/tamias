@@ -28,6 +28,8 @@
     "./queries/invoices": "./src/queries/invoices.ts",
     "./queries/payroll": "./src/queries/payroll.ts",
     "./queries/reports": "./src/queries/reports.ts",
+    "./queries/self-assessment": "./src/queries/self-assessment.ts",
+    "./queries/self-assessment-filings": "./src/queries/self-assessment-filings.ts",
     "./queries/short-links": "./src/queries/short-links.ts",
     "./queries/suggested-actions": "./src/queries/suggested-actions.ts",
     "./queries/tags": "./src/queries/tags.ts",

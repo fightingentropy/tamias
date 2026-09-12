@@ -1,5 +1,6 @@
 import { resolveTaxValues } from "@tamias/utils/tax";
 import type { Database } from "../../../client";
+import { getAccountingSyncStatus } from "../../accounting-sync";
 import { getBankAccounts } from "../../bank-accounts";
 import { getTeamMembers } from "../../teams/reads";
 import { getTransactionAttachmentsForTransactionIds } from "../../transaction-attachments";
@@ -20,6 +21,7 @@ import {
   buildTransactionAttachmentLookups,
   buildTransactionTagLookups,
 } from "./lookups";
+import { buildAccountingSyncLookups } from "./serialization";
 import { buildTransactionCategorySummary } from "./types";
 
 export async function getPendingSuggestionTransactionIds(_db: Database, teamId: string) {
@@ -87,7 +89,7 @@ export async function getPendingSuggestionForTransaction(
 }
 
 export async function getFullTransactionData(db: Database, transactionId: string, teamId: string) {
-  const [teamMembers, result, suggestion, bankAccounts] = await Promise.all([
+  const [teamMembers, result, suggestion, bankAccounts, accountingSyncRecords] = await Promise.all([
     getTeamMembers(db, teamId),
     getTransactionByIdFromD1(requireTransactionsD1(db), {
       teamId,
@@ -98,6 +100,7 @@ export async function getFullTransactionData(db: Database, transactionId: string
       transactionId,
     }),
     getBankAccounts(db, { teamId }),
+    getAccountingSyncStatus(db, { teamId, transactionIds: [transactionId] }),
   ]);
 
   if (!result) {
@@ -105,6 +108,8 @@ export async function getFullTransactionData(db: Database, transactionId: string
   }
 
   const assignedUserById = buildAssignedUserLookup(teamMembers);
+  const { syncedByTransactionId, errorByTransactionId } =
+    buildAccountingSyncLookups(accountingSyncRecords);
   const categoryContext = await getTransactionCategoryContext(db, teamId);
 
   const { attachmentsByTransactionId } = buildTransactionAttachmentLookups(
@@ -162,6 +167,8 @@ export async function getFullTransactionData(db: Database, transactionId: string
       size: attachment.size,
     })),
     isFulfilled: result.hasAttachment || result.status === "completed",
+    isExported: result.status === "exported" || syncedByTransactionId.has(result.id),
+    hasExportError: errorByTransactionId.has(result.id),
     account: normalizedAccount,
     assigned: buildAssignedTransactionUser(
       result.assignedId ? assignedUserById.get(result.assignedId) : undefined,

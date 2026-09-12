@@ -28,6 +28,8 @@ interface TransactionResponse {
   manual: boolean | null;
   frequency: string | null;
   isFulfilled: boolean;
+  isExported?: boolean;
+  hasExportError?: boolean;
   note: string | null;
   account: {
     id: string;

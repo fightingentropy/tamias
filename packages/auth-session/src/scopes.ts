@@ -7,6 +7,8 @@ export const SCOPES = [
   "customers.write",
   "documents.read",
   "documents.write",
+  "filings.read",
+  "filings.write",
   "inbox.read",
   "inbox.write",
   "insights.read",

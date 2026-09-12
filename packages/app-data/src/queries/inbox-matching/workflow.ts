@@ -28,6 +28,14 @@ export type PersistInboxSuggestionCandidate = Pick<
   | "matchType"
 >;
 
+export function resolveInboxSuggestionMatchType(
+  matchType: PersistInboxSuggestionCandidate["matchType"],
+  meta: Record<string, unknown> | null | undefined,
+) {
+  // Native receipts are human-reviewed captures: a good candidate is still a proposal.
+  return meta?.source === "native" && matchType === "auto_matched" ? "high_confidence" : matchType;
+}
+
 export async function persistInboxSuggestionWorkflow(
   db: Database,
   params: {
@@ -38,9 +46,15 @@ export async function persistInboxSuggestionWorkflow(
   },
 ): Promise<{
   action: "auto_matched" | "suggestion_created";
+  matchType: PersistInboxSuggestionCandidate["matchType"];
 }> {
   const { teamId, inboxId, candidate, source } = params;
-  const shouldAutoMatch = candidate.matchType === "auto_matched";
+  const item = await getInboxItemByIdFromD1(requireInboxItemsD1(db), { teamId, inboxId });
+  if (!item || item.status === "deleted" || item.transactionId) {
+    throw new Error("Receipt is no longer available for transaction suggestions");
+  }
+  const matchType = resolveInboxSuggestionMatchType(candidate.matchType, item.meta);
+  const shouldAutoMatch = matchType === "auto_matched";
 
   if (shouldAutoMatch) {
     await createMatchSuggestion(db, {
@@ -73,7 +87,7 @@ export async function persistInboxSuggestionWorkflow(
       teamId,
     });
 
-    return { action: "auto_matched" };
+    return { action: "auto_matched", matchType };
   }
 
   const suggestionRow = await createMatchSuggestion(db, {
@@ -85,7 +99,7 @@ export async function persistInboxSuggestionWorkflow(
     currencyScore: candidate.currencyScore,
     dateScore: candidate.dateScore,
     nameScore: candidate.nameScore,
-    matchType: candidate.matchType,
+    matchType,
     status: "pending",
     matchDetails: {
       calculatedAt: new Date().toISOString(),
@@ -109,7 +123,7 @@ export async function persistInboxSuggestionWorkflow(
       teamId,
       status: "pending",
     });
-    return { action: "suggestion_created" };
+    return { action: "suggestion_created", matchType };
   }
 
   await updateInbox(db, {
@@ -118,7 +132,7 @@ export async function persistInboxSuggestionWorkflow(
     status: "suggested_match",
   });
 
-  return { action: "suggestion_created" };
+  return { action: "suggestion_created", matchType };
 }
 
 export function shouldResetInboxToPendingAfterSuggestionFailure(
@@ -144,6 +158,9 @@ export async function calculateInboxSuggestions(
   const { teamId, inboxId, excludeTransactionIds } = params;
 
   try {
+    const current = await getInboxItemByIdFromD1(requireInboxItemsD1(db), { teamId, inboxId });
+    if (!current || current.status === "deleted" || current.transactionId)
+      return { action: "no_match_yet" };
     await updateInbox(db, {
       id: inboxId,
       teamId,
@@ -166,7 +183,7 @@ export async function calculateInboxSuggestions(
       return { action: "no_match_yet" };
     }
 
-    const { action } = await persistInboxSuggestionWorkflow(db, {
+    const { action, matchType } = await persistInboxSuggestionWorkflow(db, {
       teamId,
       inboxId,
       candidate: bestMatch,
@@ -174,7 +191,7 @@ export async function calculateInboxSuggestions(
 
     return {
       action,
-      suggestion: bestMatch,
+      suggestion: { ...bestMatch, matchType },
     };
   } catch (error) {
     try {

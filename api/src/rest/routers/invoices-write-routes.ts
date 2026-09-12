@@ -4,16 +4,19 @@ import {
   deleteInvoice,
   draftInvoice,
   getCustomerById,
+  getInvoiceById,
   getInvoiceNumberConflictMessage,
   getInvoiceTemplate,
   isInvoiceNumberConflictError,
   updateInvoice,
 } from "@tamias/app-data/queries";
+import type { Database } from "@tamias/app-data/client";
 import { transformCustomerToContent } from "@tamias/invoice/utils";
 import { addDays } from "date-fns";
 import { HTTPException } from "hono/http-exception";
 import { v4 as uuidv4 } from "uuid";
 import { runIdempotentInvoiceMutation } from "../../invoice/mutation-safety";
+import { getRestInvoiceTotals } from "../../invoice/rest-totals";
 import {
   assertScheduledAtInFuture,
   createScheduledInvoiceJob,
@@ -32,7 +35,7 @@ import {
   updateInvoiceResponseSchema,
 } from "../../schemas/invoice";
 import { validateResponse } from "../../utils/validate-response";
-import { withRequiredScope } from "../middleware";
+import { withRequiredScope } from "../middleware/scope";
 import type { Context } from "../types";
 import { requireRestUserId, restInvoiceLogger, serializeInvoiceForRest } from "./invoices-shared";
 
@@ -44,6 +47,226 @@ function requireIdempotencyKey(value: string | undefined) {
   return key;
 }
 
+async function saveRestInvoice(args: {
+  db: Database;
+  teamId: string;
+  userId: string;
+  input: z.infer<typeof draftInvoiceRequestSchema>;
+  idempotencyKey: string;
+  action: string;
+  invoiceId?: string;
+}) {
+  const { db, teamId, userId, input, idempotencyKey } = args;
+  const invoiceId = args.invoiceId ?? uuidv4();
+  const createdInvoice = await runIdempotentInvoiceMutation({
+    db,
+    teamId,
+    userId,
+    action: args.action,
+    resourceId: invoiceId,
+    idempotencyKey,
+    request: args.invoiceId ? { ...input, id: args.invoiceId } : input,
+    mutate: async ({ markMutationApplied }) => {
+      const existing = args.invoiceId
+        ? await getInvoiceById(db, { id: args.invoiceId, teamId })
+        : null;
+      if (args.invoiceId && !existing)
+        throw new HTTPException(404, { message: "Invoice not found" });
+      if (existing && existing.status !== "draft")
+        throw new HTTPException(409, {
+          message: "Only draft invoices can be edited or issued through this endpoint",
+        });
+      const finalInvoiceNumber =
+        input.invoiceNumber ||
+        existing?.invoiceNumber ||
+        (await allocateNextInvoiceNumber(db, teamId));
+      const template = await getInvoiceTemplate(db, teamId);
+      const paymentTermsDays = template?.paymentTermsDays ?? 30;
+      const issueDate = input.issueDate || new Date().toISOString();
+      const dueDate = input.dueDate || addDays(new Date(issueDate), paymentTermsDays).toISOString();
+
+      const customer = await getCustomerById(db, {
+        id: input.customerId,
+        teamId,
+      });
+
+      if (!customer) {
+        throw new HTTPException(404, { message: "Customer not found" });
+      }
+
+      if (
+        input.deliveryType === "create_and_send" &&
+        (input.expectedCustomerEmail !== undefined || input.expectedBillingEmails !== undefined)
+      ) {
+        const normalize = (value: string) => value.trim().toLowerCase();
+        const emails = (values: string[]) =>
+          [...new Set(values.map(normalize).filter(Boolean))].sort();
+        const billing = emails((customer.billingEmail ?? "").split(","));
+        if (
+          !input.expectedCustomerEmail ||
+          input.expectedBillingEmails === undefined ||
+          normalize(customer.email ?? "") !== normalize(input.expectedCustomerEmail) ||
+          JSON.stringify(billing) !== JSON.stringify(emails(input.expectedBillingEmails))
+        ) {
+          throw new HTTPException(409, {
+            res: Response.json(
+              {
+                code: "invoice_review_changed",
+                description:
+                  "Invoice recipients changed before this request was applied. Review the customer and recipients before submitting again.",
+              },
+              { status: 409 },
+            ),
+          });
+        }
+      }
+
+      const customerDetails = transformCustomerToContent(customer);
+      const totals = input.lineItems
+        ? getRestInvoiceTotals({
+            ...input,
+            lineItems: input.lineItems.map((item) => ({
+              ...item,
+              taxRate: item.taxRate ?? undefined,
+            })),
+          })
+        : undefined;
+      if (totals && Object.values(totals).some((value) => !Number.isFinite(value))) {
+        throw new HTTPException(400, { message: "Invoice totals must be finite" });
+      }
+      for (const field of ["amount", "vat", "tax"] as const) {
+        if (totals && input[field] != null && Math.abs(input[field] - totals[field]) > 0.000001) {
+          throw new HTTPException(400, {
+            message: `Invoice ${field} does not match the line items, taxes and discount; review the totals`,
+          });
+        }
+      }
+
+      const result = await (async () => {
+        try {
+          markMutationApplied({ invoiceId });
+          return await draftInvoice(db, {
+            id: invoiceId,
+            teamId,
+            userId,
+            invoiceNumber: finalInvoiceNumber,
+            issueDate,
+            dueDate,
+            template: input.template,
+            paymentDetails: input.paymentDetails,
+            fromDetails: input.fromDetails,
+            customerDetails: customerDetails ? JSON.stringify(customerDetails) : null,
+            noteDetails: input.noteDetails,
+            customerId: input.customerId,
+            customerName: customer.name,
+            logoUrl: input.logoUrl,
+            vat: totals?.vat ?? input.vat,
+            tax: totals?.tax ?? input.tax,
+            discount: input.discount,
+            topBlock: input.topBlock,
+            bottomBlock: input.bottomBlock,
+            amount: totals?.amount ?? input.amount,
+            subtotal: totals?.subtotal,
+            lineItems: input.lineItems?.map((item) => ({
+              ...item,
+              name: JSON.stringify(item.name),
+            })),
+          });
+        } catch (error) {
+          if (isInvoiceNumberConflictError(error)) {
+            throw new HTTPException(409, {
+              message: getInvoiceNumberConflictMessage(finalInvoiceNumber),
+            });
+          }
+
+          throw error;
+        }
+      })();
+
+      if (!result) {
+        throw new HTTPException(500, { message: "Failed to create invoice" });
+      }
+      markMutationApplied({ invoiceId: result.id });
+
+      let finalResult = result;
+
+      if (input.deliveryType === "create" || input.deliveryType === "create_and_send") {
+        const updatedInvoice = await updateInvoice(db, {
+          id: result.id,
+          status: "unpaid",
+          teamId,
+          userId,
+        });
+
+        if (!updatedInvoice)
+          throw new HTTPException(500, { message: "Invoice could not be finalized" });
+        finalResult = updatedInvoice;
+
+        await enqueueInvoiceGeneration({
+          invoiceId: result.id,
+          deliveryType: input.deliveryType,
+          expectedCustomerEmail: input.expectedCustomerEmail,
+          expectedBillingEmails: input.expectedBillingEmails,
+        });
+      } else if (input.deliveryType === "scheduled") {
+        if (!input.scheduledAt) {
+          throw new HTTPException(400, {
+            message: "scheduledAt is required for scheduled delivery",
+          });
+        }
+
+        const { delayMs } = assertScheduledAtInFuture(input.scheduledAt, () => {
+          throw new HTTPException(400, {
+            message: "scheduledAt must be in the future",
+          });
+        });
+        let scheduledJobId: string;
+        try {
+          scheduledJobId = await createScheduledInvoiceJob(result.id, delayMs);
+        } catch {
+          throw new HTTPException(500, {
+            message: "Failed to create scheduled job - no job ID returned",
+          });
+        }
+
+        const updatedInvoice = await updateInvoice(db, {
+          id: result.id,
+          status: "scheduled",
+          scheduledAt: input.scheduledAt,
+          scheduledJobId,
+          teamId,
+          userId,
+        });
+
+        if (!updatedInvoice) {
+          await removeInvoiceJob(scheduledJobId, {
+            logFailureMessage: "Failed to clean up orphaned scheduled job",
+            logger: restInvoiceLogger,
+          });
+
+          throw new HTTPException(404, {
+            message: "Invoice not found",
+          });
+        }
+
+        finalResult = updatedInvoice;
+
+        enqueueInvoiceScheduledNotification({
+          teamId,
+          invoiceId: result.id,
+          invoiceNumber: finalResult.invoiceNumber!,
+          scheduledAt: input.scheduledAt,
+          customerName: finalResult.customerName ?? undefined,
+        });
+      }
+
+      return finalResult;
+    },
+  });
+
+  return createdInvoice;
+}
+
 export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
   app.openapi(
     createRoute({
@@ -53,7 +276,7 @@ export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
       operationId: "createInvoice",
       "x-speakeasy-name-override": "create",
       description:
-        "Create an invoice for the authenticated team. The behavior depends on deliveryType: 'create' generates and finalizes the invoice immediately, 'create_and_send' also sends it to the customer, 'scheduled' schedules the invoice for automatic processing at the specified date.",
+        "Create an invoice for the authenticated team. The behavior depends on deliveryType: 'draft' saves a draft without issuing or sending; 'create' generates and finalizes the invoice immediately, 'create_and_send' also sends it to the customer, 'scheduled' schedules the invoice for automatic processing at the specified date.",
       tags: ["Invoices"],
       request: {
         headers: z.object({ "Idempotency-Key": idempotencyKeySchema }),
@@ -68,7 +291,7 @@ export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
       responses: {
         201: {
           description:
-            "Invoice created successfully. Status depends on deliveryType: 'scheduled' for scheduled invoices, 'unpaid' for create/create_and_send.",
+            "Invoice created successfully. Status depends on deliveryType: 'draft' for drafts, 'scheduled' for scheduled invoices, 'unpaid' for create/create_and_send.",
           content: {
             "application/json": {
               schema: draftInvoiceResponseSchema,
@@ -143,151 +366,13 @@ export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
       const userId = requireRestUserId(session);
       const idempotencyKey = requireIdempotencyKey(c.req.header("idempotency-key"));
 
-      const invoiceId = uuidv4();
-      const createdInvoice = await runIdempotentInvoiceMutation({
+      const createdInvoice = await saveRestInvoice({
         db,
         teamId,
         userId,
-        action: "rest.create",
-        resourceId: invoiceId,
+        input,
         idempotencyKey,
-        request: input,
-        mutate: async ({ markMutationApplied }) => {
-          const finalInvoiceNumber =
-            input.invoiceNumber || (await allocateNextInvoiceNumber(db, teamId));
-          const template = await getInvoiceTemplate(db, teamId);
-          const paymentTermsDays = template?.paymentTermsDays ?? 30;
-          const issueDate = input.issueDate || new Date().toISOString();
-          const dueDate =
-            input.dueDate || addDays(new Date(issueDate), paymentTermsDays).toISOString();
-
-          const customer = await getCustomerById(db, {
-            id: input.customerId,
-            teamId,
-          });
-
-          if (!customer) {
-            throw new HTTPException(404, { message: "Customer not found" });
-          }
-
-          const customerDetails = transformCustomerToContent(customer);
-
-          const result = await (async () => {
-            try {
-              return await draftInvoice(db, {
-                id: invoiceId,
-                teamId,
-                userId,
-                invoiceNumber: finalInvoiceNumber,
-                issueDate,
-                dueDate,
-                template: input.template,
-                paymentDetails: input.paymentDetails,
-                fromDetails: input.fromDetails,
-                customerDetails: customerDetails ? JSON.stringify(customerDetails) : null,
-                noteDetails: input.noteDetails,
-                customerId: input.customerId,
-                customerName: customer.name,
-                logoUrl: input.logoUrl,
-                vat: input.vat,
-                tax: input.tax,
-                discount: input.discount,
-                topBlock: input.topBlock,
-                bottomBlock: input.bottomBlock,
-                amount: input.amount,
-                lineItems: input.lineItems?.map((item) => ({
-                  ...item,
-                  name: JSON.stringify(item.name),
-                })),
-              });
-            } catch (error) {
-              if (isInvoiceNumberConflictError(error)) {
-                throw new HTTPException(409, {
-                  message: getInvoiceNumberConflictMessage(finalInvoiceNumber),
-                });
-              }
-
-              throw error;
-            }
-          })();
-
-          if (!result) {
-            throw new HTTPException(500, { message: "Failed to create invoice" });
-          }
-          markMutationApplied({ invoiceId: result.id });
-
-          let finalResult = result;
-
-          if (input.deliveryType === "create" || input.deliveryType === "create_and_send") {
-            const updatedInvoice = await updateInvoice(db, {
-              id: result.id,
-              status: "unpaid",
-              teamId,
-              userId,
-            });
-
-            if (updatedInvoice) {
-              finalResult = updatedInvoice;
-            }
-
-            await enqueueInvoiceGeneration({
-              invoiceId: result.id,
-              deliveryType: input.deliveryType,
-            });
-          } else if (input.deliveryType === "scheduled") {
-            if (!input.scheduledAt) {
-              throw new HTTPException(400, {
-                message: "scheduledAt is required for scheduled delivery",
-              });
-            }
-
-            const { delayMs } = assertScheduledAtInFuture(input.scheduledAt, () => {
-              throw new HTTPException(400, {
-                message: "scheduledAt must be in the future",
-              });
-            });
-            let scheduledJobId: string;
-            try {
-              scheduledJobId = await createScheduledInvoiceJob(result.id, delayMs);
-            } catch {
-              throw new HTTPException(500, {
-                message: "Failed to create scheduled job - no job ID returned",
-              });
-            }
-
-            const updatedInvoice = await updateInvoice(db, {
-              id: result.id,
-              status: "scheduled",
-              scheduledAt: input.scheduledAt,
-              scheduledJobId,
-              teamId,
-              userId,
-            });
-
-            if (!updatedInvoice) {
-              await removeInvoiceJob(scheduledJobId, {
-                logFailureMessage: "Failed to clean up orphaned scheduled job",
-                logger: restInvoiceLogger,
-              });
-
-              throw new HTTPException(404, {
-                message: "Invoice not found",
-              });
-            }
-
-            finalResult = updatedInvoice;
-
-            enqueueInvoiceScheduledNotification({
-              teamId,
-              invoiceId: result.id,
-              invoiceNumber: finalResult.invoiceNumber!,
-              scheduledAt: input.scheduledAt,
-              customerName: finalResult.customerName ?? undefined,
-            });
-          }
-
-          return finalResult;
-        },
+        action: "rest.create",
       });
 
       return c.json(
@@ -296,6 +381,52 @@ export function registerInvoiceWriteRoutes(app: OpenAPIHono<Context>) {
       );
     },
   );
+
+  for (const operation of ["draft", "issue"] as const) {
+    const schema = draftInvoiceRequestSchema.extend({
+      deliveryType:
+        operation === "draft" ? z.literal("draft") : z.enum(["create", "create_and_send"]),
+      scheduledAt: z.never().openapi({ type: "string", not: {} }).optional(),
+    });
+    app.openapi(
+      createRoute({
+        method: operation === "draft" ? "put" : "post",
+        path: `/{id}/${operation}`,
+        tags: ["Invoices"],
+        operationId: operation === "draft" ? "saveInvoiceDraft" : "issueInvoiceDraft",
+        summary:
+          operation === "draft"
+            ? "Save an existing draft invoice"
+            : "Issue an existing draft invoice",
+        request: {
+          headers: z.object({ "Idempotency-Key": idempotencyKeySchema }),
+          params: getInvoiceByIdSchema.pick({ id: true }),
+          body: { required: true, content: { "application/json": { schema } } },
+        },
+        responses: {
+          200: {
+            description: "Existing invoice updated",
+            content: { "application/json": { schema: draftInvoiceResponseSchema } },
+          },
+        },
+        middleware: [withRequiredScope("invoices.write")],
+      }),
+      async (c) => {
+        const result = await saveRestInvoice({
+          db: c.get("db"),
+          teamId: c.get("teamId"),
+          userId: requireRestUserId(c.get("session")),
+          input: c.req.valid("json"),
+          invoiceId: c.req.valid("param").id,
+          idempotencyKey: requireIdempotencyKey(c.req.header("idempotency-key")),
+          action: `rest.${operation}`,
+        });
+        return c.json(
+          validateResponse(serializeInvoiceForRest(result), draftInvoiceResponseSchema),
+        );
+      },
+    );
+  }
 
   app.openapi(
     createRoute({

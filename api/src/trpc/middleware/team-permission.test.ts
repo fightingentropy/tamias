@@ -1,9 +1,11 @@
 import { describe, expect, mock, test } from "bun:test";
 import { TRPCError } from "@trpc/server";
+import * as identity from "@tamias/app-services/identity";
 
 const getTeamMembershipIds = mock(async () => [] as string[]);
 
 mock.module("@tamias/app-services/identity", () => ({
+  ...identity,
   getTeamMembershipIds,
 }));
 
