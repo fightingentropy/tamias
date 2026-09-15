@@ -76,7 +76,7 @@ const identity: SelfAssessmentIdentity = {
 };
 export function createSelfAssessmentFixture(utr = identity.utr) {
   const testIdentity = { ...identity, utr };
-  return { identity: testIdentity, ...buildSelfAssessmentBody(report, testIdentity) };
+  return { report, identity: testIdentity, ...buildSelfAssessmentBody(report, testIdentity) };
 }
 
 if (import.meta.main) {

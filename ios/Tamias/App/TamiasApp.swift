@@ -2,7 +2,7 @@ import SwiftUI
 
 @main
 struct TamiasApp: App {
-    @State private var store = TamiasStore()
+    @State private var store = makeStore()
     @AppStorage("tamias.appearance") private var appearance = "System"
 
     var body: some Scene {
@@ -11,8 +11,21 @@ struct TamiasApp: App {
                 .tint(TamiasTheme.ink)
                 .foregroundStyle(TamiasTheme.ink)
                 .preferredColorScheme(appearance == "Light" ? .light : appearance == "Dark" ? .dark : nil)
-                .task { if store.isAuthenticated { await store.refresh() } }
+                .task {
+                    #if DEBUG && targetEnvironment(simulator)
+                    if TaxFilingUITestSupport.enabled { await TaxFilingUITestSupport.connect(store); return }
+                    #endif
+                    if store.isAuthenticated { await store.refresh() }
+                }
         }
+    }
+
+    private static func makeStore() -> TamiasStore {
+        #if DEBUG && targetEnvironment(simulator)
+        return TaxFilingUITestSupport.makeStore()
+        #else
+        return TamiasStore()
+        #endif
     }
 }
 

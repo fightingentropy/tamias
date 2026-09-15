@@ -97,6 +97,13 @@ return completed ETS submission, polling, acceptance with a matching IRmark, and
 gateway acknowledgement. This verifies one scenario; software recognition and
 production filing remain disabled.
 
+On 15 September 2026, the Software Developer Support Team was asked to confirm
+recognition for this restricted scope, provide the prescribed scenarios and
+expected results, and specify the application checklist and evidence format.
+Their scenario selection and scope confirmation are still pending. The published
+RIM v1.2 archive supplies schemas and business rules; passing those or the single
+ETS fixture does not establish software recognition.
+
 Run the same synthetic check with the protected configuration:
 
 ```sh
@@ -163,6 +170,32 @@ python scripts/validate-self-assessment.py '/path/to/HMRC RIM MTR 2026 v1.2' /tm
 This validates format, published business rules and IRmark generation. It is not
 proof that HMRC has accepted a test or live return, recognised the software or
 confirmed an individual taxpayer's circumstances.
+
+The native filing checks use the normal SwiftUI views, API client and workspace
+guards with an isolated fictional service. Generate the shared contract fixture
+and run them on an existing simulator:
+
+```sh
+bun --no-env-file scripts/self-assessment-native-fixture.ts
+ios/scripts/xcode.sh generate
+SIMULATOR_ID=<existing-simulator-udid> ios/scripts/xcode.sh test -only-testing:TamiasTests/TaxFilingContractTests -only-testing:TamiasUITests/TaxFilingUITests -parallel-testing-enabled NO
+```
+
+The fixture service is compiled only into Debug simulator builds, requires both
+UI-test launch flags, uses an in-memory credential store and intercepts its
+dedicated URLSession without contacting any network. The scenarios cover incomplete
+identity and declarations, acceptance, a polling error, an uncertain submission,
+rejection, unsupported income and the iOS evidence share sheet. Its receipt is
+explicitly fictional. These checks do not establish HMRC acceptance, recognition,
+physical-device behavior or a real user's authenticated filing flow.
+
+Validation on 15 September 2026 passed all 51 native unit tests, the five filing
+UI scenarios and the existing demo tax-review workflow. The exported simulator
+evidence preserved the original fixture body, receipt and IRmark without
+credentials. The full repository check and signed Release build also passed;
+the Release binary contains none of the fixture host, token or launch-environment
+markers. The paired iPhone opened the Tax tab in its demo workspace, so its
+authenticated filing check remains pending sign-in.
 
 References: [HMRC technical specifications](https://www.gov.uk/government/publications/self-assessment-technical-specifications-2026-for-individual-returns),
 [XML developer setup](https://www.gov.uk/guidance/basic-guide-for-xml-software-developers),

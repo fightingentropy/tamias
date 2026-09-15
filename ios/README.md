@@ -22,8 +22,16 @@ rerun after fixing the bulk-review button's accessibility bounds. The signed
 Release app is installed on the paired iPhone; its inventory shows version 1.2.0,
 build 4, and no UI-test runner apps. The physical walkthrough still requires an
 unlocked phone. Local screenshots and installation evidence are in the ignored
-`artifacts/tax-20260908/`. No real return was submitted and HMRC test acceptance
-has not been verified.
+`artifacts/tax-20260908/`. No real return was submitted. A separate synthetic
+return completed HMRC ETS acceptance on 15 September 2026; see the current
+[filing verification and recognition status](../docs/self-assessment.md).
+
+On 15 September 2026, all 51 native unit tests and six targeted Tax UI workflows
+passed on the existing iPhone simulator. This includes preparation, declaration,
+acceptance, polling retries, uncertain outcomes, rejection, scope blocking and
+the system receipt share sheet with fictional API responses. The signed Release
+build passed verification and excludes the fixture service. The physical Tax tab
+was opened in demo mode; an authenticated device check still requires sign-in.
 
 Open `Tamias.xcodeproj` in a full Xcode installation. The checked-in project is generated from `project.yml` with [XcodeGen](https://github.com/yonaskolb/XcodeGen). Regenerate after adding or removing Swift files:
 

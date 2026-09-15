@@ -101,6 +101,7 @@ targets:
     platform: iOS
     sources:
       - path: TamiasTests
+      - path: TamiasUITests/Fixtures/SelfAssessment.json
     dependencies:
       - target: Tamias
     settings:

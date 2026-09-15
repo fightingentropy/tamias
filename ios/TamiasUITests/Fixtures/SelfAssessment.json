@@ -1,0 +1,356 @@
+{
+  "report": {
+    "taxYear": 2025,
+    "start": "2025-04-06",
+    "end": "2026-04-05",
+    "endExclusive": "2026-04-06",
+    "label": "2025/26",
+    "deadline": "2027-01-31",
+    "generatedAt": "2026-09-01T00:00:00.000Z",
+    "currency": "GBP",
+    "profile": {
+      "businessName": "Example Studio",
+      "businessDescription": "Design & print",
+      "soleTrader": true,
+      "cashBasis": true,
+      "recordsComplete": true,
+      "adjustmentsReviewed": true,
+      "otherIncomeReviewed": true,
+      "additionalSections": []
+    },
+    "categories": [
+      {
+        "id": "turnover",
+        "name": "Sales",
+        "box": "9",
+        "kind": "income"
+      },
+      {
+        "id": "other_income",
+        "name": "Other business income",
+        "box": "10",
+        "kind": "income"
+      },
+      {
+        "id": "goods",
+        "name": "Goods and materials",
+        "box": "11",
+        "kind": "expense"
+      },
+      {
+        "id": "travel",
+        "name": "Car and travel",
+        "box": "12",
+        "kind": "expense"
+      },
+      {
+        "id": "staff",
+        "name": "Staff costs",
+        "box": "13",
+        "kind": "expense"
+      },
+      {
+        "id": "premises",
+        "name": "Rent, utilities and insurance",
+        "box": "14",
+        "kind": "expense"
+      },
+      {
+        "id": "repairs",
+        "name": "Repairs and maintenance",
+        "box": "15",
+        "kind": "expense"
+      },
+      {
+        "id": "professional",
+        "name": "Accountancy and legal fees",
+        "box": "16",
+        "kind": "expense"
+      },
+      {
+        "id": "finance",
+        "name": "Interest and bank charges",
+        "box": "17",
+        "kind": "expense"
+      },
+      {
+        "id": "office",
+        "name": "Phone, stationery and office",
+        "box": "18",
+        "kind": "expense"
+      },
+      {
+        "id": "other_expenses",
+        "name": "Other allowable expenses",
+        "box": "19",
+        "kind": "expense"
+      },
+      {
+        "id": "excluded",
+        "name": "Personal, transfer or not allowable",
+        "box": "",
+        "kind": "excluded"
+      }
+    ],
+    "groups": [
+      {
+        "id": "turnover",
+        "name": "Sales",
+        "box": "9",
+        "kind": "income",
+        "amountPence": 4000089
+      },
+      {
+        "id": "other_income",
+        "name": "Other business income",
+        "box": "10",
+        "kind": "income",
+        "amountPence": 0
+      },
+      {
+        "id": "goods",
+        "name": "Goods and materials",
+        "box": "11",
+        "kind": "expense",
+        "amountPence": 0
+      },
+      {
+        "id": "travel",
+        "name": "Car and travel",
+        "box": "12",
+        "kind": "expense",
+        "amountPence": 0
+      },
+      {
+        "id": "staff",
+        "name": "Staff costs",
+        "box": "13",
+        "kind": "expense",
+        "amountPence": 0
+      },
+      {
+        "id": "premises",
+        "name": "Rent, utilities and insurance",
+        "box": "14",
+        "kind": "expense",
+        "amountPence": 0
+      },
+      {
+        "id": "repairs",
+        "name": "Repairs and maintenance",
+        "box": "15",
+        "kind": "expense",
+        "amountPence": 0
+      },
+      {
+        "id": "professional",
+        "name": "Accountancy and legal fees",
+        "box": "16",
+        "kind": "expense",
+        "amountPence": 0
+      },
+      {
+        "id": "finance",
+        "name": "Interest and bank charges",
+        "box": "17",
+        "kind": "expense",
+        "amountPence": 0
+      },
+      {
+        "id": "office",
+        "name": "Phone, stationery and office",
+        "box": "18",
+        "kind": "expense",
+        "amountPence": 34512
+      },
+      {
+        "id": "other_expenses",
+        "name": "Other allowable expenses",
+        "box": "19",
+        "kind": "expense",
+        "amountPence": 0
+      }
+    ],
+    "transactions": [
+      {
+        "id": "income",
+        "name": "Example income",
+        "date": "2025-08-01",
+        "amount": 40000.89,
+        "currency": "GBP",
+        "amountPence": 4000089,
+        "sourceVersion": "[\"2025-08-01\",40000.89,\"GBP\",null,null,\"posted\",false,\"2026-01-01\"]",
+        "category": "turnover",
+        "businessPercent": 100,
+        "note": "",
+        "hasReceipt": true,
+        "needsReview": false,
+        "changedSinceReview": false,
+        "pending": false,
+        "blockedCurrency": false,
+        "included": true,
+        "businessAmountPence": 4000089,
+        "automaticExclusion": false
+      },
+      {
+        "id": "expense",
+        "name": "Example expense",
+        "date": "2025-08-01",
+        "amount": -345.12,
+        "currency": "GBP",
+        "amountPence": -34512,
+        "sourceVersion": "[\"2025-08-01\",-345.12,\"GBP\",null,null,\"posted\",false,\"2026-01-01\"]",
+        "category": "office",
+        "businessPercent": 100,
+        "note": "",
+        "hasReceipt": true,
+        "needsReview": false,
+        "changedSinceReview": false,
+        "pending": false,
+        "blockedCurrency": false,
+        "included": true,
+        "businessAmountPence": -34512,
+        "automaticExclusion": false
+      }
+    ],
+    "incomePence": 4000089,
+    "expensesPence": 34512,
+    "profitPence": 3965577,
+    "needsReview": 0,
+    "missingCurrency": 0,
+    "pending": 0,
+    "missingReceipts": 0,
+    "blockers": [],
+    "filingBlockers": [],
+    "readyToExport": true,
+    "fingerprint": "a05d8926cf38d426f2530ab63cbbf80007168057db0d6ccf8fa09e75ecadc5f7"
+  },
+  "filing": {
+    "id": "11111111-1111-4111-a111-111111111111",
+    "environment": "test",
+    "status": "prepared",
+    "fingerprint": "a05d8926cf38d426f2530ab63cbbf80007168057db0d6ccf8fa09e75ecadc5f7",
+    "irMark": "OyKxilNWaiYliQXStSG89ReAYLw=",
+    "correlationId": null,
+    "createdAt": "2026-09-15T18:00:00Z",
+    "updatedAt": "2026-09-15T18:00:00Z",
+    "nextPollAt": null,
+    "identity": {
+      "fullName": "Example Taxpayer",
+      "utr": "1234567890",
+      "nino": "AB123456C",
+      "dateOfBirth": "1990-01-01",
+      "taxpayerStatus": "U",
+      "onlyThisBusinessIncome": true,
+      "standardPersonalAllowance": true,
+      "noOtherChargesOrReliefs": true,
+      "businessOperatedFullYear": true,
+      "standardNationalInsurance": true,
+      "class2Choice": "not_needed"
+    },
+    "calculation": {
+      "groups": [
+        {
+          "id": "turnover",
+          "name": "Sales",
+          "box": "9",
+          "kind": "income",
+          "amountPence": 4000089,
+          "wholePounds": 40000
+        },
+        {
+          "id": "other_income",
+          "name": "Other business income",
+          "box": "10",
+          "kind": "income",
+          "amountPence": 0,
+          "wholePounds": 0
+        },
+        {
+          "id": "goods",
+          "name": "Goods and materials",
+          "box": "11",
+          "kind": "expense",
+          "amountPence": 0,
+          "wholePounds": 0
+        },
+        {
+          "id": "travel",
+          "name": "Car and travel",
+          "box": "12",
+          "kind": "expense",
+          "amountPence": 0,
+          "wholePounds": 0
+        },
+        {
+          "id": "staff",
+          "name": "Staff costs",
+          "box": "13",
+          "kind": "expense",
+          "amountPence": 0,
+          "wholePounds": 0
+        },
+        {
+          "id": "premises",
+          "name": "Rent, utilities and insurance",
+          "box": "14",
+          "kind": "expense",
+          "amountPence": 0,
+          "wholePounds": 0
+        },
+        {
+          "id": "repairs",
+          "name": "Repairs and maintenance",
+          "box": "15",
+          "kind": "expense",
+          "amountPence": 0,
+          "wholePounds": 0
+        },
+        {
+          "id": "professional",
+          "name": "Accountancy and legal fees",
+          "box": "16",
+          "kind": "expense",
+          "amountPence": 0,
+          "wholePounds": 0
+        },
+        {
+          "id": "finance",
+          "name": "Interest and bank charges",
+          "box": "17",
+          "kind": "expense",
+          "amountPence": 0,
+          "wholePounds": 0
+        },
+        {
+          "id": "office",
+          "name": "Phone, stationery and office",
+          "box": "18",
+          "kind": "expense",
+          "amountPence": 34512,
+          "wholePounds": 346
+        },
+        {
+          "id": "other_expenses",
+          "name": "Other allowable expenses",
+          "box": "19",
+          "kind": "expense",
+          "amountPence": 0,
+          "wholePounds": 0
+        }
+      ],
+      "incomePounds": 40000,
+      "expensesPounds": 346,
+      "profitPounds": 39654,
+      "personalAllowancePounds": 12570,
+      "incomeTaxPence": 541680,
+      "class4Pence": 162504,
+      "class2Pence": 0,
+      "totalTaxPence": 704184,
+      "includesPaymentsOnAccount": false
+    },
+    "receipt": null
+  },
+  "returnXml": "<Body xmlns=\"http://www.govtalk.gov.uk/CM/envelope\"><IRenvelope xmlns=\"http://www.govtalk.gov.uk/taxation/SA/SA100/25-26/1\"><IRheader><Keys><Key Type=\"UTR\">1234567890</Key></Keys><PeriodEnd>2026-04-05</PeriodEnd><DefaultCurrency>GBP</DefaultCurrency><Manifest><Contains><Reference><Namespace>http://www.govtalk.gov.uk/taxation/SA/SA100/25-26/1</Namespace><SchemaVersion>2026-v1.2</SchemaVersion><TopElementName>MTR</TopElementName></Reference></Contains></Manifest><IRmark Type=\"generic\">OyKxilNWaiYliQXStSG89ReAYLw=</IRmark><Sender>Individual</Sender></IRheader><MTR><SA100><YourPersonalDetails><DateOfBirth>1990-01-01</DateOfBirth><NationalInsuranceNumber>AB123456C</NationalInsuranceNumber><TaxpayerStatus>U</TaxpayerStatus></YourPersonalDetails><YourTaxReturn><ShortSelfEmploymentSchedule>yes</ShortSelfEmploymentSchedule><NumberOfShortSelfEmploymentSchedules>1</NumberOfShortSelfEmploymentSchedules></YourTaxReturn></SA100><SA103S><BusinessDetails><BusinessDescription>Design &amp; print</BusinessDescription><DidYourBusinessStart>no</DidYourBusinessStart><DidYourBusinessCease>no</DidYourBusinessCease><DateBusinessBooksAreMadeUpTo>2026-04-05</DateBusinessBooksAreMadeUpTo></BusinessDetails><BusinessIncome><Turnover>40000.00</Turnover></BusinessIncome><AllowableBusinessExpenses><PhoneAndOtherOfficeCosts>346.00</PhoneAndOtherOfficeCosts><TotalAllowableExpenses>346.00</TotalAllowableExpenses></AllowableBusinessExpenses><NetProfitOrLoss>39654.00</NetProfitOrLoss><TaxableProfits><NetBusinessProfitForTax>39654.00</NetBusinessProfitForTax></TaxableProfits><ProfitsLossesNICsAndCIS><TotalTaxableBusinessProfits>39654.00</TotalTaxableBusinessProfits></ProfitsLossesNICsAndCIS></SA103S><SA110><SelfAssessment><TotalTaxEtcDue>7041.84</TotalTaxEtcDue><Class4NICsDue>1625.04</Class4NICsDue></SelfAssessment><UnderpaidTax></UnderpaidTax></SA110><TaxpayerName>Example Taxpayer</TaxpayerName><Declaration><IndividualDeclaration>yes</IndividualDeclaration></Declaration></MTR></IRenvelope></Body>",
+  "receiptXml": "<SyntheticUITestReceipt>This is a UI fixture, not an HMRC receipt.</SyntheticUITestReceipt>"
+}

@@ -10,10 +10,12 @@
 		00391D988E2E5EBF407DF7E1 /* WorkspaceSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A81BF6BB8EDB8DE9AA0D197E /* WorkspaceSnapshot.swift */; };
 		02C5D3A0B177666B35746783 /* TamiasStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1804B501BDE05C4595A1B337 /* TamiasStore.swift */; };
 		06761093166D88D0225EA966 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D4986912B5FB6D4DFCFD492 /* Models.swift */; };
+		0745C8642BAB8074248466FC /* TaxFilingContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE8C7F7D1B91A95BBEB76CF /* TaxFilingContractTests.swift */; };
 		0948C370E1060F100B37B52A /* TaxProfileSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 511257147AF9CE48EF643450 /* TaxProfileSheet.swift */; };
 		0F7CF1AF238C658AB06F7CD3 /* TamiasTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76C9ADAF7018B4676DDF3C71 /* TamiasTheme.swift */; };
 		1055E2A5FBA540C3D46DE539 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8BE29D187CAB33F93BA66CFF /* PrivacyInfo.xcprivacy */; };
 		12FFE30BA96F6A92E5C377FA /* TamiasShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7E5AE06B87280E2308BF07BD /* TamiasShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		145D2CF87DCECEAD5A21A964 /* SelfAssessment.json in Resources */ = {isa = PBXBuildFile; fileRef = 059BF00C8FEB994DD0E5DBC5 /* SelfAssessment.json */; };
 		19967E6A1CCBBFAAEF31F702 /* ReceiptFormComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 677C15BE4C5E5854C42EC921 /* ReceiptFormComponents.swift */; };
 		213956898227CE6BA4317C31 /* InvoicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE352AAB5B3AD48F184A9A2C /* InvoicesView.swift */; };
 		21C62ECE9CAB711A174A75B9 /* InvoiceComposerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF17AB2396B4560AF7EF016F /* InvoiceComposerTests.swift */; };
@@ -26,11 +28,13 @@
 		563F2E247D38B74CB4884A2D /* SharedReceiptQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7AA0A2117A33C8290148FA5 /* SharedReceiptQueue.swift */; };
 		61B4DBF5CEE9913ABD00AE4C /* InboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DFD75CB01C00715EFBA40B5 /* InboxView.swift */; };
 		62F718DDB3E6D7FC92634EC8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9F419325FD3F35457D54E089 /* Assets.xcassets */; };
+		72C08B2E6134A709A70A5684 /* SelfAssessment.json in Resources */ = {isa = PBXBuildFile; fileRef = 059BF00C8FEB994DD0E5DBC5 /* SelfAssessment.json */; };
 		75D3710ED3A2CC909EEC3DF2 /* LocalStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D553E278D6FDA4DD2731C6 /* LocalStorage.swift */; };
 		7CC9FD49E254A5D5DA325A10 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C6939E42425313F852751F /* APIClient.swift */; };
 		7E647BC16FCBB86BE5F76C0E /* OverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D412137AE651DBD9C88A3D12 /* OverviewView.swift */; };
 		837FEDE3F099EB99A7119D6F /* TaxFilingModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA13917FCF98F0458ED658D /* TaxFilingModels.swift */; };
 		84D645C4470AE8254AD21A7E /* SharedReceiptQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7AA0A2117A33C8290148FA5 /* SharedReceiptQueue.swift */; };
+		8D8E6E815140C98B4AEB80BD /* TaxFilingUITestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15DB8E31D174254270E16299 /* TaxFilingUITestSupport.swift */; };
 		9B23F634CC2E77064715EF1E /* TaxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FAF9D986843B22179345A59 /* TaxView.swift */; };
 		9DBAFB2FF791B73033698014 /* TamiasUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F57E2DD502B5C5D4CFFF73B1 /* TamiasUITests.swift */; };
 		9E9A50548B2D36049536DB90 /* SampleWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEF9F8C93E92366DC2B1E22B /* SampleWorkspace.swift */; };
@@ -48,6 +52,7 @@
 		CEBDE8AF60075014498B599B /* ReceiptRecognition.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8CE7992573EF2C1434D8F7E /* ReceiptRecognition.swift */; };
 		CEDF258C9303084B3A506C44 /* ReceiptShareUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C632444B51A4DFA3F328D413 /* ReceiptShareUITests.swift */; };
 		D59CF77699EA839DAB8A2781 /* SAMPLE-receipt.png in Resources */ = {isa = PBXBuildFile; fileRef = 2F5308813AFA184088F62390 /* SAMPLE-receipt.png */; };
+		E77F671B481A98E60B2F1D80 /* TaxFilingUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6540033B00A56CE0BE29225F /* TaxFilingUITests.swift */; };
 		F23F61FA3B5AEA109CB9C34C /* ReceiptCaptureSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A873BC2A3A0CAD0080BF346 /* ReceiptCaptureSheet.swift */; };
 /* End PBXBuildFile section */
 
@@ -90,12 +95,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		059BF00C8FEB994DD0E5DBC5 /* SelfAssessment.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = SelfAssessment.json; sourceTree = "<group>"; };
 		070879383ADFC9E6B105B2D1 /* TamiasApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TamiasApp.swift; sourceTree = "<group>"; };
 		0A02F914CC3C4566491F85DC /* ReceiptCaptureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiptCaptureTests.swift; sourceTree = "<group>"; };
 		0D4986912B5FB6D4DFCFD492 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		0E6F4045B1B2A9BE245B9B4E /* TaxPreparationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaxPreparationView.swift; sourceTree = "<group>"; };
 		14C6939E42425313F852751F /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		15201A44B071B0479861A859 /* WorkflowModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowModels.swift; sourceTree = "<group>"; };
+		15DB8E31D174254270E16299 /* TaxFilingUITestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaxFilingUITestSupport.swift; sourceTree = "<group>"; };
 		1804B501BDE05C4595A1B337 /* TamiasStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TamiasStore.swift; sourceTree = "<group>"; };
 		1A873BC2A3A0CAD0080BF346 /* ReceiptCaptureSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiptCaptureSheet.swift; sourceTree = "<group>"; };
 		21D553E278D6FDA4DD2731C6 /* LocalStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalStorage.swift; sourceTree = "<group>"; };
@@ -106,6 +113,8 @@
 		3FAF9D986843B22179345A59 /* TaxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaxView.swift; sourceTree = "<group>"; };
 		40DA9511B9559A262936C0BF /* WorkspaceSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceSettingsView.swift; sourceTree = "<group>"; };
 		511257147AF9CE48EF643450 /* TaxProfileSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaxProfileSheet.swift; sourceTree = "<group>"; };
+		5CE8C7F7D1B91A95BBEB76CF /* TaxFilingContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaxFilingContractTests.swift; sourceTree = "<group>"; };
+		6540033B00A56CE0BE29225F /* TaxFilingUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaxFilingUITests.swift; sourceTree = "<group>"; };
 		674CB89FB8327B278F3E76BD /* ReceiptReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiptReviewView.swift; sourceTree = "<group>"; };
 		677C15BE4C5E5854C42EC921 /* ReceiptFormComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiptFormComponents.swift; sourceTree = "<group>"; };
 		6DFD75CB01C00715EFBA40B5 /* InboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxView.swift; sourceTree = "<group>"; };
@@ -158,6 +167,7 @@
 				115EF5F433D17DD3B8CB73EE /* Core */,
 				3DDAC5839E9F28473817B403 /* Design */,
 				BD47799D94E819DD095A23C3 /* Features */,
+				75EC2C9ECE96C191AD2BE148 /* Testing */,
 			);
 			path = Tamias;
 			sourceTree = "<group>";
@@ -211,10 +221,19 @@
 			path = Design;
 			sourceTree = "<group>";
 		};
+		75EC2C9ECE96C191AD2BE148 /* Testing */ = {
+			isa = PBXGroup;
+			children = (
+				15DB8E31D174254270E16299 /* TaxFilingUITestSupport.swift */,
+			);
+			path = Testing;
+			sourceTree = "<group>";
+		};
 		8717A0B50BD74B9F42FC08F8 /* Fixtures */ = {
 			isa = PBXGroup;
 			children = (
 				2F5308813AFA184088F62390 /* SAMPLE-receipt.png */,
+				059BF00C8FEB994DD0E5DBC5 /* SelfAssessment.json */,
 			);
 			path = Fixtures;
 			sourceTree = "<group>";
@@ -226,6 +245,7 @@
 				804950EBFFA45456C9AFD59D /* ReceiptRecognitionUITests.swift */,
 				C632444B51A4DFA3F328D413 /* ReceiptShareUITests.swift */,
 				F57E2DD502B5C5D4CFFF73B1 /* TamiasUITests.swift */,
+				6540033B00A56CE0BE29225F /* TaxFilingUITests.swift */,
 				8717A0B50BD74B9F42FC08F8 /* Fixtures */,
 			);
 			path = TamiasUITests;
@@ -251,6 +271,7 @@
 				BF17AB2396B4560AF7EF016F /* InvoiceComposerTests.swift */,
 				0A02F914CC3C4566491F85DC /* ReceiptCaptureTests.swift */,
 				CE78CF91F2F4D59398068A27 /* TamiasCoreTests.swift */,
+				5CE8C7F7D1B91A95BBEB76CF /* TaxFilingContractTests.swift */,
 			);
 			path = TamiasTests;
 			sourceTree = "<group>";
@@ -336,6 +357,7 @@
 			buildConfigurationList = 96B8018CD4B244C5B320005C /* Build configuration list for PBXNativeTarget "TamiasTests" */;
 			buildPhases = (
 				A6AAA980B03B36FD9B39A2AA /* Sources */,
+				A7645CA3F679765E078A5FBA /* Resources */,
 			);
 			buildRules = (
 			);
@@ -433,6 +455,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				D59CF77699EA839DAB8A2781 /* SAMPLE-receipt.png in Resources */,
+				145D2CF87DCECEAD5A21A964 /* SelfAssessment.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A7645CA3F679765E078A5FBA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				72C08B2E6134A709A70A5684 /* SelfAssessment.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -447,6 +478,7 @@
 				B46D1E21A3B1B8008AEEE105 /* ReceiptRecognitionUITests.swift in Sources */,
 				CEDF258C9303084B3A506C44 /* ReceiptShareUITests.swift in Sources */,
 				9DBAFB2FF791B73033698014 /* TamiasUITests.swift in Sources */,
+				E77F671B481A98E60B2F1D80 /* TaxFilingUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -466,6 +498,7 @@
 				21C62ECE9CAB711A174A75B9 /* InvoiceComposerTests.swift in Sources */,
 				BF60FF30E0CD3A1005F2092F /* ReceiptCaptureTests.swift in Sources */,
 				C14DE92F5CC4E7D206BAB256 /* TamiasCoreTests.swift in Sources */,
+				0745C8642BAB8074248466FC /* TaxFilingContractTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -491,6 +524,7 @@
 				02C5D3A0B177666B35746783 /* TamiasStore.swift in Sources */,
 				0F7CF1AF238C658AB06F7CD3 /* TamiasTheme.swift in Sources */,
 				837FEDE3F099EB99A7119D6F /* TaxFilingModels.swift in Sources */,
+				8D8E6E815140C98B4AEB80BD /* TaxFilingUITestSupport.swift in Sources */,
 				3E9581EDC6C3077FBD1D796E /* TaxFilingView.swift in Sources */,
 				2B51A4A39271C23EDC0203D6 /* TaxModels.swift in Sources */,
 				C4F797EA6063CCC0096EA46F /* TaxPreparationView.swift in Sources */,

@@ -41,7 +41,7 @@ struct TaxFilingView: View {
                                 Text(filing.statusLabel)
                                 Text(filing.createdAt.formatted(date: .abbreviated, time: .shortened)).font(.caption).foregroundStyle(TamiasTheme.muted)
                             }.padding(.vertical, 4)
-                        }
+                        }.accessibilityIdentifier("tax.filing.\(filing.id)")
                     }
                 }
             }
@@ -81,20 +81,20 @@ private struct TaxFilingIdentitySheet: View {
         NavigationStack {
             Form {
                 Section("Your details") {
-                    TextField("Full name", text: $identity.fullName).textContentType(.name)
-                    TextField("10-digit UTR", text: $identity.utr).keyboardType(.numberPad).privacySensitive()
-                    TextField("National Insurance number", text: $identity.nino).textInputAutocapitalization(.characters).autocorrectionDisabled().privacySensitive()
+                    TextField("Full name", text: $identity.fullName).textContentType(.name).accessibilityIdentifier("tax.identity.name")
+                    TextField("10-digit UTR", text: $identity.utr).keyboardType(.numberPad).privacySensitive().accessibilityIdentifier("tax.identity.utr")
+                    TextField("National Insurance number", text: $identity.nino).textInputAutocapitalization(.characters).autocorrectionDisabled().privacySensitive().accessibilityIdentifier("tax.identity.nino")
                     DatePicker("Date of birth", selection: $dateOfBirth, in: ...Date.now, displayedComponents: .date)
                     Picker("Taxpayer status", selection: $identity.taxpayerStatus) {
                         Text("England / Northern Ireland").tag("U"); Text("Scotland").tag("S"); Text("Wales").tag("C")
                     }
                 }
                 Section {
-                    Toggle("This business is my only income", isOn: $identity.onlyThisBusinessIncome)
-                    Toggle("I qualify for the standard Personal Allowance", isOn: $identity.standardPersonalAllowance)
-                    Toggle("No other charges, reliefs or tax deducted", isOn: $identity.noOtherChargesOrReliefs)
-                    Toggle("My business operated for the full tax year", isOn: $identity.businessOperatedFullYear)
-                    Toggle("Standard self-employed National Insurance applies", isOn: $identity.standardNationalInsurance)
+                    Toggle("This business is my only income", isOn: $identity.onlyThisBusinessIncome).accessibilityIdentifier("tax.identity.onlyIncome")
+                    Toggle("I qualify for the standard Personal Allowance", isOn: $identity.standardPersonalAllowance).accessibilityIdentifier("tax.identity.allowance")
+                    Toggle("No other charges, reliefs or tax deducted", isOn: $identity.noOtherChargesOrReliefs).accessibilityIdentifier("tax.identity.noOtherCharges")
+                    Toggle("My business operated for the full tax year", isOn: $identity.businessOperatedFullYear).accessibilityIdentifier("tax.identity.fullYear")
+                    Toggle("Standard self-employed National Insurance applies", isOn: $identity.standardNationalInsurance).accessibilityIdentifier("tax.identity.nationalInsurance")
                 } header: { Text("Confirm this applies to you") } footer: {
                     Text("Other charges or deductions include the Child Benefit charge, student loans, CIS deductions, underpaid tax and pension charges. If these apply, complete the return with HMRC or your accountant.")
                 }
@@ -109,7 +109,7 @@ private struct TaxFilingIdentitySheet: View {
             }.disabled(busy).navigationTitle("Prepare return").navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() }.disabled(busy) }
-                    ToolbarItem(placement: .confirmationAction) { Button(busy ? "Preparing…" : "Prepare") { prepare() }.disabled(!complete || busy) }
+                    ToolbarItem(placement: .confirmationAction) { Button(busy ? "Preparing…" : "Prepare") { prepare() }.disabled(!complete || busy).accessibilityIdentifier("tax.identity.prepare") }
                 }
                 .interactiveDismissDisabled(busy)
         }
@@ -145,7 +145,7 @@ private struct TaxFilingDetailView: View {
     var body: some View {
         List {
             Section {
-                Text(filing.statusLabel).font(.headline)
+                Text(filing.statusLabel).font(.headline).accessibilityIdentifier("tax.filing.status")
                 if filing.isTest { Text("Test return · does not fulfil your filing obligation").font(.subheadline).foregroundStyle(TamiasTheme.muted) }
                 if let receipt = filing.receipt {
                     Text(receipt.summary).font(.subheadline)
@@ -173,7 +173,7 @@ private struct TaxFilingDetailView: View {
             Section("Return reference") {
                 Text(filing.irMark).font(.caption.monospaced()).textSelection(.enabled)
                 if let reference = filing.correlationId { Text(reference).font(.caption.monospaced()).textSelection(.enabled) }
-                Button("Save return and receipt") { saveEvidence() }.disabled(busy)
+                Button("Save return and receipt") { saveEvidence() }.disabled(busy).accessibilityIdentifier("tax.filing.saveEvidence")
             }
             if filing.status == "prepared" {
                 Section {
@@ -182,27 +182,30 @@ private struct TaxFilingDetailView: View {
                         TextField("Government Gateway user ID", text: $senderId).textInputAutocapitalization(.never).autocorrectionDisabled().privacySensitive()
                         SecureField("Government Gateway password", text: $password)
                     }
-                    Toggle("I declare that this return is correct and complete to the best of my knowledge and belief", isOn: $declared)
+                    Toggle("I declare that this return is correct and complete to the best of my knowledge and belief", isOn: $declared).accessibilityIdentifier("tax.filing.declaration")
                     Button(filing.isTest ? "Send test return" : "Submit return to HMRC") { confirmSend = true }
                         .disabled(busy || !declared || !connection.ready || (!filing.isTest && (senderId.isEmpty || password.isEmpty)))
+                        .accessibilityIdentifier("tax.filing.submit")
                 } footer: { Text("Government Gateway credentials are used for this submission only and are not saved by Tamias.") }
             } else if filing.correlationId != nil && ["acknowledged", "unknown"].contains(filing.status) {
                 Section {
                     TimelineView(.periodic(from: .now, by: 1)) { context in
                         Button("Check HMRC status") { poll() }.disabled(busy || (filing.nextPollAt ?? .distantPast) > context.date)
+                            .accessibilityIdentifier("tax.filing.poll")
                     }
                 }
             }
             if busy { ProgressView() }
-            if let error { Text(error).font(.subheadline).foregroundStyle(.red) }
+            if let error { Text(error).font(.subheadline).foregroundStyle(.red).accessibilityIdentifier("tax.filing.error") }
         }.listStyle(.insetGrouped).scrollContentBackground(.hidden).background(TamiasTheme.paper)
             .navigationTitle("Review return").navigationBarTitleDisplayMode(.inline)
             .confirmationDialog(filing.isTest ? "Send this test return?" : "Submit your \(year)/\(String(year + 1).suffix(2)) return to HMRC?", isPresented: $confirmSend, titleVisibility: .visible) {
-                Button(filing.isTest ? "Send test return" : "Submit to HMRC") { submit() }
+                Button(filing.isTest ? "Send test return" : "Submit to HMRC") { submit() }.accessibilityIdentifier("tax.filing.confirmSubmit")
                 Button("Cancel", role: .cancel) { }
             } message: { Text("\(filing.identity.fullName) · UTR ending \(filing.identity.utr.suffix(4)) · Tax \(SoleTraderReport.money(filing.calculation.totalTaxPence))") }
             .sheet(isPresented: $showEvidence, onDismiss: cleanup) { if let evidenceURL { TaxEvidenceShareSheet(url: evidenceURL) } }
             .onDisappear { password = ""; senderId = "" }
+            .accessibilityIdentifier("screen.taxFilingDetail")
     }
     private func submit() {
         let body = TaxFilingSubmission(declarationAccepted: declared, confirmedIrMark: filing.irMark,
