@@ -136,15 +136,14 @@ export class HmrcSelfAssessmentProvider {
         ? "https://transaction-engine.tax.service.gov.uk"
         : "https://test-transaction-engine.tax.service.gov.uk";
   }
-  private endpoint(candidate?: string | null) {
-    const url = new URL(candidate || `${this.baseURL}/poll`);
-    if (
-      url.origin !== this.baseURL ||
-      url.pathname !== "/poll" ||
-      url.username ||
-      url.password ||
-      url.hash
-    ) {
+  private endpoint(candidate?: string | null, receiptAcknowledgement = false) {
+    const url = new URL(
+      candidate || `${this.baseURL}/${receiptAcknowledgement ? "submission" : "poll"}`,
+    );
+    // The business response supplies /submission for DELETE_REQUEST; polling uses /poll.
+    const allowedPath =
+      url.pathname === "/poll" || (receiptAcknowledgement && url.pathname === "/submission");
+    if (url.origin !== this.baseURL || !allowedPath || url.username || url.password || url.hash) {
       throw new SelfAssessmentFilingError(
         "The HMRC response endpoint was not recognised. The submission needs review.",
       );
@@ -203,7 +202,7 @@ export class HmrcSelfAssessmentProvider {
   }
   async acknowledgeReceipt(args: { correlationId: string; responseEndpoint?: string | null }) {
     const xml = await this.post(
-      this.endpoint(args.responseEndpoint),
+      this.endpoint(args.responseEndpoint, true),
       this.controlMessage("request", "delete", args.correlationId),
     );
     // Only cleanup transport state after the caller has durably saved the business receipt.

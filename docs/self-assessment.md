@@ -57,6 +57,7 @@ HMRC_SA_ENVIRONMENT=test
 HMRC_SA_VENDOR_ID=
 HMRC_SA_TEST_SENDER_ID=
 HMRC_SA_TEST_PASSWORD=
+HMRC_SA_TEST_UTR=
 HMRC_SA_RECOGNISED=false
 ```
 
@@ -88,6 +89,34 @@ test logins into the SA settings merely because their names look similar. ETS
 authentication error `1046` means those credentials failed for the requested
 service. Tamias preserves this rejection, including when ETS returns
 `UndefinedClass` before routing the initial submission.
+
+HMRC supplied dedicated SA100 credentials on 15 September 2026 and confirmed the
+vendor record's name as Tamias. The protected local filing environment and hosted
+Worker use those settings in **test mode**. A fictional 2025/26 SA100/SA103S/SA110
+return completed ETS submission, polling, acceptance with a matching IRmark, and
+gateway acknowledgement. This verifies one scenario; software recognition and
+production filing remain disabled.
+
+Run the same synthetic check with the protected configuration:
+
+```sh
+bun --no-env-file scripts/run-with-runtime-env.ts filing -- bun --no-env-file scripts/verify-hmrc-self-assessment.ts
+```
+
+The checker accepts no real financial input or live endpoint. It stores its
+fictional body and HMRC responses in a private, ignored `artifacts/hmrc-sa-*`
+directory; Government Gateway passwords are never written to the evidence.
+After interruption, resume polling or gateway acknowledgement without sending
+another return:
+
+```sh
+bun --no-env-file scripts/run-with-runtime-env.ts filing -- bun --no-env-file scripts/verify-hmrc-self-assessment.ts --resume artifacts/<existing-run>
+```
+
+Without a saved HMRC correlation ID, the checker keeps the outcome uncertain and
+does not resend it. The final business response can direct its gateway
+acknowledgement to `/submission`; polling remains restricted to `/poll` on the
+configured HMRC environment's HTTPS origin.
 
 Production additionally requires `HMRC_SA_ENVIRONMENT=production`,
 `HMRC_SA_RECOGNISED=true`, `TAMIAS_ENVIRONMENT=production`,

@@ -176,6 +176,7 @@ export const runtimeEnvAllowlists = {
     "HMRC_SA_VENDOR_ID",
     "HMRC_SA_TEST_SENDER_ID",
     "HMRC_SA_TEST_PASSWORD",
+    "HMRC_SA_TEST_UTR",
     "HMRC_SA_RECOGNISED",
     "HMRC_VAT_CLIENT_ID",
     "HMRC_VAT_CLIENT_SECRET",

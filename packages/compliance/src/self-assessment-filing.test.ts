@@ -214,4 +214,40 @@ describe("HMRC response handling", () => {
     expect((await provider.poll({ correlationId, irMark: mark })).status).toBe("acknowledged");
     expect(calls).toBe(1);
   });
+  test("acknowledges a saved business receipt at HMRC's returned submission endpoint", async () => {
+    const calls: { url: string; body: string }[] = [];
+    const provider = new HmrcSelfAssessmentProvider("test", (async (url, init) => {
+      calls.push({ url: String(url), body: String(init?.body) });
+      return new Response(
+        response("response").replace(
+          "<CorrelationID>",
+          "<Function>delete</Function><CorrelationID>",
+        ),
+      );
+    }) as typeof fetch);
+    const responseEndpoint = "https://test-transaction-engine.tax.service.gov.uk/submission";
+    await provider.acknowledgeReceipt({ correlationId, responseEndpoint });
+    expect(calls).toHaveLength(1);
+    expect(calls[0]?.url).toBe(responseEndpoint);
+    expect(calls[0]?.body).toContain("<Function>delete</Function>");
+    expect(calls[0]?.body).not.toContain("<SenderID>");
+  });
+  test("rejects unsafe receipt acknowledgement endpoints before sending", async () => {
+    let calls = 0;
+    const provider = new HmrcSelfAssessmentProvider("test", (async () => {
+      calls++;
+      return new Response("");
+    }) as unknown as typeof fetch);
+    for (const responseEndpoint of [
+      "https://example.com/submission",
+      "https://transaction-engine.tax.service.gov.uk/submission",
+      "https://test-transaction-engine.tax.service.gov.uk/other",
+      "https://secret@test-transaction-engine.tax.service.gov.uk/submission",
+    ]) {
+      await expect(
+        provider.acknowledgeReceipt({ correlationId, responseEndpoint }),
+      ).rejects.toThrow("not recognised");
+    }
+    expect(calls).toBe(0);
+  });
 });

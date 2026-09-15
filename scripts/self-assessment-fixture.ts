@@ -74,15 +74,22 @@ const identity: SelfAssessmentIdentity = {
   standardNationalInsurance: true,
   class2Choice: "not_needed",
 };
-const body = buildSelfAssessmentBody(report, identity);
-writeFileSync(
-  process.argv[2] ?? "/tmp/tamias-sa-fixture.xml",
-  buildHmrcSaEnvelope({
-    bodyXml: body.bodyXml,
-    utr: identity.utr,
-    senderId: "fixture",
-    password: "fixture",
-    vendorId: "1234",
-    environment: "test",
-  }),
-);
+export function createSelfAssessmentFixture(utr = identity.utr) {
+  const testIdentity = { ...identity, utr };
+  return { identity: testIdentity, ...buildSelfAssessmentBody(report, testIdentity) };
+}
+
+if (import.meta.main) {
+  const body = createSelfAssessmentFixture();
+  writeFileSync(
+    process.argv[2] ?? "/tmp/tamias-sa-fixture.xml",
+    buildHmrcSaEnvelope({
+      bodyXml: body.bodyXml,
+      utr: body.identity.utr,
+      senderId: "fixture",
+      password: "fixture",
+      vendorId: "1234",
+      environment: "test",
+    }),
+  );
+}
