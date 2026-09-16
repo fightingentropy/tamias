@@ -26,6 +26,8 @@ export type TeamListIdentityRecord = {
   baseCurrency: string | null;
   fiscalYearStartMonth: number | null;
   companyType: string | null;
+  businessStructure?: string | null;
+  usesCis?: boolean | null;
   heardAbout: string | null;
   role: TeamRole;
 };

@@ -2,7 +2,7 @@
 
 import { track } from "@/lib/telemetry/client";
 import { LogEvents } from "@/lib/telemetry/events";
-import { BUSINESS_TYPES } from "@tamias/contracts/business-type";
+import { BUSINESS_STRUCTURES, BUSINESS_TYPES } from "@tamias/contracts/business-type";
 import { uniqueCurrencies } from "@tamias/location/currencies";
 import {
   Form,
@@ -22,6 +22,7 @@ import { use, useEffect, useRef, useState } from "react";
 import { z } from "zod/v3";
 import { CountrySelector } from "@/components/country-selector";
 import { SelectCompanyType } from "@/components/select-company-type";
+import { SelectBusinessStructure, SelectCis } from "@/components/select-business-structure";
 import { SelectCurrency } from "@/components/select-currency";
 import { SelectFiscalMonth } from "@/components/select-fiscal-month";
 import { SelectHeardAbout } from "@/components/select-heard-about";
@@ -36,6 +37,10 @@ const formSchema = z.object({
   companyType: z.enum(BUSINESS_TYPES, {
     required_error: "Please select the option that best describes you.",
   }),
+  businessStructure: z.enum(BUSINESS_STRUCTURES, {
+    required_error: "Choose your business structure, or select Not sure yet.",
+  }),
+  usesCis: z.boolean().nullable(),
   heardAbout: z.enum(
     ["twitter", "youtube", "friend", "google", "blog", "podcast", "github", "other"],
     { required_error: "Please select an option." },
@@ -104,6 +109,7 @@ export function CreateTeamStep({
       baseCurrency: currency,
       countryCode: countryCode ?? "",
       fiscalYearStartMonth: getDefaultFiscalYearStartMonth(countryCode),
+      usesCis: null,
     },
   });
 
@@ -138,6 +144,8 @@ export function CreateTeamStep({
         countryCode: values.countryCode,
         fiscalYearStartMonth: values.fiscalYearStartMonth,
         companyType: values.companyType,
+        businessStructure: values.businessStructure,
+        usesCis: values.usesCis,
         heardAbout: values.heardAbout,
         switchTeam: true,
       });
@@ -281,7 +289,7 @@ export function CreateTeamStep({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-xs text-primary font-normal">
-                      What best describes you?
+                      What kind of work do you do?
                     </FormLabel>
                     <FormControl>
                       <SelectCompanyType
@@ -291,12 +299,6 @@ export function CreateTeamStep({
                         dataTestId="onboarding-company-type"
                       />
                     </FormControl>
-                    {field.value === "cis_subcontractor" && (
-                      <FormDescription className="text-[11px] text-muted-foreground">
-                        For subcontractors working under the Construction Industry Scheme. CIS tax
-                        deductions aren’t supported by direct filing yet.
-                      </FormDescription>
-                    )}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -323,6 +325,44 @@ export function CreateTeamStep({
                 )}
               />
             </div>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="businessStructure"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Business structure</FormLabel>
+                    <FormControl>
+                      <SelectBusinessStructure value={field.value} onChange={field.onChange} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {selectedCountryCode === "GB" && (
+                <FormField
+                  control={form.control}
+                  name="usesCis"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Do you work under CIS?</FormLabel>
+                      <FormControl>
+                        <SelectCis value={field.value} onChange={field.onChange} />
+                      </FormControl>
+                      <FormDescription>
+                        This is separate from your business structure.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+            </div>
+            {form.watch("usesCis") === true && (
+              <p className="text-sm text-muted-foreground">
+                CIS tax deductions are not yet supported by direct filing in Tamias.
+              </p>
+            )}
           </form>
         </Form>
       </motion.div>

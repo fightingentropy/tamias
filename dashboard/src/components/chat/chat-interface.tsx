@@ -50,7 +50,7 @@ export function ChatInterface() {
     <div
       className={cn(
         "relative flex size-full",
-        isHome && "h-[calc(100vh-764px)] chat-interface-container-scrollable",
+        isHome && "h-auto mt-8 mb-6",
         !isHome && "h-[calc(100vh-88px)] overflow-hidden",
         isMetricsTab && "h-auto",
       )}
@@ -116,7 +116,7 @@ export function ChatInterface() {
                   <div
                     className={cn(
                       "fixed bottom-32 z-0 transition-all duration-300 ease-in-out",
-                      "left-0 md:left-[70px] px-4 md:px-6",
+                      "left-0 md:left-[var(--sidebar-width,232px)] px-4 md:px-6",
                       showCanvas ? "right-0 md:right-[603px]" : "right-0",
                     )}
                   >
@@ -133,7 +133,7 @@ export function ChatInterface() {
         {isHome ? (
           <div
             className={cn(
-              "fixed bottom-0 left-0",
+              "relative w-full",
               hasMessages && "transition-all duration-300 ease-in-out",
               showCanvas ? "right-0 md:right-[600px]" : "right-0",
               "chat-input-wrapper-static",

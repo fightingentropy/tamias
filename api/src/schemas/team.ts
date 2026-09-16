@@ -1,5 +1,5 @@
 import { z } from "@hono/zod-openapi";
-import { BUSINESS_TYPES } from "@tamias/contracts/business-type";
+import { BUSINESS_STRUCTURES, BUSINESS_TYPES } from "@tamias/contracts/business-type";
 
 export const teamResponseSchema = z.object({
   id: z.string().uuid().openapi({
@@ -61,6 +61,8 @@ export const getTeamByIdSchema = z.object({
 });
 
 export const updateTeamByIdSchema = z.object({
+  businessStructure: z.enum(BUSINESS_STRUCTURES).nullable().optional(),
+  usesCis: z.boolean().nullable().optional(),
   name: z.string().min(2).max(32).optional().openapi({
     description: "Name of the team or organization. Must be between 2 and 32 characters",
     example: "Acme Corporation",
@@ -120,6 +122,8 @@ export const updateTeamByIdSchema = z.object({
 });
 
 export const createTeamSchema = z.object({
+  businessStructure: z.enum(BUSINESS_STRUCTURES).nullable().optional(),
+  usesCis: z.boolean().nullable().optional(),
   name: z.string().openapi({
     description: "Name of the team or organization",
     example: "Acme Corporation",

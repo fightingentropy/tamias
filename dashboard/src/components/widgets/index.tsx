@@ -7,7 +7,6 @@ import { useChatInterface } from "@/hooks/use-chat-interface";
 import { useInsightFromUrl } from "@/hooks/use-insight-from-url";
 import { WidgetsHeader } from "./header";
 import { OverviewMetricGrid } from "./overview-metric-grid";
-import { OverviewQuickActions } from "./overview-quick-actions";
 import { OverviewWidgetDataProvider } from "./overview-widget-data";
 import { useIsCustomizing, WidgetProvider } from "./widget-provider";
 import { WidgetsGrid } from "./widgets-grid";
@@ -27,7 +26,12 @@ function WidgetsContent() {
   }
 
   return (
-    <div className={cn("flex flex-col mt-6", isHome && "widgets-container-spacing")}>
+    <div
+      className={cn(
+        "mx-auto flex w-full max-w-[1120px] flex-col mt-8",
+        isHome && "widgets-container-spacing",
+      )}
+    >
       <WidgetsHeader />
       {isCustomizing ? (
         <OverviewWidgetDataProvider>
@@ -35,7 +39,6 @@ function WidgetsContent() {
         </OverviewWidgetDataProvider>
       ) : (
         <OverviewWidgetDataProvider>
-          <OverviewQuickActions />
           <OverviewMetricGrid />
         </OverviewWidgetDataProvider>
       )}

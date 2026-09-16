@@ -3,8 +3,18 @@ body {
   height: 100%;
 }
 
-*:focus {
-  outline: none;
+*:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 3px;
+}
+
+.chat-input-static {
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  padding: 0 !important;
+  z-index: auto !important;
 }
 
 .skeleton-box {

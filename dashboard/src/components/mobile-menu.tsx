@@ -16,15 +16,20 @@ export function MobileMenu() {
         <Button
           variant="outline"
           size="icon"
+          aria-label="Open navigation"
           onClick={() => setOpen(true)}
           className="rounded-full w-8 h-8 items-center relative flex md:hidden"
         >
           <MenuIcon size={16} />
         </Button>
       </div>
-      <SheetContent side="left" className="border-none rounded-none -ml-4">
+      <SheetContent
+        side="left"
+        title="Navigation"
+        className="border-none rounded-none overflow-y-auto"
+      >
         <div className="ml-2 mb-8">
-          <Link href="/dashboard" onClick={() => setOpen(false)}>
+          <Link href="/dashboard" aria-label="Tamias home" onClick={() => setOpen(false)}>
             <LogoSmallIcon />
           </Link>
         </div>

@@ -3,7 +3,7 @@
 import { cn } from "@tamias/ui/cn";
 import Link from "@/framework/link";
 import { usePathname } from "@/framework/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useChatInterface } from "@/hooks/use-chat-interface";
 import { useNavPrefetch } from "@/hooks/use-nav-prefetch";
 import {
@@ -65,7 +65,7 @@ const baseItems = [
   },
   {
     path: "/inbox",
-    name: "Inbox",
+    name: "Receipts",
     children: [{ path: "/inbox/settings", name: "Settings" }],
   },
   {
@@ -78,7 +78,7 @@ const baseItems = [
   },
   {
     path: "/tracker",
-    name: "Tracker",
+    name: "Time tracking",
     children: [{ path: "/tracker?create=true", name: "Create new" }],
   },
   {
@@ -126,54 +126,6 @@ interface ItemProps {
   onPrefetch?: () => void;
 }
 
-const ChildItem = ({
-  child,
-  isActive,
-  isExpanded,
-  shouldShow,
-  onSelect,
-  index,
-}: {
-  child: { path: string; name: string };
-  isActive: boolean;
-  isExpanded: boolean;
-  shouldShow: boolean;
-  onSelect?: () => void;
-  index: number;
-}) => {
-  const showChild = isExpanded && shouldShow;
-
-  return (
-    <Link href={child.path} prefetch onClick={() => onSelect?.()} className="block group/child">
-      <div className="relative">
-        {/* Child item text */}
-        <div
-          className={cn(
-            "ml-[35px] mr-[15px] h-[32px] flex items-center",
-            "border-l border-[#e6e6e6] dark:border-[#1d1d1d] pl-3",
-            "transition-all duration-200 ease-out",
-            showChild ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2",
-          )}
-          style={{
-            transitionDelay: showChild ? `${40 + index * 20}ms` : `${index * 20}ms`,
-          }}
-        >
-          <span
-            className={cn(
-              "text-xs font-medium transition-colors duration-200",
-              "text-[#888] group-hover/child:text-primary",
-              "whitespace-nowrap overflow-hidden",
-              isActive && "text-primary",
-            )}
-          >
-            {child.name}
-          </span>
-        </div>
-      </div>
-    </Link>
-  );
-};
-
 const Item = ({
   item,
   isActive,
@@ -185,96 +137,65 @@ const Item = ({
 }: ItemProps) => {
   const Icon = icons[item.path as keyof typeof icons];
   const pathname = usePathname();
-  const hasChildren = item.children && item.children.length > 0;
-
-  // Children should be visible when: expanded sidebar AND this item is expanded
-  const shouldShowChildren = isExpanded && isItemExpanded;
-
-  const handleChevronClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onToggle(item.path);
-  };
+  const showChildren = isExpanded && isItemExpanded && !!item.children?.length;
 
   return (
-    <div className="group">
-      <Link
-        href={item.path}
-        prefetch
-        onPrefetch={onPrefetch}
-        onClick={() => onSelect?.()}
-        className="group"
+    <div>
+      <div
+        className={cn(
+          "mx-3 flex min-h-10 items-center transition-colors hover:bg-accent",
+          isActive && "bg-accent",
+        )}
       >
-        <div className="relative">
-          {/* Background that expands */}
-          <div
-            className={cn(
-              "border border-transparent h-[40px] transition-all duration-200 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb; ml-[15px] mr-[15px]",
-              isActive && "bg-[#f7f7f7] dark:bg-[#131313] border-[#e6e6e6] dark:border-[#1d1d1d]",
-              isExpanded ? "w-[calc(100%-30px)]" : "w-[40px]",
-            )}
-          />
-
-          {/* Icon - always in same position from sidebar edge */}
-          <div className="absolute top-0 left-[15px] w-[40px] h-[40px] flex items-center justify-center dark:text-[#666666] text-black group-hover:!text-primary pointer-events-none">
-            <div className={cn(isActive && "dark:!text-white")}>
-              <Icon />
-            </div>
-          </div>
-
-          {isExpanded && (
-            <div className="absolute top-0 left-[55px] right-[4px] h-[40px] flex items-center pointer-events-none">
-              <span
-                className={cn(
-                  "text-sm font-medium transition-opacity duration-200 ease-in-out text-[#666] group-hover:text-primary",
-                  "whitespace-nowrap overflow-hidden",
-                  hasChildren ? "pr-2" : "",
-                  isActive && "text-primary",
-                )}
-              >
-                {item.name}
-              </span>
-              {hasChildren && (
-                <button
-                  type="button"
-                  onClick={handleChevronClick}
-                  className={cn(
-                    "w-8 h-8 flex items-center justify-center transition-all duration-200 ml-auto mr-3",
-                    "text-[#888] hover:text-primary pointer-events-auto",
-                    isActive && "text-primary/60",
-                    shouldShowChildren && "rotate-180",
-                  )}
-                >
-                  <ChevronDownIcon size={16} />
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-      </Link>
-
-      {/* Children */}
-      {hasChildren && (
-        <div
+        <Link
+          href={item.path}
+          prefetch
+          onPrefetch={onPrefetch}
+          onClick={() => onSelect?.()}
+          aria-label={item.name}
+          aria-current={isActive ? "page" : undefined}
           className={cn(
-            "transition-all duration-300 ease-out overflow-hidden",
-            shouldShowChildren ? "max-h-96 mt-1" : "max-h-0",
+            "flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground",
+            !isExpanded && "justify-center px-0",
+            isActive && "font-medium text-foreground",
           )}
         >
-          {item.children!.map((child, index) => {
-            const isChildActive = pathname === child.path;
-            return (
-              <ChildItem
-                key={child.path}
-                child={child}
-                isActive={isChildActive}
-                isExpanded={isExpanded}
-                shouldShow={shouldShowChildren}
-                onSelect={onSelect}
-                index={index}
-              />
-            );
-          })}
+          <span className="shrink-0" aria-hidden="true">
+            <Icon />
+          </span>
+          {isExpanded && <span className="truncate">{item.name}</span>}
+        </Link>
+        {isExpanded && !!item.children?.length && (
+          <button
+            type="button"
+            onClick={() => onToggle(item.path)}
+            aria-label={`${showChildren ? "Collapse" : "Expand"} ${item.name} menu`}
+            aria-expanded={!!showChildren}
+            className="mr-1 flex h-8 w-8 shrink-0 items-center justify-center text-muted-foreground hover:text-foreground"
+          >
+            <span className={cn("transition-transform", showChildren && "rotate-180")}>
+              <ChevronDownIcon size={16} />
+            </span>
+          </button>
+        )}
+      </div>
+      {showChildren && (
+        <div className="ml-[34px] mr-3 my-1 border-l border-border">
+          {item.children!.map((child) => (
+            <Link
+              key={child.path}
+              href={child.path}
+              prefetch
+              onClick={() => onSelect?.()}
+              aria-current={pathname === child.path ? "page" : undefined}
+              className={cn(
+                "block py-2 pl-6 pr-2 text-sm text-muted-foreground hover:text-foreground",
+                pathname === child.path && "font-medium text-foreground",
+              )}
+            >
+              {child.name}
+            </Link>
+          ))}
         </div>
       )}
     </div>
@@ -296,7 +217,7 @@ export function MainMenu({ onSelect, isExpanded = false }: Props) {
     ...baseItems.slice(0, 7),
     {
       path: "/compliance",
-      name: "Compliance",
+      name: "Tax",
       children: [
         { path: "/compliance/vat", name: "VAT" },
         { path: "/compliance/settings", name: "Settings" },
@@ -307,15 +228,10 @@ export function MainMenu({ onSelect, isExpanded = false }: Props) {
     ...baseItems.slice(7),
   ];
 
-  // Reset expanded item when sidebar expands/collapses
-  useEffect(() => {
-    setExpandedItem(null);
-  }, [isExpanded]);
-
   return (
-    <div className="mt-6 w-full">
-      <nav className="w-full">
-        <div className="flex flex-col gap-2">
+    <div className="py-5 w-full">
+      <nav className="w-full" aria-label="Main navigation">
+        <div className="flex flex-col gap-1">
           {items.map((item) => {
             // Check if current path matches item path or is a child of it
             // Chat pages (/chat/*) should highlight Dashboard

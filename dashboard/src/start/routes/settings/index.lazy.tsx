@@ -5,6 +5,7 @@ import { CompanyEmail } from "@/components/company-email";
 import { CompanyFiscalYear } from "@/components/company-fiscal-year";
 import { CompanyLogo } from "@/components/company-logo";
 import { CompanyName } from "@/components/company-name";
+import { BusinessProfile } from "@/components/business-profile";
 import { DeleteTeam } from "@/components/delete-team";
 import { TeamIdSection } from "@/components/team-id-section";
 import { AppLayoutShell } from "@/start/components/app-layout-shell";
@@ -22,6 +23,7 @@ function SettingsPage() {
       <div className="space-y-12">
         <CompanyLogo />
         <CompanyName />
+        <BusinessProfile />
         <CompanyEmail />
         <CompanyCountry />
         <BaseCurrency />

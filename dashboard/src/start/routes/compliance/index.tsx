@@ -10,6 +10,6 @@ export const loadComplianceData = createServerFn({ method: "GET" }).handler(asyn
 export const Route = createAppFileRoute("/compliance/")({
   loader: () => loadComplianceData(),
   head: () => ({
-    meta: [{ title: "Compliance | Tamias" }],
+    meta: [{ title: "Tax | Tamias" }],
   }),
 });

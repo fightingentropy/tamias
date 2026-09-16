@@ -41,6 +41,8 @@ type CreateTeamParams = {
   fiscalYearStartMonth?: number | null;
   logoUrl?: string;
   companyType?: string;
+  businessStructure?: string | null;
+  usesCis?: boolean | null;
   heardAbout?: string;
   switchTeam?: boolean;
 };
@@ -56,6 +58,8 @@ export const createTeam = async (db: Database, params: CreateTeamParams) => {
     fiscalYearStartMonth: params.fiscalYearStartMonth,
     logoUrl: params.logoUrl,
     companyType: params.companyType,
+    businessStructure: params.businessStructure,
+    usesCis: params.usesCis,
     heardAbout: params.heardAbout,
     switchTeam: params.switchTeam,
   });

@@ -43,6 +43,7 @@ export function useTeamMutation() {
         queryClient.invalidateQueries({
           queryKey: trpc.team.current.queryKey(),
         });
+        queryClient.invalidateQueries({ queryKey: trpc.user.me.queryKey() });
       },
     }),
   );

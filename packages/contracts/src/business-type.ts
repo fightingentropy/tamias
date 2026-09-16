@@ -40,3 +40,55 @@ export const BUSINESS_TYPE_LABELS: Record<BusinessType, string> = {
   other: "Other business",
   exploring: "Just exploring",
 };
+
+export const BUSINESS_STRUCTURES = [
+  "sole_trader",
+  "limited_company",
+  "partnership",
+  "limited_liability_partnership",
+  "other",
+  "not_sure",
+] as const;
+export type BusinessStructure = (typeof BUSINESS_STRUCTURES)[number];
+export const BUSINESS_STRUCTURE_LABELS: Record<BusinessStructure, string> = {
+  sole_trader: "Sole trader",
+  limited_company: "Limited company",
+  partnership: "Partnership",
+  limited_liability_partnership: "Limited liability partnership",
+  other: "Other structure",
+  not_sure: "Not sure yet",
+};
+
+// Existing category values remain valid for older clients and workspaces.
+export const BUSINESS_CATEGORIES = BUSINESS_TYPES.filter(
+  (value) =>
+    !["sole_trader", "limited_company", "partnership", "cis_subcontractor"].includes(value),
+);
+
+export function getBusinessProfile(
+  team?: {
+    companyType?: string | null;
+    businessStructure?: string | null;
+    usesCis?: boolean | null;
+  } | null,
+) {
+  const legacyStructure = ["sole_trader", "limited_company", "partnership"].includes(
+    team?.companyType ?? "",
+  )
+    ? team?.companyType
+    : null;
+  const candidate = team?.businessStructure ?? legacyStructure;
+  const structure = BUSINESS_STRUCTURES.includes(candidate as BusinessStructure)
+    ? (candidate as BusinessStructure)
+    : null;
+  const usesCis = team?.usesCis ?? (team?.companyType === "cis_subcontractor" ? true : null);
+  return {
+    structure,
+    usesCis,
+    isSoleTrader: structure === "sole_trader",
+    isLimitedCompany: structure === "limited_company",
+    // A legacy CIS category never establishes the business's legal structure.
+    showSelfAssessment:
+      structure === "sole_trader" || ((!structure || structure === "not_sure") && usesCis === true),
+  };
+}

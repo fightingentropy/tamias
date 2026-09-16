@@ -38,8 +38,8 @@ export function CompanyCountry() {
       <form onSubmit={onSubmit}>
         <Card>
           <CardHeader>
-            <CardTitle>Company country</CardTitle>
-            <CardDescription>This is your company's country of origin.</CardDescription>
+            <CardTitle>Business country</CardTitle>
+            <CardDescription>The country where your business is based.</CardDescription>
           </CardHeader>
 
           <CardContent>

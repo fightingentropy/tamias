@@ -1,13 +1,15 @@
 "use client";
 
 import { Badge } from "@tamias/ui/badge";
+import { getBusinessProfile } from "@tamias/contracts/business-type";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@tamias/ui/card";
 import { Icons } from "@tamias/ui/icons";
-import { Progress } from "@tamias/ui/progress";
 import { Skeleton } from "@tamias/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import Link from "@/framework/link";
 import { useTRPC } from "@/trpc/client";
+import { useTeamQuery } from "@/hooks/use-team";
+import { SelfAssessmentOverview } from "./self-assessment-overview";
 
 function formatDate(value?: string | null) {
   if (!value) {
@@ -104,6 +106,14 @@ function ComplianceOverviewSkeleton() {
 }
 
 export function ComplianceOverview() {
+  const { data: team } = useTeamQuery();
+  const profile = getBusinessProfile(team);
+  if (team?.countryCode === "GB" && profile.showSelfAssessment)
+    return <SelfAssessmentOverview profile={profile} />;
+  return <BusinessTaxOverview isLimitedCompany={profile.isLimitedCompany} />;
+}
+
+function BusinessTaxOverview({ isLimitedCompany }: { isLimitedCompany: boolean }) {
   const trpc = useTRPC();
   const vatQuery = useQuery(trpc.vat.getDashboard.queryOptions());
   const yearEndQuery = useQuery(trpc.yearEnd.getDashboard.queryOptions());
@@ -120,10 +130,6 @@ export function ComplianceOverview() {
   const hmrcConnected = !!data?.connected;
   const payrollImported = (payrollQuery.data?.summary?.importedRunCount ?? 0) > 0;
   const yearEndBuilt = !!yearEndQuery.data?.pack;
-
-  const readinessItems = [profileConfigured, hmrcConnected, payrollImported, yearEndBuilt];
-  const readinessCount = readinessItems.filter(Boolean).length;
-  const readinessPercent = (readinessCount / readinessItems.length) * 100;
 
   const vatStatus: CardStatus = hmrcConnected ? "ready" : data?.profile ? "partial" : "inactive";
   const settingsStatus: CardStatus = profileConfigured ? "ready" : "inactive";
@@ -208,14 +214,23 @@ export function ComplianceOverview() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-[1120px] py-8 space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="space-y-1 lg:min-w-0 lg:flex-1 lg:max-w-[620px]">
-          <h1 className="text-2xl font-medium">Compliance</h1>
+          <h1 className="text-3xl font-serif">Tax overview</h1>
           <p className="text-sm text-muted-foreground">
-            UK Ltd compliance now spans VAT, annual year-end packs with CT prep, and payroll import
-            workflows for GB teams and enabled UK filing profiles.
+            {isLimitedCompany
+              ? "VAT, company year-end records and payroll, when they apply to your business."
+              : "Choose the UK tax tools that apply to your business. Your business structure helps us personalise this page."}
           </p>
+          {!isLimitedCompany && (
+            <Link
+              href="/settings#business-profile"
+              className="mt-3 inline-block text-sm underline underline-offset-4"
+            >
+              Set business structure
+            </Link>
+          )}
         </div>
 
         <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center lg:shrink-0">
@@ -250,15 +265,15 @@ export function ComplianceOverview() {
         </CardContent>
       </Card>
 
-      <div className="space-y-2">
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>
-            Filing readiness: {readinessCount} of {readinessItems.length} areas set up
-          </span>
-          <span>{Math.round(readinessPercent)}%</span>
-        </div>
-        <Progress className="h-2 rounded-full" value={readinessPercent} />
-      </div>
+      <p className="text-sm text-muted-foreground">
+        Each area is optional until it applies to your business. Setup status does not confirm that
+        a return is ready to file.
+      </p>
+      {(vatQuery.isError || yearEndQuery.isError || payrollQuery.isError) && (
+        <p role="alert" className="text-sm">
+          Some tax information couldn’t be loaded. Refresh to try again.
+        </p>
+      )}
 
       <div className="grid gap-4 md:grid-cols-2">
         {cards.map((card) => (

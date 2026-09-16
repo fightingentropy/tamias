@@ -20,8 +20,8 @@ export function OverviewMetricCard({
 }: OverviewMetricCardProps) {
   if (isLoading) {
     return (
-      <div className="h-full border p-5 flex flex-col justify-between bg-white border-[#e6e6e6] dark:bg-[#0c0c0c] dark:border-[#1d1d1d] min-h-[110px]">
-        <span className="text-xs text-muted-foreground">{label}</span>
+      <div className="h-full border p-5 flex flex-col justify-between bg-card border-border min-h-[110px]">
+        <span className="text-sm text-muted-foreground">{label}</span>
         <div className="mt-3">
           <Skeleton className="h-6 w-24" />
         </div>
@@ -32,12 +32,12 @@ export function OverviewMetricCard({
   return (
     <Link
       href={href}
-      className="h-full border p-5 flex flex-col justify-between transition-all duration-300 bg-white border-[#e6e6e6] hover:bg-[#f7f7f7] hover:border-[#d0d0d0] dark:bg-[#0c0c0c] dark:border-[#1d1d1d] dark:hover:bg-[#0f0f0f] dark:hover:border-[#222222] cursor-pointer group min-h-[110px]"
+      className="h-full border p-5 flex flex-col justify-between transition-colors bg-card border-border hover:bg-accent hover:border-muted-foreground/40 cursor-pointer group min-h-[110px]"
     >
-      <span className="text-xs text-muted-foreground">{label}</span>
+      <span className="text-sm text-muted-foreground">{label}</span>
       <div className="mt-3">
-        <span className="text-xl font-medium">{value}</span>
-        {detail ? <span className="text-xs text-muted-foreground ml-2">{detail}</span> : null}
+        <span className="text-2xl font-medium tabular-nums">{value}</span>
+        {detail ? <span className="mt-1 block text-sm text-muted-foreground">{detail}</span> : null}
       </div>
     </Link>
   );

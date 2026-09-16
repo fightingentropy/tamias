@@ -3,6 +3,7 @@
 import { TZDate } from "@date-fns/tz";
 import { useEffect, useState } from "react";
 import { useCurrentUser } from "@/components/current-user-provider";
+import { useWorkspaceActivity } from "@/hooks/use-workspace-activity";
 import { MetricsFilter } from "@/components/metrics/components/metrics-filter";
 import { Customize } from "@/components/widgets/customize";
 import { SummaryTicker } from "./summary-ticker";
@@ -26,6 +27,7 @@ function getTimeBasedGreeting(timezone?: string): string {
 export function WidgetsHeader() {
   const user = useCurrentUser();
   const isCustomizing = useIsCustomizing();
+  const activity = useWorkspaceActivity();
   const [greeting, setGreeting] = useState(() => getTimeBasedGreeting(user?.timezone ?? undefined));
 
   useEffect(() => {
@@ -43,34 +45,31 @@ export function WidgetsHeader() {
   }, [user?.timezone]);
 
   return (
-    <div className="mb-8">
-      <div className="flex justify-between items-start mb-6">
-        <div />
+    <div className="mb-8 flex flex-wrap items-start justify-between gap-5">
+      <div className="min-w-0">
+        <p className="mb-2 text-sm text-muted-foreground">{user?.team?.name || "Your workspace"}</p>
+        <h1 className="font-serif text-[28px] leading-tight sm:text-[32px]">
+          {greeting}
+          {user?.fullName ? `, ${user.fullName.split(" ")[0]}` : ""}.
+        </h1>
+        {isCustomizing ? (
+          <p className="mt-2 text-sm text-muted-foreground">
+            Drag and drop to arrange your dashboard.
+          </p>
+        ) : activity.isEmpty ? (
+          <p className="mt-2 text-sm text-muted-foreground">
+            Let’s get your business records in place.
+          </p>
+        ) : (
+          <SummaryTicker />
+        )}
+      </div>
+      {(!activity.isEmpty || isCustomizing) && (
         <div className="flex items-center gap-2" data-no-close>
           <div className="hidden md:block">
             <Customize />
           </div>
           <MetricsFilter />
-        </div>
-      </div>
-
-      {!isCustomizing && (
-        <div className="text-center mt-16 mb-10">
-          <h1 className="text-[30px] font-serif leading-normal">
-            {greeting}, {user?.fullName?.split(" ")[0]}.
-          </h1>
-          <SummaryTicker />
-        </div>
-      )}
-
-      {isCustomizing && (
-        <div className="text-center mt-8 mb-6">
-          <h1 className="text-[30px] font-serif leading-normal mb-1">
-            {greeting}, {user?.fullName?.split(" ")[0]}.
-          </h1>
-          <p className="text-[#666666] text-[14px]">
-            Drag and drop to arrange your perfect dashboard.
-          </p>
         </div>
       )}
     </div>

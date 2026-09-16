@@ -265,8 +265,11 @@ export function TeamDropdown({ isExpanded = false }: Props) {
 
         {/* Team name - appears to the right of the fixed avatar */}
         {isExpanded && sortedTeams[0] && (
-          <div className="fixed left-[62px] bottom-4 h-[32px] flex items-center">
-            <span
+          <div className="fixed left-[62px] bottom-4 h-[32px] w-[154px] flex items-center">
+            <button
+              type="button"
+              aria-label="Switch workspace"
+              aria-expanded={isActive}
               className="text-sm text-primary truncate transition-opacity duration-200 ease-in-out cursor-pointer hover:opacity-80"
               onClick={(e) => {
                 e.stopPropagation();
@@ -274,7 +277,7 @@ export function TeamDropdown({ isExpanded = false }: Props) {
               }}
             >
               {sortedTeams[0].name}
-            </span>
+            </button>
           </div>
         )}
       </div>

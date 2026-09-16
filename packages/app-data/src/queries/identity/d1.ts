@@ -49,6 +49,8 @@ type TeamRow = {
   stripe_account_id: string | null;
   stripe_connect_status: string | null;
   company_type: string | null;
+  business_structure: string | null;
+  uses_cis: number | null;
   heard_about: string | null;
   next_invoice_sequence: number | null;
   updated_at: string;
@@ -137,6 +139,8 @@ export type UpdateTeamD1Input = {
   stripeAccountId?: string | null;
   stripeConnectStatus?: string | null;
   companyType?: string | null;
+  businessStructure?: string | null;
+  usesCis?: boolean | null;
   heardAbout?: string | null;
   canceledAt?: string | null;
   plan?: string | null;
@@ -153,6 +157,8 @@ export type CreateTeamD1Input = {
   fiscalYearStartMonth?: number | null;
   logoUrl?: string | null;
   companyType?: string | null;
+  businessStructure?: string | null;
+  usesCis?: boolean | null;
   heardAbout?: string | null;
   switchTeam?: boolean;
 };
@@ -250,6 +256,8 @@ function toTeam(row: TeamRow): TeamIdentityRecord {
     baseCurrency: row.base_currency,
     fiscalYearStartMonth: row.fiscal_year_start_month,
     companyType: row.company_type,
+    businessStructure: row.business_structure ?? null,
+    usesCis: row.uses_cis == null ? null : row.uses_cis === 1,
     heardAbout: row.heard_about,
   };
 }
@@ -799,6 +807,9 @@ export async function updateTeamInD1(d1: CloudflareD1DatabaseBinding, input: Upd
     add("stripe_connect_status", input.stripeConnectStatus);
   }
   if (input.companyType !== undefined) add("company_type", input.companyType);
+  if (input.businessStructure !== undefined) add("business_structure", input.businessStructure);
+  if (input.usesCis !== undefined)
+    add("uses_cis", input.usesCis == null ? null : Number(input.usesCis));
   if (input.heardAbout !== undefined) add("heard_about", input.heardAbout);
   if (input.canceledAt !== undefined) add("canceled_at", input.canceledAt);
   if (input.plan !== undefined) add("plan", input.plan);
@@ -829,11 +840,13 @@ export async function createTeamInD1(d1: CloudflareD1DatabaseBinding, input: Cre
         country_code,
         fiscal_year_start_month,
         company_type,
+        business_structure,
+        uses_cis,
         heard_about,
         plan,
         created_at,
         updated_at
-      ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .bind(
       teamId,
@@ -845,6 +858,8 @@ export async function createTeamInD1(d1: CloudflareD1DatabaseBinding, input: Cre
       input.countryCode ?? null,
       input.fiscalYearStartMonth ?? null,
       input.companyType ?? null,
+      input.businessStructure ?? null,
+      input.usesCis == null ? null : Number(input.usesCis),
       input.heardAbout ?? null,
       "trial",
       timestamp,

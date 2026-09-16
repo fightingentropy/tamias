@@ -83,8 +83,8 @@ export function SummaryTicker() {
 
   if (count === 0) {
     return (
-      <p className="mt-2 text-sm text-[#878787]">
-        You're all caught up. Nothing needs your attention right now.
+      <p className="mt-2 text-sm text-muted-foreground">
+        Your balances, records and next steps in one place.
       </p>
     );
   }
@@ -96,7 +96,7 @@ export function SummaryTicker() {
 
   return (
     <div
-      className="mt-2 max-w-xl mx-auto"
+      className="mt-2 max-w-xl"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -107,7 +107,7 @@ export function SummaryTicker() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.3 }}
-          className="text-sm text-[#878787] leading-relaxed"
+          className="text-sm text-muted-foreground leading-relaxed"
         >
           {displayText}
         </motion.p>
@@ -119,6 +119,7 @@ export function SummaryTicker() {
             <button
               key={insight.id}
               type="button"
+              aria-label={`Show insight ${i + 1}`}
               className="h-[2px] flex-1 bg-[#e6e6e6] dark:bg-[#1d1d1d] overflow-hidden cursor-pointer"
               onClick={() => {
                 setActiveIndex(i);
