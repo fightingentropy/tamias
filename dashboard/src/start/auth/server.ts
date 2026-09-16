@@ -80,6 +80,8 @@ async function fetchAuthAction(
   const headers = new Headers({
     "content-type": "application/json",
   });
+  const clientIp = request.headers.get("cf-connecting-ip");
+  if (clientIp) headers.set("cf-connecting-ip", clientIp);
 
   if (opts?.token) {
     headers.set("authorization", `Bearer ${opts.token}`);
@@ -211,12 +213,62 @@ function isCrossOriginRequest(request: Request) {
   }
 
   const requestUrl = new URL(request.url);
-  const originUrl = new URL(origin);
+  let originUrl: URL;
+  try {
+    originUrl = new URL(origin);
+  } catch {
+    return true;
+  }
 
   return (
     originUrl.host !== (request.headers.get("host") ?? requestUrl.host) ||
     originUrl.protocol !== requestUrl.protocol
   );
+}
+
+export async function proxyPasswordResetRequest(request: Request) {
+  if (request.method !== "POST") return new Response("Invalid method", { status: 405 });
+  if (isCrossOriginRequest(request)) return new Response("Invalid origin", { status: 403 });
+  if (!request.headers.get("content-type")?.startsWith("application/json")) {
+    return jsonResponse({ error: "Invalid content type" }, 415);
+  }
+
+  const body = (await request.json().catch(() => null)) as {
+    intent?: unknown;
+    email?: unknown;
+    token?: unknown;
+    password?: unknown;
+  } | null;
+  if (!body || (body.intent !== "request" && body.intent !== "complete")) {
+    return jsonResponse({ error: "Invalid request" }, 400);
+  }
+  const payload =
+    body.intent === "request"
+      ? { email: body.email }
+      : { token: body.token, password: body.password };
+  const encoded = JSON.stringify(payload);
+  if (encoded.length > 4096) return jsonResponse({ error: "Request is too large" }, 413);
+
+  const internalApiFetch = getInternalApiFetch();
+  const url = new URL(
+    `/auth/password-reset/${body.intent}`,
+    internalApiFetch ? request.url : getApiUrl(),
+  );
+  const headers = new Headers({ "content-type": "application/json" });
+  const clientIp = request.headers.get("cf-connecting-ip");
+  if (clientIp) headers.set("cf-connecting-ip", clientIp);
+  try {
+    const upstreamRequest = new Request(url, { method: "POST", headers, body: encoded });
+    const upstream = internalApiFetch
+      ? await internalApiFetch(upstreamRequest)
+      : await fetch(upstreamRequest);
+    const result = await upstream.json().catch(() => ({ error: "Unable to process request" }));
+    const response = jsonResponse(result, upstream.status);
+    response.headers.set("cache-control", "no-store");
+    return response;
+  } catch {
+    return jsonResponse({ error: "Unable to connect. Please try again." }, 503);
+  }
 }
 
 const getCurrentStartAuthContext = createIsomorphicFn()

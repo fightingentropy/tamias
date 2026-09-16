@@ -5,7 +5,8 @@
   "sideEffects": false,
   "scripts": {
     "clean": "rm -rf node_modules",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "bun test --exit src"
   },
   "exports": {
     "./auth": "./src/auth.ts",

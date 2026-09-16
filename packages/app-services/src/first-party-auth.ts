@@ -7,6 +7,7 @@ import {
 import { ensureUserInD1, getUserByIdFromD1, requireIdentityD1 } from "@tamias/app-data/queries";
 import { createAccessToken, verifyAccessToken } from "@tamias/auth-session";
 import { normalizeEmail } from "@tamias/domain/identity";
+import { timingSafeEqual } from "node:crypto";
 
 type AuthTokens = {
   token: string;
@@ -133,7 +134,9 @@ async function verifyPassword(password: string, persistedHash: string | null) {
   }
 
   const computed = await derivePassword(password, fromBase64Url(saltRaw), iterations);
-  return computed === digest;
+  const left = textEncoder.encode(computed);
+  const right = textEncoder.encode(digest);
+  return left.length === right.length && timingSafeEqual(left, right);
 }
 
 function readPasswordParams(args: Record<string, unknown>) {
@@ -182,6 +185,7 @@ async function createSessionTokens(
     userId: string;
     userAgent?: string | null;
     ip?: string | null;
+    passwordAccount: { id: string; secretHash: string };
   },
 ): Promise<AuthTokens> {
   const timestamp = nowIso();
@@ -194,7 +198,7 @@ async function createSessionTokens(
     throw new Error("Auth user not found");
   }
 
-  await d1
+  const session = await d1
     .prepare(
       `insert into auth_sessions (
         id,
@@ -205,7 +209,10 @@ async function createSessionTokens(
         last_used_at,
         user_agent,
         ip_hash
-      ) values (?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) select ?, ?, ?, ?, ?, ?, ?, ?
+      where exists (
+        select 1 from auth_accounts where id = ? and secret_hash = ?
+      ) returning id`,
     )
     .bind(
       sessionId,
@@ -216,8 +223,14 @@ async function createSessionTokens(
       timestamp,
       args.userAgent ?? null,
       args.ip ? await sha256(args.ip) : null,
+      args.passwordAccount.id,
+      args.passwordAccount.secretHash,
     )
-    .run();
+    .first<{ id: string }>();
+
+  if (!session) {
+    throw new Error("InvalidSecret");
+  }
 
   await d1
     .prepare(
@@ -276,6 +289,8 @@ async function signUpWithPassword(
     .bind(timestamp, user.id)
     .run();
 
+  const accountId = crypto.randomUUID();
+  const secretHash = await hashPassword(args.password);
   await d1
     .prepare(
       `insert into auth_accounts (
@@ -288,14 +303,7 @@ async function signUpWithPassword(
         updated_at
       ) values (?, ?, 'password', ?, ?, ?, ?)`,
     )
-    .bind(
-      crypto.randomUUID(),
-      user.id,
-      args.email,
-      await hashPassword(args.password),
-      timestamp,
-      timestamp,
-    )
+    .bind(accountId, user.id, args.email, secretHash, timestamp, timestamp)
     .run();
 
   return {
@@ -303,6 +311,7 @@ async function signUpWithPassword(
       userId: user.id,
       userAgent: options.userAgent,
       ip: options.ip,
+      passwordAccount: { id: accountId, secretHash },
     }),
   };
 }
@@ -323,6 +332,7 @@ async function signInWithPassword(
       userId: account.user_id,
       userAgent: options.userAgent,
       ip: options.ip,
+      passwordAccount: { id: account.id, secretHash: account.secret_hash! },
     }),
   };
 }
@@ -467,4 +477,134 @@ export async function handleDashboardAuthAction(
   }
 
   return signInWithPassword(d1, passwordParams, options);
+}
+
+const PASSWORD_RESET_TTL_MS = 30 * 60 * 1000;
+const PASSWORD_RESET_COOLDOWN_MS = 5 * 60 * 1000;
+
+export class InvalidPasswordResetError extends Error {
+  constructor() {
+    super("This reset link has expired or already been used. Request a new link.");
+  }
+}
+
+/** Only a hash is persisted; the delivery callback is the sole recipient of the raw token. */
+export async function requestPasswordReset(
+  email: string,
+  deliver: (email: string, token: string) => Promise<void>,
+  db: Database = createDatabase(),
+) {
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail) return;
+
+  const d1 = authD1(db);
+  const token = randomToken("tamias_pr_");
+  const tokenHash = await sha256(token);
+  const timestamp = nowIso();
+  const row = await d1
+    .prepare(
+      `insert into auth_password_resets (token_hash, account_id, created_at, expires_at)
+       select ?, id, ?, ? from auth_accounts
+       where provider = 'password' and provider_account_id = ?
+         and not exists (
+           select 1 from auth_password_resets
+           where account_id = auth_accounts.id and created_at > ?
+         )
+       returning account_id`,
+    )
+    .bind(
+      tokenHash,
+      timestamp,
+      futureIso(PASSWORD_RESET_TTL_MS),
+      normalizedEmail,
+      new Date(Date.now() - PASSWORD_RESET_COOLDOWN_MS).toISOString(),
+    )
+    .first<{ account_id: string }>();
+
+  if (!row) return;
+
+  try {
+    await deliver(normalizedEmail, token);
+  } catch {
+    await d1.prepare("delete from auth_password_resets where token_hash = ?").bind(tokenHash).run();
+    throw new Error("Password reset email delivery failed");
+  }
+}
+
+export async function completePasswordReset(
+  token: string,
+  password: string,
+  db: Database = createDatabase(),
+) {
+  if (!/^tamias_pr_[A-Za-z0-9_-]{43}$/.test(token)) throw new InvalidPasswordResetError();
+  if (password.length < 8 || password.length > 128) {
+    throw new Error("Use a password between 8 and 128 characters.");
+  }
+
+  const d1 = authD1(db);
+  const tokenHash = await sha256(token);
+  const account = await d1
+    .prepare(
+      `select a.provider_account_id as email from auth_password_resets r
+       join auth_accounts a on a.id = r.account_id and a.provider = 'password'
+       where r.token_hash = ? and r.used_at is null and r.expires_at > ?`,
+    )
+    .bind(tokenHash, nowIso())
+    .first<{ email: string }>();
+  if (!account) throw new InvalidPasswordResetError();
+
+  const secretHash = await hashPassword(password);
+  const timestamp = nowIso();
+  const claimId = crypto.randomUUID();
+  // Every mutation is conditional on this attempt claiming the token. D1 executes
+  // the batch in one transaction, so concurrent requests cannot reuse a reset link.
+  const claimedAccount = `select account_id from auth_password_resets where token_hash = ? and claim_id = ?`;
+  const claimedUser = `select user_id from auth_accounts where id in (${claimedAccount})`;
+  const [claim] = await d1.batch([
+    d1
+      .prepare(
+        `update auth_password_resets set used_at = ?, claim_id = ?
+         where token_hash = ? and used_at is null and expires_at > ? returning account_id`,
+      )
+      .bind(timestamp, claimId, tokenHash, timestamp),
+    d1
+      .prepare(
+        `update auth_accounts set secret_hash = ?, updated_at = ? where id in (${claimedAccount})`,
+      )
+      .bind(secretHash, timestamp, tokenHash, claimId),
+    d1
+      .prepare(
+        `update auth_sessions set revoked_at = ?, updated_at = ?
+         where user_id in (${claimedUser}) and revoked_at is null`,
+      )
+      .bind(timestamp, timestamp, tokenHash, claimId),
+    d1
+      .prepare(
+        `update auth_refresh_tokens set revoked_at = ? where revoked_at is null
+         and session_id in (select id from auth_sessions where user_id in (${claimedUser}))`,
+      )
+      .bind(timestamp, tokenHash, claimId),
+    d1
+      .prepare(
+        `update auth_password_resets set used_at = ? where used_at is null
+         and account_id in (${claimedAccount})`,
+      )
+      .bind(timestamp, tokenHash, claimId),
+  ]);
+  if (!claim?.results?.length) throw new InvalidPasswordResetError();
+  return { email: account.email };
+}
+
+export async function getActiveAuthIdentity(accessToken?: string, db: Database = createDatabase()) {
+  const identity = await verifyAccessToken(accessToken);
+  if (!identity?.subject || !identity.session_id) return null;
+
+  const session = await authD1(db)
+    .prepare(
+      `select id from auth_sessions where id = ? and user_id = ?
+       and revoked_at is null and expires_at > ?`,
+    )
+    .bind(identity.session_id, identity.subject, nowIso())
+    .first<{ id: string }>();
+  return session ? identity : null;
 }

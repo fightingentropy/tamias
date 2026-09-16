@@ -14,6 +14,7 @@ import { Route as UpgradeRouteImport } from "./routes/upgrade";
 import { Route as TransactionsRouteImport } from "./routes/transactions";
 import { Route as TrackerRouteImport } from "./routes/tracker";
 import { Route as TeamsRouteImport } from "./routes/teams";
+import { Route as ResetPasswordRouteImport } from "./routes/reset-password";
 import { Route as ReportsRouteImport } from "./routes/reports";
 import { Route as OnboardingRouteImport } from "./routes/onboarding";
 import { Route as OauthCallbackRouteImport } from "./routes/oauth-callback";
@@ -45,6 +46,7 @@ import { Route as ComplianceVatRouteImport } from "./routes/compliance/vat";
 import { Route as ComplianceSettingsRouteImport } from "./routes/compliance/settings";
 import { Route as CompliancePayrollRouteImport } from "./routes/compliance/payroll";
 import { Route as ChatIdRouteImport } from "./routes/chat/$id";
+import { Route as ApiPasswordResetRouteImport } from "./routes/api/password-reset";
 import { Route as ApiHealthRouteImport } from "./routes/api/health";
 import { Route as ApiAuthRouteImport } from "./routes/api/auth";
 import { Route as AccountTeamsRouteImport } from "./routes/account/teams";
@@ -85,6 +87,11 @@ const TeamsRoute = TeamsRouteImport.update({
   path: "/teams",
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import("./routes/teams.lazy").then((d) => d.Route));
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: "/reset-password",
+  path: "/reset-password",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const ReportsRoute = ReportsRouteImport.update({
   id: "/reports",
   path: "/reports",
@@ -274,6 +281,11 @@ const ChatIdRoute = ChatIdRouteImport.update({
   path: "/chat/$id",
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import("./routes/chat/$id.lazy").then((d) => d.Route));
+const ApiPasswordResetRoute = ApiPasswordResetRouteImport.update({
+  id: "/api/password-reset",
+  path: "/api/password-reset",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const ApiHealthRoute = ApiHealthRouteImport.update({
   id: "/api/health",
   path: "/api/health",
@@ -366,6 +378,7 @@ export interface FileRoutesByFullPath {
   "/oauth-callback": typeof OauthCallbackRoute;
   "/onboarding": typeof OnboardingRoute;
   "/reports": typeof ReportsRoute;
+  "/reset-password": typeof ResetPasswordRoute;
   "/teams": typeof TeamsRoute;
   "/tracker": typeof TrackerRoute;
   "/transactions": typeof TransactionsRouteWithChildren;
@@ -377,6 +390,7 @@ export interface FileRoutesByFullPath {
   "/account/teams": typeof AccountTeamsRoute;
   "/api/auth": typeof ApiAuthRouteWithChildren;
   "/api/health": typeof ApiHealthRoute;
+  "/api/password-reset": typeof ApiPasswordResetRoute;
   "/chat/$id": typeof ChatIdRoute;
   "/compliance/payroll": typeof CompliancePayrollRoute;
   "/compliance/settings": typeof ComplianceSettingsRoute;
@@ -418,6 +432,7 @@ export interface FileRoutesByTo {
   "/oauth-callback": typeof OauthCallbackRoute;
   "/onboarding": typeof OnboardingRoute;
   "/reports": typeof ReportsRoute;
+  "/reset-password": typeof ResetPasswordRoute;
   "/teams": typeof TeamsRoute;
   "/tracker": typeof TrackerRoute;
   "/transactions": typeof TransactionsRouteWithChildren;
@@ -429,6 +444,7 @@ export interface FileRoutesByTo {
   "/account/teams": typeof AccountTeamsRoute;
   "/api/auth": typeof ApiAuthRouteWithChildren;
   "/api/health": typeof ApiHealthRoute;
+  "/api/password-reset": typeof ApiPasswordResetRoute;
   "/chat/$id": typeof ChatIdRoute;
   "/compliance/payroll": typeof CompliancePayrollRoute;
   "/compliance/settings": typeof ComplianceSettingsRoute;
@@ -471,6 +487,7 @@ export interface FileRoutesById {
   "/oauth-callback": typeof OauthCallbackRoute;
   "/onboarding": typeof OnboardingRoute;
   "/reports": typeof ReportsRoute;
+  "/reset-password": typeof ResetPasswordRoute;
   "/teams": typeof TeamsRoute;
   "/tracker": typeof TrackerRoute;
   "/transactions": typeof TransactionsRouteWithChildren;
@@ -482,6 +499,7 @@ export interface FileRoutesById {
   "/account/teams": typeof AccountTeamsRoute;
   "/api/auth": typeof ApiAuthRouteWithChildren;
   "/api/health": typeof ApiHealthRoute;
+  "/api/password-reset": typeof ApiPasswordResetRoute;
   "/chat/$id": typeof ChatIdRoute;
   "/compliance/payroll": typeof CompliancePayrollRoute;
   "/compliance/settings": typeof ComplianceSettingsRoute;
@@ -525,6 +543,7 @@ export interface FileRouteTypes {
     | "/oauth-callback"
     | "/onboarding"
     | "/reports"
+    | "/reset-password"
     | "/teams"
     | "/tracker"
     | "/transactions"
@@ -536,6 +555,7 @@ export interface FileRouteTypes {
     | "/account/teams"
     | "/api/auth"
     | "/api/health"
+    | "/api/password-reset"
     | "/chat/$id"
     | "/compliance/payroll"
     | "/compliance/settings"
@@ -577,6 +597,7 @@ export interface FileRouteTypes {
     | "/oauth-callback"
     | "/onboarding"
     | "/reports"
+    | "/reset-password"
     | "/teams"
     | "/tracker"
     | "/transactions"
@@ -588,6 +609,7 @@ export interface FileRouteTypes {
     | "/account/teams"
     | "/api/auth"
     | "/api/health"
+    | "/api/password-reset"
     | "/chat/$id"
     | "/compliance/payroll"
     | "/compliance/settings"
@@ -629,6 +651,7 @@ export interface FileRouteTypes {
     | "/oauth-callback"
     | "/onboarding"
     | "/reports"
+    | "/reset-password"
     | "/teams"
     | "/tracker"
     | "/transactions"
@@ -640,6 +663,7 @@ export interface FileRouteTypes {
     | "/account/teams"
     | "/api/auth"
     | "/api/health"
+    | "/api/password-reset"
     | "/chat/$id"
     | "/compliance/payroll"
     | "/compliance/settings"
@@ -682,6 +706,7 @@ export interface RootRouteChildren {
   OauthCallbackRoute: typeof OauthCallbackRoute;
   OnboardingRoute: typeof OnboardingRoute;
   ReportsRoute: typeof ReportsRoute;
+  ResetPasswordRoute: typeof ResetPasswordRoute;
   TeamsRoute: typeof TeamsRoute;
   TrackerRoute: typeof TrackerRoute;
   TransactionsRoute: typeof TransactionsRouteWithChildren;
@@ -693,6 +718,7 @@ export interface RootRouteChildren {
   AccountTeamsRoute: typeof AccountTeamsRoute;
   ApiAuthRoute: typeof ApiAuthRouteWithChildren;
   ApiHealthRoute: typeof ApiHealthRoute;
+  ApiPasswordResetRoute: typeof ApiPasswordResetRoute;
   ChatIdRoute: typeof ChatIdRoute;
   CompliancePayrollRoute: typeof CompliancePayrollRoute;
   ComplianceSettingsRoute: typeof ComplianceSettingsRoute;
@@ -752,6 +778,13 @@ declare module "@tanstack/react-router" {
       path: "/teams";
       fullPath: "/teams";
       preLoaderRoute: typeof TeamsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/reset-password": {
+      id: "/reset-password";
+      path: "/reset-password";
+      fullPath: "/reset-password";
+      preLoaderRoute: typeof ResetPasswordRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/reports": {
@@ -971,6 +1004,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof ChatIdRouteImport;
       parentRoute: typeof rootRouteImport;
     };
+    "/api/password-reset": {
+      id: "/api/password-reset";
+      path: "/api/password-reset";
+      fullPath: "/api/password-reset";
+      preLoaderRoute: typeof ApiPasswordResetRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     "/api/health": {
       id: "/api/health";
       path: "/api/health";
@@ -1162,6 +1202,7 @@ const rootRouteChildren: RootRouteChildren = {
   OauthCallbackRoute: OauthCallbackRoute,
   OnboardingRoute: OnboardingRoute,
   ReportsRoute: ReportsRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   TeamsRoute: TeamsRoute,
   TrackerRoute: TrackerRoute,
   TransactionsRoute: TransactionsRouteWithChildren,
@@ -1173,6 +1214,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccountTeamsRoute: AccountTeamsRoute,
   ApiAuthRoute: ApiAuthRouteWithChildren,
   ApiHealthRoute: ApiHealthRoute,
+  ApiPasswordResetRoute: ApiPasswordResetRoute,
   ChatIdRoute: ChatIdRoute,
   CompliancePayrollRoute: CompliancePayrollRoute,
   ComplianceSettingsRoute: ComplianceSettingsRoute,

@@ -10,7 +10,11 @@ let analyticsClient: AnalyticsClient | null | undefined;
 let analyticsClientPromise: Promise<AnalyticsClient | null> | undefined;
 
 async function createAnalyticsClient() {
-  if (typeof window === "undefined" || !process.env.OPENPANEL_CLIENT_ID) {
+  if (
+    typeof window === "undefined" ||
+    window.location.pathname === "/reset-password" ||
+    !process.env.OPENPANEL_CLIENT_ID
+  ) {
     return null;
   }
 

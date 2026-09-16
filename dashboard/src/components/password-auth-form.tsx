@@ -12,6 +12,7 @@ import { z } from "zod/v3";
 import { useAuthActions } from "@/framework/auth-client";
 import { useSearchParams } from "@/framework/navigation";
 import { getPasswordAuthErrorMessage } from "@/utils/password-auth-errors";
+import Link from "@/framework/link";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -107,7 +108,20 @@ export function PasswordAuthForm({ className }: PasswordAuthFormProps) {
             )}
           />
 
-          {error ? <p className="text-sm text-destructive">{error}</p> : null}
+          {mode === "signIn" ? (
+            <Link
+              href="/reset-password"
+              className="self-end text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+            >
+              Forgot password?
+            </Link>
+          ) : null}
+
+          {error ? (
+            <p role="alert" className="text-sm text-destructive">
+              {error}
+            </p>
+          ) : null}
 
           <SubmitButton
             type="submit"
