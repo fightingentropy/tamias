@@ -34,7 +34,7 @@ function roundMoney(value: number): number {
 }
 
 function nearlyEqual(left: number, right: number): boolean {
-  return Math.abs(left - right) < 0.011;
+  return Math.round(left * 100) === Math.round(right * 100);
 }
 
 function parseStatementDate(value: string): string | null {
@@ -92,11 +92,10 @@ function parseCounterparty(description: string, details: string): string | null 
   return detailsMatch?.[1]?.trim() || null;
 }
 
-export function extractRevolutStatementFromText(text: string): ExtractedPdfStatement | null {
-  if (!text.includes("Revolut Ltd") || !text.includes("Account transactions from")) {
-    return null;
-  }
-
+function extractSection(text: string): {
+  summary: ParsedSummary;
+  transactions: ExtractedPdfStatement["transactions"];
+} | null {
   const summary = parseSummary(text);
   if (!summary) {
     return null;
@@ -162,13 +161,40 @@ export function extractRevolutStatementFromText(text: string): ExtractedPdfState
     const description = rawDescription.trim();
     const details = rowText.slice(rawMatchedRow.length).trim();
 
-    transactions.push({
+    const transaction = {
       date,
       description,
       counterparty: parseCounterparty(description, details),
       amount: signedAmount,
       balance,
-    });
+    };
+
+    // Incoming exchanges show the net credit in the table, while the summary
+    // counts the gross credit and its fee separately. Both values are printed
+    // in the row details; do not invent an intermediate running balance.
+    const exchangeFee = details.match(/\bFee:\s+£([\d,]+\.\d{2})\s+£([\d,]+\.\d{2})(?:\s|$)/);
+    if (signedAmount > 0 && description.startsWith("Exchanged to ") && exchangeFee) {
+      const fee = parseMoney(exchangeFee[1]!);
+      const grossCredit = parseMoney(exchangeFee[2]!);
+      if (!nearlyEqual(grossCredit - fee, signedAmount)) return null;
+      transactions.push(
+        {
+          ...transaction,
+          description: `${description} (before fee)`,
+          amount: grossCredit,
+          balance: null,
+        },
+        {
+          date,
+          description: "Currency exchange fee",
+          counterparty: "Revolut",
+          amount: -fee,
+          balance,
+        },
+      );
+    } else {
+      transactions.push(transaction);
+    }
 
     previousBalance = balance;
   }
@@ -194,8 +220,35 @@ export function extractRevolutStatementFromText(text: string): ExtractedPdfState
     return null;
   }
 
-  return {
-    detectedCurrency: detectCurrency(text),
-    transactions,
-  };
+  return { summary, transactions };
+}
+
+export function isRevolutStatementText(text: string): boolean {
+  return /\bRevolut\b/.test(text) && text.includes("Account transactions from");
+}
+
+export function extractRevolutStatementFromText(text: string): ExtractedPdfStatement | null {
+  text = text.replace(/\s+/g, " ");
+  if (!isRevolutStatementText(text)) return null;
+  const currencies = new Set(
+    [...text.matchAll(/\b([A-Z]{3}) Statement\b/g)].map((match) => match[1]),
+  );
+  // This parser understands sterling columns. A combined file must describe
+  // one continuous account, not silently merge different currencies/accounts.
+  if (currencies.size !== 1 || !currencies.has("GBP")) return null;
+
+  const sections = [...text.matchAll(/Balance summary/g)].map((match) => match.index!);
+  if (!sections.length) return null;
+  const transactions: ExtractedPdfStatement["transactions"] = [];
+  let previousClosing: number | null = null;
+  for (let index = 0; index < sections.length; index += 1) {
+    const section = extractSection(text.slice(sections[index], sections[index + 1]));
+    if (!section) return null;
+    if (previousClosing !== null && !nearlyEqual(previousClosing, section.summary.openingBalance)) {
+      return null;
+    }
+    transactions.push(...section.transactions);
+    previousClosing = section.summary.closingBalance;
+  }
+  return { detectedCurrency: detectCurrency(text), transactions };
 }

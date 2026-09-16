@@ -38,4 +38,77 @@ describe("extractRevolutStatementFromText", () => {
 
     expect(extractRevolutStatementFromText(tampered)).toBeNull();
   });
+
+  it("reads both migration sections and excludes pending and reverted authorisations", () => {
+    const second = [
+      "GBP Statement Revolut Bank UK Ltd Balance summary",
+      "Total £114.50 £20.00 £30.00 £124.50",
+      "Pending from February 1, 2026 to February 28, 2026",
+      "Feb 28, 2026 Pending Shop £7.00",
+      "Account transactions from February 1, 2026 to February 28, 2026",
+      "Date Description Money out Money in Balance",
+      "Feb 2, 2026 Payment from SECOND LTD £30.00 £144.50",
+      "Feb 3, 2026 Shop £20.00 £124.50",
+      "Reverted from February 1, 2026 to February 28, 2026",
+      "Feb 4, 2026 Reverted Shop £9.00",
+    ].join("\n");
+    const result = extractRevolutStatementFromText(`${sampleStatement}\n${second}`);
+    expect(result?.transactions).toHaveLength(6);
+    expect(result?.transactions.at(-1)).toMatchObject({
+      date: "2026-02-03",
+      amount: -20,
+      balance: 124.5,
+    });
+    expect(
+      result?.transactions.some(
+        (t) => t.description.includes("Pending") || t.description.includes("Reverted"),
+      ),
+    ).toBe(false);
+    expect(
+      extractRevolutStatementFromText(
+        `${sampleStatement}\n${second.replace("£124.50", "£125.50")}`,
+      ),
+    ).toBeNull();
+    expect(
+      extractRevolutStatementFromText(
+        `${sampleStatement}\n${second.replace("£114.50", "£115.50")}`,
+      ),
+    ).toBeNull();
+  });
+
+  it("reconciles an incoming exchange using its printed gross credit and fee", () => {
+    const statement = [
+      "GBP Statement Revolut Ltd Balance summary Total £100.00 £1.20 £50.00 £148.80",
+      "Account transactions from March 1, 2026 to March 31, 2026",
+      "Date Description Money out Money in Balance",
+      "Mar 1, 2026 Exchanged to GBP £48.80 £148.80 Fee: £1.20 £50.00 $60.00",
+    ].join(" ");
+    const result = extractRevolutStatementFromText(statement);
+    expect(result?.transactions).toEqual([
+      {
+        date: "2026-03-01",
+        description: "Exchanged to GBP (before fee)",
+        counterparty: null,
+        amount: 50,
+        balance: null,
+      },
+      {
+        date: "2026-03-01",
+        description: "Currency exchange fee",
+        counterparty: "Revolut",
+        amount: -1.2,
+        balance: 148.8,
+      },
+    ]);
+    expect(
+      extractRevolutStatementFromText(statement.replace("Fee: £1.20", "Fee: £1.21")),
+    ).toBeNull();
+  });
+
+  it("rejects a one-penny balance mismatch and mixed-currency statements", () => {
+    expect(extractRevolutStatementFromText(sampleStatement.replace("£87.50", "£87.51"))).toBeNull();
+    expect(
+      extractRevolutStatementFromText(`${sampleStatement} EUR Statement Revolut Bank`),
+    ).toBeNull();
+  });
 });

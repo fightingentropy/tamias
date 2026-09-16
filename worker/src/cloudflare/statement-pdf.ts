@@ -5,6 +5,7 @@ import {
   extractedPdfStatementSchema,
   extractedTransactionsToCsvRows,
   extractRevolutStatementFromText,
+  isRevolutStatementText,
 } from "@tamias/import";
 import { downloadVaultFile, uploadVaultFile } from "@tamias/storage";
 
@@ -126,7 +127,15 @@ async function extractKnownStatementFormat(
     return null;
   }
 
-  return extractRevolutStatementFromText(text);
+  const extracted = extractRevolutStatementFromText(text);
+  if (!extracted && isRevolutStatementText(text)) {
+    throw new StatementPdfExtractionError(
+      422,
+      "UNPROCESSABLE_CONTENT",
+      "The Revolut statement could not be reconciled with its balance summaries. Please export a CSV from Revolut or contact support.",
+    );
+  }
+  return extracted;
 }
 
 function hasExtractedTransactions(extracted: ExtractedPdfStatement | null | undefined): boolean {
