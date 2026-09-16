@@ -12,6 +12,7 @@ import {
 } from "../../schemas/transactions";
 import type { WorkerJob as Job } from "../../types/job";
 import { getDb } from "../../utils/db";
+import { processBatch } from "../../utils/process-batch";
 import { TIMEOUTS, withTimeout } from "../../utils/timeout";
 import { BaseProcessor } from "../base";
 
@@ -93,24 +94,38 @@ export class ImportTransactionsProcessor extends BaseProcessor<ImportTransaction
     if (!content) throw new Error("File content is required");
 
     const batch = prepareTransactionImportBatch(content, job.data);
-    const upserted = await upsertTransactions(getDb(), {
-      teamId,
-      transactions: batch.transactions.map((t) => ({
-        name: t.name,
-        date: t.date,
-        method: t.method === "card" ? "card_purchase" : t.method === "bank" ? "transfer" : "other",
-        amount: t.amount,
-        currency: t.currency,
-        teamId: t.team_id,
-        bankAccountId: t.bank_account_id,
-        internalId: t.internal_id,
-        status: t.status,
-        manual: t.manual,
-        categorySlug: t.category_slug,
-        counterpartyName: t.counterparty_name,
-        notified: true,
-      })),
+    const transactions = batch.transactions.map((t) => ({
+      name: t.name,
+      date: t.date,
+      method: (t.method === "card"
+        ? "card_purchase"
+        : t.method === "bank"
+          ? "transfer"
+          : "other") as "card_purchase" | "transfer" | "other",
+      amount: t.amount,
+      currency: t.currency,
+      teamId: t.team_id,
+      bankAccountId: t.bank_account_id,
+      internalId: t.internal_id,
+      status: t.status,
+      manual: t.manual,
+      categorySlug: t.category_slug,
+      counterpartyName: t.counterparty_name,
+      notified: true,
+    }));
+    // A transaction's writes stay ordered, while independent transactions can
+    // overlap D1 network latency. Keep total queries within one invocation's budget.
+    const results = await processBatch(transactions, 10, async (group) => {
+      const writes = await Promise.allSettled(
+        group.map((transaction) =>
+          upsertTransactions(getDb(), { teamId, transactions: [transaction] }),
+        ),
+      );
+      const failure = writes.find((write) => write.status === "rejected");
+      if (failure?.status === "rejected") throw failure.reason;
+      return writes.flatMap((write) => (write.status === "fulfilled" ? write.value : []));
     });
+    const upserted = results.flat(2);
 
     // Bound follow-up jobs too, including their queue payloads and database work.
     const transactionIds = upserted.map((t) => t.id);
