@@ -23,6 +23,9 @@ describe("business structure and CIS", () => {
       false,
     );
     expect(
+      getBusinessProfile({ companyType: "cis_subcontractor", usesCis: null }).usesCis,
+    ).toBeNull();
+    expect(
       getBusinessProfile({ companyType: "sole_trader", businessStructure: "limited_company" })
         .showSelfAssessment,
     ).toBe(false);

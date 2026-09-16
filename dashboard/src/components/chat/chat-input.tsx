@@ -338,7 +338,7 @@ function ChatInputContent() {
                   }}
                   onFocus={() => setIsFocused(true)}
                   onBlur={() => setIsFocused(false)}
-                  className="w-full h-full border-none bg-transparent resize-none outline-none whitespace-nowrap overflow-hidden text-ellipsis"
+                  className="w-full h-full border-none bg-transparent resize-none outline-none whitespace-nowrap overflow-hidden text-ellipsis placeholder:text-muted-foreground"
                   onKeyDown={(e) => {
                     // Handle Enter key for commands
                     if (e.key === "Enter" && showCommands) {

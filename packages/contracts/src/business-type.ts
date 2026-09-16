@@ -81,7 +81,12 @@ export function getBusinessProfile(
   const structure = BUSINESS_STRUCTURES.includes(candidate as BusinessStructure)
     ? (candidate as BusinessStructure)
     : null;
-  const usesCis = team?.usesCis ?? (team?.companyType === "cis_subcontractor" ? true : null);
+  const usesCis =
+    team?.usesCis !== undefined
+      ? team.usesCis
+      : team?.companyType === "cis_subcontractor"
+        ? true
+        : null;
   return {
     structure,
     usesCis,

@@ -100,10 +100,43 @@ describe("business profile persistence", () => {
       expect(team).toMatchObject({
         companyType: "cis_subcontractor",
         businessStructure: null,
-        usesCis: null,
+        usesCis: true,
       });
+      await updateTeamInD1(d1, { teamId: team!.id, usesCis: null });
+      expect((await getTeamByIdFromD1(d1, team!.id))?.usesCis).toBeNull();
       expect(() => sqlite.exec("UPDATE teams SET uses_cis = 3")).toThrow();
       expect(() => sqlite.exec("UPDATE teams SET business_structure = 'invalid'")).toThrow();
+    } finally {
+      sqlite.close();
+    }
+  });
+  test("migrates a legacy CIS choice without assigning a legal structure", async () => {
+    const { sqlite, d1 } = setup();
+    try {
+      await createTeamInD1(d1, {
+        teamId: "legacy",
+        name: "Legacy",
+        companyType: "cis_subcontractor",
+        usesCis: null,
+      });
+      await createTeamInD1(d1, { teamId: "other", name: "Other", companyType: "tradesperson" });
+      sqlite.exec(
+        readFileSync(
+          resolve(
+            import.meta.dir,
+            "../../../../api/migrations/d1/0052_preserve_legacy_cis_choice.sql",
+          ),
+          "utf8",
+        ),
+      );
+      expect(await getTeamByIdFromD1(d1, "legacy")).toMatchObject({
+        businessStructure: null,
+        usesCis: true,
+      });
+      expect(await getTeamByIdFromD1(d1, "other")).toMatchObject({
+        businessStructure: null,
+        usesCis: null,
+      });
     } finally {
       sqlite.close();
     }

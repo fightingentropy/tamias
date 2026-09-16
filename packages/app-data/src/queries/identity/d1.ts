@@ -859,7 +859,13 @@ export async function createTeamInD1(d1: CloudflareD1DatabaseBinding, input: Cre
       input.fiscalYearStartMonth ?? null,
       input.companyType ?? null,
       input.businessStructure ?? null,
-      input.usesCis == null ? null : Number(input.usesCis),
+      input.usesCis === undefined
+        ? input.companyType === "cis_subcontractor"
+          ? 1
+          : null
+        : input.usesCis === null
+          ? null
+          : Number(input.usesCis),
       input.heardAbout ?? null,
       "trial",
       timestamp,
