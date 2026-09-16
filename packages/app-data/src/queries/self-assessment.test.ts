@@ -24,6 +24,7 @@ import {
   submitSelfAssessment,
   pollSelfAssessment,
   selfAssessmentEvidence,
+  selfAssessmentConnection,
 } from "./self-assessment-filings";
 
 class Statement implements CloudflareD1PreparedStatementBinding {
@@ -239,9 +240,11 @@ async function withFilingEnvironment(
   const values = {
     HMRC_SA_ENVIRONMENT: environment,
     HMRC_SA_VENDOR_ID: "fixture",
+    HMRC_SA_LIVE_TEAM_IDS: filingContext.teamId,
     HMRC_SA_TEST_SENDER_ID: "fixture-id",
     HMRC_SA_TEST_PASSWORD: "fixture-secret",
-    HMRC_SA_RECOGNISED: "true",
+    // A legacy deployment flag must not make optional recognition a filing requirement.
+    HMRC_SA_RECOGNISED: "false",
     TAMIAS_ENVIRONMENT: "production",
     TAMIAS_LIVE_FILING_ENABLED: "true",
     TAMIAS_LIVE_FILING_CONFIRMATION: "ENABLE_LIVE_FILING",
@@ -258,6 +261,109 @@ async function withFilingEnvironment(
   }
 }
 describe("Self Assessment durable filing flow", () => {
+  test("production filing uses personal credentials without requiring software recognition", async () => {
+    await withFilingEnvironment("production", async () => {
+      const { db, sqlite, report } = await filingSetup();
+      let submissions = 0;
+      const fetcher = async (url: string, init: RequestInit) => {
+        expect(url).toBe("https://transaction-engine.tax.service.gov.uk/submission");
+        const xml = String(init.body);
+        if (xml.includes("<Function>delete</Function>"))
+          return new Response("<Function>delete</Function><Qualifier>response</Qualifier>");
+        submissions++;
+        expect(xml).toContain("<GatewayTest>0</GatewayTest>");
+        expect(xml).toContain("<SenderID>personal-fixture-id</SenderID>");
+        expect(xml).toContain("<Value>personal-fixture-password</Value>");
+        expect(xml).not.toContain("fixture-secret");
+        const digest = xml.match(/<IRmark Type="generic">([^<]+)</)![1]!;
+        return new Response(
+          `<GovTalkMessage xmlns="${GOVTALK_NAMESPACE}"><Header><MessageDetails><Class>HMRC-SA-SA100</Class><Qualifier>response</Qualifier><CorrelationID>${"B".repeat(32)}</CorrelationID></MessageDetails></Header><Body><IRmarkReceipt><DigestValue xmlns="http://www.w3.org/2000/09/xmldsig#">${digest}</DigestValue></IRmarkReceipt></Body></GovTalkMessage>`,
+        );
+      };
+      const provider = new HmrcSelfAssessmentProvider(
+        "production",
+        fetcher as unknown as typeof fetch,
+      );
+      try {
+        expect(selfAssessmentConnection(filingContext.teamId).ready).toBe(true);
+        const prepared = await prepareSelfAssessment(db, {
+          ...filingContext,
+          fingerprint: report.fingerprint,
+          identity: filingIdentity,
+        });
+        expect(submissions).toBe(0);
+        const args = {
+          ...filingContext,
+          id: prepared.id,
+          declarationAccepted: true as const,
+          confirmedIrMark: prepared.irMark,
+          senderId: "personal-fixture-id",
+          password: "personal-fixture-password",
+        };
+        expect((await submitSelfAssessment(db, args, provider)).status).toBe("accepted");
+        expect((await submitSelfAssessment(db, args, provider)).status).toBe("accepted");
+        expect(submissions).toBe(1);
+        const evidence = JSON.stringify(await selfAssessmentEvidence(db, args));
+        expect(evidence).not.toContain(args.senderId);
+        expect(evidence).not.toContain(args.password);
+      } finally {
+        sqlite.close();
+      }
+    });
+  });
+  test("workspace and runtime controls still block a prepared live return before any request", async () => {
+    await withFilingEnvironment("production", async () => {
+      const { db, sqlite, report } = await filingSetup();
+      let calls = 0;
+      const provider = new HmrcSelfAssessmentProvider("production", (async () => {
+        calls++;
+        throw new Error("No request should be made");
+      }) as unknown as typeof fetch);
+      try {
+        const prepared = await prepareSelfAssessment(db, {
+          ...filingContext,
+          fingerprint: report.fingerprint,
+          identity: filingIdentity,
+        });
+        const args = {
+          ...filingContext,
+          id: prepared.id,
+          declarationAccepted: true as const,
+          confirmedIrMark: prepared.irMark,
+          senderId: "personal-fixture-id",
+          password: "personal-fixture-password",
+        };
+        for (const [key, value] of [
+          ["HMRC_SA_LIVE_TEAM_IDS", ""],
+          ["HMRC_SA_LIVE_TEAM_IDS", `${filingContext.teamId}-other`],
+          ["TAMIAS_LIVE_FILING_ENABLED", "false"],
+          ["TAMIAS_LIVE_FILING_CONFIRMATION", ""],
+          ["TAMIAS_ENVIRONMENT", "development"],
+        ] as const) {
+          const previous = process.env[key];
+          process.env[key] = value;
+          try {
+            expect((await listSelfAssessmentFilings(db, filingContext)).connection.ready).toBe(
+              false,
+            );
+            await expect(submitSelfAssessment(db, args, provider)).rejects.toThrow("not enabled");
+          } finally {
+            process.env[key] = previous;
+          }
+        }
+        await expect(
+          submitSelfAssessment(db, { ...args, password: undefined }, provider),
+        ).rejects.toThrow("Government Gateway");
+        expect(calls).toBe(0);
+        expect((await listSelfAssessmentFilings(db, filingContext)).data[0]!.status).toBe(
+          "prepared",
+        );
+        expect(selfAssessmentConnection("unlisted-workspace").ready).toBe(false);
+      } finally {
+        sqlite.close();
+      }
+    });
+  });
   test("requires owner access, freezes review and blocks changed records before any network call", async () => {
     await withFilingEnvironment("test", async () => {
       const { db, sqlite, report } = await filingSetup();

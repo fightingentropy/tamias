@@ -174,9 +174,11 @@ export const runtimeEnvAllowlists = {
     "HMRC_CT_PRODUCT_VERSION",
     "HMRC_SA_ENVIRONMENT",
     "HMRC_SA_VENDOR_ID",
+    "HMRC_SA_LIVE_TEAM_IDS",
     "HMRC_SA_TEST_SENDER_ID",
     "HMRC_SA_TEST_PASSWORD",
     "HMRC_SA_TEST_UTR",
+    // Accepted for existing private env files; recognition no longer gates filing.
     "HMRC_SA_RECOGNISED",
     "HMRC_VAT_CLIENT_ID",
     "HMRC_VAT_CLIENT_SECRET",

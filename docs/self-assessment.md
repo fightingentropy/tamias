@@ -55,16 +55,18 @@ isolated `.env.filing` settings, never dashboard/Vite environment variables:
 ```dotenv
 HMRC_SA_ENVIRONMENT=test
 HMRC_SA_VENDOR_ID=
+HMRC_SA_LIVE_TEAM_IDS=
 HMRC_SA_TEST_SENDER_ID=
 HMRC_SA_TEST_PASSWORD=
 HMRC_SA_TEST_UTR=
-HMRC_SA_RECOGNISED=false
 ```
 
 Register the software and obtain Self Assessment test access from HMRC. Validate
-the supported scenarios through HMRC's test service and complete the applicable
-software recognition process before enabling production. Existing VAT OAuth or
-Corporation Tax credentials do not by themselves establish Self Assessment readiness.
+the supported scenarios through HMRC's test service before enabling production.
+HMRC confirmed on 16 September 2026 that recognition is optional for this annual
+Self Assessment service; it is not a prerequisite for live filing. Existing VAT
+OAuth or Corporation Tax credentials do not by themselves establish Self Assessment
+readiness.
 
 The Developer Hub application is named **Tamias**. Its existing OAuth client is
 shared by the enabled VAT and MTD Income Tax APIs; the runtime currently keeps
@@ -94,15 +96,17 @@ HMRC supplied dedicated SA100 credentials on 15 September 2026 and confirmed the
 vendor record's name as Tamias. The protected local filing environment and hosted
 Worker use those settings in **test mode**. A fictional 2025/26 SA100/SA103S/SA110
 return completed ETS submission, polling, acceptance with a matching IRmark, and
-gateway acknowledgement. This verifies one scenario; software recognition and
-production filing remain disabled.
+gateway acknowledgement. This verifies one scenario; it does not establish
+software recognition or acceptance of a real return.
 
 On 15 September 2026, the Software Developer Support Team was asked to confirm
 recognition for this restricted scope, provide the prescribed scenarios and
 expected results, and specify the application checklist and evidence format.
-Their scenario selection and scope confirmation are still pending. The published
-RIM v1.2 archive supplies schemas and business rules; passing those or the single
-ETS fixture does not establish software recognition.
+On 16 September, HMRC clarified that recognition is optional and that applications
+should follow comprehensive testing, including ETS and relevant calculation
+examples, and release of a mature commercial product. Recognition is deferred.
+The published RIM v1.2 archive supplies schemas and business rules; passing those
+or the single ETS fixture does not establish software recognition.
 
 Run the same synthetic check with the protected configuration:
 
@@ -126,11 +130,21 @@ acknowledgement to `/submission`; polling remains restricted to `/poll` on the
 configured HMRC environment's HTTPS origin.
 
 Production additionally requires `HMRC_SA_ENVIRONMENT=production`,
-`HMRC_SA_RECOGNISED=true`, `TAMIAS_ENVIRONMENT=production`,
+`TAMIAS_ENVIRONMENT=production`,
 `TAMIAS_LIVE_FILING_ENABLED=true`, and
 `TAMIAS_LIVE_FILING_CONFIRMATION=ENABLE_LIVE_FILING`. Do not set these merely
 because local tests pass. Live Government Gateway credentials are entered at
-submission, used once and never stored in the return or receipt record.
+submission, used once and never stored in the return or receipt record. The legacy
+`HMRC_SA_RECOGNISED` setting is ignored. Enabling live filing does not prepare or
+submit a return: the owner must review the figures, make the declaration, and
+confirm the specific submission in the app.
+
+The initial personal rollout also requires the owner's workspace ID in
+`HMRC_SA_LIVE_TEAM_IDS` (a comma-separated list of exact IDs). An empty list
+disables live submission for every workspace. This is a Tamias rollout control,
+not an HMRC requirement. The backend applies it when reporting readiness and
+again before sending, so another workspace cannot opt itself in. Historical
+receipts remain available when live access is disabled.
 
 ## Receipts and uncertain outcomes
 

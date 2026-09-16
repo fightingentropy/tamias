@@ -31,7 +31,7 @@ type SubmissionRow = {
   updated_at: string;
   submitted_by: string;
 };
-export function selfAssessmentConnection() {
+export function selfAssessmentConnection(teamId: string) {
   const environment: HmrcSaEnvironment =
     process.env.HMRC_SA_ENVIRONMENT === "production" ? "production" : "test";
   const blockers: string[] = [];
@@ -53,8 +53,12 @@ export function selfAssessmentConnection() {
     );
   }
   if (environment === "production") {
-    if (process.env.HMRC_SA_RECOGNISED !== "true")
-      blockers.push("HMRC recognition for Tamias Self Assessment has not been confirmed.");
+    const liveTeams = (process.env.HMRC_SA_LIVE_TEAM_IDS ?? "")
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean);
+    if (!liveTeams.includes(teamId))
+      blockers.push("Live Self Assessment filing is not enabled for this workspace.");
     try {
       assertExternalMutationEnvironment({ kind: "filing", providerEnvironment: environment });
     } catch {
@@ -118,7 +122,7 @@ export async function listSelfAssessmentFilings(db: Database, args: Context) {
     .bind(args.teamId, args.taxYear)
     .all<SubmissionRow>();
   return {
-    connection: selfAssessmentConnection(),
+    connection: selfAssessmentConnection(args.teamId),
     data: (rows.results ?? []).map(publicSubmission),
   };
 }
@@ -145,7 +149,7 @@ export async function prepareSelfAssessment(
       id,
       args.teamId,
       args.taxYear,
-      selfAssessmentConnection().environment,
+      selfAssessmentConnection(args.teamId).environment,
       report.fingerprint,
       prepared.bodyXml,
       JSON.stringify({ identity: args.identity, calculation: prepared.calculation }),
@@ -199,7 +203,7 @@ export async function submitSelfAssessment(
   if (row.status !== "prepared") return publicSubmission(row);
   if (args.declarationAccepted !== true || args.confirmedIrMark !== row.ir_mark_display)
     throw new SelfAssessmentFilingError("Review and confirm this exact return before submitting.");
-  const connection = selfAssessmentConnection();
+  const connection = selfAssessmentConnection(args.teamId);
   if (!connection.ready) throw new SelfAssessmentFilingError(connection.blockers.join(" "));
   if (connection.environment !== row.environment)
     throw new SelfAssessmentFilingError(
