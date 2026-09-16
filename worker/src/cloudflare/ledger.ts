@@ -1,4 +1,5 @@
 import { configureEmailRuntime } from "@tamias/email/send";
+import { getAsyncRun } from "@tamias/app-data/queries";
 import {
   configureCloudflareQueueRuntime,
   configureCloudflareScheduleRuntime,
@@ -230,8 +231,19 @@ async function processDeleteTeamMessage(message: Message<CloudflareAsyncMessage>
   });
 }
 
-async function processQueueMessage(message: Message<CloudflareAsyncMessage>) {
+async function processQueueMessage(
+  message: Message<CloudflareAsyncMessage>,
+  env: CloudflareAsyncEnv,
+) {
   const body = message.body;
+
+  if (body.jobName === "import-transactions" && body.runId) {
+    const run = await getAsyncRun(body.runId).catch(() => null);
+    if (run?.status === "completed" || run?.status === "canceled") {
+      message.ack();
+      return;
+    }
+  }
 
   if (!isSupportedCloudflareMessage(body)) {
     logger.error("Unsupported Cloudflare async message", {
@@ -254,8 +266,7 @@ async function processQueueMessage(message: Message<CloudflareAsyncMessage>) {
   await updateRunStatus(body.runId, {
     status: "active",
     startedAt: new Date().toISOString(),
-    progress: 0,
-    progressStep: "started",
+    ...(body.jobName === "import-transactions" ? {} : { progress: 0, progressStep: "started" }),
   });
 
   try {
@@ -273,6 +284,21 @@ async function processQueueMessage(message: Message<CloudflareAsyncMessage>) {
       result = await processExportTransactionsMessage(message);
     } else if (body.queueName === "transactions" && body.jobName === "import-transactions") {
       result = await processImportTransactionsMessage(message);
+      const imported =
+        result as import("../processors/transactions/import-transactions").ImportTransactionsResult;
+      if (imported.continuation) {
+        if (!env.LEDGER_QUEUE) throw new Error("Ledger queue binding not configured");
+        await env.LEDGER_QUEUE.send({
+          ...body,
+          payload: {
+            ...(body.payload as import("../schemas/transactions").ImportTransactionsPayload),
+            cursor: imported.continuation,
+          },
+        });
+        // Keep the same public run active until the final batch succeeds.
+        message.ack();
+        return;
+      }
     } else if (
       body.queueName === "transactions" &&
       body.jobName === "process-transaction-attachment"
@@ -372,7 +398,7 @@ export async function handleLedgerQueueBatch(
   configureLedgerRuntime(env);
 
   const results = await Promise.allSettled(
-    batch.messages.map((message) => processQueueMessage(message)),
+    batch.messages.map((message) => processQueueMessage(message, env)),
   );
 
   for (const [index, result] of results.entries()) {

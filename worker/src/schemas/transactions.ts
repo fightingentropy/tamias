@@ -96,6 +96,13 @@ export const importTransactionsSchema = z.object({
   currency: z.string(),
   teamId: z.string(),
   table: z.array(z.record(z.string(), z.string())).optional(),
+  cursor: z
+    .object({
+      offset: z.number().int().nonnegative(),
+      importedCount: z.number().int().nonnegative(),
+      sourceHash: z.string(),
+    })
+    .optional(),
   mappings: z
     .object({
       amount: z.string(),

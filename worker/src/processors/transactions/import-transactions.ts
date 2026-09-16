@@ -1,242 +1,145 @@
+import { createHash } from "node:crypto";
 import { upsertTransactions } from "@tamias/app-data/queries";
 import { mapTransactions } from "@tamias/import/mappings";
 import { addDuplicateDisambiguators, transform } from "@tamias/import/transform";
-import { validateTransactions } from "@tamias/import/validate";
+import { createTransactionSchema } from "@tamias/import/validate";
 import { enqueue } from "@tamias/job-client";
 import { downloadVaultFile } from "@tamias/storage";
-import type { WorkerJob as Job } from "../../types/job";
 import Papa from "papaparse";
-import type { ImportTransactionsPayload } from "../../schemas/transactions";
+import {
+  importTransactionsSchema,
+  type ImportTransactionsPayload,
+} from "../../schemas/transactions";
+import type { WorkerJob as Job } from "../../types/job";
 import { getDb } from "../../utils/db";
-import { processBatch } from "../../utils/process-batch";
 import { TIMEOUTS, withTimeout } from "../../utils/timeout";
 import { BaseProcessor } from "../base";
 
-const BATCH_SIZE = 500;
+// Each batch runs in a separate queue invocation, including its ledger writes.
+export const IMPORT_BATCH_SIZE = 50;
 
-/**
- * Imports transactions from CSV files
- * Parses CSV, maps columns, validates, and upserts transactions
- * Then triggers embedding for imported transactions
- */
+export function prepareTransactionImportBatch(content: string, data: ImportTransactionsPayload) {
+  const sourceHash = createHash("sha256").update(content).digest("hex");
+  if (data.cursor && data.cursor.sourceHash !== sourceHash) {
+    throw new Error("The import file changed. Start a new import to continue.");
+  }
+
+  const parsed = Papa.parse<Record<string, string>>(content, {
+    header: true,
+    skipEmptyLines: "greedy",
+  });
+  if (parsed.errors.length > 0) {
+    throw new Error(`Invalid CSV: ${parsed.errors[0]?.message}`);
+  }
+  if (parsed.data.length === 0) {
+    throw new Error("No transactions found in the import file");
+  }
+
+  // Disambiguate across the whole file before slicing, so identical payments
+  // on either side of a batch boundary retain distinct, stable import IDs.
+  const mapped = mapTransactions(
+    parsed.data,
+    data.mappings,
+    data.currency,
+    data.teamId,
+    data.bankAccountId,
+  );
+  const validated = addDuplicateDisambiguators({
+    transactions: mapped,
+    inverted: data.inverted,
+  }).map((transaction) =>
+    createTransactionSchema.safeParse(transform({ transaction, inverted: data.inverted })),
+  );
+  const valid = validated.flatMap((result) => (result.success ? [result.data] : []));
+  const offset = data.cursor?.offset ?? 0;
+  if (offset > valid.length || (data.cursor?.importedCount ?? 0) > offset) {
+    throw new Error("Invalid import continuation");
+  }
+
+  return {
+    transactions: valid.slice(offset, offset + IMPORT_BATCH_SIZE),
+    sourceHash,
+    offset,
+    totalCount: valid.length,
+    invalidCount: validated.length - valid.length,
+  };
+}
+
+export type ImportTransactionsResult = {
+  importedCount: number;
+  skippedCount: number;
+  invalidCount: number;
+  continuation?: NonNullable<ImportTransactionsPayload["cursor"]>;
+};
+
 export class ImportTransactionsProcessor extends BaseProcessor<ImportTransactionsPayload> {
-  async process(job: Job<ImportTransactionsPayload>): Promise<{
-    importedCount: number;
-    skippedCount: number;
-    invalidCount: number;
-  }> {
-    const { teamId, filePath, bankAccountId, currency, mappings, inverted } = job.data;
-    const db = getDb();
+  protected getPayloadSchema() {
+    return importTransactionsSchema;
+  }
 
-    this.logger.info("Starting import-transactions job", {
-      jobId: job.id,
-      teamId,
-      filePath: filePath?.join("/"),
-      bankAccountId,
-      currency,
-    });
-
-    if (!filePath) {
-      throw new Error("File path is required");
+  async process(job: Job<ImportTransactionsPayload>): Promise<ImportTransactionsResult> {
+    const { teamId, filePath } = job.data;
+    if (!filePath?.length || filePath[0] !== teamId) {
+      throw new Error("An import file belonging to this workspace is required");
     }
 
-    await this.updateProgress(job, this.ProgressMilestones.FETCHED);
-
-    // Download file from storage with timeout
-    const { data: fileData } = await withTimeout(
+    const { data: fileData, error } = await withTimeout(
       downloadVaultFile(filePath),
       TIMEOUTS.FILE_DOWNLOAD,
-      `File download timed out after ${TIMEOUTS.FILE_DOWNLOAD}ms`,
+      "File download timed out",
     );
-
+    if (error) throw error;
     const content = await fileData?.text();
+    if (!content) throw new Error("File content is required");
 
-    if (!content) {
-      throw new Error("File content is required");
-    }
-
-    await this.updateProgress(job, 20, undefined, "analyzing");
-
-    const allTransactionIds: string[] = [];
-    let totalAttempted = 0;
-    let totalInvalid = 0;
-
-    let processedChunks = 0;
-    await new Promise<void>((resolve, reject) => {
-      // @ts-expect-error - Papa.parse overload resolution issue with string type
-      Papa.parse(content, {
-        header: true,
-        skipEmptyLines: true,
-        worker: false,
-        complete: () => {
-          resolve();
-        },
-        error: (error: Papa.ParseError) => {
-          reject(error);
-        },
-        chunk: async (
-          chunk: {
-            data: Record<string, string>[];
-            errors: Array<{ message: string }>;
-          },
-          parser: Papa.Parser,
-        ) => {
-          parser.pause();
-
-          const { data } = chunk;
-
-          if (!data?.length) {
-            throw new Error("No data in CSV import chunk");
-          }
-
-          const mappedTransactions = mapTransactions(
-            data,
-            mappings,
-            currency,
-            teamId,
-            bankAccountId,
-          );
-
-          const disambiguatedTransactions = addDuplicateDisambiguators({
-            transactions: mappedTransactions,
-            inverted,
-          });
-
-          const transformedTransactions = disambiguatedTransactions.map((transaction) =>
-            transform({ transaction, inverted }),
-          );
-
-          await this.updateProgress(job, 35, undefined, "transforming");
-
-          const { validTransactions, invalidTransactions } =
-            // @ts-expect-error - validateTransactions types may not match exactly
-            validateTransactions(transformedTransactions);
-
-          await this.updateProgress(job, 45, undefined, "validating");
-
-          if (invalidTransactions.length > 0) {
-            this.logger.error("Invalid transactions", {
-              invalidTransactions,
-            });
-          }
-
-          totalAttempted += validTransactions.length;
-          totalInvalid += invalidTransactions.length;
-
-          await this.updateProgress(
-            job,
-            Math.min(75, 50 + processedChunks * 5),
-            undefined,
-            "importing",
-          );
-
-          const totalImportBatches = Math.max(1, Math.ceil(validTransactions.length / BATCH_SIZE));
-          let completedImportBatches = 0;
-
-          // Upsert transactions using db query function
-          const results = await processBatch(validTransactions, BATCH_SIZE, async (batch) => {
-            // Transform snake_case input into the application's camelCase shape
-            // Only include fields that exist in the validated transaction
-            const transformedBatch = batch.map((t) => ({
-              name: t.name,
-              date: t.date,
-              method: (t.method === "card"
-                ? "card_purchase"
-                : t.method === "bank"
-                  ? "transfer"
-                  : "other") as "other" | "card_purchase" | "transfer",
-              amount: t.amount,
-              currency: t.currency,
-              teamId: t.team_id,
-              bankAccountId: t.bank_account_id ?? null,
-              internalId: t.internal_id,
-              status: t.status as "pending" | "completed" | "archived" | "posted" | "excluded",
-              manual: t.manual,
-              categorySlug: t.category_slug ?? null,
-              // Optional fields that may not exist in imported transactions
-              description: null,
-              balance: null,
-              note: null,
-              counterpartyName: t.counterparty_name ?? null,
-              merchantName: null,
-              assignedId: null,
-              internal: false,
-              notified: true,
-              baseAmount: null,
-              baseCurrency: null,
-              taxAmount: null,
-              taxRate: null,
-              taxType: null,
-              recurring: false,
-              frequency: null,
-              enrichmentCompleted: false,
-            }));
-
-            // Upsert transactions with conflict handling on internalId
-            const upserted = await upsertTransactions(db, {
-              transactions: transformedBatch,
-              teamId,
-            });
-
-            completedImportBatches += 1;
-            const importingProgress =
-              50 + Math.round((completedImportBatches / totalImportBatches) * 25);
-            await this.updateProgress(job, Math.min(75, importingProgress), undefined, "importing");
-
-            return upserted;
-          });
-
-          processedChunks += 1;
-
-          // Collect all transaction IDs
-          const batchTransactionIds = results
-            .flat()
-            .map((tx) => tx.id)
-            .filter(Boolean);
-
-          allTransactionIds.push(...batchTransactionIds);
-
-          parser.resume();
-        },
-      });
+    const batch = prepareTransactionImportBatch(content, job.data);
+    const upserted = await upsertTransactions(getDb(), {
+      teamId,
+      transactions: batch.transactions.map((t) => ({
+        name: t.name,
+        date: t.date,
+        method: t.method === "card" ? "card_purchase" : t.method === "bank" ? "transfer" : "other",
+        amount: t.amount,
+        currency: t.currency,
+        teamId: t.team_id,
+        bankAccountId: t.bank_account_id,
+        internalId: t.internal_id,
+        status: t.status,
+        manual: t.manual,
+        categorySlug: t.category_slug,
+        counterpartyName: t.counterparty_name,
+        notified: true,
+      })),
     });
 
-    await this.updateProgress(job, 80, undefined, "finalizing");
-
-    if (allTransactionIds.length > 0) {
-      await enqueue(
-        "enrich-transactions",
-        {
-          transactionIds: allTransactionIds,
-          teamId,
-        },
-        "transactions",
-      );
-
+    // Bound follow-up jobs too, including their queue payloads and database work.
+    const transactionIds = upserted.map((t) => t.id);
+    if (transactionIds.length > 0) {
+      await enqueue("enrich-transactions", { transactionIds, teamId }, "transactions");
       await enqueue(
         "match-transactions-bidirectional",
-        {
-          teamId,
-          newTransactionIds: allTransactionIds,
-        },
+        { teamId, newTransactionIds: transactionIds },
         "inbox",
       );
-
-      await this.updateProgress(job, 90, undefined, "enriching");
     }
 
-    await this.updateProgress(job, 100, undefined, "completed");
+    const nextOffset = batch.offset + batch.transactions.length;
+    const importedCount = (job.data.cursor?.importedCount ?? 0) + transactionIds.length;
+    const complete = nextOffset >= batch.totalCount;
+    await this.updateProgress(
+      job,
+      complete ? 100 : 10 + Math.round((nextOffset / batch.totalCount) * 85),
+      undefined,
+      complete ? "completed" : "importing",
+    );
 
-    const importedCount = allTransactionIds.length;
-    const skippedCount = Math.max(0, totalAttempted - importedCount);
-
-    this.logger.info("Import transactions completed", {
+    return {
       importedCount,
-      skippedCount,
-      invalidCount: totalInvalid,
-      teamId,
-    });
-
-    return { importedCount, skippedCount, invalidCount: totalInvalid };
+      skippedCount: nextOffset - importedCount,
+      invalidCount: batch.invalidCount,
+      ...(!complete
+        ? { continuation: { offset: nextOffset, importedCount, sourceHash: batch.sourceHash } }
+        : {}),
+    };
   }
 }

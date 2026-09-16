@@ -78,7 +78,7 @@ export function createCloudflareJob(message: Message<CloudflareAsyncMessage>): W
     attemptsMade: Math.max(0, message.attempts - 1),
     opts: {
       attempts: message.body.maxAttempts ?? 4,
-      removeOnComplete: true,
+      removeOnComplete: message.body.jobName === "import-transactions" ? false : true,
     },
     updateProgress: async (progress: WorkerJobProgress) => {
       const parsed = parseProgress(progress);
