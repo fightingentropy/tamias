@@ -8,6 +8,7 @@
     "typecheck": "tsc --noEmit"
   },
   "exports": {
+    "./business-type": "./src/business-type.ts",
     "./chat": "./src/chat.ts"
   },
   "dependencies": {

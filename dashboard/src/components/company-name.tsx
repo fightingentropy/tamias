@@ -38,10 +38,10 @@ export function CompanyName() {
       <form onSubmit={onSubmit}>
         <Card>
           <CardHeader>
-            <CardTitle>Company name</CardTitle>
+            <CardTitle>Business name</CardTitle>
             <CardDescription>
-              This is your company's visible name within Tamias. For example, the name of your
-              company or department.
+              The name shown for your business in Tamias. Sole traders can use their own name or a
+              trading name.
             </CardDescription>
           </CardHeader>
 

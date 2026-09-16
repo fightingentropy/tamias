@@ -1,4 +1,5 @@
 import { z } from "@hono/zod-openapi";
+import { BUSINESS_TYPES } from "@tamias/contracts/business-type";
 
 export const teamResponseSchema = z.object({
   id: z.string().uuid().openapi({
@@ -105,24 +106,10 @@ export const updateTeamByIdSchema = z.object({
     .openapi({
       description: "Export settings for transactions",
     }),
-  companyType: z
-    .enum([
-      "freelancer",
-      "solo_founder",
-      "small_team",
-      "startup",
-      "agency",
-      "ecommerce",
-      "creator",
-      "non_profit",
-      "accountant",
-      "exploring",
-    ])
-    .optional()
-    .openapi({
-      description: "Type of company or team",
-      example: "solo_founder",
-    }),
+  companyType: z.enum(BUSINESS_TYPES).optional().openapi({
+    description: "Business or work category describing the workspace",
+    example: "solo_founder",
+  }),
   heardAbout: z
     .enum(["twitter", "youtube", "friend", "google", "blog", "podcast", "github", "other"])
     .optional()
@@ -154,23 +141,10 @@ export const createTeamSchema = z.object({
     description: "URL to the team's logo image",
     example: "https://cdn.tamias.xyz/logos/acme-corp.png",
   }),
-  companyType: z
-    .enum([
-      "freelancer",
-      "solo_founder",
-      "small_team",
-      "startup",
-      "agency",
-      "ecommerce",
-      "creator",
-      "non_profit",
-      "accountant",
-      "exploring",
-    ])
-    .openapi({
-      description: "Type of company or team",
-      example: "solo_founder",
-    }),
+  companyType: z.enum(BUSINESS_TYPES).openapi({
+    description: "Business or work category describing the workspace",
+    example: "solo_founder",
+  }),
   heardAbout: z
     .enum(["twitter", "youtube", "friend", "google", "blog", "podcast", "github", "other"])
     .openapi({

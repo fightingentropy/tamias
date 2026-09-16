@@ -2,6 +2,7 @@
 
 import { track } from "@/lib/telemetry/client";
 import { LogEvents } from "@/lib/telemetry/events";
+import { BUSINESS_TYPES } from "@tamias/contracts/business-type";
 import { uniqueCurrencies } from "@tamias/location/currencies";
 import {
   Form,
@@ -28,25 +29,13 @@ import { useZodForm } from "@/hooks/use-zod-form";
 import { useTRPC } from "@/trpc/client";
 
 const formSchema = z.object({
-  name: z.string().min(2, "Company name must be at least 2 characters."),
+  name: z.string().min(2, "Business name must be at least 2 characters."),
   countryCode: z.string(),
   baseCurrency: z.string(),
   fiscalYearStartMonth: z.number().int().min(1).max(12).nullable().optional(),
-  companyType: z.enum(
-    [
-      "freelancer",
-      "solo_founder",
-      "small_team",
-      "startup",
-      "agency",
-      "ecommerce",
-      "creator",
-      "non_profit",
-      "accountant",
-      "exploring",
-    ],
-    { required_error: "Please select a company type." },
-  ),
+  companyType: z.enum(BUSINESS_TYPES, {
+    required_error: "Please select the option that best describes you.",
+  }),
   heardAbout: z.enum(
     ["twitter", "youtube", "friend", "google", "blog", "podcast", "github", "other"],
     { required_error: "Please select an option." },
@@ -175,7 +164,7 @@ export function CreateTeamStep({
         transition={{ duration: 0.4, delay: 0.2 }}
         className="text-sm text-muted-foreground leading-relaxed"
       >
-        Add company details so amounts, currency, tax, and reporting periods line up correctly
+        Add your business details so amounts, currency, tax, and reporting periods line up correctly
         across insights, invoices and exports.
       </motion.p>
 
@@ -191,11 +180,11 @@ export function CreateTeamStep({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs text-primary font-normal">Company name</FormLabel>
+                  <FormLabel className="text-xs text-primary font-normal">Business name</FormLabel>
                   <FormControl>
                     <Input
                       autoFocus
-                      placeholder="Ex: Acme Marketing or Acme Co"
+                      placeholder="Your name or trading name"
                       autoComplete="off"
                       autoCapitalize="none"
                       autoCorrect="off"
@@ -205,6 +194,9 @@ export function CreateTeamStep({
                       {...field}
                     />
                   </FormControl>
+                  <FormDescription className="text-[11px] text-muted-foreground">
+                    Sole traders can use their own name or a trading name.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -299,6 +291,12 @@ export function CreateTeamStep({
                         dataTestId="onboarding-company-type"
                       />
                     </FormControl>
+                    {field.value === "cis_subcontractor" && (
+                      <FormDescription className="text-[11px] text-muted-foreground">
+                        For subcontractors working under the Construction Industry Scheme. CIS tax
+                        deductions aren’t supported by direct filing yet.
+                      </FormDescription>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}
