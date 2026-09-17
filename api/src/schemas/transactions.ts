@@ -379,8 +379,9 @@ export const transactionResponseSchema = z
               example: "https://cdn.tamias.xyz/logos/chase-bank.png",
             }),
           })
+          .nullable()
           .openapi({
-            description: "Bank connection information associated with the account",
+            description: "Bank connection information, or null for a manually created account",
             example: {
               id: "a43dc3a5-6925-4d91-ac9c-4c1a34bdb388",
               name: "Chase Bank",

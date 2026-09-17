@@ -86,6 +86,21 @@ describe("REST: GET /transactions", () => {
     expect(json.data).toEqual([]);
   });
 
+  test("returns statement-imported transactions without a live bank connection", async () => {
+    const transaction = createValidTransactionResponse({
+      manual: true,
+      account: { id: "manual-account", name: "Imported GBP", currency: "GBP", connection: null },
+    });
+    mocks.getTransactions.mockReturnValue(createTransactionsListResponse([transaction]));
+
+    const response = await app.request("/transactions");
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({
+      data: [{ id: transaction.id, account: { id: "manual-account", connection: null } }],
+    });
+  });
+
   test("preserves the derived export flags used for offline status filters", async () => {
     mocks.getTransactions.mockReturnValue(
       createTransactionsListResponse([
@@ -392,7 +407,10 @@ describe("REST: PATCH /transactions/bulk", () => {
   test("routes a category edit to the bulk mutation and returns a valid list", async () => {
     mocks.updateTransaction.mockReset();
     mocks.updateTransactions.mockReset();
-    const transaction = createValidTransactionResponse();
+    const transaction = createValidTransactionResponse({
+      manual: true,
+      account: { id: "manual-account", name: "Imported GBP", currency: "GBP", connection: null },
+    });
     mocks.updateTransactions.mockResolvedValue([transaction]);
 
     const response = await createApp().request("/transactions/bulk", {

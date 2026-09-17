@@ -39,7 +39,7 @@ interface TransactionResponse {
       id: string;
       name: string;
       logoUrl: string | null;
-    };
+    } | null;
   };
   tags: Array<{ id: string; name: string }> | null;
   attachments: Array<{
