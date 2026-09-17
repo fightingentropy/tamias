@@ -67,6 +67,58 @@ export function registerTransactionWriteRoutes(app: OpenAPIHono<Context>) {
   app.openapi(
     createRoute({
       method: "patch",
+      path: "/bulk",
+      summary: "Bulk update transactions",
+      operationId: "updateTransactions",
+      "x-speakeasy-name-override": "updateMany",
+      description:
+        "Bulk update transactions for the authenticated team. If there's no change, returns it as it is.",
+      tags: ["Transactions"],
+      request: {
+        body: {
+          content: {
+            "application/json": {
+              schema: updateTransactionsSchema,
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Transactions updated",
+          content: {
+            "application/json": {
+              schema: transactionsResponseSchema,
+            },
+          },
+        },
+      },
+      middleware: [withRequiredScope("transactions.write")],
+    }),
+    async (c) => {
+      const db = c.get("db");
+      const teamId = c.get("teamId");
+      const userId = c.get("session").user.id ?? undefined;
+      const params = c.req.valid("json");
+
+      const result = await updateTransactions(db, {
+        teamId,
+        userId,
+        ...params,
+      });
+
+      return c.json(
+        validateResponse(
+          { data: result, meta: { hasPreviousPage: false, hasNextPage: false } },
+          transactionsResponseSchema,
+        ),
+      );
+    },
+  );
+
+  app.openapi(
+    createRoute({
+      method: "patch",
       path: "/{id}",
       summary: "Update a transaction",
       operationId: "updateTransaction",
@@ -111,53 +163,6 @@ export function registerTransactionWriteRoutes(app: OpenAPIHono<Context>) {
       });
 
       return c.json(validateResponse(result, transactionResponseSchema));
-    },
-  );
-
-  app.openapi(
-    createRoute({
-      method: "patch",
-      path: "/bulk",
-      summary: "Bulk update transactions",
-      operationId: "updateTransactions",
-      "x-speakeasy-name-override": "updateMany",
-      description:
-        "Bulk update transactions for the authenticated team. If there's no change, returns it as it is.",
-      tags: ["Transactions"],
-      request: {
-        body: {
-          content: {
-            "application/json": {
-              schema: updateTransactionsSchema,
-            },
-          },
-        },
-      },
-      responses: {
-        200: {
-          description: "Transactions updated",
-          content: {
-            "application/json": {
-              schema: transactionsResponseSchema,
-            },
-          },
-        },
-      },
-      middleware: [withRequiredScope("transactions.write")],
-    }),
-    async (c) => {
-      const db = c.get("db");
-      const teamId = c.get("teamId");
-      const userId = c.get("session").user.id ?? undefined;
-      const params = c.req.valid("json");
-
-      const result = await updateTransactions(db, {
-        teamId,
-        userId,
-        ...params,
-      });
-
-      return c.json(validateResponse(result, transactionsResponseSchema));
     },
   );
 

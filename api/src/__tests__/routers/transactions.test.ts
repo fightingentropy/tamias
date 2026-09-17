@@ -388,6 +388,36 @@ describe("REST: PATCH /transactions/:id", () => {
   });
 });
 
+describe("REST: PATCH /transactions/bulk", () => {
+  test("routes a category edit to the bulk mutation and returns a valid list", async () => {
+    mocks.updateTransaction.mockReset();
+    mocks.updateTransactions.mockReset();
+    const transaction = createValidTransactionResponse();
+    mocks.updateTransactions.mockResolvedValue([transaction]);
+
+    const response = await createApp().request("/transactions/bulk", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids: [transaction.id], categorySlug: "equipment" }),
+    });
+
+    expect(response.status).toBe(200);
+    expect(mocks.updateTransaction).not.toHaveBeenCalled();
+    expect(mocks.updateTransactions).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        ids: [transaction.id],
+        categorySlug: "equipment",
+        teamId: "test-team-id",
+      }),
+    );
+    expect(await response.json()).toMatchObject({
+      data: [{ id: transaction.id }],
+      meta: { hasPreviousPage: false, hasNextPage: false },
+    });
+  });
+});
+
 describe("REST: DELETE /transactions/:id", () => {
   const app = createApp();
 

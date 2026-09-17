@@ -31,10 +31,12 @@ export function normalizeTransactionMutationInput(
     normalizedInput.taxType = null;
   }
 
-  return {
-    ...normalizedInput,
-    status: normalizedInput.status ?? undefined,
-  } as Partial<TransactionRecord>;
+  // An omitted status must not overwrite the stored value when patches are merged.
+  if (normalizedInput.status == null) {
+    delete normalizedInput.status;
+  }
+
+  return normalizedInput as Partial<TransactionRecord>;
 }
 
 export async function clearAccountingSyncForStatusChange(args: {
