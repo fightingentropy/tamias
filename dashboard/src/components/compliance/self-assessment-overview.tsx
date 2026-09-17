@@ -3,7 +3,7 @@
 import type { getBusinessProfile } from "@tamias/contracts/business-type";
 import { Badge } from "@tamias/ui/badge";
 import { Button } from "@tamias/ui/button";
-import { Icons } from "@tamias/ui/icons";
+import { SelfAssessmentWorkspace } from "./self-assessment-workspace";
 import Link from "@/framework/link";
 
 export function SelfAssessmentOverview({
@@ -37,53 +37,7 @@ export function SelfAssessmentOverview({
         </div>
       )}
 
-      <section
-        id="self-assessment"
-        aria-labelledby="self-assessment-heading"
-        className="border bg-card p-6 sm:p-8"
-      >
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 id="self-assessment-heading" className="text-2xl font-serif">
-            Self Assessment
-          </h2>
-          <Badge variant="outline">
-            {profile.usesCis ? "CIS filing unavailable" : "Record preparation"}
-          </Badge>
-        </div>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          For sole traders: start with your income, business expenses and supporting documents.
-        </p>
-        <div className="my-6 grid gap-5 sm:grid-cols-2">
-          <div>
-            <h3 className="text-sm font-medium">Income &amp; expenses</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Add your business transactions and check their categories.
-            </p>
-          </div>
-          <div>
-            <h3 className="text-sm font-medium">Receipts &amp; evidence</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Keep receipts and statements together with your business records.
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          <Button asChild>
-            <Link href="/transactions">
-              Review transactions
-              <Icons.ArrowRightAlt className="ml-2 size-4" />
-            </Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/inbox">Review receipts</Link>
-          </Button>
-        </div>
-        <p className="mt-5 border-t pt-5 text-sm leading-relaxed text-muted-foreground">
-          {profile.usesCis
-            ? "CIS tax deductions are not yet supported by direct filing in Tamias. You can still organise your records here."
-            : "You can prepare your records here. Self Assessment submission is not available from this web screen."}
-        </p>
-      </section>
+      <SelfAssessmentWorkspace />
 
       {profile.usesCis && (
         <section

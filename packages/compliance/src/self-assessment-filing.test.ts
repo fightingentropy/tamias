@@ -72,6 +72,27 @@ function acceptance(digest = mark) {
   return `<IRmarkReceipt xmlns="http://www.govtalk.gov.uk/taxation/IRmarkReceipt"><Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><Reference><DigestValue>${digest}</DigestValue></Reference></SignedInfo></Signature></IRmarkReceipt>`;
 }
 describe("2025/26 simple Self Assessment", () => {
+  test("rounds the annual CIS credit once and subtracts it from tax and NI", () => {
+    const source = report(40000, 0);
+    const withCis = { ...source, cisDeductionsPence: 800001 };
+    const result = calculateSimpleSelfAssessment(withCis, identity);
+    expect(result).toMatchObject({
+      incomeTaxPence: 548600,
+      class4Pence: 164580,
+      taxBeforeCisPence: 713180,
+      cisDeductionsPence: 800100,
+      totalTaxPence: -86920,
+      refundPence: 86920,
+      taxDuePence: 0,
+    });
+    const xml = buildSelfAssessmentBody(withCis, identity).bodyXml;
+    expect(xml).toContain("<SubContractorsTaxDeduction>8001.00</SubContractorsTaxDeduction>");
+    expect(xml).toContain("<TotalTaxEtcDue>-869.20</TotalTaxEtcDue>");
+    expect(xml).toContain("<Class4NICsDue>1645.80</Class4NICsDue>");
+    expect(
+      calculateSimpleSelfAssessment({ ...source, cisDeductionsPence: 10000 }, identity),
+    ).toMatchObject({ totalTaxPence: 703180, refundPence: 0, taxDuePence: 703180 });
+  });
   test("rounds income down and each expense category up before calculating tax", () => {
     const calculation = calculateSimpleSelfAssessment(report(40000.89, 345.12), identity);
     expect(calculation).toMatchObject({

@@ -9,6 +9,7 @@ import {
   taxYearDates,
   type TaxSourceTransaction,
   type TaxReview,
+  CisPaymentSchema,
 } from "./self-assessment";
 
 const profile = SelfAssessmentProfileSchema.parse({
@@ -63,6 +64,113 @@ function report(transactions: TaxSourceTransaction[], reviews: TaxReview[] = [])
   });
 }
 describe("sole-trader working papers", () => {
+  test("uses statement gross income and keeps CIS credit out of expenses", () => {
+    const t = row("cis", 800, { isCis: true });
+    const cis = {
+      grossPence: 100000,
+      deductionPence: 20000,
+      incomeTaxYear: 2025,
+      deductionTaxYear: 2025,
+      taxYearsUnderReview: [],
+      reference: "Contractor monthly statement",
+    };
+    const result = report([t], [{ ...review(t, "turnover"), cis }]);
+    expect(result).toMatchObject({
+      incomePence: 100000,
+      expensesPence: 0,
+      cisDeductionsPence: 20000,
+      needsReview: 0,
+    });
+    expect(result.transactions[0]).toMatchObject({
+      amountPence: 80000,
+      businessAmountPence: 100000,
+    });
+    expect(selfAssessmentCSV(result)).toContain('"CIS tax deducted GBP (SA103S box 38)","200.00"');
+  });
+  test("never accepts a known net CIS receipt without valid matching statement figures", () => {
+    const t = row("cis", 800, { isCis: true });
+    expect(report([t], [review(t, "turnover")])).toMatchObject({ incomePence: 0, needsReview: 1 });
+    const cis = {
+      grossPence: 100001,
+      deductionPence: 20000,
+      incomeTaxYear: 2025,
+      deductionTaxYear: 2025,
+      taxYearsUnderReview: [],
+      reference: "Mismatch",
+    };
+    expect(report([t], [{ ...review(t, "turnover"), cis }])).toMatchObject({
+      incomePence: 0,
+      cisDeductionsPence: 0,
+      needsReview: 1,
+    });
+    expect(report([t], [review(t, "excluded", 0)])).toMatchObject({
+      incomePence: 0,
+      needsReview: 0,
+    });
+  });
+  test("allocates income and CIS credit to different years without counting either twice", () => {
+    const t = row("cis", 800, { date: "2026-04-08", isCis: true });
+    const cis = {
+      grossPence: 100000,
+      deductionPence: 20000,
+      incomeTaxYear: 2026,
+      deductionTaxYear: 2025,
+      taxYearsUnderReview: [],
+      reference: "Confirmed payment and deduction years",
+    };
+    const reviews = [{ ...review(t, "turnover"), cis }];
+    expect(report([t], reviews)).toMatchObject({ incomePence: 0, cisDeductionsPence: 20000 });
+    const next = buildSelfAssessmentReport({ taxYear: 2026, transactions: [t], reviews, profile });
+    expect(next).toMatchObject({ incomePence: 100000, cisDeductionsPence: 0 });
+  });
+  test("keeps unallocated gross income and deductions visible in both affected years", () => {
+    const t = row("boundary", 560, { date: "2025-04-09", isCis: true });
+    const cis = {
+      grossPence: 70000,
+      deductionPence: 14000,
+      incomeTaxYear: null,
+      deductionTaxYear: null,
+      taxYearsUnderReview: [2024, 2025],
+      reference: "Contractor confirmation requested",
+    };
+    const reviews = [{ ...review(t, "turnover"), cis }];
+    for (const taxYear of [2024, 2025]) {
+      const result = buildSelfAssessmentReport({ taxYear, transactions: [t], reviews, profile });
+      expect(result).toMatchObject({
+        incomePence: 0,
+        cisDeductionsPence: 0,
+        cisPendingGrossPence: 70000,
+        cisPendingDeductionsPence: 14000,
+        cisPendingCount: 1,
+        readyToExport: false,
+      });
+    }
+    const changed = report([{ ...t, amount: 600 }], reviews);
+    expect(changed.needsReview).toBe(1);
+    expect(changed.cisDeductionsPence).toBe(0);
+  });
+  test("requires evidence and explicit affected years for unresolved CIS", () => {
+    const value = {
+      grossPence: 70000,
+      deductionPence: 14000,
+      incomeTaxYear: null,
+      deductionTaxYear: null,
+      taxYearsUnderReview: [],
+      reference: "Statement",
+    };
+    expect(CisPaymentSchema.safeParse(value).success).toBe(false);
+    expect(
+      CisPaymentSchema.safeParse({ ...value, taxYearsUnderReview: [2024, 2025] }).success,
+    ).toBe(true);
+    expect(
+      CisPaymentSchema.safeParse({
+        ...value,
+        incomeTaxYear: 2025,
+        deductionTaxYear: 2025,
+        reference: "",
+      }).success,
+    ).toBe(false);
+  });
   test("closes the tax year at UK midnight, including daylight saving", () => {
     const before = buildSelfAssessmentReport({
       taxYear: 2025,

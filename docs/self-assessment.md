@@ -24,6 +24,47 @@ Income Tax, quarterly updates, amendments or additional personal return pages.
   Missing receipt counts are highlighted but do not by themselves prove an expense
   is invalid. Users must check allowable treatment and record completeness.
 
+## CIS statements and web review
+
+The web Tax overview shows the selected tax year's reviewed gross income, expenses,
+CIS credit, missing receipts and outstanding transaction reviews. A clearly labelled
+2025/26 illustration shares its arithmetic with the filing calculator; it is not a
+complete personal estimate when records or other income remain unreviewed.
+
+Each CIS review stores actual statement gross pay and deductions in integer pence,
+the evidence reference, and separate income and deduction tax years. The statement
+must reconcile exactly to a positive GBP bank credit (`gross - CIS = net`), with
+100% business use. Do not infer a 20% rate or deduct agency margins twice. Payments
+with other deductions or VAT need further reconciliation before using this route.
+Known CIS net receipts cannot be accepted as ordinary turnover without a statement.
+
+Unconfirmed tax years remain null with an explicit list of affected years. The
+unallocated gross income and credits appear separately in those years and block
+filing; they are never silently assigned from a bank or payroll processing date.
+Cross-year credits are loaded into the appropriate report without duplicating
+income. Bank changes invalidate both the income review and the credit. Older clients
+that omit CIS fields preserve them; explicit removal and compatible reclassification
+are required to clear a statement. The CSV includes the evidence and year allocations.
+
+CIS credit is reported in SA103S box 38 (`SubContractorsTaxDeduction`). Whole-pound
+rounding is applied once to the annual credit, rounding tax paid up, alongside the
+existing income-down/expenses-up convention. SA110 `TotalTaxEtcDue` is after CIS
+credit and may be negative for an overpayment. Payments on account and prior HMRC
+repayments remain outside this restricted calculation.
+
+Sources: [HMRC CIS reporting](https://www.gov.uk/what-you-must-do-as-a-cis-subcontractor/pay-tax-and-claim-back-deductions),
+[SA103S notes](https://assets.publishing.service.gov.uk/media/69ce15395cf899414a0bc69f/SA103S_Notes_2026.pdf),
+[2026 technical specification and calculation stages 11–12](https://www.gov.uk/government/publications/self-assessment-technical-specifications-2026-for-individual-returns).
+
+Generate fictional XML cases for independent XSD, business-rule and IRmark validation:
+
+```sh
+bun scripts/self-assessment-fixture.ts /tmp/cis-refund.xml cis-refund
+bun scripts/self-assessment-fixture.ts /tmp/cis-due.xml cis-due
+python scripts/validate-self-assessment.py /path/to/HMRC-package /tmp/cis-refund.xml
+python scripts/validate-self-assessment.py /path/to/HMRC-package /tmp/cis-due.xml
+```
+
 ## Direct filing scope
 
 The implemented XML route submits SA100, one SA103S and SA110 for **2025/26 only**.
@@ -31,7 +72,8 @@ It supports one full-year cash-basis business, positive or zero profit, income
 below £90,000, the standard Personal Allowance and standard Class 4 NI eligibility.
 England/Northern Ireland, Welsh and Scottish income-tax bands are supported.
 The return rounds income down and each expense category up to whole pounds.
-The tax total is before payments already made and next year's payments on account.
+The tax total credits recorded CIS deductions but is before other payments already
+made, prior repayments and next year's payments on account.
 
 Users must explicitly confirm that this is their only income and that they have
 no other charges, deductions or reliefs. Employment, property, dividends, capital

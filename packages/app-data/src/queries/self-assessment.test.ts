@@ -56,6 +56,7 @@ function setup() {
     "0020_identity_core.sql",
     "0047_transactions.sql",
     "0050_self_assessment.sql",
+    "0054_self_assessment_cis.sql",
   ])
     sqlite.exec(
       readFileSync(resolve(import.meta.dir, `../../../../api/migrations/d1/${file}`), "utf8"),
@@ -90,6 +91,220 @@ function setup() {
   return { db: createDatabase({ cloudflare: { d1 } }), sqlite, insert };
 }
 describe("Self Assessment D1", () => {
+  test("persists CIS evidence, allocates a cross-year credit and preserves it for older clients", async () => {
+    const { db, sqlite, insert } = setup();
+    try {
+      insert("cis", "a", "2025-04-08", 800);
+      sqlite
+        .query("update transactions set category_slug = 'cis-net-payments' where id = 'cis'")
+        .run();
+      const context = { teamId: "a", taxYear: 2025, userId: "owner" };
+      const original = (await getSelfAssessmentReport(db, context)).transactions[0]!;
+      const review = {
+        transactionId: original.id,
+        sourceVersion: original.sourceVersion,
+        category: "turnover" as const,
+        businessPercent: 100,
+        note: "Statement checked",
+      };
+      await expect(
+        reviewSelfAssessmentTransactions(db, { ...context, reviews: [review] }),
+      ).rejects.toThrow("incompatible CIS");
+      const cis = {
+        grossPence: 100000,
+        deductionPence: 20000,
+        incomeTaxYear: 2025,
+        deductionTaxYear: 2024,
+        taxYearsUnderReview: [],
+        reference: "Verified source years",
+      };
+      const saved = await reviewSelfAssessmentTransactions(db, {
+        ...context,
+        reviews: [{ ...review, cis }],
+      });
+      expect(saved).toMatchObject({ incomePence: 100000, cisDeductionsPence: 0 });
+      const earlier = await getSelfAssessmentReport(db, { teamId: "a", taxYear: 2024 });
+      expect(earlier).toMatchObject({ incomePence: 0, cisDeductionsPence: 20000 });
+      expect(earlier.transactions[0]?.bankTaxYear).toBe(2025);
+      const legacy = await reviewSelfAssessmentTransactions(db, {
+        ...context,
+        reviews: [{ ...review, note: "Updated using an older client" }],
+      });
+      expect(legacy.transactions[0]?.cis).toEqual(cis);
+      expect(legacy.fingerprint).not.toBe(saved.fingerprint);
+      expect(
+        (await getSelfAssessmentReport(db, { teamId: "b", taxYear: 2024 })).transactions,
+      ).toEqual([]);
+      await expect(
+        reviewSelfAssessmentTransactions(db, {
+          ...context,
+          reviews: [{ ...review, category: "excluded" }],
+        }),
+      ).rejects.toThrow("nothing was changed");
+      const cleared = await reviewSelfAssessmentTransactions(db, {
+        ...context,
+        reviews: [{ ...review, category: "excluded", businessPercent: 0, cis: null }],
+      });
+      expect(cleared.transactions[0]?.cis).toBeNull();
+      expect(
+        (await getSelfAssessmentReport(db, { teamId: "a", taxYear: 2024 })).cisDeductionsPence,
+      ).toBe(0);
+    } finally {
+      sqlite.close();
+    }
+  });
+  test("unresolved CIS appears in both years and changes to bank data invalidate both", async () => {
+    const { db, sqlite, insert } = setup();
+    try {
+      insert("boundary", "a", "2025-04-09", 560);
+      const context = { teamId: "a", taxYear: 2025, userId: "owner" };
+      const t = (await getSelfAssessmentReport(db, context)).transactions[0]!;
+      const review = {
+        transactionId: t.id,
+        sourceVersion: t.sourceVersion,
+        category: "turnover" as const,
+        businessPercent: 100,
+        note: "Awaiting contractor",
+        cis: {
+          grossPence: 70000,
+          deductionPence: 14000,
+          incomeTaxYear: null,
+          deductionTaxYear: null,
+          taxYearsUnderReview: [2024, 2025],
+          reference: "Conflicting statements",
+        },
+      };
+      await reviewSelfAssessmentTransactions(db, { ...context, reviews: [review] });
+      for (const taxYear of [2024, 2025])
+        expect(await getSelfAssessmentReport(db, { ...context, taxYear })).toMatchObject({
+          incomePence: 0,
+          cisDeductionsPence: 0,
+          cisPendingCount: 1,
+          cisPendingGrossPence: 70000,
+          cisPendingDeductionsPence: 14000,
+        });
+      sqlite.query("update transactions set amount = 600 where id = 'boundary'").run();
+      for (const taxYear of [2024, 2025])
+        expect(await getSelfAssessmentReport(db, { ...context, taxYear })).toMatchObject({
+          needsReview: 1,
+          incomePence: 0,
+          cisDeductionsPence: 0,
+        });
+      const fresh = (await getSelfAssessmentReport(db, context)).transactions[0]!;
+      await expect(
+        reviewSelfAssessmentTransactions(db, {
+          ...context,
+          reviews: [{ ...review, sourceVersion: fresh.sourceVersion }],
+        }),
+      ).rejects.toThrow("nothing was changed");
+    } finally {
+      sqlite.close();
+    }
+  });
+  test("a corrected bank date cannot resurrect an obsolete CIS credit", async () => {
+    const { db, sqlite, insert } = setup();
+    try {
+      insert("moved", "a", "2025-04-09", 800);
+      const context = { teamId: "a", taxYear: 2025, userId: "owner" };
+      const old = (await getSelfAssessmentReport(db, context)).transactions[0]!;
+      await reviewSelfAssessmentTransactions(db, {
+        ...context,
+        reviews: [
+          {
+            transactionId: old.id,
+            sourceVersion: old.sourceVersion,
+            category: "turnover",
+            businessPercent: 100,
+            note: "",
+            cis: {
+              grossPence: 100000,
+              deductionPence: 20000,
+              incomeTaxYear: 2025,
+              deductionTaxYear: 2024,
+              taxYearsUnderReview: [],
+              reference: "Previous statement",
+            },
+          },
+        ],
+      });
+      sqlite.query("update transactions set date = '2026-04-09' where id = 'moved'").run();
+      const current = (await getSelfAssessmentReport(db, { ...context, taxYear: 2026 }))
+        .transactions[0]!;
+      expect(current.cis?.deductionPence).toBe(20000);
+      expect(current.needsReview).toBe(true);
+      await reviewSelfAssessmentTransactions(db, {
+        ...context,
+        taxYear: 2026,
+        reviews: [
+          {
+            transactionId: current.id,
+            sourceVersion: current.sourceVersion,
+            category: "excluded",
+            businessPercent: 0,
+            note: "Corrected source is personal",
+            cis: null,
+          },
+        ],
+      });
+      for (const taxYear of [2024, 2025]) {
+        const result = await getSelfAssessmentReport(db, { ...context, taxYear });
+        expect(result.transactions).toHaveLength(0);
+        expect(result.cisDeductionsPence).toBe(0);
+      }
+    } finally {
+      sqlite.close();
+    }
+  });
+  test("rejects an entire CIS batch for a mismatching amount, currency or business share", async () => {
+    const { db, sqlite, insert } = setup();
+    try {
+      insert("one", "a", "2025-07-01", 800);
+      insert("two", "a", "2025-07-02", 801);
+      const context = { teamId: "a", taxYear: 2025, userId: "owner" };
+      const report = await getSelfAssessmentReport(db, context);
+      const reviews = report.transactions.map((t) => ({
+        transactionId: t.id,
+        sourceVersion: t.sourceVersion,
+        category: "turnover" as const,
+        businessPercent: 100,
+        note: "",
+        cis: {
+          grossPence: 100000,
+          deductionPence: 20000,
+          incomeTaxYear: 2025,
+          deductionTaxYear: 2025,
+          taxYearsUnderReview: [],
+          reference: "Statement",
+        },
+      }));
+      await expect(reviewSelfAssessmentTransactions(db, { ...context, reviews })).rejects.toThrow(
+        "nothing was changed",
+      );
+      expect(sqlite.query("select count(*) as n from self_assessment_reviews").get()).toEqual({
+        n: 0,
+      });
+      await expect(
+        reviewSelfAssessmentTransactions(db, {
+          ...context,
+          reviews: [{ ...reviews[0]!, businessPercent: 50 }],
+        }),
+      ).rejects.toThrow("nothing was changed");
+      sqlite
+        .query(
+          "update transactions set currency = 'EUR', base_currency = 'GBP', base_amount = 800 where id = 'one'",
+        )
+        .run();
+      const foreign = (await getSelfAssessmentReport(db, context)).transactions[0]!;
+      await expect(
+        reviewSelfAssessmentTransactions(db, {
+          ...context,
+          reviews: [{ ...reviews[0]!, sourceVersion: foreign.sourceVersion }],
+        }),
+      ).rejects.toThrow("nothing was changed");
+    } finally {
+      sqlite.close();
+    }
+  });
   test("reads the complete year beyond normal page size, scoped to team and dates", async () => {
     const { db, sqlite, insert } = setup();
     try {

@@ -63,12 +63,38 @@ export const SelfAssessmentProfileSchema = z.object({
     .default([]),
 });
 export type SelfAssessmentProfile = z.infer<typeof SelfAssessmentProfileSchema>;
+// A bank credit is net of CIS. Keep the original amount and allocate the statement's
+// gross income and tax credit independently; neither year is inferred from the other.
+export const CisPaymentSchema = z
+  .object({
+    grossPence: z.number().int().positive().max(100_000_000_000),
+    deductionPence: z.number().int().min(0).max(100_000_000_000),
+    incomeTaxYear: TaxYearSchema.nullable(),
+    deductionTaxYear: TaxYearSchema.nullable(),
+    taxYearsUnderReview: z.array(TaxYearSchema).max(3).default([]),
+    reference: z.string().trim().min(1).max(500),
+  })
+  .superRefine((value, context) => {
+    if (value.deductionPence >= value.grossPence)
+      context.addIssue({ code: "custom", message: "CIS deductions must be less than gross pay." });
+    const pending = value.incomeTaxYear === null || value.deductionTaxYear === null;
+    if (pending !== value.taxYearsUnderReview.length > 0)
+      context.addIssue({
+        code: "custom",
+        message: "List the tax years awaiting confirmation, or assign both tax years.",
+      });
+    if (new Set(value.taxYearsUnderReview).size !== value.taxYearsUnderReview.length)
+      context.addIssue({ code: "custom", message: "Choose each tax year only once." });
+  });
+export type CisPayment = z.infer<typeof CisPaymentSchema>;
 export const TaxReviewSchema = z.object({
   transactionId: z.string().min(1).max(100),
   sourceVersion: z.string().min(1).max(2000),
   category: SelfAssessmentCategorySchema,
   businessPercent: z.number().int().min(0).max(100),
   note: z.string().trim().max(500).default(""),
+  // Omitted by older clients means preserve; explicit null removes the statement.
+  cis: CisPaymentSchema.nullable().optional(),
 });
 export const TaxReviewBatchSchema = z.object({ reviews: z.array(TaxReviewSchema).min(1).max(100) });
 export type TaxReview = z.infer<typeof TaxReviewSchema>;
@@ -96,7 +122,20 @@ export type TaxSourceTransaction = {
   internal: boolean;
   hasReceipt: boolean;
   updatedAt: string;
+  isCis?: boolean;
 };
+export function transactionTaxYear(date: string) {
+  const year = Number(date.slice(0, 4));
+  return date.slice(5, 10) < "04-06" ? year - 1 : year;
+}
+export function cisRelatesToYear(cis: CisPayment | null | undefined, year: number) {
+  return Boolean(
+    cis &&
+    (cis.incomeTaxYear === year ||
+      cis.deductionTaxYear === year ||
+      cis.taxYearsUnderReview.includes(year)),
+  );
+}
 export function taxSourceVersion(row: TaxSourceTransaction): string {
   // Include tax-relevant values even when an importer fails to advance updated_at.
   return JSON.stringify([
@@ -136,12 +175,25 @@ export function buildSelfAssessmentReport(args: {
   now?: Date;
 }) {
   const dates = taxYearDates(args.taxYear);
-  const reviews = new Map(args.reviews.map((row) => [row.transactionId, row]));
+  const sources = new Map(args.transactions.map((row) => [row.id, row]));
+  const reviews = new Map<string, TaxReview>();
+  for (const row of args.reviews) {
+    const source = sources.get(row.transactionId);
+    const existing = reviews.get(row.transactionId);
+    // A corrected bank date can leave a historical review under its old year.
+    // Prefer the review of today's source, never let old CIS credit reappear.
+    if (!existing || !source || existing.sourceVersion !== taxSourceVersion(source))
+      reviews.set(row.transactionId, row);
+  }
   const groups = selfAssessmentCategories
     .filter((c) => c.kind !== "excluded")
     .map((c) => ({ ...c, amountPence: 0 }));
   const transactions = args.transactions
-    .filter((t) => t.date.slice(0, 10) >= dates.start && t.date.slice(0, 10) < dates.endExclusive)
+    .filter(
+      (t) =>
+        transactionTaxYear(t.date) === args.taxYear ||
+        cisRelatesToYear(reviews.get(t.id)?.cis, args.taxYear),
+    )
     .map((row) => {
       const saved = reviews.get(row.id);
       const sourceVersion = taxSourceVersion(row);
@@ -158,9 +210,22 @@ export function buildSelfAssessmentReport(args: {
       const businessPercent =
         automaticExclusion || category === "excluded" ? 0 : (review?.businessPercent ?? 100);
       const amountPence = gbp !== null ? poundsToPence(gbp) : null;
+      const cis = saved?.cis ?? null;
+      const cisValid = Boolean(
+        review?.cis &&
+        category === "turnover" &&
+        businessPercent === 100 &&
+        row.currency.toUpperCase() === "GBP" &&
+        amountPence !== null &&
+        amountPence > 0 &&
+        review.cis.grossPence - review.cis.deductionPence === amountPence,
+      );
+      const cisMissing = Boolean(row.isCis && category !== "excluded" && !cis);
+      const cisPending = Boolean(cis?.taxYearsUnderReview.includes(args.taxYear));
       const blockedCurrency =
         !automaticExclusion && category !== "excluded" && amountPence === null;
-      const needsReview = !automaticExclusion && !pending && !review;
+      const needsReview =
+        !automaticExclusion && !pending && (!review || cisMissing || Boolean(cis && !cisValid));
       const included =
         !pending &&
         !needsReview &&
@@ -168,7 +233,15 @@ export function buildSelfAssessmentReport(args: {
         category !== "excluded" &&
         category !== null;
       const share =
-        included && amountPence !== null ? businessShare(amountPence, businessPercent) : 0;
+        !included || amountPence === null
+          ? 0
+          : cis
+            ? cis.incomeTaxYear === args.taxYear
+              ? cis.grossPence
+              : 0
+            : businessShare(amountPence, businessPercent);
+      const cisDeductionPence =
+        included && cis?.deductionTaxYear === args.taxYear ? cis.deductionPence : 0;
       const group = groups.find((g) => g.id === category);
       if (included && group) group.amountPence += group.kind === "income" ? share : -share;
       return {
@@ -190,6 +263,12 @@ export function buildSelfAssessmentReport(args: {
         included,
         businessAmountPence: share,
         automaticExclusion,
+        bankTaxYear: transactionTaxYear(row.date),
+        isCis: Boolean(row.isCis || cis),
+        cis,
+        cisMissing,
+        cisPending,
+        cisDeductionPence,
       };
     });
   const incomePence = groups
@@ -198,7 +277,25 @@ export function buildSelfAssessmentReport(args: {
   const expensesPence = groups
     .filter((g) => g.kind === "expense")
     .reduce((n, g) => n + g.amountPence, 0);
-  if (![incomePence, expensesPence].every(Number.isSafeInteger))
+  const cisDeductionsPence = transactions.reduce((sum, t) => sum + t.cisDeductionPence, 0);
+  const cisPendingGrossPence = transactions.reduce(
+    (sum, t) => sum + (t.cisPending && t.cis?.incomeTaxYear === null ? t.cis.grossPence : 0),
+    0,
+  );
+  const cisPendingDeductionsPence = transactions.reduce(
+    (sum, t) => sum + (t.cisPending && t.cis?.deductionTaxYear === null ? t.cis.deductionPence : 0),
+    0,
+  );
+  const cisPendingCount = transactions.filter((t) => t.cisPending).length;
+  if (
+    ![
+      incomePence,
+      expensesPence,
+      cisDeductionsPence,
+      cisPendingGrossPence,
+      cisPendingDeductionsPence,
+    ].every(Number.isSafeInteger)
+  )
     throw new Error("Tax totals exceed the supported range");
   const needsReview = transactions.filter((t) => t.needsReview).length;
   const missingCurrency = transactions.filter((t) => t.blockedCurrency).length;
@@ -215,6 +312,10 @@ export function buildSelfAssessmentReport(args: {
     blockers.push("Add your business name and description.");
   if (needsReview)
     blockers.push(`Review ${needsReview} transaction${needsReview === 1 ? "" : "s"}.`);
+  if (cisPendingCount)
+    blockers.push(
+      `Confirm the tax year for ${cisPendingCount} CIS payment${cisPendingCount === 1 ? "" : "s"}. Unallocated income and deductions are not included in totals.`,
+    );
   if (missingCurrency)
     blockers.push(
       `Add a GBP conversion or exclude ${missingCurrency} foreign-currency transaction${missingCurrency === 1 ? "" : "s"}.`,
@@ -265,6 +366,10 @@ export function buildSelfAssessmentReport(args: {
     incomePence,
     expensesPence,
     profitPence: incomePence - expensesPence,
+    cisDeductionsPence,
+    cisPendingGrossPence,
+    cisPendingDeductionsPence,
+    cisPendingCount,
     needsReview,
     missingCurrency,
     pending,
@@ -297,6 +402,15 @@ export function selfAssessmentCSV(report: SelfAssessmentReport) {
     ["Income GBP", (report.incomePence / 100).toFixed(2)],
     ["Allowable expenses GBP", (report.expensesPence / 100).toFixed(2)],
     ["Profit before further tax adjustments GBP", (report.profitPence / 100).toFixed(2)],
+    ["CIS tax deducted GBP (SA103S box 38)", (report.cisDeductionsPence / 100).toFixed(2)],
+    [
+      "CIS gross income awaiting tax-year confirmation GBP (not included)",
+      (report.cisPendingGrossPence / 100).toFixed(2),
+    ],
+    [
+      "CIS deductions awaiting tax-year confirmation GBP (not included)",
+      (report.cisPendingDeductionsPence / 100).toFixed(2),
+    ],
     [],
     ["SA103S box", "Category", "GBP (unrounded working figure)"],
     ...report.groups.map((g) => [g.box, g.name, (g.amountPence / 100).toFixed(2)]),
@@ -320,6 +434,12 @@ export function selfAssessmentCSV(report: SelfAssessmentReport) {
       "Receipt",
       "Note",
       "ID",
+      "CIS gross GBP",
+      "CIS deducted GBP",
+      "CIS income tax year",
+      "CIS deduction tax year",
+      "CIS years awaiting confirmation",
+      "CIS statement reference",
     ],
     ...report.transactions.map((t) => [
       t.date,
@@ -335,6 +455,12 @@ export function selfAssessmentCSV(report: SelfAssessmentReport) {
       t.hasReceipt,
       t.note,
       t.id,
+      t.cis ? (t.cis.grossPence / 100).toFixed(2) : "",
+      t.cis ? (t.cis.deductionPence / 100).toFixed(2) : "",
+      t.cis?.incomeTaxYear ?? "",
+      t.cis?.deductionTaxYear ?? "",
+      t.cis?.taxYearsUnderReview.join(", ") ?? "",
+      t.cis?.reference ?? "",
     ]),
   ];
   return rows.map((row) => row.map(csvCell).join(",")).join("\r\n") + "\r\n";

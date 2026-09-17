@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import type { SelfAssessmentReport } from "./self-assessment";
+import { calculateSelfAssessmentAmounts } from "./self-assessment-calculation";
 
 export const SA_2026_NAMESPACE = "http://www.govtalk.gov.uk/taxation/SA/SA100/25-26/1";
 export const GOVTALK_NAMESPACE = "http://www.govtalk.gov.uk/CM/envelope";
@@ -51,16 +52,8 @@ export function calculateSimpleSelfAssessment(
       "For HMRC filing, shorten the business description to 42 characters using letters, numbers and basic punctuation.",
     );
   }
-  const groups = report.groups.map((g) => ({
-    ...g,
-    wholePounds:
-      g.kind === "income" ? Math.floor(g.amountPence / 100) : Math.ceil(g.amountPence / 100),
-  }));
-  const income = groups.filter((g) => g.kind === "income").reduce((n, g) => n + g.wholePounds, 0);
-  const expenses = groups
-    .filter((g) => g.kind === "expense")
-    .reduce((n, g) => n + g.wholePounds, 0);
-  const profit = income - expenses;
+  const calculation = calculateSelfAssessmentAmounts(report, identity.taxpayerStatus);
+  const profit = calculation.profitPounds;
   if (profit < 0)
     throw new SelfAssessmentFilingError(
       "The rounded return has a loss. Review loss relief with HMRC or an accountant.",
@@ -73,41 +66,7 @@ export function calculateSimpleSelfAssessment(
     throw new SelfAssessmentFilingError(
       "Choose whether to pay voluntary Class 2 National Insurance before preparing this return.",
     );
-  // 2025/26 rates. Only this business, full personal allowance, no adjustments, income < £90,000.
-  const taxable = Math.max(0, profit - 12570);
-  const bands =
-    identity.taxpayerStatus === "S"
-      ? [
-          { to: 2827, rate: 19 },
-          { to: 14921, rate: 20 },
-          { to: 31092, rate: 21 },
-          { to: 62430, rate: 42 },
-          { to: 112570, rate: 45 },
-        ]
-      : [
-          { to: 37700, rate: 20 },
-          { to: 112570, rate: 40 },
-        ];
-  let previous = 0;
-  let incomeTaxPence = 0;
-  for (const band of bands) {
-    incomeTaxPence += Math.max(0, Math.min(taxable, band.to) - previous) * band.rate;
-    previous = band.to;
-  }
-  const class4Pence =
-    Math.max(0, Math.min(profit, 50270) - 12570) * 6 + Math.max(0, profit - 50270) * 2;
-  return {
-    groups,
-    incomePounds: income,
-    expensesPounds: expenses,
-    profitPounds: profit,
-    personalAllowancePounds: Math.min(12570, profit),
-    incomeTaxPence,
-    class4Pence,
-    class2Pence: 0,
-    totalTaxPence: incomeTaxPence + class4Pence,
-    includesPaymentsOnAccount: false as const,
-  };
+  return calculation;
 }
 export type SimpleSelfAssessmentCalculation = ReturnType<typeof calculateSimpleSelfAssessment>;
 
@@ -216,7 +175,10 @@ export function buildSelfAssessmentBody(
       nested("TaxableProfits", tag("NetBusinessProfitForTax", pounds(calculation.profitPounds))) +
       nested(
         "ProfitsLossesNICsAndCIS",
-        tag("TotalTaxableBusinessProfits", pounds(calculation.profitPounds)),
+        tag("TotalTaxableBusinessProfits", pounds(calculation.profitPounds)) +
+          (calculation.cisDeductionsPence
+            ? tag("SubContractorsTaxDeduction", (calculation.cisDeductionsPence / 100).toFixed(2))
+            : ""),
       ),
   );
   const sa110 = nested(
