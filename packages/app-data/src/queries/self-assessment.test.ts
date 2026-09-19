@@ -479,6 +479,65 @@ async function withFilingEnvironment(
   }
 }
 describe("Self Assessment durable filing flow", () => {
+  test("an externally filed return survives legacy saves and blocks both preparation and an old draft", async () => {
+    await withFilingEnvironment("production", async () => {
+      const { db, sqlite, report } = await filingSetup();
+      let calls = 0;
+      const provider = new HmrcSelfAssessmentProvider("production", (async () => {
+        calls++;
+        throw new Error("A filed return must never reach HMRC");
+      }) as unknown as typeof fetch);
+      try {
+        const draft = await prepareSelfAssessment(db, {
+          ...filingContext,
+          fingerprint: report.fingerprint,
+          identity: filingIdentity,
+        });
+        await saveSelfAssessmentProfile(db, {
+          ...filingContext,
+          profile: { ...report.profile, filedElsewhere: true },
+        });
+        const legacySave = await saveSelfAssessmentProfile(db, {
+          ...filingContext,
+          profile: report.profile,
+        });
+        expect(legacySave.profile.filedElsewhere).toBe(true);
+        expect(legacySave.transactions).toHaveLength(1);
+        await expect(
+          prepareSelfAssessment(db, {
+            ...filingContext,
+            fingerprint: legacySave.fingerprint,
+            identity: filingIdentity,
+          }),
+        ).rejects.toThrow("already filed");
+        await expect(
+          submitSelfAssessment(
+            db,
+            {
+              ...filingContext,
+              id: draft.id,
+              declarationAccepted: true,
+              confirmedIrMark: draft.irMark,
+              senderId: "fixture",
+              password: "fixture",
+            },
+            provider,
+          ),
+        ).rejects.toThrow("filed outside");
+        expect(calls).toBe(0);
+        expect((await listSelfAssessmentFilings(db, filingContext)).data[0]?.status).toBe(
+          "prepared",
+        );
+        const corrected = await saveSelfAssessmentProfile(db, {
+          ...filingContext,
+          profile: { ...report.profile, filedElsewhere: false },
+        });
+        expect(corrected.profile.filedElsewhere).toBe(false);
+      } finally {
+        sqlite.close();
+      }
+    });
+  });
   test("production filing uses personal credentials without requiring software recognition", async () => {
     await withFilingEnvironment("production", async () => {
       const { db, sqlite, report } = await filingSetup();

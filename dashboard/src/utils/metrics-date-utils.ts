@@ -1,3 +1,4 @@
+import { currentUkTaxYear } from "@tamias/compliance/self-assessment";
 import { getFiscalYearDates } from "@tamias/utils";
 import { format, formatISO, parseISO, startOfYear, subMonths, subYears } from "date-fns";
 
@@ -8,6 +9,8 @@ export type PeriodOption =
   | "1-year"
   | "2-years"
   | "5-years"
+  | "tax-year"
+  | "previous-tax-year"
   | "fiscal-year"
   | "custom";
 
@@ -28,6 +31,10 @@ export function getPeriodLabel(period: PeriodOption, from?: string, to?: string)
       return "2 years";
     case "5-years":
       return "5 years";
+    case "tax-year":
+      return "Current UK tax year";
+    case "previous-tax-year":
+      return "Previous UK tax year";
     case "fiscal-year":
       return "Fiscal year";
     case "custom":
@@ -47,8 +54,8 @@ export function getPeriodDateRange(
   fiscalYearStartMonth?: number | null,
   customFrom?: string,
   customTo?: string,
+  now = new Date(),
 ): { from: string; to: string } {
-  const now = new Date();
   const to = formatISO(now, { representation: "date" });
 
   switch (period) {
@@ -94,6 +101,17 @@ export function getPeriodDateRange(
         to,
       };
     }
+    case "tax-year":
+    case "previous-tax-year": {
+      const year = currentUkTaxYear(now) - (period === "previous-tax-year" ? 1 : 0);
+      return {
+        from: `${year}-04-06`,
+        to:
+          period === "tax-year"
+            ? now.toLocaleDateString("en-CA", { timeZone: "Europe/London" })
+            : `${year + 1}-04-05`,
+      };
+    }
     case "fiscal-year": {
       const { from: fiscalFrom, to: fiscalTo } = getFiscalYearDates(fiscalYearStartMonth, now);
       return {
@@ -121,4 +139,19 @@ export function getPeriodDateRange(
       };
     }
   }
+}
+
+export function isPeriodOption(value: string | null | undefined): value is PeriodOption {
+  return [
+    "3-months",
+    "6-months",
+    "this-year",
+    "1-year",
+    "2-years",
+    "5-years",
+    "fiscal-year",
+    "tax-year",
+    "previous-tax-year",
+    "custom",
+  ].includes(value ?? "");
 }

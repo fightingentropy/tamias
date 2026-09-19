@@ -318,11 +318,15 @@ export function PublicComparisonBarChart({
   showAverage = false,
   currency,
   locale,
+  primaryLabel = "Current",
+  secondaryLabel = "Previous",
 }: {
   data: ComparisonDatum[];
   showAverage?: boolean;
   currency?: string;
   locale?: string;
+  primaryLabel?: string;
+  secondaryLabel?: string;
 }) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -580,10 +584,10 @@ export function PublicComparisonBarChart({
           <div className="bg-background border border-border px-3 py-2 text-xs shadow-md">
             <p className="text-muted-foreground mb-1">{hoveredItem.label}</p>
             <p className="text-foreground font-medium">
-              Current: {formatValue(hoveredItem.primary)}
+              {primaryLabel}: {formatValue(hoveredItem.primary)}
             </p>
             <p className="text-foreground font-medium">
-              Previous: {formatValue(hoveredItem.secondary)}
+              {secondaryLabel}: {formatValue(hoveredItem.secondary)}
             </p>
             {showAverage && (
               <p className="text-foreground font-medium">

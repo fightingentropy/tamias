@@ -216,6 +216,8 @@ export async function submitSelfAssessment(
   if (!senderId || !password)
     throw new SelfAssessmentFilingError("Enter your Government Gateway details to submit.");
   const report = await getSelfAssessmentReport(db, args);
+  if (report.profile.filedElsewhere)
+    throw new SelfAssessmentFilingError("This return is already marked as filed outside Tamias.");
   if (report.fingerprint !== row.request_fingerprint)
     throw new SelfAssessmentConflict(
       "Your tax records changed after this return was prepared. Prepare a new return.",

@@ -11,6 +11,7 @@ import {
   getRevenueForecast,
   getRunway,
   getSpending,
+  getStatementAnalytics,
   getTaxSummary,
 } from "@tamias/app-data/queries";
 import {
@@ -30,11 +31,17 @@ import {
   getRevenueSchema,
   getRunwaySchema,
   getSpendingSchema,
+  getStatementAnalyticsSchema,
   getTaxSummarySchema,
 } from "../../schemas/reports";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../init";
 
 export const reportsRouter = createTRPCRouter({
+  statement: protectedProcedure
+    .input(getStatementAnalyticsSchema)
+    .query(({ ctx: { db, teamId }, input }) =>
+      getStatementAnalytics(db, { ...input, teamId: teamId! }),
+    ),
   revenue: protectedProcedure
     .input(getRevenueSchema)
     .query(async ({ ctx: { db, teamId }, input }) => {

@@ -39,6 +39,8 @@ export const SelfAssessmentProfileSchema = z.object({
   recordsComplete: z.boolean().default(false),
   adjustmentsReviewed: z.boolean().default(false),
   otherIncomeReviewed: z.boolean().default(false),
+  // User-reported status, separate from an HMRC acceptance receipt.
+  filedElsewhere: z.boolean().optional(),
   additionalSections: z
     .array(
       z.enum([
@@ -127,6 +129,17 @@ export type TaxSourceTransaction = {
 export function transactionTaxYear(date: string) {
   const year = Number(date.slice(0, 4));
   return date.slice(5, 10) < "04-06" ? year - 1 : year;
+}
+export function currentUkTaxYear(now = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(now);
+  return transactionTaxYear(
+    ["year", "month", "day"].map((key) => parts.find((p) => p.type === key)!.value).join("-"),
+  );
 }
 export function cisRelatesToYear(cis: CisPayment | null | undefined, year: number) {
   return Boolean(
@@ -342,6 +355,10 @@ export function buildSelfAssessmentReport(args: {
     .join("-");
   if (ukToday < dates.endExclusive) blockers.push("This tax year has not ended yet.");
   const filingBlockers = [...blockers];
+  if (args.profile.filedElsewhere)
+    filingBlockers.push(
+      "This return is marked as already filed outside Tamias. Amendments are not supported.",
+    );
   if (args.taxYear !== 2025)
     filingBlockers.push("Direct Self Assessment filing currently supports 2025/26 only.");
   if (incomePence >= 9_000_000)
@@ -393,9 +410,11 @@ export function selfAssessmentCSV(report: SelfAssessmentReport) {
     ["Tamias Self Assessment working papers", report.label],
     [
       "Status",
-      report.readyToExport
-        ? "Business figures reviewed; personal return still requires completion"
-        : "Draft - review items remain",
+      report.profile.filedElsewhere
+        ? "Marked filed outside Tamias; these are bookkeeping records, not a copy of the filed return"
+        : report.readyToExport
+          ? "Business figures reviewed; personal return still requires completion"
+          : "Draft - review items remain",
     ],
     ["Accounting basis", "Cash basis; GBP; reviewed business transactions only"],
     ["Business", report.profile.businessName],

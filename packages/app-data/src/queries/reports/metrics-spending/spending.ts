@@ -37,7 +37,6 @@ async function getSpendingImpl(
     const amount = Math.abs(row.totalAmount);
 
     if (slug && aggregateData.excludedCategorySlugs.includes(slug)) {
-      uncategorizedAmount = roundMoney(uncategorizedAmount + amount);
       continue;
     }
 

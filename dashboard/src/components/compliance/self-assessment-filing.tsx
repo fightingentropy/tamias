@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { currentUkTaxYear } from "@tamias/compliance/self-assessment";
 import { Button } from "@tamias/ui/button";
 import { Badge } from "@tamias/ui/badge";
 import { Dialog, DialogContent } from "@tamias/ui/dialog";
@@ -36,6 +37,9 @@ export function SelfAssessmentFiling({
     gcTime: 0,
   });
   const connection = history.data?.connection;
+  const filedElsewhere = Boolean(report.profile.filedElsewhere);
+  const yearInProgress = report.taxYear >= currentUkTaxYear(new Date(report.generatedAt));
+  const supportsYear = connection?.supportedTaxYear === report.taxYear;
   const filings = history.data?.data ?? [];
   const selected = filings.find((filing) => filing.id === selectedId) ?? filings[0];
   const existing = filings.find(
@@ -45,7 +49,9 @@ export function SelfAssessmentFiling({
   );
   const canPrepare = Boolean(
     connection?.ready &&
-    connection.supportedTaxYear === report.taxYear &&
+    supportsYear &&
+    !filedElsewhere &&
+    !yearInProgress &&
     !report.filingBlockers.length &&
     !existing &&
     !history.isError,
@@ -72,23 +78,42 @@ export function SelfAssessmentFiling({
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 id="hmrc-filing-heading" className="text-xl font-serif">
-          File your Self Assessment
+          {filedElsewhere
+            ? "Return already filed"
+            : yearInProgress
+              ? "Your next Self Assessment"
+              : "File your Self Assessment"}
         </h3>
         {connection && (
           <Badge variant="outline">
-            {connection.environment === "test"
-              ? "Test service"
-              : connection.ready
-                ? "Live filing enabled"
-                : "Live filing unavailable"}
+            {filedElsewhere
+              ? "Filed elsewhere · your confirmation"
+              : yearInProgress
+                ? "Tax year in progress"
+                : !supportsYear
+                  ? "Filing unavailable for this year"
+                  : connection.environment === "test"
+                    ? "Test service"
+                    : connection.ready
+                      ? "Live filing enabled"
+                      : "Live filing unavailable"}
           </Badge>
         )}
       </div>
       <p className="text-sm text-muted-foreground">
-        Prepare, review and submit one cash-basis sole-trader return for 2025/26, including recorded
-        CIS deductions. Other income and additional return sections need another filing route.
+        {filedElsewhere
+          ? "You have confirmed that this return was filed outside Tamias. These records remain available for bookkeeping and analytics; they are not a copy of the return you filed."
+          : yearInProgress
+            ? `Keep your statements, business costs and CIS records organised as the year progresses. You can file this tax year from ${new Date(report.endExclusive).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}.`
+            : "Prepare, review and submit one cash-basis sole-trader return, including recorded CIS deductions. Other income and additional return sections need another filing route."}
       </p>
-      {connection?.environment === "test" && (
+      {connection && !supportsYear && !filedElsewhere && (
+        <p className="text-sm text-muted-foreground">
+          Filing for {report.label} is not available in Tamias yet. Your records and analytics are
+          available now.
+        </p>
+      )}
+      {connection?.environment === "test" && !filedElsewhere && !yearInProgress && supportsYear && (
         <p className="border p-4 text-sm">
           Real filing is not enabled. This connection uses HMRC's test service; test submissions do
           not file your tax return.
@@ -107,23 +132,26 @@ export function SelfAssessmentFiling({
           </Button>
         </div>
       )}
-      {!!(report.filingBlockers.length || connection?.blockers.length) && (
-        <div className="space-y-3 bg-muted/30 p-4 text-sm">
-          <p className="font-medium">Before you prepare</p>
-          <ul className="list-disc space-y-2 pl-5">
-            {[...new Set([...report.filingBlockers, ...(connection?.blockers ?? [])])].map(
-              (message) => (
-                <li key={message}>{message}</li>
-              ),
+      {!filedElsewhere &&
+        !yearInProgress &&
+        supportsYear &&
+        !!(report.filingBlockers.length || connection?.blockers.length) && (
+          <div className="space-y-3 bg-muted/30 p-4 text-sm">
+            <p className="font-medium">Before you prepare</p>
+            <ul className="list-disc space-y-2 pl-5">
+              {[...new Set([...report.filingBlockers, ...(connection?.blockers ?? [])])].map(
+                (message) => (
+                  <li key={message}>{message}</li>
+                ),
+              )}
+            </ul>
+            {report.needsReview > 0 && (
+              <a className="inline-block underline underline-offset-4" href="#tax-transactions">
+                Review transactions
+              </a>
             )}
-          </ul>
-          {report.needsReview > 0 && (
-            <a className="inline-block underline underline-offset-4" href="#tax-transactions">
-              Review transactions
-            </a>
-          )}
-        </div>
-      )}
+          </div>
+        )}
       {existing && (
         <p className="text-sm">
           A live return for this year is already{" "}
@@ -131,9 +159,11 @@ export function SelfAssessmentFiling({
           status and receipt below.
         </p>
       )}
-      <Button disabled={!canPrepare || preparing} onClick={() => setShowIdentity(true)}>
-        Prepare return for review
-      </Button>
+      {!filedElsewhere && !yearInProgress && supportsYear && (
+        <Button disabled={!canPrepare || preparing} onClick={() => setShowIdentity(true)}>
+          Prepare return for review
+        </Button>
+      )}
       {!!filings.length && (
         <div className="space-y-3">
           <h4 className="text-sm font-medium">Saved returns</h4>

@@ -7,7 +7,7 @@ import { useEffect, useMemo } from "react";
 import { useAuthToken } from "@/framework/auth-client";
 import { useMetricsFilterStore } from "@/store/metrics-filter";
 import { useTRPC } from "@/trpc/client";
-import { getPeriodDateRange, type PeriodOption } from "@/utils/metrics-date-utils";
+import { getPeriodDateRange, isPeriodOption, type PeriodOption } from "@/utils/metrics-date-utils";
 
 // Default values for metrics filters
 const DEFAULT_PERIOD: PeriodOption = "1-year";
@@ -20,23 +20,6 @@ export const metricsFilterSchema = {
   from: parseAsString,
   to: parseAsString,
 };
-
-/**
- * Type guard to check if a string is a valid PeriodOption
- */
-function isPeriodOption(value: string | null | undefined): value is PeriodOption {
-  if (!value) return false;
-  const validPeriods: PeriodOption[] = [
-    "3-months",
-    "6-months",
-    "1-year",
-    "2-years",
-    "5-years",
-    "fiscal-year",
-    "custom",
-  ];
-  return validPeriods.includes(value as PeriodOption);
-}
 
 /**
  * Type guard to check if a string is a valid RevenueType

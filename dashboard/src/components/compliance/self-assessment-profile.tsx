@@ -66,7 +66,7 @@ export function SelfAssessmentProfileForm({
   }
   return (
     <details className="border p-5 sm:p-6">
-      <summary className="cursor-pointer font-medium">Your business and return checks</summary>
+      <summary className="cursor-pointer font-medium">Your business and return status</summary>
       <form onSubmit={save} className="mt-5 space-y-5">
         <p className="text-sm text-muted-foreground">
           Confirm these when you have checked your records. Investment withdrawals and personal
@@ -74,6 +74,19 @@ export function SelfAssessmentProfileForm({
           own return sections.
         </p>
         <fieldset disabled={busy} className="space-y-5">
+          <label className="flex items-start gap-3 text-sm">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={Boolean(profile.filedElsewhere)}
+              onChange={(e) => update({ filedElsewhere: e.target.checked })}
+            />
+            I already filed this year's return outside Tamias.
+          </label>
+          <p className="text-xs text-muted-foreground">
+            This records your confirmation and prevents a new submission here. Your transactions
+            remain available for organisation and analytics.
+          </p>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block space-y-2 text-sm">
               Business or trading name

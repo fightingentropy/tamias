@@ -3,3 +3,4 @@ export * from "./reports/metrics";
 export * from "./reports/forecast";
 export * from "./reports/balance-sheet";
 export * from "./reports/links";
+export * from "./reports/statement";

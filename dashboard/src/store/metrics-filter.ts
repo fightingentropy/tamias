@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import type { PeriodOption } from "@/utils/metrics-date-utils";
+import { isPeriodOption, type PeriodOption } from "@/utils/metrics-date-utils";
 
 const STORAGE_KEY_BASE = "metrics-filter-preferences";
 
@@ -11,23 +11,6 @@ const getStorageKey = (teamId: string | undefined): string => {
 };
 
 type RevenueType = "gross" | "net";
-
-/**
- * Type guard to check if a string is a valid PeriodOption
- */
-function isPeriodOption(value: string | null | undefined): value is PeriodOption {
-  if (!value) return false;
-  const validPeriods: PeriodOption[] = [
-    "3-months",
-    "6-months",
-    "1-year",
-    "2-years",
-    "5-years",
-    "fiscal-year",
-    "custom",
-  ];
-  return validPeriods.includes(value as PeriodOption);
-}
 
 /**
  * Type guard to check if a string is a valid RevenueType

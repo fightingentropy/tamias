@@ -91,7 +91,15 @@ async function mount(page: Page, s: ReturnType<typeof state>) {
     throw new Error(`Unexpected fixture request: ${request.method()} ${path}`);
   });
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "File your Self Assessment" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      name: s.report.profile.filedElsewhere
+        ? "Return already filed"
+        : s.report.taxYear === 2026
+          ? "Your next Self Assessment"
+          : "File your Self Assessment",
+    }),
+  ).toBeVisible();
 }
 async function credentials(page: Page) {
   await page.getByLabel("Government Gateway user ID", { exact: true }).fill("fictional-user");
@@ -207,7 +215,7 @@ test("blocked reports and additional sections stay blocked", async ({ page }) =>
     "href",
     "#tax-transactions",
   );
-  await page.getByText("Your business and return checks", { exact: true }).click();
+  await page.getByText("Your business and return status", { exact: true }).click();
   await page.getByLabel("Capital gains, including crypto", { exact: true }).check();
   await page.getByRole("button", { name: "Save return checks" }).click();
   await expect(
@@ -244,4 +252,98 @@ test("test mode and the mobile return remain readable", async ({ page }, testInf
     path: testInfo.outputPath("self-assessment-mobile.png"),
     fullPage: true,
   });
+});
+
+test("an externally filed year keeps records without another submission", async ({ page }) => {
+  const s = state();
+  s.filings = [prepared(s)];
+  s.report.profile.filedElsewhere = true;
+  await mount(page, s);
+  await expect(
+    page.getByText("Filed elsewhere · your confirmation", { exact: true }),
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Prepare return for review" })).toHaveCount(0);
+  await expect(page.getByLabel("Government Gateway password", { exact: true })).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Submit return to HMRC", exact: true }),
+  ).toHaveCount(0);
+  expect(s.submissions).toHaveLength(0);
+});
+
+test("the current year is for recordkeeping and does not claim live filing support", async ({
+  page,
+}) => {
+  const s = state();
+  s.report.taxYear = 2026;
+  s.report.label = "2026/27";
+  s.report.start = "2026-04-06";
+  s.report.endExclusive = "2027-04-06";
+  s.report.generatedAt = "2026-09-19T10:00:00Z";
+  await mount(page, s);
+  await expect(page.getByText("Tax year in progress", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("Filing for 2026/27 is not available in Tamias yet.", { exact: false }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("You can file this tax year from 6 April 2027.", { exact: false }),
+  ).toBeVisible();
+  await expect(page.getByText("Live filing enabled", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Prepare return for review" })).toHaveCount(0);
+});
+
+test("statement analytics shows cash separately from spending and links to source transactions on mobile", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.route(/^https?:\/\/(?!127\.0\.0\.1:4178)/, (route) => route.abort());
+  await page.route("**/fixture-api/statement", (route) =>
+    route.fulfill({
+      json: {
+        currency: "GBP",
+        from: "2025-04-06",
+        to: "2026-04-05",
+        summary: {
+          count: 18,
+          firstDate: "2025-04-06",
+          lastDate: "2026-04-05",
+          moneyIn: 1210,
+          moneyOut: 425,
+          spending: 165,
+          netMovement: 785,
+          transfersIn: 200,
+          transfersOut: 240,
+          excludedIn: 0,
+          excludedOut: 20,
+          uncategorizedCount: 1,
+          unconvertedCount: 0,
+          unconvertedCurrencies: null,
+        },
+        months: [{ month: "2025-04", moneyIn: 1210, moneyOut: 425 }],
+        categories: [
+          { slug: "tools", name: "Tools & equipment", amount: 140, percentage: 84.85, count: 10 },
+          { slug: "uncategorized", name: "Uncategorized", amount: 25, percentage: 15.15, count: 1 },
+        ],
+        merchants: [{ name: "Example Tools", amount: 140, count: 10 }],
+      },
+    }),
+  );
+  await page.goto("/statement");
+  await expect(page.getByRole("heading", { name: "Money in", exact: true })).toBeVisible();
+  await expect(page.getByText("£165.00", { exact: true })).toBeVisible();
+  await expect(page.getByText("Transfers out", { exact: false })).toContainText("£240.00");
+  const category = page.getByRole("link", { name: /Tools & equipment/ });
+  await expect(category).toHaveAttribute(
+    "href",
+    "/transactions?start=2025-04-06&end=2026-04-05&accounts=example-account&categories=tools&type=expense",
+  );
+  await page.getByText("View monthly amounts and transactions", { exact: true }).click();
+  await expect(page.getByRole("link", { name: "Apr 2025", exact: true })).toHaveAttribute(
+    "href",
+    "/transactions?start=2025-04-06&end=2025-04-30&accounts=example-account",
+  );
+  await expect(page.getByRole("link", { name: /Example Tools/ })).toHaveAttribute(
+    "href",
+    "/transactions?start=2025-04-06&end=2026-04-05&accounts=example-account&q=Example+Tools&type=expense",
+  );
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });

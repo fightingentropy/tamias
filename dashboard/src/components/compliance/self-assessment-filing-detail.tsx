@@ -44,6 +44,7 @@ export function SelfAssessmentFilingDetail({
     current &&
     connection.ready &&
     !report.filingBlockers.length &&
+    !report.profile.filedElsewhere &&
     declared &&
     (isTest || Boolean(senderId.trim() && password)) &&
     !uncertain;
@@ -192,7 +193,7 @@ export function SelfAssessmentFilingDetail({
           figures.
         </p>
       )}
-      {filing.status === "prepared" && current && !uncertain && (
+      {filing.status === "prepared" && current && !uncertain && !report.profile.filedElsewhere && (
         <fieldset
           disabled={busy || !connection.ready || Boolean(report.filingBlockers.length)}
           className="space-y-4"

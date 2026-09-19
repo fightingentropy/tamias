@@ -153,7 +153,7 @@ export async function saveSelfAssessmentProfile(
   await requireCloudflareD1Database(db)
     .prepare(
       `insert into self_assessment_profiles (team_id, tax_year, profile_json, updated_by, updated_at)
-    values (?, ?, ?, ?, ?) on conflict (team_id, tax_year) do update set profile_json = excluded.profile_json,
+    values (?, ?, ?, ?, ?) on conflict (team_id, tax_year) do update set profile_json = json_patch(self_assessment_profiles.profile_json, excluded.profile_json),
     updated_by = excluded.updated_by, updated_at = excluded.updated_at`,
     )
     .bind(args.teamId, args.taxYear, JSON.stringify(profile), args.userId, new Date().toISOString())

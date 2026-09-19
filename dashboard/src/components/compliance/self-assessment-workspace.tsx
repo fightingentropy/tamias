@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CisPaymentSchema,
   poundsToPence,
+  currentUkTaxYear,
   type SelfAssessmentReport,
   type TaxReview,
 } from "@tamias/compliance/self-assessment";
@@ -355,71 +356,74 @@ function TaxYearContent({
           </p>
         </div>
       )}
-      <section
-        className="grid gap-6 border bg-card p-5 sm:p-6 lg:grid-cols-[1fr_1fr]"
-        aria-labelledby="draft-estimate"
-      >
-        <div>
-          <div className="flex flex-wrap items-center gap-3">
-            <h3 id="draft-estimate" className="text-xl font-serif">
-              Draft tax estimate
-            </h3>
-            <Badge variant="outline">
-              {report.blockers.length ? "Incomplete records" : "Review before filing"}
-            </Badge>
-          </div>
-          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-            An illustration using only the reviewed business figures, the standard Personal
-            Allowance and Class 4 National Insurance. Other income, reliefs, student loans,
-            voluntary Class 2, prior refunds and payments on account are not included.
-          </p>
-          <label className="mt-4 block max-w-xs space-y-2 text-sm">
-            Tax rates for this illustration
-            <select
-              className={selectStyle}
-              value={taxpayerStatus}
-              onChange={(e) => setTaxpayerStatus(e.target.value as "U" | "C" | "S")}
-            >
-              <option value="U">England or Northern Ireland</option>
-              <option value="C">Wales</option>
-              <option value="S">Scotland</option>
-            </select>
-          </label>
-        </div>
-        {estimate ? (
-          <dl className="space-y-3 text-sm">
-            {[
-              ["Income tax", estimate.incomeTaxPence],
-              ["Class 4 National Insurance", estimate.class4Pence],
-              ["Less CIS credit", -estimate.cisDeductionsPence],
-            ].map(([label, amount]) => (
-              <div key={label} className="flex justify-between gap-4">
-                <dt>{label}</dt>
-                <dd className="tabular-nums">{money(Number(amount))}</dd>
-              </div>
-            ))}
-            <div className="flex items-center justify-between gap-4 border-t pt-4">
-              <dt>
-                {estimate.refundPence > 0
-                  ? "Illustrative overpayment"
-                  : "Illustrative tax remaining"}
-              </dt>
-              <dd className="text-2xl tabular-nums">
-                {money(estimate.refundPence || estimate.taxDuePence)}
-              </dd>
+      {!report.profile.filedElsewhere && report.taxYear === 2025 && (
+        <section
+          className="grid gap-6 border bg-card p-5 sm:p-6 lg:grid-cols-[1fr_1fr]"
+          aria-labelledby="draft-estimate"
+        >
+          <div>
+            <div className="flex flex-wrap items-center gap-3">
+              <h3 id="draft-estimate" className="text-xl font-serif">
+                Draft tax estimate
+              </h3>
+              <Badge variant="outline">
+                {report.blockers.length ? "Incomplete records" : "Review before filing"}
+              </Badge>
             </div>
-            <p className="text-xs leading-relaxed text-muted-foreground">
-              {estimate.refundPence > 0 ? "This is not a confirmed refund. " : ""}Return figures use
-              HMRC whole-pound rounding. Unreviewed or unallocated amounts can change this estimate.
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              An illustration using only the reviewed business figures, the standard Personal
+              Allowance and Class 4 National Insurance. Other income, reliefs, student loans,
+              voluntary Class 2, prior refunds and payments on account are not included.
             </p>
-          </dl>
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            This estimate supports 2025/26 businesses with turnover below £90,000 and no loss or net
-            expense refunds. Your working papers remain available.
-          </p>
-        )}
-      </section>
+            <label className="mt-4 block max-w-xs space-y-2 text-sm">
+              Tax rates for this illustration
+              <select
+                className={selectStyle}
+                value={taxpayerStatus}
+                onChange={(e) => setTaxpayerStatus(e.target.value as "U" | "C" | "S")}
+              >
+                <option value="U">England or Northern Ireland</option>
+                <option value="C">Wales</option>
+                <option value="S">Scotland</option>
+              </select>
+            </label>
+          </div>
+          {estimate ? (
+            <dl className="space-y-3 text-sm">
+              {[
+                ["Income tax", estimate.incomeTaxPence],
+                ["Class 4 National Insurance", estimate.class4Pence],
+                ["Less CIS credit", -estimate.cisDeductionsPence],
+              ].map(([label, amount]) => (
+                <div key={label} className="flex justify-between gap-4">
+                  <dt>{label}</dt>
+                  <dd className="tabular-nums">{money(Number(amount))}</dd>
+                </div>
+              ))}
+              <div className="flex items-center justify-between gap-4 border-t pt-4">
+                <dt>
+                  {estimate.refundPence > 0
+                    ? "Illustrative overpayment"
+                    : "Illustrative tax remaining"}
+                </dt>
+                <dd className="text-2xl tabular-nums">
+                  {money(estimate.refundPence || estimate.taxDuePence)}
+                </dd>
+              </div>
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                {estimate.refundPence > 0 ? "This is not a confirmed refund. " : ""}Return figures
+                use HMRC whole-pound rounding. Unreviewed or unallocated amounts can change this
+                estimate.
+              </p>
+            </dl>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              This estimate supports 2025/26 businesses with turnover below £90,000 and no loss or
+              net expense refunds. Your working papers remain available.
+            </p>
+          )}
+        </section>
+      )}
       <SelfAssessmentFiling report={report} request={request} teamId={teamId} />
       {!!cisRows.length && (
         <section aria-labelledby="cis-payments">
@@ -603,7 +607,8 @@ function TaxYearContent({
       </section>
       <details className="border-t pt-5">
         <summary className="cursor-pointer text-sm font-medium">
-          Checks before a complete tax return ({report.blockers.length})
+          {report.profile.filedElsewhere ? "Bookkeeping checks" : "Checks for a future filing"} (
+          {report.blockers.length})
         </summary>
         <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-muted-foreground">
           {report.blockers.map((item) => (
@@ -638,10 +643,9 @@ export function SelfAssessmentWorkspace() {
   const token = useAuthToken();
   const { data: user } = useUserQuery();
   const teamId = user?.teamId;
-  const currentYear = new Date().getFullYear();
-  const lastCompleted =
-    new Date().toISOString().slice(5, 10) >= "04-06" ? currentYear - 1 : currentYear - 2;
-  const [year, setYear] = useState(Math.max(2024, lastCompleted));
+  const currentYear = currentUkTaxYear();
+  const lastCompleted = currentYear - 1;
+  const [year, setYear] = useState(Math.max(2024, currentYear));
   async function request<T>(
     path: string,
     body?: unknown,
@@ -684,7 +688,10 @@ export function SelfAssessmentWorkspace() {
             Self Assessment
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Review your business figures and the CIS tax you have already paid.
+            Organise this year's business records and CIS deductions for your next return.
+            <Link href="/reports" className="ml-2 underline underline-offset-4">
+              Open statement analytics
+            </Link>
           </p>
         </div>
         <select

@@ -1,3 +1,5 @@
+import type { StatementAnalytics } from "@tamias/app-data/queries/reports";
+import { StatementAnalyticsView } from "../../../dashboard/src/components/metrics/statement-analytics-view";
 import { useCallback, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -39,7 +41,7 @@ function App() {
         </button>
         <button onClick={() => void refresh()}>Refresh records</button>
       </nav>
-      <h1 className="font-serif text-3xl">2025/26 Self Assessment</h1>
+      <h1 className="font-serif text-3xl">{report.data?.label} Self Assessment</h1>
       {report.data && (
         <div key={teamId} className="space-y-6">
           <SelfAssessmentProfileForm
@@ -55,8 +57,21 @@ function App() {
   );
 }
 
+function StatementApp() {
+  const query = useQuery({
+    queryKey: ["statement-fixture"],
+    queryFn: async () =>
+      (await fetch("/fixture-api/statement")).json() as Promise<StatementAnalytics>,
+  });
+  return (
+    <main className="mx-auto max-w-5xl p-5">
+      {query.data && <StatementAnalyticsView data={query.data} accountId="example-account" />}
+    </main>
+  );
+}
+
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-    <App />
+    {window.location.pathname === "/statement" ? <StatementApp /> : <App />}
   </QueryClientProvider>,
 );

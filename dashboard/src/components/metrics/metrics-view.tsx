@@ -24,7 +24,7 @@ import { type ChartId, DEFAULT_CHART_ORDER } from "./utils/chart-types";
 export function MetricsView() {
   const trpc = useTRPC();
   const { data: user } = useUserQuery();
-  const { data: connections } = useQuery(trpc.bankConnections.get.queryOptions());
+  const { data: accounts } = useQuery(trpc.bankAccounts.get.queryOptions());
   const { from, to, currency, revenueType } = useMetricsFilter();
   const { isCustomizing, setIsCustomizing } = useMetricsCustomize();
   const [chartOrder, setChartOrder] = useLocalStorage<ChartId[]>(
@@ -59,8 +59,8 @@ export function MetricsView() {
   };
 
   const [_, setStep] = useQueryState("step");
-  const hasConnections = connections && connections.length > 0;
-  const showConnectOverlay = connections !== undefined && !hasConnections;
+  // Imported/manual accounts provide the same transaction data as connected accounts.
+  const showConnectOverlay = accounts !== undefined && accounts.length === 0;
 
   const renderChart = (chartId: ChartId, index: number) => {
     const wiggleClass = getWiggleClass(index);

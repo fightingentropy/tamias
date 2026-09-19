@@ -17,6 +17,8 @@ export default defineConfig({
           ...baseConfig,
           content: [
             path.resolve(import.meta.dirname, "src/components/compliance/**/*.{ts,tsx}"),
+            path.resolve(import.meta.dirname, "src/components/metrics/**/*.{ts,tsx}"),
+            path.resolve(import.meta.dirname, "src/components/charts/**/*.{ts,tsx}"),
             path.resolve(import.meta.dirname, "../packages/ui/src/**/*.{ts,tsx}"),
             path.resolve(import.meta.dirname, "../e2e/self-assessment/app/**/*.tsx"),
           ],
