@@ -5,7 +5,10 @@ import {
   HmrcSelfAssessmentProvider,
   type HmrcSaReceipt,
 } from "../packages/compliance/src/providers/hmrc-self-assessment";
-import { createSelfAssessmentFixture } from "./self-assessment-fixture";
+import {
+  createCisSelfAssessmentFixture,
+  createSelfAssessmentFixture,
+} from "./self-assessment-fixture";
 
 // Sends only the built-in fictional fixture to ETS. Never accepts a real return or live URL.
 if (process.env.HMRC_SA_ENVIRONMENT !== "test") throw new Error("HMRC test mode is required.");
@@ -40,7 +43,10 @@ type State = {
   transportAcknowledged?: boolean;
   failure?: string;
 };
-const fixture = createSelfAssessmentFixture(utr);
+const scenario = resume ? undefined : process.argv[3];
+if (scenario && scenario !== "cis") throw new Error("Only the built-in cis scenario is supported.");
+const fixture =
+  scenario === "cis" ? createCisSelfAssessmentFixture(utr) : createSelfAssessmentFixture(utr);
 const state: State = resume
   ? JSON.parse(readFileSync(path.join(directory, "state.json"), "utf8"))
   : { environment: "test", irMark: fixture.irMark, status: "prepared", responseCount: 0 };

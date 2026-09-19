@@ -17,6 +17,9 @@ import { getApiUrl } from "@tamias/utils/envs";
 import { useAuthToken } from "@/framework/auth-client";
 import { useUserQuery } from "@/hooks/use-user";
 import Link from "@/framework/link";
+import { SelfAssessmentFiling } from "./self-assessment-filing";
+import { SelfAssessmentProfileForm } from "./self-assessment-profile";
+import type { TaxRequest } from "./self-assessment-types";
 
 type Report = SelfAssessmentReport & { fingerprint: string };
 type Transaction = Report["transactions"][number];
@@ -266,9 +269,11 @@ function ReviewForm({
 function TaxYearContent({
   report,
   request,
+  teamId,
 }: {
   report: Report;
-  request: <T>(path: string, body?: unknown) => Promise<T>;
+  request: TaxRequest;
+  teamId: string;
 }) {
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState("needs-review");
@@ -332,6 +337,14 @@ function TaxYearContent({
         Reviewed records only · {report.needsReview.toLocaleString("en-GB")} transactions still to
         review · {report.missingReceipts} work purchases without receipts
       </p>
+      <SelfAssessmentProfileForm
+        key={JSON.stringify(report.profile)}
+        report={report}
+        request={request}
+        onSaved={() =>
+          queryClient.invalidateQueries({ queryKey: ["self-assessment", teamId, report.taxYear] })
+        }
+      />
       {!!report.cisPendingCount && (
         <div className="border border-amber-500/40 bg-amber-500/5 p-5 text-sm">
           <h3 className="font-medium">CIS tax year awaiting confirmation</h3>
@@ -407,6 +420,7 @@ function TaxYearContent({
           </p>
         )}
       </section>
+      <SelfAssessmentFiling report={report} request={request} teamId={teamId} />
       {!!cisRows.length && (
         <section aria-labelledby="cis-payments">
           <h3 id="cis-payments" className="text-lg font-medium">
@@ -448,9 +462,9 @@ function TaxYearContent({
           </div>
         </section>
       )}
-      <section aria-labelledby="tax-transactions">
+      <section id="tax-transactions" aria-labelledby="tax-transactions-heading">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h3 id="tax-transactions" className="text-lg font-medium">
+          <h3 id="tax-transactions-heading" className="text-lg font-medium">
             Review transactions
           </h3>
           <Button variant="outline" size="sm" onClick={exportWorkingPapers}>
@@ -628,16 +642,21 @@ export function SelfAssessmentWorkspace() {
   const lastCompleted =
     new Date().toISOString().slice(5, 10) >= "04-06" ? currentYear - 1 : currentYear - 2;
   const [year, setYear] = useState(Math.max(2024, lastCompleted));
-  async function request<T>(path: string, body?: unknown): Promise<T> {
+  async function request<T>(
+    path: string,
+    body?: unknown,
+    method?: "GET" | "PUT" | "POST",
+  ): Promise<T> {
     if (!token || !teamId) throw new Error("Sign in to load your tax records.");
     const response = await fetch(`${getApiUrl()}${path}`, {
-      method: body === undefined ? "GET" : "PUT",
+      method: method ?? (body === undefined ? "GET" : "PUT"),
       headers: {
         Authorization: `Bearer ${token}`,
         "X-Tamias-Team-Id": teamId,
         "Content-Type": "application/json",
       },
       body: body === undefined ? undefined : JSON.stringify(body),
+      cache: "no-store",
     });
     const data = await response.json();
     if (!response.ok)
@@ -647,7 +666,7 @@ export function SelfAssessmentWorkspace() {
           "description" in data &&
           typeof data.description === "string"
           ? data.description
-          : "Could not load your tax records. Please try again.",
+          : "Could not complete the tax request. Check your details and try again.",
       );
     return data as T;
   }
@@ -698,7 +717,12 @@ export function SelfAssessmentWorkspace() {
         </div>
       )}
       {query.data && (
-        <TaxYearContent key={`${teamId}-${year}`} report={query.data} request={request} />
+        <TaxYearContent
+          key={`${teamId}-${year}`}
+          report={query.data}
+          request={request}
+          teamId={teamId!}
+        />
       )}
     </section>
   );

@@ -29,6 +29,7 @@
     "test": "bun run test:repository && bun run --workspaces --parallel --if-present test",
     "test:repository": "bun test --exit scripts/*.test.ts",
     "test:e2e": "playwright test -c playwright.config.ts",
+    "test:e2e:self-assessment": "playwright test -c playwright.self-assessment.config.ts",
     "test:e2e:headed": "playwright test -c playwright.config.ts --headed",
     "types:cloudflare": "bun --no-env-file scripts/run-with-runtime-env.ts dashboard -- bun --no-env-file run --filter @tamias/dashboard build && bun --no-env-file scripts/run-with-runtime-env.ts localOnly -- node_modules/.bin/wrangler types types/cloudflare-env.d.ts --config wrangler.jsonc --env-file /dev/null && bun --no-env-file run scripts/sanitize-cloudflare-types.ts && bun --no-env-file scripts/run-with-runtime-env.ts localOnly -- node_modules/.bin/prettier --write types/cloudflare-env.d.ts",
     "start:dashboard": "bun --no-env-file scripts/run-with-runtime-env.ts dashboard,api,worker,filing,localOnly -- bun --no-env-file run --filter @tamias/dashboard start",

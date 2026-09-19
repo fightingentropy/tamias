@@ -1,5 +1,4 @@
 import {
-  assertExternalMutationEnvironment,
   buildHmrcSaEnvelope,
   buildSelfAssessmentBody,
   HmrcSelfAssessmentProvider,
@@ -59,9 +58,12 @@ export function selfAssessmentConnection(teamId: string) {
       .filter(Boolean);
     if (!liveTeams.includes(teamId))
       blockers.push("Live Self Assessment filing is not enabled for this workspace.");
-    try {
-      assertExternalMutationEnvironment({ kind: "filing", providerEnvironment: environment });
-    } catch {
+    // Personal SA has its own interlock; enabling it must not enable CT, VAT or other filings.
+    if (
+      process.env.TAMIAS_ENVIRONMENT !== "production" ||
+      process.env.HMRC_SA_LIVE_FILING_ENABLED !== "true" ||
+      process.env.HMRC_SA_LIVE_FILING_CONFIRMATION !== "ENABLE_LIVE_SELF_ASSESSMENT"
+    ) {
       blockers.push("Live Self Assessment filing is not enabled.");
     }
   }
@@ -209,7 +211,6 @@ export async function submitSelfAssessment(
     throw new SelfAssessmentFilingError(
       "The HMRC connection changed. Prepare and review a new return.",
     );
-  assertExternalMutationEnvironment({ kind: "filing", providerEnvironment: row.environment });
   const senderId = row.environment === "test" ? process.env.HMRC_SA_TEST_SENDER_ID : args.senderId;
   const password = row.environment === "test" ? process.env.HMRC_SA_TEST_PASSWORD : args.password;
   if (!senderId || !password)

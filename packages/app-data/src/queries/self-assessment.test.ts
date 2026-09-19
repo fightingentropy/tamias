@@ -16,6 +16,7 @@ import {
   HmrcSelfAssessmentProvider,
   SelfAssessmentProfileSchema,
   GOVTALK_NAMESPACE,
+  assertExternalMutationEnvironment,
   type SelfAssessmentIdentity,
 } from "@tamias/compliance";
 import {
@@ -461,8 +462,10 @@ async function withFilingEnvironment(
     // A legacy deployment flag must not make optional recognition a filing requirement.
     HMRC_SA_RECOGNISED: "false",
     TAMIAS_ENVIRONMENT: "production",
-    TAMIAS_LIVE_FILING_ENABLED: "true",
-    TAMIAS_LIVE_FILING_CONFIRMATION: "ENABLE_LIVE_FILING",
+    HMRC_SA_LIVE_FILING_ENABLED: "true",
+    HMRC_SA_LIVE_FILING_CONFIRMATION: "ENABLE_LIVE_SELF_ASSESSMENT",
+    TAMIAS_LIVE_FILING_ENABLED: "false",
+    TAMIAS_LIVE_FILING_CONFIRMATION: "",
   };
   const original = Object.fromEntries(Object.keys(values).map((key) => [key, process.env[key]]));
   Object.assign(process.env, values);
@@ -501,6 +504,9 @@ describe("Self Assessment durable filing flow", () => {
       );
       try {
         expect(selfAssessmentConnection(filingContext.teamId).ready).toBe(true);
+        expect(() =>
+          assertExternalMutationEnvironment({ kind: "filing", providerEnvironment: "production" }),
+        ).toThrow("Live filing is blocked");
         const prepared = await prepareSelfAssessment(db, {
           ...filingContext,
           fingerprint: report.fingerprint,
@@ -551,8 +557,8 @@ describe("Self Assessment durable filing flow", () => {
         for (const [key, value] of [
           ["HMRC_SA_LIVE_TEAM_IDS", ""],
           ["HMRC_SA_LIVE_TEAM_IDS", `${filingContext.teamId}-other`],
-          ["TAMIAS_LIVE_FILING_ENABLED", "false"],
-          ["TAMIAS_LIVE_FILING_CONFIRMATION", ""],
+          ["HMRC_SA_LIVE_FILING_ENABLED", "false"],
+          ["HMRC_SA_LIVE_FILING_CONFIRMATION", ""],
           ["TAMIAS_ENVIRONMENT", "development"],
         ] as const) {
           const previous = process.env[key];

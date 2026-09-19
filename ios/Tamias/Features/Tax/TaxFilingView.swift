@@ -92,11 +92,11 @@ private struct TaxFilingIdentitySheet: View {
                 Section {
                     Toggle("This business is my only income", isOn: $identity.onlyThisBusinessIncome).accessibilityIdentifier("tax.identity.onlyIncome")
                     Toggle("I qualify for the standard Personal Allowance", isOn: $identity.standardPersonalAllowance).accessibilityIdentifier("tax.identity.allowance")
-                    Toggle("No other charges, reliefs or tax deducted", isOn: $identity.noOtherChargesOrReliefs).accessibilityIdentifier("tax.identity.noOtherCharges")
+                    Toggle("No other charges, reliefs or tax beyond recorded CIS", isOn: $identity.noOtherChargesOrReliefs).accessibilityIdentifier("tax.identity.noOtherCharges")
                     Toggle("My business operated for the full tax year", isOn: $identity.businessOperatedFullYear).accessibilityIdentifier("tax.identity.fullYear")
                     Toggle("Standard self-employed National Insurance applies", isOn: $identity.standardNationalInsurance).accessibilityIdentifier("tax.identity.nationalInsurance")
                 } header: { Text("Confirm this applies to you") } footer: {
-                    Text("Other charges or deductions include the Child Benefit charge, student loans, CIS deductions, underpaid tax and pension charges. If these apply, complete the return with HMRC or your accountant.")
+                    Text("Recorded CIS deductions are supported. Other charges or adjustments include the Child Benefit charge, student loans, tax repayments, underpaid tax and pension charges. If these apply, complete the return with HMRC or your accountant.")
                 }
                 Section {
                     Picker("Voluntary contributions", selection: $identity.class2Choice) {

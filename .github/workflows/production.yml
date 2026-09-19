@@ -36,6 +36,12 @@ jobs:
       - name: Run repository quality gate
         run: bun run check
 
+      - name: Install browser for isolated filing checks
+        run: bunx playwright install --with-deps chromium
+
+      - name: Check Self Assessment submission screens
+        run: bun --no-env-file run test:e2e:self-assessment
+
       - name: Validate production Cloudflare bundles
         run: bun run preflight:cloudflare:production
 

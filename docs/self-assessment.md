@@ -5,6 +5,14 @@ separate business-use reviews, CSV working papers, and a restricted 2025/26
 Self Assessment submission flow. It does not implement Making Tax Digital for
 Income Tax, quarterly updates, amendments or additional personal return pages.
 
+The web Tax page also supports the complete preparation and submission journey:
+business/profile checks, personal details, a saved return with rounded figures and
+CIS credit, a separate declaration and final submission confirmation, status checks,
+and a downloadable return/receipt. The live/test environment is always visible.
+Changed financial records or connection settings require a newly prepared return.
+Government Gateway credentials live only in the submission form and its one request;
+they are cleared after submission and never enter React Query mutation caches.
+
 ## Working papers
 
 - Tax years run from 6 April to 5 April. The default is the last completed year.
@@ -75,8 +83,8 @@ The return rounds income down and each expense category up to whole pounds.
 The tax total credits recorded CIS deductions but is before other payments already
 made, prior repayments and next year's payments on account.
 
-Users must explicitly confirm that this is their only income and that they have
-no other charges, deductions or reliefs. Employment, property, dividends, capital
+Users must explicitly confirm that this is their only taxable income and that they have
+no other charges, repayments, tax paid beyond recorded CIS, or reliefs. Employment, property, dividends, capital
 gains, foreign income, partnerships, student loans, residence adjustments, VAT,
 losses and capital-allowance adjustments are flagged for completion with HMRC or
 an accountant. Low profits require an explicit voluntary Class 2 decision;
@@ -136,10 +144,15 @@ service. Tamias preserves this rejection, including when ETS returns
 
 HMRC supplied dedicated SA100 credentials on 15 September 2026 and confirmed the
 vendor record's name as Tamias. The protected local filing environment and hosted
-Worker use those settings in **test mode**. A fictional 2025/26 SA100/SA103S/SA110
+Worker were initially configured in **test mode**. A fictional 2025/26 SA100/SA103S/SA110
 return completed ETS submission, polling, acceptance with a matching IRmark, and
 gateway acknowledgement. This verifies one scenario; it does not establish
 software recognition or acceptance of a real return.
+
+On 19 September 2026, a second fictional return with gross CIS income, a CIS credit
+and a calculated overpayment also completed ETS acceptance with a matching IRmark
+and gateway acknowledgement. The ignored evidence is in
+`artifacts/hmrc-sa-cis-20260919`. No real taxpayer return was submitted by this check.
 
 On 15 September 2026, the Software Developer Support Team was asked to confirm
 recognition for this restricted scope, provide the prescribed scenarios and
@@ -154,6 +167,8 @@ Run the same synthetic check with the protected configuration:
 
 ```sh
 bun --no-env-file scripts/run-with-runtime-env.ts filing -- bun --no-env-file scripts/verify-hmrc-self-assessment.ts
+# Exercise the built-in CIS/overpayment fixture instead:
+bun --no-env-file scripts/run-with-runtime-env.ts filing -- bun --no-env-file scripts/verify-hmrc-self-assessment.ts artifacts/hmrc-sa-cis-example cis
 ```
 
 The checker accepts no real financial input or live endpoint. It stores its
@@ -173,8 +188,10 @@ configured HMRC environment's HTTPS origin.
 
 Production additionally requires `HMRC_SA_ENVIRONMENT=production`,
 `TAMIAS_ENVIRONMENT=production`,
-`TAMIAS_LIVE_FILING_ENABLED=true`, and
-`TAMIAS_LIVE_FILING_CONFIRMATION=ENABLE_LIVE_FILING`. Do not set these merely
+`HMRC_SA_LIVE_FILING_ENABLED=true`, and
+`HMRC_SA_LIVE_FILING_CONFIRMATION=ENABLE_LIVE_SELF_ASSESSMENT`. These controls are
+specific to Self Assessment: enabling them does not enable VAT, Corporation Tax or
+other services behind the generic `TAMIAS_LIVE_FILING_*` interlock. Do not set these merely
 because local tests pass. Live Government Gateway credentials are entered at
 submission, used once and never stored in the return or receipt record. The legacy
 `HMRC_SA_RECOGNISED` setting is ignored. Enabling live filing does not prepare or
@@ -205,6 +222,17 @@ The app can save the original body and receipt as a JSON evidence file without
 Government Gateway credentials. Prepared evidence is clearly marked as not sent.
 
 ## Validation
+
+Run the isolated web filing checks without signing into a real account:
+
+```sh
+bun --no-env-file run test:e2e:self-assessment
+```
+
+All financial requests are intercepted with fictional records. The seven browser
+scenarios cover preparation, explicit submission, receipt checks, interrupted
+connections, stale drafts, workspace changes, additional sections and mobile layout.
+They do not submit to HMRC or use the production API.
 
 Run the focused domain and D1 tests:
 
