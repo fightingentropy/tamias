@@ -107,7 +107,7 @@ function createD1() {
 describe("compliance ledger D1", () => {
   test("requires a Cloudflare D1-backed database context", () => {
     expect(() => requireComplianceLedgerD1(createDatabase())).toThrow(
-      "Compliance ledger requires Cloudflare D1",
+      "Cloudflare D1 database binding is not configured",
     );
   });
 

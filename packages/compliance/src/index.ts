@@ -10,3 +10,4 @@ export * from "./vat";
 export * from "./self-assessment";
 export * from "./self-assessment-filing";
 export * from "./providers/hmrc-self-assessment";
+export * from "./fraud-prevention";

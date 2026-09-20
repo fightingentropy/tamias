@@ -6,6 +6,8 @@ export interface ComplianceOAuthStatePayload {
   userId: string;
   provider: AuthorityProviderId;
   source: "apps" | "settings";
+  issuedAt: number;
+  expiresAt: number;
 }
 
 function isValidComplianceOAuthState(parsed: unknown): parsed is ComplianceOAuthStatePayload {
@@ -16,6 +18,11 @@ function isValidComplianceOAuthState(parsed: unknown): parsed is ComplianceOAuth
   const record = parsed as Record<string, unknown>;
 
   return (
+    typeof record.issuedAt === "number" &&
+    record.issuedAt <= Date.now() &&
+    typeof record.expiresAt === "number" &&
+    record.expiresAt > Date.now() &&
+    record.expiresAt - record.issuedAt <= 10 * 60 * 1000 &&
     typeof record.teamId === "string" &&
     typeof record.userId === "string" &&
     AuthorityProviderIdSchema.safeParse(record.provider).success &&
@@ -23,8 +30,11 @@ function isValidComplianceOAuthState(parsed: unknown): parsed is ComplianceOAuth
   );
 }
 
-export function encryptComplianceOAuthState(payload: ComplianceOAuthStatePayload): string {
-  return encryptOAuthState(payload);
+export function encryptComplianceOAuthState(
+  payload: Omit<ComplianceOAuthStatePayload, "issuedAt" | "expiresAt">,
+): string {
+  const issuedAt = Date.now();
+  return encryptOAuthState({ ...payload, issuedAt, expiresAt: issuedAt + 10 * 60 * 1000 });
 }
 
 export function decryptComplianceOAuthState(

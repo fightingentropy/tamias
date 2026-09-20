@@ -18,6 +18,25 @@ export function normalizeAndValidatePath(
   pathTeamId: string;
   pathArray: string[];
 } {
+  // Reject traversal before resolving a relative path into the tenant namespace.
+  let decoded = filePath;
+  for (let attempt = 0; attempt < 8; attempt++) {
+    if (
+      // eslint-disable-next-line no-control-regex -- Control bytes are invalid in stored file paths.
+      /[\\\x00-\x1f\x7f]/.test(decoded) ||
+      decoded.split("/").some((part) => part === "." || part === "..")
+    ) {
+      throw new HTTPException(400, { message: "Invalid file path" });
+    }
+    try {
+      const next = decodeURIComponent(decoded);
+      if (next === decoded) break;
+      if (attempt === 7) throw new Error("Too many encoding layers");
+      decoded = next;
+    } catch {
+      throw new HTTPException(400, { message: "Invalid file path encoding" });
+    }
+  }
   // Normalize path
   const normalizedPath = filePath.startsWith("vault/")
     ? filePath.substring("vault/".length)

@@ -112,7 +112,7 @@ function createD1() {
 describe("VAT filing state D1", () => {
   test("requires a Cloudflare D1-backed database context", () => {
     expect(() => requireVatFilingStateD1(createDatabase())).toThrow(
-      "VAT filing state requires Cloudflare D1",
+      "Cloudflare D1 database binding is not configured",
     );
   });
 
@@ -203,7 +203,10 @@ describe("VAT filing state D1", () => {
           sourceType: "invoice",
           sourceId: "invoice-1",
           currency: "GBP",
-          lines: [{ accountCode: "4000", credit: 100 }],
+          lines: [
+            { accountCode: "4000", credit: 100 },
+            { accountCode: "1200", debit: 100 },
+          ],
         },
       });
       await upsertComplianceJournalEntry(db, {
@@ -214,7 +217,10 @@ describe("VAT filing state D1", () => {
           sourceType: "transaction",
           sourceId: "transaction-1",
           currency: "GBP",
-          lines: [{ accountCode: "1200", debit: 25 }],
+          lines: [
+            { accountCode: "1200", debit: 25 },
+            { accountCode: "2100", credit: 25 },
+          ],
         },
       });
 

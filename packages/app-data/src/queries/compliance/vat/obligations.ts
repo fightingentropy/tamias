@@ -13,7 +13,7 @@ async function syncVatObligations(
     profile: FilingProfileRecord;
   },
 ) {
-  if (!params.profile.vrn) {
+  if (!params.profile.vrn || !params.fraudContext) {
     return [];
   }
 
@@ -39,6 +39,7 @@ async function syncVatObligations(
       from,
       to,
       accessToken: providerData.config.accessToken,
+      fraudContext: params.fraudContext,
     });
   } catch {
     return [];

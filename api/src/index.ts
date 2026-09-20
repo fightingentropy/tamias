@@ -25,16 +25,6 @@ const sharedLocalDashboardOrigins = [
 // REST routers, etc.) which adds ~2s of CPU time. Only loads the tRPC
 // router, context, and fetch adapter — everything else is deferred.
 
-const CACHEABLE_PROCEDURES = new Map<string, number>([
-  ["user.me", 60],
-  ["team.current", 60],
-  ["widgets.getOverview", 30],
-  ["widgets.getAccountBalances", 30],
-  ["widgets.getOutstandingInvoices", 30],
-  ["widgets.getInboxStats", 30],
-  ["notificationSettings.get", 120],
-]);
-
 let trpcDepsPromise: Promise<{
   fetchRequestHandler: typeof import("@trpc/server/adapters/fetch").fetchRequestHandler;
   createTRPCContext: typeof import("./trpc/init").createTRPCContext;
@@ -63,16 +53,16 @@ function getCorsHeaders(request: Request): Record<string, string> {
     "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS,PATCH",
     "Access-Control-Allow-Headers":
-      "Authorization,Content-Type,Idempotency-Key,X-Tamias-Team-Id,User-Agent,accept-language,cf-ray,trpc-accept,x-request-id,x-trpc-source,x-user-locale,x-user-timezone,x-user-country,x-slack-signature,x-slack-request-timestamp",
+      "Authorization,Content-Type,Idempotency-Key,X-Tamias-Hmrc-Device,X-Tamias-Team-Id,User-Agent,accept-language,cf-ray,trpc-accept,x-request-id,x-trpc-source,x-user-locale,x-user-timezone,x-user-country,x-slack-signature,x-slack-request-timestamp",
     "Access-Control-Expose-Headers":
       "Content-Length,Content-Type,Cache-Control,Cross-Origin-Resource-Policy",
     "Access-Control-Max-Age": "86400",
   };
 }
 
-async function handleTrpcFastPath(
+export async function handleTrpcFastPath(
   request: Request,
-  executionCtx: ExecutionContext,
+  _executionCtx: ExecutionContext,
 ): Promise<Response> {
   // CORS preflight
   if (request.method === "OPTIONS") {
@@ -84,65 +74,9 @@ async function handleTrpcFastPath(
   const procedures = procedurePath.split(",");
   const corsHeaders = getCorsHeaders(request);
 
-  // ── Edge cache for hot tRPC GET queries ────────────────────────────
-  if (request.method === "GET") {
-    const minTtl = procedures.reduce((min, proc) => {
-      const ttl = CACHEABLE_PROCEDURES.get(proc);
-      return ttl !== undefined ? Math.min(min, ttl) : -1;
-    }, Infinity);
+  // Financial and identity responses must re-check the current session and
+  // workspace on every request. Never serve them from a shared edge cache.
 
-    if (minTtl > 0 && Number.isFinite(minTtl)) {
-      const authHeader = request.headers.get("Authorization") ?? "";
-      const tokenBytes = await crypto.subtle.digest(
-        "SHA-256",
-        new TextEncoder().encode(authHeader),
-      );
-      const tokenHash = [...new Uint8Array(tokenBytes)]
-        .slice(0, 8)
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
-
-      const cacheUrl = new URL(request.url);
-      cacheUrl.searchParams.set("_ck", tokenHash);
-      const cacheKey = new Request(cacheUrl.toString());
-
-      const cache = (caches as unknown as { default: Cache }).default;
-      const cached = await cache.match(cacheKey);
-      if (cached) {
-        const headers = new Headers(cached.headers);
-        for (const [k, v] of Object.entries(corsHeaders)) headers.set(k, v);
-        return new Response(cached.body, { status: cached.status, headers });
-      }
-
-      // Cache miss — resolve tRPC, then cache the response
-      const response = await callTrpcHandler(request, procedures, corsHeaders);
-
-      if (response.ok) {
-        const responseToCache = response.clone();
-        const cacheHeaders = new Headers(responseToCache.headers);
-        cacheHeaders.set(
-          "Cache-Control",
-          `s-maxage=${minTtl}, stale-while-revalidate=${minTtl * 2}`,
-        );
-        // Cache Tags enable targeted purge via Cloudflare API
-        const tags = [
-          `user-${tokenHash}`,
-          "trpc",
-          ...new Set(procedures.map((p) => p.split(".")[0]!)),
-        ];
-        cacheHeaders.set("Cache-Tag", tags.join(","));
-        const cacheable = new Response(responseToCache.body, {
-          status: responseToCache.status,
-          headers: cacheHeaders,
-        });
-        executionCtx.waitUntil(cache.put(cacheKey, cacheable));
-      }
-
-      return response;
-    }
-  }
-
-  // ── Non-cacheable tRPC request ─────────────────────────────────────
   return callTrpcHandler(request, procedures, corsHeaders);
 }
 
@@ -175,6 +109,9 @@ async function callTrpcHandler(
   });
 
   const headers = new Headers(response.headers);
+  headers.set("Cache-Control", "private, no-store");
+  headers.set("Vary", "Origin, Authorization, Cookie, X-Tamias-Team-Id");
+  headers.set("X-Content-Type-Options", "nosniff");
   for (const [k, v] of Object.entries(corsHeaders)) headers.set(k, v);
   return new Response(response.body, { status: response.status, headers });
 }
@@ -295,6 +232,7 @@ async function createApp() {
     "*",
     cors({
       origin: allowedApiOrigins,
+      credentials: true,
       allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
       allowHeaders: [
         "Authorization",

@@ -36,7 +36,7 @@ export function ConnectWhatsApp({ showTrigger = true }: ConnectWhatsAppProps) {
   const { data: installedApps } = useQuery(trpc.apps.get.queryOptions());
   const whatsappApp = installedApps?.find((app) => app.app_id === "whatsapp");
   const isInstalled = !!whatsappApp;
-  const connections = (whatsappApp?.config as any)?.connections || [];
+  const connections = whatsappApp?.connections ?? [];
 
   const disconnectMutation = useMutation(
     trpc.apps.disconnect.mutationOptions({

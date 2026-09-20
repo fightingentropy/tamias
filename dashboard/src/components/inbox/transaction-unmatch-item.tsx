@@ -31,11 +31,11 @@ export function TransactionUnmatchItem() {
         const previousInboxItem = queryClient.getQueryData(queryKey);
 
         if (previousInboxItem) {
-          queryClient.setQueryData(queryKey, {
+          queryClient.setQueryData(queryKey, () => ({
             ...previousInboxItem,
             transactionId: null,
             transaction: null,
-          });
+          }));
         }
 
         return { previousInboxItem };

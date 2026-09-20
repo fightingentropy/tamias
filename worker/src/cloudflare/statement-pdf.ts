@@ -105,12 +105,17 @@ async function extractWithOpenAi({
   return result.object;
 }
 
-async function extractTextFromPdfBytes(pdfBytes: Uint8Array): Promise<string | null> {
+export async function extractTextFromPdfBytes(pdfBytes: Uint8Array): Promise<string | null> {
   try {
     const { extractText, getDocumentProxy } = await import("unpdf");
-    const doc = await getDocumentProxy(pdfBytes);
-    const { text } = await extractText(doc, { mergePages: true });
-    return Array.isArray(text) ? text.join("\n") : text;
+    // Headless text extraction only: never enable PDF viewer scripting or XFA.
+    const doc = await getDocumentProxy(pdfBytes, { enableXfa: false });
+    try {
+      const { text } = await extractText(doc, { mergePages: true });
+      return Array.isArray(text) ? text.join("\n") : text;
+    } finally {
+      await doc.loadingTask.destroy();
+    }
   } catch (error) {
     console.warn("Could not extract text from PDF statement", {
       error: error instanceof Error ? error.message : String(error),

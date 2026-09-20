@@ -1,21 +1,19 @@
-import { type Editor, BubbleMenu as TiptapBubbleMenu } from "@tiptap/react";
+import type { Editor } from "@tiptap/react";
+import { BubbleMenu as TiptapBubbleMenu } from "@tiptap/react/menus";
 import { useState } from "react";
 import {
   MdOutlineFormatBold,
   MdOutlineFormatItalic,
   MdOutlineFormatStrikethrough,
 } from "react-icons/md";
-import type { Props as TippyOptions } from "tippy.js";
 import { BubbleMenuItem } from "./bubble-item";
 import { LinkItem } from "./link-item";
 
-export function BubbleMenu({
-  editor,
-  tippyOptions,
-}: {
-  editor: Editor;
-  tippyOptions?: TippyOptions;
-}) {
+// Tiptap dispatches a transaction when these options change. Keep the object
+// stable so rendering selection state cannot trigger an update loop.
+const menuOptions = { placement: "top" as const, offset: 6 };
+
+export function BubbleMenu({ editor }: { editor: Editor }) {
   const [openLink, setOpenLink] = useState(false);
 
   if (!editor) {
@@ -24,7 +22,7 @@ export function BubbleMenu({
 
   return (
     <div>
-      <TiptapBubbleMenu editor={editor} tippyOptions={tippyOptions}>
+      <TiptapBubbleMenu editor={editor} options={menuOptions}>
         <div className="flex w-fit max-w-[90vw] overflow-hidden rounded-full border border-border bg-background text-mono font-regular">
           <BubbleMenuItem
             editor={editor}

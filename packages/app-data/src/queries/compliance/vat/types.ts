@@ -1,3 +1,4 @@
+import type { HmrcFraudContext } from "@tamias/compliance";
 export type VatFilingActorId = string;
 
 export type ComplianceAdjustmentLineCode =
@@ -104,14 +105,14 @@ export type SubmitVatReturnParams = {
   vatReturnId: string;
   submittedBy: VatFilingActorId;
   declarationAccepted: boolean;
-  userAgent?: string;
-  publicIp?: string;
+  fraudContext?: HmrcFraudContext;
   idempotencyKey: string;
   confirmationId: string;
 };
 
 export type ListVatObligationsParams = {
   teamId: string;
+  fraudContext?: HmrcFraudContext;
 };
 
 export type GetEvidencePackParams = {

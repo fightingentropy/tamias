@@ -108,7 +108,7 @@ export function MatchTransaction() {
         );
 
         if (previousInboxItem && selectedTransaction) {
-          queryClient.setQueryData(queryKey, {
+          queryClient.setQueryData(queryKey, () => ({
             ...previousInboxItem,
             transactionId,
             transaction: {
@@ -118,7 +118,7 @@ export function MatchTransaction() {
               amount: selectedTransaction.transaction_amount,
               currency: selectedTransaction.transaction_currency,
             },
-          });
+          }));
         }
 
         return { previousInboxItem };

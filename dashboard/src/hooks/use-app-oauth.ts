@@ -70,6 +70,8 @@ export function useAppOAuth({ installUrlEndpoint, onSuccess, onError }: UseAppOA
     cleanupRef.current = cleanup;
 
     const messageListener = (e: MessageEvent) => {
+      if (e instanceof MessageEvent && e.origin !== window.location.origin) return;
+      if (e.source && e.source !== popup) return;
       if (isOAuthMessage(e.data)) {
         if (e.data.type === "app_oauth_completed") {
           handleOAuthComplete();
@@ -103,6 +105,8 @@ export function useAppOAuth({ installUrlEndpoint, onSuccess, onError }: UseAppOA
       }
 
       const response = await fetch(`${apiUrl}${installUrlEndpoint}`, {
+        credentials:
+          installUrlEndpoint === "/apps/hmrc-vat/install-url" ? "include" : "same-origin",
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -1,3 +1,4 @@
+import type { HmrcFraudContext } from "@tamias/compliance";
 import type { Database } from "@tamias/app-data/client";
 import {
   getFilingProfile,
@@ -9,9 +10,14 @@ export async function getComplianceProfileForTeam(args: { db: Database; teamId: 
   return getFilingProfile(args.db, args.teamId);
 }
 
-export async function getVatDashboardForTeam(args: { db: Database; teamId: string }) {
+export async function getVatDashboardForTeam(args: {
+  db: Database;
+  teamId: string;
+  fraudContext?: HmrcFraudContext;
+}) {
   return getVatDashboard(args.db, {
     teamId: args.teamId,
+    fraudContext: args.fraudContext,
   });
 }
 

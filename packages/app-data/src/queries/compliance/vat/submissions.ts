@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import {
   assertExternalMutationEnvironment,
+  assertHmrcFraudContext,
   HmrcVatProvider,
   roundCurrency,
 } from "@tamias/compliance";
@@ -116,6 +117,7 @@ export async function submitVatReturn(
     kind: "filing",
     providerEnvironment: providerData.provider.environment,
   });
+  assertHmrcFraudContext(params.fraudContext, providerData.provider.environment);
   const operation = await beginIdempotentOperation(db, {
     teamId: params.teamId,
     scope: "filing.hmrc-vat.submit",
@@ -138,12 +140,7 @@ export async function submitVatReturn(
       vrn: profile.vrn,
       submission: requestPayload,
       accessToken: providerData.config.accessToken,
-      fraudHeaders: HmrcVatProvider.buildFraudPreventionHeaders({
-        deviceId: crypto.randomUUID(),
-        userId: params.submittedBy,
-        userAgent: params.userAgent,
-        publicIp: params.publicIp,
-      }),
+      fraudContext: params.fraudContext,
     });
     providerReceipt = receipt;
     const submittedAt = new Date().toISOString();

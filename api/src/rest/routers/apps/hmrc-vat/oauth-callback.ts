@@ -1,5 +1,7 @@
+import { getCookie, deleteCookie } from "hono/cookie";
+import { getTeamMembershipIds } from "@tamias/app-services/identity";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import { createApp } from "@tamias/app-data/queries";
+import { createApp, consumeHmrcOAuthState } from "@tamias/app-data/queries";
 import config from "@tamias/app-store/hmrc-vat";
 import { decryptComplianceOAuthState, HmrcVatProvider } from "@tamias/compliance";
 import { logger } from "@tamias/logger";
@@ -82,6 +84,25 @@ app.openapi(
     const dashboardUrl = getAppUrl();
     const parsedState = decryptComplianceOAuthState(state);
     const source = parsedState?.source;
+    c.header("Cache-Control", "no-store");
+    c.header("Referrer-Policy", "no-referrer");
+    const browserBinding = getCookie(c, "tamias_hmrc_oauth") ?? "";
+    if (
+      !parsedState ||
+      parsedState.provider !== "hmrc-vat" ||
+      !(await consumeHmrcOAuthState(db, state, browserBinding))
+    ) {
+      throw new HTTPException(400, {
+        message: "Invalid or expired connection. Start again from Tamias.",
+      });
+    }
+    deleteCookie(c, "tamias_hmrc_oauth", { path: "/apps/hmrc-vat/oauth-callback" });
+    const memberships = await getTeamMembershipIds({ userId: parsedState.userId });
+    if (!memberships.includes(parsedState.teamId)) {
+      throw new HTTPException(403, {
+        message: "Workspace access has changed. Start again from Tamias.",
+      });
+    }
 
     if (error || !code) {
       const errorCode = mapOAuthError(error);
@@ -114,10 +135,7 @@ app.openapi(
 
       return c.redirect(buildSuccessRedirect(dashboardUrl, "hmrc-vat", parsedState.source), 302);
     } catch (err) {
-      logger.error("HMRC VAT OAuth callback error", {
-        error: err instanceof Error ? err.message : String(err),
-        stack: err instanceof Error ? err.stack : undefined,
-      });
+      logger.error("HMRC VAT OAuth callback failed", { teamId: parsedState.teamId });
 
       return c.redirect(
         buildErrorRedirect(dashboardUrl, "token_exchange_failed", "hmrc-vat", parsedState.source),

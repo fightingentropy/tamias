@@ -35,6 +35,7 @@ export function PlainEditor({
     extensions: registerPlainExtensions({ placeholder }),
     content: initialContent,
     immediatelyRender: false,
+    shouldRerenderOnTransaction: true,
     autofocus: autoFocus ? "end" : false,
     onBlur,
     onFocus,

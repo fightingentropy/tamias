@@ -13,9 +13,32 @@ import {
 } from "../../schemas/apps";
 import { createTRPCRouter, protectedProcedure } from "../init";
 
+export function withoutAppCredentials<
+  T extends { config?: unknown; app_id?: string; appId?: string },
+>(app: T) {
+  const { config, ...publicApp } = app;
+  // WhatsApp displays connected numbers. Allowlist these fields; never copy
+  // arbitrary provider config (access/refresh tokens, client secrets, etc.).
+  const connections =
+    (app.app_id ?? app.appId) === "whatsapp" &&
+    config &&
+    typeof config === "object" &&
+    "connections" in config &&
+    Array.isArray(config.connections)
+      ? config.connections
+          .filter((item): item is Record<string, unknown> => !!item && typeof item === "object")
+          .map((item) => ({
+            phoneNumber: typeof item.phoneNumber === "string" ? item.phoneNumber : "",
+            displayName: typeof item.displayName === "string" ? item.displayName : undefined,
+            connectedAt: typeof item.connectedAt === "string" ? item.connectedAt : "",
+          }))
+      : [];
+  return { ...publicApp, connections };
+}
+
 export const appsRouter = createTRPCRouter({
   get: protectedProcedure.query(async ({ ctx: { db, teamId } }) => {
-    return getApps(db, teamId!);
+    return (await getApps(db, teamId!)).map(withoutAppCredentials);
   }),
 
   disconnect: protectedProcedure
@@ -23,7 +46,8 @@ export const appsRouter = createTRPCRouter({
     .mutation(async ({ ctx: { db, teamId }, input }) => {
       const { appId } = input;
 
-      return disconnectApp(db, { appId, teamId: teamId! });
+      const app = await disconnectApp(db, { appId, teamId: teamId! });
+      return app ? withoutAppCredentials(app) : null;
     }),
 
   update: protectedProcedure
@@ -31,11 +55,13 @@ export const appsRouter = createTRPCRouter({
     .mutation(async ({ ctx: { db, teamId }, input }) => {
       const { appId, option } = input;
 
-      return updateAppSettings(db, {
-        appId,
-        teamId: teamId!,
-        option,
-      });
+      return withoutAppCredentials(
+        await updateAppSettings(db, {
+          appId,
+          teamId: teamId!,
+          option,
+        }),
+      );
     }),
 
   updateSettings: protectedProcedure
@@ -57,11 +83,13 @@ export const appsRouter = createTRPCRouter({
     .mutation(async ({ ctx: { db, teamId }, input }) => {
       const { appId, settings } = input;
 
-      return updateAppSettingsBulk(db, {
-        appId,
-        teamId: teamId!,
-        settings,
-      });
+      return withoutAppCredentials(
+        await updateAppSettingsBulk(db, {
+          appId,
+          teamId: teamId!,
+          settings,
+        }),
+      );
     }),
 
   removeWhatsAppConnection: protectedProcedure
@@ -69,9 +97,10 @@ export const appsRouter = createTRPCRouter({
     .mutation(async ({ ctx: { db, teamId }, input }) => {
       const { phoneNumber } = input;
 
-      return removeWhatsAppConnection(db, {
+      const app = await removeWhatsAppConnection(db, {
         teamId: teamId!,
         phoneNumber,
       });
+      return app ? withoutAppCredentials(app) : null;
     }),
 });

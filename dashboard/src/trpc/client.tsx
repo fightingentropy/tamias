@@ -1,5 +1,7 @@
 "use client";
 
+import { collectHmrcBrowserTelemetry } from "@/utils/hmrc-fraud-telemetry";
+
 import type { AppRouter } from "@tamias/trpc";
 import { getDashboardApiUrl } from "@/env/dashboard-api-url";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -96,13 +98,17 @@ export function TRPCReactProvider(
             url: `${apiUrl}/trpc`,
             transformer: superjson,
             fetch: trpcFetch,
-            headers() {
+            headers({ opList }) {
               const headers: Record<string, string> = {};
 
               if (token) {
                 headers.Authorization = `Bearer ${token}`;
               }
 
+              if (opList.some((op) => op.path.startsWith("vat."))) {
+                const telemetry = collectHmrcBrowserTelemetry();
+                if (telemetry) headers["X-Tamias-Hmrc-Device"] = telemetry;
+              }
               return headers;
             },
           }),

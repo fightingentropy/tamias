@@ -51,7 +51,15 @@ function LoginPage() {
 
           <div className="text-center mt-auto">
             <p className="font-sans text-xs text-[#878787]">
-              By signing in you agree to Tamias&apos; terms of service and privacy policy.
+              By signing in you agree to Tamias&apos;{" "}
+              <a href="/terms" className="underline">
+                terms of service
+              </a>
+              . Read our{" "}
+              <a href="/privacy" className="underline">
+                privacy policy
+              </a>
+              .
             </p>
           </div>
         </div>

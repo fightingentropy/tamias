@@ -1,3 +1,5 @@
+import { getHmrcFraudContext } from "../utils/hmrc-fraud-context";
+import type { HmrcFraudContext } from "@tamias/compliance";
 import type { Database } from "@tamias/app-data/client";
 import { createDatabase } from "@tamias/app-data/client";
 import { getRequestAuthDependencies } from "@tamias/app-services/auth";
@@ -19,6 +21,7 @@ export type TRPCContext = {
   db: Database;
   geo: GeoContext;
   accessToken?: string;
+  hmrcFraudContext?: HmrcFraudContext;
   teamId?: string;
   isInternalRequest?: boolean;
   serviceIdentity?: ServiceIdentity | null;
@@ -74,7 +77,13 @@ export async function createTRPCContextFromHeaders(
   },
 ): Promise<TRPCContext> {
   const { requestId, cfRay } = getRequestTrace(headers);
-  const auth = await resolveRequestAuth(headers, getRequestAuthDependencies());
+  // tRPC is the first-party dashboard transport. Scoped external credentials
+  // belong on the REST API, whose routes enforce their individual scopes.
+  const auth = await resolveRequestAuth(headers, {
+    ...getRequestAuthDependencies(),
+    getOAuthAccessTokenByToken: async () => null,
+    getApiKeyByToken: async () => null,
+  });
   const authorizationHeader = getHeader(headers, "authorization");
   const accessToken = authorizationHeader?.startsWith("Bearer ")
     ? authorizationHeader.slice("Bearer ".length).trim()
@@ -82,6 +91,16 @@ export async function createTRPCContextFromHeaders(
 
   return {
     session: auth.session,
+    hmrcFraudContext: getHmrcFraudContext(
+      headers instanceof Headers
+        ? headers
+        : new Headers(
+            Object.entries(headers).filter(
+              (entry): entry is [string, string] => entry[1] !== undefined,
+            ),
+          ),
+      auth.session,
+    ),
     db: createDatabase(),
     geo: getGeoContext(headers),
     accessToken,

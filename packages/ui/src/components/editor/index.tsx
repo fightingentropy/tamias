@@ -36,6 +36,7 @@ export function Editor({
     extensions: registerExtensions({ placeholder }),
     content: initialContent,
     immediatelyRender: false,
+    shouldRerenderOnTransaction: true,
     autofocus: autoFocus ? "end" : false,
     onBlur,
     onFocus,

@@ -1170,10 +1170,18 @@ function Footer() {
             <div className="space-y-3">
               <h3 className="font-sans text-sm text-foreground mb-4">Resources</h3>
               <div className="space-y-2.5">
-                {["Support", "Privacy Policy", "Terms of Service"].map((item) => (
-                  <span key={item} className="font-sans text-sm text-muted-foreground block">
-                    {item}
-                  </span>
+                {[
+                  ["Support", "/support"],
+                  ["Privacy Policy", "/privacy"],
+                  ["Terms of Service", "/terms"],
+                ].map(([label, href]) => (
+                  <Link
+                    key={href}
+                    href={href!}
+                    className="font-sans text-sm text-muted-foreground block hover:text-foreground hover:underline"
+                  >
+                    {label}
+                  </Link>
                 ))}
               </div>
             </div>

@@ -1,0 +1,10 @@
+{
+  "checkedAt": "2026-09-20T16:45:31.137Z",
+  "mode": "complete-synthetic-fixture",
+  "synthetic": true,
+  "httpStatus": 200,
+  "missingHeaders": [],
+  "specVersion": "3.3",
+  "code": "VALID_HEADERS",
+  "message": "All headers required for your connection method have been supplied and all appear to be valid. Validation is based on a single request. We have access to all requests and can draw additional conclusions."
+}

@@ -86,7 +86,8 @@
     "use-places-autocomplete": "^4.0.1",
     "usehooks-ts": "^3.1.1",
     "zod": "catalog:",
-    "zustand": "^5.0.11"
+    "zustand": "^5.0.11",
+    "@ai-sdk/react": "catalog:"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20251117.0",
@@ -101,7 +102,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
     "babel-plugin-react-compiler": "^1.0.0",
-    "vite": "8.0.12",
+    "vite": "8.0.16",
     "wrangler": "^4.90.1",
     "typescript": "catalog:"
   }

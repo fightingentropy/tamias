@@ -9,14 +9,15 @@
     ".": "./src/index.ts",
     "./self-assessment": "./src/self-assessment.ts",
     "./self-assessment-calculation": "./src/self-assessment-calculation.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./fraud-prevention-types": "./src/fraud-prevention-types.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "bun test --exit src"
   },
   "dependencies": {
-    "@xmldom/xmldom": "0.8.13",
+    "@xmldom/xmldom": "0.8.15",
     "@tamias/encryption": "workspace:*",
     "date-fns": "catalog:",
     "zod": "catalog:"

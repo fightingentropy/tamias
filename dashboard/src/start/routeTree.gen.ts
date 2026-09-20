@@ -13,9 +13,12 @@ import { Route as VaultRouteImport } from "./routes/vault";
 import { Route as UpgradeRouteImport } from "./routes/upgrade";
 import { Route as TransactionsRouteImport } from "./routes/transactions";
 import { Route as TrackerRouteImport } from "./routes/tracker";
+import { Route as TermsRouteImport } from "./routes/terms";
 import { Route as TeamsRouteImport } from "./routes/teams";
+import { Route as SupportRouteImport } from "./routes/support";
 import { Route as ResetPasswordRouteImport } from "./routes/reset-password";
 import { Route as ReportsRouteImport } from "./routes/reports";
+import { Route as PrivacyRouteImport } from "./routes/privacy";
 import { Route as OnboardingRouteImport } from "./routes/onboarding";
 import { Route as OauthCallbackRouteImport } from "./routes/oauth-callback";
 import { Route as LoginRouteImport } from "./routes/login";
@@ -82,11 +85,21 @@ const TrackerRoute = TrackerRouteImport.update({
   path: "/tracker",
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import("./routes/tracker.lazy").then((d) => d.Route));
+const TermsRoute = TermsRouteImport.update({
+  id: "/terms",
+  path: "/terms",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const TeamsRoute = TeamsRouteImport.update({
   id: "/teams",
   path: "/teams",
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import("./routes/teams.lazy").then((d) => d.Route));
+const SupportRoute = SupportRouteImport.update({
+  id: "/support",
+  path: "/support",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: "/reset-password",
   path: "/reset-password",
@@ -97,6 +110,11 @@ const ReportsRoute = ReportsRouteImport.update({
   path: "/reports",
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import("./routes/reports.lazy").then((d) => d.Route));
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: "/privacy",
+  path: "/privacy",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const OnboardingRoute = OnboardingRouteImport.update({
   id: "/onboarding",
   path: "/onboarding",
@@ -377,9 +395,12 @@ export interface FileRoutesByFullPath {
   "/login": typeof LoginRoute;
   "/oauth-callback": typeof OauthCallbackRoute;
   "/onboarding": typeof OnboardingRoute;
+  "/privacy": typeof PrivacyRoute;
   "/reports": typeof ReportsRoute;
   "/reset-password": typeof ResetPasswordRoute;
+  "/support": typeof SupportRoute;
   "/teams": typeof TeamsRoute;
+  "/terms": typeof TermsRoute;
   "/tracker": typeof TrackerRoute;
   "/transactions": typeof TransactionsRouteWithChildren;
   "/upgrade": typeof UpgradeRoute;
@@ -431,9 +452,12 @@ export interface FileRoutesByTo {
   "/login": typeof LoginRoute;
   "/oauth-callback": typeof OauthCallbackRoute;
   "/onboarding": typeof OnboardingRoute;
+  "/privacy": typeof PrivacyRoute;
   "/reports": typeof ReportsRoute;
   "/reset-password": typeof ResetPasswordRoute;
+  "/support": typeof SupportRoute;
   "/teams": typeof TeamsRoute;
+  "/terms": typeof TermsRoute;
   "/tracker": typeof TrackerRoute;
   "/transactions": typeof TransactionsRouteWithChildren;
   "/upgrade": typeof UpgradeRoute;
@@ -486,9 +510,12 @@ export interface FileRoutesById {
   "/login": typeof LoginRoute;
   "/oauth-callback": typeof OauthCallbackRoute;
   "/onboarding": typeof OnboardingRoute;
+  "/privacy": typeof PrivacyRoute;
   "/reports": typeof ReportsRoute;
   "/reset-password": typeof ResetPasswordRoute;
+  "/support": typeof SupportRoute;
   "/teams": typeof TeamsRoute;
+  "/terms": typeof TermsRoute;
   "/tracker": typeof TrackerRoute;
   "/transactions": typeof TransactionsRouteWithChildren;
   "/upgrade": typeof UpgradeRoute;
@@ -542,9 +569,12 @@ export interface FileRouteTypes {
     | "/login"
     | "/oauth-callback"
     | "/onboarding"
+    | "/privacy"
     | "/reports"
     | "/reset-password"
+    | "/support"
     | "/teams"
+    | "/terms"
     | "/tracker"
     | "/transactions"
     | "/upgrade"
@@ -596,9 +626,12 @@ export interface FileRouteTypes {
     | "/login"
     | "/oauth-callback"
     | "/onboarding"
+    | "/privacy"
     | "/reports"
     | "/reset-password"
+    | "/support"
     | "/teams"
+    | "/terms"
     | "/tracker"
     | "/transactions"
     | "/upgrade"
@@ -650,9 +683,12 @@ export interface FileRouteTypes {
     | "/login"
     | "/oauth-callback"
     | "/onboarding"
+    | "/privacy"
     | "/reports"
     | "/reset-password"
+    | "/support"
     | "/teams"
+    | "/terms"
     | "/tracker"
     | "/transactions"
     | "/upgrade"
@@ -705,9 +741,12 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute;
   OauthCallbackRoute: typeof OauthCallbackRoute;
   OnboardingRoute: typeof OnboardingRoute;
+  PrivacyRoute: typeof PrivacyRoute;
   ReportsRoute: typeof ReportsRoute;
   ResetPasswordRoute: typeof ResetPasswordRoute;
+  SupportRoute: typeof SupportRoute;
   TeamsRoute: typeof TeamsRoute;
+  TermsRoute: typeof TermsRoute;
   TrackerRoute: typeof TrackerRoute;
   TransactionsRoute: typeof TransactionsRouteWithChildren;
   UpgradeRoute: typeof UpgradeRoute;
@@ -773,11 +812,25 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof TrackerRouteImport;
       parentRoute: typeof rootRouteImport;
     };
+    "/terms": {
+      id: "/terms";
+      path: "/terms";
+      fullPath: "/terms";
+      preLoaderRoute: typeof TermsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     "/teams": {
       id: "/teams";
       path: "/teams";
       fullPath: "/teams";
       preLoaderRoute: typeof TeamsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/support": {
+      id: "/support";
+      path: "/support";
+      fullPath: "/support";
+      preLoaderRoute: typeof SupportRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/reset-password": {
@@ -792,6 +845,13 @@ declare module "@tanstack/react-router" {
       path: "/reports";
       fullPath: "/reports";
       preLoaderRoute: typeof ReportsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/privacy": {
+      id: "/privacy";
+      path: "/privacy";
+      fullPath: "/privacy";
+      preLoaderRoute: typeof PrivacyRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/onboarding": {
@@ -1201,9 +1261,12 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   OauthCallbackRoute: OauthCallbackRoute,
   OnboardingRoute: OnboardingRoute,
+  PrivacyRoute: PrivacyRoute,
   ReportsRoute: ReportsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SupportRoute: SupportRoute,
   TeamsRoute: TeamsRoute,
+  TermsRoute: TermsRoute,
   TrackerRoute: TrackerRoute,
   TransactionsRoute: TransactionsRouteWithChildren,
   UpgradeRoute: UpgradeRoute,

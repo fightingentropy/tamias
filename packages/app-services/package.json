@@ -35,7 +35,8 @@
     "@tamias/encryption": "workspace:*",
     "@tamias/plans": "workspace:*",
     "@polar-sh/sdk": "^0.46.7",
-    "date-fns": "^4.1.0"
+    "date-fns": "^4.1.0",
+    "@tamias/compliance": "workspace:*"
   },
   "devDependencies": {
     "typescript": "catalog:"

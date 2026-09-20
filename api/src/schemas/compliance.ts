@@ -129,8 +129,6 @@ export const addVatAdjustmentSchema = z.object({
 export const submitVatReturnSchema = z.object({
   vatReturnId: z.string(),
   declarationAccepted: z.literal(true),
-  userAgent: z.string().trim().optional(),
-  publicIp: z.string().trim().optional(),
   ...confirmedMutationShape,
 });
 

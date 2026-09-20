@@ -45,6 +45,9 @@ jobs:
       - name: Check Self Assessment submission screens
         run: bun --no-env-file run test:e2e:self-assessment
 
+      - name: Check editor and HMRC browser telemetry
+        run: bun --no-env-file run test:e2e:readiness
+
       - name: Validate production Cloudflare bundles
         run: bun run preflight:cloudflare:production
 

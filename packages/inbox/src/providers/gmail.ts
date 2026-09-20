@@ -1,8 +1,7 @@
 import { updateInboxAccount } from "@tamias/app-data/queries";
 import { encrypt } from "@tamias/encryption";
 import { ensureFileExtension } from "@tamias/utils";
-import { OAuth2Client, type Credentials } from "google-auth-library";
-import { gmail, type gmail_v1 } from "googleapis/build/src/apis/gmail";
+import { auth, gmail, type gmail_v1 } from "googleapis/build/src/apis/gmail";
 import { oauth2 } from "googleapis/build/src/apis/oauth2";
 import { decodeBase64Url } from "../attachments";
 import { InboxAuthError, InboxSyncError } from "../errors";
@@ -22,6 +21,8 @@ import type {
  * where a token expires mid-request.
  */
 const TOKEN_EXPIRY_BUFFER_MS = 5 * 60 * 1000;
+type OAuth2Client = InstanceType<typeof auth.OAuth2>;
+type Credentials = Parameters<OAuth2Client["setCredentials"]>[0];
 
 /**
  * Google API error structure
@@ -62,7 +63,7 @@ export class GmailProvider implements OAuthProviderInterface {
       );
     }
 
-    this.#oauth2Client = new OAuth2Client(clientId, clientSecret, redirectUri);
+    this.#oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUri);
   }
 
   setAccountId(accountId: string): void {

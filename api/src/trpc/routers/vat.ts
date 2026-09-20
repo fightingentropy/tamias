@@ -17,15 +17,16 @@ import {
 import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const vatRouter = createTRPCRouter({
-  getDashboard: protectedProcedure.query(async ({ ctx: { db, teamId } }) => {
+  getDashboard: protectedProcedure.query(async ({ ctx: { db, teamId, hmrcFraudContext } }) => {
     return getVatDashboardForTeam({
       db,
       teamId: teamId!,
+      fraudContext: hmrcFraudContext,
     });
   }),
 
-  listObligations: protectedProcedure.query(async ({ ctx: { db, teamId } }) => {
-    return listVatObligations(db, { teamId: teamId! });
+  listObligations: protectedProcedure.query(async ({ ctx: { db, teamId, hmrcFraudContext } }) => {
+    return listVatObligations(db, { teamId: teamId!, fraudContext: hmrcFraudContext });
   }),
 
   getDraft: protectedProcedure
@@ -52,11 +53,11 @@ export const vatRouter = createTRPCRouter({
 
   submit: protectedProcedure
     .input(submitVatReturnSchema)
-    .mutation(async ({ ctx: { db, teamId, session, geo }, input }) => {
+    .mutation(async ({ ctx: { db, teamId, session, hmrcFraudContext }, input }) => {
       return submitVatReturn(db, {
         teamId: teamId!,
         submittedBy: session.user.id,
-        publicIp: geo.ip ?? input.publicIp,
+        fraudContext: hmrcFraudContext,
         ...input,
       });
     }),

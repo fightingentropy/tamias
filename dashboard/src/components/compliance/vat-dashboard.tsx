@@ -231,7 +231,6 @@ export function VatDashboard() {
                   declarationAccepted: true,
                   idempotencyKey: crypto.randomUUID(),
                   confirmationId: crypto.randomUUID(),
-                  userAgent: typeof navigator !== "undefined" ? navigator.userAgent : undefined,
                 });
               }}
             >

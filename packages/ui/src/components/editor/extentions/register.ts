@@ -2,11 +2,10 @@
 
 import Bold from "@tiptap/extension-bold";
 import Document from "@tiptap/extension-document";
-import History from "@tiptap/extension-history";
+import { UndoRedo as History, Placeholder } from "@tiptap/extensions";
 import Italic from "@tiptap/extension-italic";
 import Link from "@tiptap/extension-link";
 import Paragraph from "@tiptap/extension-paragraph";
-import Placeholder from "@tiptap/extension-placeholder";
 import Strike from "@tiptap/extension-strike";
 import Text from "@tiptap/extension-text";
 import Underline from "@tiptap/extension-underline";

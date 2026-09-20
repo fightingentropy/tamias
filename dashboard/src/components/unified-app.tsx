@@ -493,7 +493,7 @@ export function UnifiedAppComponent({ app }: UnifiedAppProps) {
                   behavior.
                 </p>
 
-                <a href="mailto:support@tamias.dev" className="text-[10px] text-red-500">
+                <a href="mailto:support@tamias.xyz" className="text-[10px] text-red-500">
                   Report app
                 </a>
               </div>

@@ -1,4 +1,9 @@
 import {
+  assertHmrcFraudContext,
+  buildHmrcFraudPreventionHeaders,
+  type HmrcFraudContext,
+} from "../fraud-prevention";
+import {
   HMRC_VAT_SCOPES,
   type HmrcObligationResponse,
   type HmrcVatProviderConfig,
@@ -20,6 +25,32 @@ type HmrcTokenResponse = {
   token_type: string;
   scope?: string;
 };
+
+async function readHmrcJson<T>(response: Response): Promise<T> {
+  const limit = 1024 * 1024;
+  const reader = response.body?.getReader();
+  if (!reader) throw new Error("HMRC returned an empty response");
+  let bytes = 0;
+  let text = "";
+  const decoder = new TextDecoder();
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      bytes += value.byteLength;
+      if (bytes > limit) throw new Error("HMRC response exceeded the size limit");
+      text += decoder.decode(value, { stream: true });
+    }
+    text += decoder.decode();
+    try {
+      return JSON.parse(text) as T;
+    } catch {
+      throw new Error("HMRC returned an invalid response");
+    }
+  } finally {
+    await reader.cancel();
+  }
+}
 
 export class HmrcVatProvider {
   readonly id = "hmrc-vat" as const;
@@ -91,6 +122,7 @@ export class HmrcVatProvider {
     from: string;
     to: string;
     accessToken?: string;
+    fraudContext?: HmrcFraudContext;
   }): Promise<HmrcObligationResponse[]> {
     const query = new URLSearchParams({
       from: params.from,
@@ -102,6 +134,7 @@ export class HmrcVatProvider {
       obligations: HmrcObligationResponse[];
     }>(`/organisations/vat/${params.vrn}/obligations?${query.toString()}`, {
       accessToken: params.accessToken,
+      fraudContext: params.fraudContext,
     });
 
     return response.obligations ?? [];
@@ -111,22 +144,27 @@ export class HmrcVatProvider {
     vrn: string;
     submission: HmrcVatSubmission;
     accessToken?: string;
-    fraudHeaders?: Record<string, string>;
+    fraudContext?: HmrcFraudContext;
   }): Promise<HmrcVatSubmissionResponse> {
     return this.request<HmrcVatSubmissionResponse>(`/organisations/vat/${params.vrn}/returns`, {
       method: "POST",
       accessToken: params.accessToken,
-      fraudHeaders: params.fraudHeaders,
+      fraudContext: params.fraudContext,
       body: JSON.stringify(params.submission),
     });
   }
 
-  async checkConnection(params: { vrn: string; accessToken?: string }) {
+  async checkConnection(params: {
+    vrn: string;
+    accessToken?: string;
+    fraudContext?: HmrcFraudContext;
+  }) {
     const obligations = await this.getObligations({
       vrn: params.vrn,
       from: new Date(Date.now() - 180 * 24 * 3600 * 1000).toISOString().slice(0, 10),
       to: new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString().slice(0, 10),
       accessToken: params.accessToken,
+      fraudContext: params.fraudContext,
     });
 
     return {
@@ -135,33 +173,7 @@ export class HmrcVatProvider {
     };
   }
 
-  static buildFraudPreventionHeaders(params: {
-    deviceId: string;
-    userId: string;
-    userAgent?: string;
-    publicIp?: string;
-  }): Record<string, string> {
-    return {
-      "Gov-Client-Connection-Method": "WEB_APP_VIA_SERVER",
-      "Gov-Client-Device-ID": params.deviceId,
-      "Gov-Client-Local-IPs": "127.0.0.1",
-      "Gov-Client-Local-IPs-Timestamp": new Date().toISOString(),
-      "Gov-Client-MAC-Addresses": "00:00:5e:00:53:af",
-      "Gov-Client-Multi-Factor": "",
-      "Gov-Client-Screens":
-        process.env.HMRC_FRAUD_CLIENT_SCREENS ??
-        "width=1440;height=900;scaling-factor=2;colour-depth=24",
-      "Gov-Client-Timezone": process.env.HMRC_FRAUD_CLIENT_TIMEZONE ?? "UTC+00:00",
-      "Gov-Client-User-Agent":
-        params.userAgent ?? process.env.HMRC_FRAUD_USER_AGENT ?? "Tamias/1.0",
-      "Gov-Client-User-Ids": `tamias=${encodeURIComponent(params.userId)}`,
-      "Gov-Client-Public-IP": params.publicIp ?? process.env.HMRC_FRAUD_PUBLIC_IP ?? "127.0.0.1",
-      "Gov-Client-Public-Port": process.env.HMRC_FRAUD_PUBLIC_PORT ?? "443",
-      "Gov-Vendor-License-Ids": process.env.HMRC_FRAUD_VENDOR_LICENSE_IDS ?? "tamias=uk-compliance",
-      "Gov-Vendor-Product-Name": process.env.HMRC_FRAUD_VENDOR_PRODUCT_NAME ?? "Tamias",
-      "Gov-Vendor-Version": process.env.HMRC_FRAUD_VENDOR_VERSION ?? "tamias=0.1.0",
-    };
-  }
+  static buildFraudPreventionHeaders = buildHmrcFraudPreventionHeaders;
 
   private async exchangeToken(payload: Record<string, string>): Promise<HmrcVatProviderConfig> {
     const body = new URLSearchParams({
@@ -176,14 +188,18 @@ export class HmrcVatProvider {
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: body.toString(),
+      redirect: "error",
+      signal: AbortSignal.timeout(20000),
     });
 
     if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`Tamias token exchange failed: ${text}`);
+      await response.body?.cancel();
+      throw new Error(
+        `HMRC token exchange failed (${response.status}). Reconnect HMRC and try again.`,
+      );
     }
 
-    const tokenData = (await response.json()) as HmrcTokenResponse;
+    const tokenData = await readHmrcJson<HmrcTokenResponse>(response);
 
     return HmrcVatProviderConfigSchema.parse({
       provider: "hmrc-vat",
@@ -203,7 +219,7 @@ export class HmrcVatProvider {
       method?: "GET" | "POST";
       accessToken?: string;
       body?: string;
-      fraudHeaders?: Record<string, string>;
+      fraudContext?: HmrcFraudContext;
     },
   ): Promise<T> {
     const accessToken = params?.accessToken ?? this.config?.accessToken;
@@ -218,16 +234,20 @@ export class HmrcVatProvider {
         Accept: "application/vnd.hmrc.1.0+json",
         Authorization: `Bearer ${accessToken}`,
         ...(params?.body ? { "Content-Type": "application/json" } : undefined),
-        ...(params?.fraudHeaders ?? {}),
+        ...assertHmrcFraudContext(params?.fraudContext, this.environment),
       },
       body: params?.body,
+      redirect: "error",
+      signal: AbortSignal.timeout(30000),
     });
 
     if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`HMRC VAT request failed (${response.status}): ${text}`);
+      await response.body?.cancel();
+      throw new Error(
+        `HMRC VAT request failed (${response.status}). Check the connection and return details.`,
+      );
     }
 
-    return (await response.json()) as T;
+    return readHmrcJson<T>(response);
   }
 }

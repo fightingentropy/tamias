@@ -1,7 +1,9 @@
+import { setCookie } from "hono/cookie";
+import { storeHmrcOAuthState } from "@tamias/app-data/queries";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { encryptComplianceOAuthState, HmrcVatProvider } from "@tamias/compliance";
 import { HTTPException } from "hono/http-exception";
-import { protectedMiddleware } from "../../../middleware";
+import { protectedMiddleware, withRequiredScope } from "../../../middleware";
 import type { Context } from "../../../types";
 
 const app = new OpenAPIHono<Context>();
@@ -10,7 +12,7 @@ const installUrlResponseSchema = z.object({
   url: z.string().url(),
 });
 
-app.use("*", ...protectedMiddleware);
+app.use("*", ...protectedMiddleware, withRequiredScope("filings.write"));
 
 app.openapi(
   createRoute({
@@ -68,6 +70,16 @@ app.openapi(
     try {
       const provider = HmrcVatProvider.fromEnvironment();
       const url = provider.buildConsentUrl(state);
+      const browserBinding = crypto.randomUUID();
+      await storeHmrcOAuthState(c.get("db"), state, browserBinding);
+      setCookie(c, "tamias_hmrc_oauth", browserBinding, {
+        httpOnly: true,
+        secure: new URL(c.req.url).protocol === "https:",
+        sameSite: "Lax",
+        path: "/apps/hmrc-vat/oauth-callback",
+        maxAge: 600,
+      });
+      c.header("Cache-Control", "no-store");
       return c.json({ url });
     } catch (error) {
       throw new HTTPException(500, {
