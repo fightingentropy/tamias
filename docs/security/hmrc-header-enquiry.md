@@ -1,4 +1,6 @@
-# Prepared email — not sent
+# HMRC header enquiry — sent
+
+Sent with the operator's explicit approval on 20 September 2026 at 17:31 UTC. Gmail's Sent record independently confirmed the recipient and subject. Awaiting HMRC's reply; this enquiry does not constitute approval of missing headers.
 
 To: SDSTeam@hmrc.gov.uk
 Subject: Tamias — fraud prevention headers for a Cloudflare-hosted web application
