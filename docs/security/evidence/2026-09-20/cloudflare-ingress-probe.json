@@ -1,0 +1,74 @@
+{
+  "assessedAt": "2026-09-20T17:54:37.142Z",
+  "ruleId": "b27efd5cbaed4eb38b3d120a743ba0d4",
+  "scope": "Synthetic unauthenticated health requests; remote tail restricted by unique probe header. No raw headers, real IPs, cookies, tokens or unrelated events retained in this evidence.",
+  "submittedSyntheticHeaders": {
+    "X-Tamias-Hmrc-Client-Port": "1",
+    "X-Tamias-Hmrc-Vendor-Ip": "203.0.113.7"
+  },
+  "responses": [
+    {
+      "host": "api.tamias.xyz",
+      "path": "/health",
+      "status": 200
+    },
+    {
+      "host": "app.tamias.xyz",
+      "path": "/api/health",
+      "status": 200
+    },
+    {
+      "host": "tamias.xyz",
+      "path": "/api/health",
+      "status": 307
+    },
+    {
+      "host": "api.tamias.xyz",
+      "path": "/health",
+      "status": 200
+    },
+    {
+      "host": "app.tamias.xyz",
+      "path": "/api/health",
+      "status": 200
+    },
+    {
+      "host": "tamias.xyz",
+      "path": "/api/health",
+      "status": 307
+    }
+  ],
+  "observations": [
+    {
+      "host": "api.tamias.xyz",
+      "path": "/health",
+      "outcome": "ok",
+      "status": 200,
+      "sourcePortPresent": true,
+      "sourcePortValid": true,
+      "suppliedPortOverwritten": true,
+      "suppliedVendorIpRemoved": true
+    },
+    {
+      "host": "app.tamias.xyz",
+      "path": "/api/health",
+      "outcome": "ok",
+      "status": 200,
+      "sourcePortPresent": true,
+      "sourcePortValid": true,
+      "suppliedPortOverwritten": true,
+      "suppliedVendorIpRemoved": true
+    },
+    {
+      "host": "tamias.xyz",
+      "path": "/api/health",
+      "outcome": "ok",
+      "status": 307,
+      "sourcePortPresent": true,
+      "sourcePortValid": true,
+      "suppliedPortOverwritten": true,
+      "suppliedVendorIpRemoved": true
+    }
+  ],
+  "tailPermissionError": false
+}

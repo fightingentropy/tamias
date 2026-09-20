@@ -33,13 +33,15 @@ Both commands use artificial device/account examples and application-only sandbo
 
 Recorded results: complete fixture `VALID_HEADERS`; collection-capability fixture `INVALID_HEADERS`, with three errors (public source port, vendor public IP and forwarded hops) and two warnings (MFA and licence IDs). Raw validator reports contain no real taxpayer data and are retained with the assessment evidence.
 
-### Hosting work still required
+### Cloudflare ingress setup
 
-The present deployment credential can read the zone but received HTTP 403 for its request-header ruleset. No Cloudflare rule was changed.
+On 20 September 2026, after the operator signed into Cloudflare, request-header transform rule `b27efd5cbaed4eb38b3d120a743ba0d4` ("Tamias HMRC ingress metadata") was deployed on the `tamias.xyz` zone. It matches all incoming requests, sets `X-Tamias-Hmrc-Client-Port` dynamically to `to_string(cf.edge.client_port)` and removes `X-Tamias-Hmrc-Vendor-Ip`. Cloudflare confirmed the rule as active. The existing deployment credential was not expanded; the dashboard was used because that credential cannot manage this ruleset.
 
-Cloudflare documents `cf.edge.client_port` for request-header transforms. A transform would need to **overwrite**, not append, `X-Tamias-Hmrc-Client-Port` on every incoming request to all serving hosts. `cf.edge.server_ip` is documented as meaningful only for BYOIP customers; do not pick an arbitrary DNS result or use the outbound Worker IP as the address the browser contacted.
+Synthetic, unauthenticated health requests to `api.tamias.xyz`, `app.tamias.xyz` and `tamias.xyz` were observed through a Worker tail filtered by a unique probe header. On all three hosts, the source port was present and valid, a deliberately supplied port of `1` was overwritten, and the deliberately supplied vendor-IP header was removed. The API and app returned HTTP 200; the apex returned its expected HTTP 307 redirect. Only the resulting booleans and response statuses were retained in `docs/security/evidence/2026-09-20/cloudflare-ingress-probe.json`; no raw headers, real IP addresses, credentials, or unrelated requests were retained in that evidence.
 
-`HMRC_FRAUD_TRUST_EDGE_HEADERS` must remain unset until the source-port and vendor-IP collection has been verified at ingress, all serving routes are covered and alternative `workers.dev` entry points cannot supply spoofed headers. If further public TLS hops are introduced, the forwarded chain must describe those actual hops; the present builder handles a single ingress hop.
+This verifies the zone's source-port transform, not complete application-side HMRC collection. `cf.edge.server_ip` is documented as meaningful only for BYOIP customers. The actual ingress public IP and corresponding forwarded hop remain unresolved for the present setup; do not pick an arbitrary DNS result or use the outbound Worker IP as the address the browser contacted.
+
+`HMRC_FRAUD_TRUST_EDGE_HEADERS` remains unset. The current flag trusts both network fields together and must remain unset until vendor-IP collection is verified and alternative `workers.dev` or preview entry points cannot supply spoofed headers. Those alternative entry points were not certified by the zone probe. If further public TLS hops are introduced, the forwarded chain must describe those actual hops; the present builder handles a single ingress hop.
 
 Tamias currently uses password authentication and has no installed per-device licence key. An enquiry about MFA/licence handling and any remaining platform restrictions was sent to HMRC Software Developer Support with the operator's approval on 20 September 2026 at 17:31 UTC. Its Sent record was independently verified. The exact correspondence is in `docs/security/hmrc-header-enquiry.md`; no exemption has been agreed.
 
