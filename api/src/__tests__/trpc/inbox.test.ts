@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, test } from "bun:test";
 import {
   createInboxListResponse,
   createMinimalInboxResponse,
@@ -7,28 +7,10 @@ import {
 import { createTestContext } from "../helpers/test-context";
 import { mocks } from "../setup";
 
-// Create local mocks for inbox tests
-const mockGetInboxById = mock(() => null as ReturnType<typeof createValidInboxResponse> | null);
-const mockUpdateInbox = mock(() => ({}));
-const mockDeleteInbox = mock(() => ({}));
-
-// Mock the module
-mock.module("@tamias/app-data/queries", () => ({
-  getInboxById: mockGetInboxById,
-  createInbox: mock(() => ({})),
-  updateInbox: mockUpdateInbox,
-  deleteInbox: mockDeleteInbox,
-  deleteInboxMany: mock(() => []),
-  getInboxSearch: mock(() => []),
-  getInboxBlocklist: mock(() => []),
-  createInboxBlocklist: mock(() => ({})),
-  deleteInboxBlocklist: mock(() => ({})),
-  checkInboxAttachments: mock(() => []),
-  matchTransaction: mock(() => ({})),
-  unmatchTransaction: mock(() => ({})),
-  confirmSuggestedMatch: mock(() => ({})),
-  declineSuggestedMatch: mock(() => ({})),
-}));
+// Reuse the preloaded mocks so other suites retain the same query bindings.
+const mockGetInboxById = mocks.getInboxById;
+const mockUpdateInbox = mocks.updateInbox;
+const mockDeleteInbox = mocks.deleteInbox;
 
 // Import after mocking
 const { createCallerFactory } = await import("../../trpc/init");
