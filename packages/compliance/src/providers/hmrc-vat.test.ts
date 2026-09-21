@@ -171,4 +171,31 @@ describe("HMRC API error handling", () => {
       expect(error.message).not.toContain("SECRET_");
     }
   });
+  test("a truncated successful response does not expose a stream error", async () => {
+    globalThis.fetch = Object.assign(
+      async () =>
+        new Response(
+          new ReadableStream({
+            start(controller) {
+              controller.error(new Error("SECRET_STREAM_DATA"));
+            },
+          }),
+        ),
+      { preconnect: originalFetch.preconnect },
+    );
+    const error = await failure();
+    expect(error.code).toBe("TRANSPORT_ERROR");
+    expect(error.message).toContain("check its status before sending it again");
+    expect(error.message).not.toContain("SECRET_");
+  });
+  test("missing or malformed obligations are never interpreted as an empty successful refresh", async () => {
+    for (const body of [null, {}, { obligations: null }, { obligations: "SECRET_INVALID" }]) {
+      respond(body, 200);
+      const error = await failure();
+      expect(error.code).toBe("INVALID_RESPONSE");
+      expect(error.message).not.toContain("SECRET_");
+    }
+    respond({ obligations: [] }, 200);
+    expect(await getObligations()).toEqual([]);
+  });
 });

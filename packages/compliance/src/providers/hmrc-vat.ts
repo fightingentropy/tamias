@@ -158,7 +158,12 @@ async function responseError(response: Response, tokenExchange = false) {
 async function readHmrcJson<T>(response: Response): Promise<T> {
   const limit = 1024 * 1024;
   const reader = response.body?.getReader();
-  if (!reader) throw new Error("HMRC returned an empty response");
+  if (!reader)
+    throw new HmrcRequestError(
+      "HMRC returned an empty response",
+      response.status,
+      "INVALID_RESPONSE",
+    );
   let bytes = 0;
   let text = "";
   const decoder = new TextDecoder();
@@ -167,17 +172,33 @@ async function readHmrcJson<T>(response: Response): Promise<T> {
       const { done, value } = await reader.read();
       if (done) break;
       bytes += value.byteLength;
-      if (bytes > limit) throw new Error("HMRC response exceeded the size limit");
+      if (bytes > limit)
+        throw new HmrcRequestError(
+          "HMRC response exceeded the size limit",
+          response.status,
+          "INVALID_RESPONSE",
+        );
       text += decoder.decode(value, { stream: true });
     }
     text += decoder.decode();
     try {
       return JSON.parse(text) as T;
     } catch {
-      throw new Error("HMRC returned an invalid response");
+      throw new HmrcRequestError(
+        "HMRC returned an invalid response",
+        response.status,
+        "INVALID_RESPONSE",
+      );
     }
+  } catch (error) {
+    if (error instanceof HmrcRequestError) throw error;
+    throw new HmrcRequestError(
+      "HMRC's response was interrupted. Try again later. If you submitted a return, check its status before sending it again.",
+      0,
+      "TRANSPORT_ERROR",
+    );
   } finally {
-    await reader.cancel();
+    await reader.cancel().catch(() => {});
   }
 }
 
@@ -266,7 +287,14 @@ export class HmrcVatProvider {
       fraudContext: params.fraudContext,
     });
 
-    return response.obligations ?? [];
+    if (!response || !Array.isArray(response.obligations)) {
+      throw new HmrcRequestError(
+        "HMRC returned invalid obligations. Saved records could not be refreshed.",
+        200,
+        "INVALID_RESPONSE",
+      );
+    }
+    return response.obligations;
   }
 
   async submitReturn(params: {
