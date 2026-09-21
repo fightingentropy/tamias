@@ -84,12 +84,20 @@ export function VatDashboard() {
   const dashboard = dashboardQuery.data;
   const draft = draftQuery.data ?? dashboard?.latestDraft ?? null;
   const openObligation = useMemo(
-    () => dashboard?.obligations?.find((item) => item.status.toLowerCase() === "open"),
+    () => dashboard?.obligations?.find((item) => ["open", "o"].includes(item.status.toLowerCase())),
     [dashboard?.obligations],
   );
 
   if (dashboardQuery.isLoading) {
     return <div className="text-sm text-[#606060]">Loading VAT workspace...</div>;
+  }
+
+  if (dashboardQuery.isError) {
+    return (
+      <div role="alert" className="text-sm">
+        Unable to load the VAT workspace. Please try again later.
+      </div>
+    );
   }
 
   if (!dashboard?.profile) {
@@ -113,6 +121,13 @@ export function VatDashboard() {
 
   return (
     <div className="space-y-6">
+      {dashboard.obligationSyncError && (
+        <div role="alert" className="border p-4 text-sm">
+          <p className="font-medium">HMRC obligations could not be refreshed</p>
+          <p>{dashboard.obligationSyncError}</p>
+          <p>Any obligations shown below are previously saved records and may be out of date.</p>
+        </div>
+      )}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader>
@@ -121,12 +136,18 @@ export function VatDashboard() {
           </CardHeader>
           <CardContent className="space-y-3">
             <Badge variant={dashboard.connected ? "default" : "secondary"}>
-              {dashboard.connected ? "Connected" : "Not connected"}
+              {dashboard.obligationSyncError
+                ? "Needs attention"
+                : dashboard.connected
+                  ? "Connected"
+                  : "Not connected"}
             </Badge>
             <div className="text-sm text-[#606060]">
-              {dashboard.connected
-                ? "HMRC obligations can be synced and returns can be filed from Tamias."
-                : "Connect the HMRC VAT app before filing."}
+              {dashboard.obligationSyncError
+                ? "Your saved connection needs attention before HMRC records can be refreshed."
+                : dashboard.connected
+                  ? "An HMRC VAT connection is saved. Review your obligations before filing."
+                  : "Connect the HMRC VAT app before filing."}
             </div>
           </CardContent>
         </Card>
@@ -138,7 +159,8 @@ export function VatDashboard() {
           </CardHeader>
           <CardContent className="space-y-2">
             <div className="text-lg font-medium">
-              {openObligation?.periodKey ?? "No open obligation"}
+              {openObligation?.periodKey ??
+                (dashboard.obligationSyncError ? "Unable to check" : "No open obligation")}
             </div>
             <div className="text-sm text-[#606060]">Due {formatDate(openObligation?.dueDate)}</div>
           </CardContent>
@@ -220,7 +242,12 @@ export function VatDashboard() {
 
             <SubmitButton
               isSubmitting={submitReturn.isPending}
-              disabled={submitReturn.isPending || !dashboard.connected || !draft?.id}
+              disabled={
+                submitReturn.isPending ||
+                !dashboard.connected ||
+                !draft?.id ||
+                Boolean(dashboard.obligationSyncError)
+              }
               onClick={() => {
                 if (!draft?.id) {
                   return;

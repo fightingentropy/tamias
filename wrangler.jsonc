@@ -146,6 +146,8 @@
   "env": {
     "production": {
       "name": "tamias",
+      "workers_dev": false,
+      "preview_urls": false,
       "routes": [
         { "pattern": "app.tamias.xyz", "custom_domain": true },
         { "pattern": "tamias.xyz", "custom_domain": true },
@@ -263,6 +265,8 @@
         "DASHBOARD_URL": "https://app.tamias.xyz",
         "WEBSITE_URL": "https://tamias.xyz",
         "API_URL": "https://api.tamias.xyz",
+        "HMRC_FRAUD_TRUST_CLIENT_PORT": "true",
+        "HMRC_FRAUD_TRUST_VENDOR_IP": "false",
         "TRUELAYER_CLIENT_ID": "sandbox-tamias-7a82d0",
         "TRUELAYER_ENVIRONMENT": "sandbox",
         "TRUELAYER_REDIRECT_URI": "https://api.tamias.xyz/apps/truelayer/oauth-callback",

@@ -22,9 +22,11 @@ const context: HmrcFraudContext = {
   userEmail: "synthetic@example.test",
   publicIp: "198.51.100.10",
   publicIpTimestamp: new Date().toISOString(),
+  // Synthetic example of the source-port capability independently verified on
+  // all three production ingress hosts. This is not a live user's port.
+  publicPort: 54321,
   ...(mode === "complete-synthetic-fixture"
     ? {
-        publicPort: 54321,
         vendorPublicIp: "203.0.113.10",
         multiFactor: [
           {

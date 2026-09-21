@@ -1,0 +1,66 @@
+{
+  "generatedAt": "2026-09-21T20:31:48.065Z",
+  "scope": "Local loopback HTTP; real auth and API handlers; in-memory SQL; synthetic accounts; external networking blocked",
+  "results": [
+    {
+      "check": "Authenticated HTTP context trusts ingress metadata only on transformed origins",
+      "status": "passed"
+    },
+    {
+      "check": "Unauthenticated and forged sessions cannot read financial APIs",
+      "status": "passed"
+    },
+    {
+      "check": "Forged trusted-session headers cannot bypass authentication",
+      "status": "passed"
+    },
+    {
+      "check": "Authenticated responses are private and never touch shared cache",
+      "status": "passed"
+    },
+    {
+      "check": "Switching workspace with the same token returns current authorised data",
+      "status": "passed"
+    },
+    {
+      "check": "Scoped REST API keys cannot bypass scopes through dashboard tRPC",
+      "status": "passed"
+    },
+    {
+      "check": "Integration read and update responses do not disclose provider credentials",
+      "status": "passed"
+    },
+    {
+      "check": "A failed HMRC refresh keeps saved obligations and reports a safe error",
+      "status": "passed"
+    },
+    {
+      "check": "Integration disconnect responses do not disclose removed credentials",
+      "status": "passed"
+    },
+    {
+      "check": "CORS does not allow an attacker origin",
+      "status": "passed"
+    },
+    {
+      "check": "HMRC state rejects tampering and expired encrypted payloads",
+      "status": "passed"
+    },
+    {
+      "check": "HMRC state is browser-bound and consumed atomically once",
+      "status": "passed"
+    },
+    {
+      "check": "HMRC callback rejects missing browser binding before token exchange",
+      "status": "passed"
+    },
+    {
+      "check": "File path validation rejects plain and encoded traversal",
+      "status": "passed"
+    },
+    {
+      "check": "Session revocation takes effect on the next request",
+      "status": "passed"
+    }
+  ]
+}

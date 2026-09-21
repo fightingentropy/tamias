@@ -611,6 +611,17 @@ export function TaxReturnReviewSheet() {
 
             <ScrollArea className="min-h-0 flex-1">
               <div className="space-y-5 p-5">
+                {taxReturn === "vat" &&
+                  (vatDashboardQuery.isError || vatDashboardQuery.data?.obligationSyncError) && (
+                    <div role="alert" className="border p-4 text-sm">
+                      <p className="font-medium">HMRC obligations could not be refreshed</p>
+                      <p>
+                        {vatDashboardQuery.data?.obligationSyncError ??
+                          "Unable to load the VAT workspace. Please try again later."}
+                      </p>
+                      <p>Saved records may be out of date. Check the connection before filing.</p>
+                    </div>
+                  )}
                 {taxReturn === "vat" ? (
                   <VatReturnReview
                     draft={draft}

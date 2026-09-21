@@ -3,7 +3,7 @@ import type { Database } from "../../../client";
 import { reuseQueryResult } from "../../../utils/request-cache";
 import { getFilingProfile, getHmrcVatApp, getTeamContext } from "../shared";
 import { getVatDraft } from "./draft";
-import { listVatObligations } from "./obligations";
+import { getVatObligationsWithSyncStatus } from "./obligations";
 import { listVatSubmissions } from "./submissions";
 
 async function getVatDashboardImpl(
@@ -13,7 +13,7 @@ async function getVatDashboardImpl(
   const team = await getTeamContext(db, params.teamId);
   const profile = await getFilingProfile(db, params.teamId);
   const app = await getHmrcVatApp(db, params.teamId);
-  const obligations = profile ? await listVatObligations(db, params) : [];
+  const { obligations, syncError } = await getVatObligationsWithSyncStatus(db, params);
   const latestDraft = await getVatDraft(db, { teamId: params.teamId });
   const submissions = await listVatSubmissions(db, params);
   const latestSubmission = submissions.find((submission) => submission.submittedAt) ?? null;
@@ -27,6 +27,7 @@ async function getVatDashboardImpl(
     profile,
     connected: Boolean(app?.config),
     obligations,
+    obligationSyncError: syncError,
     latestDraft,
     latestSubmission,
   };

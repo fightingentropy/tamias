@@ -73,6 +73,7 @@ function getGeoContext(headers: HeaderSource): GeoContext {
 export async function createTRPCContextFromHeaders(
   headers: HeaderSource,
   options?: {
+    requestUrl?: string;
     setResponseHeader?: (name: string, value: string) => void;
   },
 ): Promise<TRPCContext> {
@@ -100,6 +101,7 @@ export async function createTRPCContextFromHeaders(
             ),
           ),
       auth.session,
+      options?.requestUrl,
     ),
     db: createDatabase(),
     geo: getGeoContext(headers),

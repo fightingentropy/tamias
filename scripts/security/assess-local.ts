@@ -84,6 +84,11 @@ const { createApiKeyInD1 } = await import("@tamias/app-services/foundation");
 const { createApp, storeHmrcOAuthState, consumeHmrcOAuthState } =
   await import("@tamias/app-data/queries");
 const { handleTrpcFastPath } = await import("../../api/src/index");
+const { createTRPCContext } = await import("../../api/src/trpc/init");
+const { upsertFilingProfileRecord } =
+  await import("../../packages/app-data/src/queries/compliance/filings");
+const { upsertVatObligationInD1 } =
+  await import("../../packages/app-data/src/queries/compliance/vat/d1");
 const { withAuth } = await import("../../api/src/rest/middleware/auth");
 const { withRequiredScope } = await import("../../api/src/rest/middleware/scope");
 const { installUrlRouter } = await import("../../api/src/rest/routers/apps/hmrc-vat/install-url");
@@ -194,6 +199,52 @@ async function account(email: string) {
 try {
   const alice = await account("alice@example.test");
   const bob = await account("bob@example.test");
+  const deviceHeader = encodeURIComponent(
+    JSON.stringify({
+      deviceId: "b5c2ef73-9cba-46af-8db7-15b45142fc32",
+      userAgent: "SyntheticBrowser/1.0",
+      timezone: "UTC+00:00",
+      screens: [{ width: 1280, height: 800, colourDepth: 24, scalingFactor: 1 }],
+      window: { width: 1024, height: 720 },
+    }),
+  );
+  await check(
+    "Authenticated HTTP context trusts ingress metadata only on transformed origins",
+    async () => {
+      process.env.HMRC_FRAUD_TRUST_CLIENT_PORT = "true";
+      process.env.HMRC_FRAUD_TRUST_VENDOR_IP = "false";
+      try {
+        for (const origin of ["https://api.tamias.xyz", "https://tamias.synthetic.workers.dev"]) {
+          // Request construction only, no production network call. The real
+          // HTTP adapter and synthetic first-party session resolve the context.
+          const context = await createTRPCContext(null, {
+            req: {
+              raw: new Request(`${origin}/trpc/vat.getDashboard`, {
+                headers: {
+                  Authorization: `Bearer ${alice.token}`,
+                  "x-tamias-hmrc-device": deviceHeader,
+                  "x-tamias-hmrc-client-port": "52341",
+                  "x-tamias-hmrc-vendor-ip": "203.0.113.10",
+                  "cf-connecting-ip": "198.51.100.10",
+                  "x-forwarded-host": "api.tamias.xyz",
+                },
+              }),
+            },
+            header() {},
+          });
+          assert.equal(context.hmrcFraudContext?.userId, alice.userId);
+          assert.equal(
+            context.hmrcFraudContext?.publicPort,
+            origin === "https://api.tamias.xyz" ? 52341 : undefined,
+          );
+          assert.equal(context.hmrcFraudContext?.vendorPublicIp, undefined);
+        }
+      } finally {
+        delete process.env.HMRC_FRAUD_TRUST_CLIENT_PORT;
+        delete process.env.HMRC_FRAUD_TRUST_VENDOR_IP;
+      }
+    },
+  );
   await check("Unauthenticated and forged sessions cannot read financial APIs", async () => {
     for (const token of [undefined, "forged.jwt.signature"])
       assert.equal((await request("user.me", token)).status, 401);
@@ -285,6 +336,49 @@ try {
       }
       const other = await request("apps.get", bob.token);
       assert.doesNotMatch(await other.text(), /hmrc-vat/);
+    },
+  );
+  await check(
+    "A failed HMRC refresh keeps saved obligations and reports a safe error",
+    async () => {
+      sqlite.query("update teams set country_code = 'GB' where id = ?").run(alice.teamId);
+      const profile = await upsertFilingProfileRecord(db, {
+        teamId: alice.teamId,
+        provider: "hmrc-vat",
+        legalEntityType: "uk_ltd",
+        enabled: true,
+        countryCode: "GB",
+        companyName: "Synthetic example",
+        vrn: "123456789",
+        accountingBasis: "cash",
+        filingMode: "client",
+        baseCurrency: "GBP",
+      });
+      await upsertVatObligationInD1(db, {
+        teamId: alice.teamId,
+        filingProfileId: profile.id,
+        provider: "hmrc-vat",
+        obligationType: "vat",
+        periodKey: "26A1",
+        periodStart: "2026-01-01",
+        periodEnd: "2026-03-31",
+        dueDate: "2026-05-07",
+        status: "O",
+      });
+      // The deliberately invalid stored credentials above fail before networking.
+      const failed = await request("vat.getDashboard", alice.token, undefined, {
+        "x-tamias-hmrc-device": deviceHeader,
+      });
+      assert.equal(failed.status, 200);
+      const body = await failed.text();
+      assert.match(body, /26A1/);
+      assert.match(body, /HMRC obligations could not be refreshed/);
+      assert.doesNotMatch(body, /SECRET_|accessToken|refreshToken/);
+      const noBrowser = await request("vat.getDashboard", alice.token);
+      assert.equal(noBrowser.status, 200);
+      const stored = await noBrowser.text();
+      assert.match(stored, /26A1/);
+      assert.match(stored, /"obligationSyncError":null/);
     },
   );
   await check("Integration disconnect responses do not disclose removed credentials", async () => {

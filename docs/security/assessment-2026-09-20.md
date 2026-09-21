@@ -2,6 +2,8 @@
 
 Date: 20 September 2026. Baseline: `ba371a75f0ce18fe50742e41f147bb8da55d5ed3`. Assessor: Codex, acting for the operator. This is an internal, tool-assisted source and local HTTP assessment, not an independent penetration-test certificate or a declaration that the entire service is secure.
 
+Follow-up: source-port trust and error handling were improved on 21 September. This report records the original assessment; current implementation, remaining header requirements and newer evidence are described in [HMRC readiness](../hmrc-readiness.md).
+
 ## Scope and method
 
 Reviewed the browser-to-API boundary, current-session and workspace checks, scoped credentials, integration responses, HMRC OAuth, fraud-prevention data, file path validation, dependency advisories and public customer information. Executed attacks against real API handlers on loopback with an in-memory SQL database and synthetic accounts. The assessment script blocks external fetches; it does not read saved sessions or customer records. Only the Workers platform class and durable rate-limit storage are replaced locally; authentication, session lookup, permissions, queries and API handlers run normally.

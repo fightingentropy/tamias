@@ -1,6 +1,6 @@
 # HMRC production readiness
 
-Assessed on 20 September 2026. This document concerns REST Making Tax Digital connections; it does not change the separate annual Self Assessment XML filing controls or submit a return.
+Assessed on 20 September 2026; implementation and sandbox checks updated on 21 September 2026. This document concerns REST Making Tax Digital connections; it does not change the separate annual Self Assessment XML filing controls or submit a return.
 
 ## Public information
 
@@ -31,7 +31,7 @@ bun --no-env-file scripts/run-with-runtime-env.ts filing -- bun --no-env-file sc
 
 Both commands use artificial device/account examples and application-only sandbox credentials. They do not query a taxpayer or file anything. A successful complete fixture proves header serialization only. The second check represents the currently implemented collection capabilities, with the unavailable fields left out. Do not treat either as evidence that a live request collected every field correctly.
 
-Recorded results: complete fixture `VALID_HEADERS`; collection-capability fixture `INVALID_HEADERS`, with three errors (public source port, vendor public IP and forwarded hops) and two warnings (MFA and licence IDs). Raw validator reports contain no real taxpayer data and are retained with the assessment evidence.
+Recorded results: the 20 September complete fixture returned `VALID_HEADERS`. After independently enabling verified port collection, the 21 September collection-capability fixture returned `INVALID_HEADERS`, with two errors (vendor public IP and forwarded hops) and two warnings (MFA and licence IDs). The source-port error is resolved. Raw validator reports contain no real taxpayer data and are retained with the dated assessment evidence.
 
 ### Cloudflare ingress setup
 
@@ -41,7 +41,9 @@ Synthetic, unauthenticated health requests to `api.tamias.xyz`, `app.tamias.xyz`
 
 This verifies the zone's source-port transform, not complete application-side HMRC collection. `cf.edge.server_ip` is documented as meaningful only for BYOIP customers. The actual ingress public IP and corresponding forwarded hop remain unresolved for the present setup; do not pick an arbitrary DNS result or use the outbound Worker IP as the address the browser contacted.
 
-`HMRC_FRAUD_TRUST_EDGE_HEADERS` remains unset. The current flag trusts both network fields together and must remain unset until vendor-IP collection is verified and alternative `workers.dev` or preview entry points cannot supply spoofed headers. Those alternative entry points were not certified by the zone probe. If further public TLS hops are introduced, the forwarded chain must describe those actual hops; the present builder handles a single ingress hop.
+On 21 September the combined switch was replaced with independent `HMRC_FRAUD_TRUST_CLIENT_PORT` and `HMRC_FRAUD_TRUST_VENDOR_IP` controls. Production configuration enables only the verified port. The actual HTTP request URL must have one of the three tested HTTPS origins; forwarded host headers cannot establish trust. Missing URLs, other domains, ports and Worker/preview addresses are rejected. Ports must be decimal integers in the valid range. The legacy combined flag no longer enables either field.
+
+Production configuration explicitly disables `workers.dev` and preview URLs. Unit tests cover spoofed headers and alternate origins; the local assessment also exercises the actual HTTP context adapter with a real synthetic authenticated session. Other required headers still fail closed. If further public TLS hops are introduced, the forwarded chain must describe those actual hops; the present builder handles a single ingress hop.
 
 Tamias currently uses password authentication and has no installed per-device licence key. An enquiry about MFA/licence handling and any remaining platform restrictions was sent to HMRC Software Developer Support with the operator's approval on 20 September 2026 at 17:31 UTC. Its Sent record was independently verified. The exact correspondence is in `docs/security/hmrc-header-enquiry.md`; no exemption has been agreed.
 
@@ -59,7 +61,13 @@ The operator signed back into Developer Hub on 20 September 2026. Tamias's name 
 
 After verifying publication, `https://app.tamias.xyz/privacy` and `https://app.tamias.xyz/terms` were saved to the draft. Developer Hub confirmed both the service-management and customer-authorisation sections as completed. This section status records answered questions, not approval of the application.
 
-Development-practice guidance was acknowledged, but the error-handling and whole-product accessibility declarations remain uncompleted pending their specific evidence. Handling-personal-data declarations remain uncompleted pending the operational evidence noted in the assessment. The existing "No" answers for penetration testing, security-control audits and complete fraud-header compliance were not converted to "Yes" on the strength of this limited internal assessment. No final application or legal declaration was submitted.
+Development-practice guidance was acknowledged. Error-handling improvements and tests were completed on 21 September; their draft answer will be saved after release verification. Whole-product accessibility and handling-personal-data declarations remain uncompleted pending their specific evidence. The existing "No" answers for penetration testing, security-control audits and complete fraud-header compliance were not converted to "Yes" on the strength of this limited internal assessment. No final application or legal declaration was submitted.
+
+## Error handling
+
+The VAT REST provider interprets HTTP status and recognised HMRC machine codes, including multiple errors and the separate OAuth error format. Messages explain reconnection, permissions, invalid inputs, throttling, outages and uncertain submissions. Valid `Retry-After` values are shown without automatic write retries. Raw provider descriptions, unknown codes and transport error details are not disclosed. Existing deadlines, response-size limits, redirect rejection and submission-reconciliation safeguards remain in place.
+
+An unsuccessful obligations refresh returns a safe warning alongside previously saved records. The VAT dashboard, overview and return editor display that warning instead of treating failure as an empty successful refresh; submission from the dashboard is disabled while the warning is present. Server rendering without browser observations still reads stored records only. Sixteen new provider tests, six ingress tests and the expanded 15-check local HTTP assessment verify these paths. See `docs/security/evidence/2026-09-21/` for retained synthetic results.
 
 ## Primary references
 

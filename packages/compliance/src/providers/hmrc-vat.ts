@@ -26,6 +26,135 @@ type HmrcTokenResponse = {
   scope?: string;
 };
 
+const knownErrorCodes = new Set([
+  "BAD_REQUEST",
+  "INVALID_REQUEST",
+  "MISSING_FIELD",
+  "INVALID_DATE",
+  "INVALID_VRN",
+  "INVALID_PERIODKEY",
+  "INVALID_MONETARY_AMOUNT",
+  "INVALID_NUMERIC_VALUE",
+  "INVALID_DATE_FROM",
+  "INVALID_DATE_TO",
+  "DATE_RANGE_TOO_LARGE",
+  "INVALID_FINALISED",
+  "DUPLICATE_SUBMISSION",
+  "RULE_INCORRECT_GOV_TEST_SCENARIO",
+  "NOT_FOUND",
+  "NO_OBLIGATIONS_FOUND",
+  "VRN_INVALID",
+  "MISSING_CREDENTIALS",
+  "INVALID_CREDENTIALS",
+  "UNAUTHORIZED",
+  "INCORRECT_ACCESS_TOKEN_TYPE",
+  "HTTPS_REQUIRED",
+  "RESOURCE_FORBIDDEN",
+  "INVALID_SCOPE",
+  "FORBIDDEN",
+  "MATCHING_RESOURCE_NOT_FOUND",
+  "METHOD_NOT_ALLOWED",
+  "ACCEPT_HEADER_INVALID",
+  "MESSAGE_THROTTLED_OUT",
+  "INTERNAL_SERVER_ERROR",
+  "NOT_IMPLEMENTED",
+  "SERVER_ERROR",
+  "SCHEDULED_MAINTENANCE",
+  "GATEWAY_TIMEOUT",
+  "invalid_request",
+  "invalid_client",
+  "invalid_grant",
+  "unauthorized_client",
+  "unsupported_grant_type",
+  "invalid_scope",
+  "access_denied",
+  "server_error",
+  "temporarily_unavailable",
+]);
+
+export class HmrcRequestError extends Error {
+  readonly name = "HmrcRequestError";
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly code: string,
+    readonly details: string[] = [],
+    readonly retryAfterSeconds?: number,
+  ) {
+    super(message);
+  }
+}
+
+async function fetchHmrc(url: string, init: RequestInit): Promise<Response> {
+  try {
+    return await fetch(url, init);
+  } catch {
+    // A lost response does not prove that HMRC rejected a submission. Do not
+    // repeat a write automatically or expose transport errors containing URLs.
+    throw new HmrcRequestError(
+      "HMRC could not be reached or the request timed out. Try again later. If you submitted a return, check its status before sending it again.",
+      0,
+      "TRANSPORT_ERROR",
+    );
+  }
+}
+
+function knownCode(value: unknown): string | undefined {
+  return typeof value === "string" && knownErrorCodes.has(value) ? value : undefined;
+}
+
+async function responseError(response: Response, tokenExchange = false) {
+  const payload = await readHmrcJson<unknown>(response).catch(() => null);
+  const body = payload && typeof payload === "object" ? (payload as Record<string, unknown>) : {};
+  const code = knownCode(body.code ?? body.error) ?? "UNKNOWN_ERROR";
+  const details = Array.isArray(body.errors)
+    ? body.errors.slice(0, 20).flatMap((item) => {
+        const detail = item && typeof item === "object" ? knownCode(item.code) : undefined;
+        return detail ? [detail] : [];
+      })
+    : [];
+  const retryAfter = response.headers.get("retry-after");
+  const delay =
+    retryAfter && /^[0-9]{1,6}$/.test(retryAfter)
+      ? Number(retryAfter)
+      : retryAfter && retryAfter.length <= 64
+        ? Math.ceil((Date.parse(retryAfter) - Date.now()) / 1000)
+        : NaN;
+  const retryAfterSeconds =
+    Number.isFinite(delay) && delay >= 0 && delay <= 86400 ? delay : undefined;
+  let message: string;
+  if (response.status === 429) {
+    message =
+      retryAfterSeconds === undefined
+        ? "HMRC is limiting requests. Wait a moment before trying again."
+        : `HMRC is limiting requests. Wait ${retryAfterSeconds} seconds before trying again.`;
+  } else if (response.status >= 500) {
+    message =
+      "HMRC is temporarily unavailable. Try again later. If you submitted a return, check its status before sending it again.";
+  } else if (response.status === 401 || tokenExchange) {
+    message = "Reconnect HMRC to renew your authorisation.";
+  } else if (response.status === 403) {
+    message =
+      "HMRC has not authorised access to these tax records. Check the connection and permissions.";
+  } else if (response.status === 404) {
+    message = "HMRC could not find the requested record. Check the tax details and period.";
+  } else if (response.status === 405 || response.status === 406) {
+    message = "HMRC rejected the application request format. Contact Tamias support.";
+  } else {
+    message =
+      "HMRC rejected the request. Review the tax details and return values before trying again.";
+  }
+  // Never surface provider message/error_description fields: they can contain
+  // taxpayer data or credentials. Retain only recognised machine-readable codes.
+  return new HmrcRequestError(
+    `${message} (HTTP ${response.status})`,
+    response.status,
+    code,
+    details,
+    retryAfterSeconds,
+  );
+}
+
 async function readHmrcJson<T>(response: Response): Promise<T> {
   const limit = 1024 * 1024;
   const reader = response.body?.getReader();
@@ -182,7 +311,7 @@ export class HmrcVatProvider {
       ...payload,
     });
 
-    const response = await fetch(`${this.baseUrl}/oauth/token`, {
+    const response = await fetchHmrc(`${this.baseUrl}/oauth/token`, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -193,10 +322,7 @@ export class HmrcVatProvider {
     });
 
     if (!response.ok) {
-      await response.body?.cancel();
-      throw new Error(
-        `HMRC token exchange failed (${response.status}). Reconnect HMRC and try again.`,
-      );
+      throw await responseError(response, true);
     }
 
     const tokenData = await readHmrcJson<HmrcTokenResponse>(response);
@@ -228,7 +354,7 @@ export class HmrcVatProvider {
       throw new Error("HMRC VAT access token missing");
     }
 
-    const response = await fetch(`${this.baseUrl}${path}`, {
+    const response = await fetchHmrc(`${this.baseUrl}${path}`, {
       method: params?.method ?? "GET",
       headers: {
         Accept: "application/vnd.hmrc.1.0+json",
@@ -242,10 +368,7 @@ export class HmrcVatProvider {
     });
 
     if (!response.ok) {
-      await response.body?.cancel();
-      throw new Error(
-        `HMRC VAT request failed (${response.status}). Check the connection and return details.`,
-      );
+      throw await responseError(response);
     }
 
     return readHmrcJson<T>(response);

@@ -131,7 +131,14 @@ function BusinessTaxOverview({ isLimitedCompany }: { isLimitedCompany: boolean }
   const payrollImported = (payrollQuery.data?.summary?.importedRunCount ?? 0) > 0;
   const yearEndBuilt = !!yearEndQuery.data?.pack;
 
-  const vatStatus: CardStatus = hmrcConnected ? "ready" : data?.profile ? "partial" : "inactive";
+  const vatStatus: CardStatus =
+    data?.obligationSyncError || vatQuery.isError
+      ? "partial"
+      : hmrcConnected
+        ? "ready"
+        : data?.profile
+          ? "partial"
+          : "inactive";
   const settingsStatus: CardStatus = profileConfigured ? "ready" : "inactive";
   const yearEndStatus: CardStatus = yearEndQuery.data?.pack?.latestExportedAt
     ? "ready"
@@ -149,11 +156,14 @@ function BusinessTaxOverview({ isLimitedCompany }: { isLimitedCompany: boolean }
         : "Connect HMRC VAT to sync obligations and submit returns.",
       icon: <Icons.Vat size={18} />,
       status: vatStatus,
-      meta: data?.latestSubmission
-        ? `Latest submission ${data.latestSubmission.periodKey}`
-        : data?.obligations?.[0]
-          ? `Next due ${formatDate(data.obligations[0].dueDate)}`
-          : "No synced obligations yet",
+      meta:
+        data?.obligationSyncError || vatQuery.isError
+          ? "HMRC obligations could not be refreshed"
+          : data?.latestSubmission
+            ? `Latest submission ${data.latestSubmission.periodKey}`
+            : data?.obligations?.[0]
+              ? `Next due ${formatDate(data.obligations[0].dueDate)}`
+              : "No synced obligations yet",
     },
     {
       href: "/compliance/settings",

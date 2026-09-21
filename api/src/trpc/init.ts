@@ -21,6 +21,7 @@ export const createTRPCContext = async (
 
   const jwtStart = DEBUG_PERF ? performance.now() : 0;
   const context = await createTRPCContextFromHeaders(c.req.raw.headers, {
+    requestUrl: c.req.raw.url,
     setResponseHeader: c.header.bind(c),
   });
   const jwtMs = DEBUG_PERF ? performance.now() - jwtStart : 0;

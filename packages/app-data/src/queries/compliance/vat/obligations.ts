@@ -1,4 +1,5 @@
 import { addYears, format, subYears } from "date-fns";
+import { HmrcRequestError } from "@tamias/compliance";
 import type { FilingProfileRecord } from "../filings";
 import type { Database } from "../../../client";
 import { assertUkComplianceEnabled, getHmrcProvider } from "../shared";
@@ -17,13 +18,7 @@ async function syncVatObligations(
     return [];
   }
 
-  let providerData: Awaited<ReturnType<typeof getHmrcProvider>> | null = null;
-
-  try {
-    providerData = await getHmrcProvider(db, params.teamId, params.profile);
-  } catch {
-    return [];
-  }
+  const providerData = await getHmrcProvider(db, params.teamId, params.profile);
 
   if (!providerData) {
     return [];
@@ -31,19 +26,13 @@ async function syncVatObligations(
 
   const from = format(subYears(new Date(), 1), "yyyy-MM-dd");
   const to = format(addYears(new Date(), 1), "yyyy-MM-dd");
-  let obligations: Awaited<ReturnType<typeof providerData.provider.getObligations>> = [];
-
-  try {
-    obligations = await providerData.provider.getObligations({
-      vrn: params.profile.vrn,
-      from,
-      to,
-      accessToken: providerData.config.accessToken,
-      fraudContext: params.fraudContext,
-    });
-  } catch {
-    return [];
-  }
+  const obligations = await providerData.provider.getObligations({
+    vrn: params.profile.vrn,
+    from,
+    to,
+    accessToken: providerData.config.accessToken,
+    fraudContext: params.fraudContext,
+  });
 
   for (const obligation of obligations) {
     await upsertVatObligationInD1(db, {
@@ -64,22 +53,42 @@ async function syncVatObligations(
   return obligations;
 }
 
-export async function listVatObligations(db: Database, params: ListVatObligationsParams) {
+export async function getVatObligationsWithSyncStatus(
+  db: Database,
+  params: ListVatObligationsParams,
+) {
   const { team, profile } = await getVatTeamAndProfile(db, params.teamId);
 
   if (!profile) {
-    return [];
+    return { obligations: [], syncError: null };
   }
 
   assertUkComplianceEnabled(team, profile);
 
-  await syncVatObligations(db, { ...params, team, profile });
+  let syncError: string | null = null;
+  try {
+    await syncVatObligations(db, { ...params, team, profile });
+  } catch (error) {
+    syncError =
+      error instanceof HmrcRequestError
+        ? error.message
+        : "HMRC obligations could not be refreshed. Check the connection or contact Tamias support.";
+  }
 
   const obligations = await listVatObligationsFromD1(db, {
     teamId: params.teamId,
   });
 
-  return obligations.filter(
-    (item) => item.provider === "hmrc-vat" && item.obligationType === "vat",
-  );
+  return {
+    obligations: obligations.filter(
+      (item) => item.provider === "hmrc-vat" && item.obligationType === "vat",
+    ),
+    syncError,
+  };
+}
+
+export async function listVatObligations(db: Database, params: ListVatObligationsParams) {
+  const result = await getVatObligationsWithSyncStatus(db, params);
+  if (result.syncError) throw new Error(result.syncError);
+  return result.obligations;
 }
