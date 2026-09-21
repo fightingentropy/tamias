@@ -1,0 +1,39 @@
+{
+  "checkedAt": "2026-09-21T20:47:09.904Z",
+  "commit": "3276e8204e8fc5cba46f4f68d49bf11c19751752",
+  "ciRun": "https://github.com/fightingentropy/tamias/actions/runs/35652097151",
+  "scope": "Read-only Cloudflare script metadata and unauthenticated HTTP requests. No customer records or credentials retained.",
+  "workerSubdomainEnabled": false,
+  "previewUrlsEnabled": false,
+  "fraudHeaderControls": {
+    "trustClientPort": true,
+    "trustVendorIp": false,
+    "omissionApprovalConfigured": false
+  },
+  "checks": [
+    {
+      "url": "https://api.tamias.xyz/health",
+      "status": 200,
+      "cacheControl": null,
+      "allowOrigin": null
+    },
+    {
+      "url": "https://app.tamias.xyz/api/health",
+      "status": 200,
+      "cacheControl": null,
+      "allowOrigin": null
+    },
+    {
+      "url": "https://tamias.xyz/api/health",
+      "status": 307,
+      "cacheControl": null,
+      "allowOrigin": null
+    },
+    {
+      "url": "https://api.tamias.xyz/trpc/team.current",
+      "status": 401,
+      "cacheControl": "private, no-store",
+      "allowOrigin": null
+    }
+  ]
+}
