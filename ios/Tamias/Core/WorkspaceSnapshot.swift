@@ -25,6 +25,7 @@ struct WorkspaceSnapshot: Codable {
     let hasMoreTransactions: Bool
     let hasMoreInvoices: Bool
     let hasMoreInbox: Bool
+    let statementAnalytics: StatementAnalytics?
 
     func belongs(to user: TamiasUser) -> Bool { version == 1 && userID == user.id && teamID == user.team?.id }
 }

@@ -3,7 +3,7 @@ import Observation
 
 @MainActor @Observable
 final class TamiasStore {
-    private(set) var isDemo = true
+    private(set) var isDemo = false
     private(set) var isLoading = false
     var errorMessage: String?
     private(set) var dataWarnings: [String] = []
@@ -15,6 +15,7 @@ final class TamiasStore {
     private(set) var inboxItems: [InboxItem] = []
     private(set) var customers: [Customer] = []
     private(set) var cashflow: [CashflowPoint] = []
+    private(set) var statementAnalytics: StatementAnalytics?
     private(set) var localDrafts: [InvoiceDraft] = []
     private(set) var capturedReceipts: [ReceiptCapture] = []
     private(set) var lastRefreshed: Date?
@@ -106,7 +107,10 @@ final class TamiasStore {
             do { credential = try credentials.read() }
             catch { errorMessage = error.localizedDescription }
         }
-        isDemo = credential == nil
+        // A signed-out device must not look like a populated financial workspace.
+        // Samples are only entered explicitly (or by isolated UI tests).
+        let testingDemo = uiTesting && !ProcessInfo.processInfo.arguments.contains("-signed-out-ui-testing")
+        isDemo = credential == nil && (demoMode ?? testingDemo)
         user = credential?.profile
         self.api = api.scoped(to: user?.team?.id)
         if isDemo {
@@ -183,13 +187,18 @@ final class TamiasStore {
         generation = UUID()
         credential = nil
         clearRemoteData()
-        isDemo = true
+        isDemo = false
         errorMessage = nil
-        applySampleData(now: .now)
         loadLocalData()
     }
 
-    func enterDemoMode() { signOut() }
+    func enterDemoMode() {
+        signOut()
+        guard credential == nil else { return }
+        isDemo = true
+        applySampleData(now: .now)
+        loadLocalData()
+    }
 
     func saveDraft(_ draft: InvoiceDraft) throws {
         guard !draft.customerName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
@@ -349,7 +358,7 @@ final class TamiasStore {
             let accountsLoaded = apply(bankData, label: "Bank accounts", warnings: &warnings) { accounts = $0 }
             let summaryLoaded = apply(summaryData, label: "Invoice total", warnings: &warnings) { invoiceSummary = $0 }
             let nextCurrency = invoiceSummary?.currency.uppercased() ?? accounts.first(where: { $0.enabled && !$0.currency.isEmpty })?.currency ?? currency
-            if nextCurrency != currency { cashflow = []; cashflowAvailable = false }
+            if nextCurrency != currency { cashflow = []; statementAnalytics = nil; cashflowAvailable = false }
             currency = nextCurrency
             if accountsLoaded {
                 balancesAvailable = !accounts.contains { $0.isCashAccount && ($0.currency.isEmpty || ($0.currency == currency && $0.balance == nil)) }
@@ -376,9 +385,12 @@ final class TamiasStore {
                 let currentIDs = Set(page.data.map(\.id))
                 customers = page.data + customers.filter { selectedIDs.contains($0.id) && !currentIDs.contains($0.id) }
             }
-            let flowResult = await Self.result { try await self.api.cashflow(token: token, currency: self.currency) }
+            let flowResult = await Self.result { try await self.api.statementAnalytics(token: token, currency: self.currency) }
             guard activeGeneration == generation else { return }
-            let flowLoaded = apply(flowResult, label: "Cash flow", warnings: &warnings) { cashflow = $0 }
+            let flowLoaded = apply(flowResult, label: "Statement analytics", warnings: &warnings) {
+                statementAnalytics = $0
+                cashflow = $0.cashflow()
+            }
             if flowLoaded { cashflowAvailable = true }
             dataWarnings = warnings
             if warnings.isEmpty { lastRefreshed = .now }
@@ -417,6 +429,7 @@ final class TamiasStore {
         inboxItems = []
         customers = []
         cashflow = []
+        statementAnalytics = nil
         localDrafts = []
         capturedReceipts = []
         invoiceSummary = nil
@@ -478,8 +491,11 @@ extension TamiasStore {
             guard let saved = try vault.loadSnapshot(), saved.belongs(to: profile) else { return }
             currency = saved.currency; accounts = saved.accounts; transactions = saved.transactions
             invoices = saved.invoices; inboxItems = saved.inbox; customers = saved.customers; categories = saved.categories
-            cashflow = saved.cashflow; invoiceSummary = saved.invoiceSummary
-            balancesAvailable = saved.balancesAvailable; cashflowAvailable = saved.cashflowAvailable
+            statementAnalytics = saved.statementAnalytics
+            cashflow = saved.statementAnalytics?.cashflow() ?? []
+            invoiceSummary = saved.invoiceSummary
+            balancesAvailable = saved.balancesAvailable
+            cashflowAvailable = saved.cashflowAvailable && saved.statementAnalytics != nil
             invoiceSummaryAvailable = saved.invoiceSummaryAvailable
             transactionsCursor = saved.transactionsCursor; invoicesCursor = saved.invoicesCursor; inboxCursor = saved.inboxCursor
             hasMoreTransactions = saved.hasMoreTransactions; hasMoreInvoices = saved.hasMoreInvoices; hasMoreInbox = saved.hasMoreInbox
@@ -499,7 +515,8 @@ extension TamiasStore {
             customers: customers, categories: categories, cashflow: cashflow, invoiceSummary: invoiceSummary,
             balancesAvailable: balancesAvailable, cashflowAvailable: cashflowAvailable, invoiceSummaryAvailable: invoiceSummaryAvailable,
             transactionsCursor: transactionsCursor, invoicesCursor: invoicesCursor, inboxCursor: inboxCursor,
-            hasMoreTransactions: hasMoreTransactions, hasMoreInvoices: hasMoreInvoices, hasMoreInbox: hasMoreInbox)
+            hasMoreTransactions: hasMoreTransactions, hasMoreInvoices: hasMoreInvoices, hasMoreInbox: hasMoreInbox,
+            statementAnalytics: statementAnalytics)
         do { try vault.saveSnapshot(saved); snapshotDate = date }
         catch { errorMessage = "The workspace refreshed, but its offline copy could not be saved." }
     }

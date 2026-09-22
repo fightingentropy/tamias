@@ -10,6 +10,21 @@ The app has no tracking or app analytics. `UserDefaults` is used only for this a
 
 ## Open and build
 
+Version 1.2.1 (5) opens at sign-in, with sample data available only through an
+explicit choice. Connected workspaces use the same statement analytics as the
+web app for money in/out, history coverage and spending categories. Transaction
+pages use the server's standard 40-record size, and reopening the app refreshes
+the workspace. Imported balances are labelled separately from connected balances.
+
+Validation on 22 September 2026: 56 native unit tests and three targeted UI
+workflows passed (sign-in/sample isolation, main navigation, and tax scope
+blocking). The API typecheck, lint, architecture check, production build and nine
+report query/REST/OpenAPI tests passed. The read-only statement endpoint is
+deployed; authenticated production checks reconciled its complete record count
+and net movement with the imported account and verified two transaction pages.
+The signed Release app is installed on the paired iPhone as 1.2.1 (5). Physical
+screen verification remains pending because iPhone Mirroring timed out.
+
 Version 1.2.0 adds the Tax tab: UK tax-year totals, bulk expense review with
 business/personal splits, CSV working papers and a 2025/26 Self Assessment
 preparation/submission history. Filing supports a restricted single-business
@@ -45,7 +60,7 @@ The wrapper respects `DEVELOPER_DIR`, or locates `/Applications/Xcode.app` / `/A
 
 ## Data and connection
 
-The sample workspace makes the app immediately usable without a server connection. Sample figures are labelled in the app. Settings supports an existing Tamias email/password login or a personal API key. Session credentials are stored in the iOS Keychain, and password sessions support token refresh. The connection uses the existing REST API over HTTPS.
+The app opens at sign-in unless it has a saved connection. The optional sample workspace is explicitly selected and labelled; signing out returns to sign-in with no sample financial records. First launch and Settings support an existing Tamias email/password login or a personal API key. Session credentials are stored in the iOS Keychain, and password sessions support token refresh. The connection uses the existing REST API over HTTPS.
 
 Invoice drafts and captured receipt files are kept on the iPhone and separated by workspace. Drafts can be edited and exported to a PDF marked DRAFT, with a native preview and user-controlled sharing. Creating a local draft does not send an invoice or collect a payment. Connecting a workspace enables reviewed invoice creation/sending and receipt uploads/matching. The app requests camera access only when starting a scan; the system photo and file pickers do not require full library access.
 
@@ -55,7 +70,7 @@ Receipt text recognition uses Apple Vision on-device. Suggestions never fill mer
 
 The Tamias share extension accepts up to five images or PDFs from the system share sheet. It stages protected original files in `group.com.erlinhoxha.tamias`, without credentials, network requests or a chosen workspace. Open Inbox → Shared with Tamias to review each item and explicitly save it to the current workspace. SHA256 deduplication, a cross-process lock, atomic publication, and an import identifier prevent duplicate/repeated saves. The pending shared inbox holds up to 50 files. It is shared across workspaces, so account selection always happens in the main app.
 
-Balances combine enabled depository accounts in the selected currency and identify other currencies separately. Revenue and expense figures use the server’s reports; they are not a cash movement forecast. Backend currency conversion depends on its available FX rates. Missing server rates can leave converted report figures incomplete, and the app does not invent a local conversion.
+Balances combine enabled depository accounts in the selected currency and identify other currencies separately. Statement cash flow includes settled money in/out, including personal and account transfers; it is independent of taxable income and profit. History coverage and category spending use the complete statement analytics response, not the current transaction page. Spending excludes transfers and excluded categories. Unconverted records are disclosed rather than added across currencies. Saved snapshots retain these analytics, while older revenue-report caches are discarded until refreshed.
 
 ## Verification
 
@@ -71,7 +86,7 @@ SIMULATOR_ID=<simulator-udid> ./scripts/xcode.sh test
 ./scripts/xcode.sh device-build
 ```
 
-UI tests launch an isolated sample workspace with `-ui-testing`; `-reset-ui-testing` clears only that test workspace. The nine UI workflows cover navigation and settings, Home drilldowns, activity search and detail, invoice validation/editing/persistence/PDF preview, direct scanner cancellation on iPhone and the simulator fallback, dark appearance and Inbox imports, original receipt persistence, accepting on-device OCR suggestions, and the real system share extension followed by explicit workspace review. Receipt tests use a fictional fixture through the actual Photos picker. Screenshots are attached to the Xcode test result. Unit tests cover the API and workspace boundaries, invoice totals, receipt parsing and Vision recognition, and shared-file integrity and deduplication. Live backend authentication has not been verified with a real account; network tests use contract fixtures. These checks do not prove physical camera capture.
+UI tests launch an isolated sample workspace with `-ui-testing`; `-reset-ui-testing` clears only that test workspace, and `-signed-out-ui-testing` exercises first-launch sign-in. UI workflows cover navigation and settings, Home drilldowns, activity search and detail, invoice validation/editing/persistence/PDF preview, direct scanner cancellation on iPhone and the simulator fallback, dark appearance and Inbox imports, original receipt persistence, accepting on-device OCR suggestions, and the real system share extension followed by explicit workspace review. Receipt tests use a fictional fixture through the actual Photos picker. Screenshots are attached to the Xcode test result. Unit tests cover the API and workspace boundaries, statement history and currencies, invoice totals, receipt parsing and Vision recognition, and shared-file integrity and deduplication. Automated tests use contract fixtures; separate authenticated production reads were verified on 22 September 2026. These checks do not prove physical camera capture.
 
 Version 1.1.1 (3) validation on 8 September 2026: all 47 unit tests passed, and the final run passed all nine UI workflows. The scan entry now opens VisionKit automatically and cancellation returns to the prior screen. Simulator runtimes that advertise camera support but cannot capture documents use the Photos/Files fallback. Screenshot review confirmed black backgrounds, neutral surfaces, compact receipt review and simplified main screens in both appearances. The signed arm64 Release app and share extension passed strict signature and App Group checks; the paired iPhone inventory confirms version 1.1.1, build 3. The phone remained locked, so the physical scanner launch/cancel test is prepared but not yet run. Local evidence is in the ignored `artifacts/minimal-ui-20260908/` directory, including `Tamias-Minimal-UI.xcresult`, `signed-build.json`, `installed-app.json` and the selected PNGs. The first run's unit suite passed; its simulator-camera failure was fixed before the successful final UI run.
 

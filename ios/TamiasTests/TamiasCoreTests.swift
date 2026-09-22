@@ -104,6 +104,7 @@ final class TamiasCoreTests: XCTestCase {
     func testTransactionDecodesNullCategoryAndDateOnly() async throws {
         let api = makeAPI { request in
             XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer test-token")
+            XCTAssertEqual(URLComponents(url: request.url!, resolvingAgainstBaseURL: false)?.queryItems?.first(where: { $0.name == "pageSize" })?.value, "40")
             return (200, Data(#"{"meta":{"cursor":"next-page","hasNextPage":true},"data":[{"id":"tx-1","name":"Coffee","amount":-4.25,"currency":"gbp","date":"2026-09-07","category":null,"status":"completed","account":{"name":"Business"},"note":null,"isFulfilled":false}]}"#.utf8))
         }
         let page = try await api.transactions(token: "test-token")
@@ -126,7 +127,7 @@ final class TamiasCoreTests: XCTestCase {
         } catch { XCTAssertEqual(error as? TamiasAPIError, .invalidData) }
     }
 
-    func testOverviewUsesAuthoritativeReportsAndKeepsCurrenciesSeparate() async throws {
+    func testOverviewUsesStatementAnalyticsAndKeepsCurrenciesSeparate() async throws {
         let api = makeAPI(Self.workspaceResponse)
         let store = TamiasStore(api: api, credentials: MemoryCredentials(.init(token: "test-token", refreshToken: nil)),
                                 localStorageRoot: try temporaryRoot())
@@ -140,12 +141,82 @@ final class TamiasCoreTests: XCTestCase {
         XCTAssertEqual(store.monthlyExpenses, 700)
         XCTAssertEqual(store.outstandingAmount, 1_200)
         XCTAssertEqual(store.cashflow.count, 12)
+        XCTAssertEqual(store.statementAnalytics?.summary.count, 73, "Analytics include the full statement, not just the current transaction page")
         XCTAssertTrue(store.transactions.isEmpty, "No sample records should appear when the API list is empty")
+    }
+
+    func testSignedOutLaunchHasNoSampleFinancialData() throws {
+        let store = TamiasStore(credentials: MemoryCredentials(nil), localStorageRoot: try temporaryRoot())
+        XCTAssertFalse(store.isAuthenticated)
+        XCTAssertFalse(store.isDemo)
+        XCTAssertNil(store.user)
+        XCTAssertTrue(store.accounts.isEmpty)
+        XCTAssertTrue(store.transactions.isEmpty)
+        XCTAssertTrue(store.cashflow.isEmpty)
+        XCTAssertFalse(store.overviewAvailable)
+    }
+
+    func testStatementCashflowFillsMissingMonthsWithoutUsingTransactionPage() async throws {
+        let api = makeAPI { request in
+            XCTAssertEqual(request.url?.path, "/reports/statement")
+            let query = URLComponents(url: request.url!, resolvingAgainstBaseURL: false)?.queryItems ?? []
+            XCTAssertEqual(query.first { $0.name == "currency" }?.value, "GBP")
+            XCTAssertNil(query.first { $0.name == "from" }, "Coverage must include the complete statement history")
+            return (200, Data(#"{"currency":"GBP","summary":{"count":80,"firstDate":"2024-01-01","lastDate":"2026-09-16","moneyIn":9200,"moneyOut":5400,"spending":1200,"unconvertedCount":1,"unconvertedCurrencies":"EUR"},"months":[{"month":"2024-01","moneyIn":5000,"moneyOut":4000},{"month":"2026-07","moneyIn":1200,"moneyOut":800},{"month":"2026-09","moneyIn":3000,"moneyOut":600}],"categories":[]}"#.utf8))
+        }
+        let now = try XCTUnwrap(TamiasDates.parse("2026-09-22"))
+        let report = try await api.statementAnalytics(token: "fixture", currency: "GBP", now: now)
+        let points = report.cashflow(now: now)
+        XCTAssertEqual(points.count, 12)
+        XCTAssertEqual(points.first?.date, TamiasDates.parse("2025-10-01"))
+        XCTAssertEqual(points[9].income, 1200)
+        XCTAssertEqual(points[10].income, 0)
+        XCTAssertEqual(points.last?.expense, 600)
+        XCTAssertEqual(report.summary.count, 80)
+        XCTAssertEqual(report.summary.unconvertedCount, 1)
+    }
+
+    func testStatementAnalyticsRejectWrongCurrencyAndInvalidMonth() async throws {
+        for (currency, month) in [("EUR", "2026-09"), ("GBP", "not-a-month")] {
+            let api = makeAPI { _ in
+                (200, Data("{\"currency\":\"\(currency)\",\"summary\":{\"count\":1,\"moneyIn\":100,\"moneyOut\":0,\"spending\":0,\"unconvertedCount\":0},\"months\":[{\"month\":\"\(month)\",\"moneyIn\":100,\"moneyOut\":0}],\"categories\":[]}".utf8))
+            }
+            do {
+                _ = try await api.statementAnalytics(token: "fixture", currency: "GBP")
+                XCTFail("Invalid analytics must not appear as current GBP cash flow")
+            } catch { XCTAssertEqual(error as? TamiasAPIError, .invalidData) }
+        }
+    }
+
+    func testLegacySnapshotDoesNotRestoreBusinessRevenueAsStatementCashflow() async throws {
+        let root = try temporaryRoot(); let credentials = MemoryCredentials(nil)
+        let api = makeAPI(Self.workspaceResponse)
+        let store = TamiasStore(api: api, credentials: credentials, localStorageRoot: root)
+        try await store.connect(apiKey: "fixture")
+        let url = root.appendingPathComponent(store.workspaceID).appendingPathComponent("snapshot.json")
+        var saved = try XCTUnwrap(try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
+        saved.removeValue(forKey: "statementAnalytics")
+        try JSONSerialization.data(withJSONObject: saved).write(to: url, options: .atomic)
+        let relaunched = TamiasStore(api: api, credentials: credentials, localStorageRoot: root)
+        XCTAssertEqual(relaunched.balance, 100)
+        XCTAssertTrue(relaunched.cashflow.isEmpty)
+        XCTAssertFalse(relaunched.cashflowAvailable)
+        XCTAssertNil(relaunched.statementAnalytics)
+    }
+
+    func testFailedSignInLeavesSignedOutWorkspaceEmpty() async throws {
+        let store = TamiasStore(api: makeAPI { _ in (400, Data()) }, credentials: MemoryCredentials(nil),
+                                localStorageRoot: try temporaryRoot())
+        do { try await store.signIn(email: "example@example.test", password: "wrong-password"); XCTFail("Expected sign-in failure") }
+        catch { XCTAssertFalse(store.isAuthenticated) }
+        XCTAssertFalse(store.isDemo)
+        XCTAssertTrue(store.transactions.isEmpty)
+        XCTAssertTrue(store.accounts.isEmpty)
     }
 
     func testOneDeniedResourceDoesNotHideSuccessfullyLoadedData() async throws {
         let api = makeAPI { request in
-            if request.url?.path == "/reports/revenue" { return (403, Data()) }
+            if request.url?.path == "/reports/statement" { return (403, Data()) }
             return try Self.workspaceResponse(request)
         }
         let store = TamiasStore(api: api, credentials: MemoryCredentials(.init(token: "test-token", refreshToken: nil)),
@@ -186,6 +257,11 @@ final class TamiasCoreTests: XCTestCase {
         let liveDraft = InvoiceDraft(customerName: "Live client", description: "Consulting", amount: 900, dueDate: .now)
         try store.saveDraft(liveDraft)
         store.signOut()
+        XCTAssertFalse(store.isDemo, "Sign-out must return to sign-in, not fictional finances")
+        XCTAssertTrue(store.accounts.isEmpty)
+        XCTAssertTrue(store.transactions.isEmpty)
+        XCTAssertTrue(store.localDrafts.isEmpty)
+        store.enterDemoMode()
         XCTAssertEqual(store.localDrafts, [draft])
         try await store.connect(apiKey: "test-key")
         XCTAssertEqual(store.localDrafts, [liveDraft])
@@ -217,6 +293,7 @@ final class TamiasCoreTests: XCTestCase {
         XCTAssertEqual(relaunched.balance, 100, "Only the server-confirmed snapshot is restored")
         XCTAssertTrue(relaunched.isUsingOfflineSnapshot)
         XCTAssertTrue(relaunched.isSnapshotStale)
+        XCTAssertEqual(relaunched.statementAnalytics, store.statementAnalytics)
         await relaunched.refresh()
         XCTAssertEqual(relaunched.localDrafts, [draft])
         XCTAssertNotNil(relaunched.errorMessage)
@@ -772,8 +849,7 @@ final class TamiasCoreTests: XCTestCase {
         case "/users/me": json = #"{"id":"live-user","fullName":"Taylor Smith","email":"taylor@example.test","team":{"id":"team-one","name":"Live Studio"}}"#
         case "/bank-accounts": json = #"{"data":[{"id":"gbp","name":"Main","currency":"GBP","balance":100,"enabled":true,"type":"depository","manual":false},{"id":"eur","name":"Euro","currency":"EUR","balance":500,"enabled":true,"type":"depository","manual":false},{"id":"disabled","name":"Disabled","currency":"GBP","balance":999,"enabled":false,"type":"depository","manual":false},{"id":"credit","name":"Business credit","currency":"GBP","balance":4000,"enabled":true,"type":"credit","manual":false},{"id":"loan","name":"Euro loan","currency":"USD","balance":8000,"enabled":true,"type":"loan","manual":false},{"id":"unknown","name":"Unknown account","currency":"GBP","balance":1234,"enabled":true,"type":null,"manual":null}]}"#
         case "/invoices/summary": json = #"{"currency":"GBP","totalAmount":1200,"invoiceCount":1}"#
-        case "/reports/revenue": json = "{\"summary\":{\"currency\":\"GBP\"},\"result\":[{\"date\":\"\(month)\",\"current\":{\"value\":2000}}]}"
-        case "/reports/expenses": json = "{\"summary\":{\"currency\":\"GBP\"},\"result\":[{\"date\":\"\(month) 00:00:00\",\"total\":-700}]}"
+        case "/reports/statement": json = "{\"currency\":\"GBP\",\"summary\":{\"count\":73,\"firstDate\":\"2024-02-16\",\"lastDate\":\"\(month)\",\"moneyIn\":2000,\"moneyOut\":700,\"spending\":200,\"unconvertedCount\":0,\"unconvertedCurrencies\":null},\"months\":[{\"month\":\"\(month.prefix(7))\",\"moneyIn\":2000,\"moneyOut\":700}],\"categories\":[{\"slug\":\"tools\",\"name\":\"Tools\",\"amount\":200,\"percentage\":100}]}"
         case "/transactions", "/invoices", "/inbox", "/customers": json = #"{"data":[],"meta":{"cursor":null,"hasNextPage":false}}"#
         default: throw URLError(.unsupportedURL)
         }

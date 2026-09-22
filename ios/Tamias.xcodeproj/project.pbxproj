@@ -35,6 +35,9 @@
 		837FEDE3F099EB99A7119D6F /* TaxFilingModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA13917FCF98F0458ED658D /* TaxFilingModels.swift */; };
 		84D645C4470AE8254AD21A7E /* SharedReceiptQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7AA0A2117A33C8290148FA5 /* SharedReceiptQueue.swift */; };
 		8D8E6E815140C98B4AEB80BD /* TaxFilingUITestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15DB8E31D174254270E16299 /* TaxFilingUITestSupport.swift */; };
+		8E4BBB7624D80D2455B70F01 /* StatementAnalytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDDECC0846AB4E4AFE0182BE /* StatementAnalytics.swift */; };
+		975AA22C3E0412742E4A6AB7 /* WorkspaceSignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43CC8AFF64256AF7F05D098C /* WorkspaceSignInView.swift */; };
+		999E67298610994EC36F535C /* StatementInsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5AD84CD5AB61804BAA93CC8 /* StatementInsightsView.swift */; };
 		9B23F634CC2E77064715EF1E /* TaxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FAF9D986843B22179345A59 /* TaxView.swift */; };
 		9DBAFB2FF791B73033698014 /* TamiasUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F57E2DD502B5C5D4CFFF73B1 /* TamiasUITests.swift */; };
 		9E9A50548B2D36049536DB90 /* SampleWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEF9F8C93E92366DC2B1E22B /* SampleWorkspace.swift */; };
@@ -112,6 +115,7 @@
 		2F5308813AFA184088F62390 /* SAMPLE-receipt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "SAMPLE-receipt.png"; sourceTree = "<group>"; };
 		3FAF9D986843B22179345A59 /* TaxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaxView.swift; sourceTree = "<group>"; };
 		40DA9511B9559A262936C0BF /* WorkspaceSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceSettingsView.swift; sourceTree = "<group>"; };
+		43CC8AFF64256AF7F05D098C /* WorkspaceSignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceSignInView.swift; sourceTree = "<group>"; };
 		511257147AF9CE48EF643450 /* TaxProfileSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaxProfileSheet.swift; sourceTree = "<group>"; };
 		5CE8C7F7D1B91A95BBEB76CF /* TaxFilingContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaxFilingContractTests.swift; sourceTree = "<group>"; };
 		6540033B00A56CE0BE29225F /* TaxFilingUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaxFilingUITests.swift; sourceTree = "<group>"; };
@@ -135,12 +139,14 @@
 		BF17AB2396B4560AF7EF016F /* InvoiceComposerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceComposerTests.swift; sourceTree = "<group>"; };
 		C632444B51A4DFA3F328D413 /* ReceiptShareUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiptShareUITests.swift; sourceTree = "<group>"; };
 		C8CE7992573EF2C1434D8F7E /* ReceiptRecognition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiptRecognition.swift; sourceTree = "<group>"; };
+		CDDECC0846AB4E4AFE0182BE /* StatementAnalytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatementAnalytics.swift; sourceTree = "<group>"; };
 		CE352AAB5B3AD48F184A9A2C /* InvoicesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoicesView.swift; sourceTree = "<group>"; };
 		CE78CF91F2F4D59398068A27 /* TamiasCoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TamiasCoreTests.swift; sourceTree = "<group>"; };
 		CEF9F8C93E92366DC2B1E22B /* SampleWorkspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleWorkspace.swift; sourceTree = "<group>"; };
 		D17190404D8B6C90512389A9 /* TamiasTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TamiasTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D412137AE651DBD9C88A3D12 /* OverviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewView.swift; sourceTree = "<group>"; };
 		D7AA0A2117A33C8290148FA5 /* SharedReceiptQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedReceiptQueue.swift; sourceTree = "<group>"; };
+		E5AD84CD5AB61804BAA93CC8 /* StatementInsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatementInsightsView.swift; sourceTree = "<group>"; };
 		E9942668325276B107D80E3F /* WorkflowAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowAPIClient.swift; sourceTree = "<group>"; };
 		F57E2DD502B5C5D4CFFF73B1 /* TamiasUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TamiasUITests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -179,6 +185,7 @@
 				21D553E278D6FDA4DD2731C6 /* LocalStorage.swift */,
 				0D4986912B5FB6D4DFCFD492 /* Models.swift */,
 				CEF9F8C93E92366DC2B1E22B /* SampleWorkspace.swift */,
+				CDDECC0846AB4E4AFE0182BE /* StatementAnalytics.swift */,
 				1804B501BDE05C4595A1B337 /* TamiasStore.swift */,
 				9DA13917FCF98F0458ED658D /* TaxFilingModels.swift */,
 				A39A45BF5A1BB2001BCAC4AE /* TaxModels.swift */,
@@ -258,7 +265,9 @@
 				6DFD75CB01C00715EFBA40B5 /* InboxView.swift */,
 				CE352AAB5B3AD48F184A9A2C /* InvoicesView.swift */,
 				D412137AE651DBD9C88A3D12 /* OverviewView.swift */,
+				E5AD84CD5AB61804BAA93CC8 /* StatementInsightsView.swift */,
 				40DA9511B9559A262936C0BF /* WorkspaceSettingsView.swift */,
+				43CC8AFF64256AF7F05D098C /* WorkspaceSignInView.swift */,
 				028523D8FF7ED33D1DC87965 /* Capture */,
 				2E00BC1F32D802184B5A0FE7 /* Tax */,
 			);
@@ -520,6 +529,8 @@
 				9E9A50548B2D36049536DB90 /* SampleWorkspace.swift in Sources */,
 				CA81B925496C4F3B28ABC303 /* SharedReceiptInboxSection.swift in Sources */,
 				84D645C4470AE8254AD21A7E /* SharedReceiptQueue.swift in Sources */,
+				8E4BBB7624D80D2455B70F01 /* StatementAnalytics.swift in Sources */,
+				999E67298610994EC36F535C /* StatementInsightsView.swift in Sources */,
 				563AE97384491A444DCADB73 /* TamiasApp.swift in Sources */,
 				02C5D3A0B177666B35746783 /* TamiasStore.swift in Sources */,
 				0F7CF1AF238C658AB06F7CD3 /* TamiasTheme.swift in Sources */,
@@ -535,6 +546,7 @@
 				B6CF1CF8F6DBEFC0E245BB0C /* WorkflowAPIClient.swift in Sources */,
 				C7A9B0321968CE2BBAB5292D /* WorkflowModels.swift in Sources */,
 				BDB3B12F87FBB34F4C3A5D8A /* WorkspaceSettingsView.swift in Sources */,
+				975AA22C3E0412742E4A6AB7 /* WorkspaceSignInView.swift in Sources */,
 				00391D988E2E5EBF407DF7E1 /* WorkspaceSnapshot.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -596,7 +608,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = T29NU9NCA2;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -611,7 +623,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				MARKETING_VERSION = 1.2.0;
+				MARKETING_VERSION = 1.2.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -714,7 +726,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = T29NU9NCA2;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -735,7 +747,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				MARKETING_VERSION = 1.2.0;
+				MARKETING_VERSION = 1.2.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;

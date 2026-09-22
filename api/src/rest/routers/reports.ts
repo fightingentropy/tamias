@@ -5,6 +5,7 @@ import {
   getReports,
   getRunway,
   getSpending,
+  getStatementAnalytics,
 } from "@tamias/app-data/queries";
 import {
   getBurnRateResponseSchema,
@@ -19,12 +20,41 @@ import {
   getRunwaySchema,
   getSpendingResponseSchema,
   getSpendingSchema,
+  getStatementAnalyticsSchema,
+  statementAnalyticsResponseSchema,
 } from "../../schemas/reports";
 import { validateResponse } from "../../utils/validate-response";
 import { withRequiredScope } from "../middleware";
 import type { Context } from "../types";
 
 const app = new OpenAPIHono<Context>();
+
+app.openapi(
+  createRoute({
+    method: "get",
+    path: "/statement",
+    summary: "Statement analytics",
+    operationId: "getStatementAnalytics",
+    description:
+      "Settled bank movements, monthly cash flow and spending for the authenticated team. Independent of tax classifications.",
+    tags: ["Reports"],
+    request: { query: getStatementAnalyticsSchema },
+    responses: {
+      200: {
+        description: "Statement analytics in the requested reporting currency.",
+        content: { "application/json": { schema: statementAnalyticsResponseSchema } },
+      },
+    },
+    middleware: [withRequiredScope("reports.read")],
+  }),
+  async (c) => {
+    const results = await getStatementAnalytics(c.get("db"), {
+      ...c.req.valid("query"),
+      teamId: c.get("teamId"),
+    });
+    return c.json(validateResponse(results, statementAnalyticsResponseSchema));
+  },
+);
 
 app.openapi(
   createRoute({

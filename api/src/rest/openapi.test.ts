@@ -26,6 +26,7 @@ console.log(JSON.stringify(Object.keys(document.paths ?? {})));`,
     expect.arrayContaining([
       "/users/me",
       "/transactions",
+      "/reports/statement",
       "/transaction-categories",
       "/inbox/uploads",
       "/inbox/uploads/complete",

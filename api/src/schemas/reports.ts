@@ -14,6 +14,41 @@ export const getStatementAnalyticsSchema = z
     message: "The start date must be on or before the end date.",
   });
 
+export const statementAnalyticsResponseSchema = z
+  .object({
+    currency: z.string(),
+    from: z.string().nullable(),
+    to: z.string().nullable(),
+    summary: z.object({
+      count: z.number().int().nonnegative(),
+      firstDate: z.string().nullable(),
+      lastDate: z.string().nullable(),
+      moneyIn: z.number(),
+      moneyOut: z.number(),
+      netMovement: z.number(),
+      spending: z.number(),
+      transfersIn: z.number(),
+      transfersOut: z.number(),
+      excludedIn: z.number(),
+      excludedOut: z.number(),
+      uncategorizedCount: z.number().int().nonnegative(),
+      unconvertedCount: z.number().int().nonnegative(),
+      unconvertedCurrencies: z.string().nullable(),
+    }),
+    months: z.array(z.object({ month: z.string(), moneyIn: z.number(), moneyOut: z.number() })),
+    categories: z.array(
+      z.object({
+        slug: z.string(),
+        name: z.string(),
+        amount: z.number(),
+        count: z.number().int(),
+        percentage: z.number(),
+      }),
+    ),
+    merchants: z.array(z.object({ name: z.string(), amount: z.number(), count: z.number().int() })),
+  })
+  .openapi("StatementAnalytics");
+
 export const getRevenueSchema = z
   .object({
     from: z.string().openapi({

@@ -24,6 +24,27 @@ final class TamiasUITests: XCTestCase {
         XCTAssertTrue(element("screen.overview").waitForExistence(timeout: 3))
     }
 
+    func testSignedOutLaunchRequiresSignInOrExplicitDemo() {
+        app.terminate()
+        app.launchArguments = ["-ui-testing", "-signed-out-ui-testing", "-reset-ui-testing"]
+        app.launch()
+        XCTAssertTrue(element("screen.signIn").waitForExistence(timeout: 8))
+        XCTAssertFalse(app.staticTexts["Northstar Studio"].exists)
+        XCTAssertFalse(app.tabBars.buttons["Activity"].exists)
+        XCTAssertTrue(app.textFields["auth.email"].exists)
+        XCTAssertFalse(app.buttons["auth.connect"].isEnabled)
+        saveScreenshot("Signed out without sample finances")
+        app.buttons["auth.exploreDemo"].tap()
+        XCTAssertTrue(element("screen.overview").waitForExistence(timeout: 4))
+        XCTAssertTrue(app.staticTexts["Northstar Studio"].exists)
+        app.buttons["workspace.settings"].tap()
+        let leave = app.buttons["Leave sample workspace"]
+        reveal(leave)
+        leave.tap()
+        XCTAssertTrue(element("screen.signIn").waitForExistence(timeout: 4))
+        XCTAssertFalse(app.staticTexts["Northstar Studio"].exists)
+    }
+
     func testTaxYearReviewAndFilingReadiness() {
         app.tabBars.buttons["Tax"].tap()
         XCTAssertTrue(element("screen.tax").waitForExistence(timeout: 5))

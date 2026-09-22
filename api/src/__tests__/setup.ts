@@ -11,6 +11,7 @@ type MockFn = ReturnType<typeof mock<(...args: any[]) => any>>;
 
 // Create reusable mock functions that tests can access
 export const mocks = {
+  getStatementAnalytics: mock(async (_db: unknown, _input: unknown): Promise<unknown> => ({})),
   beginIdempotentOperation: mock(() => ({
     state: "started",
     attemptCount: 1,
@@ -380,6 +381,12 @@ const dbQueriesMock = createModuleMock({
   getInvoiceProducts: mocks.getInvoiceProducts,
 
   // Compliance
+  getStatementAnalytics: mocks.getStatementAnalytics,
+  getBurnRate: mock(() => ({})),
+  getExpenses: mock(() => ({})),
+  getReports: mock(() => ({})),
+  getRunway: mock(() => ({})),
+  getSpending: mock(() => []),
   getFilingProfile: mocks.getFilingProfile,
   getVatDashboard: mocks.getVatDashboard,
   listVatSubmissions: mocks.listVatSubmissions,

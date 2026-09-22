@@ -30,6 +30,7 @@ struct OverviewView: View {
                 quickActions
                 attention
                 cashflowCard
+                if let report = store.statementAnalytics { StatementInsightsView(report: report) }
                 recentActivity
                 if let updated = store.lastRefreshed {
                     Text("Updated \(updated.formatted(date: .omitted, time: .shortened))")
@@ -67,7 +68,8 @@ struct OverviewView: View {
     private var balanceCard: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Balance").font(.subheadline).foregroundStyle(TamiasTheme.muted)
+                Text(displayedAccounts.contains(where: \.manual) ? "Recorded balance" : "Balance")
+                    .font(.subheadline).foregroundStyle(TamiasTheme.muted)
                 Spacer()
                 Text(store.currency).font(.caption).foregroundStyle(TamiasTheme.muted)
             }
@@ -78,6 +80,10 @@ struct OverviewView: View {
             if !balanceReadable {
                 Text("Balance unavailable").font(.caption).foregroundStyle(TamiasTheme.muted)
             }
+            if displayedAccounts.contains(where: \.manual) {
+                Text(displayedAccounts.count == 1 ? "\(displayedAccounts[0].name) · Imported balance" : "Includes imported or manually updated balances.")
+                    .font(.caption).foregroundStyle(TamiasTheme.muted)
+            }
             if !store.unconvertedAccountCurrencies.isEmpty {
                 Text("Excludes \(store.unconvertedAccountCurrencies.joined(separator: ", ")) accounts")
                     .font(.caption).foregroundStyle(TamiasTheme.muted)
@@ -85,9 +91,9 @@ struct OverviewView: View {
             Divider()
             Text("This month").font(.caption).foregroundStyle(TamiasTheme.muted)
             HStack(alignment: .top) {
-                balanceMetric("Income", amount: store.monthlyIncome, symbol: "arrow.down.left", positive: true)
+                balanceMetric("Money in", amount: store.monthlyIncome, symbol: "arrow.down.left", positive: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                balanceMetric("Expenses", amount: store.monthlyExpenses, symbol: "arrow.up.right", positive: false)
+                balanceMetric("Money out", amount: store.monthlyExpenses, symbol: "arrow.up.right", positive: false)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
         }.tamiasCard(padding: 20)
@@ -105,7 +111,7 @@ struct OverviewView: View {
                 .foregroundStyle(TamiasTheme.ink)
         }.contentShape(Rectangle()) }
         .buttonStyle(.plain)
-        .accessibilityLabel("View this month’s \(positive ? "income" : "expenses")")
+        .accessibilityLabel("View this month’s money \(positive ? "in" : "out")")
         .accessibilityIdentifier(positive ? "home.income" : "home.expenses")
     }
 
@@ -138,13 +144,13 @@ struct OverviewView: View {
                                 .padding(.horizontal, 9).padding(.vertical, 7)
                                 .background(period == range ? TamiasTheme.ink : .clear, in: RoundedRectangle(cornerRadius: 7))
                                 .foregroundStyle(period == range ? TamiasTheme.paper : TamiasTheme.muted)
-                        }.accessibilityLabel("Income and expenses \(range)").accessibilityAddTraits(period == range ? .isSelected : [])
+                        }.accessibilityLabel("Cash flow \(range)").accessibilityAddTraits(period == range ? .isSelected : [])
                     }
                 }
             }
             HStack(spacing: 18) {
-                legend("Income", color: TamiasTheme.green)
-                legend("Expenses", color: TamiasTheme.ink.opacity(0.15))
+                legend("Money in", color: TamiasTheme.green)
+                legend("Money out", color: TamiasTheme.ink.opacity(0.15))
                 Spacer()
                 if let point = selectedPoint {
                     Text(point.date.formatted(TamiasTheme.ledgerMonth)).font(.caption).foregroundStyle(TamiasTheme.muted)
@@ -154,10 +160,10 @@ struct OverviewView: View {
                 Text(store.isLoading ? "Loading reports…" : store.cashflowAvailable ? "No transactions yet." : "Couldn’t load cash flow.").font(.subheadline).foregroundStyle(TamiasTheme.muted).frame(height: 135)
             } else {
                 Chart(points) { point in
-                    BarMark(x: .value("Month", point.date, unit: .month), y: .value("Income", point.income))
-                        .foregroundStyle(TamiasTheme.green).position(by: .value("Type", "Income")).cornerRadius(3)
-                    BarMark(x: .value("Month", point.date, unit: .month), y: .value("Expenses", point.expense))
-                        .foregroundStyle(TamiasTheme.ink.opacity(0.14)).position(by: .value("Type", "Expenses")).cornerRadius(3)
+                    BarMark(x: .value("Month", point.date, unit: .month), y: .value("Money in", point.income))
+                        .foregroundStyle(TamiasTheme.green).position(by: .value("Type", "Money in")).cornerRadius(3)
+                    BarMark(x: .value("Month", point.date, unit: .month), y: .value("Money out", point.expense))
+                        .foregroundStyle(TamiasTheme.ink.opacity(0.14)).position(by: .value("Type", "Money out")).cornerRadius(3)
                 }
                 .chartLegend(.hidden)
                 .chartXAxis {
@@ -173,15 +179,17 @@ struct OverviewView: View {
                 .environment(\.calendar, TamiasDates.calendar)
                 .environment(\.timeZone, .gmt)
                 .frame(height: 157)
-                .accessibilityLabel("Monthly income and expenses in \(store.currency)")
+                .accessibilityLabel("Monthly money in and money out in \(store.currency)")
                 if let point = selectedPoint {
                     HStack {
-                        Text("\(TamiasTheme.money(point.income, currency: store.currency, decimals: false)) income").foregroundStyle(TamiasTheme.green)
+                        Text("\(TamiasTheme.money(point.income, currency: store.currency, decimals: false)) in").foregroundStyle(TamiasTheme.green)
                         Spacer()
-                        Text("\(TamiasTheme.money(point.expense, currency: store.currency, decimals: false)) expenses").foregroundStyle(TamiasTheme.muted)
+                        Text("\(TamiasTheme.money(point.expense, currency: store.currency, decimals: false)) out").foregroundStyle(TamiasTheme.muted)
                     }.font(.caption).monospacedDigit()
                 }
             }
+            Text("Includes transfers between accounts and personal payments.")
+                .font(.caption).foregroundStyle(TamiasTheme.muted)
         }.tamiasCard()
     }
 

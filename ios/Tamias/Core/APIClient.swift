@@ -119,7 +119,8 @@ struct TamiasAPIClient: Sendable {
     }
 
     func transactions(token: String, cursor: String? = nil, filters: TransactionFilters = .init()) async throws -> APIPage<TamiasTransaction> {
-        let page: APIPage<TransactionDTO> = try await request("transactions", token: token, query: pageQuery(cursor: cursor, pageSize: 100) + filters.queryItems)
+        // Match the web feed's page size; larger batches can exceed D1 lookup limits.
+        let page: APIPage<TransactionDTO> = try await request("transactions", token: token, query: pageQuery(cursor: cursor, pageSize: 40) + filters.queryItems)
         return APIPage(meta: page.meta, data: page.data.map(\.model))
     }
 
@@ -137,27 +138,15 @@ struct TamiasAPIClient: Sendable {
         try await request("customers", token: token, query: pageQuery(cursor: cursor, pageSize: 100) + (query.isEmpty ? [] : [URLQueryItem(name: "q", value: query)]))
     }
 
-    func cashflow(token: String, currency: String, now: Date = .now) async throws -> [CashflowPoint] {
-        let monthStart = TamiasDates.monthStart(now)
-        let from = TamiasDates.calendar.date(byAdding: .month, value: -11, to: monthStart)!
-        let query = [URLQueryItem(name: "from", value: TamiasDates.apiString(from)),
-                     URLQueryItem(name: "to", value: TamiasDates.apiString(now)),
+    func statementAnalytics(token: String, currency: String, now: Date = .now) async throws -> StatementAnalytics {
+        let query = [URLQueryItem(name: "to", value: TamiasDates.apiString(now)),
                      URLQueryItem(name: "currency", value: currency)]
-        async let revenue: RevenueDTO = request("reports/revenue", token: token, query: query)
-        async let expenses: ExpensesDTO = request("reports/expenses", token: token, query: query)
-        let (incomeReport, expenseReport) = try await (revenue, expenses)
-        guard incomeReport.summary.currency.caseInsensitiveCompare(currency) == .orderedSame,
-              expenseReport.summary.currency.caseInsensitiveCompare(currency) == .orderedSame else {
+        let report: StatementAnalytics = try await request("reports/statement", token: token, query: query)
+        guard report.currency.caseInsensitiveCompare(currency) == .orderedSame,
+              report.months.allSatisfy({ TamiasDates.parse($0.month + "-01") != nil }) else {
             throw TamiasAPIError.invalidData
         }
-        let incomes = Dictionary(grouping: incomeReport.result, by: { TamiasDates.monthStart($0.date) })
-        let costs = Dictionary(grouping: expenseReport.result, by: { TamiasDates.monthStart($0.date) })
-        return (0..<12).map { offset in
-            let date = TamiasDates.calendar.date(byAdding: .month, value: offset, to: from)!
-            return CashflowPoint(date: date,
-                                 income: incomes[date, default: []].reduce(0) { $0 + $1.current.value },
-                                 expense: costs[date, default: []].reduce(0) { $0 + abs($1.total) })
-        }
+        return report
     }
 
     func invoiceSummary(token: String) async throws -> InvoiceSummaryDTO {
@@ -331,22 +320,4 @@ struct InvoiceSummaryDTO: Codable, Sendable {
     let currency: String
     let totalAmount: Double
     let invoiceCount: Int
-}
-
-private struct RevenueDTO: Decodable {
-    struct Summary: Decodable { let currency: String }
-    struct Point: Decodable {
-        struct Value: Decodable { let value: Double }
-        let date: Date
-        let current: Value
-    }
-    let summary: Summary
-    let result: [Point]
-}
-
-private struct ExpensesDTO: Decodable {
-    struct Summary: Decodable { let currency: String }
-    struct Point: Decodable { let date: Date; let total: Double }
-    let summary: Summary
-    let result: [Point]
 }

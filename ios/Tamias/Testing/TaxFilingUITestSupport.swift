@@ -71,7 +71,7 @@ private final class TaxFilingFixtureProtocol: URLProtocol {
         switch path {
         case "/bank-accounts", "/transactions", "/invoices", "/inbox", "/customers", "/transaction-categories": return (200, emptyPage)
         case "/invoices/summary": return (200, ["currency": "GBP", "totalAmount": 0, "invoiceCount": 0])
-        case "/reports/revenue", "/reports/expenses": return (200, ["summary": ["currency": "GBP"], "result": []])
+        case "/reports/statement": return (200, ["currency": "GBP", "summary": ["count": 0, "moneyIn": 0, "moneyOut": 0, "spending": 0, "unconvertedCount": 0], "months": [], "categories": []])
         default: break
         }
         guard let json = ProcessInfo.processInfo.environment["TAMIAS_TAX_UI_FIXTURE"],

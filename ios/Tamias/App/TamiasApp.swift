@@ -4,6 +4,7 @@ import SwiftUI
 struct TamiasApp: App {
     @State private var store = makeStore()
     @AppStorage("tamias.appearance") private var appearance = "System"
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
         WindowGroup {
@@ -16,6 +17,11 @@ struct TamiasApp: App {
                     if TaxFilingUITestSupport.enabled { await TaxFilingUITestSupport.connect(store); return }
                     #endif
                     if store.isAuthenticated { await store.refresh() }
+                }
+                .onChange(of: scenePhase) { _, phase in
+                    if phase == .active && store.isAuthenticated {
+                        Task { await store.refresh() }
+                    }
                 }
         }
     }
@@ -44,6 +50,16 @@ struct TamiasRootView: View {
     @State private var invoiceFilter = "All"
 
     var body: some View {
+        Group {
+            if store.isAuthenticated || store.isDemo {
+                workspace
+            } else {
+                WorkspaceSignInView(store: store)
+            }
+        }
+    }
+
+    private var workspace: some View {
         TabView(selection: $tab) {
             Tab("Overview", systemImage: "square.grid.2x2", value: .overview) {
                 NavigationStack {
