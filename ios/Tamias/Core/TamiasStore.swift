@@ -58,7 +58,8 @@ final class TamiasStore {
     @ObservationIgnored private let credentials: any CredentialStorage
     @ObservationIgnored private let localRoot: URL
     @ObservationIgnored private let uiTesting: Bool
-    @ObservationIgnored private var credential: SessionCredential?
+    // The root view observes isAuthenticated, including session changes after sign-in and sign-out.
+    private var credential: SessionCredential?
     @ObservationIgnored private var generation = UUID()
     @ObservationIgnored private var transactionsCursor: String?
     @ObservationIgnored private var invoicesCursor: String?

@@ -9,8 +9,13 @@ import Foundation
         return arguments.contains("-ui-testing") && arguments.contains("-tax-filing-ui-testing")
     }
 
+    private static var signInEnabled: Bool {
+        let arguments = ProcessInfo.processInfo.arguments
+        return arguments.contains("-ui-testing") && arguments.contains("-sign-in-ui-testing")
+    }
+
     static func makeStore() -> TamiasStore {
-        guard enabled else { return TamiasStore() }
+        guard enabled || signInEnabled else { return TamiasStore() }
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [TaxFilingFixtureProtocol.self]
         configuration.urlCache = nil
@@ -57,11 +62,18 @@ private final class TaxFilingFixtureProtocol: URLProtocol {
 
     private static func respond(_ request: URLRequest) throws -> (Int, Any) {
         lock.lock(); defer { lock.unlock() }
-        guard request.url?.scheme == "https", request.url?.host == "tax-filing-ui.invalid",
-              request.value(forHTTPHeaderField: "Authorization") == "Bearer synthetic-ui-token" else {
+        guard request.url?.scheme == "https", request.url?.host == "tax-filing-ui.invalid" else {
             throw URLError(.unsupportedURL)
         }
         let path = request.url!.path
+        if path == "/auth", ProcessInfo.processInfo.arguments.contains("-sign-in-ui-testing") {
+            let body = try request.fixtureBody()
+            let params = (body["args"] as? [String: Any])?["params"] as? [String: Any]
+            guard params?["email"] as? String == "example@example.test",
+                  params?["password"] as? String == "fixture-password" else { return (400, [:]) }
+            return (200, ["tokens": ["token": "synthetic-ui-token"]])
+        }
+        guard request.value(forHTTPHeaderField: "Authorization") == "Bearer synthetic-ui-token" else { return (401, [:]) }
         if path == "/users/me" {
             return (200, ["id": "tax-ui-user", "fullName": "Example Taxpayer", "email": "example@example.test",
                           "team": ["id": "tax-ui-team", "name": "Synthetic filing test"]])

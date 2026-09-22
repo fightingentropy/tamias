@@ -45,6 +45,50 @@ final class TamiasUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["Northstar Studio"].exists)
     }
 
+    func testSignInOpensWorkspaceAndSignOutReturnsToSignIn() {
+        addUIInterruptionMonitor(withDescription: "Decline saving the fictional test password") { prompt in
+            let notNow = prompt.buttons["Not Now"]
+            guard notNow.exists else { return false }
+            notNow.tap()
+            return true
+        }
+        app.terminate()
+        app.launchArguments = ["-ui-testing", "-signed-out-ui-testing", "-sign-in-ui-testing", "-reset-ui-testing"]
+        app.launch()
+        XCTAssertTrue(element("screen.signIn").waitForExistence(timeout: 8))
+        app.textFields["auth.email"].tap()
+        app.textFields["auth.email"].typeText("example@example.test")
+        app.secureTextFields["auth.password"].tap()
+        app.secureTextFields["auth.password"].typeText("fixture-password")
+        let connect = app.buttons["auth.connect"]
+        reveal(connect)
+        XCTAssertTrue(connect.isEnabled)
+        connect.tap()
+        XCTAssertTrue(element("screen.overview").waitForExistence(timeout: 10), "Successful sign-in must leave the form without restarting the app")
+        XCTAssertTrue(app.staticTexts["Synthetic filing test"].exists)
+        XCTAssertFalse(element("screen.signIn").exists)
+        // iOS may offer to save the fictional password after a successful login.
+        let passwordUI = XCUIApplication(bundleIdentifier: "com.apple.SafariViewService")
+        let notNow = passwordUI.buttons["Not Now"]
+        if notNow.waitForExistence(timeout: 3) {
+            notNow.tap()
+            XCTAssertTrue(notNow.waitForNonExistence(timeout: 5))
+        }
+        saveScreenshot("Authenticated workspace after signing in")
+        let settings = app.buttons["workspace.settings"]
+        let ready = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isHittable == true"), object: settings)
+        XCTAssertEqual(XCTWaiter.wait(for: [ready], timeout: 5), .completed)
+        settings.tap()
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5), app.debugDescription)
+        saveScreenshot("Settings after signing in")
+        let signOut = app.buttons["Sign out"]
+        XCTAssertTrue(signOut.waitForExistence(timeout: 3), app.debugDescription)
+        reveal(signOut)
+        signOut.tap()
+        XCTAssertTrue(element("screen.signIn").waitForExistence(timeout: 5))
+        XCTAssertFalse(app.tabBars.buttons["Activity"].exists)
+    }
+
     func testTaxYearReviewAndFilingReadiness() {
         app.tabBars.buttons["Tax"].tap()
         XCTAssertTrue(element("screen.tax").waitForExistence(timeout: 5))

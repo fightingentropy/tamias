@@ -10,6 +10,18 @@ The app has no tracking or app analytics. `UserDefaults` is used only for this a
 
 ## Open and build
 
+Version 1.2.2 (6) fixes successful sign-in leaving the sign-in form on screen.
+The session credential now participates in Observation, so the root view updates
+on both sign-in and sign-out even when the sample workspace is not selected.
+An observation regression test and a fixture-backed form test reproduced the
+original failure before the fix.
+
+Validation: 57 native unit tests and three targeted UI workflows passed
+(successful sign-in/sign-out, sign-in/sample isolation, and tax scope blocking).
+The signed Release app was installed and reopened on the paired iPhone on
+22 September 2026. Its protected workspace snapshot refreshed from the production
+API, and the user confirmed that Overview shows their Revolut data in Device Hub.
+
 Version 1.2.1 (5) opens at sign-in, with sample data available only through an
 explicit choice. Connected workspaces use the same statement analytics as the
 web app for money in/out, history coverage and spending categories. Transaction
@@ -86,7 +98,7 @@ SIMULATOR_ID=<simulator-udid> ./scripts/xcode.sh test
 ./scripts/xcode.sh device-build
 ```
 
-UI tests launch an isolated sample workspace with `-ui-testing`; `-reset-ui-testing` clears only that test workspace, and `-signed-out-ui-testing` exercises first-launch sign-in. UI workflows cover navigation and settings, Home drilldowns, activity search and detail, invoice validation/editing/persistence/PDF preview, direct scanner cancellation on iPhone and the simulator fallback, dark appearance and Inbox imports, original receipt persistence, accepting on-device OCR suggestions, and the real system share extension followed by explicit workspace review. Receipt tests use a fictional fixture through the actual Photos picker. Screenshots are attached to the Xcode test result. Unit tests cover the API and workspace boundaries, statement history and currencies, invoice totals, receipt parsing and Vision recognition, and shared-file integrity and deduplication. Automated tests use contract fixtures; separate authenticated production reads were verified on 22 September 2026. These checks do not prove physical camera capture.
+UI tests launch an isolated sample workspace with `-ui-testing`; `-reset-ui-testing` clears only that test workspace, and `-signed-out-ui-testing` exercises first-launch sign-in. Adding `-sign-in-ui-testing` uses the real form and API client with fictional credentials and an isolated in-memory service, available only in Debug simulator builds. UI workflows cover sign-in/sign-out, navigation and settings, Home drilldowns, activity search and detail, invoice validation/editing/persistence/PDF preview, direct scanner cancellation on iPhone and the simulator fallback, dark appearance and Inbox imports, original receipt persistence, accepting on-device OCR suggestions, and the real system share extension followed by explicit workspace review. Receipt tests use a fictional fixture through the actual Photos picker. Screenshots are attached to the Xcode test result. Unit tests cover the API and workspace boundaries, statement history and currencies, invoice totals, receipt parsing and Vision recognition, and shared-file integrity and deduplication. Automated tests use contract fixtures; separate authenticated production reads were verified on 22 September 2026. These checks do not prove physical camera capture.
 
 Version 1.1.1 (3) validation on 8 September 2026: all 47 unit tests passed, and the final run passed all nine UI workflows. The scan entry now opens VisionKit automatically and cancellation returns to the prior screen. Simulator runtimes that advertise camera support but cannot capture documents use the Photos/Files fallback. Screenshot review confirmed black backgrounds, neutral surfaces, compact receipt review and simplified main screens in both appearances. The signed arm64 Release app and share extension passed strict signature and App Group checks; the paired iPhone inventory confirms version 1.1.1, build 3. The phone remained locked, so the physical scanner launch/cancel test is prepared but not yet run. Local evidence is in the ignored `artifacts/minimal-ui-20260908/` directory, including `Tamias-Minimal-UI.xcresult`, `signed-build.json`, `installed-app.json` and the selected PNGs. The first run's unit suite passed; its simulator-camera failure was fixed before the successful final UI run.
 

@@ -1,4 +1,5 @@
 import Foundation
+import Observation
 import XCTest
 @testable import Tamias
 
@@ -212,6 +213,28 @@ final class TamiasCoreTests: XCTestCase {
         XCTAssertFalse(store.isDemo)
         XCTAssertTrue(store.transactions.isEmpty)
         XCTAssertTrue(store.accounts.isEmpty)
+    }
+
+    func testSignedOutAuthenticationNotifiesWorkspaceRootOnSignInAndSignOut() async throws {
+        let api = makeAPI { request in
+            if request.url?.path == "/auth" {
+                return (200, Data(#"{"tokens":{"token":"fixture-token","refreshToken":null}}"#.utf8))
+            }
+            return try Self.workspaceResponse(request)
+        }
+        let store = TamiasStore(api: api, credentials: MemoryCredentials(nil), localStorageRoot: try temporaryRoot())
+        XCTAssertFalse(store.isDemo)
+        let signedIn = expectation(description: "Root observes sign-in")
+        withObservationTracking { _ = store.isAuthenticated } onChange: { signedIn.fulfill() }
+        try await store.signIn(email: "example@example.test", password: "fixture-password")
+        XCTAssertTrue(store.isAuthenticated)
+        await fulfillment(of: [signedIn], timeout: 1)
+
+        let signedOut = expectation(description: "Root observes sign-out")
+        withObservationTracking { _ = store.isAuthenticated } onChange: { signedOut.fulfill() }
+        store.signOut()
+        XCTAssertFalse(store.isAuthenticated)
+        await fulfillment(of: [signedOut], timeout: 1)
     }
 
     func testOneDeniedResourceDoesNotHideSuccessfullyLoadedData() async throws {
